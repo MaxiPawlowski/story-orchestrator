@@ -34,6 +34,38 @@ backend"; with more, long chats get the 400 instead of a reply, and Story Orches
 generation); SillyTavern counts tokens through them, and queued counts used to hold the browser's six connections to
 SillyTavern and delay the player's own line by seconds (v2.8 31 F19).
 
+## Speculative decoding, prompt cache and prompt reuse
+
+Optional `config.json` keys, all read by `broker/backend.mjs` `nativeArgs` (plan v3.0 06):
+
+- `speculative: { model, type, nMax, estimatedGpuMiB, enabled }` adds `--model-draft <model> --spec-type <type>
+  --spec-draft-n-max <nMax>` (defaults `draft-mtp`, 2, 900). `estimatedGpuMiB` is added to the profile's
+  `estimatedGpuMiB` in the load admission; `--fit` sizes the drafter itself. `/status` reports `text.speculative`
+  (`draft-mtp2`) and learned timings are keyed `<profile>+draft-mtp2:<fit>`, apart from timings without the drafter.
+  On the 3090 (Artemis Q4_K_M + `mtp-Artemis-31B-v1m-Q8_0.gguf`): decode +28-39 % chat, +58 % side, acceptance
+  0.56-0.59, prefill -6 %, about 0.85 GiB VRAM, so free VRAM after load drops from ~2.9 to ~2.0 GiB: below
+  `streamImages.minFreeGpuMiB` (2400), images swap the text out instead of streaming beside it.
+- `cacheRamMiB` (default 512) is `--cache-ram`; `ctxCheckpoints` (default unset, llama.cpp 32) is `--ctx-checkpoints`.
+- `promptReuse: { enabled, minChars, minPrefixChars, minTailChars, history, parkWhenIdle }` (off unless `enabled`).
+  Gemma 4 keeps 50 of 60 layers as sliding-window attention, so llama-server can resume a shared prompt prefix only
+  from a context checkpoint, and it takes checkpoints only 4 and 516 tokens before the end of a prompt (a checkpoint
+  restores when its first position is more than 1024 tokens, the window, before the shared prefix ends). For a
+  `/completion` prompt of at least `minChars` (16000) the gateway finds the longest common prefix with its last
+  `history` (16) prompts, cuts it at a line break and, when that leaves at least `minPrefixChars` (8000) before and
+  `minTailChars` (1200) after, first sends that prefix alone (`n_predict: 0`): the server checkpoints exactly where
+  the next turn will diverge. When no request is waiting it then sends a short park prompt, so the finished prompt's
+  state is saved to the RAM prompt cache in idle time, not on the next request's clock. Use with `cacheRamMiB` 6144
+  and `ctxCheckpoints` 3 (three checkpoints keep the boundary one through the reply's own two). It only pays off when
+  consecutive chat prompts share their start, which needs the stable prompt head below; with per-speaker heads it costs
+  ~0.3-0.5 s per chat reply and the cache's RAM for nothing. `/status` reports `promptReuse` counts.
+
+`node scripts/local/stable-head.mjs plan|apply|revert --data <ST user data dir> --group <id>[,<id>] [--backup <dir>]`
+moves the system prompt's `{{char}}` sentences to its post-history instruction (a new `... (stable head)` system-prompt
+preset, selected) and sets the named groups to "Join character cards (exclude muted)", so every member's prompt starts
+the same. `apply` backs the files up to `C:/dev/backups/story-orchestrator/stable-head-<time>/` (with a manifest that
+`revert --backup` restores). Run it with that SillyTavern stopped; it is the owner's data, so it is only run on a lane
+copy unless the owner asks.
+
 ## Memory and wait policy
 
 - `reserves.gpuMiB` / `ramMiB`: fixed desktop headroom (2048/4096 on this install). Admission checks fresh GPU,
@@ -74,7 +106,7 @@ SillyTavern and delay the player's own line by seconds (v2.8 31 F19).
 - When reclamation is needed, image release observes RAM eviction as well as GPU release. A loader that cannot offload while cached escalates to
   cache eviction. NVML must return to the lease baseline (512 MiB tolerance), including native allocations outside torch.
 - `modelLoadMode`: optional native loading-mode comparison; overrides the profile's `--load-mode`. Leave unset on
-  this 32 GiB host: the measured `mmap` arm violated the physical RAM floor. `--cache-ram 512` is a prompt-state cache,
+  this 32 GiB host: the measured `mmap` arm violated the physical RAM floor. `--cache-ram` (`cacheRamMiB`, default 512) is a prompt-state cache,
   not a model-weight hot store. Dense weight/layer placement is fixed at native startup; shedding restarts the backend.
 
 `/status` names the resident/desired profile, fit target, load count/cost, objective, learned timings and image cache

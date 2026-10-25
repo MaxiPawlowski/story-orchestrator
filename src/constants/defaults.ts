@@ -22,7 +22,7 @@ export const COPILOT_NUDGE_KEY = INJECTION_REGISTRY.copilotNudge.key;
 export const SHORT_TERM_COMPACTION_MESSAGES = 12;
 
 export const AUTHOR_NOTE_DEFAULT_INTERVAL = 1;
-export const AUTHOR_NOTE_DEFAULT_DEPTH = 4;
+export const AUTHOR_NOTE_DEFAULT_DEPTH = 0;
 export const AUTHOR_NOTE_DISABLED_FREQUENCY = 0;
 export const AUTHOR_NOTE_DEFAULT_POSITION = "chat" as const;
 export const AUTHOR_NOTE_DEFAULT_ROLE = "system" as const;

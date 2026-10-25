@@ -4,6 +4,7 @@ import { spawn, execFileSync } from 'node:child_process';
 import os from 'node:os';
 import path from 'node:path';
 import { nativeArgs } from '../../server-plugin/story-orchestrator-gpu/broker/backend.mjs';
+import { PromptReuse, promptReuseOptions } from '../../server-plugin/story-orchestrator-gpu/broker/promptReuse.mjs';
 
 const argv = process.argv.slice(2);
 const command = argv[0] ?? 'help';
@@ -37,6 +38,12 @@ const MODIFIERS = {
     nocis: (a) => [...a, '--no-cache-idle-slots'],
     cram8192: (a) => setFlag(a, '--cache-ram', 8192),
     kvq4v: (a) => setFlag(a, '--cache-type-v', 'q4_0'),
+    ckpt3: (a) => [...a, '--ctx-checkpoints', '3'],
+    ckpt4: (a) => [...a, '--ctx-checkpoints', '4'],
+    reuse: (a) => a,
+    config: (a) => a,
+    nopark: (a) => a,
+    cram0: (a) => setFlag(a, '--cache-ram', 0),
     ctx64k: (a) => setFlag(setFlag(a, '--ctx-size', 65536), '--fit-ctx', 65536),
 };
 const DEFAULT_ARMS = ['base', 'cram6144', 'par2pin', 'par2', 'mtp3', 'mtp2', 'mtp4', 'cms2048', 'cram4096', 'kvq4v', 'base'];
@@ -44,7 +51,9 @@ const DEFAULT_ARMS = ['base', 'cram6144', 'par2pin', 'par2', 'mtp3', 'mtp2', 'mt
 const loadConfig = async () => JSON.parse(await fs.readFile(configFile, 'utf8'));
 const armArgs = (config, arm) => {
     const profile = config.profiles[config.defaultProfile];
-    let args = nativeArgs({ ...config, backendPort: port }, profile, config.reserves.gpuMiB);
+    const controller = arm.split('+').includes('config');
+    const tuned = controller ? config : { ...config, speculative: undefined, cacheRamMiB: undefined, ctxCheckpoints: undefined };
+    let args = nativeArgs({ ...tuned, backendPort: port }, profile, config.reserves.gpuMiB);
     for (const part of arm.split('+')) {
         if (!MODIFIERS[part]) throw new Error(`Unknown arm part ${part}; known: ${Object.keys(MODIFIERS).join(', ')}`);
         args = MODIFIERS[part]([...args]);
@@ -52,6 +61,7 @@ const armArgs = (config, arm) => {
     return args;
 };
 const pinned = (arm) => arm.split('+').includes('par2pin');
+const reusing = (arm, config) => arm.split('+').includes('reuse') || (arm.split('+').includes('config') && Boolean(promptReuseOptions(config)));
 
 const listening = async (p) => { try { await fetch(`http://127.0.0.1:${p}/health`, { signal: AbortSignal.timeout(1500) }); return true; } catch { return false; } };
 const gpuQuery = (fields) => execFileSync('nvidia-smi', [`--query-gpu=${fields}`, '--format=csv,noheader,nounits'], { encoding: 'utf8' }).trim().split(',').map((value) => value.trim());
@@ -146,9 +156,33 @@ async function complete(body) {
         cached: last?.tokens_cached, evaluated: last?.tokens_evaluated, reused: Number.isFinite(last?.tokens_evaluated) && Number.isFinite(t.prompt_n) ? last.tokens_evaluated - t.prompt_n : null, draftN: t.draft_n ?? null, draftAccepted: t.draft_n_accepted ?? null };
 }
 
+async function post(body) {
+    const began = performance.now();
+    const response = await fetch(`http://127.0.0.1:${port}/completion`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body), signal: AbortSignal.timeout(600000) });
+    const data = await response.json();
+    if (!response.ok) throw new Error(`completion ${response.status}: ${JSON.stringify(data).slice(0, 300)}`);
+    return { ms: Math.round(performance.now() - began), promptN: data.timings?.prompt_n, evaluated: data.tokens_evaluated };
+}
+
+async function completeWithReuse(reuse, item, budget, slot) {
+    const began = performance.now();
+    const body = requestBody(item, budget, slot);
+    const steps = [];
+    const prefill = reuse.prefill(body);
+    if (prefill) steps.push({ kind: 'prefill', ...(await post(slot === null ? prefill : { ...prefill, id_slot: slot })) });
+    const startedAt = performance.now();
+    const result = await complete(body);
+    const firstTokenAt = result.ttftMs === null ? null : startedAt + result.ttftMs;
+    const totalMs = Math.round(performance.now() - began);
+    const park = reuse.park(true);
+    if (park) steps.push({ kind: 'park', ...(await post(park)) });
+    return { ...result, ttftMs: firstTokenAt === null ? null : Math.round(firstTokenAt - began), totalMs, parkMs: steps.find((step) => step.kind === 'park')?.ms ?? 0,
+        prefillPromptN: steps.find((step) => step.kind === 'prefill')?.promptN ?? null, steps };
+}
+
 function serverCounts(log) {
     return { lru: (log.match(/selected slot by LRU/g) ?? []).length, lcp: (log.match(/selected slot by LCP similarity/g) ?? []).length,
-        exceed: (log.match(/exceeds cache size limit/g) ?? []).length, cacheEvict: (log.match(/making room for prompt cache entry/g) ?? []).length,
+        exceed: (log.match(/exceeds cache size limit/g) ?? []).length, restored: (log.match(/restored context checkpoint/g) ?? []).length, forced: (log.match(/forcing full prompt re-processing/g) ?? []).length, cacheEvict: (log.match(/making room for prompt cache entry/g) ?? []).length,
         swaKv: log.match(/SWA KV cache, size = (\d+) cells/)?.[1] ?? null, ctxSlot: log.match(/n_ctx_slot = (\d+)/)?.[1] ?? null,
         kvBuffers: [...log.matchAll(/CUDA0 KV buffer size =\s+([\d.]+) MiB/g)].map((m) => Number(m[1])),
         draftLoaded: /draft/i.test(log.match(/load_model[^\n]*draft[^\n]*/)?.[0] ?? '') };
@@ -158,6 +192,7 @@ async function runArm(config, corpus, arm, dir, telemetry) {
     const baseline = gpuQuery('memory.free')[0];
     const server = await startServer(config, arm, dir);
     const rows = [];
+    const reuse = reusing(arm, config) ? new PromptReuse({ ...promptReuseOptions(config), parkWhenIdle: !arm.split('+').includes('nopark') }) : null;
     try {
         await sleep(1500);
         const afterLoad = { gpuFreeMiB: Number(gpuQuery('memory.free')[0]), ramAvailMiB: Math.round(os.freemem() / 1048576) };
@@ -171,7 +206,7 @@ async function runArm(config, corpus, arm, dir, telemetry) {
             const slot = pinned(arm) ? (item.kind === 'chat' || item.kind === 'swipe' || item.kind === 'long' ? 0 : 1) : null;
             const budget = item.kind === 'chat' ? chatCap : item.kind === 'long' || item.kind === 'swipe' ? 32 : sideCap;
             telemetry.tag = `${arm}:${item.index}`;
-            const result = await complete(requestBody(item, budget, slot));
+            const result = reuse ? await completeWithReuse(reuse, item, budget, slot) : await complete(requestBody(item, budget, slot));
             await sleep(250);
             const { text, ...kept } = result;
             rows.push({ arm, index: item.index, kind: item.kind, role: item.role ?? item.kind, promptChars: item.body.prompt.length, ...kept, outputChars: text.length, ...telemetry.window(`${arm}:${item.index}`) });
@@ -289,6 +324,48 @@ async function buildCorpus() {
     console.log(JSON.stringify({ out, items: items.length, roles: items.map((item) => item.role[0]).join(''), chatChars: items.filter((item) => item.kind === 'chat').map((item) => item.body.prompt.length), longChars: long.body.prompt.length }));
 }
 
+const TURN = /<\|turn>(\w+)\n[\s\S]*?<turn\|>\n/g;
+const commonSuffix = (texts) => { let n = 0; while (texts.every((text) => text.length > n && text[text.length - 1 - n] === texts[0][texts[0].length - 1 - n])) n += 1; return n; };
+const splitHead = (prompt) => {
+    const end = prompt.indexOf('<turn|>\n') + '<turn|>\n'.length;
+    const head = prompt.slice(0, end);
+    const at = head.indexOf('Impersonate ');
+    const lineEnd = head.indexOf('\n', at) + 1;
+    return { end, before: head.slice(0, at), line: head.slice(at, lineEnd), card: head.slice(lineEnd, head.length - '<turn|>\n'.length) };
+};
+function relayout(prompt, mode, cards) {
+    let out = prompt;
+    let impersonate = '';
+    if (mode.includes('joined')) {
+        const { end, before, line } = splitHead(prompt);
+        impersonate = line.trim();
+        out = `${before}${cards}<turn|>\n${prompt.slice(end)}`;
+    }
+    if (mode.includes('late') || impersonate) {
+        const genAt = out.lastIndexOf('<|turn>model\n');
+        const body = out.slice(0, genAt);
+        const firstChat = body.search(/<\|turn>(model|user)\n/);
+        const moved = [];
+        const kept = mode.includes('late') ? body.slice(firstChat).replace(TURN, (turn, role) => { if (role === 'system') { moved.push(turn); return ''; } return turn; }) : body.slice(firstChat);
+        const late = impersonate ? [...moved, `<|turn>system\n${impersonate}<turn|>\n`] : moved;
+        out = `${body.slice(0, firstChat)}${kept}${late.join('')}${out.slice(genAt)}`;
+    }
+    return out;
+}
+
+async function layoutCorpus() {
+    const mode = option('mode', 'joined-late');
+    const source = JSON.parse(await fs.readFile(option('corpus', path.join(outRoot, 'corpus.json')), 'utf8'));
+    const chats = [...source.items.filter((item) => item.kind === 'chat'), source.long];
+    const heads = [...new Map(chats.map((item) => { const head = splitHead(item.body.prompt); return [head.line.split(' ')[1], head.card]; })).entries()].sort(([a], [b]) => a.localeCompare(b));
+    const tail = commonSuffix(heads.map(([, card]) => card));
+    const cards = `${heads.map(([, card]) => card.slice(0, card.length - tail)).join('')}${heads[0][1].slice(heads[0][1].length - tail)}`;
+    const convert = (item) => (item.kind === 'chat' ? { ...item, body: { ...item.body, prompt: relayout(item.body.prompt, mode, cards) } } : item);
+    const out = option('out-corpus', path.join(outRoot, `corpus-${mode}.json`));
+    await fs.writeFile(out, JSON.stringify({ ...source, layout: mode, items: source.items.map(convert), long: convert({ ...source.long, kind: 'chat' }) }, null, 1));
+    console.log(JSON.stringify({ out, mode, members: heads.length, cardsChars: cards.length }));
+}
+
 async function imageBench() {
     const config = await loadConfig();
     for (const p of [comfyBenchPort]) if (RESERVED.includes(p)) throw new Error(`Port ${p} is reserved.`);
@@ -326,7 +403,7 @@ async function imageBench() {
         const warmup = Number(option('warmup', 2)); const timed = Number(option('runs', 6));
         const runs = [];
         for (let i = 0; i < warmup + timed; i += 1) {
-            const graph = buildGraph({ checkpoint, family, loras: [], positive: 'an empty old stone hall, fireplace, warm light, detailed architecture, no people', negative: 'text, watermark, low quality', size: family.sizes.wide, seed, hires: false });
+            const graph = buildGraph({ checkpoint, family, loras: [], positive: 'an empty old stone hall, fireplace, warm light, detailed architecture, no people', negative: 'text, watermark, low quality', size: family.sizes.wide, seed: seed + i, hires: false });
             telemetry.tag = `image:${i}`;
             const t0 = Date.now();
             const queued = await (await fetch(`${base}/prompt`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ prompt: graph }) })).json();
@@ -341,6 +418,7 @@ async function imageBench() {
         }
         const log = await fs.readFile(logFile, 'utf8');
         const timedRuns = runs.filter((run) => !run.warmup);
+        if (timedRuns.some((run) => Number.isFinite(run.execMs) && run.execMs < 1000)) throw new Error('A timed render finished in under a second: ComfyUI served it from its cache, so the run measured nothing.');
         const summary = { at: new Date().toISOString(), gpu: gpuInfo(), comfyArgs, checkpoint: checkpoint.file, size: family.sizes.wide, steps: family.defaults?.steps ?? null, seed,
             attention: log.match(/Using [^\n]*attention[^\n]*/i)?.[0] ?? null, precision: log.match(/(model weight dtype|VAE dtype|Set vram state|dtype)[^\n]*/gi)?.slice(0, 6) ?? [], device: stats.devices?.[0]?.name ?? null,
             medianExecMs: median(timedRuns.map((run) => run.execMs)), medianWallMs: median(timedRuns.map((run) => run.wallMs)), runs };
@@ -350,7 +428,7 @@ async function imageBench() {
     } finally { telemetry.stop(); killTree(child.pid); await sleep(3000); }
 }
 
-const commands = { corpus: buildCorpus, text: textBench, image: imageBench, all: async () => { await textBench(); await imageBench(); } };
+const commands = { corpus: buildCorpus, layout: layoutCorpus, text: textBench, image: imageBench, all: async () => { await textBench(); await imageBench(); } };
 if (!commands[command]) {
     console.log('Usage: node scripts/local/bench-controller.mjs corpus --from <payloads.jsonl> | text [--arms a,b+c] | image | all  [--out dir] [--port 18890] [--comfy-port 18288]');
     console.log(`Arms: ${Object.keys(MODIFIERS).join(', ')} (combine with +). Default: ${DEFAULT_ARMS.join(',')}`);

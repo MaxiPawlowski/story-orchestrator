@@ -64,3 +64,50 @@ test('a request the served context cannot hold is a 400 exceed_context_size_erro
         assert.equal(body.error.n_prompt_tokens, 32448);
     } finally { await gateway.close(); }
 });
+
+test('with prompt reuse on, a long completion is preceded by a prefill to the shared boundary and followed by a park when idle', async () => {
+    const arbiter = fakeArbiter({ pid: 7, loading: false, profile: 'fast' });
+    arbiter.scheduler.pending = [];
+    const calls = [];
+    const fetchImpl = async (url, init) => {
+        const body = JSON.parse(init.body);
+        calls.push({ url, prompt: body.prompt, n_predict: body.n_predict });
+        return new Response(JSON.stringify({ content: 'ok' }), { headers: { 'content-type': 'application/json' } });
+    };
+    const gateway = createGateway({ arbiter, config: { modelAlias: 'm', defaultProfile: 'fast', promptReuse: { enabled: true, minChars: 100, minPrefixChars: 50, minTailChars: 10 } }, fetchImpl });
+    const { port } = await gateway.listen(0);
+    const send = async (prompt) => {
+        const pending = fetch(`http://127.0.0.1:${port}/completion`, { method: 'POST', body: JSON.stringify({ prompt, n_predict: 8 }) });
+        while (!arbiter.queued.length) await new Promise((resolve) => setTimeout(resolve, 5));
+        arbiter.queued.shift()();
+        assert.equal((await pending).status, 200);
+    };
+    const history = 'line of history\n'.repeat(10);
+    try {
+        await send(`${history}tail one that is long enough`);
+        await send(`${history}reply\ntail two that is long enough`);
+        await new Promise((resolve) => setTimeout(resolve, 20));
+        assert.deepEqual(calls.map((call) => [call.n_predict, call.prompt.startsWith('Idle.') ? 'park' : call.prompt.length]), [
+            [8, history.length + 'tail one that is long enough'.length], [0, 'park'],
+            [0, history.length], [8, history.length + 'reply\ntail two that is long enough'.length], [0, 'park']]);
+        assert.equal(gateway.promptReuse.status().prefills, 1);
+    } finally { await gateway.close(); }
+});
+
+test('prompt reuse stays off by default and skips the park while requests are queued', async () => {
+    const arbiter = fakeArbiter({ pid: 7, loading: false, profile: 'fast' });
+    const calls = [];
+    const fetchImpl = async (url, init) => { calls.push(JSON.parse(init.body)); return new Response('{}', { headers: { 'content-type': 'application/json' } }); };
+    const off = createGateway({ arbiter, config: { modelAlias: 'm' }, fetchImpl });
+    assert.equal(off.promptReuse, null);
+    arbiter.scheduler.pending = [{}];
+    const on = createGateway({ arbiter, config: { modelAlias: 'm', promptReuse: { enabled: true, minChars: 1 } }, fetchImpl });
+    const { port } = await on.listen(0);
+    try {
+        const pending = fetch(`http://127.0.0.1:${port}/completion`, { method: 'POST', body: JSON.stringify({ prompt: 'x', n_predict: 4 }) });
+        while (!arbiter.queued.length) await new Promise((resolve) => setTimeout(resolve, 5));
+        arbiter.queued.shift()();
+        await pending;
+        assert.deepEqual(calls.map((call) => call.prompt), ['x']);
+    } finally { await on.close(); }
+});

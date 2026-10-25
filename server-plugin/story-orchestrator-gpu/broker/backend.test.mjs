@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { ContextRefusal, NativeBackend, nativeArgs, profileContext } from './backend.mjs';
+import { ContextRefusal, NativeBackend, nativeArgs, profileContext, profileGpuMiB } from './backend.mjs';
 import { withControllerDefaults } from './controllerStatus.mjs';
 import { EventEmitter } from 'node:events';
 import { mkdtemp, rm } from 'node:fs/promises';
@@ -188,4 +188,23 @@ test('host RAM reserve misses and fixed layer profiles refuse without a GPU refi
         assert.equal(backend.status().pid, null);
         assert.equal(backend.status().lastFitCorrection, null);
     }
+});
+
+test('a configured MTP drafter adds the draft flags, its VRAM estimate and its status; off by default', () => {
+    const base = nativeArgs({ ...config, backendPort: 1, model: 'm', modelAlias: 'a' }, config.profiles.fast);
+    assert.equal(base.includes('--model-draft'), false);
+    assert.equal(base[base.indexOf('--cache-ram') + 1], '512');
+    assert.equal(base.includes('--ctx-checkpoints'), false);
+    const spec = { ...config, backendPort: 1, model: 'm', modelAlias: 'a', speculative: { model: 'C:/m/mtp.gguf' }, cacheRamMiB: 6144, ctxCheckpoints: 3 };
+    const args = nativeArgs(spec, config.profiles.fast);
+    assert.deepEqual(args.slice(args.indexOf('--model-draft'), args.indexOf('--model-draft') + 6), ['--model-draft', 'C:/m/mtp.gguf', '--spec-type', 'draft-mtp', '--spec-draft-n-max', '2']);
+    assert.equal(args[args.indexOf('--cache-ram') + 1], '6144');
+    assert.equal(args[args.indexOf('--ctx-checkpoints') + 1], '3');
+    assert.ok(args.indexOf('--model-draft') < args.indexOf('--fit'));
+    assert.equal(profileGpuMiB(spec, { estimatedGpuMiB: 20500 }), 21400);
+    assert.equal(profileGpuMiB({ ...spec, speculative: { ...spec.speculative, enabled: false } }, { estimatedGpuMiB: 20500 }), 20500);
+    assert.equal(new NativeBackend(spec).status().speculative, 'draft-mtp2');
+    assert.equal(new NativeBackend(config).status().speculative, null);
+    assert.throws(() => nativeArgs({ ...spec, speculative: { nMax: 2 } }, config.profiles.fast), /speculative.model/);
+    assert.throws(() => nativeArgs({ ...spec, speculative: { model: 'x', nMax: 0 } }, config.profiles.fast), /nMax/);
 });
