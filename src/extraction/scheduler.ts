@@ -3,7 +3,7 @@ import type { EngineState, NormalizedStory, NormalizedTransition } from "@engine
 import type { ParsedArcSignal, ParsedEpistemicSignal, ParsedLedgerSignal, ParsedMemoryLine } from "@memory/index";
 import type { ExtraGateSource, TypedJudge } from "./types";
 import type { ScopeSourceContext } from "./scopeSources";
-import { getChatWindow } from "./chatWindow";
+import { getChatWindow, rereadWindow } from "./chatWindow";
 import { isCueReason, mergeCueReasons } from "./cues";
 import { Breaker, DANGLING_PROFILE_DETAIL, failedProfile, failedRetryAt, failureClass, probeTimeoutMs } from "./breaker";
 import type { ExtractionHealth, ProbeResult, ProbeTrigger } from "./breaker";
@@ -444,7 +444,7 @@ export class ExtractionScheduler {
 
   nextReadWindow(lastMessageId: number): NextReadWindow | null {
     const queued = this.queue.find((job) => job.window);
-    if (queued?.window) return { source: "queued", reason: queued.reason, window: getChatWindow(queued.window.from, queued.window.to) };
+    if (queued?.window) return { source: "queued", reason: queued.reason, window: rereadWindow(queued.window) };
     const stableTo = lastMessageId - Math.max(0, this.host.getExtractionSettings().stabilityLag ?? 1);
     if (stableTo < 0) return null;
     return { source: "cadence", reason: "cadence", window: getChatWindow(cadenceWindowFrom(this.cursor(), stableTo), stableTo) };
