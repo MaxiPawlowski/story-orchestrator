@@ -17,7 +17,8 @@ export interface MemberGuidanceLine {
 
 export const memberGuidanceLine = (member: MemberGuidanceLine): string => `Direction for ${member.name} only: ${member.text.trim()}`;
 
-export const ASK_PLAYER_DIRECTION = `Turn to ${PLAYER_REF} in your own voice and ask them exactly one short question (a single question, one question mark) about what was just said or shown, or how they are taking it; `
+export const ASK_PLAYER_DIRECTION = `Turn to ${PLAYER_REF} in your own voice and ask them exactly one short question `
+  + `(a single question, one question mark) about what was just said or shown, or how they are taking it; `
   + `then stop and leave the answer to ${PLAYER_REF}.`;
 
 export const ASK_PLAYER_TAIL = `End by asking ${PLAYER_REF} exactly one short question in your own voice (a single question, one question mark), then stop and leave the answer to ${PLAYER_REF}.`;
