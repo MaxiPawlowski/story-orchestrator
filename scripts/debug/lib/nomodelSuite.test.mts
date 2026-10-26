@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { KEYLESS_CC_PROFILE, laneProblems, noModelJourneys, noModelScenarios, prepareLaneSettings, prepareProblems, STRETCH_GROUP, stretchGroupFile, summarizeBatch } from './nomodelSuite.mts';
+import { KEYLESS_CC_PROFILE, servedBuild, servedBuildChange, laneProblems, noModelJourneys, noModelScenarios, prepareLaneSettings, prepareProblems, STRETCH_GROUP, stretchGroupFile, summarizeBatch } from './nomodelSuite.mts';
 import { noLlmPartition } from '../../lib/suiteDecisions.mjs';
 
 test('the scenario list is the kept no-model rows that declare model none', () => {
@@ -101,4 +101,13 @@ test('a lane probe that misses any prepared condition is refused', () => {
   assert.match(prepareProblems({ ...good, image: true }).join(), /image reads true/);
   assert.match(prepareProblems({ ...good, profileId: null }).join(), /no memory model/);
   assert.deepEqual(prepareProblems(null), ['the lane page could not be probed']);
+});
+test('a staged build that changes during the batch voids the run', () => {
+  const manifest = (bundle: string, builtAt: string) => ({ extension: { revision: { commit: 'abcdef1234', dirty: true } }, bundle: { sha256: bundle }, builtAt });
+  const a = servedBuild(manifest('aa', '2026-10-25T18:52:01Z'));
+  assert.deepEqual(a, { commit: 'abcdef1234', dirty: true, bundle: 'aa', builtAt: '2026-10-25T18:52:01Z' });
+  assert.equal(servedBuildChange(a, servedBuild(manifest('aa', '2026-10-25T18:52:01Z'))), null);
+  assert.match(String(servedBuildChange(a, servedBuild(manifest('bb', '2026-10-26T03:04:00Z')))), /staged build changed during the batch/);
+  assert.match(String(servedBuildChange(null, a)), /could not be read/);
+  assert.equal(servedBuild('nope'), null);
 });

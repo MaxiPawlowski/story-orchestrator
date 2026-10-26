@@ -4,8 +4,9 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawn, spawnSync } from 'node:child_process';
 import { collect } from './inventory.mjs';
+import { requireStRoot } from '../lib/stRoot.mjs';
 import { decideAsset, noLlmPartition } from '../lib/suiteDecisions.mjs';
-import { LIBRARY_INDEX_FILE, laneProblems, NOMODEL_LANES, noModelJourneys, noModelScenarios, PREPARE_PROBE, prepareLaneSettings, prepareProblems, stretchGroupFile, summarizeBatch } from '../debug/lib/nomodelSuite.mts';
+import { servedBuild, servedBuildChange, LIBRARY_INDEX_FILE, laneProblems, NOMODEL_LANES, noModelJourneys, noModelScenarios, PREPARE_PROBE, prepareLaneSettings, prepareProblems, stretchGroupFile, summarizeBatch } from '../debug/lib/nomodelSuite.mts';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const LANES_SCRIPT = join('scripts', 'debug', 'st-lanes.mts');
@@ -88,6 +89,9 @@ function prepareLane(n) {
   return { lane: n, changes, probe: probe.value };
 }
 
+const STAGED_MANIFEST = () => join(requireStRoot(), 'public', 'scripts', 'extensions', 'third-party', 'story-orchestrator', 'dist', 'manifest.json');
+const readServed = () => { try { return servedBuild(JSON.parse(readFileSync(STAGED_MANIFEST(), 'utf-8'))); } catch { return null; } };
+
 function runBatch(args) {
   return new Promise((resolveRun) => {
     const child = spawn(process.execPath, [LANES_SCRIPT, 'batch', ...args], { cwd: ROOT, stdio: ['ignore', 'pipe', 'inherit'] });
@@ -138,6 +142,8 @@ async function runSuite(lanes, list) {
     return 2;
   }
   const items = [...list.journeys.map((journey) => journey.id), ...list.scenarios];
+  const servedBefore = readServed();
+  console.log(`suite:nomodel: staged build ${servedBefore?.commit?.slice(0, 8) ?? '?'}${servedBefore?.dirty ? ' (dirty)' : ''}, bundle ${servedBefore?.bundle?.slice(0, 12) ?? '?'}, built ${servedBefore?.builtAt ?? '?'}`);
   const { output } = await runBatch(['--lanes', lanes.join(','), '--strict', '--model', 'none', '--fresh-page', '--group', list.group, ...items]);
   const summaryPath = output.match(/"summary":\s*"((?:[^"\\]|\\.)*)"/)?.[1]?.replace(/\\\\/g, '\\');
   if (!summaryPath || !existsSync(summaryPath)) {
@@ -148,6 +154,11 @@ async function runSuite(lanes, list) {
   console.log(`\nsuite:nomodel summary (${summaryPath})`);
   console.log(Object.entries(summary.counts).map(([status, count]) => `${status} ${count}`).join(', '));
   for (const line of summary.lines) console.log(`  ${line}`);
+  const changed = servedBuildChange(servedBefore, readServed());
+  if (changed) {
+    console.error(`suite:nomodel VOID: ${changed}`);
+    return 3;
+  }
   return summary.ok ? 0 : 1;
 }
 

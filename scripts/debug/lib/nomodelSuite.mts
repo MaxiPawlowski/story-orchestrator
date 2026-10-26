@@ -120,3 +120,21 @@ export function prepareProblems(probe: Record<string, unknown> | null): string[]
   if (!probe.profileId) problems.push('no memory model profile is selected');
   return problems;
 }
+export interface ServedBuild { commit: string | null; dirty: boolean | null; bundle: string | null; builtAt: string | null }
+
+export function servedBuild(manifest: unknown): ServedBuild | null {
+  if (!isObject(manifest)) return null;
+  const revision = isObject(manifest.extension) && isObject(manifest.extension.revision) ? manifest.extension.revision : {};
+  return {
+    commit: typeof revision.commit === 'string' ? revision.commit : null,
+    dirty: typeof revision.dirty === 'boolean' ? revision.dirty : null,
+    bundle: isObject(manifest.bundle) && typeof manifest.bundle.sha256 === 'string' ? manifest.bundle.sha256 : null,
+    builtAt: typeof manifest.builtAt === 'string' ? manifest.builtAt : null,
+  };
+}
+
+export function servedBuildChange(before: ServedBuild | null, after: ServedBuild | null): string | null {
+  if (!before || !after) return 'the staged build manifest could not be read before and after the batch';
+  if (before.bundle === after.bundle && before.builtAt === after.builtAt) return null;
+  return `the staged build changed during the batch (${before.commit?.slice(0, 8) ?? '?'} built ${before.builtAt ?? '?'} -> ${after.commit?.slice(0, 8) ?? '?'} built ${after.builtAt ?? '?'}): the lanes serve SillyTavern's staged copy, so rows before and after ran different code and the run proves nothing`;
+}
