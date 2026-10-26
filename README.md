@@ -164,7 +164,7 @@ Generated from the feature registry. "Experimental" means not yet measured; it i
 | Memory | Memory model test | Runs fixed scenes through the memory model and reports what it can do. |  |
 | Memory | Reply thinking | Limits how long the chat model thinks before each reply. |  |
 | Memory | Models per task | Send each kind of background work to its own model. |  |
-| Memory | Who heard what | Each story read also notes which characters heard each message. |  |
+| Memory | Who heard what | After each story read, notes in code which characters heard each message. |  |
 | Characters | Speaker direction | In a group, the story picks who should speak next. |  |
 | Characters | Several voices per turn | More than one character can answer one of your messages. |  |
 | Characters | Private knowledge | Tracks who knows what, so characters do not know things they never saw. |  |

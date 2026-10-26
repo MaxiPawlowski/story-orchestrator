@@ -5,10 +5,11 @@ import { drawerAt } from "./where";
 export const AUDIENCE_FEATURES: readonly Feature[] = [
   {
     id: "witness-record", name: "Who heard what", area: "memory", audience: "author",
-    oneLine: "Each story read also notes which characters heard each message.",
-    what: "Every story read writes one line per message naming the characters who heard or saw it, part by part when a message mixes an aside with open speech, "
-      + "and says unknown when it cannot tell. Nothing reads this record yet: it is measured first, before recall or rumors may use it. A swipe or edit takes the "
-      + "affected lines back. Adds a few lines to each story read. Not measured yet.",
+    oneLine: "After each story read, notes in code which characters heard each message.",
+    what: "After every story read, the extension works out which characters heard each message of that read: the speaker, the group's enabled members seen on stage "
+      + "(speaking or named), and for a whispered or aside part only the speaker and the listener it names. A narrator who sees everything counts for its own lines only. "
+      + "Nothing reads this record yet: it is measured first, before recall or rumors may use it. A swipe or edit takes the affected notes back. Adds nothing to the "
+      + "story read's prompt. Measured offline, below its floor.",
     where: drawerAt("#so-feature-witness-enabled", "Features › Who heard what"),
     settings: ["memory.witness"], doc: "player/memory.md", status: "shipped", needs: ["story", "group-chat", "memory-profile"],
   },

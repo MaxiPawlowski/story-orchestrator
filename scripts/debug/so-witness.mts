@@ -16,6 +16,7 @@ const USAGE = `Usage:
   node scripts/debug/so-witness.mts score-real --out <dir> --freeze <freeze.json> [--adjudicated]
   node scripts/debug/so-witness.mts freeze --out <dir> --record <freeze.json> [--adjudicated]
   node scripts/debug/so-witness.mts presence --out <dir> --freeze <freeze.json> [--adjudicated]
+  node scripts/debug/so-witness.mts derive-score --out <dir> --sessions <root> --freeze <freeze-adjudicated.json> [--lab-story <f>] [--write <result.json>]
 
 v2.8 plan 42 B, offline: replays recorded witness read responses (format so-witness-reads/1) through the witness
 contract parser and record (no model, no ST), scores them against labels (format so-witness-labels/1; a private set
@@ -33,6 +34,9 @@ file; presence scores the presence null control (W4n, labelled present as witnes
 adjudicate (2026-10-17 declarations): Astra (codex exec -m gpt-6-astra) decides every disagreed label, blind to who wrote
 which; its verdict wins, undecided or unparsed answers become heard "unknown"; writes <dir>/adjudicated/. --adjudicated makes
 freeze and presence use that set.
+derive-score (v3.0 plan 12, offline, no model): derives witness claims in code (memory/witness/derive.ts) over the recorded read windows
+(<dir>/reads/files) with each session's cast ledger as the enabled set, scores every design variant against the adjudicated labels
+with the W4 scorer, plus the labelled-presence diagnostic and the presence null control; counts only.
 record (GPU, the read model): on the lane page st-lanes env names, runs the shipped shared read through
 storyOrchestratorLiveSuite.runWitnessRead over each labelled window (real: first and last 8 of 12; lab: 5 x 8), witness lines on
 and/or off, interleaved per read (on, off, on, off) so any stop leaves balanced pairs; resumes; writes <dir>/reads/<arm>/. Plan 11 stop
@@ -102,6 +106,19 @@ async function labelCommand(command: string, args: string[]): Promise<number> {
     await writeFile(need(args, '--record'), `${JSON.stringify(record, null, 1)}
 `, 'utf-8');
     result = record;
+  } else if (command === 'derive-score') {
+    const refused = await lib.checkWitnessFreeze(out, need(args, '--freeze'), true);
+    if (refused) {
+      console.error(refused);
+      return 3;
+    }
+    result = await (await import('./lib/witnessDerive.mts')).deriveScoreAll(out, need(args, '--sessions'), option(args, '--lab-story'));
+    const write = option(args, '--write');
+    if (write) {
+      refusePrivateOutput(false, write, 'witness derive score');
+      await writeFile(write, `${JSON.stringify(result, null, 1)}
+`, 'utf-8');
+    }
   } else if (command === 'presence') {
     const refused = await lib.checkWitnessFreeze(out, need(args, '--freeze'), args.includes('--adjudicated'));
     if (refused) {
