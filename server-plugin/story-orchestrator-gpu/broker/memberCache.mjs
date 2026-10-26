@@ -3,7 +3,7 @@ import fsDefault from 'node:fs/promises';
 import path from 'node:path';
 
 export const MEMBER_CACHE_DEFAULTS = Object.freeze({ headChars: 2000, budgetMiB: 6144, minPromptChars: 16000, minCutChars: 8000, minTailChars: 1200,
-    cutMarker: '<|turn>system\n', rewind: true, ramHeadroomMiB: 0, ctxCheckpoints: 3, store: 'file', park: true });
+    cutMarker: '<|turn>system\n', rewind: true, ramHeadroomMiB: 0, ctxCheckpoints: 3, store: 'file', park: true, erase: true, serverKeys: false });
 
 export function memberCacheOptions(config = {}) {
     const raw = config.memberCache;
@@ -96,7 +96,7 @@ export class MemberCache {
                 else { this.stats.restoreFailures += 1; this.lastError = `restore answered ${restore.status}`; await this.drop(plan.key); }
             } else this.stats.misses += 1;
         }
-        const prefill = await this.post('/completion', { prompt: plan.prefix, n_predict: 0, cache_prompt: true, stream: false, id_slot: slot }, signal);
+        const prefill = await this.post('/completion', { prompt: plan.prefix, n_predict: 0, cache_prompt: true, stream: false, id_slot: slot, ...(ram && this.serverKeys ? { cache_key: plan.key } : {}) }, signal);
         timing.prefillMs = prefill.ms;
         timing.prefillTokens = prefill.data?.timings?.prompt_n ?? null;
         if (!prefill.ok) { this.lastError = `prefill answered ${prefill.status}`; this.noteOther(slot); return null; }
@@ -107,13 +107,18 @@ export class MemberCache {
             if (Number.isFinite(cached) && Number.isFinite(evaluated) && evaluated > 0 && cached >= evaluated / 4) { this.stats.hits += 1; timing.restored = true; } else this.stats.misses += 1;
         }
         this.remember(this.times.prefillMs, prefill.ms);
+        if (ram && this.serverKeys) {
+            body.cache_key = plan.key;
+            const prefixTokens = Number(prefill.data?.tokens_evaluated);
+            if (Number.isInteger(prefixTokens) && prefixTokens > 0) body.cache_ckpt_max = prefixTokens;
+        }
         this.owner.set(slot, plan.key);
         return { ...plan, slot, timing };
     }
 
     async afterOther(slot = 0, signal = AbortSignal.timeout(30000)) {
         this.owner.set(slot, null);
-        if (this.store !== 'ram') return { erased: false };
+        if (this.store !== 'ram' || this.erase === false) return { erased: false };
         const erase = await this.post(`/slots/${slot}?action=erase`, {}, signal);
         if (erase.ok) this.stats.erases += 1; else { this.stats.eraseFailures += 1; this.lastError = `erase answered ${erase.status}`; }
         return { erased: erase.ok };

@@ -207,3 +207,19 @@ test('store ram: when idle the reply is parked (the server copies it to its RAM 
     assert.equal(cache.status().parks, 1);
     assert.equal(cache.status().skippedBusy, 1);
 });
+
+test('store ram with serverKeys tags the prefill and the request with the member key and the cut token count; erase off keeps the slot', async () => {
+    const calls = [];
+    const fetchImpl = async (url, init) => { calls.push({ route: new URL(url).pathname + new URL(url).search, body: JSON.parse(init.body) }); return Response.json({ tokens_evaluated: 700, timings: { prompt_n: 700, cache_n: 0 } }); };
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'so-member-keys-'));
+    const cache = new MemberCache(memberCacheOptions({ stateDir: dir, memberCache: { enabled: true, store: 'ram', serverKeys: true, erase: false, park: false, minPromptChars: 1000, minCutChars: 1000, minTailChars: 100 } }), { fetch: fetchImpl, baseUrl: 'http://backend' });
+    await cache.init();
+    const body = { prompt: prompt('Ana', 3), stream: true };
+    const plan = await cache.before(body, 0);
+    assert.equal(calls[0].body.cache_key, plan.key);
+    assert.equal(body.cache_key, plan.key);
+    assert.equal(body.cache_ckpt_max, 700);
+    assert.deepEqual(await cache.afterOther(0), { erased: false });
+    assert.equal(calls.length, 1);
+});
+

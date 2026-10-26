@@ -58,6 +58,7 @@ const MODIFIERS = {
     ramcut: (a) => [...setFlag(a, '--ctx-checkpoints', 3), '--slot-save-path', memberDir],
     noerase: (a) => a,
     park: (a) => a,
+    keys: (a) => a,
 };
 const DEFAULT_ARMS = ['base', 'cram6144', 'par2pin', 'par2', 'mtp3', 'mtp2', 'mtp4', 'cms2048', 'cram4096', 'kvq4v', 'base'];
 
@@ -229,7 +230,7 @@ async function completeWithCache(cache, item, budget) {
     const result = await complete(body);
     const ttftMs = result.ttftMs === null ? null : Math.round(startedAt + result.ttftMs - began);
     const saved = plan ? await cache.afterReply(plan) : null;
-    const erased = !plan && cache.store === 'ram' && cache.erase !== false ? await cache.afterOther(0) : null;
+    const erased = !plan && cache.store === 'ram' ? await cache.afterOther(0) : null;
     return { ...result, ttftMs, member: plan?.key ?? null, erased: erased?.erased ?? null, cachedTokens: plan?.timing.cachedTokens ?? null, parked: saved?.parked ?? null, restoreMs: plan?.timing.restoreMs ?? null, restored: plan?.timing.restored ?? null, resident: plan?.timing.resident ?? null,
         prefillMs: plan?.timing.prefillMs ?? null, prefillPromptN: plan?.timing.prefillTokens ?? null, saveMs: saved?.saveMs ?? null, rewindMs: saved?.rewindMs ?? null,
         fileMiB: saved?.bytes ? Math.round(saved.bytes / 1048576) : null, saveReason: saved?.reason ?? null, promptN: (result.promptN ?? 0) + (plan?.timing.prefillTokens ?? 0), reusedFinal: result.reused, cache: cache.status() };
@@ -255,7 +256,7 @@ async function runArm(config, corpus, arm, dir, telemetry) {
     const parts = arm.split('+');
     const ram = parts.includes('ramcut');
     const cache = parts.includes('memcache') || ram ? new MemberCache({ ...memberCacheOptions({ memberCache: { enabled: true, dir: memberDir, budgetMiB: Number(option('member-budget', 6144)), rewind: !parts.includes('norewind'),
-        store: ram ? 'ram' : 'file', park: parts.includes('park') } }), erase: !parts.includes('noerase') },
+        store: ram ? 'ram' : 'file', park: parts.includes('park'), erase: !parts.includes('noerase'), serverKeys: parts.includes('keys') } }) },
         { baseUrl: `http://127.0.0.1:${port}`, snapshot: async () => ({ host: { availableMiB: Math.round(os.freemem() / 1048576) } }), reserves: { ramMiB: 2048 } }) : null;
     const reuse = reusing(arm, config) ? new PromptReuse({ ...promptReuseOptions(config), ...(pinned(arm, config) ? { history: 1 } : {}), parkWhenIdle: !arm.split('+').includes('nopark') && !pinned(arm, config) && (promptReuseOptions(config)?.parkWhenIdle ?? true) }) : null;
     try {
