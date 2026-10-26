@@ -225,27 +225,28 @@ async function reaskPlayerOnly(
   return { keys, rawResponse: reply.text, accepted: screened.accepted.filter(confirms), rejected: [...parsed.rejected, ...screened.rejected, ...unconfirmed] };
 }
 
-const memberResolver = (roster: NormalizedStory["roster"]) => (token: string): string | null => {
-  const value = token.trim().toLowerCase();
-  return roster.find((member) => member.id.toLowerCase() === value || member.name?.trim().toLowerCase() === value
-    || (member.aliases ?? []).some((alias) => alias.trim().toLowerCase() === value))?.id ?? null;
+const WITNESS_CONTEXT = 24;
+
+const witnessContext = (options: RunSharedReadOptions, window: SharedReadWindow): SharedReadWindow["messages"] => {
+  if (!options.readWindow || window.from <= 0) return [];
+  try {
+    return options.readWindow(Math.max(0, window.from - WITNESS_CONTEXT), window.from - 1).messages;
+  } catch {
+    return [];
+  }
 };
 
 const loadWitness = async (options: RunSharedReadOptions) => {
   const present = options.witnessPresent;
   if (!present) return null;
-  const kit = await import("@memory/witness/contract");
-  return {
-    section: kit.renderWitnessContractSection(),
-    audit: (status: "accepted" | "no-read" | "outage", lines: string[], window: SharedReadWindow) =>
-      kit.witnessAudit(status, lines, { from: window.from, to: window.to, messages: window.messages, present, resolveMember: memberResolver(options.story.roster) }),
-  };
+  const kit = await import("@memory/witness/derive");
+  return (window: SharedReadWindow) => kit.deriveFromRead(options.story.roster, present, window, witnessContext(options, window));
 };
 
 export async function runSharedRead(options: RunSharedReadOptions): Promise<SharedReadResult> {
   const scope = scopeOf(options);
   const witnessKit = await loadWitness(options);
-  const overhead = [sharedReadOverhead(options), witnessKit?.section].filter(Boolean).join("\n\n");
+  const overhead = sharedReadOverhead(options);
   const fitted = await fitReadWindow(sharedReadWindow(options), overhead, options.ask.budget, options.ask.maxTokens ?? DEFAULT_RESPONSE_TOKENS);
   const { window } = fitted;
   const silent = onlyOutOfCharacter(window);
@@ -264,7 +265,7 @@ export async function runSharedRead(options: RunSharedReadOptions): Promise<Shar
   const answered = new Set(judged?.answered ?? []);
   const residual = scope.filter((entry) => !answered.has(entry.key));
   const promiseSection = options.openPromises ? (await import("@memory/promises/contract")).renderPromiseContractSection(options.openPromises) : undefined;
-  const contract = { ...readContract(options, window, residual), ...(promiseSection ? { promiseSection } : {}), ...(witnessKit ? { witnessSection: witnessKit.section } : {}) };
+  const contract = { ...readContract(options, window, residual), ...(promiseSection ? { promiseSection } : {}) };
   const prompt = renderSharedReadPrompt(contract);
   const ask = (maxTokens: number): Promise<ExtractionReply> => (scope.length && !silent
     ? options.model(prompt, { ...options.ask, maxTokens })
@@ -281,7 +282,7 @@ export async function runSharedRead(options: RunSharedReadOptions): Promise<Shar
   }
   const rawResponse = reply.text;
   const refused = refusal(reply, parsed, responseTokens);
-  const witness = witnessKit?.audit(!scope.length || silent ? "no-read" : refused ? "outage" : "accepted", parsed.witness ?? [], window);
+  const witness = witnessKit?.(window);
   const first: Screened = refused
     ? { accepted: [], rejected: [{ line: rawResponse.slice(0, 500), reason: refused }], playerOnly: [] }
     : screenDeltas(parsed, residual, answered, window);
@@ -299,7 +300,7 @@ export async function runSharedRead(options: RunSharedReadOptions): Promise<Shar
     prompt,
     rawResponse,
     acceptedDeltas: [...(judged?.deltas ?? []), ...screened.accepted],
-    rejected: [...parsed.rejected, ...screened.rejected, ...(witness?.rejected ?? [])],
+    rejected: [...parsed.rejected, ...screened.rejected],
     ...(parsed.sceneBreak ? { sceneBreak: parsed.sceneBreak } : {}),
     ...(judged ? { judged: { keys: judged.answered, model: judged.model, confidences: judged.confidences, ...(judged.fallback ? { fallback: judged.fallback } : {}) } } : {}),
     ...(failure.message !== undefined ? { judged: { keys: [], model: null, confidences: {}, fallback: "error", error: failure.message } } : {}),
@@ -310,7 +311,7 @@ export async function runSharedRead(options: RunSharedReadOptions): Promise<Shar
     ...(window.form ? { windowForm: window.form } : {}),
     ...(reask ? { reask: { keys: reask.keys, rawResponse: reask.rawResponse, accepted: reask.accepted.map((entry) => entry.delta.q) } } : {}),
     ...(!refused && options.openPromises && parsed.promises?.length ? { promiseLines: parsed.promises } : {}),
-    ...(witness ? { witness: witness.audit } : {}),
+    ...(witness ? { witness } : {}),
   };
   // A refused response is refused whole: the lines that survived a truncation are not more
   // trustworthy than the ones that did not, and the fact/memory/arc lines have no bound of their own.

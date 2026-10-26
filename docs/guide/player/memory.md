@@ -38,9 +38,9 @@ In a group, each character knows only what they saw or were told. A secret one c
 others' replies. A memory that would give such a secret away is left out of the list, or shown without the sentence
 that does. You do not need to do anything for this.
 
-Each story read also notes **who heard what**: for every message, which characters heard or saw it, part by part when a
-message mixes open speech with an aside, and "unknown" when the read cannot tell. Nothing uses this record yet; it is
-measured first. A swipe or edit takes the affected notes back. Switch it off in **This story → Features → Who heard
+After each story read the extension also notes **who heard what**, in code and without adding to the read: for every
+message, the speaker and the group's enabled characters seen on stage, and for a whispered or aside part only the
+speaker and the character it names. Nothing uses this record yet; it is measured first. A swipe or edit takes the affected notes back. Switch it off in **This story → Features → Who heard
 what** (or for every chat in **Orchestrator → Defaults**).
 
 ## Chapters
