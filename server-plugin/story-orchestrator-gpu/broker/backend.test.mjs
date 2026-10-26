@@ -254,3 +254,16 @@ test('a pinned request that would overflow the shared context with the other slo
     backend.tokens = 3000;
     await assert.rejects(backend.forRequest({ prompt: 'side', n_predict: 100 }, undefined, 1), /Could not free slot 0/);
 });
+
+test('the member cache adds a slot save path in its own folder and three checkpoints unless the config sets them; off by default', () => {
+    const base = { ...config, backendPort: 1, model: 'm', modelAlias: 'a', stateDir: 'C:/state' };
+    const plain = nativeArgs(base, config.profiles.fast);
+    assert.equal(plain.includes('--slot-save-path'), false);
+    const on = nativeArgs({ ...base, memberCache: { enabled: true, dir: 'D:/member-states' } }, config.profiles.fast);
+    assert.equal(on[on.indexOf('--slot-save-path') + 1], 'D:/member-states');
+    assert.equal(on[on.indexOf('--ctx-checkpoints') + 1], '3');
+    const set = nativeArgs({ ...base, ctxCheckpoints: 4, slots: { count: 2 }, memberCache: { enabled: true } }, config.profiles.fast);
+    assert.equal(set[set.indexOf('--ctx-checkpoints') + 1], '4');
+    assert.equal(set.filter((arg) => arg === '--slot-save-path').length, 1);
+    assert.equal(set[set.indexOf('--slot-save-path') + 1], path.join('C:/state', 'member-states'));
+});

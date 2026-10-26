@@ -4,6 +4,7 @@ import { pipeline } from 'node:stream/promises';
 import { ResponseTiming } from './responseTiming.mjs';
 import { ContextRefusal, slotFor, slots } from './backend.mjs';
 import { PromptReuse, promptReuseOptions } from './promptReuse.mjs';
+import { MemberCache, memberCacheOptions } from './memberCache.mjs';
 
 export const TEXT_ROUTES = Object.freeze(['/completion', '/v1/completions', '/v1/chat/completions', '/tokenize', '/detokenize', '/props', '/slots']);
 const GENERATION_ROUTES = ['/completion', '/v1/completions', '/v1/chat/completions'];
@@ -27,11 +28,17 @@ const answer = (res, status, data) => {
     res.end(JSON.stringify(data));
 };
 
-export function createGateway({ arbiter, config, fetchImpl = fetch, allowOrigin = null, controls = null, extraGet = {}, routes = null, promptReuse = undefined }) {
+export function createGateway({ arbiter, config, fetchImpl = fetch, allowOrigin = null, controls = null, extraGet = {}, routes = null, promptReuse = undefined, memberCache = undefined }) {
     let closing = false;
     const reuseOptions = promptReuseOptions(config);
     const reuse = promptReuse !== undefined ? promptReuse : reuseOptions ? new PromptReuse(slots(config) ? { ...reuseOptions, history: 1 } : reuseOptions) : null;
     const idle = () => !(arbiter.scheduler?.pending?.length > 0);
+    const memberOptions = memberCacheOptions(config);
+    const members = memberCache !== undefined ? memberCache : memberOptions ? new MemberCache(memberOptions, { fetch: fetchImpl, baseUrl: () => arbiter.backend.url,
+        snapshot: arbiter.scheduler?.snapshot ? () => arbiter.scheduler.snapshot({ fresh: true }) : null, reserves: () => config.reserves ?? {} }) : null;
+    const membersReady = members?.init ? members.init().catch((error) => { members.lastError = error.message; }) : null;
+    if (members && arbiter.scheduler) arbiter.scheduler.onImageRam = (need) => members.makeRoom(need);
+    const memberIdle = () => idle() && !arbiter.scheduler?.imageQueued && !arbiter.scheduler?.imagePending;
     const server = http.createServer(async (req, res) => {
         try {
             const route = new URL(req.url, 'http://localhost').pathname;
@@ -82,7 +89,14 @@ export function createGateway({ arbiter, config, fetchImpl = fetch, allowOrigin 
                 if (!reply.ok) throw new Error(`prompt reuse step answered ${reply.status}`);
             };
             const forward = async () => {
-                const prefill = reusing ? reuse.prefill(body, slot ?? 'all') : null;
+                let memberPlan = null;
+                if (members && generating) {
+                    await membersReady;
+                    members.syncBackend?.(backend.status().pid);
+                    if (route === '/completion') memberPlan = await members.before(body, slot ?? 0, abort.signal).catch((error) => { members.lastError = error.message; members.noteOther(slot ?? 0); return null; });
+                    else members.noteOther(slot ?? 0);
+                }
+                const prefill = reusing && !memberPlan ? reuse.prefill(body, slot ?? 'all') : null;
                 if (prefill) await backendCall(slot === null ? prefill : { ...prefill, id_slot: slot }).catch((error) => { reuse.lastError = error.message; });
                 const response = await fetchImpl(`${backend.url}${route}`, { method: req.method, headers: { 'content-type': 'application/json' }, ...(body ? { body: JSON.stringify(body) } : {}), signal: abort.signal });
                 if (res.destroyed) return;
@@ -92,7 +106,8 @@ export function createGateway({ arbiter, config, fetchImpl = fetch, allowOrigin 
                     await pipeline(Readable.fromWeb(response.body), timing, res);
                     if (response.ok && timing.timings) await arbiter.scheduler.recordTiming({ timings: timing.timings }).catch((error) => { arbiter.scheduler.lastError = error.message; });
                 } else res.end();
-                const park = reusing && response.ok && slot === null ? reuse.park(idle()) : null;
+                if (memberPlan && response.ok) await members.afterReply(memberPlan, { idle: memberIdle }).catch((error) => { members.lastError = error.message; members.noteOther(memberPlan.slot); });
+                const park = reusing && !memberPlan && response.ok && slot === null ? reuse.park(idle()) : null;
                 if (park) await backendCall(park).catch((error) => { reuse.lastError = error.message; });
             };
             const state = backend.status();
@@ -110,6 +125,7 @@ export function createGateway({ arbiter, config, fetchImpl = fetch, allowOrigin 
     return {
         server,
         promptReuse: reuse,
+        memberCache: members,
         listen(port, host = '127.0.0.1') {
             return new Promise((resolve, reject) => {
                 server.once('error', reject);

@@ -50,6 +50,8 @@ No build order is set. If several reopen at once, by dependency: 02 B before 05.
 | 03 | moved to v2.8 45 (owner 2026-10-14) |
 | 05 | DEFERRED; entries recorded |
 | 06 | `06-local-controller-perf.md` local controller performance: PLAN + partial 3090 bench 2026-10-25 (MTP n-max 2 decode +39 %; prefix reuse 0 %, breaks found) |
+| 07 | `07-inference-engine-eval.md` engine evaluation (SGLang, vLLM, ExLlamaV3, llama.cpp options): RESEARCH 2026-10-25, SPIKE 2026-10-26: ExLlamaV3 dropped (TTFT, RAM, Sol 3/8); b11888 + gateway member-state cache recommended (warm switch 9-10 s → 4.7-6.0 s) |
+| 08 | `08-member-state-cache.md` per-member state cache in the gateway: BUILT off by default 2026-10-26; b11888 parity pass; warm switch 8.6 → 4.5 s on the bench, but saves are disk-bound (1.1-53 s) and live group turns leave no idle gap to save in; owner stays on b11388 + MTP, cache off |
 
 ## Decisions (user, 2026-10-03: as recommended)
 

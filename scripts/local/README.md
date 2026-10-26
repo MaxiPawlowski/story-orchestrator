@@ -73,6 +73,25 @@ Optional `config.json` keys, all read by `broker/backend.mjs` `nativeArgs` (plan
   beside ComfyUI's staging); three checkpoints keep the boundary one through the reply's own two. It only pays off when
   consecutive chat prompts share their start, which needs the stable prompt head below; with per-speaker heads it costs
   ~0.3-0.5 s per chat reply and the cache's RAM for nothing. `/status` reports `promptReuse` counts.
+- `memberCache: { enabled, budgetMiB, dir, headChars, minPromptChars, minCutChars, minTailChars, cutMarker, rewind,
+  ramHeadroomMiB, ctxCheckpoints }` (off unless `enabled: true`; plan v3.0 08). A per-member state cache for group chats
+  with per-member prompt heads; needs llama.cpp b11888 or later (slot files that keep their context checkpoints; b11388
+  restores the tokens but no checkpoint, so every turn reprocesses). For a streamed `/completion` of at least
+  `minPromptChars` (16000) the member key is a hash of its first `headChars` (2000) characters and the cut is the first
+  in-history system block (`cutMarker`, the depth-4 Author's Note / Story Orchestrator blocks). Before the request the
+  gateway restores that member's saved slot state (`/slots/<id>?action=restore`) when another member holds the slot,
+  then prefills the prompt up to the cut (`n_predict: 0`) so a checkpoint lands there. After the reply, inside the same
+  text-lane turn and only when no text request or image is waiting, it rewinds the slot to the cut (`rewind`, default
+  on) and saves it (`action=save`); a request that arrives during the save waits for it (llama-server cannot cancel a
+  save). States are files in `dir` (default `<stateDir>/member-states`, wiped at start), `budgetMiB` (6144) least
+  recently used first; a save is skipped when RAM available minus one state would fall under `reserves.ramMiB` +
+  `ramHeadroomMiB`, and image admission drops states first while RAM is short. Adds `--slot-save-path <dir>` and
+  `--ctx-checkpoints <ctxCheckpoints>` (3, unless `ctxCheckpoints` is set); use `cacheRamMiB` 0. Measured on the 3090
+  (recorded corpus, 3 members rotating, MTP 2): warm member switch 3.9-4.8 s vs 8.6 s, but each state is 1.5-2.1 GiB,
+  a save takes 1.1-4.2 s on C: (NVMe; 3.3-5.5 s on a SATA SSD), plus 1.0-2.9 s of rewind, and writes that much to disk
+  per chat reply. There is no RAM disk on this host; files are served from the Windows file cache. `/status` reports
+  `memberCache` (hits, misses, resident, saves, skips, evictions, ms p50). Side passes are not cached (same-role prompts
+  share under 800 characters).
 
 `node scripts/local/stable-head.mjs plan|apply|revert --data <ST user data dir> --group <id>[,<id>] [--backup <dir>]`
 moves the system prompt's `{{char}}` sentences to its post-history instruction (a new `... (stable head)` system-prompt

@@ -33,7 +33,7 @@ const arbiter = createArbiter(arbiterConfig, {
 await arbiter.start();
 const performance = createLiveSettings({ target: arbiterConfig, scheduler: () => arbiter.scheduler, backend: arbiter.backend, mode: currentMode(config) });
 const status = async () => controllerStatus({ config: arbiterConfig, scheduler: arbiter.scheduler.status(), imageCache: arbiter.imageCache,
-    telemetry: (await arbiter.status({ fresh: true })).telemetry, controllerBuild, pid: process.pid, configFile, performance: performance.status(), promptReuse: gateway.promptReuse?.status() ?? null });
+    telemetry: (await arbiter.status({ fresh: true })).telemetry, controllerBuild, pid: process.pid, configFile, performance: performance.status(), promptReuse: gateway.promptReuse?.status() ?? null, memberCache: gateway.memberCache?.status() ?? null });
 const gateway = createGateway({ arbiter, config: arbiterConfig, allowOrigin: /^http:\/\/(127\.0\.0\.1|localhost):(8000|81\d\d)$/,
     routes: createSettingsRoutes({ configFile, port: config.gatewayPort, live: performance,
         telemetry: async () => { const data = await arbiter.status({ fresh: true }); return { ...data.telemetry, phase: data.phase }; } }),

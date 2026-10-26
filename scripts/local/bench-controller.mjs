@@ -2,9 +2,11 @@ import fs from 'node:fs/promises';
 import { createWriteStream, openSync, closeSync } from 'node:fs';
 import { spawn, execFileSync } from 'node:child_process';
 import os from 'node:os';
+import { createHash } from 'node:crypto';
 import path from 'node:path';
 import { nativeArgs, slots } from '../../server-plugin/story-orchestrator-gpu/broker/backend.mjs';
 import { PromptReuse, promptReuseOptions } from '../../server-plugin/story-orchestrator-gpu/broker/promptReuse.mjs';
+import { MemberCache, memberCacheOptions } from '../../server-plugin/story-orchestrator-gpu/broker/memberCache.mjs';
 
 const argv = process.argv.slice(2);
 const command = argv[0] ?? 'help';
@@ -18,6 +20,7 @@ const seed = Number(option('seed', 1234));
 const chatCap = Number(option('chat-tokens', 192));
 const sideCap = Number(option('side-tokens', 96));
 const MTP = option('mtp', 'C:/dev/models/hf/hub/models--TheDrummer--Artemis-31B-v1.1-GGUF/snapshots/65d0086759d0d45f728b610f48651d4a98d89ed4/MTP/mtp-Artemis-31B-v1m-Q8_0.gguf');
+const memberDir = option('member-dir', 'C:/dev/so-lanes/bench-controller/member-slots');
 const RESERVED = [6006, 8000, 8095, 8096, 8188, 8765, 9222, 18079, 18080, 18888, 18889];
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const stamp = () => new Date().toISOString().replace(/[:.]/g, '-');
@@ -41,6 +44,10 @@ const MODIFIERS = {
     ckpt3: (a) => [...a, '--ctx-checkpoints', '3'],
     ckpt4: (a) => [...a, '--ctx-checkpoints', '4'],
     reuse: (a) => a,
+    member: (a) => [...setFlag(a, '--cache-ram', 0), '--slot-save-path', memberDir],
+    membercut: (a) => [...setFlag(a, '--cache-ram', 0), '--slot-save-path', memberDir],
+    memcache: (a) => [...setFlag(setFlag(a, '--cache-ram', 0), '--ctx-checkpoints', 3), '--slot-save-path', memberDir],
+    norewind: (a) => a,
     config: (a) => a,
     nopark: (a) => a,
     cram0: (a) => setFlag(a, '--cache-ram', 0),
@@ -180,6 +187,47 @@ async function completeWithReuse(reuse, item, budget, slot) {
         prefillPromptN: steps.find((step) => step.kind === 'prefill')?.promptN ?? null, steps };
 }
 
+const memberKey = (prompt) => createHash('sha1').update(prompt.slice(0, Number(option('member-head', 2000)))).digest('hex').slice(0, 16);
+const historyCut = (prompt) => { const turns = [...prompt.matchAll(/<\|turn>system\n/g)].map((m) => m.index); return turns.length > 1 ? turns[1] : null; };
+async function slotAction(action, filename) {
+    const began = performance.now();
+    const response = await fetch(`http://127.0.0.1:${port}/slots/0?action=${action}`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ filename }), signal: AbortSignal.timeout(120000) });
+    const data = await response.json().catch(() => ({}));
+    return { ok: response.ok, ms: Math.round(performance.now() - began), data };
+}
+async function completeWithMember(item, budget, cutFirst, seen) {
+    const began = performance.now();
+    const body = requestBody(item, budget, 0);
+    const key = memberKey(item.body.prompt);
+    const filename = `m-${key}.bin`;
+    let restore = null; let prefill = null;
+    if (seen.has(key)) restore = await slotAction('restore', filename);
+    const cut = cutFirst ? historyCut(item.body.prompt) : null;
+    if (cut) prefill = await post({ ...body, prompt: item.body.prompt.slice(0, cut), n_predict: 0, stream: false });
+    const startedAt = performance.now();
+    const result = await complete(body);
+    const ttftMs = result.ttftMs === null ? null : Math.round(startedAt + result.ttftMs - began);
+    const save = await slotAction('save', filename);
+    seen.add(key);
+    let fileMiB = null;
+    try { fileMiB = Math.round((await fs.stat(path.join(memberDir, filename))).size / 1048576); } catch {}
+    return { ...result, ttftMs, member: key, restoreMs: restore?.ms ?? null, restoreOk: restore?.ok ?? null, restoredTokens: restore?.data?.n_restored ?? null,
+        prefillMs: prefill?.ms ?? null, prefillPromptN: prefill?.promptN ?? null, saveMs: save.ms, saveOk: save.ok, fileMiB, promptN: (result.promptN ?? 0) + (prefill?.promptN ?? 0), reusedFinal: result.reused };
+}
+
+async function completeWithCache(cache, item, budget) {
+    const began = performance.now();
+    const body = requestBody(item, budget, 0);
+    const plan = await cache.before(body, 0);
+    const startedAt = performance.now();
+    const result = await complete(body);
+    const ttftMs = result.ttftMs === null ? null : Math.round(startedAt + result.ttftMs - began);
+    const saved = plan ? await cache.afterReply(plan) : null;
+    return { ...result, ttftMs, member: plan?.key ?? null, restoreMs: plan?.timing.restoreMs ?? null, restored: plan?.timing.restored ?? null, resident: plan?.timing.resident ?? null,
+        prefillMs: plan?.timing.prefillMs ?? null, prefillPromptN: plan?.timing.prefillTokens ?? null, saveMs: saved?.saveMs ?? null, rewindMs: saved?.rewindMs ?? null,
+        fileMiB: saved?.bytes ? Math.round(saved.bytes / 1048576) : null, saveReason: saved?.reason ?? null, promptN: (result.promptN ?? 0) + (plan?.timing.prefillTokens ?? 0), reusedFinal: result.reused, cache: cache.status() };
+}
+
 function serverCounts(log) {
     return { lru: (log.match(/selected slot by LRU/g) ?? []).length, lcp: (log.match(/selected slot by LCP similarity/g) ?? []).length,
         exceed: (log.match(/exceeds cache size limit/g) ?? []).length, restored: (log.match(/restored context checkpoint/g) ?? []).length, forced: (log.match(/forcing full prompt re-processing/g) ?? []).length, cacheEvict: (log.match(/making room for prompt cache entry/g) ?? []).length,
@@ -190,8 +238,13 @@ function serverCounts(log) {
 
 async function runArm(config, corpus, arm, dir, telemetry) {
     const baseline = gpuQuery('memory.free')[0];
+    if (arm.split('+').some((part) => part.startsWith('member') || part === 'memcache')) { await fs.rm(memberDir, { recursive: true, force: true }); await fs.mkdir(memberDir, { recursive: true }); }
     const server = await startServer(config, arm, dir);
     const rows = [];
+    const memberMode = arm.split('+').find((part) => part === 'member' || part === 'membercut');
+    const seen = new Set();
+    const cache = arm.split('+').includes('memcache') ? new MemberCache({ ...memberCacheOptions({ memberCache: { enabled: true, dir: memberDir, budgetMiB: Number(option('member-budget', 6144)), rewind: !arm.split('+').includes('norewind') } }) },
+        { baseUrl: `http://127.0.0.1:${port}`, snapshot: async () => ({ host: { availableMiB: Math.round(os.freemem() / 1048576) } }), reserves: { ramMiB: 2048 } }) : null;
     const reuse = reusing(arm, config) ? new PromptReuse({ ...promptReuseOptions(config), ...(pinned(arm, config) ? { history: 1 } : {}), parkWhenIdle: !arm.split('+').includes('nopark') && !pinned(arm, config) && (promptReuseOptions(config)?.parkWhenIdle ?? true) }) : null;
     try {
         await sleep(1500);
@@ -206,11 +259,13 @@ async function runArm(config, corpus, arm, dir, telemetry) {
             const slot = pinned(arm, config) ? (item.kind === 'chat' || item.kind === 'swipe' || item.kind === 'long' ? 0 : 1) : null;
             const budget = item.kind === 'chat' ? chatCap : item.kind === 'long' || item.kind === 'swipe' ? 32 : sideCap;
             telemetry.tag = `${arm}:${item.index}`;
-            const result = reuse ? await completeWithReuse(reuse, item, budget, slot) : await complete(requestBody(item, budget, slot));
+            const result = cache ? await completeWithCache(cache, item, budget)
+                : memberMode && (item.kind === 'chat' || item.kind === 'swipe') ? await completeWithMember(item, budget, memberMode === 'membercut', seen)
+                : reuse ? await completeWithReuse(reuse, item, budget, slot) : await complete(requestBody(item, budget, slot));
             await sleep(250);
             const { text, ...kept } = result;
-            rows.push({ arm, index: item.index, kind: item.kind, role: item.role ?? item.kind, promptChars: item.body.prompt.length, ...kept, outputChars: text.length, ...telemetry.window(`${arm}:${item.index}`) });
-            process.stdout.write(`${arm} ${item.index} ${item.kind} ttft=${result.ttftMs} pn=${result.promptN} reused=${result.reused} tps=${result.decodeTps?.toFixed(1)} acc=${result.draftAccepted ?? '-'}/${result.draftN ?? '-'}\n`);
+            rows.push({ arm, index: item.index, kind: item.kind, role: item.role ?? item.kind, promptChars: item.body.prompt.length, ...kept, outputChars: text.length, ...(flag('keep-text') ? { text } : {}), ...telemetry.window(`${arm}:${item.index}`) });
+            process.stdout.write(`${arm} ${item.index} ${item.kind} ttft=${result.ttftMs} pn=${result.promptN} reused=${result.reused} tps=${result.decodeTps?.toFixed(1)} acc=${result.draftAccepted ?? '-'}/${result.draftN ?? '-'}${result.member ? ` member=${result.member} restore=${result.restoreMs} prefill=${result.prefillMs}/${result.prefillPromptN} rewind=${result.rewindMs} save=${result.saveMs} file=${result.fileMiB}MiB${result.saveReason ? ` skip=${result.saveReason}` : ''}` : ''}\n`);
         }
         const log = await fs.readFile(server.logFile, 'utf8');
         return { arm, args: server.args, loadMs: server.loadMs, baselineGpuFreeMiB: Number(baseline), afterLoad, counts: serverCounts(log), rows };
@@ -235,7 +290,10 @@ function summarize(result) {
         minGpuFreeMiB: Math.min(...result.rows.map((row) => row.minGpuFreeMiB).filter(Number.isFinite)), minRamAvailMiB: Math.min(...result.rows.map((row) => row.minRamAvailMiB).filter(Number.isFinite)),
         maxPowerW: Math.max(...result.rows.map((row) => row.maxPowerW).filter(Number.isFinite)), medianSmMHz: median(result.rows.map((row) => row.medianSmMHz)),
         longPrefill: long ? { promptN: long.promptN, prefillTps: long.prefillTps, ttftMs: long.ttftMs } : null,
-        swipe: swipe ? { promptN: swipe.promptN, reused: swipe.reused, ttftMs: swipe.ttftMs } : null, counts: result.counts };
+        swipe: swipe ? { promptN: swipe.promptN, reused: swipe.reused, ttftMs: swipe.ttftMs } : null, counts: result.counts,
+        ...(by('chat').some((row) => row.member) ? { memberCache: { ttftChatWarm: stat(by('chat').filter((row) => row.restored || row.resident), 'ttftMs'), ttftChatCold: stat(by('chat').filter((row) => row.member && !row.restored && !row.resident), 'ttftMs'),
+            restoreMs: stat(rows, 'restoreMs'), prefillMs: stat(rows, 'prefillMs'), rewindMs: stat(rows, 'rewindMs'), saveMs: { ...stat(rows, 'saveMs'), max: Math.max(...rows.map((row) => row.saveMs).filter(Number.isFinite)) },
+            fileMiB: stat(rows, 'fileMiB'), final: result.rows.at(-1)?.cache ?? null } } : {}) };
 }
 
 async function preflight() {
@@ -274,6 +332,107 @@ async function textBench() {
     header.gpuAfter = gpuInfo();
     await fs.writeFile(path.join(dir, 'summary.json'), JSON.stringify({ header, summaries }, null, 2));
     console.log(`Wrote ${dir}`);
+}
+
+const OPENAI_KEYS = { prompt: 'prompt', temperature: 'temperature', min_p: 'min_p', top_p: 'top_p', top_k: 'top_k', typical_p: 'typical_p', presence_penalty: 'presence_penalty',
+    frequency_penalty: 'frequency_penalty', repeat_penalty: 'repetition_penalty', repeat_last_n: 'penalty_range', dry_multiplier: 'dry_multiplier', dry_base: 'dry_base',
+    dry_allowed_length: 'dry_allowed_length', dry_penalty_last_n: 'dry_range', dry_sequence_breakers: 'dry_sequence_breakers', xtc_threshold: 'xtc_threshold',
+    xtc_probability: 'xtc_probability', top_n_sigma: 'top_n_sigma', stop: 'stop', min_keep: 'min_keep', adaptive_target: 'adaptive_target', adaptive_decay: 'adaptive_decay' };
+const openAiBody = (item, budget, model) => {
+    const body = {};
+    for (const [from, to] of Object.entries(OPENAI_KEYS)) if (item.body[from] !== undefined && item.body[from] !== '') body[to] = item.body[from];
+    if (body.penalty_range === 0) delete body.penalty_range;
+    if (!(body.adaptive_target >= 0)) { delete body.adaptive_target; delete body.adaptive_decay; }
+    const max = Math.min(item.body.n_predict ?? budget, budget);
+    return { ...body, ...(model ? { model } : {}), max_tokens: max, n_predict: max, seed, stream: true, stream_options: { include_usage: true }, cache_prompt: true };
+};
+
+async function completeOpenAi(url, body) {
+    const began = performance.now();
+    const headers = { 'content-type': 'application/json', ...(process.env.SO_BENCH_API_KEY ? { authorization: `Bearer ${process.env.SO_BENCH_API_KEY}` } : {}) };
+    const response = await fetch(`${url}/v1/completions`, { method: 'POST', headers, body: JSON.stringify(body), signal: AbortSignal.timeout(900000) });
+    if (!response.ok) throw new Error(`completions ${response.status}: ${(await response.text()).slice(0, 400)}`);
+    let firstToken = null; let lastToken = null; let text = ''; let usage = null; let timings = null; let chunks = 0; let buffer = '';
+    const decoder = new TextDecoder();
+    for await (const chunk of response.body) {
+        buffer += decoder.decode(chunk, { stream: true });
+        const events = buffer.split('\n'); buffer = events.pop();
+        for (const event of events) {
+            if (!event.startsWith('data: ') || event.startsWith('data: [DONE]')) continue;
+            const data = JSON.parse(event.slice(6));
+            const piece = data.choices?.[0]?.text ?? '';
+            if (piece) { const now = performance.now(); if (firstToken === null) firstToken = now; lastToken = now; chunks += 1; text += piece; }
+            if (data.usage) usage = data.usage;
+            if (data.timings) timings = data.timings;
+        }
+    }
+    const end = performance.now();
+    const promptTotal = usage?.prompt_tokens ?? timings?.prompt_n ?? null;
+    const cachedTokens = usage?.prompt_tokens_details?.cached_tokens ?? (Number.isFinite(timings?.cache_n) ? timings.cache_n : null);
+    const completionN = usage?.completion_tokens ?? timings?.predicted_n ?? chunks;
+    const ttftMs = firstToken === null ? null : Math.round(firstToken - began);
+    const decodeSpan = firstToken === null || lastToken === null ? 0 : (lastToken - firstToken) / 1000;
+    const processed = Number.isFinite(promptTotal) ? promptTotal - (cachedTokens ?? 0) : null;
+    return { ttftMs, totalMs: Math.round(end - began), text, promptN: processed, promptTotal, reused: cachedTokens, predictedN: completionN,
+        prefillTps: ttftMs && Number.isFinite(processed) ? processed / (ttftMs / 1000) : null, decodeTps: completionN > 1 && decodeSpan > 0 ? (completionN - 1) / decodeSpan : null,
+        draftN: timings?.draft_n ?? null, draftAccepted: timings?.draft_n_accepted ?? null, engineTimings: timings };
+}
+
+async function endpointBench() {
+    const label = option('label', 'endpoint');
+    const llamaArm = option('llama-arm');
+    const full = flag('full');
+    const fullCap = Number(option('full-tokens', 1024));
+    const model = option('model');
+    let url = option('url');
+    if (!url && !llamaArm) throw new Error('Usage: endpoint (--url http://127.0.0.1:<port> | --llama-arm <arm>) --label <name> [--corpus file] [--model id] [--full [--full-tokens 1024]] [--repeat 1]');
+    if (url && RESERVED.includes(Number(new URL(url).port))) throw new Error(`Port ${new URL(url).port} is reserved.`);
+    if (await listening(18888) || await listening(18889)) throw new Error('The local controller is running; stop it first (node scripts/local/cli.mjs stop).');
+    const config = await loadConfig();
+    const corpusFile = option('corpus', path.join(outRoot, 'corpus.json'));
+    const corpus = JSON.parse(await fs.readFile(corpusFile, 'utf8'));
+    const dir = path.join(outRoot, `endpoint-${label}-${stamp()}`);
+    await fs.mkdir(dir, { recursive: true });
+    const baselineFree = Number(gpuQuery('memory.free')[0]);
+    let server = null;
+    if (llamaArm) {
+        if (baselineFree < 21000) throw new Error(`Only ${baselineFree} MiB GPU free; need >= 21000 MiB for a llama-server arm.`);
+        if (await listening(port)) throw new Error(`Port ${port} is already in use.`);
+        server = await startServer(config, llamaArm, dir);
+        url = `http://127.0.0.1:${port}`;
+    }
+    const header = { at: new Date().toISOString(), label, url, llamaArm, binary: llamaArm ? config.binary : null, args: server?.args ?? null, loadMs: server?.loadMs ?? null, gpu: gpuInfo(),
+        baselineGpuFreeMiB: baselineFree, corpus: { file: corpusFile, items: corpus.items.length }, seed, chatCap: full ? fullCap : chatCap, sideCap: full ? fullCap : sideCap, full };
+    const telemetry = new Telemetry(); telemetry.start();
+    const raw = createWriteStream(path.join(dir, 'rows.jsonl'));
+    const outputs = createWriteStream(path.join(dir, 'outputs.jsonl'));
+    const rows = [];
+    try {
+        await sleep(1500);
+        const afterLoad = { gpuFreeMiB: Number(gpuQuery('memory.free')[0]), ramAvailMiB: Math.round(os.freemem() / 1048576) };
+        telemetry.tag = `${label}:warmup`;
+        await completeOpenAi(url, { prompt: '<|turn>user\nSay hello.<turn|>\n<|turn>model\n', ...(model ? { model } : {}), max_tokens: 8, seed, stream: true, cache_prompt: false });
+        const sequence = [...corpus.items.map((item, index) => ({ ...item, index })),
+            ...(full ? [] : [{ kind: 'long', body: corpus.long.body, index: 'long' }, { kind: 'swipe', body: corpus.items.findLast((item) => item.kind === 'chat').body, index: 'swipe' }])];
+        for (let pass = 0; pass < Number(option('repeat', 1)); pass += 1) for (const item of sequence) {
+            if (telemetry.lastRamMiB() < 3000) throw new Error(`RAM available fell to ${telemetry.lastRamMiB()} MiB; aborted.`);
+            const budget = full ? fullCap : item.kind === 'chat' ? chatCap : item.kind === 'long' || item.kind === 'swipe' ? 32 : sideCap;
+            const tag = `${label}:${pass}:${item.index}`;
+            telemetry.tag = tag;
+            const result = await completeOpenAi(url, openAiBody(item, budget, model));
+            await sleep(250);
+            const { text, engineTimings, ...kept } = result;
+            const row = { arm: label, pass, index: item.index, kind: item.kind, role: item.role ?? item.kind, promptChars: item.body.prompt.length, ...kept, outputChars: text.length, ...telemetry.window(tag) };
+            rows.push(row); raw.write(`${JSON.stringify(row)}\n`);
+            outputs.write(`${JSON.stringify({ label, pass, index: item.index, kind: item.kind, role: item.role ?? item.kind, text })}\n`);
+            process.stdout.write(`${label} ${pass}:${item.index} ${item.kind} ttft=${result.ttftMs} pn=${result.promptN} reused=${result.reused} tps=${result.decodeTps?.toFixed(1)} acc=${result.draftAccepted ?? '-'}/${result.draftN ?? '-'}\n`);
+        }
+        const summary = summarize({ arm: label, loadMs: server?.loadMs ?? null, afterLoad, counts: null, rows });
+        await fs.writeFile(path.join(dir, 'summary.json'), JSON.stringify({ header, summary }, null, 2));
+        console.log(JSON.stringify({ label, ttftChatP50: summary.ttftChat.p50, ttftSideP50: summary.ttftSide.p50, processed: summary.promptProcessedSum, reused: summary.reusedSum, prefill: summary.prefillTps,
+            decodeChat: summary.decodeTpsChat, decodeSide: summary.decodeTpsSide, acceptance: summary.draftAcceptance, gpuFreeAfterLoad: afterLoad.gpuFreeMiB, minGpuFree: summary.minGpuFreeMiB, minRam: summary.minRamAvailMiB }));
+        console.log(`Wrote ${dir}`);
+    } finally { telemetry.stop(); raw.end(); outputs.end(); if (server) await stopServer(server); }
 }
 
 const KIND = (body) => {
@@ -428,9 +587,9 @@ async function imageBench() {
     } finally { telemetry.stop(); killTree(child.pid); await sleep(3000); }
 }
 
-const commands = { corpus: buildCorpus, layout: layoutCorpus, text: textBench, image: imageBench, all: async () => { await textBench(); await imageBench(); } };
+const commands = { corpus: buildCorpus, layout: layoutCorpus, text: textBench, endpoint: endpointBench, image: imageBench, all: async () => { await textBench(); await imageBench(); } };
 if (!commands[command]) {
-    console.log('Usage: node scripts/local/bench-controller.mjs corpus --from <payloads.jsonl> | text [--arms a,b+c] | image | all  [--out dir] [--port 18890] [--comfy-port 18288]');
+    console.log('Usage: node scripts/local/bench-controller.mjs corpus --from <payloads.jsonl> | text [--arms a,b+c] | endpoint (--url <openai base> | --llama-arm <arm>) --label <name> [--full] | image | all  [--out dir] [--port 18890] [--comfy-port 18288]');
     console.log(`Arms: ${Object.keys(MODIFIERS).join(', ')} (combine with +). Default: ${DEFAULT_ARMS.join(',')}`);
     process.exit(command === 'help' ? 0 : 1);
 }
