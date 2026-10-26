@@ -167,12 +167,13 @@ Example:
 - **Lead length**: `leadLengthLine` in the lead's own draft of the guidance block (`pacingCoordinator` `leadLength` dep).
 - **Rollback**: `rewindSpeech` in `rollback.ts` quarantine (drop at/after; swipe/edit keep the message's own row; delete shifts); directed chain voices are also recorded as cued lines, so a swipe keeps the direction.
 - **Authoring**: validation (`validate/talkPacing.ts`), storyDiff (`talk-defaults-changed`, roster refs), diagnostics `talk-budget-below-chain` (warning), `talk-pacing-no-room` (warning), `npc-reply-scope-unused` (info), and pacing member names under `talk-member-unknown` (`studio/talkDiagnostics.ts`); Studio `TalkPacingFields` (profile, budget, lead words, spotlight, address, reaction, effective-policy line), `NpcReplyScope` (id, at most N per scope, cooldown), story default profile/voices; wizard parser (`copilot/parseFields.ts`); guide topic `talk-pacing` + `npc-replies` update (story-guide.md, `copilot/guideTopicsTalk.ts`, `npm run docs:guide`), guide coverage tables for `talk_control`, `talk_defaults`, `npc_replies[]`.
+- **Main bundle**: the budget (`speechBudget.ts` + `talk/policy.ts`) loads as the lazy `speechUnit` chunk and the chain pacing as a lazy `talkPacing` chunk (both imported at startup; until they land, nothing is budgeted or substituted and no request is refused); the pacing validators ride the game layer, so a story using any stage 2 key loads it (`usesGameLayer`). Main bundle 1,293,742 B (base 1,281,363 B, budget 1,300,000 B).
 - **Metrics** (`scripts/debug/so-talk-metrics.mts`): `--budget` (per-round compliance), `--lead-words` (lead lines within 1.25x target), spotlight share, longest party gap, longest quiet run per member, and the chat file's speech record (events by origin, failed attempts, max voices per send).
-- **Scenarios (written, NOT run)**: `test/scenarios/v30-19s2-speech-budget.json`, `-reply-scope.json`, `-profile.json`, `-address-player.json`, `-reaction.json`, `-spotlight.json` (no-model lane, group `Group: Arin, DM Narrator`, schema-validated). The address, reaction and spotlight ones assume the no-model lane completes the group wrapper on an empty reply; the spotlight substitution itself needs three members and is covered by `runtime/talkPacing.review.test.ts`.
+- **Scenarios (written, NOT run)**: `test/scenarios/v30-19s2-speech-budget.json`, `-reply-scope.json`, `-profile.json`, `-address-player.json`, `-reaction.json`, `-spotlight.json` (group `Group: Arin, DM Narrator`, schema-validated). Budget, reply scope and profile are no-model; address, reaction and spotlight use `send_generate`, so they are model-lane (`model: any`), with the talk director mocked and assertions on code-made records only. The spotlight substitution itself needs three members and is covered by `runtime/talkPacing.review.test.ts`.
 
 ### Live gate stage 2 (owed, NOT green)
 
-- Run the six stage 2 scenarios on a no-model lane, twice (`so-scenario run <file> --sandbox --group "Group: Arin, DM Narrator"`).
+- Run the three no-model stage 2 scenarios on a no-model lane and the three model-lane ones on a model lane, each twice (`so-scenario run <file> --sandbox --group "Group: Arin, DM Narrator"`).
 - Real-LLM on adolion-fresh, after the campaign pass: a `conversation` beat for 10 player turns: `so-talk-metrics.mts --budget 3 --lead-words 120` shows budget compliance 100%, every member speaking within 4 player turns, lead p90 within target; the speech record shows no send over its voices/attempts.
 - A `decision` beat: at most 2 voices per send, the lead first, no address beat.
 - An address beat: the non-lead voice asks the player one thing and the chain stops; payload check that the one-shot line reaches only that member's generation.
@@ -236,3 +237,20 @@ Date 2026-10-26, branch `v3.0-talk-pacing` from master `2403c70f`.
 - Size guards: `effectsApplier.ts` split (`npcSpeak.ts`, `openingSequence.ts`, `effectsApplierHost.ts`), TalkControl types moved to `engine/talkSchema.ts`, the manager stays at 700 effective lines.
 - **Live gate: NOT run, owed, NOT green.** The GPU and lanes were in use by another agent's image run. `test/scenarios/v30-19-opening-hook.json` was written and schema-validated (`validateFixture` returned no problems, the eval pre-check parses) but not run. The real-LLM checks owed are listed under "Live gate".
 - Deviations: none from the owner decisions. Added beyond the first brief, at the lead's request after the Astra and Opus reviews: every scripted opener posts, the opener never defers its own beat, `afterSpeak` waits on a question, swipe re-arms a cue, held-opener rollback, one-candidate judge eligibility, direct-address chain routing, the metrics script.
+
+### Gate record, stage 2
+
+Date 2026-10-26, branch `v3.0-talk-pacing-s2` from master `5719c721`.
+
+- `npm run gates:quick` green before the full run (typecheck, typecheck:test, lint changed, jest related, defect replay `--cached`).
+- `npm run gates` (no `--resume`, Storybook included): **all green in 260.1 s**.
+  - build, typecheck, typecheck:test, lint, debug:typecheck: ok.
+  - test (jest): 910 suites passed (1 skipped); 10564 tests passed, 1 skipped.
+  - test:replay: defect replay 32 of 32 killed.
+  - test:debug: 1574 of 1574 pass. test:plugin and test:release: ok (0 fail).
+  - test-storybook:ci: 166 suites, 1006 tests passed (new stories `Studio/TalkControlEditor` PicksPacingProfile, `Studio/NpcReplyScope` ScopesAReplyPerVisit).
+- Earlier full runs went red and were fixed before the green run: main bundle over budget (1,305,422 B; fixed by the lazy `speechUnit` and `talkPacing` chunks and game-layer validators, now 1,293,742 B), `legacyFree` and `errorCopy` guard rows (word renamed; two parseFields issue templates listed in `test/findings/errorCopy.json`), a Storybook query that matched the profile tooltip, and the model-class census (address, reaction, spotlight scenarios use `send_generate`, so `model: any`, lane `model`). The first full run waited for another worktree's Storybook to free port 6006.
+- New tests: `talk/policy.test.ts`, `talk/participation.test.ts`, `engine/validate/talkPacing.test.ts`, `runtime/speechBudget.test.ts` (budget, ledger rollback), `runtime/npcReplyScope.test.ts` (ids, scopes, cooldowns, rollback = replay, consequential events), `runtime/talkPacing.review.test.ts` (budget stops the chain, spotlight substitutes, address rides, cooldown, reaction, lead preference), `copilot/parseFieldsTalk.test.ts`, additions to `runtime/effectsApplier.test.ts`, `runtime/coordinators/oneShotDirection.review.test.ts`, `studio/diagnostics.test.ts`, `copilot/guideCoverage.test.ts`, `scripts/debug/lib/talkMetrics.test.mts`.
+- Goldens and findings: `test/goldens/arrival-findings.json` (+6 scenario stories, no findings), `test/findings/errorCopy.json` (+2 rows).
+- **Live gate: NOT run, owed, NOT green** (dev only, lanes in use). See "Live gate stage 2".
+- Deviations: the default `afterSpeak`/`sceneBreak` cooldown moved from 8 messages to 2 player turns (stated above); NPC `llm` replies still use `/trigger`, not `startVoice` (open).

@@ -1,5 +1,5 @@
 import type { NpcReplyEffect } from "@engine/index";
-import { npcReplyId } from "@engine/validate/talkPacing";
+import { npcReplyId } from "@engine/validate/replyIds";
 
 // NPC reply fire counts are keyed by checkpoint/trigger/member/index, so a rollback has no message
 // to compare against. Recording the message id each fire happened at lets a rollback past that id

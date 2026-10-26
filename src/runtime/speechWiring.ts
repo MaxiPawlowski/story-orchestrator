@@ -1,13 +1,18 @@
-import { resolveTalkPolicy, type TalkPolicy } from "@talk/index";
+import type { TalkPolicy } from "@talk/policy";
 import type { RosterMember } from "@engine/index";
+import { log } from "@utils/log";
 import { readNpcReplies } from "./effectSteps";
 import type { ManagerPort } from "./managerWiring";
 import { getGlobalSettings } from "./settingsStore";
 import { TALK_CHAIN_FIXED } from "./settingsModel";
-import { SpeechBudget } from "./speechBudget";
+import type { SpeechBudget, SpeechBudgetDeps } from "./speechBudget";
+import type { SpeechReservation } from "./speechLedger";
 import { resolveChainConfig } from "./talkControl";
 
-type SpeechPort = Pick<ManagerPort, "loaded" | "extras" | "engine" | "view" | "lifecycle" | "journal">;
+type SpeechPortDeps = Pick<ManagerPort, "loaded" | "extras" | "engine" | "view" | "lifecycle" | "journal">;
+type SpeechUnit = typeof import("./speechUnit");
+
+export type SpeechPort = Pick<SpeechBudget, "reserve" | "settle" | "recordEntry" | "yieldPending" | "causeHandled" | "lastAddressAt">;
 
 export interface LeadLength {
   rosterId: string;
@@ -20,18 +25,20 @@ const findMember = (roster: readonly RosterMember[], ref: string | undefined): R
   return wanted ? roster.find((member) => [member.id, member.name ?? ""].some((name) => name.trim().toLowerCase() === wanted)) : undefined;
 };
 
-export function wireSpeech(port: SpeechPort) {
+export function wireSpeech(port: SpeechPortDeps, importer: () => Promise<SpeechUnit> = () => import("./speechUnit")) {
+  let unit: SpeechUnit | null = null;
+  let budget: SpeechBudget | null = null;
   const policy = (): TalkPolicy | null => {
     const story = port.loaded()?.story ?? null;
-    if (!story) return null;
+    if (!story || !unit) return null;
     const extras = port.extras();
     const checkpoint = port.engine.activeCheckpoint;
     const control = extras.talk.enabled && extras.requirements.ready ? checkpoint?.talk_control ?? null : null;
     const chain = control ? resolveChainConfig(control, { ...getGlobalSettings().talk.chain, ...TALK_CHAIN_FIXED }) : null;
     const activeReplies = readNpcReplies(checkpoint?.effects).some((reply) => reply.trigger !== "onEnter" && reply.enabled !== false);
-    return resolveTalkPolicy({ control, defaults: story.talk_defaults, chainMax: chain?.enabled ? chain.max : null, activeReplies });
+    return unit.resolveTalkPolicy({ control, defaults: story.talk_defaults, chainMax: chain?.enabled ? chain.max : null, activeReplies });
   };
-  const speech = new SpeechBudget({
+  const deps: SpeechBudgetDeps = {
     chat: () => port.view.hosts.chat.chatRows(),
     chatId: () => String(port.view.hosts.chat.chatId() ?? ""),
     events: () => (port.loaded() ? port.extras().speech ?? [] : null),
@@ -39,11 +46,23 @@ export function wireSpeech(port: SpeechPort) {
     policy,
     persist: () => { void port.lifecycle.persist(); },
     journal: (summary, note) => port.journal("story", summary, note),
-  });
+  };
+  const ready = importer().then((loaded) => {
+    unit = loaded;
+    budget = new loaded.SpeechBudget(deps);
+  }, (error: unknown) => log.warn("the speech budget could not load, so automatic voices are not budgeted", error));
+  const speech: SpeechPort = {
+    reserve: (request): SpeechReservation | null => (budget ? budget.reserve(request) : { id: -1, send: -1, request }),
+    settle: (reservation, messageId) => budget?.settle(reservation, messageId),
+    recordEntry: (member, messageId, generated, entry) => budget?.recordEntry(member, messageId, generated, entry),
+    yieldPending: () => budget?.yieldPending() ?? false,
+    causeHandled: (cause) => budget?.causeHandled(cause) ?? false,
+    lastAddressAt: () => budget?.lastAddressAt() ?? -1,
+  };
   const leadLength = (): LeadLength | null => {
     const words = policy()?.leadWords;
     const member = findMember(port.loaded()?.story.roster ?? [], port.engine.activeCheckpoint?.talk_control?.lead);
     return words && member ? { rosterId: member.id, name: member.name ?? member.id, words } : null;
   };
-  return { speech, policy, leadLength };
+  return { speech, policy, leadLength, ready };
 }

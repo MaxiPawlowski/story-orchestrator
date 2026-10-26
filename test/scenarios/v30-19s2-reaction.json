@@ -1,8 +1,8 @@
 {
-  "model": "none",
-  "_note": "One reaction beat after a consequential event: at_gate is set by the author before the player's message, so the first voice's boundary fires camp -> gate (a consequential event). Both beats run a director chain with reaction on and stop_on_transition false; the next chain step is a reaction by a member who has not spoken in this answer, recorded as a talk decision with source reaction and a speech event with origin reaction and the event's cause, at most once for that cause. Assumes the no-model lane completes the wrapper on an empty reply and commits its boundary (debug-scripts: with the backend down a send still appends an empty reply and commits a boundary). Written for v3.0 plan 19 stage 2, NOT YET RUN (the live gate is owed); schema-validated only.",
+  "model": "any",
+  "_note": "One reaction beat after a consequential event: at_gate is set by the author before the player's message, so the first voice's boundary fires camp -> gate (a consequential event). Both beats run a director chain with reaction on and stop_on_transition false; the next chain step is a reaction by a member who has not spoken in this answer, recorded as a talk decision with source reaction and a speech event with origin reaction and the event's cause, at most once for that cause. Written for v3.0 plan 19 stage 2, NOT YET RUN (the live gate is owed); schema-validated only. Model lane: send_generate drafts real voices; the assertions read code-made records only.",
   "requires": {
-    "lane": "no-model",
+    "lane": "model",
     "group": "Group: Arin, DM Narrator",
     "members": [
       "Arin",
@@ -19,7 +19,7 @@
     {
       "import_story": {
         "title": "SO-V3019S2 Reaction",
-        "description": "v3.0 plan 19 stage 2 no-model fixture.",
+        "description": "v3.0 plan 19 stage 2 fixture.",
         "qualities": [
           {
             "key": "at_gate",

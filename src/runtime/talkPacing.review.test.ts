@@ -70,6 +70,7 @@ const makeHost = ({ control, history = [], picks, drafted = "guard", consequence
 const run = async (setup: Setup, voices: Array<[string, string?]>) => {
   const made = makeHost(setup);
   const controller = new TalkController(made.host);
+  await controller.ready;
   controller.onWrapperStarted({ type: "normal" });
   await controller.intercept(() => undefined, "normal");
   for (const [speaker, text] of voices) {
@@ -88,7 +89,7 @@ describe("v3.0 19 stage 2: one speech budget per player message", () => {
     expect(events()).toEqual([expect.objectContaining({ origin: "chain", member: "Finn", messageId: 2, send: 0, generated: true })]);
   });
 
-  it("control: without a budget field the legacy budget is the chain max, so three voices still answer", async () => {
+  it("control: without a budget field the default budget is the chain max, so three voices still answer", async () => {
     const { calls } = await run({ control: { director: true }, picks: ["Mara", "Finn", "Narrator"] }, [["Mara"], ["Finn"], ["Narrator"]]);
     expect(calls.triggered).toEqual(["Finn", "Narrator"]);
   });
@@ -173,10 +174,10 @@ describe("v3.0 19 stage 2: one reaction beat after a consequential event", () =>
 });
 
 describe("v3.0 19 stage 2: profiles resolve lead preference", () => {
-  it("conversation does not tell the judge to prefer the lead; legacy does", async () => {
-    const legacy = await run({ control: { director: true, lead: "Narrator" }, picks: ["Mara"], drafted: "guard" }, []);
+  it("conversation does not tell the judge to prefer the lead; no profile does", async () => {
+    const plain = await run({ control: { director: true, lead: "Narrator" }, picks: ["Mara"], drafted: "guard" }, []);
     const conversation = await run({ control: { director: true, lead: "Narrator", profile: "conversation" }, picks: ["Mara"], drafted: "guard" }, []);
-    expect(legacy.calls.judged[0].lead).toBe("Narrator");
+    expect(plain.calls.judged[0].lead).toBe("Narrator");
     expect(conversation.calls.judged[0].lead).toBeUndefined();
   });
 });

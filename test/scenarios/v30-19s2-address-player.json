@@ -1,8 +1,8 @@
 {
-  "model": "none",
-  "_note": "Address-the-player rides a planned voice: lead DM Narrator, director on (storyOrchestratorDebugDirectorResponse picks Arin), address_player after 1 player turn. The first voice the director picks is Arin, a non-lead member, so the one-shot ask rides it: the speech record holds an address event for Arin with recipient player, instructed and yield-after, whether or not the no-model lane renders the reply (a failed generation is recorded as an attempt with no message). No extra voice is started for it. Assumes the no-model lane runs the group wrapper and the talk interceptor; if it does not, run on a model lane. Written for v3.0 plan 19 stage 2, NOT YET RUN (the live gate is owed); schema-validated only.",
+  "model": "any",
+  "_note": "Address-the-player rides a planned voice: lead DM Narrator, director on (storyOrchestratorDebugDirectorResponse picks Arin), address_player after 1 player turn. The first voice the director picks is Arin, a non-lead member, so the one-shot ask rides it: the speech record holds an address event for Arin with recipient player, instructed and yield-after, whether or not the reply renders (a failed generation is recorded as an attempt with no message). No extra voice is started for it. Written for v3.0 plan 19 stage 2, NOT YET RUN (the live gate is owed); schema-validated only. Model lane: send_generate drafts real voices; the assertions read code-made records only.",
   "requires": {
-    "lane": "no-model",
+    "lane": "model",
     "group": "Group: Arin, DM Narrator",
     "members": [
       "Arin",
@@ -19,7 +19,7 @@
     {
       "import_story": {
         "title": "SO-V3019S2 Address",
-        "description": "v3.0 plan 19 stage 2 no-model fixture.",
+        "description": "v3.0 plan 19 stage 2 fixture.",
         "qualities": [
           {
             "key": "at_gate",

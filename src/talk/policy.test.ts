@@ -1,7 +1,7 @@
 import { TALK_PROFILE_SHAPES, describeTalkPolicy, resolveTalkPolicy } from "./policy";
 
 describe("v3.0 19 stage 2: talk pacing policy", () => {
-  it("legacy: a talk_control beat keeps today's shape, the chain max plus one for an afterSpeak or sceneBreak line", () => {
+  it("default: a talk_control beat keeps today's shape, the chain max plus one for an afterSpeak or sceneBreak line", () => {
     expect(resolveTalkPolicy({ control: {}, chainMax: 3, activeReplies: false })).toEqual({
       profile: null, budget: { voices: 3, attempts: 4 }, leadPreferred: true, leadWords: null, spotlight: null, addressPlayer: null, reaction: null,
     });

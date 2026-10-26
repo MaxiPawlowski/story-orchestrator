@@ -89,12 +89,12 @@ export const PicksPacingProfile: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await expect(canvas.getByText(/Effective: 3 voices and 4 generations at most per player message; the lead answers first/)).toBeInTheDocument();
-    await userEvent.selectOptions(canvas.getByLabelText("Pacing profile"), "conversation");
+    await userEvent.selectOptions(canvasElement.querySelector('[data-so="talk-profile"]') as HTMLSelectElement, "conversation");
     await expect(canvas.getByText(/Effective: 3 voices .*the lead does not get the first word; lead replies near 120 words/)).toBeInTheDocument();
     await expect(canvasElement.querySelector('[data-so="talk-spotlight"]')).toBeChecked();
     await userEvent.click(canvasElement.querySelector('[data-so="talk-spotlight"]') as HTMLElement);
     await expect(canvasElement.querySelector('[data-so="talk-spotlight"]')).not.toBeChecked();
-    await userEvent.type(canvas.getByLabelText("Voices per player message"), "2");
+    await userEvent.type(canvasElement.querySelector('[data-so="talk-budget-voices"]') as HTMLInputElement, "2");
     await expect(canvas.getByText(/Effective: 2 voices and 3 generations/)).toBeInTheDocument();
   },
 };

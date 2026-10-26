@@ -5,7 +5,8 @@ import {
   withAddressed, type DirectorWindowMessage, type TalkCandidate, type TalkDecisionSource,
 } from "@talk/index";
 import { runDirectorDecision, runJudgeDecision, type Decision } from "./talkDirector";
-import { TalkPacing, type PlanContext, type TalkPacingHost, type VoicePlan } from "./talkPacing";
+import type { PlanContext, TalkPacingHost, VoicePlan } from "./talkPacing";
+import { IDLE_PACING, type TalkPacingApi } from "./talkPacingIdle";
 import type { SpeechReservation } from "./speechLedger";
 import { beginRun, type MessageWindow, type RunGuard, type RunOwnership } from "./runToken";
 import type { TalkDecisionAudit } from "./types";
@@ -140,10 +141,11 @@ export class TalkController {
   private reconciled: { key: string; run: RunGuard | null } | null = null;
   private chain: ChainState | null = null;
   private inFlight = 0;
-  private readonly pacing: TalkPacing;
+  private pacing: TalkPacingApi = IDLE_PACING;
+  readonly ready: Promise<void>;
 
-  constructor(private readonly host: TalkControlHost) {
-    this.pacing = new TalkPacing(host);
+  constructor(private readonly host: TalkControlHost, importer: () => Promise<typeof import("./talkPacing")> = () => import("./talkPacing")) {
+    this.ready = importer().then(({ TalkPacing }) => { this.pacing = new TalkPacing(host); }, (error: unknown) => log.warn("talk pacing could not load", error));
   }
 
   chainPending(): boolean {

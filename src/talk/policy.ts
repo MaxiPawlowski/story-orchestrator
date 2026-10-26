@@ -85,9 +85,9 @@ const withControl = (policy: TalkPolicy, control: TalkControl): TalkPolicy => {
 };
 
 export const resolveTalkPolicy = ({ control, defaults, chainMax, activeReplies }: TalkPolicyInput): TalkPolicy => {
-  const legacyVoices = (chainMax ?? 1) + (activeReplies ? 1 : 0);
+  const baseVoices = (chainMax ?? 1) + (activeReplies ? 1 : 0);
   let policy: TalkPolicy = {
-    profile: null, budget: control || defaults ? budgetOf(legacyVoices, undefined) : null, leadPreferred: true, leadWords: null, spotlight: null, addressPlayer: null, reaction: null,
+    profile: null, budget: control || defaults ? budgetOf(baseVoices, undefined) : null, leadPreferred: true, leadWords: null, spotlight: null, addressPlayer: null, reaction: null,
   };
   if (defaults?.profile) policy = fromProfile(defaults.profile);
   policy = withBudget(policy, defaults?.budget);

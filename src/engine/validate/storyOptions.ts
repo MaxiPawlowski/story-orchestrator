@@ -9,7 +9,6 @@ import { addError, asString, isOneOf, rejectUnknownKeys } from "./common";
 import { readStoryIllustrations } from "./illustrations";
 import { gameLayer } from "./gameLayer";
 import { readBriefing } from "./briefing";
-import { readTalkDefaults } from "./talkPacing";
 
 const REQUIREMENT_KEYS = ["personas", "members", "lorebooks"] as const;
 
@@ -228,7 +227,7 @@ export const readStoryOptions = (json: Record<string, unknown>, errors: Validati
   const display = readDisplay(json.display, errors);
   const poses = gameLayer()?.poses.readStoryPoses(json.poses, errors);
   const kind = readKind(json.kind, errors);
-  const talkDefaults = readTalkDefaults(json.talk_defaults, errors);
+  const talkDefaults = gameLayer()?.talk.readTalkDefaults(json.talk_defaults, errors);
   return {
     ...(talkDefaults ? { talk_defaults: talkDefaults } : {}),
     ...(isOneOf(reasoning, CHECKPOINT_REASONING) ? { reasoning } : {}),
