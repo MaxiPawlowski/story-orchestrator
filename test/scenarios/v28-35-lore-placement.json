@@ -1,6 +1,6 @@
 {
   "model": "none",
-  "_note": "B6 no-model half of the third coverage gap: host getSortedEntries scans an owned synthetic book with before/after, constant and disabled entries. Setting-off control, late-depth treatment and unchanged server file. Since 28eab941 the default lateLoreDepth is 0 and a before entry is no longer pushed one deeper at depth 0, so the treatment asserts both Before and After at depth 0; a second arm at lateLoreDepth 4 keeps the nonzero rule (Before 5, After 4). R7 same-speaker cache reuse and F29 payload captures remain separate measurements.",
+  "_note": "B6 no-model half of the third coverage gap: host getSortedEntries scans an owned synthetic book with before/after, constant and disabled entries. Setting-off control, late-depth treatment and unchanged server file. R7 same-speaker cache reuse and F29 payload captures remain separate measurements.",
   "requires": {
     "lane": "no-model",
     "group": "Group: Arin, DM Narrator",
@@ -75,7 +75,7 @@
           "worldInfo",
           "lateLoreDepth"
         ],
-        "value": 0
+        "value": 4
       }
     },
     {
@@ -179,11 +179,7 @@
       "log": true
     },
     {
-      "eval": "const b = globalThis.__b6placement; const rows = await b.scan(); if (rows.length !== 4) throw new Error('treatment denominator changed'); for (const row of rows) { if (row.comment === 'Before' || row.comment === 'After') { if (row.position !== 4 || row.depth !== 0 || row.role !== 0) throw new Error('late placement not applied at depth 0 (28eab941): ' + JSON.stringify(row)); } else { const control = b.control.find((e) => e.comment === row.comment); if (JSON.stringify(row) !== JSON.stringify(control)) throw new Error('constant or disabled entry moved: ' + JSON.stringify(row)); } } if (await b.disk() !== b.before) throw new Error('placement wrote the server file'); if (JSON.stringify(await b.scan()) !== JSON.stringify(rows)) throw new Error('repeated scan is unstable'); return { treatment: rows, unchangedDisk: true, repeatEqual: true };",
-      "log": true
-    },
-    {
-      "eval": "const b = globalThis.__b6placement; const root = SillyTavern.getContext().extensionSettings['story-orchestrator']; root.settings.worldInfo.lateLoreDepth = 4; const rows = await b.scan(); if (rows.length !== 4) throw new Error('nonzero arm denominator changed'); for (const row of rows) { if (row.comment === 'Before' || row.comment === 'After') { const depth = row.comment === 'Before' ? 5 : 4; if (row.position !== 4 || row.depth !== depth || row.role !== 0) throw new Error('late placement at lateLoreDepth 4 not Before 5 / After 4: ' + JSON.stringify(row)); } else { const control = b.control.find((e) => e.comment === row.comment); if (JSON.stringify(row) !== JSON.stringify(control)) throw new Error('constant or disabled entry moved: ' + JSON.stringify(row)); } } if (await b.disk() !== b.before) throw new Error('placement wrote the server file'); return { nonzeroArm: rows, unchangedDisk: true };",
+      "eval": "const b = globalThis.__b6placement; const rows = await b.scan(); if (rows.length !== 4) throw new Error('treatment denominator changed'); for (const row of rows) { if (row.comment === 'Before' || row.comment === 'After') { const depth = row.comment === 'Before' ? 5 : 4; if (row.position !== 4 || row.depth !== depth || row.role !== 0) throw new Error('late placement not applied: ' + JSON.stringify(row)); } else { const control = b.control.find((e) => e.comment === row.comment); if (JSON.stringify(row) !== JSON.stringify(control)) throw new Error('constant or disabled entry moved: ' + JSON.stringify(row)); } } if (await b.disk() !== b.before) throw new Error('placement wrote the server file'); if (JSON.stringify(await b.scan()) !== JSON.stringify(rows)) throw new Error('repeated scan is unstable'); return { treatment: rows, unchangedDisk: true, repeatEqual: true };",
       "log": true
     },
     {

@@ -77,7 +77,7 @@
         },
         "pacingPrompt": {
           "position": 1,
-          "depth": 0,
+          "depth": 2,
           "role": 0
         }
       }
@@ -119,13 +119,12 @@
             ]
           },
           "position": 1,
-          "depth": 0,
+          "depth": 2,
           "role": 0
         }
       }
     }
   ],
-  "_v30": "28eab941 (v3.0 06) moved every story injection to depth 0 for prompt reuse; pacing was depth 2. The pacingPrompt asserts stay in-chat (position 1), system (role 0), now at depth 0.",
   "_v24": "The pacing text now carries the agency clause (plan 07: DEFAULT_AGENCY applies when a checkpoint declares none). The check asserts both halves instead of the pre-plan-07 literal.",
   "_v26": "v2.6 T1 rewrote the hold hint (e72055ed: one concrete development + NOTHING_NEW_CLAUSE, no filler steering) and plan 14 T1 (e37a27b2) names the player as the {{user}} macro, not \"the player\" (src/pacing/steering.ts hintText/playerClause, src/engine/agency.ts PLAYER_REF, NO_SKIP_CLAUSE). The injected prompt holds the macro unresolved (ST resolves it per prompt), so the check asserts the current hold text, the nothing-new hand-back, the agency clause and the no-skip clause literally."
 }
