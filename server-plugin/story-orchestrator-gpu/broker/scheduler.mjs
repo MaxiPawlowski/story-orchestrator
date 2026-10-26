@@ -34,7 +34,8 @@ export class ResidencyScheduler {
             return result;
         };
         this.pending = [];
-        this.activeText = false;
+        this.activeText = 0;
+        this.activeLanes = new Set();
         this.imagePending = false;
         this.lease = null;
         this.manualHold = false;
@@ -76,11 +77,11 @@ export class ResidencyScheduler {
         } finally { this.restoring = false; void this.pump(); }
     }
 
-    text(run, signal, budget = null) {
+    text(run, signal, budget = null, lane = 'side') {
         if (this.manualHold) return Promise.reject(new Error('Text is manually unloaded. Select Automatic or Load text in the tray.'));
         if (this.pending.length >= this.config.maxQueue) return Promise.reject(new Error('Local text queue is full.'));
         return new Promise((resolve, reject) => {
-            const entry = { run, resolve, reject, signal, budget, timer: null, abort: null };
+            const entry = { run, resolve, reject, signal, budget, lane: lane === 'chat' ? 'chat' : 'side', timer: null, abort: null };
             const remove = (error) => { this.pending = this.pending.filter((row) => row !== entry); this.cleanup(entry); reject(error); };
             entry.abort = () => remove(new Error('Queued request was cancelled.'));
             entry.timer = setTimeout(() => remove(new Error('Local resource queue deadline exceeded.')), this.config.queueTimeoutMs);
@@ -93,27 +94,47 @@ export class ResidencyScheduler {
 
     cleanup(entry) { clearTimeout(entry.timer); entry.signal?.removeEventListener('abort', entry.abort); }
 
+    concurrentLanes() {
+        const lanes = this.config.slots;
+        if (!lanes || lanes.enabled === false || !(lanes.count >= 2) || lanes.concurrent === false) return false;
+        const state = this.backend.status();
+        return Boolean(state.pid) && !state.loading && state.fitTargetMiB == null && !this.imagesNeedRelease;
+    }
+
+    nextEntry() {
+        const chatFirst = this.config.chatFirst === true || Boolean(this.config.slots?.count >= 2 && this.config.slots?.enabled !== false);
+        const free = (row) => !this.activeLanes.has(row.lane);
+        if (chatFirst) { const chat = this.pending.findIndex((row) => row.lane === 'chat' && free(row)); if (chat >= 0) return chat; }
+        return this.pending.findIndex(free);
+    }
+
     async pump() {
-        if (this.activeText || this.imagePending || this.lease || this.manualHold || this.restoring || (this.imageQueued && this.imageTurn())) return;
-        const entry = this.pending.shift();
-        if (!entry) return;
+        if (this.imagePending || this.lease || this.manualHold || this.restoring || (this.imageQueued && this.imageTurn())) return;
+        if (this.activeText && !this.concurrentLanes()) return;
+        const at = this.nextEntry();
+        if (at < 0) return;
+        const [entry] = this.pending.splice(at, 1);
         this.cleanup(entry);
         if (entry.signal?.aborted) { entry.reject(new Error('Request cancelled.')); void this.pump(); return; }
-        this.activeText = true;
+        const alone = this.activeText === 0;
+        this.activeText += 1;
+        this.activeLanes.add(entry.lane);
+        if (!alone) this.overlapped = (this.overlapped ?? 0) + 1;
+        void this.pump();
         try {
             const state = this.backend.status();
-            if (state.fitTargetMiB != null && this.config.residencyObjective !== 'switch') {
+            if (alone && state.fitTargetMiB != null && this.config.residencyObjective !== 'switch') {
                 this.lastTextDecision = textLatencyDecision({ budget: entry.budget, timings: this.timings, profile: timingProfile(this.config, state.profile), fitTarget: state.fitTargetMiB });
                 if (this.lastTextDecision.restore) await this.restoreText();
             }
-            if (this.imagesNeedRelease) {
+            if (alone && this.imagesNeedRelease) {
                 const name = this.backend.desiredProfile ?? this.config.defaultProfile;
                 await this.freeImages({ ramRequiredMiB: state.pid ? 0 : this.config.profiles?.[name]?.estimatedRamMiB ?? 6500 });
             }
             entry.resolve(await entry.run());
         }
         catch (error) { this.lastError = error.message; entry.reject(error); }
-        finally { this.activeText = false; this.servedText += 1; void this.pump(); }
+        finally { this.activeText -= 1; this.activeLanes.delete(entry.lane); this.servedText += 1; void this.pump(); }
     }
 
     async needFor(body, key) {
@@ -508,7 +529,7 @@ export class ResidencyScheduler {
 
     status() {
         return { phase: this.imagePending ? 'reserving' : this.lease ? 'image' : this.restoring ? 'restoring' : this.manualHold ? 'manual-hold' : 'text',
-            activeText: this.activeText ? 1 : 0, waitingText: this.pending.length, imageLease: Boolean(this.lease),
+            activeText: this.activeText, overlappedText: this.overlapped ?? 0, waitingText: this.pending.length, imageLease: Boolean(this.lease),
             imageWaiting: Boolean(this.imageQueued), servedText: this.servedText, fairImages: true, ramShort: this.ramShort,
             text: this.backend.status(), objective: this.config.residencyObjective ?? 'total-wait', timings: this.timings, lastTextDecision: this.lastTextDecision,
             lastDecision: this.lastDecision, lastResidency: this.lastResidency, lastNeedGpuMiB: this.lastNeedGpuMiB, measurement: this.lastMeasurement ? { ...this.lastMeasurement, trace: undefined } : null,

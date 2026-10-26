@@ -754,3 +754,40 @@ test('a text load left with a fit correction (layers on the CPU) is reloaded cle
     assert.equal(await scheduler.recoverFitSpill(now + 61000), true);
 });
 
+test('chatFirst lets a chat reply overtake queued side passes; FIFO otherwise', async () => {
+    for (const chatFirst of [true, false]) {
+        const { scheduler } = setup({ config: { chatFirst, maxQueue: 8 } });
+        const order = [];
+        const gate = deferred();
+        const running = scheduler.text(async () => { order.push('side-running'); await gate.promise; }, undefined, null, 'side');
+        const side = scheduler.text(async () => { order.push('side-queued'); }, undefined, null, 'side');
+        const chat = scheduler.text(async () => { order.push('chat'); }, undefined, null, 'chat');
+        await tick();
+        gate.resolve();
+        await Promise.all([running, side, chat]);
+        assert.deepEqual(order, chatFirst ? ['side-running', 'chat', 'side-queued'] : ['side-running', 'side-queued', 'chat']);
+    }
+});
+
+test('with two slots a chat runs beside a side pass, never two of one lane, and an image waits for both', async () => {
+    const { scheduler } = setup({ config: { slots: { count: 2 }, maxQueue: 8, imageCacheMode: 'evict' } });
+    const gates = [deferred(), deferred(), deferred()];
+    let peak = 0; let live = 0;
+    const job = (gate, label, log) => async () => { live += 1; peak = Math.max(peak, live); log.push(`start ${label}`); await gate.promise; live -= 1; log.push(`end ${label}`); };
+    const log = [];
+    const sideA = scheduler.text(job(gates[0], 'sideA', log), undefined, null, 'side');
+    const sideB = scheduler.text(job(gates[1], 'sideB', log), undefined, null, 'side');
+    const chat = scheduler.text(job(gates[2], 'chat', log), undefined, null, 'chat');
+    await tick(); await tick();
+    assert.deepEqual(log, ['start sideA', 'start chat']);
+    assert.equal(scheduler.status().activeText, 2);
+    const image = scheduler.reserve();
+    gates[2].resolve(); await chat;
+    gates[0].resolve(); await sideA; await tick();
+    gates[1].resolve(); await sideB;
+    const lease = await image;
+    assert.ok(lease.lease);
+    assert.equal(peak, 2);
+    assert.ok(log.indexOf('end sideA') < log.indexOf('start sideB'));
+});
+

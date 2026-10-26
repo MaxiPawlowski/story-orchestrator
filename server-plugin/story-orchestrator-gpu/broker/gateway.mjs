@@ -135,7 +135,7 @@ export function createGateway({ arbiter, config, fetchImpl = fetch, allowOrigin 
                 else await backend.ensure(backend.profile ?? config.defaultProfile);
                 try { await forward(); }
                 finally { if (!memberDone && members?.afterOther && generating && backend.status().pid) await members.afterOther(slot ?? 0).catch((error) => { members.lastError = error.message; }); }
-            }, abort.signal, GENERATION_ROUTES.includes(route) ? Number(body?.n_predict ?? body?.max_tokens ?? 1400) : null);
+            }, abort.signal, GENERATION_ROUTES.includes(route) ? Number(body?.n_predict ?? body?.max_tokens ?? 1400) : null, generating && body?.stream === true ? 'chat' : 'side');
         } catch (error) {
             if (error instanceof ContextRefusal) answer(res, 400, { error: { code: 400, message: error.message, type: 'exceed_context_size_error', n_prompt_tokens: error.promptTokens, n_ctx: error.context } });
             else answer(res, 409, { error: { message: error.message, type: 'local_residency' } });

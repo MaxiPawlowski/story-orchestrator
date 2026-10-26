@@ -214,9 +214,9 @@ export function createArbiter(config, deps = {}) {
         },
         renew(lease) { return scheduler.renew(lease); },
         release(lease) { return scheduler.release(lease); },
-        text(run, signal, budget) {
+        text(run, signal, budget, lane) {
             if (backend.crashed) return Promise.reject(new Error(`The local text server exited (code ${backend.crashed.code ?? 'unknown'}). An admin can restart it with Load text.`));
-            return scheduler.text(run, signal, budget);
+            return scheduler.text(run, signal, budget, lane);
         },
         async control(action, body = {}) {
             const input = controlRequest(action, body, config);
