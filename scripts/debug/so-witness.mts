@@ -16,7 +16,7 @@ const USAGE = `Usage:
   node scripts/debug/so-witness.mts score-real --out <dir> --freeze <freeze.json> [--adjudicated]
   node scripts/debug/so-witness.mts freeze --out <dir> --record <freeze.json> [--adjudicated]
   node scripts/debug/so-witness.mts presence --out <dir> --freeze <freeze.json> [--adjudicated]
-  node scripts/debug/so-witness.mts derive-score --out <dir> --sessions <root> --freeze <freeze-adjudicated.json> [--lab-story <f>] [--write <result.json>]
+  node scripts/debug/so-witness.mts derive-score --out <dir> --sessions <root> --freeze <freeze-adjudicated.json> [--lab-story <f>] [--speaker-own] [--write <result.json>]
 
 v2.8 plan 42 B, offline: replays recorded witness read responses (format so-witness-reads/1) through the witness
 contract parser and record (no model, no ST), scores them against labels (format so-witness-labels/1; a private set
@@ -36,7 +36,8 @@ which; its verdict wins, undecided or unparsed answers become heard "unknown"; w
 freeze and presence use that set.
 derive-score (v3.0 plan 12, offline, no model): derives witness claims in code (memory/witness/derive.ts) over the recorded read windows
 (<dir>/reads/files) with each session's cast ledger as the enabled set, scores every design variant against the adjudicated labels
-with the W4 scorer, plus the labelled-presence diagnostic and the presence null control; counts only.
+with the W4 scorer, plus the labelled-presence diagnostic and the presence null control; counts only. --speaker-own (owner 2026-10-26,
+new runs only, off when re-scoring a result recorded before it): the speaker of an "unknown"-labelled message is not a false inclusion.
 record (GPU, the read model): on the lane page st-lanes env names, runs the shipped shared read through
 storyOrchestratorLiveSuite.runWitnessRead over each labelled window (real: first and last 8 of 12; lab: 5 x 8), witness lines on
 and/or off, interleaved per read (on, off, on, off) so any stop leaves balanced pairs; resumes; writes <dir>/reads/<arm>/. Plan 11 stop
@@ -112,7 +113,7 @@ async function labelCommand(command: string, args: string[]): Promise<number> {
       console.error(refused);
       return 3;
     }
-    result = await (await import('./lib/witnessDerive.mts')).deriveScoreAll(out, need(args, '--sessions'), option(args, '--lab-story'));
+    result = await (await import('./lib/witnessDerive.mts')).deriveScoreAll(out, need(args, '--sessions'), option(args, '--lab-story'), args.includes('--speaker-own'));
     const write = option(args, '--write');
     if (write) {
       refusePrivateOutput(false, write, 'witness derive score');

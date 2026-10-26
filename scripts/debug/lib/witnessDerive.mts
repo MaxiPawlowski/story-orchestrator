@@ -23,7 +23,7 @@ interface DeriveKit {
   createWitness(): unknown;
   witnessLookup(state: unknown, member: string, messageId: number, span?: [number, number], live?: unknown): Lookup;
   revisionOf(message: Message): unknown;
-  scoreWitness(set: Labels, predict: (messageId: number, member: string, span?: [number, number]) => Lookup): Score;
+  scoreWitness(set: Labels, predict: (messageId: number, member: string, span?: [number, number]) => Lookup, options?: { speakers?: ReadonlyMap<number, string> }): Score;
   combineWitnessScores(set: string, scores: Score[]): Score;
   presencePredict(set: Labels): (messageId: number, member: string, span?: [number, number]) => Lookup;
 }
@@ -106,7 +106,10 @@ async function labSet(readsFile: string, labStory?: string): Promise<DeriveSet> 
   return { reads, omniscient, enabledAt: (messageId) => byEnd.get(messageId) ?? reads.members.map((member) => member.id) };
 }
 
-export async function deriveScoreAll(out: string, root: string, labStory?: string) {
+export const speakersOf = (set: DeriveSet, labels: Labels): Map<number, string> =>
+  new Map(set.reads.messages.filter((message) => labels.members.includes(message.speaker)).map((message) => [message.messageId, message.speaker]));
+
+export async function deriveScoreAll(out: string, root: string, labStory?: string, speakerOwn = false) {
   const kit = await loadDeriveKit();
   const dir = join(out, 'reads', 'files');
   const labelDir = join(out, 'adjudicated', 'labels');
@@ -121,20 +124,21 @@ export async function deriveScoreAll(out: string, root: string, labStory?: strin
     const labelFile = join(labelDir, basename(name));
     if (existsSync(labelFile)) real.push({ labels: await readJson<Labels>(labelFile), set: await realSet(root, join(dir, name)) });
   }
+  const rule = (labels: Labels, set: DeriveSet) => (speakerOwn ? { speakers: speakersOf(set, labels) } : {});
   const variants = [];
   for (const variant of VARIANTS) {
     for (const omniscient of ['speaker-only', 'always'] as const) {
       const options = { ...kit.DERIVE_DEFAULTS, ...variant.options, omniscient };
       const withOracle = (labels: Labels, set: DeriveSet): DeriveSet => (variant.oracle ? { ...set, presentAt: labelledPresence(labels) } : set);
-      const realScore = kit.combineWitnessScores('real-sessions', real.map(({ labels, set }) => kit.scoreWitness(labels, derivedPredict(kit, withOracle(labels, set), options, variant.context))));
-      const labScore = lab ? kit.scoreWitness(lab.labels, derivedPredict(kit, withOracle(lab.labels, lab.set), options, variant.context)) : null;
+      const realScore = kit.combineWitnessScores('real-sessions', real.map(({ labels, set }) => kit.scoreWitness(labels, derivedPredict(kit, withOracle(labels, set), options, variant.context), rule(labels, set))));
+      const labScore = lab ? kit.scoreWitness(lab.labels, derivedPredict(kit, withOracle(lab.labels, lab.set), options, variant.context), rule(lab.labels, lab.set)) : null;
       variants.push({ id: variant.id, omniscient, context: variant.context, options, real: { verdict: realScore.verdict, ...counts(realScore) }, lab: labScore ? { verdict: labScore.verdict, ...counts(labScore) } : null });
     }
   }
-  const control = kit.combineWitnessScores('real-sessions-presence', real.map(({ labels }) => kit.scoreWitness(labels, kit.presencePredict(labels))));
-  const labControl = lab ? kit.scoreWitness(lab.labels, kit.presencePredict(lab.labels)) : null;
+  const control = kit.combineWitnessScores('real-sessions-presence', real.map(({ labels, set }) => kit.scoreWitness(labels, kit.presencePredict(labels), rule(labels, set))));
+  const labControl = lab ? kit.scoreWitness(lab.labels, kit.presencePredict(lab.labels), rule(lab.labels, lab.set)) : null;
   return {
-    format: 'so-witness-derive-score/1', sets: { real: real.length, lab: Boolean(lab) }, variants,
+    format: 'so-witness-derive-score/1', speakerOwnHeard: speakerOwn, sets: { real: real.length, lab: Boolean(lab) }, variants,
     presence: { real: counts(control), lab: labControl ? counts(labControl) : null },
   };
 }

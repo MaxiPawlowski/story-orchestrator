@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { castEnabled, derivedPredict, labelledPresence, loadDeriveKit, type DeriveSet } from './lib/witnessDerive.mts';
+import { castEnabled, derivedPredict, labelledPresence, loadDeriveKit, speakersOf, type DeriveSet } from './lib/witnessDerive.mts';
 
 const at = (minute: number) => `2026-10-01T10:${String(minute).padStart(2, '0')}:00.000Z`;
 
@@ -43,4 +43,10 @@ test('witness derive: derived reads replay through the record, and the labelled-
   const oracle = derivedPredict(kit, { ...set, presentAt: labelledPresence(labels) }, options, 'window');
   assert.deepEqual(['Mara', 'Ben', 'Ula'].map((member) => oracle(1, member).heard), ['no', 'no', 'yes']);
   assert.equal(predict(9, 'Mara').state, 'pending');
+});
+
+test('witness derive: speakersOf maps each message to its speaker when the speaker is a labelled member, never the player', () => {
+  const set = { reads: { set: 's', members: [], reads: [], messages: [{ messageId: 1, speaker: 'Mara', text: '' }, { messageId: 2, speaker: 'Max', text: '' }] }, omniscient: [], enabledAt: () => [] };
+  const labels = { format: 'so-witness-labels/1', set: 's', synthetic: true, members: ['Mara', 'Ben'], labels: [] };
+  assert.deepEqual([...speakersOf(set, labels)], [[1, 'Mara']]);
 });

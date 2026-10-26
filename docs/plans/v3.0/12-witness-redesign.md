@@ -3,7 +3,7 @@
 **Status: DESIGNED + BUILT OFFLINE 2026-10-26 (branch `v3.0-c1-witness`, owner decision 8: offline now, GPU later).
 Design W2 (derived witness) is on master's switch `memory.witness` once merged, still unconsumed. It does NOT clear the W4
 floors on its own; with a presence source as good as the labels it clears exact-set and FE and misses FI by the ambiguous
-stratum only. Floors still TO RESTATE by the owner.** Follows v2.8 42 (`docs/plans/v2.8/42-witness-filter-v2.md`, W4 FAIL).
+stratum only. Floors kept as written (owner 2026-10-26).** Follows v2.8 42 (`docs/plans/v2.8/42-witness-filter-v2.md`, W4 FAIL).
 
 ## Goal
 
@@ -91,19 +91,57 @@ Readings:
 - Tuning bias: the cue list, the first-sentence rule and the 24-message context were chosen on these same sets (no held-out
   set). Treat the W2 numbers as optimistic until the held-out run below.
 
-## Floors (TO RESTATE by the owner)
+## Owner decisions 2026-10-26 ("as recommended", via the coordinator)
 
-W4 floors as declared (v2.8 42 §7): exact-set ≥ 0.9, FI ≤ 0.02 (incl. ambiguous), FE ≤ 0.10, coverage ≥ 0.85, mixed ≥ 0.8,
-span FI ≤ 0.02, aside exact ≥ 0.8, beat presence on W4a by ≥ 0.3. Not retuned here. For the owner's restatement (proposals,
-not decisions): report FI split into non-ambiguous and ambiguous pairs; a design must beat the presence null control's
-exact-set on the real set, since the real set has no whole-message asides for W4a.
+1. **Floors stay exactly as written** (v2.8 42 §7): exact-set ≥ 0.9, FI ≤ 0.02 (incl. ambiguous), FE ≤ 0.10, coverage
+   ≥ 0.85, mixed ≥ 0.8, span FI ≤ 0.02, aside exact ≥ 0.8, beat presence on W4a by ≥ 0.3. No retuning after results.
+2. **Scoring rule for this result stays as written**: a predicted heard on an `unknown`-labelled message, the speaker
+   included, counts as a false inclusion. The scores above are final under it.
+   **For future runs (declared now, before any such run):** the speaker hearing their own message is not counted as a false
+   inclusion when the label is `unknown` (that pair leaves the ambiguous stratum's numerator and denominator); everything
+   else unchanged. Built as `scoreWitness(set, predict, { speakers })` (`memory/witness/score.ts`, test in `score.test.ts`):
+   default off, so re-scoring an old result reproduces it; `so-witness.mts derive-score --speaker-own` turns it on and every
+   new run passes it. The 2026-10-26 result is not re-scored under it.
+3. **Next step: the presence source** (judge scene read history + calibration), design only, no GPU (below).
+
+## Floors
+
+As decision 1. W2 misses exact-set, FI, coverage, mixed and span FI; the presence source must bring exact-set and FI over
+before any GPU or consumer work.
+
+## Next step: presence source P1 (design only, not built, no GPU)
+
+Fills rule 6 (`DeriveMessage.present`) from the judge scene read, which already asks `present:<rosterId>` per cast member
+at every boundary (`judge/scene.ts:98`, TypeSafe, off the reply path, `PRESENT_P` 0.7).
+
+- **History, not latest.** The scene coordinator keeps only the latest `SceneReadRecord` (`sceneCoordinator.ts:127-129`).
+  Add a bounded ring in the scene slice: `{ boundary, messageId, revision, present: { rosterId: p } }` per committed
+  boundary (cap 200, oldest folded away, the witness record keeps its own claims). Rollback drops rows with
+  `messageId >= m` in `quarantine` (as `rollbackWitness`); a row whose revision no longer matches reads as absent.
+  Stored as a detached copy; no compiled code key, so no rollback detector.
+- **Message mapping.** A read at a boundary judges presence at its last message. A message takes the row of the first
+  boundary at or after it, within the same read window (a player line and the reply that closes its boundary share one
+  row). No row (judge off, outage, no key) = no `present`, so the code stage (rule 4) applies: the source only fills gaps.
+- **Thresholds, fail closed.** p ≥ `PRESENT_P` = on stage; anything lower is not on stage for adding text. An uncertain band
+  (0.3 to 0.7) is counted in the audit, so abstention (`unknown`) can be measured later without a second read.
+- **Plumbing.** `WitnessPort` gains `presence(messageId)` reading the ring; `sharedRead.loadWitness` passes it into
+  `deriveFromRead`, which sets `present` per message (lazy chunk; the main entry gains only the port method).
+- **Calibration (judge rule: no use without a passed row).** Presence gets its own row, `scene.present`, provider ×
+  model × use, measured on the adjudicated `present` labels (real 192 messages × members, private), never on public
+  fixtures: per-pair accuracy ≥ 0.95 and false-present ≤ 0.02 of absent pairs, declared here before any call. Below the
+  floor the use stays refused (`uncalibrated`) and W2 keeps the code stage.
+- **Measurement (TypeSafe calls, no GPU; recorder NOT BUILT).** `so-witness.mts presence-read` would run the shipped scene
+  read in a lane page for each labelled message (window as the coordinator builds it, ending at that message) and save the
+  per-member p to `test/sessions/witness-real/presence-reads.json`: 192 real + 40 lab reads, chunked under the plugin's
+  60 calls/min (about 5 min). Then `derive-score --presence <file> --speaker-own` (a new run, so decision 2's rule is on),
+  scored against decision 1's floors and the presence null control's exact-set (144/171).
+- **Expected ceiling.** The labelled-presence diagnostic (153/155, FI 11/471 under the old rule) is the bound; mixed
+  detection stays capped at 6/11 by the cue-less mixed messages, so W4 cannot fully pass on presence alone. The read
+  that could close it (a per-message mixed-audience classifier) is a later, separate decision.
 
 ## What remains
 
-- **A presence source** (rule 6). Cheapest candidate: the judge scene read already asks `present:<rosterId>` per cast member
-  every boundary (TypeSafe, off the reply path, no GPU) but keeps only the latest record (`sceneCoordinator.ts`) and has no
-  calibration row for presence. Needs: a per-boundary presence history in the scene slice (rolled back with the message),
-  a calibration row on the adjudicated `present` labels, then `derive-score` with that source. Not built.
+- **Presence source P1** (above): history ring, calibration row, recorder, then `derive-score --presence --speaker-own`.
 - **Abstention on ambiguity**: a cue-sentence or low-confidence message could read `unknown` instead of a set (fail closed,
   costs coverage, 25 messages of slack at 0.85). Only worth it after the presence source.
 - **Live plumbing** of W2 (no-model lane): `test/scenarios/v28-42-witness.json` updated to the derived claims; not run.
@@ -138,7 +176,5 @@ exact-set on the real set, since the real set has no whole-message asides for W4
 
 ## Unresolved questions
 
-- Keep W4's 0.9 exact-set floor, or accept presence-plus-exceptions with a lower floor and a stricter false-inclusion bound?
-- Should FI count the speaker of an `unknown`-labelled message as a false inclusion (the rubric says the speaker always hears)?
 - Is message-level privacy a product goal now (v3.0 02 reopen condition), or only witness-filtered recall?
-- Build the scene-read presence history + calibration (no GPU, TypeSafe calls) next, or park until a playtest flag?
+- P1 calibration floors (pair accuracy ≥ 0.95, false-present ≤ 0.02) are proposed here; confirm before the first call.
