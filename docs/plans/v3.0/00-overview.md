@@ -197,7 +197,7 @@ Each flag from the owner's playthrough (Flag button + end notes) gets one verdic
 | C | 12 (stub) | stub; record unconsumed |
 | D | rows D1-D8 (homes: v2.9 02/04/05/06/08, v2.8 47, v2.9 11) | not started |
 | E | 01, 04, 05.x, v2.9 03 S2/S3, v2.8 55-59, V3.0 rows | parked on triggers |
-| F | v2.9 11 B3, B6 review, F3 | not started |
+| F | v2.9 11 B3, B6 review, F3; 15 end batch | built 2026-10-26 on `v3.0-f-test-economy`, no GPU (v2.9 11 §Build record: B3 + B6 review + F3); first record/replay run owed in the end batch (`15-end-test-batch.md`) |
 
 ### Owner decisions 2026-10-26 ("as recommended")
 
@@ -282,6 +282,7 @@ No build order is set. If several reopen at once, by dependency: 02 B before 05.
 | 09 | `09-controller-round-3.md` controller round 3: patched llama.cpp b11888 (`scripts/local/llama-patches/`) + RAM member cache 4 GiB LIVE on the owner controller 2026-10-26 (warm member switch 8.55 → 3.8 s, member turn 14.6 → 10.5 s; Sol 25 pairs better on all categories, thinking floor missed as written 23/25, owner adopted); 409 reserve-refusal fix + ComfyUI reclaim guards; chat-first queue built; max-memory profile, rewound entries + checkpoint_at, read reorder queued. Research: `research/` (web, Fable simulation, feature-impact audit, Astra review) |
 | 10 | `10-max-memory-profile.md` max-memory profile + tray headroom toggle: STUB 2026-10-26 (replan track A2), floors TO DECIDE |
 | 11 | `11-image-perf-after-unlock.md` image performance after the unlock, ComfyUI flags, image/text thrash: STUB 2026-10-26 (track B1), floors TO DECIDE |
+| 15 | `15-end-test-batch.md` end test batch for the current wave (09 r3, A0, D1/D3/D5/D6/D8, C1, B1 prep, v2.9 freeze): DESIGN 2026-10-26, est. ~6 h GPU (up to ~7.2 h with conditionals), no-model and replay lanes in parallel |
 | 12 | `12-witness-redesign.md` witness record redesign after v2.8 42 W4 FAIL: STUB 2026-10-26 (track C1), floors TO DECIDE |
 
 ## Decisions (user, 2026-10-03: as recommended)

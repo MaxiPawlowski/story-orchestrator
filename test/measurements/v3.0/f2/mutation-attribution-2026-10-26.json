@@ -1,0 +1,1324 @@
+{
+ "at": "2026-10-26T12:52:29.066Z",
+ "seed": 20261026,
+ "sample": 48,
+ "attribute": true,
+ "population": 15082,
+ "populationByDir": {
+  "engine": 7424,
+  "extraction": 1750,
+  "judge": 1890,
+  "memory": 3675,
+  "pacing": 151,
+  "talk": 192
+ },
+ "files": 260,
+ "wallSeconds": 4389,
+ "total": {
+  "killed": 42,
+  "survived": 4,
+  "crashed": 1,
+  "no-tests": 0,
+  "timeout": 3,
+  "scored": 46,
+  "score": 0.9130434782608695
+ },
+ "perDir": {
+  "engine": {
+   "killed": 21,
+   "survived": 0,
+   "crashed": 0,
+   "no-tests": 0,
+   "timeout": 3,
+   "scored": 21,
+   "score": 1
+  },
+  "memory": {
+   "killed": 10,
+   "survived": 2,
+   "crashed": 0,
+   "no-tests": 0,
+   "timeout": 0,
+   "scored": 12,
+   "score": 0.8333333333333334
+  },
+  "extraction": {
+   "killed": 6,
+   "survived": 0,
+   "crashed": 0,
+   "no-tests": 0,
+   "timeout": 0,
+   "scored": 6,
+   "score": 1
+  },
+  "judge": {
+   "killed": 5,
+   "survived": 1,
+   "crashed": 0,
+   "no-tests": 0,
+   "timeout": 0,
+   "scored": 6,
+   "score": 0.8333333333333334
+  },
+  "talk": {
+   "killed": 0,
+   "survived": 0,
+   "crashed": 1,
+   "no-tests": 0,
+   "timeout": 0,
+   "scored": 0,
+   "score": null
+  },
+  "pacing": {
+   "killed": 0,
+   "survived": 1,
+   "crashed": 0,
+   "no-tests": 0,
+   "timeout": 0,
+   "scored": 1,
+   "score": 0
+  }
+ },
+ "outcomes": [
+  {
+   "file": "src/engine/agency.ts",
+   "line": 45,
+   "operator": "cond ? -> true ?",
+   "original": "policy.protect_player_choice",
+   "replacement": "true",
+   "start": 2796,
+   "verdict": "killed",
+   "ms": 422242,
+   "related": [
+    "src/engine/agency.test.ts",
+    "src/engine/objectiveLine.test.ts",
+    "src/runtime/playerMind.test.ts"
+   ],
+   "killers": [
+    "src/engine/agency.test.ts",
+    "src/studio/arrivalEquivalence.test.ts"
+   ],
+   "relatedCount": 591
+  },
+  {
+   "file": "src/engine/convergence.ts",
+   "line": 25,
+   "operator": "|| -> &&",
+   "original": "||",
+   "replacement": "&&",
+   "start": 1482,
+   "verdict": "killed",
+   "ms": 381801,
+   "related": [
+    "src/engine/convergence.property.test.ts",
+    "src/engine/engine.test.ts"
+   ],
+   "killers": [
+    "src/generation/convergence.test.ts",
+    "src/studio/arrivalEquivalence.test.ts"
+   ],
+   "relatedCount": 591
+  },
+  {
+   "file": "src/engine/life/clock.ts",
+   "line": 166,
+   "operator": "?? -> &&",
+   "original": "??",
+   "replacement": "&&",
+   "start": 8626,
+   "verdict": "killed",
+   "ms": 337640,
+   "related": [
+    "src/engine/life/clock.test.ts"
+   ],
+   "killers": [
+    "src/engine/life/clock.test.ts",
+    "src/studio/arrivalEquivalence.test.ts"
+   ],
+   "relatedCount": 591
+  },
+  {
+   "file": "src/engine/life/cues.ts",
+   "line": 173,
+   "operator": "=== -> !==",
+   "original": "===",
+   "replacement": "!==",
+   "start": 11715,
+   "verdict": "timeout",
+   "ms": 600135
+  },
+  {
+   "file": "src/engine/life/echoView.ts",
+   "line": 103,
+   "operator": "cond ? -> true ?",
+   "original": "gap.reason === \"log\"",
+   "replacement": "true",
+   "start": 5801,
+   "verdict": "killed",
+   "ms": 338598,
+   "related": [
+    "src/engine/life/echoes.test.ts"
+   ],
+   "killers": [
+    "src/studio/arrivalEquivalence.test.ts"
+   ],
+   "relatedCount": 591
+  },
+  {
+   "file": "src/engine/life/offers.ts",
+   "line": 200,
+   "operator": "&& -> ||",
+   "original": "&&",
+   "replacement": "||",
+   "start": 8489,
+   "verdict": "killed",
+   "ms": 381796,
+   "related": [
+    "src/engine/life/cueSelection.corpus.test.ts",
+    "src/engine/life/cues.test.ts",
+    "src/runtime/cues.review.test.ts",
+    "src/runtime/echoes.review.test.ts"
+   ],
+   "killers": [
+    "src/studio/arrivalEquivalence.test.ts"
+   ],
+   "relatedCount": 591
+  },
+  {
+   "file": "src/engine/storyDiff.ts",
+   "line": 220,
+   "operator": "if (…) -> if (false)",
+   "original": "previous.startCheckpointId !== next.startCheckpointId",
+   "replacement": "false",
+   "start": 11620,
+   "verdict": "killed",
+   "ms": 31544,
+   "related": [
+    "src/engine/codexDiff.test.ts",
+    "src/engine/factions/factions.test.ts",
+    "src/engine/life/cues.test.ts",
+    "src/engine/observations.test.ts",
+    "src/engine/questDiff.test.ts",
+    "src/engine/storyDiff.test.ts",
+    "src/engine/validate/delivery.test.ts",
+    "src/engine/validate/polish.test.ts",
+    "src/runtime/codexReturns.test.ts",
+    "src/runtime/coordinators/livingCoordinator.review.test.ts",
+    "src/runtime/storyUpdate.test.ts",
+    "src/runtime/suggestionAnchors.test.ts",
+    "src/runtime/t5StoryEdits.review.test.ts"
+   ],
+   "killers": [
+    "src/engine/storyDiff.test.ts"
+   ],
+   "relatedCount": 49
+  },
+  {
+   "file": "src/engine/storyDiff.ts",
+   "line": 229,
+   "operator": "?? -> &&",
+   "original": "??",
+   "replacement": "&&",
+   "start": 12006,
+   "verdict": "killed",
+   "ms": 32329,
+   "related": [
+    "src/engine/codexDiff.test.ts",
+    "src/engine/factions/factions.test.ts",
+    "src/engine/life/cues.test.ts",
+    "src/engine/observations.test.ts",
+    "src/engine/questDiff.test.ts",
+    "src/engine/storyDiff.test.ts",
+    "src/engine/validate/delivery.test.ts",
+    "src/engine/validate/polish.test.ts",
+    "src/runtime/codexReturns.test.ts",
+    "src/runtime/coordinators/livingCoordinator.review.test.ts",
+    "src/runtime/storyUpdate.test.ts",
+    "src/runtime/suggestionAnchors.test.ts",
+    "src/runtime/t5StoryEdits.review.test.ts"
+   ],
+   "killers": [
+    "src/engine/storyDiff.test.ts"
+   ],
+   "relatedCount": 49
+  },
+  {
+   "file": "src/engine/validate.ts",
+   "line": 82,
+   "operator": "=== -> !==",
+   "original": "===",
+   "replacement": "!==",
+   "start": 4813,
+   "verdict": "killed",
+   "ms": 411709,
+   "related": [
+    "src/engine/agency.test.ts",
+    "src/engine/authorHold.test.ts",
+    "src/engine/boundaryOrder.test.ts",
+    "src/engine/briefing.test.ts",
+    "src/engine/cardFields.test.ts",
+    "src/engine/carry.test.ts",
+    "src/engine/carryRollback.property.test.ts",
+    "src/engine/checkpointReasoning.test.ts",
+    "src/engine/checkpointScenario.test.ts",
+    "src/engine/codex.test.ts",
+    "src/engine/codexDiff.test.ts",
+    "src/engine/codexRollback.property.test.ts",
+    "src/engine/convergence.property.test.ts",
+    "src/engine/engine.test.ts",
+    "src/engine/exampleStory.test.ts",
+    "src/engine/factions/factions.test.ts",
+    "src/engine/gameLayer.test.ts",
+    "src/engine/houseRules.test.ts",
+    "src/engine/journeyStories.test.ts",
+    "src/engine/labelRollback.property.test.ts",
+    "src/engine/life/clock.test.ts",
+    "src/engine/life/cueSelection.corpus.test.ts",
+    "src/engine/life/cues.test.ts",
+    "src/engine/life/echoes.test.ts",
+    "src/engine/life/labels.test.ts",
+    "src/engine/life/life.test.ts",
+    "src/engine/objectiveLine.test.ts",
+    "src/engine/observations.test.ts",
+    "src/engine/player.test.ts",
+    "src/engine/questDiff.test.ts",
+    "src/engine/quests.test.ts",
+    "src/engine/rollbackDetectors.guard.test.ts",
+    "src/engine/rosterRole.test.ts",
+    "src/engine/stagecraftFormat.test.ts",
+    "src/engine/staleReadOrder.recorded.test.ts",
+    "src/engine/storyCorpus.test.ts",
+    "src/engine/storyDiff.test.ts",
+    "src/engine/validate/delivery.test.ts",
+    "src/engine/validate/life.test.ts",
+    "src/engine/validate/polish.test.ts",
+    "src/engine/validate/qualityRoll.test.ts",
+    "src/engine/validate/rumors.test.ts",
+    "src/image/workflows.test.ts",
+    "src/runtime/codexReturns.test.ts",
+    "src/runtime/codexView.property.test.ts",
+    "src/runtime/effectsApplier.test.ts",
+    "src/runtime/journalContract.review.test.ts",
+    "src/runtime/narratorSheet.test.ts",
+    "src/runtime/sceneCard.test.ts",
+    "src/runtime/t5StoryEdits.review.test.ts",
+    "src/sprites/showcaseStory.test.ts"
+   ],
+   "killers": [
+    "src/copilot/agent/loop.test.ts",
+    "src/copilot/validate.test.ts",
+    "src/engine/boundaryOrder.test.ts",
+    "src/engine/codex.test.ts",
+    "src/engine/codexDiff.test.ts",
+    "src/engine/codexRollback.property.test.ts",
+    "src/engine/engine.test.ts",
+    "src/engine/evaluatedBlackboard.test.ts",
+    "src/engine/exampleStory.test.ts",
+    "src/engine/historySize.test.ts",
+    "src/engine/independentStory.test.ts",
+    "src/engine/journeyStories.test.ts",
+    "src/engine/observations.test.ts",
+    "src/engine/rollbackDetectors.guard.test.ts",
+    "src/engine/storyCorpus.test.ts",
+    "src/engine/storyDiff.test.ts",
+    "src/extraction/cueCoalesce.test.ts",
+    "src/extraction/discoveryScope.test.ts",
+    "src/generation/convergence.test.ts",
+    "src/generation/encounters.test.ts",
+    "src/generation/living/directorGoldens.test.ts",
+    "src/generation/living/living.test.ts",
+    "src/generation/living/sceneTest.test.ts",
+    "src/generation/merge.review.test.ts",
+    "src/generation/mergeChapters.test.ts",
+    "src/generation/mergeStubExits.test.ts",
+    "src/generation/mergeStubWorldInfo.test.ts",
+    "src/runtime/agencyRecovery.test.ts",
+    "src/runtime/codexJournal.test.ts",
+    "src/runtime/coordinators/encounterPool.review.test.ts",
+    "src/runtime/coordinators/livingCoordinator.review.test.ts",
+    "src/runtime/coordinators/livingSceneTest.review.test.ts",
+    "src/runtime/generatedBeatNames.recorded.test.ts",
+    "src/runtime/livingPace.review.test.ts",
+    "src/runtime/livingPaceL1.review.test.ts",
+    "src/runtime/livingSpoilers.review.test.ts",
+    "src/runtime/observations.review.test.ts",
+    "src/runtime/playerProjection.test.ts",
+    "src/runtime/runtimeManager.test.ts",
+    "src/runtime/scanGatePlan.test.ts",
+    "src/runtime/t5StoryEdits.review.test.ts",
+    "src/runtime/t61Rollback.review.test.ts",
+    "src/runtime/worldInfoGates.test.ts",
+    "src/studio/adolionPinnedBuild.test.ts",
+    "src/studio/arrivalEquivalence.test.ts",
+    "src/studio/io.test.ts",
+    "src/studio/mutations.test.ts",
+    "src/studio/stretchAuthoring.test.ts",
+    "src/studio/t5Studio.review.test.ts"
+   ],
+   "relatedCount": 591
+  },
+  {
+   "file": "src/engine/validate/cardLayers.ts",
+   "line": 15,
+   "operator": "|| -> &&",
+   "original": "||",
+   "replacement": "&&",
+   "start": 1397,
+   "verdict": "timeout",
+   "ms": 600127
+  },
+  {
+   "file": "src/engine/validate/codex.ts",
+   "line": 73,
+   "operator": "if (…) -> if (false)",
+   "original": "!id || !text || !when || when === CODEX_START",
+   "replacement": "false",
+   "start": 5108,
+   "verdict": "killed",
+   "ms": 413825,
+   "related": [],
+   "killers": [
+    "src/studio/arrivalEquivalence.test.ts"
+   ],
+   "relatedCount": 591
+  },
+  {
+   "file": "src/engine/validate/commitments.ts",
+   "line": 46,
+   "operator": "=== -> !==",
+   "original": "===",
+   "replacement": "!==",
+   "start": 3390,
+   "verdict": "killed",
+   "ms": 360218,
+   "related": [],
+   "killers": [
+    "src/engine/storyCorpus.test.ts",
+    "src/studio/adolionPinnedBuild.test.ts",
+    "src/studio/arrivalEquivalence.test.ts"
+   ],
+   "relatedCount": 591
+  },
+  {
+   "file": "src/engine/validate/display.ts",
+   "line": 75,
+   "operator": "&& -> ||",
+   "original": "&&",
+   "replacement": "||",
+   "start": 5517,
+   "verdict": "killed",
+   "ms": 407196,
+   "related": [],
+   "killers": [
+    "src/engine/factions/factions.test.ts",
+    "src/engine/storyCorpus.test.ts",
+    "src/engine/validate/widgets.test.ts",
+    "src/runtime/gameProjection.test.ts",
+    "src/runtime/trophyShelf.test.ts",
+    "src/runtime/widgetFollowups.test.ts",
+    "src/studio/adolionPinnedBuild.test.ts",
+    "src/studio/arrivalEquivalence.test.ts",
+    "src/studio/widgetDiagnostics.test.ts"
+   ],
+   "relatedCount": 591
+  },
+  {
+   "file": "src/engine/validate/echoes.ts",
+   "line": 58,
+   "operator": "if (…) -> if (false)",
+   "original": "boundaries",
+   "replacement": "false",
+   "start": 3631,
+   "verdict": "killed",
+   "ms": 372276,
+   "related": [
+    "src/engine/life/echoes.test.ts"
+   ],
+   "killers": [
+    "src/copilot/agent/echoTool.test.ts",
+    "src/engine/storyCorpus.test.ts",
+    "src/runtime/echoes.review.test.ts",
+    "src/studio/adolionPinnedBuild.test.ts",
+    "src/studio/arrivalEquivalence.test.ts"
+   ],
+   "relatedCount": 591
+  },
+  {
+   "file": "src/engine/validate/echoes.ts",
+   "line": 123,
+   "operator": "if (…) -> if (false)",
+   "original": "echo.expires && !(unit in echo.expires)",
+   "replacement": "false",
+   "start": 8572,
+   "verdict": "killed",
+   "ms": 331241,
+   "related": [
+    "src/engine/life/echoes.test.ts"
+   ],
+   "killers": [
+    "src/engine/life/echoes.test.ts",
+    "src/studio/arrivalEquivalence.test.ts"
+   ],
+   "relatedCount": 591
+  },
+  {
+   "file": "src/engine/validate/factions.ts",
+   "line": 54,
+   "operator": "&& -> ||",
+   "original": "&&",
+   "replacement": "||",
+   "start": 3769,
+   "verdict": "killed",
+   "ms": 377400,
+   "related": [
+    "src/engine/factions/factions.test.ts"
+   ],
+   "killers": [
+    "src/engine/factions/factions.test.ts",
+    "src/studio/arrivalEquivalence.test.ts"
+   ],
+   "relatedCount": 591
+  },
+  {
+   "file": "src/engine/validate/life.ts",
+   "line": 269,
+   "operator": "&& -> ||",
+   "original": "&&",
+   "replacement": "||",
+   "start": 21548,
+   "verdict": "killed",
+   "ms": 422358,
+   "related": [],
+   "killers": [
+    "src/studio/arrivalEquivalence.test.ts"
+   ],
+   "relatedCount": 591
+  },
+  {
+   "file": "src/engine/validate/observations.ts",
+   "line": 107,
+   "operator": "?? -> &&",
+   "original": "??",
+   "replacement": "&&",
+   "start": 6735,
+   "verdict": "killed",
+   "ms": 366989,
+   "related": [],
+   "killers": [
+    "src/copilot/agent/observationTools.review.test.ts",
+    "src/engine/observations.test.ts",
+    "src/engine/storyCorpus.test.ts",
+    "src/runtime/observations.review.test.ts"
+   ],
+   "relatedCount": 591
+  },
+  {
+   "file": "src/engine/validate/qualities.ts",
+   "line": 151,
+   "operator": "if (…) -> if (false)",
+   "original": "readAs === \"rating\"",
+   "replacement": "false",
+   "start": 7415,
+   "verdict": "killed",
+   "ms": 419920,
+   "related": [],
+   "killers": [
+    "src/engine/storyCorpus.test.ts",
+    "src/extraction/cueCoalesce.test.ts",
+    "src/judge/extraction.test.ts",
+    "src/runtime/roleCalibration.test.ts",
+    "src/runtime/runtimeManager.test.ts",
+    "src/studio/adolionPinnedBuild.test.ts",
+    "src/studio/arrivalEquivalence.test.ts"
+   ],
+   "relatedCount": 591
+  },
+  {
+   "file": "src/engine/validate/quests.ts",
+   "line": 105,
+   "operator": "drop !",
+   "original": "!entry.trim()",
+   "replacement": "entry.trim()",
+   "start": 6936,
+   "verdict": "killed",
+   "ms": 374246,
+   "related": [],
+   "killers": [
+    "src/engine/quests.test.ts",
+    "src/studio/arrivalEquivalence.test.ts"
+   ],
+   "relatedCount": 591
+  },
+  {
+   "file": "src/engine/validate/recap.ts",
+   "line": 55,
+   "operator": "cond ? -> true ?",
+   "original": "recap",
+   "replacement": "true",
+   "start": 3446,
+   "verdict": "timeout",
+   "ms": 600136
+  },
+  {
+   "file": "src/engine/validate/storyOptions.ts",
+   "line": 148,
+   "operator": "!== -> ===",
+   "original": "!==",
+   "replacement": "===",
+   "start": 7884,
+   "verdict": "killed",
+   "ms": 387010,
+   "related": [],
+   "killers": [
+    "src/engine/storyCorpus.test.ts",
+    "src/extraction/cueCoalesce.test.ts",
+    "src/studio/adolionPinnedBuild.test.ts",
+    "src/studio/arrivalEquivalence.test.ts"
+   ],
+   "relatedCount": 591
+  },
+  {
+   "file": "src/engine/validate/storyOptions.ts",
+   "line": 222,
+   "operator": "!== -> ===",
+   "original": "!==",
+   "replacement": "===",
+   "start": 12253,
+   "verdict": "killed",
+   "ms": 172313,
+   "related": [],
+   "killers": [
+    "src/copilot/agent/loop.test.ts",
+    "src/copilot/agent/reviewStaleRead.review.test.ts",
+    "src/copilot/agent/setBriefing.test.ts",
+    "src/copilot/authoring.test.ts",
+    "src/copilot/authoringA16.review.test.ts",
+    "src/copilot/t51Rerun.review.test.ts",
+    "src/copilot/validate.test.ts",
+    "src/engine/agency.test.ts",
+    "src/engine/authorHold.test.ts",
+    "src/engine/boundaryOrder.test.ts",
+    "src/engine/briefing.test.ts",
+    "src/engine/cardFields.test.ts",
+    "src/engine/checkpointReasoning.test.ts",
+    "src/engine/checkpointScenario.test.ts",
+    "src/engine/clampToChat.test.ts",
+    "src/engine/codex.test.ts",
+    "src/engine/codexDiff.test.ts",
+    "src/engine/codexRollback.property.test.ts",
+    "src/engine/discardPendingFrom.test.ts",
+    "src/engine/engine.review.test.ts",
+    "src/engine/engine.test.ts",
+    "src/engine/evaluatedBlackboard.test.ts",
+    "src/engine/exampleStory.test.ts",
+    "src/engine/gameLayer.test.ts",
+    "src/engine/historySize.test.ts",
+    "src/engine/houseRules.test.ts",
+    "src/engine/independentStory.test.ts",
+    "src/engine/journeyStories.test.ts",
+    "src/engine/objectiveLine.test.ts",
+    "src/engine/observations.test.ts",
+    "src/engine/pendingTransition.test.ts",
+    "src/engine/player.test.ts",
+    "src/engine/playerFields.test.ts",
+    "src/engine/questDiff.test.ts",
+    "src/engine/quests.test.ts",
+    "src/engine/replaceGraph.test.ts",
+    "src/engine/rollbackDetectors.guard.test.ts",
+    "src/engine/rosterRole.test.ts",
+    "src/engine/stagecraftFormat.test.ts",
+    "src/engine/storyCorpus.test.ts",
+    "src/engine/storyDiff.test.ts",
+    "src/engine/validate/delivery.test.ts",
+    "src/engine/validate/polish.test.ts",
+    "src/engine/validate/qualityRoll.test.ts",
+    "src/engine/validate/rumors.test.ts",
+    "src/engine/validate/widgets.test.ts",
+    "src/extraction/authority.review.test.ts",
+    "src/extraction/clockScope.test.ts",
+    "src/extraction/commitPerValue.test.ts",
+    "src/extraction/cueCoalesce.test.ts",
+    "src/extraction/discoveryScope.test.ts",
+    "src/extraction/extraction.test.ts",
+    "src/extraction/fixtureRunArms.test.ts",
+    "src/extraction/fixtureRunParity.test.ts",
+    "src/extraction/hintSidecars.test.ts",
+    "src/extraction/partyMoves.recorded.test.ts",
+    "src/extraction/playerEvidence.test.ts",
+    "src/extraction/promiseRead.test.ts",
+    "src/extraction/promptAudit.test.ts",
+    "src/extraction/questScope.test.ts",
+    "src/extraction/reconcile.test.ts",
+    "src/extraction/scopeBudgetS17.replay.test.ts",
+    "src/extraction/sharedReadBudget.test.ts",
+    "src/extraction/sharedReadFinish.test.ts",
+    "src/extraction/stepRead.test.ts",
+    "src/extraction/windowHygieneWiring.review.test.ts",
+    "src/extraction/worldEvidenceReask.recorded.test.ts",
+    "src/generation/convergence.test.ts",
+    "src/generation/encounters.test.ts",
+    "src/generation/living/directorGoldens.test.ts",
+    "src/generation/merge.review.test.ts",
+    "src/generation/mergeChapters.test.ts",
+    "src/generation/mergeStubExits.test.ts",
+    "src/generation/mergeStubWorldInfo.test.ts",
+    "src/image/workflows.test.ts",
+    "src/judge/extraction.test.ts",
+    "src/memory/rumors/rumors.test.ts",
+    "src/memory/witness/witness.test.ts",
+    "src/pacing/guidance.test.ts",
+    "src/pacing/pacing.test.ts",
+    "src/runtime/agencyRecovery.test.ts",
+    "src/runtime/authoringFinish.test.ts",
+    "src/runtime/branchContinue.review.test.ts",
+    "src/runtime/briefingActivation.test.ts",
+    "src/runtime/briefingDraft.test.ts",
+    "src/runtime/cardLedger.test.ts",
+    "src/runtime/chanceGate.test.ts",
+    "src/runtime/chatIdentity.review.test.ts",
+    "src/runtime/chatSwitchSnapshot.review.test.ts",
+    "src/runtime/codexJournal.test.ts",
+    "src/runtime/commitAfterRollback.review.test.ts",
+    "src/runtime/coordinators/curatorCreate.review.test.ts",
+    "src/runtime/coordinators/curatorDigest.review.test.ts",
+    "src/runtime/coordinators/curatorDigestBooks.review.test.ts",
+    "src/runtime/coordinators/curatorTiers.review.test.ts",
+    "src/runtime/coordinators/encounterPool.review.test.ts",
+    "src/runtime/coordinators/houseRuleContext.review.test.ts",
+    "src/runtime/coordinators/livingCoordinator.review.test.ts",
+    "src/runtime/coordinators/livingSceneTest.review.test.ts",
+    "src/runtime/coordinators/memoryOwnership.review.test.ts",
+    "src/runtime/coordinators/sceneFreshness.review.test.ts",
+    "src/runtime/coordinators/stagecraftCoordinator.review.test.ts",
+    "src/runtime/coordinators/stagecraftCoordinator.test.ts",
+    "src/runtime/coordinators/stagecraftWriteAhead.test.ts",
+    "src/runtime/coordinators/wardenFamilies.review.test.ts",
+    "src/runtime/coordinators/wardenLore.review.test.ts",
+    "src/runtime/cues.review.test.ts",
+    "src/runtime/curatorForeignStamp.review.test.ts",
+    "src/runtime/displayToggles.test.ts",
+    "src/runtime/echoes.review.test.ts",
+    "src/runtime/factions.review.test.ts",
+    "src/runtime/fingerprintReconcile.review.test.ts",
+    "src/runtime/gameProjection.test.ts",
+    "src/runtime/generatedBeatNames.recorded.test.ts",
+    "src/runtime/journalContract.review.test.ts",
+    "src/runtime/judgeExtraction.test.ts",
+    "src/runtime/judgeMemory.test.ts",
+    "src/runtime/livingPace.review.test.ts",
+    "src/runtime/livingPaceL1.review.test.ts",
+    "src/runtime/livingPort.test.ts",
+    "src/runtime/livingSpoilers.review.test.ts",
+    "src/runtime/lorePlacement.test.ts",
+    "src/runtime/loreSelect.test.ts",
+    "src/runtime/manualRead.review.test.ts",
+    "src/runtime/observations.review.test.ts",
+    "src/runtime/playerRoleHost.test.ts",
+    "src/runtime/playerSetup.test.ts",
+    "src/runtime/playerSetupActivation.test.ts",
+    "src/runtime/polishShadow.review.test.ts",
+    "src/runtime/polishStandIn.review.test.ts",
+    "src/runtime/promiseDirector.test.ts",
+    "src/runtime/promiseReadCase.test.ts",
+    "src/runtime/reloadPromptBlocks.review.test.ts",
+    "src/runtime/roleCalibration.test.ts",
+    "src/runtime/roleSelfTest.test.ts",
+    "src/runtime/rollback.review.test.ts",
+    "src/runtime/runtimeManager.test.ts",
+    "src/runtime/scanGatePlan.test.ts",
+    "src/runtime/selfTest.review.test.ts",
+    "src/runtime/selfTest.test.ts",
+    "src/runtime/settingsRoot.test.ts",
+    "src/runtime/settingsWrites.test.ts",
+    "src/runtime/spikes/editReread.review.test.ts",
+    "src/runtime/spikes/swipeBack.review.test.ts",
+    "src/runtime/startupWiring.review.test.ts",
+    "src/runtime/storyCheckWhen.test.ts",
+    "src/runtime/storyChecks.test.ts",
+    "src/runtime/storyIdentity.test.ts",
+    "src/runtime/storyImportWarnings.review.test.ts",
+    "src/runtime/storyScenarioCastSettle.review.test.ts",
+    "src/runtime/storyScenarioSnapshot.test.ts",
+    "src/runtime/storyStart.review.test.ts",
+    "src/runtime/storyUpdate.test.ts",
+    "src/runtime/swipeInFlightRead.review.test.ts",
+    "src/runtime/switchAttribution.review.test.ts",
+    "src/runtime/t0PlayerSurfaces.review.test.ts",
+    "src/runtime/t5StoryEdits.review.test.ts",
+    "src/runtime/t61Rollback.review.test.ts",
+    "src/runtime/thoughtLeakReceipt.review.test.ts",
+    "src/runtime/trophyShelf.test.ts",
+    "src/runtime/typedRead.test.ts",
+    "src/runtime/voiceCalibration.test.ts",
+    "src/runtime/widgetFollowups.test.ts",
+    "src/runtime/widgetKinds.test.ts",
+    "src/sprites/lookHealth.test.ts",
+    "src/sprites/poses/prepareList.test.ts",
+    "src/sprites/showcaseStory.test.ts",
+    "src/stagecraft/stagecraft.test.ts",
+    "src/studio/arrivalEquivalence.test.ts",
+    "src/studio/draft.test.ts",
+    "src/studio/innerVoiceAuthoring.test.ts",
+    "src/studio/io.test.ts",
+    "src/studio/mutations.test.ts",
+    "src/studio/stretchAuthoring.test.ts",
+    "src/studio/widgetDiagnostics.test.ts",
+    "src/talk/aliases.test.ts",
+    "src/wizard/ownership.review.test.ts"
+   ],
+   "relatedCount": 591
+  },
+  {
+   "file": "src/engine/validate/widgets.ts",
+   "line": 82,
+   "operator": "<= -> <",
+   "original": "<=",
+   "replacement": "<",
+   "start": 5463,
+   "verdict": "killed",
+   "ms": 368200,
+   "related": [],
+   "killers": [
+    "src/studio/arrivalEquivalence.test.ts"
+   ],
+   "relatedCount": 591
+  },
+  {
+   "file": "src/extraction/cadenceWindow.ts",
+   "line": 14,
+   "operator": "- -> +",
+   "original": "-",
+   "replacement": "+",
+   "start": 1014,
+   "verdict": "killed",
+   "ms": 131468,
+   "related": [],
+   "killers": [
+    "src/extraction/scheduler.test.ts",
+    "src/extraction/schedulerReadCursor.recorded.test.ts",
+    "src/extraction/schedulerResume.recorded.test.ts",
+    "src/runtime/spikes/swipeBack.review.test.ts"
+   ],
+   "relatedCount": 82
+  },
+  {
+   "file": "src/extraction/contract.ts",
+   "line": 89,
+   "operator": "?? -> &&",
+   "original": "??",
+   "replacement": "&&",
+   "start": 6169,
+   "verdict": "killed",
+   "ms": 117340,
+   "related": [
+    "src/extraction/extraction.test.ts",
+    "src/extraction/fixtureRunParity.test.ts",
+    "src/extraction/playerEvidence.test.ts",
+    "src/extraction/promiseRead.test.ts",
+    "src/extraction/promptAudit.test.ts",
+    "src/extraction/runningTotal.recorded.test.ts",
+    "src/extraction/scopeBudgetS17.replay.test.ts",
+    "src/extraction/stepRead.test.ts",
+    "src/extraction/windowHygieneWiring.review.test.ts",
+    "src/extraction/worldEvidenceReask.recorded.test.ts",
+    "src/memory/witness/witness.test.ts",
+    "src/runtime/coordinators/tensionFreshness.recorded.test.ts"
+   ],
+   "killers": [
+    "src/extraction/promiseRead.test.ts",
+    "src/runtime/promiseReadCase.test.ts"
+   ],
+   "relatedCount": 172
+  },
+  {
+   "file": "src/extraction/degenerate.ts",
+   "line": 14,
+   "operator": "if (…) -> if (false)",
+   "original": "count >= DEGENERATE_LINE_REPEATS",
+   "replacement": "false",
+   "start": 539,
+   "verdict": "killed",
+   "ms": 242430,
+   "related": [
+    "src/extraction/degenerate.test.ts"
+   ],
+   "killers": [
+    "src/extraction/client.test.ts",
+    "src/extraction/degenerate.test.ts",
+    "src/runtime/runtimeManager.test.ts"
+   ],
+   "relatedCount": 310
+  },
+  {
+   "file": "src/extraction/shadowReplay.ts",
+   "line": 342,
+   "operator": "< -> <=",
+   "original": "<",
+   "replacement": "<=",
+   "start": 16313,
+   "verdict": "killed",
+   "ms": 3535,
+   "related": [
+    "src/extraction/shadowReplay.test.ts"
+   ],
+   "killers": [
+    "src/extraction/shadowReplay.test.ts"
+   ],
+   "relatedCount": 1
+  },
+  {
+   "file": "src/extraction/sharedRead.ts",
+   "line": 224,
+   "operator": "?? -> &&",
+   "original": "??",
+   "replacement": "&&",
+   "start": 12633,
+   "verdict": "killed",
+   "ms": 100240,
+   "related": [
+    "src/extraction/authority.review.test.ts",
+    "src/extraction/breakerSlowBackend.review.test.ts",
+    "src/extraction/cueCoalesce.test.ts",
+    "src/extraction/fixtureRunParity.test.ts",
+    "src/extraction/judgedRead.test.ts",
+    "src/extraction/labelledEvidence.test.ts",
+    "src/extraction/outOfCharacter.test.ts",
+    "src/extraction/partyMoves.recorded.test.ts",
+    "src/extraction/playerEvidence.test.ts",
+    "src/extraction/promiseRead.test.ts",
+    "src/extraction/promptAudit.test.ts",
+    "src/extraction/reconcile.test.ts",
+    "src/extraction/runningTotal.recorded.test.ts",
+    "src/extraction/scheduler.breaker.test.ts",
+    "src/extraction/scheduler.harness.test.ts",
+    "src/extraction/scheduler.routes.test.ts",
+    "src/extraction/scheduler.test.ts",
+    "src/extraction/schedulerDelayedError.review.test.ts",
+    "src/extraction/schedulerReadCursor.recorded.test.ts",
+    "src/extraction/schedulerReadOwnership.review.test.ts",
+    "src/extraction/schedulerReread.review.test.ts",
+    "src/extraction/schedulerResume.recorded.test.ts",
+    "src/extraction/shadowReplay.test.ts",
+    "src/extraction/sharedReadBudget.test.ts",
+    "src/extraction/sharedReadFinish.test.ts",
+    "src/extraction/windowHygieneWiring.review.test.ts",
+    "src/extraction/worldEvidenceReask.recorded.test.ts",
+    "src/memory/witness/witness.test.ts",
+    "src/runtime/coordinators/backlogOwnership.review.test.ts",
+    "src/runtime/coordinators/factAttribution.review.test.ts",
+    "src/runtime/coordinators/stoppedReplyRead.review.test.ts",
+    "src/runtime/editCatchUp.test.ts",
+    "src/runtime/swipeInFlightRead.review.test.ts"
+   ],
+   "killers": [
+    "src/extraction/worldEvidenceReask.recorded.test.ts"
+   ],
+   "relatedCount": 122
+  },
+  {
+   "file": "src/extraction/windowHygiene.ts",
+   "line": 115,
+   "operator": "if (…) -> if (false)",
+   "original": "raw.is_system === true",
+   "replacement": "false",
+   "start": 4875,
+   "verdict": "killed",
+   "ms": 124548,
+   "related": [
+    "src/extraction/evidenceCorpus.test.ts",
+    "src/extraction/outOfCharacter.test.ts",
+    "src/extraction/scopeBudgetS17.replay.test.ts",
+    "src/extraction/windowHygiene.test.ts",
+    "src/extraction/windowHygieneWiring.review.test.ts"
+   ],
+   "killers": [
+    "src/extraction/outOfCharacter.test.ts",
+    "src/extraction/scheduler.test.ts",
+    "src/extraction/windowHygiene.test.ts",
+    "src/runtime/fingerprints.test.ts"
+   ],
+   "relatedCount": 179
+  },
+  {
+   "file": "src/judge/expansionCalibration.ts",
+   "line": 42,
+   "operator": "cond ? -> true ?",
+   "original": "result.fallback",
+   "replacement": "true",
+   "start": 2028,
+   "verdict": "survived",
+   "ms": 8477,
+   "related": [
+    "src/judge/expansion.test.ts"
+   ],
+   "killers": [],
+   "relatedCount": 10
+  },
+  {
+   "file": "src/judge/extraction.ts",
+   "line": 174,
+   "operator": "if (…) -> if (false)",
+   "original": "window.length >= 2 && quality.read_as === \"rating\"",
+   "replacement": "false",
+   "start": 9228,
+   "verdict": "killed",
+   "ms": 46236,
+   "related": [
+    "src/extraction/playerEvidence.test.ts",
+    "src/judge/extraction.test.ts",
+    "src/judge/typedKindFloors.test.ts",
+    "src/judge/typedStep.test.ts"
+   ],
+   "killers": [
+    "src/judge/extraction.test.ts",
+    "src/judge/typedKindFloors.test.ts"
+   ],
+   "relatedCount": 135
+  },
+  {
+   "file": "src/judge/scene.ts",
+   "line": 123,
+   "operator": "if (…) -> if (false)",
+   "original": "input.families.sceneBreak && breakP !== null",
+   "replacement": "false",
+   "start": 5905,
+   "verdict": "killed",
+   "ms": 46288,
+   "related": [
+    "src/judge/scene.test.ts"
+   ],
+   "killers": [
+    "src/judge/ideaSpikes.test.ts",
+    "src/judge/scene.test.ts",
+    "src/runtime/sceneCoordinator.test.ts"
+   ],
+   "relatedCount": 148
+  },
+  {
+   "file": "src/judge/scene.ts",
+   "line": 139,
+   "operator": "!== -> ===",
+   "original": "!==",
+   "replacement": "===",
+   "start": 6861,
+   "verdict": "killed",
+   "ms": 47674,
+   "related": [
+    "src/judge/scene.test.ts"
+   ],
+   "killers": [
+    "src/judge/scene.test.ts",
+    "src/runtime/sceneCoordinator.test.ts",
+    "src/runtime/sceneInjectWrite.review.test.ts"
+   ],
+   "relatedCount": 148
+  },
+  {
+   "file": "src/judge/scene.ts",
+   "line": 240,
+   "operator": "cond ? -> true ?",
+   "original": "present",
+   "replacement": "true",
+   "start": 11945,
+   "verdict": "killed",
+   "ms": 44880,
+   "related": [
+    "src/judge/scene.test.ts"
+   ],
+   "killers": [
+    "src/runtime/sceneCoordinator.test.ts"
+   ],
+   "relatedCount": 148
+  },
+  {
+   "file": "src/judge/settings.ts",
+   "line": 106,
+   "operator": "cond ? -> true ?",
+   "original": "isRecord(value.uses)",
+   "replacement": "true",
+   "start": 3557,
+   "verdict": "killed",
+   "ms": 231332,
+   "related": [
+    "src/features/registry.test.ts",
+    "src/features/settingsAreas.test.ts",
+    "src/features/settingsReference.test.ts",
+    "src/judge/accounting.review.test.ts",
+    "src/judge/judge.test.ts",
+    "src/judge/readiness.test.ts",
+    "src/runtime/judgeIdeasWarden.test.ts",
+    "src/runtime/judgeMeterRollback.review.test.ts",
+    "src/runtime/sessionBaseline.test.ts",
+    "src/runtime/showMeRenders.test.ts"
+   ],
+   "killers": [
+    "src/runtime/coordinators/wardenLore.review.test.ts",
+    "src/runtime/judgeLocalProvider.test.ts",
+    "src/runtime/judgeProviderRouting.test.ts"
+   ],
+   "relatedCount": 228
+  },
+  {
+   "file": "src/memory/nameFold.ts",
+   "line": 81,
+   "operator": "drop !",
+   "original": "!folded",
+   "replacement": "folded",
+   "start": 4100,
+   "verdict": "killed",
+   "ms": 34048,
+   "related": [
+    "src/memory/nameFold.test.ts"
+   ],
+   "killers": [
+    "src/memory/nameFold.test.ts"
+   ],
+   "relatedCount": 53
+  },
+  {
+   "file": "src/memory/parse.ts",
+   "line": 55,
+   "operator": "|| -> &&",
+   "original": "||",
+   "replacement": "&&",
+   "start": 2336,
+   "verdict": "killed",
+   "ms": 338222,
+   "related": [
+    "src/memory/arcs.test.ts",
+    "src/memory/epistemic.test.ts",
+    "src/memory/epistemicPass.recorded.test.ts",
+    "src/memory/innerVoice.test.ts",
+    "src/memory/ledger.test.ts",
+    "src/memory/parse.test.ts"
+   ],
+   "killers": [
+    "src/extraction/extraction.test.ts",
+    "src/extraction/promptAudit.test.ts",
+    "src/memory/parse.test.ts"
+   ],
+   "relatedCount": 403
+  },
+  {
+   "file": "src/memory/parse.ts",
+   "line": 147,
+   "operator": "drop !",
+   "original": "!match",
+   "replacement": "match",
+   "start": 5972,
+   "verdict": "killed",
+   "ms": 331977,
+   "related": [
+    "src/memory/arcs.test.ts",
+    "src/memory/epistemic.test.ts",
+    "src/memory/epistemicPass.recorded.test.ts",
+    "src/memory/innerVoice.test.ts",
+    "src/memory/ledger.test.ts",
+    "src/memory/parse.test.ts"
+   ],
+   "killers": [
+    "src/extraction/extraction.test.ts",
+    "src/memory/parse.test.ts"
+   ],
+   "relatedCount": 403
+  },
+  {
+   "file": "src/memory/promises/impl.ts",
+   "line": 244,
+   "operator": "if (…) -> if (false)",
+   "original": "outcome.reason !== \"duplicate\"",
+   "replacement": "false",
+   "start": 15264,
+   "verdict": "killed",
+   "ms": 26760,
+   "related": [
+    "src/memory/promises/promises.test.ts",
+    "src/memory/promises/readCase.test.ts",
+    "src/memory/promises/rollbackReplay.property.test.ts"
+   ],
+   "killers": [
+    "src/memory/promises/promises.test.ts",
+    "src/memory/promises/readCase.test.ts",
+    "src/runtime/promisePort.review.test.ts"
+   ],
+   "relatedCount": 42
+  },
+  {
+   "file": "src/memory/promises/state.ts",
+   "line": 38,
+   "operator": "if (…) -> if (false)",
+   "original": "row.questId",
+   "replacement": "false",
+   "start": 2533,
+   "verdict": "killed",
+   "ms": 34681,
+   "related": [
+    "src/memory/promises/promises.test.ts",
+    "src/memory/promises/rollbackReplay.property.test.ts",
+    "src/runtime/suggestionAnchors.test.ts"
+   ],
+   "killers": [
+    "src/memory/promises/promises.test.ts"
+   ],
+   "relatedCount": 77
+  },
+  {
+   "file": "src/memory/rumors/spread.ts",
+   "line": 100,
+   "operator": "&& -> ||",
+   "original": "&&",
+   "replacement": "||",
+   "start": 4789,
+   "verdict": "killed",
+   "ms": 498573,
+   "related": [
+    "src/memory/rumors/rumors.test.ts"
+   ],
+   "killers": [
+    "src/studio/arrivalEquivalence.test.ts"
+   ],
+   "relatedCount": 591
+  },
+  {
+   "file": "src/memory/sceneSummary.ts",
+   "line": 64,
+   "operator": "cond ? -> true ?",
+   "original": "fit.ok",
+   "replacement": "true",
+   "start": 3192,
+   "verdict": "survived",
+   "ms": 325392,
+   "related": [
+    "src/memory/sceneSummary.test.ts"
+   ],
+   "killers": [],
+   "relatedCount": 232
+  },
+  {
+   "file": "src/memory/sceneSummary.ts",
+   "line": 72,
+   "operator": "if (…) -> if (false)",
+   "original": "!part",
+   "replacement": "false",
+   "start": 3546,
+   "verdict": "killed",
+   "ms": 252453,
+   "related": [
+    "src/memory/sceneSummary.test.ts"
+   ],
+   "killers": [
+    "src/memory/sceneSummary.test.ts"
+   ],
+   "relatedCount": 232
+  },
+  {
+   "file": "src/memory/stores.ts",
+   "line": 122,
+   "operator": "&& -> ||",
+   "original": "&&",
+   "replacement": "||",
+   "start": 6706,
+   "verdict": "killed",
+   "ms": 307597,
+   "related": [
+    "src/memory/consolidate.test.ts",
+    "src/memory/derived.test.ts",
+    "src/memory/duplicatesT551.recorded.test.ts",
+    "src/memory/innerVoice.test.ts",
+    "src/memory/longFixture.test.ts",
+    "src/memory/provenance.test.ts",
+    "src/memory/reversal.review.test.ts",
+    "src/memory/rollbackReplay.property.test.ts",
+    "src/memory/stores.test.ts",
+    "src/memory/supersede.test.ts",
+    "src/runtime/memoryMirror.test.ts"
+   ],
+   "killers": [
+    "src/memory/derived.test.ts",
+    "src/memory/reversal.review.test.ts",
+    "src/memory/rollbackReplay.property.test.ts",
+    "src/memory/stores.test.ts",
+    "src/runtime/coordinators/factAttribution.review.test.ts",
+    "src/runtime/spikes/editReread.review.test.ts"
+   ],
+   "relatedCount": 240
+  },
+  {
+   "file": "src/memory/vr62.ts",
+   "line": 378,
+   "operator": "&& -> ||",
+   "original": "&&",
+   "replacement": "||",
+   "start": 20226,
+   "verdict": "killed",
+   "ms": 3857,
+   "related": [
+    "src/memory/vr62.test.ts"
+   ],
+   "killers": [
+    "src/memory/vr62.test.ts"
+   ],
+   "relatedCount": 1
+  },
+  {
+   "file": "src/memory/witness/record.ts",
+   "line": 27,
+   "operator": "+ -> -",
+   "original": "+",
+   "replacement": "-",
+   "start": 2007,
+   "verdict": "survived",
+   "ms": 47952,
+   "related": [
+    "src/memory/recall/vr4.property.test.ts",
+    "src/memory/witness/witness.test.ts",
+    "src/runtime/witnessRollback.review.test.ts"
+   ],
+   "killers": [],
+   "relatedCount": 43
+  },
+  {
+   "file": "src/memory/witness/score.ts",
+   "line": 112,
+   "operator": "=== -> !==",
+   "original": "===",
+   "replacement": "!==",
+   "start": 4734,
+   "verdict": "killed",
+   "ms": 8542,
+   "related": [
+    "src/memory/witness/score.test.ts",
+    "src/memory/witnessLabels.test.ts"
+   ],
+   "killers": [
+    "src/memory/witness/score.test.ts",
+    "src/memory/witnessLabels.test.ts"
+   ],
+   "relatedCount": 2
+  },
+  {
+   "file": "src/pacing/quiet.ts",
+   "line": 39,
+   "operator": ">= -> >",
+   "original": ">=",
+   "replacement": ">",
+   "start": 2033,
+   "verdict": "survived",
+   "ms": 309941,
+   "related": [],
+   "killers": [],
+   "relatedCount": 382
+  },
+  {
+   "file": "src/talk/aliases.ts",
+   "line": 11,
+   "operator": "?? -> &&",
+   "original": "??",
+   "replacement": "&&",
+   "start": 591,
+   "verdict": "crashed",
+   "ms": 318554
+  }
+ ],
+ "relatedNote": "related = test files that import the mutated module directly (relatedCount = jest --findRelatedTests set size)"
+}

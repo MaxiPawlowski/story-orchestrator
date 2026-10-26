@@ -257,3 +257,67 @@ B5 `npm run suite:nomodel` (`scripts/suite/nomodel.mjs`; pure parts `scripts/deb
 - Open: the capture lane's memory profile/preset is the lane copy's, not necessarily the 2026-10-25 lane 45 one (saga sampler
   temperature 0.1, n_predict 2560/4096); the F2 goal/thread kind question stays open (both readings reported); rater pass A
   playerView carries the no-model lane's "Status" line (not in the prompt).
+
+## Build record: B3 replay backend + B6 mutation review + F3 lists (v3.0 F1/F2/F3, 2026-10-26, branch `v3.0-f-test-economy`, no GPU, no lanes)
+
+- **B3 (F1) replay backend, class R.** `scripts/debug/so-replay.mts serve|status|ls|import-batch|drift`; libs `lib/replayStore.mts`
+  (format `so-replay/1`: `manifest.json` identity {model, llama.cpp build, ctx, upstream, origin} + normalise set, `entries.jsonl`,
+  `bodies/<id>.json` {request, response body or stream chunks with timings}), `lib/replayServer.mts` (loopback HTTP on reserved
+  port 18078, added to `RESERVED_PORTS`), `lib/replayClient.mts`, `lib/replayImport.mts`, `lib/laneReplay.mts`.
+  - Key = sha256(method, path, JSON body with sorted keys minus the routing-only `api_server`), exact by default (the `st-stamps`
+    normalise set is opt-in at store creation and recorded). A generation request (`/completion`, `/v1/completions`,
+    `/v1/chat/completions`, `/infill`) takes the n-th recording of its key for its n-th occurrence in the session, own row first, so
+    a swipe of the same prompt replays the next recorded reply; static requests (GET, `/tokenize`, `/props`) take the latest. No
+    recording = 503 + counted, never invented. Streams replay their chunks at the recorded gaps (pace 1, capped 2 s per gap); a
+    stream the client stopped replays up to the stop and is held open.
+  - `record` forwards to the upstream (default the controller 18888) and stores each answer with row, step, path ordinal, sampler
+    keys and SO bundle sha; one store = one model + build (`openOrCreate` refuses another identity). `mixed` replays what is
+    recorded and records the rest. `import-batch` adds a `so-prompt-batch` send (class M), identity from the answers' model.
+  - Sessions: `/lane/<n>/...` = session `lane-<n>`; `begin|mark|end` control routes; per-session counts {replayed, static, live,
+    recorded, refused} per step and up to 50 misses, each with the nearest recording (longest common prompt prefix, same row), its
+    changed body keys and the first prompt difference. `drift` aggregates misses per step and path (the re-record list).
+  - Lanes: `st-lanes.mts replay <n> on|off` (stopped lane: loopback llama.cpp profiles + ST's llama.cpp URL -> `/lane/<n>`, marker
+    `replay.json`, restored on off; the firewall and the offline check allow 18078). `st-lanes batch --replay <store>` (default
+    `--model any`, judged refused, replay lanes left out of the model-lane limit) / `--record <store>` / `--replay --live-misses`
+    starts the backend when none serves the store, runs each row as its own session (row `<item>#<run>`), writes `replay.json` in
+    the row dir and prints the counts; a refused request makes the row INCOMPLETE. so-scenario and so-journey mark every step on
+    the session (`SO_REPLAY_URL`, `SO_REPLAY_SESSION`) and keep the stats in their records.
+  - Tests: `lib/replay.test.mts` (10: key exactness, occurrence and row order, static reuse, identity refusal, routing, record then
+    replay byte-identical incl. a stream through a fake upstream, refused misses with drift, aborted stream, mixed, error
+    pass-through, import-batch), `lib/laneReplay.test.mts` (3). Not run against a real lane (no lanes this pass): the first record
+    run is owed in the end batch (v3.0 15).
+- **F3 controller regression lists.** `test/batches/controller-regression.json` (`so-batch-lists/1`): the audit's per-change rows as
+  lists base, mtp, reclaim, timing, cache, max-profile, idle-prefill, parallel, request-checkpoints; each row has `model`
+  judged|any|none, `controller` (verdict depends on the controller: record once, replay the rest), `gpu` for scripts, `new`,
+  `missing`, `branch`. `lib/batchLists.mts` + census test (every journey and scenario exists with the class it declares, planted
+  controls); `st-lanes batch --list <file>[:lists]` expands the journey and scenario rows of the selected classes and prints script
+  rows. Finding: the audit rows kept as no-model sanity (v24-02 set, k8, effects-preset, v28-40-*, a13, v29-06) are mocked (none)
+  and never reach the controller; controller evidence comes only from any and judged rows.
+  - New checks (capture needs the GPU; offline scorers tested): `so-controller-checks.mts gbnf-parity capture|compare` (sprite
+    expression + pose grammars from the shipped builders, temp 0, two servers), `render-survival run|score` (media or direct render
+    through a text reload or a ComfyUI kill; pass = complete, or failed within 60 s), `reserve sample|score` (controller `/status`:
+    fitCorrection 0, no spill, no crash, no new reserve error), `send-latency score` (needs a predeclared `--bound-ms`); scenarios
+    `test/scenarios/v30-f3-send-latency.json` (any; streamed first token and done per turn, kept with the new `keep: true` step
+    modifier) and `v30-f3-inner-freshness.json` (any; journal inner-beat used/stale/none counts, floor 100 %, vacuous fails). Tests
+    `lib/controllerChecks.test.mts` (5). Still missing (rows marked `missing`): impersonate round-trip, RAM-min probe, chat switch
+    mid-prefill, long-chat overflow, llama-logprob calibration replay.
+- **B6 (F2) `suite:mutation` review.** `mutation-baseline.mjs --attribute` (no `--bail`; records each mutant's related and killing
+  test files) and `--review <report> [--min-faced n]` (test files that import a mutated module directly and killed none of its
+  scored mutants; survivors). Run 2026-10-26: `--attribute --sample 48 --seed 20261026 --workers 3` (50 mutants, 4389 s CPU, no
+  GPU): 91.3 % (42 of 46 scored; 1 crashed, 3 timeout); report `test/measurements/v3.0/f2/mutation-attribution-2026-10-26.json`.
+  - 139 test files import a mutated module, 37 killed at least one; 24 faced 2 or more of their module's mutants and killed none
+    (largest exposure 4: `engine/life/cues.test.ts`; 3: questDiff, validate/delivery, validate/polish, playerEvidence,
+    windowHygieneWiring, innerVoice, witness, codexReturns, suggestionAnchors). Cut: none. At 2-4 mutants each, the mutants sat in
+    branches those files do not target; that is not evidence a file is useless, and a cut needs a per-file run (v2.6 13 rule kept).
+    Gates stay well under 8 min (gates:quick 162 s).
+  - Sharpened (each kill verified by applying the mutant): `memory/arcs.test.ts` (setArcPinned pins only its arc),
+    `memory/score.test.ts` (temporal proximity, both `typeof ... === "number"` guards), `judge/scene.test.ts` (unknown scene-break
+    type -> null), `talk/talk.test.ts` (likelyNextSpeakers order, lead, last speaker, limit 0), `memory/witness/witness.test.ts`
+    (a tombstone clears only when every id in its range is named; both `+` mutants of `record.ts`). Four are v2.6 baseline survivors
+    still at the same text; the witness one survived this run.
+  - Not sharpened (recorded): `judge/expansionCalibration.ts` fallback spread, `memory/sceneSummary.ts` `fit.ok` token budget,
+    `pacing/quiet.ts` window boundary `>=` (no direct test file for quiet.ts or expansionCalibration.ts).
+- Gates: `npm run test:debug` 1595 of 1595 (after `npm run build`, which the run-header test reads), `npm run debug:typecheck`
+  clean, `npm run gates:quick` green (typecheck, typecheck:test, jest related, replay --cached 32 of 32). Full `npm run gates` not
+  run (coordinator batches it).
+- End batch design: `docs/plans/v3.0/15-end-test-batch.md`.

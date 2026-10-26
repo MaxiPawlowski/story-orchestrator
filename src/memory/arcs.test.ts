@@ -110,7 +110,7 @@ describe("arc utilities", () => {
 
   it("pins, summarizes, removes, and lists open arc texts", () => {
     const arcs = [arc("a1"), arc("a2", { status: "resolved" })];
-    expect(setArcPinned(arcs, "a1", true).find((a) => a.id === "a1")?.pinned).toBe(true);
+    expect(setArcPinned(arcs, "a1", true).map((a) => [a.id, Boolean(a.pinned)])).toEqual([["a1", true], ["a2", false]]);
     expect(setArcSummary(arcs, "a2", "wrapped up").find((a) => a.id === "a2")?.summary).toBe("wrapped up");
     expect(removeArc(arcs, "a1")).toHaveLength(1);
     expect(openArcTexts(arcs)).toEqual(["arc a1"]);

@@ -14,7 +14,7 @@ test('a lane takes ST port 8100+n and CDP port 9300+n', () => {
 });
 
 test('the reserved list names every service a lane must never take', () => {
-  for (const port of [8188, 8000, 18888, 18889, 18079, 18080, 8095, 8096, 8765, 6006, 9222]) assert.ok(RESERVED_PORTS[port], String(port));
+  for (const port of [8188, 8000, 18888, 18889, 18078, 18079, 18080, 8095, 8096, 8765, 6006, 9222]) assert.ok(RESERVED_PORTS[port], String(port));
 });
 
 test('lane 88 is refused: its ST port 8188 is ComfyUI (2026-10-18)', () => {
