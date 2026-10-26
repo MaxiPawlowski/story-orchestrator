@@ -1,7 +1,7 @@
 import { readFileSync } from "fs";
 import { join } from "path";
 import { parseStory, parseStoryOrThrow, isValidationErrorList, type NormalizedStory } from "@engine/index";
-import { beatIllustrated, beatLabel, castForImage, cueText, isNarratorMember, lookFor } from "./cast";
+import { authoredPlace, beatIllustrated, beatLabel, castForImage, cueText, isNarratorMember, lookFor, stageAlreadySet } from "./cast";
 import { firedLoreKeys, visualLore } from "./lore";
 import { imageMessages, sceneForImage, templateImagePrompt, type ImageScene } from "./prompt";
 import { resolveImageRoute } from "./routing";
@@ -145,10 +145,11 @@ describe("C9: a narrator or system member is never drawn from its card descripti
     expect(cast[0].appearance).toBe("Freckles, a scar on the chin");
   });
 
-  it("keeps a narrator with an authored or a card appearance, and applies the active look", () => {
+  it("drops a narrator's authored look (direction, not a body) and keeps one with a card appearance", () => {
     const parsed = story({ illustrations: { checkpoints: true, appearances: { dm: "never drawn; a voice" } } });
     expect(castForImage(subjects, parsed, lookFor(parsed, "a")).map((subject) => [subject.name, subject.appearance]))
-      .toEqual([["Keeper", "never drawn; a voice"], ["Mira", "Freckles, a scar on the chin"]]);
+      .toEqual([["Mira", "Freckles, a scar on the chin"]]);
+    expect(templateImagePrompt({ ...emptyScene(null), subjects: castForImage(subjects, parsed, lookFor(parsed, "a")) }, "scene", "")).not.toContain("never drawn");
     expect(castForImage([{ ...subjects[0], appearance: "hooded grey robe", described: false }], story(), {}).map((subject) => subject.name)).toEqual(["Keeper"]);
   });
 
@@ -180,12 +181,30 @@ describe("C9: a narrator or system member is never drawn from its card descripti
 
   it("marks a card subject as described only when it has no appearance field", () => {
     const scene = sceneForImage({ id: "c", groupId: null, folder: "c", userName: "Player",
-      messages: [{ name: "Keeper", mes: "Rain falls.", is_user: false, is_system: false }],
+      messages: [{ name: "Keeper", mes: "Rain falls on Mira.", is_user: false, is_system: false }],
       characters: [
         { key: "k.png", name: "Keeper", appearance: "", description: "You are the narrator.", enabled: true },
         { key: "m.png", name: "Mira", appearance: "freckles", description: "", enabled: true },
       ] }, { purpose: "scene", text: "", messageId: null }, 6);
     expect(scene.subjects.map((subject) => [subject.name, subject.described])).toEqual([["Keeper", true], ["Mira", false]]);
     expect(castForImage(scene.subjects, story(), {}).map((subject) => subject.name)).toEqual(["Mira"]);
+  });
+});
+
+describe("opening pictures: a stage the story already set is not drawn again", () => {
+  const staged = story({}, [
+    { id: "a", name: "Hall", objective: "o", type: "anchor", start: true, chapter: "one", effects: { background: "guild_hall-night.jpg" } },
+    { id: "b", name: "Road", objective: "o", type: "anchor", chapter: "two" },
+  ]);
+
+  it("skips the opening shot only where the checkpoint sets a background or stage", () => {
+    expect(stageAlreadySet(staged, "a")).toBe(true);
+    expect(stageAlreadySet(staged, "b")).toBe(false);
+    expect(stageAlreadySet(null, "a")).toBe(false);
+  });
+
+  it("names the place from the latest authored background on the path", () => {
+    expect(authoredPlace(staged, ["a", "b"])).toBe("guild hall night");
+    expect(authoredPlace(staged, ["b"])).toBeNull();
   });
 });

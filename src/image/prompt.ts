@@ -1,5 +1,6 @@
 import { ASPECTS, checkpointFor, FAMILIES, familyOf, modelId, SHOTS, type Aspect, type Shot } from "./catalog";
-import type { ImageChat } from "@services/stHost/image";
+import type { ImageChat, ImageCharacter } from "@services/stHost/image";
+import { mentions } from "./lore";
 import type { Route } from "./routing";
 
 export interface ImageRequest {
@@ -50,8 +51,10 @@ export const sceneForImage = (chat: ImageChat, request: ImageRequest, contextMes
   const speaker = target >= 0 ? messages[target] : null;
   const focus = request.purpose === "background" ? null : chat.characters.find((card) => card.key === speaker?.original_avatar || card.name === speaker?.name)?.key ?? null;
   const speakers = new Set(window.map((message) => message.name));
+  const told = [request.text, ...window.map((message) => message.text)].join("\n");
+  const named = (card: ImageCharacter) => card.enabled && (mentions(told, card.name) || mentions(told, card.name.split(/\s+/)[0] ?? ""));
   const subjects = request.purpose === "background" ? [] : chat.characters
-    .filter((card) => card.enabled || speakers.has(card.name) || card.key === focus)
+    .filter((card) => speakers.has(card.name) || card.key === focus || named(card))
     .map((card) => ({ key: card.key, name: card.name, appearance: card.appearance || card.description.slice(0, 500), focus: card.key === focus, described: !card.appearance }));
   return { target: target < 0 ? null : target, messages: window, subjects, focus, location, checkpoint };
 };

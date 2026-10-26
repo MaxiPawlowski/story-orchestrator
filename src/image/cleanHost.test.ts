@@ -7,6 +7,7 @@ const host = {
   checkpoints: [] as string[],
   onReady: null as null | (() => void),
   generating: false,
+  messages: [{ name: "Narrator", mes: "The gate opens.", is_user: false, is_system: false }] as Array<{ name: string; mes: string; is_user: boolean; is_system: boolean }>,
 };
 
 const renderStImage = jest.fn(async () => "/user/images/st.png");
@@ -18,7 +19,7 @@ const imagePlace = jest.fn(async () => ({ ok: true as const, placed: true as con
 jest.mock("@services/STAPI", () => ({ isHostGenerating: () => host.generating, listConnectionProfiles: () => [], getScannableEntries: async () => [] }));
 jest.mock("@services/stHost/image", () => ({
   imageChat: () => ({ id: "chat-1", groupId: "g1", folder: "g1", userName: "Player", characters: [],
-    messages: [{ name: "Narrator", mes: "The gate opens.", is_user: false, is_system: false }] }),
+    messages: host.messages }),
   imageModel: async () => "", imageSave: async () => "/user/images/comfy.png", imageDelete: async () => ({ ok: true }),
   imagePlace: (...args: unknown[]) => imagePlace(...(args as [])), imageChatSettings: () => null,
   imageWriteChatSettings: async () => ({ ok: true, chatId: "chat-1" }),
@@ -85,8 +86,25 @@ beforeEach(() => {
   host.checkpoints = [];
   host.onReady = null;
   host.generating = false;
+  host.messages = [{ name: "Narrator", mes: "The gate opens.", is_user: false, is_system: false }];
   jest.clearAllMocks();
   workflowHost.swaps = [];
+});
+
+describe("opening pictures: the greeting is never drawn by the reply cadence", () => {
+  it("skips a reply with no player line before it, draws one after the player spoke", async () => {
+    host.stReady = true;
+    host.settings = { ...defaultImageSettings(), automation: { mode: "everyN", everyN: 1 } };
+    const { director, stop } = harness();
+    await director.onReply(0, "command");
+    await settle();
+    expect(renderStImage).not.toHaveBeenCalled();
+    host.messages = [{ name: "Player", mes: "We go in.", is_user: true, is_system: false }, { name: "Narrator", mes: "The gate opens.", is_user: false, is_system: false }];
+    await director.onReply(1, "normal");
+    await settle();
+    expect(renderStImage).toHaveBeenCalledTimes(1);
+    stop();
+  });
 });
 
 describe("plan 32 W4: a clean host never tries to render", () => {

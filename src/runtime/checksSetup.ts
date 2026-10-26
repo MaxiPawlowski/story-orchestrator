@@ -279,6 +279,14 @@ export const IMAGE_CHECKS: readonly Check[] = [
     },
   }),
   degrades({
+    id: "image-prompt-profile-missing", area: "image", scope: "install", audience: "author", feature: "images",
+    detect: (snapshot) => (snapshot.imageHealth?.promptProfileMissing ? {
+      consequence: "The image-prompt model points to a connection profile that no longer exists, so pictures are drawn from a rough template instead of a written scene.",
+      detail: "Choose a profile under Images → Image-prompt model, or pick Template prompt to keep the template on purpose.",
+      target: { kind: "setting", id: IMAGE_TARGET_ID },
+    } : null),
+  }),
+  degrades({
     id: "story-workflow-missing", area: "image", scope: "story", audience: "player",
     detect: (snapshot) => {
       const health = snapshot.imageHealth?.storyWorkflows;

@@ -11,6 +11,7 @@ export interface ImageHealthView {
   missingModels: string[];
   broker: ImageBrokerAdapter | null;
   localText?: boolean;
+  promptProfileMissing?: boolean;
   storyWorkflows?: { wanted: string[]; missing: string[]; missingNodes: string[]; comfySource: boolean };
 }
 

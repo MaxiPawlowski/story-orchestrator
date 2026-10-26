@@ -109,6 +109,20 @@ describe("Image Director merge", () => {
     expect(scene.location).toBe("Wendhope");
   });
 
+  it("draws who speaks or is named, not every enabled member of a large group", () => {
+    const scene = sceneForImage({
+      id: "chat-1", groupId: "g", folder: "g", userName: "Player",
+      messages: [{ name: "Keeper", mes: "Tobias waves from the door while the hall fills.", is_user: false, is_system: false, original_avatar: "k.png" }],
+      characters: [
+        { key: "k.png", name: "Keeper", appearance: "", description: "narrator", enabled: true },
+        { key: "t.png", name: "Tobias Reed", appearance: "short brown hair", description: "", enabled: true },
+        { key: "x.png", name: "Absent", appearance: "tall", description: "", enabled: true },
+        { key: "y.png", name: "Muted Tobias", appearance: "red cloak", description: "", enabled: false },
+      ],
+    }, { purpose: "scene", text: "", messageId: null }, 6);
+    expect(scene.subjects.map((subject) => subject.name)).toEqual(["Keeper", "Tobias Reed"]);
+  });
+
   it("uses only visible appearance lines and the current path's gated entry in scan mode", () => {
     const lines = visualLore([
       { world: "Adolion World", uid: 1, comment: "Wendhope", key: ["Wendhope"], content: "Secret plot: the king is a spy.\nAppearance: misty stone walls." },

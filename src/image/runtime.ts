@@ -21,7 +21,7 @@ import { automationAllowsCues, messageAlreadyDrawn, sanitizeImageChatState, sani
 import { setGlobalSettings } from "@runtime/settingsStore";
 import { worldInfoPlan } from "@runtime/worldInfoGates";
 import { firedLoreKeys, visualLore } from "./lore";
-import { beatIllustrated, beatLabel, castForImage, cueText, lookFor } from "./cast";
+import { authoredPlace, beatIllustrated, beatLabel, castForImage, cueText, lookFor, stageAlreadySet } from "./cast";
 import { fnv1a } from "@runtime/hash";
 import { beginRun, type RunGuard } from "@runtime/runToken";
 import { busyWork } from "@runtime/busy";
@@ -74,7 +74,8 @@ export class StoryImageDirector {
 
   private async computeHealth(): Promise<ImageHealthView> {
     const settings = this.settings();
-    const base = { enabled: settings.enabled, backend: settings.backend, automation: settings.automation.mode, localText: loopbackUrl(readReplyContext()?.url) } as const;
+    const promptProfileMissing = Boolean(settings.enabled && settings.directorProfileId && !listConnectionProfiles().some((profile) => profile.id === settings.directorProfileId));
+    const base = { enabled: settings.enabled, backend: settings.backend, automation: settings.automation.mode, localText: loopbackUrl(readReplyContext()?.url), promptProfileMissing } as const;
     const broker = (await gpuBrokerStatus())?.adapter ?? null;
     if (!settings.enabled) return { ...base, service: "unknown", detail: "Illustrations are off.", source: null, missingModels: [], broker };
     if (settings.backend === "st") {
@@ -157,6 +158,7 @@ export class StoryImageDirector {
         const snapshot = this.manager.getSnapshot();
         if (!chat || !this.manager.ownsImageChat(chat.id) || !snapshot.ready || snapshot.boundary !== 0 || initialChat === chat.id) return;
         initialChat = chat.id;
+        if (stageAlreadySet(this.manager.getStory(), snapshot.activeCheckpointId)) return;
         void this.cue("checkpoint", null, snapshot.activeCheckpointId ?? "opening");
       }),
       this.manager.onBoundary((result) => {
@@ -177,6 +179,7 @@ export class StoryImageDirector {
     const chat = imageChat();
     const message = chat?.messages[messageId];
     if (!chat || !this.manager.ownsImageChat(chat.id) || !message || message.is_user || message.is_system) return;
+    if (!chat.messages.slice(0, messageId).some((row) => row.is_user)) return;
     const run = beginRun(this.manager.getOwnership(), { from: messageId, to: messageId });
     const replyText = message.mes;
     try {
@@ -214,7 +217,8 @@ export class StoryImageDirector {
     const ownsStory = this.manager.ownsImageChat(chat.id) && snapshot.ready;
     const story = ownsStory ? this.manager.getStory() : null;
     const beat = story && snapshot.activeCheckpointId ? story.checkpointById[snapshot.activeCheckpointId] : null;
-    const scene = sceneForImage(chat, request, settings.contextMessages, ownsStory ? beatLabel(beat) : null, ownsStory ? snapshot.scene?.facts?.location ?? null : null);
+    const place = ownsStory ? snapshot.scene?.facts?.location ?? authoredPlace(story, [...(this.manager.getEngineState()?.visitedPath ?? []), snapshot.activeCheckpointId ?? ""]) : null;
+    const scene = sceneForImage(chat, request, settings.contextMessages, ownsStory ? beatLabel(beat) : null, place);
     if (story) {
       const look = lookFor(story, snapshot.activeCheckpointId);
       if (look.style) scene.visualStyle = look.style;
