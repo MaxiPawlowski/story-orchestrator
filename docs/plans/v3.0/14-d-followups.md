@@ -110,3 +110,27 @@ floors unchanged (v2.9 11 stop rules). No GPU, no model lane was used for this p
   5. `node scripts/debug/so-prompt-batch.mts rate --out C:/dev/so-lanes/<n>/b2ext/lt06-d1 --pass both --model openai/gpt-6.1-sol`
   6. `node scripts/debug/so-prompt-batch.mts score --out C:/dev/so-lanes/<n>/b2ext/lt06-d1`, then record F1-F5 in v2.9 06 and
      here (F4 floor +0.5 unchanged), archive with `so-evidence.mts archive --label v30-14-d1`.
+
+## E/SP1 — swipe-back count for S4 (owner decision 12)
+
+- Built: `scripts/debug/so-swipe-backs.mts` + `scripts/debug/lib/swipeBacks.mts`, offline and read-only, no runtime or
+  player-facing change. Nothing in the runtime persists a swipe history (the TurnBridge sees `MESSAGE_SWIPED` but keeps no
+  record; the journal keeps only status transitions and flags), so the count reads ST's own files: the chat file (a group
+  chat is `<data>/group chats/<chat id>.jsonl`) and that chat's backups (`<data>/backups/chat_<key>_<stamp>.jsonl`, key as
+  ST's `getBackupKey`), oldest first, the chat file last.
+- Swipe-back = a reply whose shown version moved to an earlier one it already had: its `swipe_id` went down between two
+  saves, or it gained a version and still shows an older one, or it first appears showing an older one. A deleted version
+  (fewer swipes) is not one. Player turns = the player's own non-system messages in the chat file. Output: counts per chat
+  and in total, per 100 player turns, verdict against S4 (>= 3 per 100 over >= 300 turns; under 300 turns
+  `insufficient` whatever the rate). Never prints message text.
+- Lower bound, stated: a back-and-forth between two saves leaves no trace, and ST keeps 50 backups per chat
+  (`backups.chat.numberOfBackups`), so for a long chat only the last 50 saves add evidence beyond the final file.
+- Caveat for the playtest: v2.9 12 Part B asks the owner to "swipe a reply" once or twice as a mutation test; a swipe-back
+  that follows such a test swipe is counted like any other. Report the count with that note; do not subtract by guess.
+- Tests: `node --test scripts/debug/lib/swipeBacks.test.mts` 5/5 (back move only visible in a backup, deletion not
+  counted, header skipped, backup key matches ST's, verdict thresholds, CLI prints no text). Smoke: 103 lane-45 group chats
+  and, read-only with counts only, the owner's 110 group chats (768 replies with a `swipes` array, 0 with more than one
+  version so far): parses all, 0 swipe-backs.
+- End batch: after the owner's Part B play, `node scripts/debug/so-swipe-backs.mts "C:/dev/SillyTavern-MainBranch/data/default-user/group chats/<playthrough chat id>.jsonl"`
+  (read-only; record counts in v3.0 01 and v2.9 13 C1). S4 decides 01: below 3 per 100 over >= 300 turns, or fewer turns at
+  the freeze, the drop runs.

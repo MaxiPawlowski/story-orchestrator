@@ -77,6 +77,7 @@ copy, move or download weights.
 | `so-scenario.mts` | `run <file.json> [--sandbox] [--keep]` |
 | `so-journey.mts` | `--list`, `run <id\|file> [--strict] [--keep] [--only ids] [--no-config]`, `restore-config [--file p]` |
 | `so-journal.mts` | `export [--md\|--json] [--kind k,k] [--limit n]`, `show` |
+| `so-swipe-backs.mts` | `<chat.jsonl> [...] [--backups <dir> \| --no-backups]`: offline, read-only; natural swipe-backs per 100 player turns from ST chat files and their backups (v3.0 01 SP1 S4), counts only |
 | `so-mutation-check.mts` | `[--keep]` |
 | `so-tour-check.mts` | `player`, `author`, `setup`, `help`, `quick-start`, `all` `[--label <name>]`: coach-mark tour plumbing (walks every stop with real clicks, records found/hidden/missing and card placement, Escape keeps the workspace open; Help opens the chooser and the setup path page; the quick start ticks from real state and its Show me starts a stop); record + screenshots in `<debug dir>/tour/`, viewport via `ST_DEBUG_VIEWPORT` |
 | `so-turn-types-check.mts` | `[--group <name>] [--character <name>] [--image sd\|synthetic\|auto] [--skip-reply] [--skip-image] [--skip-solo] [--keep]` |
