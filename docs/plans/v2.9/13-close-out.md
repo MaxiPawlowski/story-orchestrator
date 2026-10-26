@@ -51,6 +51,40 @@ Order: C1 first (it feeds C2-C5), the rest in parallel where they do not share a
     `so-evidence archive` + `npm run sessions:archive` after the last GPU row, final freeze: one `npm run gates` + `suite:nomodel`
     on the frozen commit, staged, header captured.
 
+### C8 result (2026-10-25/26, branch `v2.9-13-c8`)
+
+- Lane prepare in `npm run suite:nomodel` (default lanes 30,31; 33 is another agent's): offline fresh seed (`SO_LANE_OFFLINE=1`,
+  no server plugins, so no TypeSafe/opencode/controller/ComfyUI call can leave a lane; the first run's plugin lanes made real
+  TypeSafe and opencode calls), SO settings at defaults with a closed-port memory model, keyless DeepSeek CC profile, Summarize on
+  with auto summaries off, side panels unpinned, copied library index dropped, groups SO-Open-Stretch-Curve + SOIMG Test cast
+  seeded, page probed; every lane it prepared is stopped after the run. Harness: `requires.viewport`, `requires.plugins` (rows
+  needing a server plugin leave the list: v28-69-k12-commit-race), leftover Studio/workspace closed at sandbox start, library
+  restore puts the library index back, `restart_story` answers within 60 s (J10.7 hung 2 h), `st-lanes batch --fresh-page`
+  (reload before every row), readiness retries `/csrf-token`, settings saves wait 60 s, and a run whose staged build changes
+  mid-batch is VOID (exit 3).
+- Verdicts over the first run's 63 non-green rows plus rows found later: environment ~25 (lane settings drift, lane 33 co-driver,
+  groups, Summarize, DeepSeek profile, 15 MB settings saves, residue between rows, panel pinned, library index), fixture drift /
+  class ~35 (cited commits: 7724042c, 83473666, b190faa2, 3a9671e3, 5c086027, d97af6d5, 50bcbc2b, 236c1c17, 9460f28d, f2fc43c4,
+  201bd784, 090be91b, 4c073021, fa5fdf0a, c699a0cc, e3d2ee1f, 544975fb, d83862b4, 4f4e5df9; classes J4.7/J11.1/J11.18 any,
+  J5.6 judged, J8.3 dependsOn, v28-60-b5 and live-story-workflows to model lanes), product 6 (below; 2 fixed since).
+- Runs (summaries `C:\dev\so-lanes\batch-<stamp>.json`):
+  - 10-21-32 (first, lanes 30-34): 191 rows, 128 green, 51 red, 7 incomplete, 5 not-runnable.
+  - 12-18-59 (lanes 30,31,32,34): 187, 160 green, 27 red.
+  - 14-19-36 (A): 188, 182 green, 6 red (5 product + d-04 library index, fixed after).
+  - 18-42-29 (B, lanes 30,31): 180 green, 7 red, 1 incomplete (J10.7 hang, J9 drawer flake, v19 HUD timing; fixed after);
+    staged build changed mid-run.
+  - 21-11-10 (C): **185 green, 3 red, all product defects** (v27-d-01, v27-d-08, v27-d-10); staged d0f41c3a.
+  - 22-11-36 (D): 182 green, 6 red: the 3 defects + plan04-pacing, v24-01-guidance, v28-31-p5-depth, because 28eab941
+    (story injections at depth 0) was staged mid-run; reverted by cdbfd6a6.
+  - E and F stopped early (staged build flips; one server stall; live-v5 lost rename after a fresh page, fixed).
+  - 02-02-10 (G): 182 green, 5 red, 1 incomplete: the 3 defects, e3 (Before you start pane over the Studio click, fixed),
+    v28-35-g7-shipped-blocks and v29-04-cues (the staged build was restaged at 03:04Z mid-run; v29-04 had no runtime after it).
+- Not reached: green x2 consecutively. The lanes serve SillyTavern's staged copy, which was restaged five times during C8
+  (d0f41c3a, b28fdaf8, cdbfd6a6, 7fbd6dd9; all `dirty`), so no two full runs (about 3.5 h each on two lanes) shared one build.
+  On the current staged build (7fbd6dd9, dirty) `v28-35-g7-shipped-blocks` fails standalone ("story blocks set but not in the
+  sent request": guidance, pacing, check outcome) though master's src is unchanged since cdbfd6a6: the uncommitted part of
+  that staged build, not a fixture; re-check on a clean staged build.
+
 ### C8 product defects
 
 Rows `suite:nomodel` keeps red because the product is wrong, not the fixture or the lane. Fixtures keep their strict
