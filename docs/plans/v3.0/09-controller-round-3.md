@@ -779,3 +779,39 @@ binary also carries the R patch (checkpoint_at, rewind, duplicate-checkpoint dro
 Addendum, before running them: S768 never streamed. Free VRAM with text loaded was 1,643-1,790 MiB, under the 1,792
 MiB that 768 + 1,024 require, so all three images swapped. Two more arms run under the same floors: S384 and
 S384-LH (stream gate 1,408 MiB).
+
+## R2: duplicate-checkpoint drop plus a blind rating (owner 2026-10-26; floors declared before the run)
+
+Binary `llama-b11888-so3-cu128` (patch `8897e3b`): after `cache_rewind`, the cut checkpoint is dropped, because it is
+the same state as the rewound entry.
+
+**Performance arms.** `bench-controller.mjs text --gap-ms 1000` on `09/corpus-rate.json`, `--verbosity 4`, 3 repeats
+each:
+- A3s at 4096: `mtp2+cram4096+ramcut+keys+noerase+ckat+rewind+v4`
+- A3s at 2048: `mtp2+cram2048+ramcut+keys+noerase+ckat+rewind+v4`
+
+The comparison is with R's A, A2 and A3 rows (same corpus, same machine, same day).
+
+**Candidate.** A3s if it passes performance floors 3-5 below; otherwise A2. A2 is the R row: warm 3.31 s,
+decode 42.7 tok/s.
+
+**Rating.** Full-length run: the candidate on the 25 chat prompts of `corpus-rate.json`, 1,024 tokens, thinking on, as
+in the playtest run. Control: the adopted A's full-length run from the same morning, `text-2026-10-26T09-33-35-751Z`
+(same binary, config and corpus). Sol (`openai/gpt-6.1-sol`) rates blind with `09/rate/rate-pairs.mjs`.
+
+Floors (owner rule 4, as in the playtest verification):
+1. No category mean below the control's by more than 0.2 (coherence, voice, guidance, continuity).
+2. Flagged failures (voice bleed, guidance ignored, leak) ≤ control + 2 in each flag.
+3. Replies that close their thinking: no fewer than the control's.
+
+Performance floors for the candidate:
+3. With 2048 MiB: warm share of member switches ≥ 60 % (A3s only).
+4. Chat decode within ±3 % of A, and draft acceptance within 0.03.
+5. 0 failed requests and 0 rewind failures.
+6. Warm member switch p50 ≤ A's (7.50 s on this corpus).
+
+R's floors 1 (≤ 3.0 s) and 6 (greedy identity) are recorded there as literal misses. Under the owner's instruction the
+rating replaces them as the quality gate.
+
+Adoption: the candidate goes onto the owner's controller only if every floor above passes. That means `checkpointAt`
+(+ `serverRewind` for A3s) and the so3 binary, which also carries `keepAcrossImages` support.
