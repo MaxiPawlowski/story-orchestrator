@@ -135,7 +135,7 @@ export function createArbiter(config, deps = {}) {
     let lastReclaim = null;
     const reclaimStats = { freed: 0, stopped: 0 };
     const reclaimComfy = async ({ shortMiB = 0 } = {}) => {
-        const imageBusy = () => Boolean(scheduler?.lease || scheduler?.imagePending || scheduler?.imageQueued);
+        const imageBusy = () => Boolean(scheduler?.lease || scheduler?.imagePending || scheduler?.imageQueued || scheduler?.burstOpen?.());
         let freeAttempt = null;
         if (config.reclaimFreeFirst !== false) {
             freeAttempt = await freeIdleComfy({ child: () => comfyChild, busy: imageBusy, queue: () => jsonFetch('/queue'),
@@ -228,6 +228,10 @@ export function createArbiter(config, deps = {}) {
         },
         renew(lease) { return scheduler.renew(lease); },
         release(lease) { return scheduler.release(lease); },
+        burst(body = {}) {
+            if (body.close !== undefined) return { closed: scheduler.closeBurst(typeof body.close === 'string' ? body.close : null) };
+            return scheduler.openBurst({ count: body.count, ttlMs: body.ttlMs, kind: body.kind });
+        },
         text(run, signal, budget, lane) {
             if (backend.crashed) return Promise.reject(new Error(`The local text server exited (code ${backend.crashed.code ?? 'unknown'}). An admin can restart it with Load text.`));
             return scheduler.text(run, signal, budget, lane);

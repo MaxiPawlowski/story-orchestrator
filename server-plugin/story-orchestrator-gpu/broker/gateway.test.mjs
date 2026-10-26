@@ -256,3 +256,26 @@ test('a request arriving during the idle prefill aborts it at once without recor
         assert.equal(listeners.size, 0);
     } finally { await gateway.close(); }
 });
+
+test('each streamed reply logs how long it waited before generation and whether text was unloaded when it arrived', async () => {
+    const state = { pid: null, loading: false, profile: 'fast' };
+    const arbiter = fakeArbiter(state);
+    const waits = [];
+    arbiter.scheduler.noteReplyWait = (wait) => waits.push(wait);
+    arbiter.backend.forRequest = async () => { await new Promise((resolve) => setTimeout(resolve, 30)); state.pid = 7; };
+    const fetchImpl = async () => new Response(JSON.stringify({ content: 'ok' }), { headers: { 'content-type': 'application/json' } });
+    const gateway = createGateway({ arbiter, config: { modelAlias: 'm', defaultProfile: 'fast' }, fetchImpl, memberCache: null });
+    const { port } = await gateway.listen(0);
+    try {
+        for (const stream of [true, true, false]) {
+            const pending = fetch(`http://127.0.0.1:${port}/completion`, { method: 'POST', body: JSON.stringify({ prompt: 'chat', n_predict: 4, stream }) });
+            while (!arbiter.queued.length) await new Promise((resolve) => setTimeout(resolve, 5));
+            arbiter.queued.shift()();
+            assert.equal((await pending).status, 200);
+        }
+        assert.equal(waits.length, 2);
+        assert.equal(waits[0].cold, true);
+        assert.ok(waits[0].waitedMs >= 25);
+        assert.equal(waits[1].cold, false);
+    } finally { await gateway.close(); }
+});

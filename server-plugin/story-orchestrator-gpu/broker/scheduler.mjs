@@ -41,6 +41,9 @@ export class ResidencyScheduler {
         this.activeText = 0;
         this.activeLanes = new Set();
         this.arrivals = new Set();
+        this.burst = null;
+        this.burstStats = { opened: 0, finished: 0, closed: 0, expired: 0, heldReloads: 0 };
+        this.replyWaits = { replies: 0, cold: 0, coldMs: [], last: null };
         this.imagePending = false;
         this.lease = null;
         this.manualHold = false;
@@ -62,10 +65,49 @@ export class ResidencyScheduler {
         this.ramShort = null;
     }
 
+    openBurst({ count, ttlMs, kind } = {}, now = Date.now()) {
+        if (!Number.isInteger(count) || count < 1 || count > 64) throw new Error('A burst needs count 1..64 (image leases still to come).');
+        const maxMs = this.config.burstMaxMs ?? 600000;
+        const ttl = Number.isInteger(ttlMs) ? Math.min(Math.max(ttlMs, 5000), maxMs) : (this.config.burstDefaultMs ?? 120000);
+        if (this.burst) this.burstStats.closed += 1;
+        this.burst = { id: randomUUID(), remaining: count, until: now + ttl, kind: typeof kind === 'string' ? kind.slice(0, 40) : null };
+        this.burstStats.opened += 1;
+        return { burst: this.burst.id, remaining: count, until: new Date(this.burst.until).toISOString() };
+    }
+
+    closeBurst(id, reason = 'closed') {
+        if (!this.burst || (id && this.burst.id !== id)) return false;
+        this.burst = null;
+        this.burstStats[reason] = (this.burstStats[reason] ?? 0) + 1;
+        return true;
+    }
+
+    burstOpen(now = Date.now()) {
+        if (!this.burst) return false;
+        if (now < this.burst.until) return true;
+        this.closeBurst(null, 'expired');
+        return false;
+    }
+
+    noteReplyWait({ waitedMs, cold }) {
+        const waits = this.replyWaits;
+        waits.replies += 1;
+        if (cold) { waits.cold += 1; waits.coldMs.push(Math.round(waitedMs)); if (waits.coldMs.length > 50) waits.coldMs.shift(); }
+        waits.last = { at: new Date().toISOString(), waitedMs: Math.round(waitedMs), cold: Boolean(cold) };
+    }
+
+    replyWaitStatus() {
+        const waits = this.replyWaits;
+        const sorted = [...waits.coldMs].sort((a, b) => a - b);
+        return { replies: waits.replies, waitedOnReload: waits.cold, share: waits.replies ? Number((waits.cold / waits.replies).toFixed(3)) : null,
+            reloadWaitP50Ms: sorted.length ? sorted[Math.floor(sorted.length / 2)] : null, reloadWaitMaxMs: sorted.length ? sorted[sorted.length - 1] : null, last: waits.last };
+    }
+
     async keepResident(now = Date.now()) {
         if (this.config.keepTextResident === false || this.restoring || this.lease || this.imagePending || this.imageQueued || this.activeText || this.manualHold || this.pending.length) return;
         const state = this.backend.status();
         if (state.pid || state.loading) return;
+        if (this.burstOpen(now)) { if (this.lastHeldLease !== this.lastLeaseAt) { this.lastHeldLease = this.lastLeaseAt; this.burstStats.heldReloads += 1; } return; }
         if (this.lastLeaseAt && now - this.lastLeaseAt < (this.config.textReloadGraceMs ?? 5000)) return;
         if (this.imagesCooling(now)) return;
         if (this.reloadRetryAt && now < this.reloadRetryAt) return;
@@ -165,6 +207,7 @@ export class ResidencyScheduler {
     imageTurn() {
         const queued = this.imageQueued;
         if (!queued) return true;
+        if (this.config.replyBeforeImage === true && this.pending.some((row) => row.lane === 'chat') && Date.now() - queued.at < (this.config.imageFairWaitMs ?? 45000)) return false;
         return this.servedText - queued.served >= (this.config.imageFairTextRequests ?? 3) || Date.now() - queued.at >= (this.config.imageFairWaitMs ?? 45000);
     }
 
@@ -470,6 +513,7 @@ export class ResidencyScheduler {
         } finally {
             if (this.lease === lease) this.lease = null;
             this.lastLeaseAt = Date.now();
+            if (this.burstOpen()) { this.burst.remaining -= 1; if (this.burst.remaining <= 0) this.closeBurst(null, 'finished'); }
             void this.pump();
         }
         return true;
@@ -497,6 +541,7 @@ export class ResidencyScheduler {
     }
 
     async restoreIfIdle() {
+        if (this.burstOpen()) return;
         if (await this.recoverFitSpill()) return;
         const idleMs = this.config.idleRestoreMs ?? 0;
         if (!idleMs || this.restoring) return;
@@ -562,7 +607,7 @@ export class ResidencyScheduler {
 
     status() {
         return { phase: this.imagePending ? 'reserving' : this.lease ? 'image' : this.restoring ? 'restoring' : this.manualHold ? 'manual-hold' : 'text',
-            activeText: this.activeText, overlappedText: this.overlapped ?? 0, spill: { backoffMiB: this.spill.backoffMiB, textSpilled: this.spill.textSpilled, events: this.spill.events.slice(-5) }, waitingText: this.pending.length, imageLease: Boolean(this.lease),
+            activeText: this.activeText, overlappedText: this.overlapped ?? 0, burst: { open: this.burstOpen() ? { remaining: this.burst.remaining, until: new Date(this.burst.until).toISOString(), kind: this.burst.kind } : null, ...this.burstStats }, replyWaits: this.replyWaitStatus(), spill: { backoffMiB: this.spill.backoffMiB, textSpilled: this.spill.textSpilled, events: this.spill.events.slice(-5) }, waitingText: this.pending.length, imageLease: Boolean(this.lease),
             imageWaiting: Boolean(this.imageQueued), servedText: this.servedText, fairImages: true, ramShort: this.ramShort,
             text: this.backend.status(), objective: this.config.residencyObjective ?? 'total-wait', timings: this.timings, lastTextDecision: this.lastTextDecision,
             lastDecision: this.lastDecision, lastResidency: this.lastResidency, lastNeedGpuMiB: this.lastNeedGpuMiB, measurement: this.lastMeasurement ? { ...this.lastMeasurement, trace: undefined } : null,

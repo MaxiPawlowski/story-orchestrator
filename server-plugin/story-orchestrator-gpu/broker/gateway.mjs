@@ -65,9 +65,9 @@ export function createGateway({ arbiter, config, fetchImpl = fetch, allowOrigin 
             if (origin && !(allowOrigin && allowOrigin.test(origin))) { answer(res, 403, { error: 'The text gateway serves SillyTavern\'s server, not pages.' }); return; }
             if (req.method === 'GET' && extraGet[route]) { answer(res, 200, await extraGet[route]()); return; }
             if (req.method === 'GET' && ['/', '/status', '/health'].includes(route)) { answer(res, 200, await arbiter.status({ fresh: true })); return; }
-            if (controls && req.method === 'POST' && ['/lease', '/renew', '/release'].includes(route)) {
+            if (controls && req.method === 'POST' && ['/lease', '/renew', '/release', '/burst'].includes(route)) {
                 const body = await readBody(req);
-                const data = route === '/lease' ? await arbiter.reserve(body) : route === '/renew' ? { renewed: arbiter.renew(body.lease) } : { released: await arbiter.release(body.lease) };
+                const data = route === '/lease' ? await arbiter.reserve(body) : route === '/renew' ? { renewed: arbiter.renew(body.lease) } : route === '/burst' ? arbiter.burst(body) : { released: await arbiter.release(body.lease) };
                 answer(res, 200, data);
                 return;
             }
@@ -99,6 +99,10 @@ export function createGateway({ arbiter, config, fetchImpl = fetch, allowOrigin 
             const backend = arbiter.backend;
             const generating = req.method === 'POST' && body && GENERATION_ROUTES.includes(route);
             const slot = generating ? (Number.isInteger(body.id_slot) && body.id_slot >= 0 ? body.id_slot : slotFor(config, body)) : null;
+            const replying = generating && body?.stream === true;
+            const arrivedAt = Date.now();
+            const arrival = backend.status();
+            const coldArrival = replying && (!arrival.pid || Boolean(arrival.loading) || Boolean(arbiter.scheduler?.lease));
             if (slot !== null) body.id_slot = slot;
             const reusing = reuse && req.method === 'POST' && route === '/completion' && body;
             const backendCall = async (payload) => {
@@ -140,6 +144,7 @@ export function createGateway({ arbiter, config, fetchImpl = fetch, allowOrigin 
                 try {
                     if (body && GENERATION_ROUTES.includes(route)) await backend.forRequest(body, abort.signal, slot);
                     else await backend.ensure(backend.profile ?? config.defaultProfile);
+                    if (replying) arbiter.scheduler?.noteReplyWait?.({ waitedMs: Date.now() - arrivedAt, cold: coldArrival });
                     try { await forward(); }
                     finally { if (!memberDone && members?.afterOther && generating && backend.status().pid) await members.afterOther(slot ?? 0).catch((error) => { members.lastError = error.message; }); }
                 } finally { if (slot !== null) backend.releaseSlot?.(slot); }

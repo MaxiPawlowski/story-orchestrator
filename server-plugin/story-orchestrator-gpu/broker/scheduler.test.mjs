@@ -833,3 +833,48 @@ test('a shared-memory spill of the text server raises the GPU headroom and the s
     assert.equal(scheduler.status().spill.textSpilled, false);
     assert.equal(scheduler.status().spill.backoffMiB, 1792);
 });
+
+test('an open image burst holds the text reload between its leases, ends after its count, and expires on its deadline', async () => {
+    let n = 0;
+    const { scheduler, backend } = setup({ snapshot: async () => free(n++ % 2 === 0 ? 3000 : 22000), config: { textReloadGraceMs: 1000 } });
+    assert.throws(() => scheduler.openBurst({ count: 0 }), /count 1..64/);
+    const opened = scheduler.openBurst({ count: 2, ttlMs: 60000, kind: 'sprites' });
+    assert.equal(opened.remaining, 2);
+    const first = await scheduler.reserve({ workflowKey: 'background', needGpuMiB: 17000 });
+    await scheduler.release(first.lease);
+    await scheduler.keepResident(Date.now() + 1500);
+    assert.equal(backend.profile, null);
+    assert.equal(scheduler.status().burst.open.remaining, 1);
+    assert.equal(scheduler.status().burst.heldReloads, 1);
+    const second = await scheduler.reserve({ workflowKey: 'background', needGpuMiB: 17000 });
+    await scheduler.release(second.lease);
+    assert.equal(scheduler.status().burst.open, null);
+    assert.equal(scheduler.status().burst.finished, 1);
+    await scheduler.keepResident(Date.now() + 1500);
+    assert.equal(backend.profile, 'fast');
+    await scheduler.unload();
+    scheduler.manualHold = false;
+    const late = scheduler.openBurst({ count: 5, ttlMs: 5000 });
+    assert.equal(scheduler.burstOpen(Date.now() + 6000), false);
+    assert.equal(scheduler.status().burst.expired, 1);
+    assert.equal(scheduler.closeBurst(late.burst), false);
+});
+
+test('reply waits are logged per reply, and with replyBeforeImage a queued chat reply goes before a queued image', async () => {
+    const { scheduler } = setup({ config: { replyBeforeImage: true, imageFairTextRequests: 1, maxQueue: 8 } });
+    scheduler.noteReplyWait({ waitedMs: 120, cold: false });
+    scheduler.noteReplyWait({ waitedMs: 21000, cold: true });
+    assert.deepEqual({ ...scheduler.status().replyWaits, last: null }, { replies: 2, waitedOnReload: 1, share: 0.5, reloadWaitP50Ms: 21000, reloadWaitMaxMs: 21000, last: null });
+    const order = [];
+    const gate = deferred();
+    const running = scheduler.text(async () => { order.push('side'); await gate.promise; }, undefined, null, 'side');
+    await tick();
+    const image = scheduler.reserve({ workflowKey: 'scene', needGpuMiB: 9000 }).then((lease) => { order.push('image'); return lease; });
+    await tick();
+    const chat = scheduler.text(async () => { order.push('chat'); }, undefined, null, 'chat');
+    gate.resolve();
+    await running; await chat;
+    const lease = await image;
+    assert.deepEqual(order, ['side', 'chat', 'image']);
+    await scheduler.release(lease.lease);
+});
