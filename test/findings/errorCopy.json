@@ -990,7 +990,7 @@
       "reason": "the caller receives the failure while the queue tail only resets for the next job"
     },
     {
-      "site": "src/image/runtime.ts#StoryImageDirector.plan",
+      "site": "src/image/runtime.ts#directorReply",
       "kind": 3,
       "template": "catch {} #1",
       "surface": "author",

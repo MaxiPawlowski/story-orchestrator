@@ -51,6 +51,21 @@ export type ImageReviewer = (plan: ImagePlan, candidates: ImageCandidate[], rere
 
 const current = (storyId?: string | null) => sanitizeImageChatState(imageChatSettings(), imageChat()?.id ?? "", storyId);
 
+const sourceOf = (reply: ImageReply | null, wanted: boolean): ImagePlan["promptSource"] => (reply ? "directed" : wanted ? "degraded" : "template");
+
+async function directorReply(profileId: string, messages: Array<{ role: string; content: string }>, maxTokens: number, route: Route): Promise<ImageReply | null> {
+  try {
+    const raw = await imageModel(profileId, messages, maxTokens);
+    try { return parseImageReply(raw, route); } catch {
+      return parseImageReply(await imageModel(profileId, [...messages, { role: "assistant", content: raw },
+        { role: "user", content: "The image JSON was invalid. Return one valid JSON object with the requested fields." }], maxTokens), route);
+    }
+  } catch (error) {
+    log.warn("The image-prompt model gave no usable answer, so this picture used the template prompt.", error);
+    return null;
+  }
+}
+
 export class StoryImageDirector {
   readonly queue = new ImageQueue();
   reviewer: ImageReviewer | null = null;
@@ -114,6 +129,10 @@ export class StoryImageDirector {
     const saved = await imageWriteChatSettings({ ...current(this.manager.getSnapshot().storyId), override: sanitizeImageOverride(override) }, chatId);
     if (!saved.ok) throw new Error(saved.reason);
     this.notify();
+  }
+  private placeFor(story: ReturnType<RuntimeManager["getStory"]>): string | null {
+    const snapshot = this.manager.getSnapshot();
+    return snapshot.scene?.facts?.location ?? authoredPlace(story, [...(this.manager.getEngineState()?.visitedPath ?? []), snapshot.activeCheckpointId ?? ""]);
   }
   status(): ImageStatus { return { jobs: this.queue.snapshot(), lastError: this.lastError, lastPlan: this.lastPlan, workflowNote: this.workflowNote }; }
   subscribe(listener: () => void): () => void { this.listeners.add(listener); return () => { this.listeners.delete(listener); }; }
@@ -217,7 +236,7 @@ export class StoryImageDirector {
     const ownsStory = this.manager.ownsImageChat(chat.id) && snapshot.ready;
     const story = ownsStory ? this.manager.getStory() : null;
     const beat = story && snapshot.activeCheckpointId ? story.checkpointById[snapshot.activeCheckpointId] : null;
-    const place = ownsStory ? snapshot.scene?.facts?.location ?? authoredPlace(story, [...(this.manager.getEngineState()?.visitedPath ?? []), snapshot.activeCheckpointId ?? ""]) : null;
+    const place = ownsStory ? this.placeFor(story) : null;
     const scene = sceneForImage(chat, request, settings.contextMessages, ownsStory ? beatLabel(beat) : null, place);
     if (story) {
       const look = lookFor(story, snapshot.activeCheckpointId);
@@ -238,26 +257,10 @@ export class StoryImageDirector {
       route = withCheckpointFile(route, resolved.file);
       route = { ...route, allowed: [resolved.file] };
     }
-    let reply: ImageReply | null = null;
-    let promptSource: ImagePlan["promptSource"] = settings.directorProfileId && !request.raw ? "degraded" : "template";
-    if (!request.raw && settings.directorProfileId && listConnectionProfiles().some((profile) => profile.id === settings.directorProfileId)) {
-      const messages = imageMessages(request, scene, route);
-      try {
-        const raw = await imageModel(settings.directorProfileId, messages, settings.maxTokens);
-        try {
-          reply = parseImageReply(raw, route);
-        } catch {
-          reply = parseImageReply(await imageModel(settings.directorProfileId, [
-            ...messages, { role: "assistant", content: raw },
-            { role: "user", content: "The image JSON was invalid. Return one valid JSON object with the requested fields." },
-          ], settings.maxTokens), route);
-        }
-        route = pickImageCheckpoint(route, reply.checkpoint);
-        promptSource = "directed";
-      } catch (error) {
-        log.warn(`The image-prompt model gave no usable answer, so this picture used the template prompt: ${error instanceof Error ? error.message : String(error)}`);
-      }
-    }
+    const offered = !request.raw && settings.directorProfileId && listConnectionProfiles().some((profile) => profile.id === settings.directorProfileId);
+    const reply = offered ? await directorReply(settings.directorProfileId, imageMessages(request, scene, route), settings.maxTokens, route) : null;
+    if (reply) route = pickImageCheckpoint(route, reply.checkpoint);
+    const promptSource = sourceOf(reply, Boolean(settings.directorProfileId && !request.raw));
     const aspect = route.aspect !== "auto" ? route.aspect : reply?.aspect ?? (request.purpose === "background" ? "wide" : "portrait");
     const fallback = !request.raw && !reply ? templateImagePrompt(scene, request.purpose, request.text) : request.text;
     const assembled = settings.backend === "st" ? {
