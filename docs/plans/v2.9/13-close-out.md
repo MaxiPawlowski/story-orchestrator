@@ -114,10 +114,10 @@ Order: C1 first (it feeds C2-C5), the rest in parallel where they do not share a
   on 5a94b11c. Bundle 1,269,122 B.
 - Staged 90bfb9cc (`dirty` = untracked files in the main checkout), bundle 1a39540ae56f, built 04:09:30Z.
 - Defect rows x2 on lane 30 (offline, prepared by `suite:nomodel --prepare-only`), batch `--repeat 2 --fresh-page`
-  (`C:\dev\so-lanesatch-2026-10-26T04-11-23-910Z.json`): v27-d-01 2/2, v27-d-08 2/2, v27-d-10 2/2 GREEN; g7 0/2 there,
+  (`C:\dev\so-lanes\batch-2026-10-26T04-11-23-910Z.json`): v27-d-01 2/2, v27-d-08 2/2, v27-d-10 2/2 GREEN; g7 0/2 there,
   then 2/2 GREEN after the fixture fix (`batch-2026-10-26T04-30-41-697Z.json`).
 - **suite:nomodel 2026-10-26 04:42Z-05:55Z, lanes 30,31, build held still (no void): GREEN 188, RED 0, INCOMPLETE 0,
-  NOT-RUNNABLE 0** (178 scenarios + 10 journeys / 48 none checks; `C:\dev\so-lanesatch-2026-10-26T04-42-58-382Z.json`);
+  NOT-RUNNABLE 0** (178 scenarios + 10 journeys / 48 none checks; `C:\dev\so-lanes\batch-2026-10-26T04-42-58-382Z.json`);
   lanes stopped by the suite. One green run; the "green x2 consecutively" bar needs one more run on the same build.
 
 ### C8 product defects
