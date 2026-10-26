@@ -49,9 +49,10 @@ No build order is set. If several reopen at once, by dependency: 02 B before 05.
 | 01, 02, 04 | DEFERRED (user, 2026-10-03); user answers recorded inline; not scheduled before v2.8 closes |
 | 03 | moved to v2.8 45 (owner 2026-10-14) |
 | 05 | DEFERRED; entries recorded |
-| 06 | `06-local-controller-perf.md` local controller performance: PLAN + partial 3090 bench 2026-10-25 (MTP n-max 2 decode +39 %; prefix reuse 0 %, breaks found) |
+| 06 | `06-local-controller-perf.md` local controller performance: MTP n-max 2 ADOPTED 2026-10-25 (decode +35-52 %); depth-0 layout and stable head REJECTED by blind rating + privacy (reverted `cdbfd6a6`); reload timing uses a median |
 | 07 | `07-inference-engine-eval.md` engine evaluation (SGLang, vLLM, ExLlamaV3, llama.cpp options): RESEARCH 2026-10-25, SPIKE 2026-10-26: ExLlamaV3 dropped (TTFT, RAM, Sol 3/8); b11888 + gateway member-state cache recommended (warm switch 9-10 s → 4.7-6.0 s) |
-| 08 | `08-member-state-cache.md` per-member state cache in the gateway: BUILT off by default 2026-10-26; b11888 parity pass; warm switch 8.6 → 4.5 s on the bench, but saves are disk-bound (1.1-53 s) and live group turns leave no idle gap to save in; owner stays on b11388 + MTP, cache off |
+| 08 | `08-member-state-cache.md` per-member state cache: disk mode built 2026-10-26 and kept off (disk-bound saves); superseded by 09 RAM mode on the patched server |
+| 09 | `09-controller-round-3.md` controller round 3: patched llama.cpp b11888 (`scripts/local/llama-patches/`) + RAM member cache 4 GiB LIVE on the owner controller 2026-10-26 (warm member switch 8.55 → 3.8 s, member turn 14.6 → 10.5 s; Sol 25 pairs better on all categories, thinking floor missed as written 23/25, owner adopted); 409 reserve-refusal fix + ComfyUI reclaim guards; chat-first queue built; max-memory profile, rewound entries + checkpoint_at, read reorder queued. Research: `research/` (web, Fable simulation, feature-impact audit, Astra review) |
 
 ## Decisions (user, 2026-10-03: as recommended)
 
