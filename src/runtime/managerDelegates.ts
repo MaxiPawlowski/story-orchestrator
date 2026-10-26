@@ -23,6 +23,7 @@ import { withDismissal } from "./checks";
 import { getGlobalSettings, setGlobalSettings } from "./settingsStore";
 import type { ChanceDraw } from "./chance";
 import { createChance, recordChanceDraw } from "./rolls";
+import { cueForSwipe } from "./npcReplyRewind";
 
 type WiredCoordinators = ReturnType<typeof wireCoordinators>;
 
@@ -152,6 +153,10 @@ export abstract class CoordinatorDelegates {
     this.co.memory.onMemberDrafted(chId);
     this.co.cues.staged();
     this.co.pacing.draftGuidance(id);
+  }
+  cueSwipe(type: string, messageId: number) {
+    const line = type === "swipe" ? cueForSwipe(this.co.rollbackDeps.extras().cuedLines, messageId) : null;
+    if (line) this.co.pacing.armDirection(line.member, line.text, "draft");
   }
   async prepareDraftedBeat(chId: number | [number]) { const id = this.co.memory.draftedRosterId(chId); return id ? this.co.inner.prepare(id) : false; }
   innerBeatDue(): boolean { return this.co.inner.due(); }

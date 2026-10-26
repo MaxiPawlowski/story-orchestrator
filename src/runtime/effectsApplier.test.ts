@@ -1,6 +1,6 @@
 import type { Checkpoint, NormalizedStory } from "@engine/index";
 import { parseStoryOrThrow } from "@engine/validate";
-import { applyBackground, applyCharacterAN, clearCharacterAN, executeSlashCommands, setGroupMembersDisabled, setWIEntriesState } from "@services/STAPI";
+import { applyBackground, applyCharacterAN, clearCharacterAN, executeSlashCommands, getActiveGroup, setGroupMembersDisabled, setWIEntriesState } from "@services/STAPI";
 import { EffectsApplier, NO_OPEN_CHAT, NO_OPEN_GROUP, PENDING_NOT_SAVED } from "./effectsApplier";
 import { CAST_UNRESOLVED, CAST_UNRESOLVED_NOTE } from "./castEffect";
 import { rewindNpcReplies } from "./npcReplyRewind";
@@ -9,7 +9,7 @@ import { readGatingModeWith, setScanGatingActive, setScanGatingSettled } from ".
 import type { RuntimeExtras, RuntimeSnapshot } from "./types";
 import { testOwnership } from "../../test/findings/testOwnership";
 
-const mockContext: { chat: Array<{ mes: string }>; chatId?: string; groupId?: string | null } = { chat: [{ mes: "one" }, { mes: "two" }], groupId: "g-test", chatId: "chat-a" };
+const mockContext: { chat: Array<{ mes: string; name?: string; is_system?: boolean }>; chatId?: string; groupId?: string | null } = { chat: [{ mes: "one" }, { mes: "two" }], groupId: "g-test", chatId: "chat-a" };
 
 jest.mock("@services/STAPI", () => ({
   settingsAreLoaded: () => true,
@@ -72,6 +72,80 @@ describe("v2.8 69 K10: an llm NPC reply triggers its member by group position", 
   });
 });
 
+describe("v3.0 19 P1: an llm reply carries its instruction to its member for that one reply", () => {
+  beforeEach(() => {
+    (executeSlashCommands as jest.Mock).mockClear();
+    mockContext.chat = [{ mes: "one" }, { mes: "two" }];
+  });
+
+  const recording = () => {
+    const order: string[] = [];
+    (executeSlashCommands as jest.Mock).mockImplementation(async (command: string) => { order.push(command); return true; });
+    const direct = jest.fn((member: string, text: string) => { order.push(`arm ${member}: ${text}`); return () => { order.push(`release ${member}`); }; });
+    return { order, direct };
+  };
+
+  it.each(["onEnter", "afterSpeak"] as const)("arms the direction before the %s trigger and releases it after", async (trigger) => {
+    const { order, direct } = recording();
+    const applier = new EffectsApplier(testOwnership(), { direct });
+    await applier.fireNpcReplies(checkpointWith([{ trigger, member: "Mara", kind: "llm", instruction: "Ask who sent them." }]), makeExtras(), trigger);
+    expect(order).toEqual(["arm Mara: Ask who sent them.", "/trigger await=true 3", "release Mara"]);
+  });
+
+  it("releases the direction when the trigger is refused, and never arms one for a scripted line or an llm reply without direction", async () => {
+    const { order, direct } = recording();
+    (executeSlashCommands as jest.Mock).mockImplementationOnce(async (command: string) => { order.push(command); return false; });
+    const applier = new EffectsApplier(testOwnership(), { direct });
+    await applier.fireNpcReplies(checkpointWith([{ trigger: "onEnter", member: "Mara", kind: "llm", instruction: "Ask." }]), makeExtras(), "onEnter");
+    expect(order).toEqual(["arm Mara: Ask.", "/trigger await=true 3", "release Mara"]);
+    order.length = 0;
+    await applier.fireNpcReplies(checkpointWith([
+      { trigger: "onEnter", member: "Mara", kind: "scripted", text: "Hello.", instruction: "Ignored." },
+      { trigger: "onEnter", member: "Mara", kind: "llm" },
+    ]), makeExtras(), "onEnter");
+    expect(direct).toHaveBeenCalledTimes(1);
+  });
+
+  it("says so when the direction cannot be delivered, and the reply still runs", async () => {
+    const lines: string[] = [];
+    const applier = new EffectsApplier(testOwnership(), { direct: () => null, journal: (summary) => { lines.push(summary); } });
+    await applier.fireNpcReplies(checkpointWith([{ trigger: "onEnter", member: "Mara", kind: "llm", ask_player: true }]), makeExtras(), "onEnter");
+    expect(lines).toEqual(["Mara's instruction was not delivered"]);
+    expect(executeSlashCommands).toHaveBeenCalledWith("/trigger await=true 3", { silent: false });
+  });
+
+  it("an ask_player or opening-hook line is skipped while its member is switched off in the group", async () => {
+    (getActiveGroup as jest.Mock).mockReturnValueOnce({ id: "g1", disabled_members: ["mara-chid"] });
+    const lines: string[] = [];
+    const applier = new EffectsApplier(testOwnership(), { journal: (summary) => { lines.push(summary); } });
+    const extras = makeExtras();
+    await applier.fireNpcReplies(checkpointWith([{ trigger: "onEnter", member: "Mara", kind: "llm", ask_player: true }]), extras, "onEnter");
+    expect(executeSlashCommands).not.toHaveBeenCalled();
+    expect(lines).toEqual(["Mara's line was skipped"]);
+    expect(extras.firedNpcReplies).toEqual({});
+  });
+});
+
+describe("v3.0 19 P4: an afterSpeak line waits while the last reply asks the player", () => {
+  beforeEach(() => {
+    (executeSlashCommands as jest.Mock).mockClear();
+    mockContext.chat = [{ mes: "one" }, { mes: "two" }];
+  });
+
+  it("holds the line, says why, and keeps it armed for a later reply", async () => {
+    let asks = true;
+    const lines: string[] = [];
+    const applier = new EffectsApplier(testOwnership(), { awaitsPlayer: () => asks, journal: (summary) => { lines.push(summary); } });
+    const extras = makeExtras();
+    const checkpoint = checkpointWith([{ trigger: "afterSpeak", member: "Mara", kind: "scripted", text: "Well?" }]);
+    expect(await applier.fireActiveReplies(checkpoint, extras, "afterSpeak", null)).toBe(0);
+    expect(executeSlashCommands).not.toHaveBeenCalled();
+    expect(lines).toEqual(["the afterSpeak lines of CP waited"]);
+    asks = false;
+    expect(await applier.fireActiveReplies(checkpoint, extras, "afterSpeak", null)).toBe(1);
+  });
+});
+
 describe("fireNpcReplies v1 parity", () => {
   beforeEach(() => {
     (executeSlashCommands as jest.Mock).mockClear();
@@ -109,31 +183,34 @@ describe("fireNpcReplies v1 parity", () => {
     expect(executeSlashCommands).toHaveBeenCalledTimes(1);
   });
 
-  it("ignores after_member outside afterSpeak", async () => {
-    const applier = new EffectsApplier(testOwnership());
+  it("fires an entering line with after_member only right after that member's line", async () => {
+    const applier = new EffectsApplier(testOwnership(), { speakerNames: (name) => (name === "Captain Rook" ? [name, "guard"] : [name]) });
     const checkpoint = checkpointWith([
       { trigger: "onEnter", member: "Finn", kind: "scripted", text: "Enter.", after_member: "guard" },
     ]);
     await applier.fireNpcReplies(checkpoint, makeExtras(), "onEnter");
+    expect(executeSlashCommands).not.toHaveBeenCalled();
+    mockContext.chat = [{ mes: "one", name: "Captain Rook" }, { mes: "", is_system: true }];
+    await applier.fireNpcReplies(checkpoint, makeExtras(), "onEnter");
     expect(executeSlashCommands).toHaveBeenCalledTimes(1);
   });
 
-  it("posts an authored opening only into a new chat, even after its reply counter resets", async () => {
+  it("v3.0 19: a new_chat_only line posts only through the chat's opening, never through a plain entering pass", async () => {
     const applier = new EffectsApplier(testOwnership());
-    const opening = checkpointWith([{ trigger: "onEnter", member: "Adolion Narrator", kind: "scripted", text: "The Guild opens its doors.", new_chat_only: true }]);
+    const opening = checkpointWith([
+      { trigger: "onEnter", member: "Adolion Narrator", kind: "scripted", text: "The Guild opens its doors.", new_chat_only: true },
+      { trigger: "onEnter", member: "Mara", kind: "llm", new_chat_only: true, ask_player: true },
+    ]);
     mockContext.chat = [];
     await applier.fireNpcReplies(opening, makeExtras(), "onEnter");
-    expect(executeSlashCommands).toHaveBeenCalledWith(expect.stringContaining('/sendas name="Adolion Narrator"'), { silent: false });
-    mockContext.chat = [{ mes: "The Guild opens its doors." }];
-    await applier.fireNpcReplies(opening, makeExtras(), "onEnter");
-    expect(executeSlashCommands).toHaveBeenCalledTimes(1);
+    expect(executeSlashCommands).not.toHaveBeenCalled();
   });
 
   it("does not treat the opening's rendered message as another character's afterSpeak turn", async () => {
     const applier = new EffectsApplier(testOwnership());
     const extras = makeExtras();
     const checkpoint = checkpointWith([
-      { trigger: "onEnter", member: "Adolion Narrator", kind: "scripted", text: "Welcome.", new_chat_only: true },
+      { trigger: "onEnter", member: "Adolion Narrator", kind: "scripted", text: "Welcome." },
       { trigger: "afterSpeak", member: "Vallie", kind: "scripted", text: "A new posting!" },
     ]);
     mockContext.chat = [];

@@ -337,6 +337,7 @@
   "test/scenarios/v29-07-echoes.json#0": [],
   "test/scenarios/v29-08-observations.json#0": [],
   "test/scenarios/v29-a02-stopped-reply.json#0": [],
+  "test/scenarios/v30-19-opening-hook.json#0": [],
   "test/journeys/j11-expand.story.json#0": [],
   "test/journeys/j11-judge.story.json#0": [],
   "test/journeys/j11-lore.story.json#0": [],

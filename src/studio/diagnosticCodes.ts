@@ -47,6 +47,8 @@ export const DIAGNOSTIC_CODES = [
   "briefing-spoiler-risk",
   "story-kind-invalid",
   "opener-uses-player-name",
+  "npc-reply-directs-player",
+  "opening-narrator-only",
   "player-spoiler-risk",
   "agenda-pace-no-chapters",
   "faction-move-on-inaction",

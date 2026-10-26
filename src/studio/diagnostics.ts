@@ -10,6 +10,7 @@ import { ARRIVAL_CONSEQUENCES, checkGateOpenOnArrival } from "./arrivalDiagnosti
 import { BRIEFING_CONSEQUENCES, checkBriefingSpoilers } from "./briefingDiagnostics";
 import { KIND_CONSEQUENCES, checkStoryKind } from "./kindDiagnostics";
 import { PLAYER_CONSEQUENCES, checkPlayerProfile } from "./playerDiagnostics";
+import { HOOK_CONSEQUENCES, checkHookDiagnostics } from "./hookDiagnostics";
 import { LIFE_CONSEQUENCES, checkAgendaPace } from "./lifeDiagnostics";
 import { FACTION_CONSEQUENCES, checkFactionDiagnostics } from "./factionDiagnostics";
 import { factionQualities } from "@engine/validate/factions";
@@ -84,6 +85,7 @@ export const DIAGNOSTIC_CONSEQUENCES: Record<(typeof DIAGNOSTIC_CODES)[number], 
   ...BRIEFING_CONSEQUENCES,
   ...KIND_CONSEQUENCES,
   ...PLAYER_CONSEQUENCES,
+  ...HOOK_CONSEQUENCES,
   ...LIFE_CONSEQUENCES,
   ...FACTION_CONSEQUENCES,
   ...STAGE_CONSEQUENCES,
@@ -516,6 +518,7 @@ const DIAGNOSTIC_CHECKS = [
   checkBriefingSpoilers,
   checkStoryKind,
   checkPlayerProfile,
+  checkHookDiagnostics,
   checkAgendaPace,
   checkFactionDiagnostics,
   checkStageSprites,

@@ -1,6 +1,6 @@
 import { askJudge } from "@judge/client";
 import type { JudgeDirectorDecision, JudgeDirectorInput } from "@judge/director";
-import { directorJudgeEligible } from "@judge/directorEligible";
+import { directorJudgeEligible, directorOptionCount } from "@judge/directorEligible";
 import { createJudgeGate, type JudgeGate } from "@judge/gate";
 import { modelVerdict, DIRECTOR_TIMEOUT_MS } from "@judge/policy";
 import { DEFAULT_JUDGE_PROVIDER, type JudgeProviderId } from "@judge/providers";
@@ -279,8 +279,8 @@ export class JudgeRuntime {
   // null means "take today's chain": the flag is off, the pool is not eligible, or the call failed.
   async director(input: JudgeDirectorInput): Promise<JudgeDirectorDecision | null> {
     if (!this.active("director")) return null;
-    if (input.candidates.length + (input.allowSilence ? 1 : 0) < 2) return null;
-    if (!directorJudgeEligible(input.candidates, input.allowSilence)) {
+    if (directorOptionCount(input.candidates, input.allowSilence, input.allowHandBack) < 2) return null;
+    if (!directorJudgeEligible(input.candidates, input.allowSilence, input.allowHandBack)) {
       this.recordFallback("director", "no-roles");
       return null;
     }

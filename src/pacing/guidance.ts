@@ -17,14 +17,32 @@ export interface MemberGuidanceLine {
 
 export const memberGuidanceLine = (member: MemberGuidanceLine): string => `Direction for ${member.name} only: ${member.text.trim()}`;
 
+export const ASK_PLAYER_DIRECTION = `Turn to ${PLAYER_REF} in your own voice and ask them one thing about what was just said or shown, or how they are taking it; `
+  + `keep it short, then stop and leave the answer to ${PLAYER_REF}.`;
+
+export const ASK_PLAYER_TAIL = `End by asking ${PLAYER_REF} one thing in your own voice, then stop and leave the answer to ${PLAYER_REF}.`;
+
+export const ONE_SHOT_SCOPE = "This direction is for this one reply and wins over the general pacing notes where they differ, "
+  + `but never narrate ${PLAYER_REF}'s acts, words or feelings, and never ask ${PLAYER_REF} what they do.`;
+
+export const oneShotDirectionText = (reply: { instruction?: string; ask_player?: boolean }): string => {
+  const instruction = reply.instruction?.trim() ?? "";
+  if (!reply.ask_player) return instruction;
+  return instruction ? `${instruction} ${ASK_PLAYER_TAIL}` : ASK_PLAYER_DIRECTION;
+};
+
+export const oneShotDirectionLine = (member: MemberGuidanceLine): string => `Direction for ${member.name} only, this reply: ${member.text.trim()} ${ONE_SHOT_SCOPE}`;
+
 export const composeGuidanceBlock = (
   checkpoint: Checkpoint | null | undefined, policy: AgencyPolicy, withObjective = false, member: MemberGuidanceLine | null = null, stretch: string | null = null,
+  oneShot: MemberGuidanceLine | null = null,
 ): string => {
   const guidance = guidanceShared(checkpoint?.guidance).trim();
   const directed = [
     guidance,
     stretch ?? "",
     member?.text.trim() ? memberGuidanceLine(member) : "",
+    oneShot?.text.trim() ? oneShotDirectionLine(oneShot) : "",
     withObjective && checkpoint?.objective?.trim() ? objectiveLine(checkpoint, policy) : "",
   ].filter(Boolean);
   return [
