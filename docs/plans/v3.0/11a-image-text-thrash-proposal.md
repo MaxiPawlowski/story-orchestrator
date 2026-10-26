@@ -1,6 +1,7 @@
 # Plan 11a — Image <-> text thrash: controller policy proposal
 
-**Status: PROPOSAL 2026-10-26 (plan 11 B1 prep). Nothing built. The controller agent owns
+**Status: PROPOSAL 2026-10-26 (plan 11 B1 prep); P2 burst signal APPROVED by the owner 2026-10-26 (the page may tell the broker
+an image burst is coming); the controller agent implements the 11a items. Nothing built here. The controller agent owns
 `server-plugin/story-orchestrator-gpu/broker/`; this file only proposes. Floors TO DECIDE.**
 
 ## The problem in numbers (recorded, not new)
@@ -88,5 +89,4 @@ reload; 0 refused replies (409) and `fitCorrectionMiB` 0 throughout (existing 09
 
 ## Unresolved questions
 
-- May the page announce bursts to the broker (a new lease field), or must the broker infer them from its queue only?
 - Is a burst-only no-MTP text profile acceptable (it keeps thinking and inner voice; costs decode speed during bursts)?

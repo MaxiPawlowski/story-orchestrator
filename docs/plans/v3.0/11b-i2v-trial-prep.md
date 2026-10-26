@@ -1,6 +1,7 @@
 # Plan 11b — 05.7 image-to-video trial: prep notes
 
-**Status: PREP 2026-10-26. Nothing downloaded, nothing run.** Owner decision 6 (2026-10-26): one short image-to-video trial,
+**Status: PREP 2026-10-26; arm A DOWNLOADED 2026-10-26 (owner decision 3), nothing run (no GPU; the trial runs after B1 in the
+end batch).** Owner decision 6 (2026-10-26): one short image-to-video trial,
 after B1. Item: `05-deferred-items.md` §05.7 (spike: 2 showcase characters x 2 poses; identity drift by Sol, loop seam, GPU
 minutes and peak VRAM per loop, bytes per loop; downloads need the owner's OK and plan v2.8 30's model-source rules).
 
@@ -25,7 +26,25 @@ minutes and peak VRAM per loop, bytes per loop; downloads need the owner's OK an
 A + B together is 52 GB: only on D:. The owner's OK names which arm(s); recommended: A first (smallest, answers "is motion
 worth it" in about an hour), B only if A's identity drift fails and motion still looks wanted.
 
-## Trial workflow (to build when approved)
+## Arm A on disk (2026-10-26)
+
+Source: Hugging Face `Comfy-Org/Wan-2.2` (Apache-2.0), pinned revision `ee6f4a40737a995bf5818954cfce6d59443b0f04`, path
+`split_files/...`; sha256 checked against the repo's LFS ids.
+
+| File | Bytes | sha256 |
+|---|---|---|
+| `D:/models/story-orchestrator-video/diffusion_models/wan2.2_ti2v_5B_fp16.safetensors` | 9,999,658,848 | `456f901338bd9eadbded3828b819109a9b68e8a525ca5cf8d0049a69fcfeca1e` |
+| `D:/models/story-orchestrator-video/text_encoders/umt5_xxl_fp8_e4m3fn_scaled.safetensors` | 6,735,906,897 | `c3355d30191f1f066b26d93fba017ae9809dce6c627dda5f6a66eaa651204f68` |
+| `D:/models/story-orchestrator-video/vae/wan2.2_vae.safetensors` | 1,409,400,960 | `e40321bd36b9709991dae2530eb4ac303dd168276980d3e9bc4b6e2b75fed156` |
+
+Wiring: a `so_video` section (base `D:/models/story-orchestrator-video`, `diffusion_models`, `text_encoders`, `vae`) appended
+to `C:/dev/ComfyUI/extra_model_paths.yaml` (gitignored in ComfyUI; backup of the previous file in
+`C:/dev/backups/story-orchestrator/comfy-extra-model-paths-before-video-2026-10-26/`). It only adds search paths; ComfyUI reads
+it at its next start, the running one is untouched, and no controller config or ComfyUI flag changed. The controller's own
+`modelDirs` (admission sizing) do not list the folder; the trial runs with the controller stopped, so that is not needed.
+Undo: delete the `so_video` section (or restore the backup) and the folder.
+
+## Trial workflow (to build at the end batch)
 
 - Input: an existing pose sprite (alpha cut-out) composited on a flat mid-grey background at 480x832 portrait (A: 704x1280
   class buckets, or 480x832 to stay cheap), because the models do not take alpha.
@@ -52,5 +71,4 @@ first loop is timed; stop after the first loop if it runs over 10 min.
 
 ## Unresolved questions
 
-- Which arm(s) may be downloaded (A 16.9 GB, B 35.4 GB, both on D:)?
 - Video as the product format (webm in the stage) or frame strips only?
