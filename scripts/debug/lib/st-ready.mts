@@ -32,7 +32,12 @@ export async function ensureSTReady(page: Page, { timeout = 15_000 }: { timeout?
       const ctx = (globalThis as any).SillyTavern.getContext();
       if (typeof ctx?.getRequestHeaders !== 'function') return { ok: true };
       const pageToken = String(ctx.getRequestHeaders()?.['X-CSRF-Token'] ?? '');
-      const response = await fetch('/csrf-token');
+      let response = null;
+      for (let attempt = 0; attempt < 4 && !response; attempt += 1) {
+        response = await fetch('/csrf-token').catch(() => null);
+        if (!response) await new Promise((resolve) => setTimeout(resolve, 3000));
+      }
+      if (!response) throw new Error('the server did not answer /csrf-token in 4 tries over about 10 s');
       const current = response.ok ? String((await response.json())?.token ?? '') : '';
       return { ok: Boolean(pageToken && current && pageToken === current), pageToken: Boolean(pageToken), currentToken: Boolean(current) };
     });
