@@ -1,6 +1,8 @@
 # Plan 04 — Reactive character cues
 
-**Status: written 2026-10-21 from the v2.9 triage (`01-triage-sol.md`); revised 2026-10-21 after sol's review
+**Status 2026-10-26: BUILT, on master since 2026-10-22 (wave 2); D floors C1 40/40, C3 0, C4 0, C6 all cuts (jest); C2 30/30 (floor >= 80 %: met) and C5 0/40, but the cue-off arm also scored 30/30: cue effect 0 points (the corpus shows the event on screen, so C2 does not isolate the cue). Left: a corpus with the event off screen (v3.0 optional row). Records: §GPU run 2026-10-23, §Cue-off arm 2026-10-23.**
+
+**Was 2026-10-21: written 2026-10-21 from the v2.9 triage (`01-triage-sol.md`); revised 2026-10-21 after sol's review
 (`10-review-sol.md`); not built; owner decisions pending.** Implementation tier **D**; acceptance **D** (selection,
 once/cooldown, occurrence consumption, rollback ≡ replay, story update as jest properties; no-model scenario) + **RP**
 (realized reactions on Artemis, thinking and inner voice on) + **CL** (independent rating of realized reactions and

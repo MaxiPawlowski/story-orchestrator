@@ -1,6 +1,8 @@
 # Plan 07 — Delayed story echoes
 
-**Status: written 2026-10-21 from the v2.9 triage (`01-triage-sol.md` §"07", verdict N13); not built; owner decisions
+**Status 2026-10-26: BUILT, on master since 2026-10-22; 40-schedule D floors 40/40, 0 early or unauthorized (jest); narrator acknowledgement 0/5 on 2026-10-22, 18/20 (90 %, floor >= 80 %) after the 2026-10-23 header fix, single-fixture pilot. Left: a larger real-play count (v3.0 optional). Records: §GPU run 2026-10-23.**
+
+**Was 2026-10-21: written 2026-10-21 from the v2.9 triage (`01-triage-sol.md` §"07", verdict N13); not built; owner decisions
 pending; revised 2026-10-21 after sol's review (`10-review-sol.md` §07 and Cross-plan findings).** Implementation tier **D**; acceptance **D** (40-schedule fixture, rollback/reopen properties, Storybook) + **LT**
 (real Artemis replies on the local 3090, thinking and inner voice on, for the narrator-acknowledgement row; no new model call
 during play). Overview rules: `docs/plans/v2.8/00-overview.md` §Rules. Build order: after v2.9 04 (`01-triage-sol.md` §Build

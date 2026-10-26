@@ -1,13 +1,33 @@
 # Implementation Overview — Story Orchestrator v2.9
 
-**Status 2026-10-23 (afternoon, second session): NOT accepted.** 02 S5: `readCharacterCard` built; real-route recheck on sol
+**Status 2026-10-26: 02-09 BUILT and on master; CLOSING through plan 13; NOT accepted.** Per plan below (each plan's top
+status line carries the same facts and points at its record). Owed before the freeze: owner playtest (13 C1, includes 08 O4),
+a second consecutive green `suite:nomodel` on one build (13 C8: 188/188 once on 2026-10-26), the image journey rerun that
+verifies the head-box fix (13 §GPU rows 2026-10-26), J6 green x2 (J6.8 flaky), freeze (13 C11). Moved to v3.0:
+`13-close-out.md` §Move to v3.0, replanned in `docs/plans/v3.0/00-overview.md` §Replan 2026-10-26.
+
+| Plan | State 2026-10-26 | Floors vs result (informational, never retuned) | Left |
+|---|---|---|---|
+| 02 voice prevention | built, master (wave 1, 2026-10-21) | S6 first set gain 0 at 60/60 ceiling (miss); harder set gain 100 points (met); guidance max 113 (met); repetition 2 -> 1 (first set) | harder-set repetition score; adoption |
+| 03 reply polish | S0-S2 built, master 2026-10-22 (shadow); polish off for the playtest | rating floors not run; shadow sane (chat and reasoning untouched 24/24) | S2 at plan size + S3 -> v3.0 |
+| 04 reactive cues | built, master (wave 2, 2026-10-22) | C1 40/40, C3/C4 0, C6 all cuts; C2 30/30 met, cue-off arm 30/30 (effect 0 points); C5 0 | off-screen corpus -> v3.0 optional |
+| 05 story threads | built, master (wave 1) | P1/P2 100 %/100 % synthetic (met); P4 51/51; P5 p95 2.7-8.5 ms (floor 2 ms: miss); hint 3/10 | P3 real-play -> v3.0 optional; P5 |
+| 06 next actions | built, master (wave 2) | LT: F1 40/40, F2 36/40, F3 0, F5 80/80 pass; F4 +0.0 (floor +0.5: miss) | F4 follow-up -> v3.0 |
+| 07 echoes | built, master 2026-10-22 | 40/40 schedules, 0 early (jest); narrator ack 18/20 after header fix (pilot, met) | larger count -> v3.0 optional |
+| 08 observations | built, master (wave 1) | O1 40/40, O2 12/12, O3 0 (det. + CL with controls) | O4 in the owner playtest (13 C1) |
+| 09 feature help | built, master (wave 1) | 24/24 agreement, 0 disclosures; Show me 8/8 cases | none |
+| 11 test economy | B1, B2, B4, B5, B6 (vacuous/denominator half) built | stop rules in use for every GPU row since 2026-10-25 | B3 + B6 mutation review -> v3.0 |
+| 12 owner playtest | guide written, test story frozen | not run | owner plays (13 C1) |
+| 13 close-out | C2, C4, C5, C6, C7, C9, C10 done; C3 model miss; C8 green once | see 13 §Status | C1, C8 x2, C11 freeze |
+
+**Was 2026-10-23 (afternoon, second session): NOT accepted.** 02 S5: `readCharacterCard` built; real-route recheck on sol
 arin-sheet 2/2 (luke-sheet void: the card has no first message or example dialogue). 04 C2 cue-off arm: on 30/30, off 30/30, cue
 effect 0 points (the corpus shows the event on screen; C2's 100 % does not isolate the cue). Inner-beat wait fixed (starts
 before the boundary's reads, reads yield up to 15 s); real-model recheck rides the v2.8 lean night. 06 LT corpus frozen
 (`test/measurements/v2.9/06-lt/`, 40 situations, 2 x 40 scenarios, anchors-off seam for the current arm); not run yet.
 Records: plans 02, 04 and this overview's side-finding line.
 
-**Status 2026-10-23 (GPU window 2): 02-09 on master with the GPU2 fixes; NOT accepted.** Fixed and re-measured on real
+**Was 2026-10-23 (GPU window 2): 02-09 on master with the GPU2 fixes; NOT accepted.** Fixed and re-measured on real
 Artemis: 07 narrator echo acknowledged 18/20 (was 0/5; floor 80 % met on the pilot) after the echo got the plan's own header;
 05 hint used 3/10 (was 0/3, no floor). Corpus rows run: 05 P1/P2 100 %/100 % (50 sol-labelled synthetic sequences), 04 C2 30/30
 and C5 0/40, 02 S6 attribution gain 0 points at a 60/60 ceiling (missed) with repetition 2 -> 1 and guidance max 113 tokens,
