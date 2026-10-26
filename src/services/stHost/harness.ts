@@ -4,6 +4,7 @@ import { HARNESS_IDS, loginHint, type HarnessId } from "@utils/harness";
 import { pluginVersionIssue } from "@utils/pluginVersions";
 import type { ReasoningEffort } from "@utils/reasoningEffort";
 import type { ModelFailureKind, ModelFinish, ModelReply, ModelUsage } from "./modelReply";
+import { compactHarnessImages } from "@utils/harnessImages";
 
 export const HARNESS_PLUGIN_BASE = "/api/plugins/story-orchestrator-harness";
 
@@ -203,6 +204,7 @@ export async function sendHarnessRequest(request: HarnessRequest): Promise<Model
   const effort = request.effort ?? "default";
   const requestId = requestIdOf();
   const deadline = Date.now() + request.timeoutMs;
+  const images = request.images?.length ? await compactHarnessImages(request.images) : [];
   const body = JSON.stringify({
     requestId,
     harness: request.harness,
@@ -210,7 +212,7 @@ export async function sendHarnessRequest(request: HarnessRequest): Promise<Model
     role: request.role,
     system: HARNESS_SYSTEM,
     prompt: request.prompt,
-    ...(request.images?.length ? { images: request.images } : {}),
+    ...(images.length ? { images } : {}),
     timeoutMs: Math.min(MAX_TIMEOUT_MS, Math.max(1000, Math.round(request.timeoutMs))),
     maxOutputChars: request.maxOutputChars,
     ...(effort === "low" || effort === "medium" || effort === "high" ? { effort } : {}),
