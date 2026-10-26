@@ -505,7 +505,7 @@ port (`earlyDrafts`) but not surfaced in the UI; 09's resolver mapping/parity fi
 
 ### Harder-set repetition, computed offline 2026-10-26 (v3.0 14 §D3)
 
-- Replies: the two lane-45 dumps the S6 harder run scored (`C:\dev\so-lanes%\debug6-10-25T11-05-29-762Z_st-eval.json`
+- Replies: the two lane-45 dumps the S6 harder run scored (`C:\dev\so-lanes\45\debug\2026-10-25T11-05-29-762Z_st-eval.json`
   baseline, `…11-05-32-117Z_st-eval.json` prevention), 60 + 60 replies, all 20 situations complete in both arms.
 - Metric as frozen (`frozen.json` `repetition`: authored tic + avoid hits per reply for the speaker, case-insensitive whole phrase;
   5 phrases per member, 2 tics + 3 avoid): baseline **0 hits / 60**, prevention **0 hits / 60**. A looser substring count (trailing
