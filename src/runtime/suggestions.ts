@@ -16,13 +16,22 @@ export const SUGGESTION_RULES = [
 ] as const;
 
 export const ANCHOR_HEADING = "Build on these things the player already knows:";
+export const EARLIER_MARK = "(from earlier, not in this scene)";
+export const EARLIER_RULE = "A line for an idea marked from earlier brings it back up in the player's own words and says what it was, so it makes sense without the earlier scene.";
 
-const anchorBlock = (anchors: readonly Pick<SuggestionAnchor, "text">[]): string[] => (anchors.length ? [
-  [ANCHOR_HEADING, ...anchors.map((entry, index) => `[${index + 1}] ${entry.text}`)].join("\n"),
-  "Write one line for each numbered idea, starting with its tag, like \"- [1] …\"; make the other lines your own ideas.",
+type PromptAnchor = Pick<SuggestionAnchor, "text"> & Partial<Pick<SuggestionAnchor, "kind">>;
+
+const earlier = (entry: PromptAnchor) => entry.kind === "dormant-thread";
+
+const anchorBlock = (anchors: readonly PromptAnchor[]): string[] => (anchors.length ? [
+  [ANCHOR_HEADING, ...anchors.map((entry, index) => `[${index + 1}] ${entry.text}${earlier(entry) ? ` ${EARLIER_MARK}` : ""}`)].join("\n"),
+  [
+    "Write one line for each numbered idea, starting with its tag, like \"- [1] …\"; make the other lines your own ideas.",
+    ...(anchors.some(earlier) ? [EARLIER_RULE] : []),
+  ].join(" "),
 ] : []);
 
-export const buildSuggestionPrompt = (projection: PlayedProjection, anchors: readonly Pick<SuggestionAnchor, "text">[] = []): string => [
+export const buildSuggestionPrompt = (projection: PlayedProjection, anchors: readonly PromptAnchor[] = []): string => [
   `You help a player who is stuck in a roleplay story. Write exactly ${SUGGESTION_COUNT} short things ${projection.player || "the player"} could do or say next.`,
   SUGGESTION_RULES.map((rule) => `- ${rule}`).join("\n"),
   ...anchorBlock(anchors),

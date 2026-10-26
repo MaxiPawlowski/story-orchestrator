@@ -312,21 +312,13 @@
         },
         {
           "wait": {
-            "timeoutMs": 300000,
-            "checkpointIn": [
-              "cp2",
-              "cp3",
-              "cp-4a",
-              "cp-4b",
-              "cp-4a1",
-              "cp-4a2",
-              "cp-5",
-              "cp-6"
-            ]
+            "schedulerIdle": true,
+            "quietMs": 2000,
+            "timeoutMs": 300000
           }
         },
         {
-          "eval": "const rt = globalThis.storyOrchestratorRuntime; const requirements = rt.getSnapshot().requirements; if (!requirements.ready) throw new Error(\"the story requirements are not met (\" + JSON.stringify(requirements.missingLorebooks) + \"), so extraction will not latch this gate: another session or a cleanup changed the install\"); const last = rt.getEngineState().lastMessageId; const chat = SillyTavern.getContext().chat.length; if (last < 2) throw new Error(\"this check dates two passes by message: last=\" + last + \" of \" + chat); return { last, chat, checkpoint: rt.getSnapshot().activeCheckpointId };",
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const requirements = rt.getSnapshot().requirements; if (!requirements.ready) throw new Error(\"the story requirements are not met (\" + JSON.stringify(requirements.missingLorebooks) + \"), so extraction will not latch this gate: another session or a cleanup changed the install\"); const last = rt.getEngineState().lastMessageId; const chat = SillyTavern.getContext().chat.length; if (last < 2) throw new Error(\"this check dates two passes by message: last=\" + last + \" of \" + chat); const latched = rt.getEngineState().blackboard.values.approached_board; if (latched !== true) throw new Error(\"the scripted read never landed: approached_board=\" + JSON.stringify(latched)); return { last, chat, checkpoint: rt.getSnapshot().activeCheckpointId };",
           "log": true
         },
         {
@@ -362,7 +354,7 @@
       "findings": [
         "M4"
       ],
-      "goal": "a belief a reveal retired comes back when the reveal's message is edited The player line carries the evidence the scripted read cites: the evidence rule only accepts a quote from the read's window, and the old line relied on the model's reply happening to echo it (L2 2026-09-23: rejected once, story stayed at cp1).",
+      "goal": "a belief a reveal retired comes back when the reveal's message is edited The player line carries the evidence the scripted read cites: the evidence rule only accepts a quote from the read's window, and the old line relied on the model's reply happening to echo it (L2 2026-09-23: rejected once, story stayed at cp1). It waits for the read to land, not for a checkpoint: a living-director branch can hold the story off the authored route (v3.0 14 D5).",
       "steps": [
         {
           "send_generate": {
@@ -378,21 +370,13 @@
         },
         {
           "wait": {
-            "timeoutMs": 300000,
-            "checkpointIn": [
-              "cp2",
-              "cp3",
-              "cp-4a",
-              "cp-4b",
-              "cp-4a1",
-              "cp-4a2",
-              "cp-5",
-              "cp-6"
-            ]
+            "schedulerIdle": true,
+            "quietMs": 2000,
+            "timeoutMs": 300000
           }
         },
         {
-          "eval": "const rt = globalThis.storyOrchestratorRuntime; const requirements = rt.getSnapshot().requirements; if (!requirements.ready) throw new Error(\"the story requirements are not met (\" + JSON.stringify(requirements.missingLorebooks) + \"), so extraction will not latch this gate: another session or a cleanup changed the install\"); const last = rt.getEngineState().lastMessageId; const chat = SillyTavern.getContext().chat.length; if (last < 2) throw new Error(\"this check dates two passes by message: last=\" + last + \" of \" + chat); return { last, chat, checkpoint: rt.getSnapshot().activeCheckpointId };",
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const requirements = rt.getSnapshot().requirements; if (!requirements.ready) throw new Error(\"the story requirements are not met (\" + JSON.stringify(requirements.missingLorebooks) + \"), so extraction will not latch this gate: another session or a cleanup changed the install\"); const last = rt.getEngineState().lastMessageId; const chat = SillyTavern.getContext().chat.length; if (last < 2) throw new Error(\"this check dates two passes by message: last=\" + last + \" of \" + chat); const latched = rt.getEngineState().blackboard.values.approached_board; if (latched !== true) throw new Error(\"the scripted read never landed: approached_board=\" + JSON.stringify(latched)); return { last, chat, checkpoint: rt.getSnapshot().activeCheckpointId };",
           "log": true
         },
         {

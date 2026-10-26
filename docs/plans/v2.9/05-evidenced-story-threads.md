@@ -1,6 +1,6 @@
 # Plan 05 — Evidenced story threads
 
-**Status 2026-10-26: BUILT, on master since 2026-10-21 (wave 1, authored-only); P1 precision 25/25 and P2 recall 25/25 on 50 synthetic sequences (met); P4 51/51 cuts (met); P5 matcher p95 2.7-8.5 ms (floor <= 2 ms: MISS, recorded at build); narrator hint used 3/10 after the 2026-10-23 header fix (no floor). Left: P3 real-play rows (v3.0 optional), P5 miss unaddressed. Records: §Gate record, §GPU run 2026-10-23.**
+**Status 2026-10-26: BUILT, on master since 2026-10-21 (wave 1, authored-only); P1 precision 25/25 and P2 recall 25/25 on 50 synthetic sequences (met); P4 51/51 cuts (met); P5 matcher p95 2.7-8.5 ms (floor <= 2 ms: MISS, recorded at build); narrator hint used 3/10 after the 2026-10-23 header fix (no floor). Left: P3 real-play rows (v3.0 optional), P5 after v3.0 14 §D6: 2.03-2.19 ms, still a miss. Records: §Gate record, §GPU run 2026-10-23.**
 
 **Was 2026-10-21: written 2026-10-21 from the v2.9 triage (`01-triage-sol.md`); built 2026-10-21 on branch `v2.9-05-patterns` (slices A-D, authored-only), deterministic gates green, real-LLM and corpus floors NOT run (no GPU); see §Gate record.** Implementation
 tier **D** (pure matcher, schema, runtime slice, Studio, no model call). Acceptance **D** (matcher floors on the frozen
