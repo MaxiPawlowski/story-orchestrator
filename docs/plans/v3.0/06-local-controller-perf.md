@@ -463,5 +463,9 @@ load 1695-1815 MHz (P2), peak 350 W. SDXL story graph 1344x768, SDPA (`Using pyt
   live config restored to MTP only (slots would only cost ~0.5 GiB with per-speaker heads; free VRAM fell to 929 MiB
   with a lane browser open, under the 1024 reserve).
 - Lane 42: stable head applied and reverted (`stable-head-lane42-2026-10-26`), lane stopped.
+- `npm run gates` from `C:\dev\so-ctl` on `0fa83f79`'s tree: **all green in 315.7 s** (11 steps, Storybook included,
+  no `--resume`). `npm run test:plugin` 362 tests, 357 pass, 0 fail (5 skipped). `npm run gates:quick` green.
+- Evidence archived to so-sessions (`npm run sessions:archive`, `evidence/controller-v3.0-06-2026-10-26/`; the card
+  text read for the privacy check is not archived, counts only).
 - Evidence: `C:\dev\so-lanes\bench-controller\rating-2026-10-26\` (items, replies, ratings, summaries, floors),
   `privacy-2026-10-25\result.json` (counts only), `live-*-lane42.log`, `run-slots*.log`, `run-det-image.log`.
