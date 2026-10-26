@@ -17,10 +17,10 @@ export interface MemberGuidanceLine {
 
 export const memberGuidanceLine = (member: MemberGuidanceLine): string => `Direction for ${member.name} only: ${member.text.trim()}`;
 
-export const ASK_PLAYER_DIRECTION = `Turn to ${PLAYER_REF} in your own voice and ask them one thing about what was just said or shown, or how they are taking it; `
-  + `keep it short, then stop and leave the answer to ${PLAYER_REF}.`;
+export const ASK_PLAYER_DIRECTION = `Turn to ${PLAYER_REF} in your own voice and ask them exactly one short question (a single question, one question mark) about what was just said or shown, or how they are taking it; `
+  + `then stop and leave the answer to ${PLAYER_REF}.`;
 
-export const ASK_PLAYER_TAIL = `End by asking ${PLAYER_REF} one thing in your own voice, then stop and leave the answer to ${PLAYER_REF}.`;
+export const ASK_PLAYER_TAIL = `End by asking ${PLAYER_REF} exactly one short question in your own voice (a single question, one question mark), then stop and leave the answer to ${PLAYER_REF}.`;
 
 export const ONE_SHOT_SCOPE = "This direction is for this one reply and wins over the general pacing notes where they differ, "
   + `but never narrate ${PLAYER_REF}'s acts, words or feelings, and never ask ${PLAYER_REF} what they do.`;
