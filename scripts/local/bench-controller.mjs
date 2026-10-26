@@ -3,7 +3,7 @@ import { createWriteStream, openSync, closeSync } from 'node:fs';
 import { spawn, execFileSync } from 'node:child_process';
 import os from 'node:os';
 import path from 'node:path';
-import { nativeArgs } from '../../server-plugin/story-orchestrator-gpu/broker/backend.mjs';
+import { nativeArgs, slots } from '../../server-plugin/story-orchestrator-gpu/broker/backend.mjs';
 import { PromptReuse, promptReuseOptions } from '../../server-plugin/story-orchestrator-gpu/broker/promptReuse.mjs';
 
 const argv = process.argv.slice(2);
@@ -52,7 +52,7 @@ const loadConfig = async () => JSON.parse(await fs.readFile(configFile, 'utf8'))
 const armArgs = (config, arm) => {
     const profile = config.profiles[config.defaultProfile];
     const controller = arm.split('+').includes('config');
-    const tuned = controller ? config : { ...config, speculative: undefined, cacheRamMiB: undefined, ctxCheckpoints: undefined };
+    const tuned = controller ? config : { ...config, speculative: undefined, cacheRamMiB: undefined, ctxCheckpoints: undefined, slots: undefined, promptReuse: undefined };
     let args = nativeArgs({ ...tuned, backendPort: port }, profile, config.reserves.gpuMiB);
     for (const part of arm.split('+')) {
         if (!MODIFIERS[part]) throw new Error(`Unknown arm part ${part}; known: ${Object.keys(MODIFIERS).join(', ')}`);
@@ -60,7 +60,7 @@ const armArgs = (config, arm) => {
     }
     return args;
 };
-const pinned = (arm) => arm.split('+').includes('par2pin');
+const pinned = (arm, config) => arm.split('+').includes('par2pin') || (arm.split('+').includes('config') && Boolean(slots(config)));
 const reusing = (arm, config) => arm.split('+').includes('reuse') || (arm.split('+').includes('config') && Boolean(promptReuseOptions(config)));
 
 const listening = async (p) => { try { await fetch(`http://127.0.0.1:${p}/health`, { signal: AbortSignal.timeout(1500) }); return true; } catch { return false; } };
@@ -168,7 +168,7 @@ async function completeWithReuse(reuse, item, budget, slot) {
     const began = performance.now();
     const body = requestBody(item, budget, slot);
     const steps = [];
-    const prefill = reuse.prefill(body);
+    const prefill = reuse.prefill(body, slot ?? 'all');
     if (prefill) steps.push({ kind: 'prefill', ...(await post(slot === null ? prefill : { ...prefill, id_slot: slot })) });
     const startedAt = performance.now();
     const result = await complete(body);
@@ -192,7 +192,7 @@ async function runArm(config, corpus, arm, dir, telemetry) {
     const baseline = gpuQuery('memory.free')[0];
     const server = await startServer(config, arm, dir);
     const rows = [];
-    const reuse = reusing(arm, config) ? new PromptReuse({ ...promptReuseOptions(config), parkWhenIdle: !arm.split('+').includes('nopark') }) : null;
+    const reuse = reusing(arm, config) ? new PromptReuse({ ...promptReuseOptions(config), ...(pinned(arm, config) ? { history: 1 } : {}), parkWhenIdle: !arm.split('+').includes('nopark') && !pinned(arm, config) && (promptReuseOptions(config)?.parkWhenIdle ?? true) }) : null;
     try {
         await sleep(1500);
         const afterLoad = { gpuFreeMiB: Number(gpuQuery('memory.free')[0]), ramAvailMiB: Math.round(os.freemem() / 1048576) };
@@ -203,7 +203,7 @@ async function runArm(config, corpus, arm, dir, telemetry) {
             { kind: 'swipe', body: corpus.items.findLast((item) => item.kind === 'chat').body, index: 'swipe' }];
         for (const item of sequence) {
             if (telemetry.lastRamMiB() < 3000) throw new Error(`RAM available fell to ${telemetry.lastRamMiB()} MiB; arm ${arm} aborted.`);
-            const slot = pinned(arm) ? (item.kind === 'chat' || item.kind === 'swipe' || item.kind === 'long' ? 0 : 1) : null;
+            const slot = pinned(arm, config) ? (item.kind === 'chat' || item.kind === 'swipe' || item.kind === 'long' ? 0 : 1) : null;
             const budget = item.kind === 'chat' ? chatCap : item.kind === 'long' || item.kind === 'swipe' ? 32 : sideCap;
             telemetry.tag = `${arm}:${item.index}`;
             const result = reuse ? await completeWithReuse(reuse, item, budget, slot) : await complete(requestBody(item, budget, slot));

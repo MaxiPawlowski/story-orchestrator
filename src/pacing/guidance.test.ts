@@ -58,8 +58,8 @@ describe("composeGuidanceBlock (v2.4 plan 01, D7)", () => {
     expect(composeGuidanceBlock(checkpoint("Let the player wander."), DEFAULT_AGENCY)).not.toContain(PLAYER_ATTEMPTS_CLAUSE);
   });
 
-  it("is a registered depth-0 system block, after the last message, whose collision with the other per-turn blocks is allowlisted", () => {
-    expect(INJECTION_REGISTRY.checkpointGuidance).toMatchObject({ key: "story_orchestrator_guidance", depth: 0, writer: "runtime/coordinators/pacingCoordinator" });
+  it("is a registered depth-4 system block whose collision with facts and epistemic is allowlisted", () => {
+    expect(INJECTION_REGISTRY.checkpointGuidance).toMatchObject({ key: "story_orchestrator_guidance", depth: 4, writer: "runtime/coordinators/pacingCoordinator" });
     expect(findInjectionRegistryProblems()).toEqual([]);
   });
 });

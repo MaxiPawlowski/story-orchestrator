@@ -262,7 +262,7 @@ export const SETTING_COPY = {
   ),
   "worldInfo.lateLore": copy(
     "Per-turn lore after the history",
-    "Story lorebook entries that come and go turn by turn (keyword and lore-select picks) are placed after the last chat message instead of beside the character card. "
+    "Story lorebook entries that come and go turn by turn (keyword and lore-select picks) are placed a few messages from the end of the chat instead of beside the character card. "
       + "Their text and order stay the same; the start of the prompt stays the same from turn to turn, so a local model can reuse it and answer sooner.",
   ),
   "stagecraft.curatorEnabled": copy(

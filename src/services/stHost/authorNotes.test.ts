@@ -67,7 +67,7 @@ describe("applyCharacterAN", () => {
     expect(commands()).toEqual([
       "/note-position chat",
       "/note-role system",
-      "/note-depth 0",
+      "/note-depth 4",
       "/note-frequency 1",
       '/note "Narrate."',
     ]);

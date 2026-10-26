@@ -2,7 +2,7 @@ import http from 'node:http';
 import { Readable } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
 import { ResponseTiming } from './responseTiming.mjs';
-import { ContextRefusal } from './backend.mjs';
+import { ContextRefusal, slotFor, slots } from './backend.mjs';
 import { PromptReuse, promptReuseOptions } from './promptReuse.mjs';
 
 export const TEXT_ROUTES = Object.freeze(['/completion', '/v1/completions', '/v1/chat/completions', '/tokenize', '/detokenize', '/props', '/slots']);
@@ -30,7 +30,7 @@ const answer = (res, status, data) => {
 export function createGateway({ arbiter, config, fetchImpl = fetch, allowOrigin = null, controls = null, extraGet = {}, routes = null, promptReuse = undefined }) {
     let closing = false;
     const reuseOptions = promptReuseOptions(config);
-    const reuse = promptReuse !== undefined ? promptReuse : reuseOptions ? new PromptReuse(reuseOptions) : null;
+    const reuse = promptReuse !== undefined ? promptReuse : reuseOptions ? new PromptReuse(slots(config) ? { ...reuseOptions, history: 1 } : reuseOptions) : null;
     const idle = () => !(arbiter.scheduler?.pending?.length > 0);
     const server = http.createServer(async (req, res) => {
         try {
@@ -63,7 +63,7 @@ export function createGateway({ arbiter, config, fetchImpl = fetch, allowOrigin 
                 if (backend.status().pid && !backend.status().loading) {
                     try { const reply = await fetchImpl(`${backend.url}/props`, { signal: AbortSignal.timeout(2000) }); if (reply.ok) props = await reply.json(); } catch {}
                 }
-                answer(res, 200, { chat_template: '', ...props, default_generation_settings: { ...(props.default_generation_settings ?? {}), n_ctx: backend.servedContext() }, total_slots: 1 });
+                answer(res, 200, { chat_template: '', ...props, default_generation_settings: { ...(props.default_generation_settings ?? {}), n_ctx: backend.servedContext() }, total_slots: slots(config)?.count ?? 1 });
                 return;
             }
             if (!TEXT_ROUTES.includes(route)) { answer(res, 404, { error: 'Unknown route.' }); return; }
@@ -72,6 +72,9 @@ export function createGateway({ arbiter, config, fetchImpl = fetch, allowOrigin 
             const abort = new AbortController();
             res.once('close', () => { if (!res.writableEnded) abort.abort(); });
             const backend = arbiter.backend;
+            const generating = req.method === 'POST' && body && GENERATION_ROUTES.includes(route);
+            const slot = generating ? (Number.isInteger(body.id_slot) && body.id_slot >= 0 ? body.id_slot : slotFor(config, body)) : null;
+            if (slot !== null) body.id_slot = slot;
             const reusing = reuse && req.method === 'POST' && route === '/completion' && body;
             const backendCall = async (payload) => {
                 const reply = await fetchImpl(`${backend.url}/completion`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(payload), signal: abort.signal });
@@ -79,8 +82,8 @@ export function createGateway({ arbiter, config, fetchImpl = fetch, allowOrigin 
                 if (!reply.ok) throw new Error(`prompt reuse step answered ${reply.status}`);
             };
             const forward = async () => {
-                const prefill = reusing ? reuse.prefill(body) : null;
-                if (prefill) await backendCall(prefill).catch((error) => { reuse.lastError = error.message; });
+                const prefill = reusing ? reuse.prefill(body, slot ?? 'all') : null;
+                if (prefill) await backendCall(slot === null ? prefill : { ...prefill, id_slot: slot }).catch((error) => { reuse.lastError = error.message; });
                 const response = await fetchImpl(`${backend.url}${route}`, { method: req.method, headers: { 'content-type': 'application/json' }, ...(body ? { body: JSON.stringify(body) } : {}), signal: abort.signal });
                 if (res.destroyed) return;
                 res.writeHead(response.status, { 'content-type': response.headers.get('content-type') ?? 'application/json', 'cache-control': 'no-store' });
@@ -89,13 +92,13 @@ export function createGateway({ arbiter, config, fetchImpl = fetch, allowOrigin 
                     await pipeline(Readable.fromWeb(response.body), timing, res);
                     if (response.ok && timing.timings) await arbiter.scheduler.recordTiming({ timings: timing.timings }).catch((error) => { arbiter.scheduler.lastError = error.message; });
                 } else res.end();
-                const park = reusing && response.ok ? reuse.park(idle()) : null;
+                const park = reusing && response.ok && slot === null ? reuse.park(idle()) : null;
                 if (park) await backendCall(park).catch((error) => { reuse.lastError = error.message; });
             };
             const state = backend.status();
             if (COUNTING_ROUTES.includes(route) && state.pid && !state.loading && state.profile) { await forward(); return; }
             await arbiter.text(async () => {
-                if (body && GENERATION_ROUTES.includes(route)) await backend.forRequest(body, abort.signal);
+                if (body && GENERATION_ROUTES.includes(route)) await backend.forRequest(body, abort.signal, slot);
                 else await backend.ensure(backend.profile ?? config.defaultProfile);
                 await forward();
             }, abort.signal, GENERATION_ROUTES.includes(route) ? Number(body?.n_predict ?? body?.max_tokens ?? 1400) : null);

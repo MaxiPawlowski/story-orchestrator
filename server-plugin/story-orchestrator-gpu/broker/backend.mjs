@@ -23,7 +23,22 @@ export function speculativeArgs(config) {
 
 export const speculativeTag = (config) => { const spec = speculative(config); return spec ? `${spec.type}${spec.nMax}` : null; };
 
-export const profileGpuMiB = (config, profile) => (profile.estimatedGpuMiB ?? 21500) + (speculative(config)?.estimatedGpuMiB ?? 0);
+export const SLOT_DEFAULTS = Object.freeze({ count: 1, chat: 0, side: 1, estimatedGpuMiB: 400 });
+
+export function slots(config) {
+    const raw = config.slots;
+    if (!raw || raw.enabled === false) return null;
+    const merged = { ...SLOT_DEFAULTS, ...raw };
+    if (!Number.isInteger(merged.count) || merged.count < 1 || merged.count > 4) throw new Error('slots.count must be a whole number from 1 to 4.');
+    if (merged.count === 1) return null;
+    for (const key of ['chat', 'side']) if (!Number.isInteger(merged[key]) || merged[key] < 0 || merged[key] >= merged.count) throw new Error(`slots.${key} must name a slot from 0 to ${merged.count - 1}.`);
+    return merged;
+}
+
+export const slotFor = (config, body) => { const pin = slots(config); return pin ? (body?.stream === true ? pin.chat : pin.side) : null; };
+
+export const profileGpuMiB = (config, profile) => (profile.estimatedGpuMiB ?? 21500) + (speculative(config)?.estimatedGpuMiB ?? 0)
+    + ((slots(config)?.count ?? 1) - 1) * (slots(config)?.estimatedGpuMiB ?? 0);
 
 export function nativeArgs(config, profile, fitTargetMiB = config.reserves.gpuMiB) {
     const args = [...profile.args];
@@ -33,9 +48,10 @@ export function nativeArgs(config, profile, fitTargetMiB = config.reserves.gpuMi
         args.push('--load-mode', config.modelLoadMode);
     }
     const checkpoints = Number.isInteger(config.ctxCheckpoints) ? ['--ctx-checkpoints', String(config.ctxCheckpoints)] : [];
+    const slotActions = slots(config) ? ['--slot-save-path', path.join(config.stateDir ?? '.', 'slots')] : [];
     return ['--model', config.model, '--host', '127.0.0.1', '--port', String(config.backendPort), '--alias', config.modelAlias,
-        '--offline', '--no-mmproj', '--no-webui', '--threads', '8', '--threads-batch', '8', '--parallel', '1', '--kv-unified',
-        '--flash-attn', 'on', '--cache-type-k', 'q8_0', '--cache-type-v', 'q8_0', '--cache-ram', String(config.cacheRamMiB ?? 512), ...checkpoints,
+        '--offline', '--no-mmproj', '--no-webui', '--threads', '8', '--threads-batch', '8', '--parallel', String(slots(config)?.count ?? 1), '--kv-unified',
+        '--flash-attn', 'on', '--cache-type-k', 'q8_0', '--cache-type-v', 'q8_0', '--cache-ram', String(config.cacheRamMiB ?? 512), ...checkpoints, ...slotActions,
         '--sleep-idle-seconds', '-1', ...speculativeArgs(config),
         '--fit', 'on', '--fit-target', String(fitTargetMiB + (config.fitMarginMiB ?? 0) + (speculative(config)?.estimatedGpuMiB ?? 0)), ...args];
 }
@@ -82,6 +98,8 @@ export class NativeBackend {
         this.failedAt = new Map();
         this.fitCorrections = new Map();
         this.lastFitCorrection = null;
+        this.slotTokens = new Map();
+        this.slotStats = { requests: { chat: 0, side: 0 }, erased: 0 };
     }
 
     async load(name = this.config.defaultProfile, options = {}) {
@@ -128,7 +146,7 @@ export class NativeBackend {
         if (gpuBudget < 2048 || snapshot.host.availableMiB < ramRequired + this.config.reserves.ramMiB || snapshot.host.commitFreeMiB < ramRequired + this.config.reserves.ramMiB) {
             throw new Error('Not enough free GPU/physical RAM for this profile while preserving desktop headroom.');
         }
-        await fs.mkdir(this.config.stateDir, { recursive: true });
+        await fs.mkdir(slots(this.config) ? path.join(this.config.stateDir, 'slots') : this.config.stateDir, { recursive: true });
         const log = await fs.open(path.join(this.config.stateDir, `native-${Date.now()}-${name}.log`), 'a');
         this.crashed = null;
         const fitConfig = { ...this.config, fitMarginMiB: (this.config.fitMarginMiB ?? 0) + (this.fitCorrections.get(name) ?? 0) };
@@ -154,6 +172,7 @@ export class NativeBackend {
                     if (withinReserve(after, this.config.reserves)) {
                         this.profile = name;
                         this.fitTarget = fitTarget;
+                        this.slotTokens.clear();
                         if (fitTarget === null || this.desiredProfile === null) this.desiredProfile = name;
                         this.lastError = null;
                         this.loadMs = Date.now() - began;
@@ -187,7 +206,7 @@ export class NativeBackend {
         this.stopping = null;
     }
 
-    async forRequest(body, signal) {
+    async forRequest(body, signal, slot = null) {
         await this.ensure(this.profile ?? this.config.defaultProfile);
         const limit = this.config.maxContext ?? CONTROLLER_DEFAULTS.maxContext;
         const output = Number(body.n_predict ?? body.max_tokens ?? 1400);
@@ -197,6 +216,23 @@ export class NativeBackend {
         const name = this.profileFor(required + 1, limit);
         if (!name) throw new ContextRefusal(prompt, output, this.servedContext(limit));
         if (name !== this.profile) await this.switchFor(name, `${required} tokens`);
+        if (slot !== null) await this.holdSlot(slot, required, profileContext(this.config.profiles[this.profile]) ?? limit, signal);
+    }
+
+    async holdSlot(slot, required, context, signal) {
+        const pin = slots(this.config);
+        if (pin) this.slotStats.requests[slot === pin.chat ? 'chat' : 'side'] += 1;
+        let others = 0;
+        for (const [id, tokens] of this.slotTokens) if (id !== slot) others += tokens;
+        if (required + others + 1 > context) {
+            for (const id of [...this.slotTokens.keys()].filter((id) => id !== slot)) {
+                const reply = await this.fetch(`${this.url}/slots/${id}?action=erase`, { method: 'POST', signal });
+                if (!reply.ok) throw new Error(`Could not free slot ${id} for a ${required}-token request (${reply.status}); the shared context would overflow.`);
+                this.slotTokens.delete(id);
+                this.slotStats.erased += 1;
+            }
+        }
+        this.slotTokens.set(slot, required);
     }
 
     async promptTokens(body, signal) {
@@ -255,5 +291,5 @@ export class NativeBackend {
     }
 
     status() { return { profile: this.profile, desiredProfile: this.desiredProfile, fitTargetMiB: this.fitTarget, fitCorrectionMiB: this.fitCorrections.get(this.profile) ?? 0,
-        lastFitCorrection: this.lastFitCorrection, speculative: speculativeTag(this.config), cacheRamMiB: this.config.cacheRamMiB ?? 512, pid: this.child?.pid ?? null, loading: Boolean(this.loading), loadMs: this.loadMs, loads: this.loads, lastError: this.lastError, crashed: this.crashed, servedContext: this.servedContext() }; }
+        lastFitCorrection: this.lastFitCorrection, speculative: speculativeTag(this.config), slots: slots(this.config) ? { ...slots(this.config), held: Object.fromEntries(this.slotTokens), requests: { ...this.slotStats.requests }, erased: this.slotStats.erased } : null, cacheRamMiB: this.config.cacheRamMiB ?? 512, pid: this.child?.pid ?? null, loading: Boolean(this.loading), loadMs: this.loadMs, loads: this.loads, lastError: this.lastError, crashed: this.crashed, servedContext: this.servedContext() }; }
 }

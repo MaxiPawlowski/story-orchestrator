@@ -19,22 +19,24 @@ export const parkBody = () => ({ prompt: PARK_PROMPT, n_predict: 0, cache_prompt
 export class PromptReuse {
     constructor(options = {}) {
         Object.assign(this, PROMPT_REUSE_DEFAULTS, options);
-        this.recent = [];
+        this.recentBy = new Map();
         this.stats = { requests: 0, prefills: 0, prefillChars: 0, parks: 0 };
     }
 
-    boundary(prompt) {
+    get recent() { return this.recentBy.get('all') ?? []; }
+
+    boundary(prompt, lane = 'all') {
         if (typeof prompt !== 'string' || prompt.length < this.minChars) return null;
         let best = 0;
-        for (const previous of this.recent) best = Math.max(best, commonPrefix(previous, prompt));
+        for (const previous of this.recentBy.get(lane) ?? []) best = Math.max(best, commonPrefix(previous, prompt));
         const cut = prompt.lastIndexOf('\n', best - 1) + 1;
         return cut >= this.minPrefixChars && prompt.length - cut >= this.minTailChars ? cut : null;
     }
 
-    prefill(body) {
+    prefill(body, lane = 'all') {
         this.stats.requests += 1;
-        const cut = this.boundary(body?.prompt);
-        if (typeof body?.prompt === 'string' && body.prompt.length >= this.minChars) this.remember(body.prompt);
+        const cut = this.boundary(body?.prompt, lane);
+        if (typeof body?.prompt === 'string' && body.prompt.length >= this.minChars) this.remember(body.prompt, lane);
         if (cut === null) return null;
         this.stats.prefills += 1;
         this.stats.prefillChars += cut;
@@ -47,9 +49,10 @@ export class PromptReuse {
         return parkBody();
     }
 
-    remember(prompt) {
-        this.recent = [prompt, ...this.recent.filter((entry) => entry !== prompt)].slice(0, this.history);
+    remember(prompt, lane = 'all') {
+        const recent = this.recentBy.get(lane) ?? [];
+        this.recentBy.set(lane, [prompt, ...recent.filter((entry) => entry !== prompt)].slice(0, this.history));
     }
 
-    status() { return { ...this.stats, remembered: this.recent.length }; }
+    status() { return { ...this.stats, remembered: [...this.recentBy.values()].reduce((sum, recent) => sum + recent.length, 0) }; }
 }
