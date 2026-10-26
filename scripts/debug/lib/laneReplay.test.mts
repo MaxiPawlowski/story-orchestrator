@@ -42,11 +42,11 @@ test('an offline lane pointed at the replay port is still offline', () => {
   assert.match(offlineProblems(leaking, 8130).join(' '), /18888/);
 });
 
-test('batchReplayPlan: replay defaults to none,any and refuses judged; record and mixed need model lanes; every lane must be a replay lane', () => {
+test('batchReplayPlan: replay defaults to any (none rows belong on no-model lanes) and refuses judged; record and mixed need model lanes; every lane must be a replay lane', () => {
   const lanes = [{ lane: 41, replay: true, noModel: true }];
   assert.equal(batchReplayPlan({ replay: null, record: null, liveMisses: false, model: null, upstream: null }, lanes), null);
   assert.throws(() => batchReplayPlan({ replay: null, record: null, liveMisses: true, model: null, upstream: null }, lanes), /needs --replay/);
-  assert.deepEqual(batchReplayPlan({ replay: 'gs1', record: null, liveMisses: false, model: null, upstream: null }, lanes), { mode: 'replay', store: 'gs1', model: 'none,any', upstream: null, usesModel: false });
+  assert.deepEqual(batchReplayPlan({ replay: 'gs1', record: null, liveMisses: false, model: null, upstream: null }, lanes), { mode: 'replay', store: 'gs1', model: 'any', upstream: null, usesModel: false });
   assert.throws(() => batchReplayPlan({ replay: 'gs1', record: null, liveMisses: false, model: 'any,judged', upstream: null }, lanes), /cannot run judged/);
   assert.throws(() => batchReplayPlan({ replay: 'gs1', record: null, liveMisses: false, model: null, upstream: null }, [{ lane: 42, replay: false, noModel: false }]), /42 are not pointed/);
   assert.throws(() => batchReplayPlan({ replay: null, record: 'gs1', liveMisses: false, model: null, upstream: null }, lanes), /no-model lanes/);

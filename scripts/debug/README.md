@@ -128,7 +128,7 @@ row → runner list in `lib/b1Registry.mts` (its test fails when a manifest row'
   `so-prompt-batch` send (class M); `drift` lists the steps whose prompt moved since recording. Stores live under
   `<so-lanes>/replay/` (chat text, never in the repo).
 - Lanes: `st-lanes.mts replay <n> on|off` points a stopped lane's llama.cpp profiles at `/lane/<n>`; `st-lanes.mts batch
-  --replay <store>` (default `--model none,any`, judged refused) or `--record <store>` runs each row as its own session and writes
+  --replay <store>` (default `--model any`: none rows run on no-model lanes; judged refused) or `--record <store>` runs each row as its own session and writes
   `replay.json` (replayed, static, live, recorded, refused per step) next to the row; a refused request = INCOMPLETE.
   so-scenario and so-journey mark every step on the session and put the stats in their record.
 - `st-lanes.mts batch --list controller-regression[:base,mtp,...]` expands `test/batches/controller-regression.json` (the

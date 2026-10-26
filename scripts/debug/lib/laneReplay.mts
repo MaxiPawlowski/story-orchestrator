@@ -109,7 +109,7 @@ export function batchReplayPlan(args: BatchReplayArgs, lanes: Array<{ lane: numb
     const offline = lanes.filter((entry) => entry.noModel).map((entry) => entry.lane);
     if (offline.length) throw new Error(`--${mode === 'record' ? 'record' : 'live-misses'} forwards to a live model, and lane(s) ${offline.join(', ')} are no-model lanes; record on a model lane`);
   }
-  const model = args.model ?? (mode === 'replay' ? 'none,any' : 'any,judged');
+  const model = args.model ?? (mode === 'replay' ? 'any' : 'any,judged');
   const classes = parseModelFilter(model) ?? [];
   if (mode === 'replay' && classes.includes('judged')) throw new Error('--replay cannot run judged rows: their verdict depends on what a model writes now, and a replay only repeats what it wrote then; run them live (or --live-misses / --record)');
   return { mode, store: (args.record ?? args.replay) as string, model, upstream: usesModel ? args.upstream ?? DEFAULT_RECORD_UPSTREAM : null, usesModel };

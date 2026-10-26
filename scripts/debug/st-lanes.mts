@@ -84,7 +84,8 @@ is shared: llama-server serves LLM_PARALLEL requests at once and queues the rest
                                replay backend is started on the store unless one already serves it, and each row runs as
                                its own replay session (lane-<n>, row <item>#<run>): replay.json in the row dir counts
                                replayed, static, live, recorded and refused requests per step; a refused request (no
-                               recording, never invented) makes the row INCOMPLETE. --model defaults to none,any and
+                               recording, never invented) makes the row INCOMPLETE. --model defaults to any (a none
+                               row's no-model probe would reach the replay backend: run none rows on no-model lanes) and
                                judged is refused (a replay repeats what a model wrote, it cannot judge it again); a judged
                                check pulled in by dependsOn replays as plumbing. Replay lanes do not count toward the
                                model-lane limit. --live-misses (mixed) sends unrecorded requests to the live model and

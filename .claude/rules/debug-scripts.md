@@ -87,7 +87,7 @@ For any live/E2E work, load the **`debug` skill** (`.claude/skills/debug/SKILL.m
 - `batch --lanes 1,2 --repeat 2 --strict <item...>` runs each item `--repeat` times back to back on ONE lane ("twice" = consecutive on one install).
 - **Windows does not kill a dead shell's children.** Killing the wrapper shell (bash, cmd, a stopped background task) leaves its node driver and the driver's node children running. `st-lanes run|batch` guard their children (`lib/childTree.mts`): a stop signal, exit, or the parent shell gone (checked every 2 s) tree-kills them with `taskkill /T /F`. `SO_DETACHED_RUN=1` turns the parent check off for a deliberately detached run. Stop any other driver with `taskkill /T /F /PID <driver pid>`, never by killing only the shell.
 - **Replay (class R, v3.0 F1)**: `st-lanes.mts replay <n> on` (stopped lane) points its llama.cpp profiles at the replay backend
-  (`so-replay.mts`, port 18078, path `/lane/<n>`); `batch --replay <store>` reruns `none,any` rows without the GPU (judged refused;
+  (`so-replay.mts`, port 18078, path `/lane/<n>`); `batch --replay <store>` reruns `any` rows without the GPU (none rows stay on no-model lanes, judged refused;
   refused requests = INCOMPLETE, `so-replay drift` names the moved step), `batch --record <store>` records a live model lane.
   Remote routes (TypeSafe judge, opencode authoring) are not replayed. `batch --list <file>[:lists]` expands `test/batches/<file>.json`.
 - **At most `SO_MAX_LLM_LANES` (default 2) lanes with a model at once**: `batch` and an integration `play` through `run` refuse above it (no-model lanes do not count; `--allow-load` overrides). An integration run stops (`turns.jsonl` `kind: "stop"`) when a chat switch fails or the open chat is not the run's.
