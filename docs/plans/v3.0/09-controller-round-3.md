@@ -301,3 +301,25 @@ Arms on the A configuration (patched b11888, MTP 2, RAM member cache keys 4 GiB)
 Floors (P1/P2 vs P0): chat TTFT from issue p50 ≤ 60 % of P0 (Fable's floor) or, if P0's chat p50 is under 4 s (little
 queueing in this replay), p95 ≤ 75 %; chat decode p50 ≥ 85 % of P0; side total p50 ≤ 150 % of P0 (side passes are off the
 critical path, but they must still finish); 0 failed requests; P2 GPU free after load ≥ P0 − 512 MiB and ≥ 1,024 MiB.
+
+### Playtest verification result and decision (2026-10-26)
+
+Runs `text-2026-10-26T09-20-24-594Z` (J1) and `text-2026-10-26T09-33-35-751Z` (A), 25 chat prompts each; rating
+`09/rate/playtest-A/summary.json` (Sol `openai/gpt-6.1-sol`, blind, 25 of 25 rated).
+
+| | J1 | A | Delta |
+|---|---|---|---|
+| coherence | 3.92 | 4.24 | +0.32 |
+| voice | 4.16 | 4.44 | +0.28 |
+| guidance | 3.64 | 4.08 | +0.44 |
+| continuity | 4.00 | 4.24 | +0.24 |
+| voice bleed / guidance ignored / leak flags | 1 / 10 / 6 | 1 / 6 / 2 | |
+| thinking closed | 19 of 25 | 23 of 25 | |
+| preferred | 9 | 16 | |
+
+Floors: categories **pass**; flags **pass**; **"thinking closes in every A reply": miss as written** (23 of 25: reply 1 hit
+the 1,024-token cap while thinking, reply 17 is a genuine leak; J1 19 of 25). Speed in the same runs: chat TTFT p50 7.49 s
+vs 10.95 s (J1 partly contended by a gates run), warm 6.48 s on 18K-token prompts (4 GiB holds two such states; 18 hits,
+9 misses).
+
+**Decision (owner, 2026-10-26): adopt A despite the literal miss of the thinking floor.**
