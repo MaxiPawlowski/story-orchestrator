@@ -302,6 +302,45 @@ Floors (P1/P2 vs P0): chat TTFT from issue p50 ≤ 60 % of P0 (Fable's floor) or
 queueing in this replay), p95 ≤ 75 %; chat decode p50 ≥ 85 % of P0; side total p50 ≤ 150 % of P0 (side passes are off the
 critical path, but they must still finish); 0 failed requests; P2 GPU free after load ≥ P0 − 512 MiB and ≥ 1,024 MiB.
 
+### C2 result (2026-10-26, 10:31-11:50Z)
+
+Six replays, order P0 P1 P2 P2 P1 P0, through the branch controller on the A setup. Each replay is the first 80 requests
+of the lane 42 capture (16 chat, 64 side passes) at their recorded offsets. Evidence:
+`09/logs-c2/{P0,P1,P2}-r*.json` + `.status-*.json` and `aggregate.json` (the repeat suffix counts files, so the second
+repeat is `r4`).
+
+| | P0 FIFO | P1 chatFirst | P2 chatFirst + 2 slots |
+|---|---|---|---|
+| chat TTFT from issue p50 / p95 | 5.92 / 10.06 s | 3.82 / 9.93 s | 2.35 / 4.62 s |
+| per repeat (chat p50) | 4.13, 7.24 | 3.21, 6.21 | 2.32, 2.59 |
+| chat decode p50 | 42.1 tok/s | 41.9 | 20.2 |
+| chat end-to-end p50 (600-token cap) | 10.7 s | 10.1 s | 14.5 s |
+| side total p50 / p95 | 5.83 / 16.0 s | 6.61 / 19.0 s | 8.46 / 13.8 s |
+| overlapped requests | 0 | 0 | 43, 41 |
+| failed requests | 0 | 0 | 0 |
+| GPU free after load | 1,818 / 2,179 MiB | same | 1,390 / 1,741 MiB |
+| slot erases / waits | — | — | 0 / 0 |
+
+P0's chat p50 is above 4 s, so the 60 % floor applies.
+
+Floors:
+- **P1 misses the TTFT floor**: 3.82 s is 65 % of P0, against ≤ 60 %. Decode, side passes and errors pass.
+- **P2 misses the decode floor**: 20.2 tok/s is 48 % of P0, against ≥ 85 %. TTFT (40 %), side (145 %), errors, and
+  GPU free (−428 MiB, still ≥ 1,024) pass.
+
+Why P2 loses overall: llama-server batches the side pass's prompt chunks and decode with the chat's decode steps, so
+chat decode halves while they overlap. A capped reply then ends later than on P0: 14.5 s against 10.7 s, even though
+its first token comes 3.6 s sooner.
+
+**Decision: neither is adopted.** The owner's controller stays FIFO with a single slot.
+
+P1 is a small, consistent win in both repeats (−0.9 s and −1.0 s chat TTFT p50, −0.6 s end to end) with no measured
+cost. It misses its predeclared floor, so it is recorded and left off. Whether to switch it on anyway is the owner's
+call.
+
+The slot fixes (overflow waits, `chatErasedBySide`) and the idle-prefill abort stay in the code. They are inert while
+`slots` is unset and `idlePrefill` is off.
+
 ### Playtest verification result and decision (2026-10-26)
 
 Runs `text-2026-10-26T09-20-24-594Z` (J1) and `text-2026-10-26T09-33-35-751Z` (A), 25 chat prompts each; rating
