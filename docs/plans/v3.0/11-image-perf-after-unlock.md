@@ -1,7 +1,7 @@
 # Plan 11 — Image performance after the GPU unlock
 
 **Status: PREP DONE 2026-10-26 (replan track B1, `00-overview.md` §Replan 2026-10-26), branch `v3.0-b1-image-perf`. Bench built,
-not run (no GPU yet: a controller benchmark owns the card). Floors TO DECIDE before the first run.**
+not run (no GPU yet: a controller benchmark owns the card). Floors DECLARED 2026-10-26 (§Owner decisions), before any run.**
 
 ## Goal
 
@@ -70,7 +70,7 @@ node scripts/local/cli.mjs start
 - Pixel check: every non-baseline cell is diffed against the same workflow's `sdpa` cell, run by run (max/mean abs, % pixels
   changed, PSNR; verdict identical / near (PSNR >= 40) / changed). `image-compare` diffs the same cells across two matrix runs
   (the unlock should be `identical`).
-- Quality where pixels change: `image-rating-pack` copies up to 3 changed pairs per cell as `pNNN-A/B.png` with A/B order by
+- Quality where pixels change: `image-rating-pack` copies up to 12 changed pairs per cell (the rating floor needs >= 12) as `pNNN-A/B.png` with A/B order by
   hash (key kept outside the pack) plus a rating prompt (faces, eyes, edges, artifacts, flags incl. the v2.8 80 see-through eyes
   and bright fringe); rated blind by Sol (`codex exec`, opencode `openai/gpt-6.1-sol`).
 - `--dry-run` prints the plan and estimate; `--dry-run --graphs` builds every graph from the product source without a GPU.
@@ -101,18 +101,29 @@ Expectations (research, not measured): unlock moves `sdpa` SDXL most (published 
 may beat stock `sdpa` (Sage was ~2x FA2 on a 3090 for attention) and lose that lead unlocked; `fp16acc` worth <= ~14 % unlocked;
 Qwen edit gains only its attention/BF16 share.
 
-## Floors
+## Owner decisions 2026-10-26 ("as recommended")
 
-**TO DECIDE (owner), before any bench run.** Proposed shape, numbers left open:
-- Adopt a speed arm only when its median exec beats the baseline by >= TO DECIDE % on its workflow, in both unlock states that
-  will be used (or in the state the owner keeps).
-- Pixel-identical arms (`highvram`, `nofastdisk`, `cachedefault`) need `identical` on every timed run, else they are treated as
-  output-changing.
-- Output-changing arms (`ck`, `fp16acc`, `autotune`): blind Sol rating on TO DECIDE pairs (owner rule 4 uses >= 25 for text),
-  no category below TO DECIDE, flags (see-through eyes, bright fringe, broken hands, colour shift) <= control + TO DECIDE.
-- Unlock: `image-compare` pixels `identical` (else the unlock itself is output-changing and needs the rating) and GEMM probe
-  before/after both show the unlocked rate.
-- Thrash (controller side, `11a`): image -> next reply wall, ComfyUI cold starts per N images, reply TTFT after an image: TO DECIDE.
+1. Floors as below, declared before any run.
+2. Unlock first, as its own A/B arm (stock vs unlocked, same commit, power limit unchanged). If the owner keeps it on, unlocked
+   becomes the baseline for every other arm.
+3. Video (05.7): download arm A only (Wan 2.2 TI2V 5B) to D: now; no GPU; the trial runs after B1 in the end batch (`11b`).
+4. `11a` burst signal approved (the page may tell the broker an image burst is coming); the controller agent implements `11a`.
+
+## Floors (declared 2026-10-26, before any run; never retuned)
+
+An image arm is adopted only if its median exec time (timed runs) is **>= 5 % faster** than the baseline cell of the same
+workflow **and** either:
+- **pixel-identical**: `identical` on every timed run (`pixel-diff.json`, max abs 0), or
+- **output changes**: a blind Sol rating of **>= 12 image pairs** (`image-rating-pack`, A/B by hash) shows **no category
+  (faces, eyes, edges, artifacts) mean below -0.2** for the candidate and **flags <= control + 2**.
+
+A miss is recorded and the owner decides; nothing is adopted on a miss. Pair count: a cell gives at most its timed runs (6) as
+pairs, so an output-changing arm reaches 12 by pooling its cells across workflows in one matrix run (`image-rating-pack`
+default `--per-cell 12` keeps every changed pair) or, for a single-workflow arm (e.g. `qwen-edit:ck`), by running that cell and
+its baseline with `--runs 12`.
+
+Unlock arm (decision 2): same floors, stock = baseline, unlocked = candidate; GEMM probe before/after must show the unlocked
+rate on every unlocked run, else the run is invalid (not a miss). Thrash floors (`11a`) stay with the controller agent.
 
 ## GPU cost
 
@@ -127,7 +138,9 @@ is est. 35 s/image (v2.8 79 recorded 27-34 s for the int8 edit; steps not record
 | GEMM probes (4 per pair of runs) | — | ~2 |
 | Rating | CPU / Sol only | 0 |
 
-Recommended first run: `--plan quick` stock, then quick unlocked (~40 min), full only if a quick arm clears its floor.
+Order (decision 2): first the unlock A/B (`--plan quick` stock, then `--plan quick` unlocked, `image-compare`; ~40 min). Then,
+with the state the owner keeps as baseline, the remaining arms (`--plan full` in that state, ~51 min). Total ~91 min plus ~2 min
+of GEMM probes.
 
 ## Thrash and video
 
@@ -136,8 +149,6 @@ Recommended first run: `--plan quick` stock, then quick unlocked (~40 min), full
 
 ## Unresolved questions
 
-- Floors above (speed threshold, rating pair count and limits).
-- Unlock kept on permanently (then unlocked is the baseline) or an A/B arm?
 - Which image path matters most for speed: per-turn scene illustrations (SDXL) or on-demand sprites (Qwen)?
 - Faster at equal quality, or higher quality at equal time (v2.8 80 misses on eye width and fringe)?
 - `highvram` changes the broker's runtime identity and turns streaming off; worth testing as a product arm at all?

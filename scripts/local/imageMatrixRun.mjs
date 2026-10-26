@@ -273,8 +273,8 @@ export function imageCommands(ctx) {
 
     async function ratingPackCommand() {
         const dir = argv[1];
-        if (!dir) throw new Error('Usage: image-rating-pack <matrix dir> [--per-cell 3]');
-        const perCell = Number(option('per-cell', 3));
+        if (!dir) throw new Error('Usage: image-rating-pack <matrix dir> [--per-cell 12]');
+        const perCell = Number(option('per-cell', 12));
         const diffs = JSON.parse(await fs.readFile(path.join(dir, 'pixel-diff.json'), 'utf8'));
         const chosen = [];
         for (const id of new Set(diffs.map((row) => row.cell))) {
