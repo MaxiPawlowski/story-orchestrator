@@ -256,6 +256,11 @@ node scripts/local/live-check.mjs <config.json> --idle
 node scripts/local/residency-arms.mjs <config.json> resident|ffn|reload scene|portrait [runs] [--cpu-ffn N] [--comfy-reserve GB] [--text-load-mode none|dio|mmap]
 ```
 
+`bench-controller.mjs image-matrix --plan quick|full --label <name> [--gemm]` (controller stopped) renders each workflow x ComfyUI-flag arm
+(SDPA, Comfy Kitchen INT8 attention, fp16 accumulation, autotune, highvram, fast-disk, cache thresholds) in its own ComfyUI on
+:18288, 2 warm-ups + 6 timed at fixed seeds, and diffs pixels against the SDPA cell; `image-compare <a> <b>` compares two runs
+(before/after the unlock), `image-rating-pack <dir>` builds a blind A/B pack of changed images. Plan v3.0 11.
+
 `residency-arms` needs the controller stopped (`cli.mjs stop`): it owns its own llama-server and ComfyUI, measures
 image s, image→completed reply s, reply tok/s, peak VRAM, low GPU/RAM and the WDDM shared-usage delta, then stops both.
 Restart the controller afterwards.
