@@ -59,6 +59,7 @@ const MODIFIERS = {
     noerase: (a) => a,
     park: (a) => a,
     keys: (a) => a,
+    idle: (a) => a,
 };
 const DEFAULT_ARMS = ['base', 'cram6144', 'par2pin', 'par2', 'mtp3', 'mtp2', 'mtp4', 'cms2048', 'cram4096', 'kvq4v', 'base'];
 
@@ -225,6 +226,7 @@ async function completeWithMember(item, budget, cutFirst, seen) {
 }
 
 const gapMs = option('gap-ms') === null ? null : Number(option('gap-ms'));
+const typingMs = Number(option('typing-ms', 0));
 async function completeWithCache(cache, item, budget, lane) {
     const began = performance.now();
     if (lane.pending) await lane.pending;
@@ -267,7 +269,7 @@ async function runArm(config, corpus, arm, dir, telemetry) {
     const parts = arm.split('+');
     const ram = parts.includes('ramcut');
     const cache = parts.includes('memcache') || ram ? new MemberCache({ ...memberCacheOptions({ memberCache: { enabled: true, dir: memberDir, budgetMiB: Number(option('member-budget', 6144)), rewind: !parts.includes('norewind'),
-        store: ram ? 'ram' : 'file', park: parts.includes('park'), erase: !parts.includes('noerase'), serverKeys: parts.includes('keys') } }) },
+        store: ram ? 'ram' : 'file', park: parts.includes('park'), erase: !parts.includes('noerase'), serverKeys: parts.includes('keys'), idlePrefill: parts.includes('idle') } }) },
         { baseUrl: `http://127.0.0.1:${port}`, snapshot: async () => ({ host: { availableMiB: Math.round(os.freemem() / 1048576) } }), reserves: { ramMiB: 2048 } }) : null;
     const reuse = reusing(arm, config) ? new PromptReuse({ ...promptReuseOptions(config), ...(pinned(arm, config) ? { history: 1 } : {}), parkWhenIdle: !arm.split('+').includes('nopark') && !pinned(arm, config) && (promptReuseOptions(config)?.parkWhenIdle ?? true) }) : null;
     try {
@@ -278,7 +280,10 @@ async function runArm(config, corpus, arm, dir, telemetry) {
         const sequence = [...corpus.items.map((item, index) => ({ ...item, index })),
             { kind: 'long', body: corpus.long.body, index: 'long' },
             { kind: 'swipe', body: corpus.items.findLast((item) => item.kind === 'chat').body, index: 'swipe' }];
-        for (const item of sequence) {
+        const turnCount = (prompt) => (prompt.match(/<\|turn>(user|model)\n/g) ?? []).length;
+        const chatAt = sequence.map((item, at) => (item.kind === 'chat' ? at : -1)).filter((at) => at >= 0);
+        const typingAfter = new Set(chatAt.filter((at, n) => n + 1 < chatAt.length && turnCount(sequence[chatAt[n + 1]].body.prompt) - turnCount(sequence[at].body.prompt) >= 2));
+        for (const [position, item] of sequence.entries()) {
             if (telemetry.lastRamMiB() < 3000) throw new Error(`RAM available fell to ${telemetry.lastRamMiB()} MiB; arm ${arm} aborted.`);
             const slot = pinned(arm, config) ? (item.kind === 'chat' || item.kind === 'swipe' || item.kind === 'long' ? 0 : 1) : null;
             const budget = item.kind === 'chat' ? chatCap : item.kind === 'long' || item.kind === 'swipe' ? 32 : sideCap;
@@ -287,6 +292,16 @@ async function runArm(config, corpus, arm, dir, telemetry) {
                 : memberMode && (item.kind === 'chat' || item.kind === 'swipe') ? await completeWithMember(item, budget, memberMode === 'membercut', seen)
                 : reuse ? await completeWithReuse(reuse, item, budget, slot) : await complete(requestBody(item, budget, slot));
             await sleep(gapMs ?? 250);
+            let typing = null;
+            if (typingMs > 0 && typingAfter.has(position)) {
+                const deadline = Date.now() + typingMs;
+                if (lane.pending) await lane.pending;
+                lane.pending = null;
+                const idleRun = cache?.idlePrefill ? await cache.runIdlePrefill({ idle: () => Date.now() < deadline }) : null;
+                typing = { ms: typingMs, prefilled: idleRun?.prefilled ?? 0, overranMs: Math.max(0, Date.now() - deadline) };
+                if (Date.now() < deadline) await sleep(deadline - Date.now());
+            }
+            result.typing = typing;
             const { text, ...kept } = result;
             rows.push({ arm, index: item.index, kind: item.kind, role: item.role ?? item.kind, promptChars: item.body.prompt.length, ...kept, outputChars: text.length, ...(flag('keep-text') ? { text } : {}), ...telemetry.window(`${arm}:${item.index}`) });
             process.stdout.write(`${arm} ${item.index} ${item.kind} ttft=${result.ttftMs} pn=${result.promptN} reused=${result.reused} tps=${result.decodeTps?.toFixed(1)} acc=${result.draftAccepted ?? '-'}/${result.draftN ?? '-'}${result.member ? ` member=${result.member} restore=${result.restoreMs} prefill=${result.prefillMs}/${result.prefillPromptN} rewind=${result.rewindMs} save=${result.saveMs} file=${result.fileMiB}MiB${result.saveReason ? ` skip=${result.saveReason}` : ''}` : ''}\n`);

@@ -204,3 +204,24 @@ test('a generation that fails mid-way still clears the slot in the RAM member ca
     } finally { await gateway.close(); }
 });
 
+test('after a cached chat reply the gateway runs the idle prefill through the text lane once nothing waits', async () => {
+    const arbiter = fakeArbiter({ pid: 7, loading: false, profile: 'fast' });
+    arbiter.scheduler.pending = [];
+    const order = [];
+    const members = { store: 'ram', idlePrefill: true, idleDelayMs: 10, syncBackend: () => {}, before: async (body, slot) => ({ key: 'k', slot }), afterReply: async () => order.push('after'),
+        noteOther: () => {}, afterOther: async () => {}, runIdlePrefill: async ({ idle }) => { order.push(`idle ${idle()}`); return { prefilled: 1 }; }, status: () => ({}) };
+    const fetchImpl = async () => new Response(JSON.stringify({ content: 'ok' }), { headers: { 'content-type': 'application/json' } });
+    const gateway = createGateway({ arbiter, config: { modelAlias: 'm', defaultProfile: 'fast' }, fetchImpl, memberCache: members });
+    const { port } = await gateway.listen(0);
+    try {
+        const pending = fetch(`http://127.0.0.1:${port}/completion`, { method: 'POST', body: JSON.stringify({ prompt: 'chat', n_predict: 4, stream: true }) });
+        while (!arbiter.queued.length) await new Promise((resolve) => setTimeout(resolve, 5));
+        arbiter.queued.shift()();
+        assert.equal((await pending).status, 200);
+        while (!arbiter.queued.length) await new Promise((resolve) => setTimeout(resolve, 5));
+        arbiter.queued.shift()();
+        while (order.length < 2) await new Promise((resolve) => setTimeout(resolve, 5));
+        assert.deepEqual(order, ['after', 'idle true']);
+    } finally { await gateway.close(); }
+});
+

@@ -223,3 +223,39 @@ test('store ram with serverKeys tags the prefill and the request with the member
     assert.equal(calls.length, 1);
 });
 
+test('nextPrefix rebuilds a member head plus all but the last three history turns of the latest prompt', async () => {
+    const { nextPrefix, promptTurns } = await import('./memberCache.mjs');
+    const ana = prompt('Ana', 6);
+    const bob = prompt('Bob', 7);
+    const turns = promptTurns(bob);
+    assert.equal(turns.history.length, 7);
+    assert.equal(nextPrefix(promptTurns(ana).head, bob), promptTurns(ana).head + turns.history.slice(0, 4).join(''));
+    assert.equal(nextPrefix(promptTurns(ana).head, prompt('Bob', 2)), null);
+    assert.equal(promptTurns('no turns'), null);
+});
+
+test('idle prefill warms other members first with their key, skips repeats and yields when a request waits', async () => {
+    assert.throws(() => memberCacheOptions({ memberCache: { enabled: true, idlePrefill: true } }), /idlePrefill/);
+    const calls = [];
+    const fetchImpl = async (url, init) => { calls.push({ route: new URL(url).pathname + new URL(url).search, body: JSON.parse(init.body) }); return Response.json({ tokens_evaluated: 700, timings: { prompt_n: 700, cache_n: 0 } }); };
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'so-member-idle-'));
+    const cache = new MemberCache(memberCacheOptions({ stateDir: dir, memberCache: { enabled: true, store: 'ram', serverKeys: true, erase: false, park: false, idlePrefill: true, minPromptChars: 1000, minCutChars: 1000, minTailChars: 100 } }), { fetch: fetchImpl, baseUrl: 'http://backend' });
+    await cache.init();
+    const ana = await cache.before({ prompt: prompt('Ana', 6), stream: true }, 0);
+    const cleo = await cache.before({ prompt: prompt('Cleo', 7), stream: true }, 0);
+    const bob = await cache.before({ prompt: prompt('Bob', 8), stream: true }, 0);
+    calls.length = 0;
+    assert.deepEqual(await cache.runIdlePrefill({ idle: () => true }), { prefilled: 3 });
+    assert.deepEqual(calls.map((call) => call.body.cache_key), [cleo.key, ana.key, bob.key]);
+    assert.ok(calls.every((call) => call.body.n_predict === 0 && call.body.cache_ckpt_max > 0));
+    assert.ok(prompt('Cleo', 9).startsWith(calls[0].body.prompt));
+    calls.length = 0;
+    assert.deepEqual(await cache.runIdlePrefill({ idle: () => true }), { prefilled: 0 });
+    await cache.before({ prompt: prompt('Ana', 9), stream: true }, 0);
+    calls.length = 0;
+    let budget = 1;
+    assert.deepEqual(await cache.runIdlePrefill({ idle: () => budget-- > 0 }), { prefilled: 1 });
+    assert.equal(cache.status().idleYields, 1);
+    assert.equal(cache.status().idlePrefills, 4);
+});
+

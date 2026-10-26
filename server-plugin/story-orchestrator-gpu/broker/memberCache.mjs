@@ -3,7 +3,7 @@ import fsDefault from 'node:fs/promises';
 import path from 'node:path';
 
 export const MEMBER_CACHE_DEFAULTS = Object.freeze({ headChars: 2000, budgetMiB: 6144, minPromptChars: 16000, minCutChars: 8000, minTailChars: 1200,
-    cutMarker: '<|turn>system\n', rewind: true, ramHeadroomMiB: 0, ctxCheckpoints: 3, store: 'file', park: true, erase: true, serverKeys: false });
+    cutMarker: '<|turn>system\n', rewind: true, ramHeadroomMiB: 0, ctxCheckpoints: 3, store: 'file', park: true, erase: true, serverKeys: false, idlePrefill: false, idleDelayMs: 3000, idleMembers: 4 });
 
 export function memberCacheOptions(config = {}) {
     const raw = config.memberCache;
@@ -15,10 +15,26 @@ export function memberCacheOptions(config = {}) {
     if (typeof merged.cutMarker !== 'string' || !merged.cutMarker) throw new Error('memberCache.cutMarker must be a non-empty string.');
     if (!['file', 'ram'].includes(merged.store)) throw new Error("memberCache.store must be 'file' or 'ram'.");
     if (merged.store === 'ram' && merged.budgetMiB < 1024) throw new Error('memberCache.budgetMiB must be at least 1024 with store ram (it sizes --cache-ram).');
+    if (merged.idlePrefill === true && !(merged.store === 'ram' && merged.serverKeys === true)) throw new Error('memberCache.idlePrefill needs store ram and serverKeys (a patched llama-server).');
     return merged;
 }
 
 export const memberKey = (prompt, headChars = MEMBER_CACHE_DEFAULTS.headChars) => createHash('sha1').update(prompt.slice(0, headChars)).digest('hex').slice(0, 16);
+
+const TURN = /<\|turn>(\w+)\n[\s\S]*?<turn\|>\n/g;
+
+export function promptTurns(prompt) {
+    const turns = [...prompt.matchAll(TURN)].map((m) => ({ role: m[1], text: m[0], at: m.index }));
+    if (turns.length < 2) return null;
+    return { head: prompt.slice(0, turns[1].at), history: turns.slice(1).filter((turn) => turn.role !== 'system').map((turn) => turn.text) };
+}
+
+export function nextPrefix(head, latestPrompt, depth = 4) {
+    const latest = promptTurns(latestPrompt);
+    if (!latest) return null;
+    const keep = latest.history.length - (depth - 1);
+    return keep > 0 ? head + latest.history.slice(0, keep).join('') : null;
+}
 
 export function historyCut(prompt, marker = MEMBER_CACHE_DEFAULTS.cutMarker) {
     const first = prompt.indexOf(marker);
@@ -44,7 +60,11 @@ export class MemberCache {
         this.owner = new Map();
         this.lastError = null;
         this.stats = { requests: 0, planned: 0, hits: 0, misses: 0, resident: 0, restoreFailures: 0, saves: 0, saveFailures: 0, skippedBusy: 0, skippedRam: 0, evictions: 0, evictedForImages: 0, parks: 0, erases: 0, eraseFailures: 0 };
-        this.times = { restoreMs: [], prefillMs: [], rewindMs: [], saveMs: [], parkMs: [] };
+        this.times = { restoreMs: [], prefillMs: [], rewindMs: [], saveMs: [], parkMs: [], idlePrefillMs: [] };
+        this.heads = new Map();
+        this.lastPrompt = null;
+        this.idleDone = new Map();
+        Object.assign(this.stats, { idlePrefills: 0, idleYields: 0, idleRuns: 0 });
     }
 
     async init() {
@@ -107,6 +127,11 @@ export class MemberCache {
             if (Number.isFinite(cached) && Number.isFinite(evaluated) && evaluated > 0 && cached >= evaluated / 4) { this.stats.hits += 1; timing.restored = true; } else this.stats.misses += 1;
         }
         this.remember(this.times.prefillMs, prefill.ms);
+        if (ram && this.idlePrefill) {
+            const turns = promptTurns(body.prompt);
+            if (turns) { this.heads.delete(plan.key); this.heads.set(plan.key, turns.head); this.lastPrompt = body.prompt; }
+            if (this.heads.size > 16) this.heads.delete(this.heads.keys().next().value);
+        }
         if (ram && this.serverKeys) {
             body.cache_key = plan.key;
             const prefixTokens = Number(prefill.data?.tokens_evaluated);
@@ -114,6 +139,27 @@ export class MemberCache {
         }
         this.owner.set(slot, plan.key);
         return { ...plan, slot, timing };
+    }
+
+    async runIdlePrefill({ idle = () => true, slot = 0, signal = AbortSignal.timeout(120000) } = {}) {
+        if (this.store !== 'ram' || !this.idlePrefill || !this.lastPrompt) return { prefilled: 0 };
+        this.stats.idleRuns += 1;
+        const latestKey = memberKey(this.lastPrompt, this.headChars);
+        const members = [...this.heads.keys()].reverse().filter((key) => key !== latestKey).concat(this.heads.has(latestKey) ? [latestKey] : []).slice(0, this.idleMembers);
+        let prefilled = 0;
+        for (const key of members) {
+            if (!idle()) { this.stats.idleYields += 1; break; }
+            const prefix = nextPrefix(this.heads.get(key), this.lastPrompt);
+            if (!prefix || this.idleDone.get(key) === prefix.length) continue;
+            const step = await this.post('/completion', { prompt: prefix, n_predict: 0, cache_prompt: true, stream: false, id_slot: slot, cache_key: key, cache_ckpt_max: 1e9 }, signal);
+            if (!step.ok) { this.lastError = `idle prefill answered ${step.status}`; break; }
+            this.idleDone.set(key, prefix.length);
+            this.owner.set(slot, null);
+            this.remember(this.times.idlePrefillMs, step.ms);
+            this.stats.idlePrefills += 1;
+            prefilled += 1;
+        }
+        return { prefilled };
     }
 
     async afterOther(slot = 0, signal = AbortSignal.timeout(30000)) {
@@ -219,6 +265,6 @@ export class MemberCache {
     status() {
         return { store: this.store, ...(this.store === 'ram' ? { nativeCacheMiB: this.budgetMiB, occupancy: 'held by llama-server, not reported', serverKeys: this.serverKeys, erase: this.erase } : {}), dir: this.dir, budgetMiB: this.budgetMiB, rewind: this.rewind, park: this.park, entries: this.entries.size, sizeMiB: Math.round(this.bytes() / MiB), ...this.stats, parkMsP50: median(this.times.parkMs),
             restoreMsP50: median(this.times.restoreMs), prefillMsP50: median(this.times.prefillMs), rewindMsP50: median(this.times.rewindMs), saveMsP50: median(this.times.saveMs),
-            saveMsMax: this.times.saveMs.length ? Math.max(...this.times.saveMs) : null, lastError: this.lastError };
+            saveMsMax: this.times.saveMs.length ? Math.max(...this.times.saveMs) : null, idlePrefillMsP50: median(this.times.idlePrefillMs), idleMembersKnown: this.heads.size, lastError: this.lastError };
     }
 }

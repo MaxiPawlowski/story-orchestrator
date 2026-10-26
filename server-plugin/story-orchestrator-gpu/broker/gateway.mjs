@@ -39,6 +39,18 @@ export function createGateway({ arbiter, config, fetchImpl = fetch, allowOrigin 
     const membersReady = members?.init ? members.init().catch((error) => { members.lastError = error.message; }) : null;
     if (members && arbiter.scheduler) arbiter.scheduler.onImageRam = (need) => members.makeRoom(need);
     const memberIdle = () => idle() && !arbiter.scheduler?.imageQueued && !arbiter.scheduler?.imagePending;
+    let idleTimer = null;
+    const backendReady = () => { const state = arbiter.backend.status(); return Boolean(state.pid) && !state.loading; };
+    const scheduleIdlePrefill = (slot) => {
+        if (!members?.idlePrefill || members.store !== 'ram' || !members.runIdlePrefill) return;
+        clearTimeout(idleTimer);
+        idleTimer = setTimeout(() => {
+            if (closing || !memberIdle() || !backendReady()) return;
+            arbiter.text(async () => { if (backendReady() && memberIdle()) await members.runIdlePrefill({ idle: memberIdle, slot }); }, undefined, null)
+                .catch((error) => { members.lastError = error.message; });
+        }, members.idleDelayMs ?? 3000);
+        idleTimer.unref?.();
+    };
     const server = http.createServer(async (req, res) => {
         try {
             const route = new URL(req.url, 'http://localhost').pathname;
@@ -108,7 +120,10 @@ export function createGateway({ arbiter, config, fetchImpl = fetch, allowOrigin 
                     if (response.ok && timing.timings) await arbiter.scheduler.recordTiming({ timings: timing.timings }).catch((error) => { arbiter.scheduler.lastError = error.message; });
                 } else res.end();
                 memberDone = true;
-                if (memberPlan && response.ok) await members.afterReply(memberPlan, { idle: memberIdle }).catch((error) => { members.lastError = error.message; members.noteOther(memberPlan.slot); });
+                if (memberPlan && response.ok) {
+                    await members.afterReply(memberPlan, { idle: memberIdle }).catch((error) => { members.lastError = error.message; members.noteOther(memberPlan.slot); });
+                    scheduleIdlePrefill(memberPlan.slot);
+                }
                 else if (members?.afterOther && generating) await members.afterOther(slot ?? 0).catch((error) => { members.lastError = error.message; });
                 const park = reusing && !memberPlan && response.ok && slot === null ? reuse.park(idle()) : null;
                 if (park) await backendCall(park).catch((error) => { reuse.lastError = error.message; });
@@ -136,6 +151,6 @@ export function createGateway({ arbiter, config, fetchImpl = fetch, allowOrigin 
                 server.listen(port, host, () => { server.off('error', reject); resolve(server.address()); });
             });
         },
-        close() { closing = true; return new Promise((resolve) => server.close(() => resolve())); },
+        close() { closing = true; clearTimeout(idleTimer); return new Promise((resolve) => server.close(() => resolve())); },
     };
 }
