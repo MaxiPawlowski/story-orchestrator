@@ -256,3 +256,23 @@ owner-install check that the discovered Qwen route resolves (`sprite-qwen-route-
 4. Stage-2 adoption floor: Astra's full gameplay confirmation, or the 72-image pilot plus 18's blind result?
 5. A settings picker for `sprites.sceneRecipe`, or discovery only?
 6. Should pack QA `review` assets be refused by default once the campaign's 449 unreviewed expressions are triaged?
+
+## Gate record
+
+- 2026-10-26, branch `v3.0-visual-bridge` (from `v3.0-harness-image-compact` `d12deead`), code commit `f4f7e5b4`, plan `b5cbcc5e`.
+- `npm run gates:quick`: green (typecheck, typecheck:test, lint changed, jest related, defect replay cached) before the full run.
+- `npm run gates` (full, Storybook included, no `--resume`): all green in 539.3 s.
+  - typecheck, typecheck:test, debug:typecheck, lint, build, test:release, test:replay: ok.
+  - test (jest): 900 suites passed, 1 skipped; 10,487 tests passed, 1 skipped.
+  - test:plugin 128 pass / 0 fail (includes `packRoutes.test.mjs`); test:debug 1,569 + 408 pass / 0 fail.
+  - test-storybook:ci: 166 suites, 1,004 tests passed (includes `VisualPacksPanel` stories).
+  - main bundle `dist/index.js` 1,272,660 B (budget 1,300,000); pack, resolver, recipe and tag code ride the lazy sprites/image chunks.
+- Guard updates, each with a stated reason: ownership census rows (`bridge.ts#verifying` local, `catalog.ts#packCatalog`
+  local, `defaultRecipeHost.ts#startDefaultRecipe.run` partial); error-copy rows for the new catch/template sites and the
+  `runtime.ts#directorReply` row renamed to `#once`; arrival golden gains the new fixture story; session baseline names
+  `sprites.sceneRecipe`; the plan-32 director-prompt invariance declares the review-18 tag-skill line; code-health file
+  budget kept by moving pack types to `engine/visualPackSchema.ts`, the topic to `copilot/guideTopicsVisual.ts`, stage
+  helpers to `sprites/packs/stagePacks.ts`, and dropping five comment lines from `schema.ts`.
+- Deviation: `lookHealth.test.ts` expectation changed on purpose (a character without an accepted source now gets the
+  precise "No accepted base and bust" reason instead of "choose a reference expression pack").
+- Live gate: NOT run, owed (section 11). No ST staging, no GPU, no lanes in this task.
