@@ -530,3 +530,42 @@ Floors (the Fable floors plus the plan 09 decode band):
 
 Adopt A3 (or A2) into the owner's config only if every floor passes. A2 alone is adopted only if it passes floors 1, 4,
 5 and 6.
+
+## T: image/text thrash, plan 11a items (owner approved 2026-10-26; floors declared before the bench)
+
+Proposal: `C:\dev\so-b1\docs\plans\v3.0\11a-image-text-thrash-proposal.md` (branch `v3.0-b1-image-perf`). Built here.
+
+| 11a item | Built | Commit |
+|---|---|---|
+| P1 free before stop | On a text reserve miss the controller first asks the idle owned ComfyUI to free its models (`/free` with unload_models and free_memory, then the host-cache release). It polls NVML for up to `reclaimFreeWaitMs` (5 s) and counts a reclaim only when free VRAM reaches the reserve. ComfyUI is stopped only if that fails, under the same grace and queue rules as before. On by default; `reclaimFreeFirst: false` turns it off. `/status` → `comfy.reclaims {freed, stopped}`. | `c15e0cf9` |
+| P2 burst-aware hold | `POST /burst {count 1..64, ttlMs ≤ burstMaxMs 600 s, kind}` opens a burst and `{close: id}` closes it. Routed in the gateway and in both plugin adapters, and the page calls it (`stHost/gpuBroker.ts` `openImageBurst`/`closeImageBurst`). While a burst is open and no text request waits, the text reload after a lease is held (`burst.heldReloads`), as are idle restore and ComfyUI reclaim. A text request still wins: it loads text as today. The burst closes after `count` leases, on `close`, or on its deadline. The page side: on-demand look edits open one burst sized to the queue (1 still + 2 frames per look) and close it when the queue drains. | `d35edb07`, `46c9aa1a` |
+| P3 reload-wait log | Each streamed reply records how long it waited before generation and whether text was unloaded or an image lease was held when it arrived. `/status` → `replyWaits {replies, waitedOnReload, share, reloadWaitP50Ms, reloadWaitMaxMs}`. Observability only. | `d35edb07` |
+| P4 reply before image | `replyBeforeImage: true` makes a queued chat reply go before a queued image, bounded by `imageFairWaitMs`. Off by default until T2. | `d35edb07` |
+| P5 one memory budget | Covered by §M: Max keeps the member cache at 4096 because 6144 broke the RAM floor. Every image swap restarts llama-server, which empties that cache, so image admission needs no extra cache eviction today. | `b6cc4f98` |
+
+Measurements (`09/run-t.sh`, the A setup on the branch controller, SDXL scenes standing in for sprite frames because the
+Qwen edit reference is not configured for benches):
+- **T1.** ComfyUI and text VRAM, read from NVML and per process from PDH, at four points: ComfyUI just started, after an
+  SDXL render, after `/free`, and after the host-cache release. Informational. It tells whether P1 can ever clear a
+  reserve miss.
+- **T2.** Pattern I I R I I R (4 images, 2 replies), 2 repeats per arm, alternating:
+  - "today" = `reclaimFreeFirst: false` and no burst;
+  - "new" = a burst announced for the 4 images, plus `replyBeforeImage`.
+- **T3.** Per-turn illustration every 2 turns, 10 replies and 5 images (R R I ×5), 1 run per arm: today
+  (`reclaimFreeFirst: false`) vs new (P1 on).
+- Replies use the 25 real prompts of `09/corpus-rate.json`, 128 tokens each.
+
+Floors. The owner asked for floors; they are declared here, before the runs, and the owner may override them.
+- **T2 (new vs today):**
+  - text reloads per run ≤ today − 1;
+  - image → next reply wall p50 ≤ today;
+  - reply TTFT p50 ≤ today + 10 %;
+  - ComfyUI starts ≤ today;
+  - 0 failed requests, `fitCorrectionMiB` 0, 0 spill events.
+- **T3 (new vs today):**
+  - ComfyUI starts ≤ today, and strictly fewer if today > 0;
+  - share of replies that waited on a reload ≤ today;
+  - 0 failed requests, `fitCorrectionMiB` 0, 0 spill events.
+- **Adoption:**
+  - P2 and P4 are switched on in the owner's config only if T2 passes.
+  - P1 stays on only if T3 passes. If T3 shows no reserve miss at all, P1 stays on as inert, and the record says so.
