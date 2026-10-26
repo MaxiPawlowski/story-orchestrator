@@ -188,12 +188,6 @@
           }
         },
         {
-          "ui": {
-            "action": "drawer-tab",
-            "label": "Overview"
-          }
-        },
-        {
           "expect_ui": {
             "selector": "#so-rollback-notice",
             "contains": [
