@@ -10,6 +10,7 @@ export interface ImageRequest {
   text: string;
   messageId: number | null;
   raw?: boolean;
+  automatic?: boolean;
 }
 export interface ImageScene {
   target: number | null;
@@ -31,6 +32,7 @@ export interface ImageReply {
   shot: Shot | null;
   prompt: string;
   negative: string;
+  instruction?: string;
 }
 
 export const templateImagePrompt = (scene: ImageScene, purpose: string, text: string): string => [
@@ -45,7 +47,8 @@ export const templateImagePrompt = (scene: ImageScene, purpose: string, text: st
 
 export const sceneForImage = (chat: ImageChat, request: ImageRequest, contextMessages: number, checkpoint: string | null = null, location: string | null = null): ImageScene => {
   const messages = chat.messages;
-  let target = request.messageId !== null && messages[request.messageId] ? request.messageId : -1;
+  if (request.messageId !== null && !messages[request.messageId]) throw new Error("The message this picture illustrates is gone.");
+  let target = request.messageId ?? -1;
   if (target < 0) for (let index = messages.length - 1; index >= 0; index -= 1) {
     if (!messages[index].is_system && messages[index].mes.trim()) { target = index; break; }
   }
@@ -71,18 +74,24 @@ const TAG_SKILL = [
   "Describe one frozen moment and use a camera/framing tag.",
 ].join(" ");
 
-export const imageMessages = (request: ImageRequest, scene: ImageScene, route: Route): Array<{ role: string; content: string }> => {
+export const INSTRUCTION_SKILL = "Also write instruction: one or two plain English sentences for an image-editing model that already holds a reference picture "
+  + "of each visible character. Say what they are doing, their pose, expression, props and the place. Use their names; never describe hair, eyes, body or clothing.";
+
+export const imageMessages = (request: ImageRequest, scene: ImageScene, route: Route,
+  options: { instruction?: boolean } = {}): Array<{ role: string; content: string }> => {
   const menu = route.allowed.map((id) => {
     const entry = id in FAMILIES ? checkpointFor("", id) : checkpointFor(id, familyOf(id) ?? route.family.id);
     return `${id} (${entry.label}; ${entry.notes})`;
   }).join("\n");
   const system = [
-    "You direct one image for an illustrated story. Return one JSON object with keys caption, checkpoint, reason, visible, aspect, shot, prompt, negative. No other text.",
+    `You direct one image for an illustrated story. Return one JSON object with keys caption, checkpoint, reason, visible, aspect, shot, prompt, negative${
+      options.instruction ? ", instruction" : ""}. No other text.`,
     `The checkpoint must be one of: ${route.allowed.join(", ")}. Use the default ${modelId(route.checkpoint)} unless another allowed model clearly fits better.`,
     `The aspect must be one of ${ASPECTS.join(", ")}; shot one of ${SHOTS.join(", ")}.`,
     `Default framing: ${route.shot}. Output only people actually visible in the "visible" list.`,
     TAG_SKILL,
-  ].join("\n");
+    options.instruction ? INSTRUCTION_SKILL : "",
+  ].filter(Boolean).join("\n");
   const user = [
     `PURPOSE: ${request.purpose}; scene image is the target reply, background contains no people.`,
     request.text ? `INSTRUCTION: ${request.text}` : "",
@@ -118,6 +127,7 @@ export const parseImageReply = (raw: string, route: Route): ImageReply => {
     shot: typeof record.shot === "string" && SHOTS.includes(record.shot as Shot) ? record.shot as Shot : null,
     prompt,
     negative: typeof record.negative === "string" ? record.negative : "",
+    ...(typeof record.instruction === "string" && record.instruction.trim() ? { instruction: record.instruction.trim().slice(0, 600) } : {}),
   };
 };
 

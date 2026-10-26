@@ -28,7 +28,7 @@ jest.mock("@services/stHost/gpuBroker", () => ({ reserveGpu: jest.fn(), releaseG
 jest.mock("@runtime/settingsStore", () => ({ getGlobalSettings: jest.fn() }));
 jest.mock("../sprites/builder/images", () => ({ decodeImage: jest.fn(), encodeImage: () => "encoded-reference-bytes" }));
 jest.mock("../sprites/visualHost", () => ({ verifyVisualSource: jest.fn(), sourceStillCurrent: jest.fn() }));
-jest.mock("../sprites/builder/textPriority", () => ({ waitForTextPriority: jest.fn(), hostGenerating: jest.fn() }));
+jest.mock("../sprites/builder/textPriority", () => ({ ...jest.requireActual("../sprites/builder/textPriority"), waitForTextPriority: jest.fn(), hostGenerating: jest.fn() }));
 jest.mock("../sprites/packs/bridgeHost", () => ({ visualBridge: jest.fn() }));
 Object.defineProperty(globalThis, "crypto", { value: webcrypto, configurable: true });
 
@@ -100,6 +100,18 @@ test.each(["chat", "source", "cancel"])("%s during render discards the result be
   await expect(drawPreparedCast(f.manager, f.queue, ["Synthetic"], "")).rejects.toThrow();
   expect(imageSave).not.toHaveBeenCalled(); expect(imagePlace).not.toHaveBeenCalled(); expect(releaseGpu).toHaveBeenCalledWith("owned-lease");
   expect(comfyReleaseReference).toHaveBeenCalledWith("owned-ref.png");
+});
+
+test("the cast scene lands on the reply it illustrates, never on whatever message is last, and an explicit target wins", async () => {
+  const f = setup();
+  jest.mocked(imageChat).mockReturnValue({ id: "chat", folder: "Synthetic", groupId: "group", userName: "Player", characters: [], messages: [
+    { name: "Player", mes: "Look", is_user: true, is_system: false }, { name: "Synthetic", mes: "A reply", is_user: false, is_system: false },
+    { name: "Player", mes: "Next line", is_user: true, is_system: false }, { name: "Image Director", mes: "Earlier picture", is_user: false, is_system: true }] });
+  await drawPreparedCast(f.manager, f.queue, ["Synthetic"], "");
+  expect(jest.mocked(imagePlace).mock.calls[0][1]).toBe(1);
+  await drawPreparedCast(f.manager, f.queue, ["Synthetic"], "", { target: 0 });
+  expect(jest.mocked(imagePlace).mock.calls[1][1]).toBe(0);
+  expect((jest.mocked(imagePlace).mock.calls[1][3] as { image_director: Record<string, unknown> }).image_director.idle_wait_ms).toEqual(expect.any(Number));
 });
 
 test("a reference release that throws still releases the GPU lease", async () => {

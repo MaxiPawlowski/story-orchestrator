@@ -212,6 +212,7 @@
         "mode": "everyN",
         "everyN": 5
       },
+      "automaticRoute": "auto",
       "safeMode": false,
       "retired": []
     },

@@ -358,6 +358,12 @@ export const SETTING_COPY = {
     "Every N turns",
     "Draw a picture on the first reply of every this many of your turns (the greeting never counts). Lower draws more often and keeps the GPU busier.",
   ),
+  "image.automaticRoute": copy(
+    "How automatic scene pictures are drawn",
+    "Auto: when every visible character (one or two) has a prepared current look, draw from their reference pictures with the Qwen edit route; "
+      + "otherwise SDXL from tags. SDXL: always tags. References: only from reference pictures, skipping the picture when that is not possible. "
+      + "Auto is still being compared with SDXL in a blind pilot; choose SDXL to keep the earlier behaviour.",
+  ),
   "image.directorProfileId": copy(
     "Image-prompt model",
     "The Connection Manager profile that turns the scene and the story's visual direction into a picture prompt. Separate from the chat model.",

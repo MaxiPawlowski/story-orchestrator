@@ -1,5 +1,5 @@
 import { checkpointFor, FAMILIES, familyOf, modelId, type Aspect, type Checkpoint, type Family, type Lora, type Placement, type Purpose, type Quality, type Shot } from "./catalog";
-import { type ImageOverride, type ImageSettings } from "./settings";
+import { type AutomaticRoute, type ImageOverride, type ImageSettings } from "./settings";
 
 export interface ImageArgs {
   checkpoint?: string;
@@ -9,6 +9,7 @@ export interface ImageArgs {
   placement?: Placement;
   candidates?: number;
   seed?: number;
+  route?: AutomaticRoute;
 }
 export interface Route {
   purpose: Purpose;

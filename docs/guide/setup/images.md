@@ -14,6 +14,27 @@ New installs draw automatically only at story-authored moments. Every-N automati
 is ready (ST's Image Generation is not set up, or its ComfyUI is stopped), automatic pictures are skipped without an
 error and Setup says why; Test render explains which step is missing.
 
+## Automatic scene pictures from prepared looks
+
+**How automatic scene pictures are drawn** (`image.automaticRoute`, under **Connections → Images**) picks the route for each
+automatic scene picture (story moments and every-N replies; manual pictures, portraits and backgrounds are unchanged):
+
+- **Auto** (default): when every character the picture shows (one or two) has a prepared current look, either from a visual pack
+  or from the character's accepted base and bust, and a Qwen 2.1 edit route resolves (a builder entry, `sprites.sceneRecipe`, or the
+  one discovered Qwen model set), the picture is drawn from those reference images, like **Illustrate prepared cast**. The image-prompt
+  model then also writes a plain-language instruction (what happens, poses, the place); the instruction adds the current look, the
+  current place's name and description, and asks for a pose that fits the action instead of the reference's standing pose. A bound
+  place plate is added as one more reference image when ComfyUI's Qwen text encoder offers the extra input. Anything else (three or
+  more people, the player persona, a look still being prepared, no Qwen files, ComfyUI unreachable) draws through SDXL as before.
+- **Always SDXL**: tags only, the earlier behaviour.
+- **References only**: draws from reference images or not at all.
+
+Every picture records which route drew it and why (`image_director.route`), and how long it waited for the text model to finish
+(`idle_wait_ms`). A picture always lands on the reply that cued it, never on whatever message is last. Pictures start only once no
+reply or chained voice is pending, and hand the GPU back if you send before the render starts. Reference pictures take the shape of
+the first character's reference image; the shape the image-prompt model asked for is recorded, not applied. Auto is still being
+compared with SDXL in a blind pilot; choose **Always SDXL** if you prefer the earlier pictures.
+
 ## Story workflows (SillyTavern's ComfyUI source)
 
 If SillyTavern's Image Generation uses **ComfyUI**, a story can name which of your ComfyUI workflows draws each picture

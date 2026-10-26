@@ -60,19 +60,27 @@ function mergedBuilders(ready: SceneBuilder[]): { models: SceneBuilder["models"]
   const renders = ready.map(builderRender);
   return { models, steps: Math.max(...renders.map((render) => render.steps)), resolution: Math.max(...renders.map((render) => render.resolution)) };
 }
-export const castSceneKey = (identities: CastSceneIdentity[], input: { prompt: string; models: EditModels; seed: number; steps: number; resolution: number }): string =>
+export const castSceneKey = (identities: CastSceneIdentity[], input: { prompt: string; models: EditModels; seed: number; steps: number; resolution: number }, plate?: string): string =>
   stableStringify({ recipe: CAST_SCENE_RECIPE, identities: identities.map((identity) => ({ character: identity.character, root: identity.root,
-    signature: identity.signature, sha256: identity.look.base.sha256, ...(identity.layered ? { layered: identity.layered } : {}) })), ...input });
+    signature: identity.signature, sha256: identity.look.base.sha256, ...(identity.layered ? { layered: identity.layered } : {}) })), ...input, ...(plate ? { plate } : {}) });
 
-export function castSceneGraph(references: string[], input: { prompt: string; models: EditModels; seed: number; steps: number; resolution: number }): Record<string, unknown> {
+const castLead = (count: number, plate: boolean): string => plate
+  ? `The first ${count === 1 ? "reference image shows one character" : `${count} reference images show ${count} distinct characters`}; the last reference image shows only the place. `
+  : `The reference images show ${count} distinct character${count === 1 ? "" : "s"}. `;
+
+export function castSceneGraph(references: string[], input: { prompt: string; models: EditModels; seed: number; steps: number; resolution: number }, plate?: string): Record<string, unknown> {
   if (references.length < 1 || references.length > 2) throw new Error("The cast scene recipe supports at most two identities.");
-  const instruction = `The reference images show ${references.length} distinct character${references.length === 1 ? "" : "s"}. `
-    + "Preserve each one's face, hair, current outfit and art style. Draw one coherent scene, never panels or a collage. " + input.prompt;
+  const instruction = castLead(references.length, Boolean(plate))
+    + "Preserve each character's face, hair, current outfit and art style. Draw one coherent scene, never panels or a collage. " + input.prompt;
   const graph = editGraph({ ...input, reference: references[0], instruction });
+  const encoder = graph["6"] as { inputs: Record<string, unknown> };
   if (references[1]) {
     graph["12"] = { class_type: "LoadImage", inputs: { image: references[1] } };
-    const encoder = graph["6"] as { inputs: Record<string, unknown> };
     encoder.inputs["images.image_2"] = ["12", 0];
+  }
+  if (plate) {
+    graph["13"] = { class_type: "LoadImage", inputs: { image: plate } };
+    encoder.inputs[`images.image_${references.length + 1}`] = ["13", 0];
   }
   graph["9"] = { class_type: "SaveImage", inputs: { filename_prefix: "so-cast-scene", images: ["8", 0] } };
   return graph;
