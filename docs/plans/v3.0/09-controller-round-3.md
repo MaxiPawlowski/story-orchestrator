@@ -274,3 +274,12 @@ unaffected (its slot is never empty) but is re-measured unpinned in batch 3.
 for J1 and A + idle prefill → Sol blind rating (`09/rate/rate-pairs.mjs`); idle-prefill speed (J1 / A / A + idle × 3,
 typing gap 8 s); S × 3 unpinned with J1 × 2; overlap parallel 1 vs 2 × 2. It was started at 09:08Z and stopped within
 two minutes on the owner's hold (nothing measured); no adoption is possible before the rating.
+
+### Quick verification for the playtest (owner via coordinator, 09:3xZ; floor declared before any output was generated)
+
+Scope: full-length replies only, J1 (owner config) vs A (patched b11888 + RAM member cache, `serverKeys`, 4096 MiB, no
+idle prefill, no probabilistic drafting), `09/corpus-rate.json` (25 real chat prompts in recorded order, 3 members),
+1,024 tokens, thinking on, seed 1234, `--gap-ms 1000`. Sol blind rating as in round 3b.
+
+Floor (coordinator's wording, supersedes the round 3b quality floor for this decision): every category mean delta
+A − J1 ≥ −0.2; per flag (voice bleed, guidance ignored, leak) A count ≤ J1 count + 2; thinking closes in every A reply.
