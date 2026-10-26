@@ -99,8 +99,8 @@ Optional `config.json` keys, all read by `broker/backend.mjs` `nativeArgs` (plan
   non-chat generation, including failed or aborted ones, so side passes never enter the cache; `park` (default on) sends
   a one-token prompt after an idle reply so that copy happens before the next request. On stock llama.cpp a member state
   is ~2.3 GiB (KV, SWA window, three checkpoints, the MTP draft state), so three members need ~7-9 GiB of cache.
-  `serverKeys: true` needs the patched server (branch `so-cache-patch` of `C:\dev	ools\src\llama.cpp-b11888-so`,
-  built with `C:\dev	oolsuild-llama.bat`): requests carry `cache_key` (the member key; entries restore only for the
+  `serverKeys: true` needs the patched server (branch `so-cache-patch` of `C:/dev/tools/src/llama.cpp-b11888-so`,
+  built with `C:/dev/tools/build-llama.bat`): requests carry `cache_key` (the member key; entries restore only for the
   same key, unkeyed states never evict keyed ones) and `cache_ckpt_max` (the cached copy keeps only the cut checkpoint,
   ~1.2-1.4 GiB per member), so `erase` can be off. `idlePrefill: true` (needs `serverKeys`) warms, after `idleDelayMs`
   (3000) with nothing waiting, each known member's next stable prefix: its head plus every history turn of the latest
