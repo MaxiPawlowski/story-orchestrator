@@ -569,3 +569,19 @@ Floors. The owner asked for floors; they are declared here, before the runs, and
 - **Adoption:**
   - P2 and P4 are switched on in the owner's config only if T2 passes.
   - P1 stays on only if T3 passes. If T3 shows no reserve miss at all, P1 stays on as inert, and the record says so.
+
+## I: idle prefill send-latency bound (declared 2026-10-26 before any run; audit risk 4, end batch row)
+
+`idlePrefill` stays off in the owner's config. Before it can be switched on, a send-latency probe must pass.
+
+Probe: the player sends while an idle prefill step runs, and the timing is compared with the same send and no prefill
+running. Since `97ead1e2`, any arrival aborts the running step; llama-server stops at its next batch.
+
+Bound (measured end to end, from the send to each event):
+- time to the talk director's model call ≤ the no-prefill time + 1.5 s;
+- time to the first chat token ≤ the no-prefill time + 1.5 s;
+- both at p95 over at least 10 sends;
+- 0 failed or stray requests;
+- the RunOwnership census unchanged after a chat switch in the middle of a prefill.
+
+1.5 s allows for one 2,048-token prompt batch at about 1,000 tok/s plus the abort round trip.
