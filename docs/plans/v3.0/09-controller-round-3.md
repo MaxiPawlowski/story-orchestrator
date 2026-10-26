@@ -704,3 +704,31 @@ Bound (measured end to end, from the send to each event):
 - the RunOwnership census unchanged after a chat switch in the middle of a prefill.
 
 1.5 s allows for one 2,048-token prompt batch at about 1,000 tok/s plus the abort round trip.
+
+## Gate record: chatFirst and Max on the owner's controller (2026-10-26)
+
+- **Side-pass freshness** (`controller-regression` `parallel` / `inner-freshness`, run with the integration-branch
+  harness on lane 42, through a chatFirst controller): `ok: true`; 6 inner beats used, 0 stale, 0 none (Arin 3/3,
+  DM Narrator 3/3). Log: `09/logs-t/inner-freshness-p1.log`.
+- **Merge**: master fast-forwarded to `b3e27bb4` (branch merged with origin/master `70257b65`, then fixes), and pushed.
+  - `npm run gates` all green with no `--resume` (250.6 s; includes test:plugin 404/404, test:debug, lint, Storybook).
+  - The run before it was red on two stale expectations from this round, both fixed: the settings page now lists 9
+    knobs, and the error-copy inventory now includes the two burst catches.
+  - Then build, stage and `plugins:install` (restartNeeded), and ST restarted on 8000.
+- **Owner config.**
+  - Backup: `C:\dev\backups\story-orchestrator\local-config.before-max-chatfirst-2026-10-26.json`, plus the mode save's
+    own backup `local-config-1793023690022`.
+  - `modes.max` is set to the measured preset: GPU 1024, RAM 2048, stream on with floor 2400, idle restore 180 s, warm
+    image cache, fit margin 512, member cache 4096.
+  - `balanced` and `safe` gained `memberCache.budgetMiB` (4096 and 2048).
+  - `chatFirst: true`; `cli mode max` → saved and running mode Max.
+- **`/status` after the restart**: phase text, draft-mtp2, cacheRamMiB 4096, member cache ram + keys, fitCorrection 0,
+  lastError null, GPU free 1,789 MiB, spill guard idle, mode max.
+- **Live check on the owner's controller.**
+  - Lane 42 member rotation (`live-ram-cache.scenario.json`): 17/17 steps.
+  - One SDXL scene through `render-benchmark … auto scene 128`: swap-text, render 21.2 s, cycle 52.0 s, decode
+    50.6 tok/s.
+  - `/status` after both: 0 errors, fit 0, reclaims 0, spill events 0, 11 replies with 0 reload waits.
+- **Rollback.**
+  - chatFirst: set `"chatFirst": false` in config.json, then `cli.mjs stop` and `start`.
+  - Max: `node scripts/local/cli.mjs mode balanced`, or copy the backup above back over config.json.
