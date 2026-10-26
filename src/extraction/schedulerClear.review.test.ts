@@ -175,3 +175,34 @@ describe("V3: a job's error belongs to the world it ran in", () => {
     expect(h.scheduler.getSnapshot().lastHeavyError).toBe("backend down");
   });
 });
+
+describe("C8 v27-d-10: a queued run job tells its owner when it will never run", () => {
+  it("clearForNewWorld calls dropped on every queued job, light and heavy", () => {
+    const h = harness();
+    const dropped: string[] = [];
+    h.scheduler.schedule({ priority: 0, reason: "rollback:3:edit", run: async () => {}, dropped: () => dropped.push("light") });
+    h.scheduler.schedule({ priority: 4, reason: "arc-summary:1", run: async () => {}, dropped: () => dropped.push("heavy") });
+    h.scheduler.clearForNewWorld();
+    expect(dropped).toEqual(["light", "heavy"]);
+  });
+
+  it("a queued edit re-read run job is the published reread reason while it waits", () => {
+    const h = harness();
+    h.scheduler.schedule({ priority: 0, reason: "rollback:3:edit", run: async () => {} });
+    expect(h.scheduler.getSnapshot().rereadReason).toBe("rollback:3:edit");
+  });
+
+  it("a job pump discards because reading is off is dropped, not left pending", async () => {
+    const dropped: string[] = [];
+    const host = {
+      getStory: () => ({ title: "S", qualityByKey: {}, checkpointById: {}, roster: [] }),
+      getEngineState: () => ({ activeCheckpointId: "cp1", boundary: 5, lastMessageId: 9 }),
+      getExtractionSettings: () => ({ enabled: false, cadence: 1, profileId: "p1" }),
+      onSchedulerChange: () => {},
+    } as unknown as SchedulerHost;
+    const scheduler = new ExtractionScheduler(host);
+    scheduler.schedule({ priority: 0, reason: "rollback:3:edit", run: async () => { dropped.push("ran"); }, dropped: () => dropped.push("dropped") });
+    await Promise.resolve();
+    expect(dropped).toEqual(["dropped"]);
+  });
+});

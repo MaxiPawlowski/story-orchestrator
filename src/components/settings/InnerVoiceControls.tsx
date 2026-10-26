@@ -1,6 +1,6 @@
 import type { RuntimeManager } from "@runtime/index";
 import type { InnerFanOut, RuntimeSnapshot } from "@runtime/types";
-import { SILENT_REPLY_WINDOW } from "@runtime/thinkingSilence";
+import { InnerHarvestNotes } from "./InnerHarvestNotes";
 import { CheckRow, FieldLabel } from "./Field";
 
 interface GroupProps {
@@ -16,12 +16,7 @@ export const InnerVoiceControls = ({ snapshot, manager }: GroupProps) => {
       <span>Inner voice</span>
       <CheckRow id="so-inner-harvest" className="text-xs" checked={settings.harvestReasoning === true} onChange={(on) => manager.setMemorySettings({ harvestReasoning: on })}
         setting="memory.harvestReasoning" />
-      {settings.harvestReasoning === true && !settings.epistemicLedgerCapable ? (
-        <div id="so-inner-harvest-idle" className="text-xs opacity-70">Idle: knowledge tracking is off for the memory model.</div>
-      ) : null}
-      {snapshot.thinkingSilent ? (
-        <div id="so-inner-harvest-silent" className="text-xs so-warning-text">Nothing to read: the last {SILENT_REPLY_WINDOW} replies carry no reasoning, so the model is not thinking.</div>
-      ) : null}
+      <InnerHarvestNotes snapshot={snapshot} />
       <CheckRow id="so-inner-beat" className="text-xs" checked={beat} onChange={(on) => manager.setMemorySettings({ innerBeat: on })}
         setting="memory.innerBeat" />
       <div className="flex items-center gap-2 text-xs">

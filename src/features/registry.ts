@@ -243,7 +243,7 @@ const CORE_FEATURES: readonly Feature[] = [
     oneLine: "Characters prepare a private intent before they speak.",
     what: "After a reply, the memory model can write a short private note of what the next speaker wants, handed only to that "
       + "character. It can also read a reply's reasoning for what the character intends.",
-    where: settingsAt("#so-inner-beat", "Characters › Inner voice"),
+    where: featureAt("inner", "enabled", "Private inner voice"),
     settings: ["memory.innerBeat", "memory.innerFanOut", "memory.harvestReasoning"], guideTopic: "inner-voice", doc: authorGuideDoc("inner-voice"), status: "shipped",
     needs: ["memory-profile", "author-view"],
   },

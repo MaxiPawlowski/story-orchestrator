@@ -5,6 +5,7 @@ import { beginRun } from "../runToken";
 import { STEP_WINDOW, SpikeWorld, differentText, project, randomScript, seededRandom, type SpikeProjection, type SpikeTurn } from "../../../test/support/spikeHarness";
 import { spikeContext, spikeEvents } from "../../../test/support/spikeHost";
 import type { RuntimeManager } from "../runtimeManager";
+import type { SchedulerJob } from "@extraction/scheduler";
 import { testOwnership } from "../../../test/findings/testOwnership";
 
 jest.mock("@services/STAPI", () => jest.requireActual("../../../test/support/spikeHost").spikeStapi);
@@ -531,6 +532,44 @@ describe("v2.7 33 W1: the host read", () => {
     expect(asked).toEqual([[undefined, "rollback:9:edit", { from: 2, to: 9 }]]);
     const lapsed = beginRun({ mint: testOwnership().mint, check: () => ({ ok: false, reason: "chat" }) } as never);
     await expect(readEdited(manager, 9, lapsed)).resolves.toBe("unread");
+    expect(asked).toHaveLength(1);
+  });
+
+  it("queues the edit's re-read on the read lane under its reason, so the scheduler publishes it until it runs (C8 v27-d-10)", async () => {
+    const asked: unknown[] = [];
+    const manager = { runExtractionNow: async (...args: unknown[]) => { asked.push(args); return true; } } as never;
+    const jobs: SchedulerJob[] = [];
+    const outcome = readEdited(manager, 9, beginRun(testOwnership()), { schedule: (job) => { jobs.push(job); } });
+    await Promise.resolve();
+    expect(jobs.map((job) => ({ priority: job.priority, reason: job.reason, window: job.window }))).toEqual([{ priority: 0, reason: "rollback:9:edit", window: undefined }]);
+    expect(asked).toEqual([]);
+    await jobs[0].run?.();
+    await expect(outcome).resolves.toBe("committed");
+    expect(asked).toEqual([[undefined, "rollback:9:edit", { from: 2, to: 9 }]]);
+  });
+
+  it("answers unread when the lane drops the job, fails it, or holds it past the cap, and a late run still reads only while the run owns", async () => {
+    const asked: unknown[] = [];
+    const manager = { runExtractionNow: async (...args: unknown[]) => { asked.push(args); return true; } } as never;
+    const jobs: SchedulerJob[] = [];
+    const lane = { schedule: (job: SchedulerJob) => { jobs.push(job); } };
+    const dropped = readEdited(manager, 9, beginRun(testOwnership()), lane);
+    jobs[0].dropped?.();
+    await expect(dropped).resolves.toBe("unread");
+    const failing = { runExtractionNow: async () => { throw new Error("model down"); } } as never;
+    const failed = readEdited(failing, 9, beginRun(testOwnership()), lane);
+    await expect(jobs[1].run?.()).rejects.toThrow("model down");
+    await expect(failed).resolves.toBe("unread");
+    const capped = readEdited(manager, 9, beginRun(testOwnership()), lane, 5);
+    await expect(capped).resolves.toBe("unread");
+    await jobs[2].run?.();
+    expect(asked).toHaveLength(1);
+    let owns = true;
+    const lapsing = beginRun({ mint: testOwnership().mint, check: () => (owns ? { ok: true } : { ok: false, reason: "chat" }) } as never);
+    const late = readEdited(manager, 9, lapsing, lane, 5);
+    await expect(late).resolves.toBe("unread");
+    owns = false;
+    await jobs[3].run?.();
     expect(asked).toHaveLength(1);
   });
 });

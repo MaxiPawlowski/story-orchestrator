@@ -125,7 +125,7 @@ const startWatches = () => {
   bridge.setStopSeam(isUserStoppedReply);
   bridge.start();
   runtimeDisposers.push(startEmptyReplyRecovery(bridge, () => live.talk?.chainPending() ?? false));
-  void import("./spikes").then(({ installSpikes }) => { if (started && bridge) runtimeDisposers.push(installSpikes(bridge, runtimeManager)); });
+  void import("./spikes").then(({ installSpikes }) => { if (started && bridge) runtimeDisposers.push(installSpikes(bridge, runtimeManager, () => live.scheduler)); });
   const requirementsWatch = new RequirementsWatch(runtimeManager.requirementsHost, subscribeToHostEvents, undefined, [onGroupEdited, onLorebookListChanged]);
   requirementsWatch.start();
   runtimeDisposers.push(() => requirementsWatch.stop());

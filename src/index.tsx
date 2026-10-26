@@ -9,6 +9,7 @@ import {
 } from "@services/STAPI";
 import { workspaceNavigation } from "@runtime/workspaceNavigation";
 import { connectionsIntent, inspectorIntent, repairIntent, storyPlayIntent } from "@runtime/workspaceRoutes";
+import { revealSetting } from "@runtime/settingReveal";
 import { storyPageFor } from "@runtime/drawerTab";
 import type { WidgetDrawerTab } from "@engine/index";
 import { inlinePresence } from "@runtime/presence";
@@ -149,8 +150,7 @@ const showSetupTarget = (target: ShowMe) => {
     window.setTimeout(() => openInlinePanel(document.querySelector<HTMLElement>(target.selector), "center"), 250);
     return;
   }
-  openStorySettings();
-  window.setTimeout(() => revealSetting(target.id), 250);
+  revealSetting(target.id);
 };
 
 const studioFailed = (error: unknown) => {
@@ -362,17 +362,6 @@ const openInlinePanel = (panel: HTMLElement | null, block: ScrollLogicalPosition
 };
 
 const openStorySettings = () => workspaceNavigation.open(connectionsIntent());
-
-// Repair names a step; this is how it lands on it. A control that is already in the panel is pointed
-// at, never duplicated — two controls that do the same thing is how one of them goes stale.
-const revealSetting = (id: string) => {
-  const element = document.getElementById(id);
-  if (!element) return;
-  for (let details = element.closest("details"); details; details = details.parentElement?.closest("details") ?? null) details.open = true;
-  element.scrollIntoView({ block: "center", behavior: "smooth" });
-  element.classList.add("so-revealed");
-  window.setTimeout(() => element.classList.remove("so-revealed"), 2000);
-};
 
 const showFeature = (where: FeatureWhere) => {
   if (where.workspace) { workspaceNavigation.open(where.workspace); return; }

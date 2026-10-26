@@ -53,6 +53,7 @@ export interface SchedulerJob {
   reason: string;
   window?: SharedReadWindow;
   run?: () => Promise<void>;
+  dropped?: () => void;
   heldOn?: string;
 }
 
@@ -144,8 +145,8 @@ export class ExtractionScheduler {
    * at the write edge if its answer wins the race against the abort.
    */
   clearForNewWorld() {
-    this.queue.length = 0;
-    this.heavyQueue.length = 0;
+    const dropped = [...this.queue.splice(0), ...this.heavyQueue.splice(0)];
+    dropped.forEach((job) => job.dropped?.());
     // Boundary numbers restart with a new story, so a carried-over cursor makes the new world look
     // as though its cadence read had already happened.
     this.cadenceBoundary = -1;
@@ -175,7 +176,7 @@ export class ExtractionScheduler {
     }
     if (job.priority === 2 && this.underPressure()) {
       for (let index = this.queue.length - 1; index >= 0; index -= 1) {
-        if (this.queue[index].priority === 2) this.queue.splice(index, 1);
+        if (this.queue[index].priority === 2) this.queue.splice(index, 1)[0].dropped?.();
       }
     }
     if (this.mergeRead(job) || this.mergeReread(job) || this.mergeCue(job)) return;
@@ -480,6 +481,7 @@ export class ExtractionScheduler {
     const state = this.host.getEngineState();
     const settings = this.host.getExtractionSettings();
     if (!story || !state || !settings.enabled || (!job.run && this.host.readsOpenChat?.() === false)) {
+      job.dropped?.();
       this.host.onSchedulerChange();
       return;
     }

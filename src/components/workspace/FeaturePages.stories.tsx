@@ -15,9 +15,9 @@ const snapshot = {
   stagecraft: { settings: defaultGlobalSettings().stagecraft, proposals: [] },
 } as unknown as RuntimeSnapshot;
 const manager = { setFeatureOverride: fn(() => true) } as unknown as RuntimeManager;
-function Host() {
+function Host({ shown = snapshot }: { shown?: RuntimeSnapshot }) {
   const [selected, onSelect] = useState<StoryFeatureId>();
-  return <div id="so-workspace-modal"><FeaturePages snapshot={snapshot} manager={manager} install={false}
+  return <div id="so-workspace-modal"><FeaturePages snapshot={shown} manager={manager} install={false}
     selected={selected} onSelect={onSelect} onConnections={fn()} /></div>;
 }
 const meta: Meta<typeof FeaturePages> = { title: "Workspace/FeaturePages", component: FeaturePages, render: () => <Host /> };
@@ -33,3 +33,22 @@ export const Desktop: Story = {
   },
 };
 export const Mobile: Story = { ...Desktop, parameters: { viewport: { defaultViewport: "mobile1" } } };
+export const InnerVoiceModelNotThinking: Story = {
+  render: () => <Host shown={{ ...snapshot, thinkingSilent: true, memory: { settings: { harvestReasoning: true, epistemicLedgerCapable: true } } } as unknown as RuntimeSnapshot} />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(await canvas.findByRole("button", { name: /Private inner voice/ }));
+    await expect(canvasElement.querySelector("#so-inner-harvest-silent")).toHaveTextContent("the model is not thinking");
+    await expect(canvasElement.querySelector("#so-inner-harvest-idle")).toBeNull();
+    await expect(canvasElement.querySelector("#so-feature-inner-harvestReasoning")).not.toBeNull();
+  },
+};
+export const OtherFeatureHasNoHarvestLine: Story = {
+  render: () => <Host shown={{ ...snapshot, thinkingSilent: true } as unknown as RuntimeSnapshot} />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(await canvas.findByRole("button", { name: /Voice and delivery/ }));
+    await expect(await canvas.findByRole("heading", { name: "Voice and delivery" })).toBeInTheDocument();
+    await expect(canvasElement.querySelector("#so-inner-harvest-silent")).toBeNull();
+  },
+};

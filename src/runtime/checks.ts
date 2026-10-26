@@ -107,7 +107,7 @@ export const SECRET_LEAK_CHECK: Check = {
   },
 };
 
-export const THINKING_TARGET_ID = "so-inner-harvest";
+export const THINKING_TARGET_ID = "so-feature-inner-harvestReasoning";
 
 export const THINKING_PLAYER_TEXT = "Characters' private intentions are not being tracked, because the model is not thinking before it replies. "
   + "Turn on reasoning (thinking) in your model's settings to play this as intended.";

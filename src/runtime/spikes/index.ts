@@ -1,4 +1,5 @@
 import { getActiveCharacterId, getActiveGroup, getContext } from "@services/STAPI";
+import type { ExtractionScheduler } from "@extraction/scheduler";
 import type { RuntimeManager } from "../runtimeManager";
 import { getGlobalSettings } from "../settingsStore";
 import { publishSpikeDebug } from "../spikeDebug";
@@ -23,12 +24,12 @@ const restage = (manager: RuntimeManager) => (type: string) => {
   manager.onMemberDrafted(Number(drafted));
 };
 
-export function installSpikes(bridge: TurnBridge, manager: RuntimeManager): () => void {
+export function installSpikes(bridge: TurnBridge, manager: RuntimeManager, lane: () => ExtractionScheduler | null): () => void {
   const edit = new EditReread({
     host: manager,
     enabled: () => getGlobalSettings().spikes.editReread,
     chat: openChat,
-    reread: (messageId, run) => readEdited(manager, messageId, run),
+    reread: (messageId, run) => readEdited(manager, messageId, run, lane()),
     journal: (summary, detail) => manager.noteRecap(summary, detail),
     restage: restage(manager),
   });

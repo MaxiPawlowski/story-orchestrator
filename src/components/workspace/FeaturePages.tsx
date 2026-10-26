@@ -7,6 +7,7 @@ import { getGlobalSettings, setGlobalSettings } from "@runtime/settingsStore";
 import type { RuntimeManager } from "@runtime/runtimeManager";
 import type { RuntimeSnapshot } from "@runtime/types";
 import { FeaturePolicyFields } from "./FeaturePolicyFields";
+import { InnerHarvestNotes } from "../settings/InnerHarvestNotes";
 import { JUDGE_USE_COPY, judgeUseActive, type JudgeUseKey } from "@judge/settings";
 import { isArcTemplateName } from "@pacing/index";
 import type { ResolvedFeatures } from "@runtime/featureResolve";
@@ -89,6 +90,7 @@ export const FeaturePages = ({ snapshot, manager, install, selected, onSelect, o
         const next = { ...override }; delete next[field];
         manager.setFeatureOverride(selected, Object.keys(next).length ? next : null);
       }} />
+    {selected === "inner" && <InnerHarvestNotes snapshot={snapshot} />}
     {!install && override !== undefined && <button className="st-button secondary" onClick={() => manager.setFeatureOverride(selected, null)}>Reset to story/default</button>}
     {!install && selected === "pacing" && <div className="so-control-row">
       <label className="so-control-field" htmlFor="so-shape-override"><span>Dramatic shape</span>
