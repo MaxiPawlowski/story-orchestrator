@@ -38,8 +38,9 @@ the sprite; SDXL with authored appearance 2.4 / 2.4 (0 of 5); SDXL with card tex
 
 ### Identity pack
 
-- `subjectId`, `traits` (immutable visible traits), `tagsByFamily` (renderer-specific identity tags, e.g.
-  `illustrious`; `default` as fallback), `defaultLook`, `looks`.
+- `subjectId`, `traits` (immutable visible traits), `tagsByFamily` (renderer-specific identity tags keyed by route family id,
+  `sdxl-illustrious` | `sdxl-noobai` (`src/image/catalog.ts` `FAMILIES`), plus `default` as fallback; any other key, short
+  aliases such as `illustrious` included, refuses the pack by name), `defaultLook`, `looks`.
 - Each look: `fields` (the card-field values that select it; the default look has none), `base` (role), optional `bust`,
   `face`, `expressions` (label → role). Two looks may not share the same fields.
 - Later (stage 6+): optional conditioning entries (type, source hashes, preprocessing, encoder/adapter hashes, tensor
@@ -53,7 +54,7 @@ the sprite; SDXL with authored appearance 2.4 / 2.4 (0 of 5); SDXL with card tex
 
 ### Style pack
 
-- `target` (visual target text), `recipes` (per renderer family: `positive`, `negative`, `checkpoint`, `sampler`,
+- `target` (visual target text), `recipes` (per route family id, same keys as `tagsByFamily` without `default`: `positive`, `negative`, `checkpoint`, `sampler`,
   `steps`, `cfg`). Later: model/encoder/VAE hashes, adapters, workflow revision, seed policy, cutout/upscale settings.
 
 ### Story bindings (story JSON: bindings only)
@@ -149,7 +150,7 @@ picture of that character, so a secret form must never be in them (author guide 
    and automatic pictures (tags + place), install-wide default Qwen recipe, review-18 prompt fixes (section 8), fixtures and
    tests. Live gate owed (section 11).
 2. **Automatic scenes through the Qwen reference route** (built, branch `v3.0-visual-bridge-s2`, CPU/dev only; evidence: 18).
-   Adoption is owed: the 72-image route pilot plus 18's blind result, then the full gameplay comparison, before it is the
+   Adoption is owed: the 48-image route pilot plus 18's blind result, then the full gameplay comparison, before it is the
    settled default (owner decision 4). Until then the setting defaults to `auto` (every built feature on) and the owner can
    choose `sdxl` to keep the earlier pictures. Built:
    - **Route choice** (`src/image/autoScene.ts` pure, `autoSceneHost.ts` host, wired in `runtime.ts` `plan`/`direct`):
@@ -193,14 +194,19 @@ picture of that character, so a secret form must never be in them (author guide 
      catalog with every file hash after the render; `direct` re-checks the packs before placement.
    - **Pilot harness** (not run): `scripts/debug/so-image-pilot.mts plan | run | pack`, cases frozen in
      `test/fixtures/image-pilot/cases.json` (12 cases on the p41 cast: 8 single, 4 pairs, Ash's prepared navy-coat look twice,
-     close/upper/full views, night, lightning, lantern and lens-glow lighting), seeds 101/202, arms `sdxl-directed` and
-     `qwen-refs` forced through `storyOrchestratorImage.direct`; the composite arm is skipped and recorded (no compositing route
-     exists; stage 5), so a full run is 48 renders, not 72. `pack` writes `blind/` (shuffled `img-NN.png`, `ref-X.png`,
-     `items.txt`, `brief.md` with a pose/composition question, about 10% hidden duplicates) and `key.json` outside it.
+     close/upper/full views, night, lightning, lantern and lens-glow lighting), seeds 101/202, two arms `sdxl-directed` and
+     `qwen-refs` forced through `storyOrchestratorImage.direct` (owner decision 7: composite later, stage 5), so a full run is 48
+     renders. The image director is called once per case (`storyOrchestratorImage.plan`, route `auto`, so it is asked for the
+     Qwen `instruction` when the references are ready); the answer is stored in `<runDir>/director/<case>.json` and passed to
+     every arm and seed as `ImageArgs.director` (parsed against the arm's route, no director call; the picture records
+     `director: "frozen"`), so the comparison isolates the renderer (owner decision 8). A case with no director answer is not
+     drawn; a rerun into the same `--out` reuses the stored answers. No reference padding (owner decision 9). `pack` writes
+     `blind/` (shuffled `img-NN.png`, `ref-X.png`, `items.txt`, `brief.md` with a pose/composition question, about 10% hidden
+     duplicates) and `key.json` outside it (with each item's director file).
    - **Pilot run needs**: a lane ≥ 30 after `so-p41-journey run <k> --keep` (the p41 cast with accepted visual sources and
      Ash's navy-coat look, the kept chat with the story running), the lane cleared for ComfyUI (`allowComfy` or
      `SO_ALLOW_COMFY=1`), the installed Qwen 2.1 edit files and the SDXL scene checkpoint, an image-prompt profile, and an
-     agreed GPU window (about 48 renders: SDXL ~8–15 s, Qwen ~25–35 s each plus model swaps and director calls); then two blind
+     agreed GPU window (48 renders: SDXL ~8–15 s, Qwen ~25–35 s each plus model swaps and 12 director calls); then two blind
      raters on the pack and a comparison against 18's floors.
 3. **Campaign export and install (private repo, campaign side).** `build_cards.py`/a new exporter writes identity, place
    and style packs with digests from hydrated bytes (LFS pulled, pointers refused); `install_st.py` materialises images by
@@ -278,8 +284,9 @@ Proposed new floors (Astra; not measured, not replacing existing floors):
   fixture.
 - Gameplay confirmation: 72 single + 24 pair images per arm; identity ≥ 90% overall / ≥ 80% each; zero pair swaps;
   outfit/action/place each ≥ 90%; no quality-category mean regression > 0.2/5.
-- Route pilot before stage-2 adoption: 12 cases × 2 seeds × 3 arms = 72 images (directed SDXL, Qwen references,
-  composite), frozen pack inputs, blind ratings with method hidden, 10% duplicates.
+- Route pilot before stage-2 adoption: 12 cases × 2 seeds × 2 arms = 48 images (directed SDXL, Qwen references; the composite
+  arm comes later with stage 5), frozen pack inputs, one frozen director answer per case, blind ratings with method hidden,
+  10% duplicates.
 - Scheduling: paired median send → reply ≤ 1.10× the no-sprites arm; ≥ 30 image → next-reply cycles per finalist; zero
   OOMs, refused text requests or stale placements.
 - Place QA for stage 4 renders: background checker plus content hash; place-continuity floor above; blind rating of the
@@ -297,18 +304,17 @@ owner-install check that the discovered Qwen route resolves (`sprite-qwen-route-
 1. Place bindings stay keyed by checkpoint.
 2. Player persona identity packs: later (a visible persona keeps the picture on SDXL, `visible-not-in-cast`).
 3. `install_st.py` writes the catalog folder directly (no media-plugin write route).
-4. Stage-2 adoption is gated by the 72-image pilot plus 18's blind result, then the full gameplay comparison before it becomes
+4. Stage-2 adoption is gated by the 48-image pilot (decision 7) plus 18's blind result, then the full gameplay comparison before it becomes
    the settled default. Built with `image.automaticRoute: "auto"` per "every built feature on"; the owner can choose `sdxl`.
 5. `sprites.sceneRecipe` stays discovery-only (no picker).
 6. Pack assets in QA `review` stay usable and flagged (`qa` on the picture).
 
-## Unresolved questions
+Pilot harness (owner, 2026-10-26, after stage 2):
 
-1. The pilot as built has two arms (48 renders): build a composite arm (stage 5 work) before the pilot, or run two arms now?
-2. Should the director reply be frozen per case for the pilot (both arms share one director answer), or is a live director per
-   render the fairer product comparison (current harness)?
-3. Aspect: pad the first reference to the requested shape (keeps latent and reference equal) once a blind check shows it does
-   not cost identity, or keep the reference's shape?
+7. Two arms now (`sdxl-directed` vs `qwen-refs`); the composite arm comes later (stage 5).
+8. Both arms share one frozen director answer per case: the director is called once per case, the answer is stored in the run
+   dir and reused for both arms and both seeds, so the comparison isolates the renderer.
+9. No reference padding yet: Qwen pictures keep the first reference's shape (`aspect.drawn: "reference"`).
 
 ## Gate record
 
@@ -329,6 +335,145 @@ owner-install check that the discovered Qwen route resolves (`sprite-qwen-route-
 - Deviation: `lookHealth.test.ts` expectation changed on purpose (a character without an accepted source now gets the
   precise "No accepted base and bust" reason instead of "choose a reference expression pack").
 - Live gate: NOT run, owed (section 11). No ST staging, no GPU, no lanes in this task.
+- Live gate 2026-10-26 (lane 33, 3090, ComfyUI 8188, controller 18888, landmarks 8096; owner not playing). Verdict: NOT GREEN.
+  Check 1 fails on the live ComfyUI (D1), the on-demand changed look on the default route was not verified (D3), and the
+  journey misses gpu-idle.
+  - Build: `npm run build` in `C:\dev\so-bridge` at `cd5208a8` (clean; bundle `3a9a753f…`, 1,272,660 B). Served to the lane only
+    through the harness candidate route (`installCandidateRoute`, `dist/` of this worktree). Every probe run asserted the served
+    manifest commit. Nothing was staged into the owner's ST slot. Lane 33 went through `restore-model`, then `start 33 --headed`;
+    at the end it was stopped and set back with `no-model 33`.
+  - Harness deviations:
+    - The lane server runs the owner's installed server plugins, which lack `GET /packs`. The probe answered
+      `/api/plugins/story-orchestrator-media/packs` in the page with this branch's `readInstalledPacks(<lane>/data/default-user)`
+      from `packRoutes.mjs`, so the reader code is the same and only the Express mount is replaced.
+    - The fixture packs were built from POC showcase art (Pim neutral, bust, worried; a mirrored copy as the second look) and two
+      stock ST backgrounds as plates. Images are named by content hash under `/characters/SO-P41_packs/` and `/backgrounds/`.
+      The pack files are in `<lane data>/story-orchestrator/visual-packs/`.
+    - The probe story `SO-P41 Bridge` uses prepared Ash and Bram plus the pack-bound card `SO-P41 Pim`. The pack binds the start
+      checkpoint to a place, an unreached checkpoint to a second place, and a style. No campaign content was used.
+  - Commands:
+    - `node scripts/debug/st-lanes.mts run 33 -- scripts/debug/so-p41-journey.mts run 1 --candidate --keep --label vb20`
+    - the probe `vb-probe.mts <phases>`, with the lane env, run from `C:\dev\so-bridge`
+    - `node scripts/debug/st-lanes.mts run 33 -- scripts/debug/so-p41-journey.mts cleanup`
+    - `so-library.mts remove so-p41-bridge`
+  - Evidence: `C:\dev\so-lanes\reviews\visual-bridge-2026-10-26\`
+    - `p41-vb20-run1\record.json`
+    - `vb20\*.json|jsonl` and `vb20\probe.log`
+    - the probe and pack builder scripts, `packs-live.json` and the contact sheet `sheet.jpg`
+    - The originals are under `C:\dev\so-lanes\33\debug\{p41\2026-10-26T19-51-50-412Z-vb20-real-run1,vb20}`.
+  - Check 1, default Qwen recipe: FAIL as specified.
+    - The live state with empty `sprites.builders` is `spriteRecipe.status: missing`, and `sprite-qwen-route-missing` fires.
+      ComfyUI offers 2 Qwen VL encoders (`qwen3vl_8b…`, `qwen_2.5_vl_7b…`) and 2 Qwen VAEs (`qwen_image_2.1_vae_bf16`,
+      `qwen_image_vae`). Waiting: 11 characters (`recipe.json`, `scene-recipe-clear.json`). This is the same ComfyUI the owner's
+      install uses, so section 11's owner-install claim does not hold.
+    - With empty builders and no recipe, a cast scene is refused (`cast.jsonl` `pim`, 1.6 s).
+    - A harness fake of the `/discover` answer (one encoder and one VAE left; model folders untouched) gives `ready / discovered`
+      and the row is absent (`fake-single-on.json`).
+    - Prepared Ash's cast scene then rendered on the discovered route: `recipe_source: discovered`, root = Ash's accepted visual
+      source, 213 s cold.
+    - The on-demand changed look (Ash, `a yellow oilskin coat`, no builder entry) was not verified. It got `lookError` "Choose an
+      expression reference pack…" 7 s after the reload, before the default recipe had resolved (D3). Earlier attempts were harness
+      or environment (a member without authored poses while `sprites.poses` was on, and a wedged lane browser). The stop rule ended
+      the retries.
+    - `sprites.sceneRecipe` set (install) gives `ready / install`, the row is absent, and 2 cast scenes rendered with
+      `recipe_source: install`.
+    - A faked missing diffusion model makes the row fire with a precise problem. When restored, the real ambiguous state returns
+      (`qwen-missing.json`, `fake-off.json`).
+  - Check 2, pack-bound character: PASS (copy defect D2).
+    - Pim has no sprite folder and no builder, and stands from the pack's default look: stage path = the pack's base asset
+      `/characters/SO-P41_packs/so-p41-a1eed309….png` (`stage-default.json`).
+    - The `cape` checkpoint card effect switches Pim to set `pk_cape`, with path = the cape asset (`stage-pim-cape.json`).
+    - Cast scene, Pim alone, twice: identity root `pack:so-p41-pim@b074e703…`, `visual` recorded, 48 s and 52 s. The render matches
+      the pack art (`sheet.jpg`, left).
+    - Digest mismatch: Pim's installed pack edited after its digest is refused by the catalog. Pim leaves the stage and the cast
+      scene is refused (`tamper.json`). The refusal copy is the generic player line (D2). The pack was restored afterwards.
+  - Check 3, automatic SDXL picture: PASS (caveat D4).
+    - Real turn with everyN 1, Pim on her default look (`auto-default-look.json`): `prompt_source: directed`, and
+      `image_director.visual` recorded (packs pim, style, tavern; place `pack`; subject `pack/default`).
+    - Positive prompt: quality block, then `1girl` first, then pinned identity tags, then one shot tag (`cowboy shot`). No names, no
+      angle tags. Location `Harbor tavern common room` with its description.
+    - Director request (`auto-default-look-director-requests.json`): it holds the bound place and Pim's tags. It holds none of the
+      unworn look's field value or the unreached place's name, description or tags (4 spoiler strings, 0 found).
+  - Check 4, director 409 path: NOT REPRODUCED (`q409.json`).
+    - `image.direct(scene)` fired straight after the Pim cast scene was placed. The controller was already back in the `text` phase
+      (image lease released), so the director answered directed with no `director_issue`. No 409 appears in the lane log.
+  - Check 5, p41 journey on the branch build: NOT GREEN, 1 miss.
+    - The miss is gpu-idle: 14–15 % > 10 %, the known lane-browser draw.
+    - All other 31 steps pass. That includes the 3 steps e2e26 missed (rig Cleo, look-rebuild, background). Background is directed
+      now; it was the 409 refusal in e2e26.
+    - Against e2e26 (4 misses): 47 ComfyUI calls vs 45 (plan-80 floor ≤ 35, still a miss); 8 turns / 14 replies, 0 silent;
+      0 stale findings; cleanup leaked 0.
+  - Defects:
+    - D1: `src/sprites/defaultRecipe.ts:14-18`. Encoders and VAEs are matched by `/qwen/` alone, so an install holding both Qwen
+      Image generations is always ambiguous. The fix is to pair by generation (2.1 diffusion with `qwen3vl` and the 2.1 VAE), or to
+      prefer the name sharing the diffusion model's version token.
+    - D2: `src/image/CastSceneControls.tsx:24` shows only `CastSetupGap` messages. The no-recipe error
+      (`src/image/castSceneHost.ts:125`) and the no-source/refused-pack error (`castSceneHost.ts:57`) both reach the author as
+      "The last image could not be made. Try again in a moment.", even in Author view.
+    - D3: `src/sprites/builder/onDemand.ts:96` still throws the pre-bridge copy when no derived builder exists, instead of
+      `builderGap`. A look requested before `startDefaultRecipe` resolves (about 8 s after load) fails with that `lookError`.
+      Whether the stage retries after the recipe-changed reload is unverified.
+    - D4: `tagsByFamily` keys must equal the route family id (`sdxl-illustrious`, `src/image/catalog.ts:50`), but plan section 1
+      and `test/fixtures/visual-packs/*` use `illustrious`. A pack written to that example pins the `default` tags (live: the
+      `illustrious` set with `purple hooded coat` was skipped), and SDXL invented Pim's outfit (`sheet.jpg`, middle).
+    - D5, minor:
+      - `src/image/visualPlan.ts:24` joins a description that ends in `.` with `. ` (`hearth.. tavern interior`);
+      - the background prompt carries `no humans` twice (journey `background` step).
+  - Pre-existing, not from this branch: `src/sprites/stage.ts:347`. With `sprites.poses` on, looks go only through the body path,
+    so a member without authored poses gets no on-demand look.
+  - Cleanup:
+    - `so-p41-journey cleanup` removed the cards, groups, sprites, settings rows and the journey story (leaked 0);
+      `so-library remove` removed the bridge story.
+    - Residue moved to `C:\dev\backups\story-orchestrator\vb20-lane33-residue-20261026\`: 3 empty character folders, the pack
+      image folder, 2 plates, the visual-packs folder, the orphan first bridge chat and 2 image folders, plus a post-run copy of
+      `settings.json`.
+    - The lane's `sprites`, `display` and `image` settings were restored from ST's pre-run backup
+      (`settings_default-user_20261026-165052.json`).
+    - Lane stopped and set to no-model. The landmarks server was stopped.
+- Live-gate defect fixes 2026-10-26, branch `v3.0-visual-bridge` (from `412f34b6`). Each fix has a test that fails without it (checked by
+  stashing the source change).
+  - D1 `src/sprites/defaultRecipe.ts`: discovery pairs by generation. The one known generation is Qwen Image 2.1: a 2.1 edit diffusion
+    model (turbo/lightning excluded), a Qwen3-VL encoder (`qwen3vl…`) and a 2.1 VAE (`qwen_image_2.1…`). That is the known-good trio
+    of `scripts/debug/so-showcase.mts`, `scripts/local/render-benchmark.mjs` and `retainBatchLi.mjs`; `qwen_2.5_vl_7b…` + `qwen_image_vae`
+    are the 2512 trio (`scripts/debug/lib/poseS0Models.mts`). Exactly one complete trio resolves. Otherwise the Repair row names each gap,
+    candidates for "more than one", and the other-generation Qwen files for "no". Test: the owner's exact file list resolves to
+    `qwen_image_2.1_int8_convrot` + `qwen3vl_8b_int8_convrot` + `qwen_image_2.1_vae_bf16` (`defaultRecipe.test.ts`).
+  - D2: `CastSetupGap` carries player copy (`PLAYER_COPY.castSetup|castArtChanged|castArtMissing|castUnprepared|castRetry`, `narrative.ts`).
+    The no-recipe and recipe-problem refusals, `PACK_CHANGED`, and a member with no source whose pack was refused (`packGap`:
+    `pack-missing` names the bound id and any newer revision, `asset-mismatch`, `pack-kind`, unbound) are now `CastSetupGap`.
+    `CastSceneControls` shows the message in Author view and the specific player line otherwise. Other errors keep `imageError`.
+    Tests: `castSceneHost.test.ts` (refused and missing pack, recipe, mid-render change), story `SetupGapPlainForThePlayer`.
+  - D3 `src/sprites/builder/onDemand.ts`: on-demand off says so (`ON_DEMAND_OFF`). With no builder of its own, a look waits for the
+    install-wide route (`recipeChecked`, at most 60 s, abortable), then runs on the derived builder or fails with `builderGap`'s
+    precise reason. The old "Choose an expression reference pack…" copy is gone. Test: `onDemandRecipe.test.ts` (a look asked
+    while the route is unchecked does not fail, then reaches ComfyUI discovery once the route resolves; missing route gives the
+    discovery problem).
+  - D4: renderer family keys are route family ids. `tagsByFamily` takes `sdxl-illustrious`, `sdxl-noobai` and `default`;
+    `recipes` takes the route ids only. Any other key is refused by name, and the problem gives the route id for a short alias
+    (`'illustrious' is written 'sdxl-illustrious'`). The reader does not normalise, so the exporter's digest stays the reader's
+    canonical form. Section 1, the guide (`story-guide.md`, `guideTopicsVisual.ts`, `docs:guide`) and the fixtures were updated:
+    keys renamed, digests recomputed, and `styleRef` plus story bindings re-pinned. Test: `packs.test.ts`.
+  - D5: `visualPlan.ts` strips trailing periods from a place description before joining it. `joinTags` (`prompt.ts`) dedupes
+    comma tags case-insensitively for both the ST and workflow positive/negative. Tests: `packs.test.ts` placeDetail, `image.test.ts`
+    background with a director prompt starting `no humans`.
+  - Pre-existing `src/sprites/stage.ts:347` fixed for the case where the pose path declines (`chooseBody` false: no pose in the
+    member's library, a directed set, no matching roster key). Such a member now asks for the on-demand look; before, nothing was
+    asked. Test: `stage.test.ts` "on-demand looks with poses on". Not changed: a member the pose path does take (shipped library,
+    `stand_relaxed`) still gets the posed body route, not the expression look edit. Whether that was the live case is unverified.
+  - `npm run gates:quick`: first run RED (`guideTopics.test.ts`: the compact visual-packs topic was over 800 chars; shortened), then green.
+  - `npm run gates` (full, Storybook included, no `--resume`): all green in 423.2 s, first run.
+    - Every step ok: build, typecheck, typecheck:test, debug:typecheck, lint, test:release, test:replay.
+    - jest: 901 suites passed, 1 skipped; 10,493 tests passed, 1 skipped.
+    - test:plugin 128/0; test:debug 1,569 + 408 / 0; test-storybook:ci 166 suites, 1,005 tests.
+    - main bundle `dist/index.js` 1,273,037 B.
+  - Live re-check owed (no GPU, lanes or staging in this task):
+    - D1: on the owner's real ComfyUI with empty `sprites.builders` and no `sprites.sceneRecipe`, `spriteRecipe` should read
+      `ready / discovered` with the 2.1 trio, `sprite-qwen-route-missing` should be absent, and a cast scene should record
+      `recipe_source: discovered`.
+    - D3: right after a reload, change a prepared character's look with no builder entry. The look should wait for the route and
+      then render, with no `lookError`. Repeat with `sprites.poses` on for a member the pose path declines.
+    - D2: Author view and player copy for a tampered pack.
+    - D4: a campaign or fixture pack keyed `sdxl-illustrious` should pin its family tags in the SDXL positive.
 - 2026-10-26, stage 2, branch `v3.0-visual-bridge-s2` (from `v3.0-visual-bridge` `cd5208a8`), code `a058db0a`, pilot harness `fac36852`; CPU/dev only.
   - `npm run gates:quick`: green (typecheck, typecheck:test, lint changed, jest whole suite, defect replay cached).
   - `npm run gates` (full, Storybook included, no `--resume`): all green in 276.7 s. typecheck, typecheck:test, debug:typecheck,
@@ -350,3 +495,34 @@ owner-install check that the discovered Qwen route resolves (`sprite-qwen-route-
     `imagePilot.test.mts` (frozen cases, schedule, blind pack).
   - Live gate and pilot: NOT run (no GPU, no lanes, no staging in this task). Owed: the pilot (section 7 stage 2, "Pilot run
     needs") and section 11's live checks plus an automatic picture through each route.
+- 2026-10-26, stage 2 merged onto the fixed stage 1: `git merge v3.0-visual-bridge` (`a5d93697`, D1-D5) into `v3.0-visual-bridge-s2`
+  (`c2fc62ae`), plus owner decisions 7-9 for the pilot harness. CPU/dev only.
+  - Conflicts resolved: `castSceneHost.ts` (stage 2's shared `renderQwenJob` kept; its recipe and recipe-problem refusals are now
+    `CastSetupGap`, D2; the manual cast scene's missing member throws `packGap`, D2; `PACK_CHANGED` keeps `castRetry`), the author
+    guide visual-packs field (stage 1's family-id text plus stage 2's automatic-scene sentence; `docs:guide` regenerated), the compact
+    topic `guideTopicsVisual.ts` (both, under the 800-char cap), and this gate record (stage 1's live gate and fixes, then stage 2).
+  - Stage 2 on the fixed stage 1: route choice, the automatic Qwen render and the cast scene resolve the recipe through stage 1's
+    generation-paired `discoveredSceneRecipe` (D1; both call it per render, so no recipe wait is needed there; on-demand looks keep
+    D3's `recipeChecked`). The automatic route's `no-reference` reason now carries `packGap`'s precise text (pack missing or
+    refused, asset mismatch, wrong kind, unbound). No stage-2 code builds pack tags; its tests now ask the resolver for
+    `sdxl-illustrious` (D4) and use the recomputed fixture digests from stage 1.
+  - Pilot harness: two arms (`PILOT_ARMS`), no composite skip record; one frozen director answer per case
+    (`storyOrchestratorImage.plan`, route `auto`) stored as `<runDir>/director/<case>.json` and passed as `ImageArgs.director` to both
+    arms and both seeds (`runtime.ts` `directorAnswer`: parsed against the arm's route, no director call, picture records
+    `director: "frozen"`); a case without an answer is not drawn; no reference padding.
+  - Tests that fail without the change: `autoRoute.test.ts` (frozen answer reused by both arms, one director call, `director:
+    "frozen"`), `autoSceneHost.test.ts` (precise `no-reference` detail; checked by restoring the stage-2 `autoSceneHost.ts`),
+    `imagePilot.test.mts` (two arms, 48 renders, frozen answer refused when missing, key carries each item's director file).
+    `codeHealth` S4: `StoryImageDirector.plan` went one branch over; the director step moved to `directorAnswer` (no list change).
+  - `npm run gates:quick`: first run RED (codeHealth S4 above), then green.
+  - `npm run gates` (full, Storybook included, no `--resume`), run 1: RED at test:plugin only, `comfyReclaim.test.mjs` "a reserve miss
+    first asks the idle owned ComfyUI…" (40 ms wait window, 5 ms polls; got the 900 MiB reading under load). No `server-plugin/`
+    change on this branch; the file passes 3 of 3 alone. Every other step ok (jest, test:debug, test:release, test:replay,
+    Storybook 166 suites / 1,005 tests).
+  - `npm run gates` run 2 (full, no `--resume`, same tree): all green in 260.6 s. build, typecheck, typecheck:test, debug:typecheck,
+    lint, test:release, test:replay (32 of 32 killed): ok. jest 904 suites passed, 1 skipped; 10,517 tests passed, 1 skipped.
+    test:debug 1,573 + 408 pass / 0 fail; test:plugin 128 pass / 0 fail; test-storybook:ci 166 suites, 1,005 tests.
+    Main bundle `dist/index.js` 1,273,138 B (budget 1,300,000).
+  - The worktree's gitignored campaign story index matches this branch's pin (`abc94b5`); nothing copied.
+  - Live gate and pilot: NOT run (no GPU, lanes or staging). Still owed: stage 1's live re-checks (D1-D4), the pilot (48 renders,
+    12 director calls) and section 11 plus an automatic picture through each route.

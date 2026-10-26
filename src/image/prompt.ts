@@ -141,8 +141,18 @@ export const directedTags = (reply: ImageReply | null, text: string, pinned: str
   return [...tidy.counts, ...tidy.pinned, ...tidy.rest];
 };
 
+export const joinTags = (parts: Array<string | null | undefined>): string => {
+  const seen = new Set<string>();
+  return parts.flatMap((part) => (part ?? "").split(",")).map((tag) => tag.trim()).filter((tag) => {
+    const key = tag.toLowerCase();
+    if (!tag || seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  }).join(", ");
+};
+
 export const assembleImagePrompt = (route: Route, reply: ImageReply | null, text: string, pinned: string[] = [], hygiene?: TagHygiene): { positive: string; negative: string } => {
-  const positive = [route.checkpoint.qualityBlock, ...route.positive, ...directedTags(reply, text, pinned, hygiene), SHOT_TAGS[reply?.shot ?? route.shot]].filter(Boolean).join(", ");
-  const negative = [route.checkpoint.negativeBlock, ...route.negative, reply?.negative].filter(Boolean).join(", ");
+  const positive = joinTags([route.checkpoint.qualityBlock, ...route.positive, ...directedTags(reply, text, pinned, hygiene), SHOT_TAGS[reply?.shot ?? route.shot]]);
+  const negative = joinTags([route.checkpoint.negativeBlock, ...route.negative, reply?.negative]);
   return { positive, negative };
 };

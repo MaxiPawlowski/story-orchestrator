@@ -66,6 +66,24 @@ describe("visual bridge: pack contract", () => {
     }
   });
 
+  it("tag and recipe families are route family ids; a short or unknown family is refused by name, never silently read as default", () => {
+    const wanderer = raw("identity-wanderer"), style = raw("style-ink");
+    const tags = wanderer.tagsByFamily as Record<string, string[]>, recipes = style.recipes as Record<string, unknown>;
+    const read = readVisualPack(wanderer);
+    expect(read.ok && read.pack.kind === "identity" ? Object.keys(read.pack.tagsByFamily).sort() : []).toEqual(["default", "sdxl-illustrious"]);
+    const cases: Array<[Record<string, unknown>, string]> = [
+      [{ ...wanderer, tagsByFamily: { illustrious: tags["sdxl-illustrious"], default: tags.default } },
+        "tagsByFamily.illustrious: names no renderer family; use sdxl-illustrious, sdxl-noobai, default ('illustrious' is written 'sdxl-illustrious')"],
+      [{ ...wanderer, tagsByFamily: { ...tags, noobai: ["1girl"] } }, "tagsByFamily.noobai: names no renderer family; use sdxl-illustrious, sdxl-noobai, default ('noobai' is written 'sdxl-noobai')"],
+      [{ ...wanderer, tagsByFamily: { ...tags, flux: ["1girl"] } }, "tagsByFamily.flux: names no renderer family; use sdxl-illustrious, sdxl-noobai, default"],
+      [{ ...style, recipes: { default: recipes["sdxl-illustrious"] } }, "recipes.default: names no renderer family; use sdxl-illustrious, sdxl-noobai"],
+    ];
+    for (const [value, problem] of cases) {
+      const refused = readVisualPack(value);
+      expect(refused.ok ? [] : refused.problems).toEqual([problem]);
+    }
+  });
+
   it("story bindings validate ids and digests, name a real cast member and checkpoint, and changing them is a compatible update", () => {
     const packs = (STORY_RAW.illustrations as { packs: Record<string, unknown> }).packs;
     const errors = (patch: Record<string, unknown>) => {
@@ -84,7 +102,7 @@ describe("visual bridge: pack contract", () => {
 
 describe("visual bridge: one resolved scene", () => {
   const scene = async (values: Record<string, string | boolean>, path: string[], files = servedHashes(), packs?: () => PackListing[]) =>
-    bridgeOver(files, packs).bridge.scene({ story: story(), members: ["wanderer"], values, path, family: "illustrious" });
+    bridgeOver(files, packs).bridge.scene({ story: story(), members: ["wanderer"], values, path, family: "sdxl-illustrious" });
 
   it("resolves the bound identity, the current look, the place plate and variant, and the style, with dependency hashes", async () => {
     const start = await scene({}, ["quay"]);
@@ -149,7 +167,7 @@ describe("visual bridge: the director sees only the permitted projection", () =>
       messages: [{ name: "Wanderer", mes: "Wanderer unrolls a map on the quay.", is_user: false, is_system: false }] };
     const base = sceneForImage(chat, { purpose: "scene", text: "", messageId: null }, 6, null, "fixture harbor day");
     expect(visualMembers(base.subjects, parsed)).toEqual(["wanderer"]);
-    const visual = await bridge.scene({ story: parsed, members: visualMembers(base.subjects, parsed), values: { wanderer_outfit: "grey rain cloak" }, path: ["quay"], family: "illustrious" });
+    const visual = await bridge.scene({ story: parsed, members: visualMembers(base.subjects, parsed), values: { wanderer_outfit: "grey rain cloak" }, path: ["quay"], family: "sdxl-illustrious" });
     const drawn = withVisualScene(base, visual);
     const route = resolveImageRoute(defaultImageSettings(), "scene", {}, sanitizeImageOverride(null));
     const prompt = imageMessages({ purpose: "scene", text: "", messageId: null }, drawn, route).map((message) => message.content).join("\n");
@@ -161,6 +179,8 @@ describe("visual bridge: the director sees only the permitted projection", () =>
     }
     expect(prompt).toContain("Wanderer (focus) (identity tags, copy verbatim): 1girl, short silver hair, amber eyes, freckles. Current appearance: outfit: grey rain cloak");
     expect(prompt).toContain("CURRENT LOCATION: Lantern harbor (A small stone harbor");
+    expect(drawn.placeDetail).toMatch(/^A small stone harbor with paper lanterns strung over the quay\. [^.]/);
+    expect(drawn.placeDetail).not.toContain("..");
     expect(pinnedTags(drawn, { caption: "", checkpoint: "", reason: "", visible: ["Wanderer"], aspect: null, shot: null, prompt: "1girl, smiling", negative: "" }))
       .toEqual(["short silver hair", "amber eyes", "freckles"]);
     expect(pinnedTags(drawn, { caption: "", checkpoint: "", reason: "", visible: ["Someone else"], aspect: null, shot: null, prompt: "scenery", negative: "" })).toEqual([]);

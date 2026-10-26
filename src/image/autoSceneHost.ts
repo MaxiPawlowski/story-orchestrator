@@ -9,7 +9,7 @@ import { sourceStillCurrent } from "../sprites/visualHost";
 import { visualBridge } from "../sprites/packs/bridgeHost";
 import type { VisualScene } from "../sprites/packs/scene";
 import { isNarratorMember } from "./cast";
-import { CAST_SCENE_RECIPE } from "./castScene";
+import { CAST_SCENE_RECIPE, packGap } from "./castScene";
 import { castMember, currentIdentities, identityRecord, LOOK_CHANGED, renderQwenJob } from "./castSceneHost";
 import { qwenReadiness, type QwenReadiness, type QwenSubject } from "./autoScene";
 import type { ImageCandidate, ImagePlan } from "./runtime";
@@ -26,7 +26,9 @@ export function qwenSubjects(story: Story, names: string[], values: Record<strin
     const installed = roster ? cast.members.find((row) => row.name === (roster.name ?? roster.id)) : undefined;
     if (!roster || !installed) return [{ name, member: null, missing: "visible-not-in-cast" }];
     const member = castMember(story, roster, installed.folder, sources, values, visual);
-    return [member ? { name, member } : { name, member: null, missing: "no-reference" }];
+    if (member) return [{ name, member }];
+    const gap = packGap(roster.name ?? roster.id, visual?.subjects.find((row) => row.member === roster.id), story.illustrations?.packs?.identities?.[roster.id]);
+    return [{ name, member: null, missing: "no-reference", detail: gap.message }];
   });
 }
 

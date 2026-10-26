@@ -4,12 +4,29 @@ import { editGraph, type EditModels } from "../sprites/builder/recipes";
 import { builderRender, type SpriteSettings } from "../sprites/settings";
 export { discoveredSceneRecipe } from "../sprites/defaultRecipe";
 import { lookLayers } from "../sprites/poses/layers";
-import type { CardBinding } from "@engine/schema";
+import type { CardBinding, VisualPackRef } from "@engine/schema";
+import type { SceneSubject } from "../sprites/packs/scene";
+import { PLAYER_COPY } from "@runtime/narrative";
 
 export const CAST_SCENE_RECIPE = { id: "qwen21-current-look-cast-scene", version: 1 } as const;
 export const CAST_TWO_REFERENCE_MISSING = "Two characters need a second image input on ComfyUI's Qwen 2.1 text encoder node (TextEncodeQwenImage21, images.image_2), "
   + "and this ComfyUI does not offer it. Update ComfyUI's Qwen nodes, or draw one character.";
-export class CastSetupGap extends Error { override name = "CastSetupGap"; }
+export class CastSetupGap extends Error {
+  override name = "CastSetupGap";
+  constructor(message: string, readonly player: string = PLAYER_COPY.castSetup) { super(message); }
+}
+export function packGap(name: string, subject: SceneSubject | undefined, bound?: VisualPackRef): CastSetupGap {
+  const pack = subject?.pack ?? bound, id = pack ? `${pack.id}@${pack.digest.slice(0, 12)}` : "";
+  const newer = subject?.newer ? ` A newer revision is installed (${subject.newer.id}@${subject.newer.digest.slice(0, 12)}); update the story's binding.` : "";
+  const prepare = " Reinstall the pack, or prepare the character's base and bust in Studio.";
+  switch (subject?.fallback) {
+    case "pack-missing": return new CastSetupGap(`${name}'s visual pack ${id} is not installed, or the catalog refused it (for example its content no longer matches its digest).`
+      + newer + prepare, PLAYER_COPY.castArtMissing);
+    case "asset-mismatch": return new CastSetupGap(`${name}'s visual pack ${id} was refused: its look images no longer match the hashes it records.${prepare}`, PLAYER_COPY.castArtChanged);
+    case "pack-kind": return new CastSetupGap(`${name}'s binding ${id} is not an identity pack. Bind an identity pack, or prepare the character's base and bust in Studio.`);
+    default: return new CastSetupGap(`${name} has no accepted base and bust and no identity pack. Prepare the presentation in Studio, or bind an identity pack.`, PLAYER_COPY.castUnprepared);
+  }
+}
 export class LookPending extends Error { override name = "LookPending"; }
 export interface CastScenePack { root: string; look: VisualLook; substituted: boolean }
 export interface CastSceneMember { character: string; fields: Record<string, string>; source?: VisualManifest; card?: CardBinding; pack?: CastScenePack }

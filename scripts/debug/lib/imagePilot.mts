@@ -1,9 +1,9 @@
 import { seededRandom } from './ratingPack.mts';
 
-export const PILOT_ARMS = ['sdxl-directed', 'qwen-refs', 'composite'] as const;
+export const PILOT_ARMS = ['sdxl-directed', 'qwen-refs'] as const;
 export type PilotArm = typeof PILOT_ARMS[number];
-export const ARM_ROUTE: Record<PilotArm, 'sdxl' | 'qwen' | null> = { 'sdxl-directed': 'sdxl', 'qwen-refs': 'qwen', composite: null };
-export const COMPOSITE_SKIPPED = 'composite arm skipped: the extension has no sprite-on-plate compositing route yet (plan 20 stage 5), so it cannot be rendered without new code';
+export const ARM_ROUTE: Record<PilotArm, 'sdxl' | 'qwen'> = { 'sdxl-directed': 'sdxl', 'qwen-refs': 'qwen' };
+export const DIRECTOR_DIR = 'director';
 export const DEFAULT_SEEDS = [101, 202];
 export const DUPLICATE_SHARE = 0.1;
 
@@ -14,7 +14,9 @@ export interface PilotCases { frozen: string; looks: Record<string, Record<strin
 export interface PilotJob { case: string; seed: number; arm: PilotArm }
 export interface PilotRow extends PilotJob {
   file: string | null; error: string | null; ms: number; members: string[]; looks: Record<string, string>; moment: string; record: Record<string, unknown> | null;
+  director: string | null;
 }
+export interface FrozenDirector { case: string; at: string; reply: Record<string, unknown>; promptSource: string; directorIssue: string | null; routeReason: string }
 export interface RefImage { member: string; look: string; file: string }
 
 const isText = (value: unknown): value is string => typeof value === 'string' && value.trim().length > 0;
@@ -38,10 +40,20 @@ export function parsePilotCases(value: unknown): PilotCases {
   return raw as PilotCases;
 }
 
-export function pilotJobs(cases: PilotCase[], seeds: number[], arms: PilotArm[]): { jobs: PilotJob[]; skipped: string[] } {
-  const rendered = arms.filter((arm) => ARM_ROUTE[arm]);
-  const jobs = cases.flatMap((row) => seeds.flatMap((seed) => rendered.map((arm) => ({ case: row.id, seed, arm }))));
-  return { jobs, skipped: arms.includes('composite') ? [COMPOSITE_SKIPPED] : [] };
+export function pilotJobs(cases: PilotCase[], seeds: number[], arms: PilotArm[]): { jobs: PilotJob[] } {
+  return { jobs: cases.flatMap((row) => seeds.flatMap((seed) => arms.map((arm) => ({ case: row.id, seed, arm })))) };
+}
+
+export const directorFile = (caseId: string) => `${DIRECTOR_DIR}/${caseId}.json`;
+
+export function frozenDirector(caseId: string, plan: { reply?: unknown; promptSource?: unknown; directorIssue?: unknown; routeReason?: unknown } | null, at: string): FrozenDirector {
+  const reply = plan?.reply;
+  if (!reply || typeof reply !== 'object' || Array.isArray(reply) || typeof (reply as { prompt?: unknown }).prompt !== 'string') {
+    const issue = typeof plan?.directorIssue === 'string' ? `, ${plan.directorIssue}` : '';
+    throw new Error(`${caseId}: the image director gave no answer to freeze (prompt source ${String(plan?.promptSource ?? 'none')}${issue}); both arms need one shared answer, so the case was not drawn`);
+  }
+  return { case: caseId, at, reply: reply as Record<string, unknown>, promptSource: String(plan?.promptSource ?? ''),
+    directorIssue: typeof plan?.directorIssue === 'string' ? plan.directorIssue : null, routeReason: String(plan?.routeReason ?? '') };
 }
 
 export const lookFor = (row: PilotCase, member: string, looks: PilotCases['looks']): string => {
@@ -61,7 +73,7 @@ const letter = (index: number) => String.fromCharCode(65 + index);
 export interface BlindItem { label: string; file: string; row: PilotRow; duplicateOf: string | null }
 export interface BlindPack {
   items: BlindItem[]; refs: Array<RefImage & { label: string }>; missing: PilotRow[]; itemsTxt: string; brief: string;
-  key: { seed: string; frozen: string; skipped: string[]; items: Array<Record<string, unknown>>; refs: Array<Record<string, unknown>>; missing: Array<Record<string, unknown>> };
+  key: { seed: string; frozen: string; director: string; items: Array<Record<string, unknown>>; refs: Array<Record<string, unknown>>; missing: Array<Record<string, unknown>> };
 }
 
 const describe = (label: string, row: PilotRow, refLabel: (member: string, look: string) => string) => {
@@ -71,7 +83,9 @@ const describe = (label: string, row: PilotRow, refLabel: (member: string, look:
   return `- ${label}: characters expected: ${chars}; outfit: ${outfits}; intended moment: ${row.moment}`;
 };
 
-export function buildBlindPack(input: { rows: PilotRow[]; refs: RefImage[]; seed: string; frozen: string; skipped: string[]; names: Record<string, string> }): BlindPack {
+export const FROZEN_DIRECTOR = 'one director answer per case, frozen before rendering and shared by every arm and seed';
+
+export function buildBlindPack(input: { rows: PilotRow[]; refs: RefImage[]; seed: string; frozen: string; names: Record<string, string> }): BlindPack {
   const done = input.rows.filter((row) => row.file && !row.error);
   const missing = input.rows.filter((row) => !row.file || row.error);
   const duplicates = shuffled(done, `dup:${input.seed}`).slice(0, Math.round(done.length * DUPLICATE_SHARE));
@@ -89,9 +103,9 @@ export function buildBlindPack(input: { rows: PilotRow[]; refs: RefImage[]; seed
   return {
     items, refs, missing, itemsTxt, brief,
     key: {
-      seed: input.seed, frozen: input.frozen, skipped: input.skipped,
+      seed: input.seed, frozen: input.frozen, director: FROZEN_DIRECTOR,
       items: items.map((item) => ({ label: item.label, case: item.row.case, seed: item.row.seed, arm: item.row.arm, src: item.file, duplicateOf: item.duplicateOf,
-        route: (item.row.record?.route as unknown) ?? null, record: item.row.record })),
+        director: item.row.director, route: (item.row.record?.route as unknown) ?? null, record: item.row.record })),
       refs: refs.map((ref) => ({ label: ref.label, member: ref.member, look: ref.look, src: ref.file })),
       missing: missing.map((row) => ({ case: row.case, seed: row.seed, arm: row.arm, error: row.error })),
     },

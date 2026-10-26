@@ -12,7 +12,7 @@ import { imageSize, resolutionProblem, resolveCheckpointFile, resolveUpscaler, t
 import { imageServiceReady } from "./service";
 import { buildGraph } from "./graph";
 import { renderFacts, renderKey } from "./renderFacts";
-import { imageMessages, parseImageReply, sceneForImage, assembleImagePrompt, directedTags, templateImagePrompt, type ImageRequest, type ImageReply, type ImageScene } from "./prompt";
+import { imageMessages, parseImageReply, sceneForImage, assembleImagePrompt, directedTags, joinTags, templateImagePrompt, type ImageRequest, type ImageReply, type ImageScene } from "./prompt";
 import { renderStImage, stImageReadiness } from "@services/stHost/stImage";
 import { comfyDiscover, comfyRenderOwned, mediaStatus } from "@services/stHost/media";
 import { ImageQueue } from "./queue";
@@ -54,6 +54,7 @@ export interface ImagePlan {
   visual: VisualScene | null;
   visualIssue: string | null;
   directorIssue: string | null;
+  directorFrozen?: true;
   renderRoute: RenderRoute;
   routeReason: RouteReason;
   routeSetting: AutomaticRoute | null;
@@ -81,6 +82,14 @@ async function directorReply(profileId: string, messages: Array<{ role: string; 
   return { reply: result.value, issue: result.issue };
 }
 
+async function directorAnswer(request: ImageRequest, frozenAnswer: string | undefined, settings: ImageSettings, messages: () => Array<{ role: string; content: string }>,
+  route: Route): Promise<{ reply: ImageReply | null; issue: string | null; frozen: boolean }> {
+  if (request.raw) return { reply: null, issue: null, frozen: false };
+  if (frozenAnswer !== undefined) return { reply: parseImageReply(frozenAnswer, route), issue: null, frozen: true };
+  const offered = settings.directorProfileId && listConnectionProfiles().some((profile) => profile.id === settings.directorProfileId);
+  return offered ? { ...await directorReply(settings.directorProfileId, messages(), settings.maxTokens, route), frozen: false } : { reply: null, issue: null, frozen: false };
+}
+
 function assemblePlan(backend: ImageSettings["backend"], request: ImageRequest, route: Route, reply: ImageReply | null, drawn: ImageScene, userName: string) {
   const fallback = !request.raw && !reply ? templateImagePrompt(drawn, request.purpose, request.text) : request.text;
   const pinned = request.purpose === "background" ? [] : pinnedTags(drawn, reply);
@@ -88,8 +97,8 @@ function assemblePlan(backend: ImageSettings["backend"], request: ImageRequest, 
   const hygiene = { names: [...drawn.subjects.map((subject) => subject.name), userName], visible: request.purpose === "background" ? 0 : reply?.visible.length ?? 0,
     keepAngle: angle === "from_below" || angle === "from_above" || /from[ _](below|above)/i.test(request.text) };
   return backend === "st" ? {
-    positive: [...route.positive, ...directedTags(reply, fallback, pinned, hygiene)].filter(Boolean).join(", "),
-    negative: [...route.negative.filter((term) => !term.startsWith("embedding:")), reply?.negative].filter(Boolean).join(", "),
+    positive: joinTags([...route.positive, ...directedTags(reply, fallback, pinned, hygiene)]),
+    negative: joinTags([...route.negative.filter((term) => !term.startsWith("embedding:")), reply?.negative]),
   } : assembleImagePrompt(route, reply, fallback, pinned, hygiene);
 }
 
@@ -104,7 +113,7 @@ function pictureRecord(plan: ImagePlan, candidate: ImageCandidate): ImageMedia["
     route: { name: plan.renderRoute, reason: plan.routeReason, ...(plan.routeSetting ? { setting: plan.routeSetting } : {}) },
     ...(candidate.waitedMs !== undefined ? { idle_wait_ms: candidate.waitedMs } : {}), ...(qwen ? { qwen } : {}),
     ...(plan.visual ? { visual: visualRecord(plan.visual) } : {}), ...(plan.visualIssue ? { visual_issue: plan.visualIssue } : {}),
-    ...(plan.directorIssue ? { director_issue: plan.directorIssue } : {}),
+    ...(plan.directorIssue ? { director_issue: plan.directorIssue } : {}), ...(plan.directorFrozen ? { director: "frozen" } : {}),
   };
 }
 
@@ -315,13 +324,11 @@ export class StoryImageDirector {
     const routing = await this.routing(request, args, story, drawn, visual);
     const early = routing.check?.(visibleNames(drawn.subjects, undefined)) ?? null;
     if (routing.setting === "qwen") chooseRoute({ ...routing, readiness: early });
-    const offered = !request.raw && settings.directorProfileId && listConnectionProfiles().some((profile) => profile.id === settings.directorProfileId);
-    const directed = offered ? await directorReply(settings.directorProfileId, imageMessages(request, drawn, route, { instruction: Boolean(early?.ok) }), settings.maxTokens, route)
-      : { reply: null, issue: null };
-    const reply = directed.reply;
+    const directed = await directorAnswer(request, args.director, settings, () => imageMessages(request, drawn, route, { instruction: Boolean(early?.ok) }), route);
+    const { reply, frozen } = directed;
     const choice = chooseRoute({ ...routing, readiness: routing.check?.(visibleNames(drawn.subjects, reply?.visible)) ?? null });
     if (reply) route = pickImageCheckpoint(route, reply.checkpoint);
-    const promptSource = sourceOf(reply, Boolean(settings.directorProfileId && !request.raw));
+    const promptSource = sourceOf(reply, Boolean((settings.directorProfileId || frozen) && !request.raw));
     const aspect = route.aspect !== "auto" ? route.aspect : reply?.aspect ?? (request.purpose === "background" ? "wide" : "portrait");
     const assembled = assemblePlan(settings.backend, request, route, reply, drawn, chat.userName);
     if (!assembled.positive.trim()) throw new Error("There is nothing to draw.");
@@ -330,6 +337,7 @@ export class StoryImageDirector {
       request, chatId: chat.id, folder: chat.folder, target: scene.target, workflow: await this.storyWorkflow(settings.backend, story, request.purpose),
       targetText: scene.target === null ? null : chat.messages[scene.target]?.mes ?? null,
       route, reply, scene: drawn, aspect, positive: assembled.positive, negative: assembled.negative, promptSource, visual, visualIssue, directorIssue: directed.issue,
+      ...(frozen ? { directorFrozen: true as const } : {}),
       caption: reply?.caption || request.text.slice(0, 120) || scene.checkpoint || "Story illustration",
       renderRoute: choice.route, routeReason: choice.reason, routeSetting: choice.setting, qwen: choice.ready ? { ready: choice.ready, prompt: qwenPrompt(choice.ready, drawn, reply, request) } : null,
     };

@@ -3,6 +3,7 @@ import { join } from "node:path";
 import { createHash, webcrypto } from "node:crypto";
 import { drawPreparedCast, PACK_CHANGED, settledLooks } from "./castSceneHost";
 import { CAST_TWO_REFERENCE_MISSING, LookPending, SCENE_RECIPE_MISSING } from "./castScene";
+import { PLAYER_COPY } from "@runtime/narrative";
 import { parseStoryOrThrow } from "@engine/index";
 import { createVisualBridge } from "../sprites/packs/bridge";
 import { visualBridge } from "../sprites/packs/bridgeHost";
@@ -202,6 +203,22 @@ describe("visual bridge: prepared cast from packs", () => {
     jest.mocked(comfyDiscover).mockResolvedValue({ nodes: Object.fromEntries(EDIT_NODES.map((node) => [node, {}])), checkpoints: [], embeddings: [], loras: [], upscalers: [],
       diffusionModels: ["qwen"], textEncoders: ["encoder"], vaes: ["vae"] });
     await expect(drawPreparedCast(g.manager, g.queue, ["Wanderer"], "")).rejects.toThrow(SCENE_RECIPE_MISSING);
+    await expect(drawPreparedCast(g.manager, g.queue, ["Wanderer"], "")).rejects.toMatchObject({ name: "CastSetupGap", player: PLAYER_COPY.castSetup });
+    expect(reserveGpu).not.toHaveBeenCalled();
+  });
+
+  test("a refused or missing pack with no prepared source is refused by its precise reason, with specific player copy, before any lease", async () => {
+    const f = packSetup();
+    f.files.set("/characters/Wanderer/pack/default_neutral.png", "9".repeat(64));
+    const changed = drawPreparedCast(f.manager, f.queue, ["Wanderer"], "");
+    await expect(changed).rejects.toThrow(/^Wanderer's visual pack fixture-wanderer@[0-9a-f]{12} was refused: its look images no longer match the hashes it records\./);
+    await expect(changed).rejects.toMatchObject({ name: "CastSetupGap", player: PLAYER_COPY.castArtChanged });
+    jest.clearAllMocks();
+    const g = packSetup();
+    g.replace(["style-ink", "place-harbor", "place-observatory"]);
+    const missing = drawPreparedCast(g.manager, g.queue, ["Wanderer"], "");
+    await expect(missing).rejects.toThrow(/^Wanderer's visual pack fixture-wanderer@[0-9a-f]{12} is not installed, or the catalog refused it/);
+    await expect(missing).rejects.toMatchObject({ name: "CastSetupGap", player: PLAYER_COPY.castArtMissing });
     expect(reserveGpu).not.toHaveBeenCalled();
   });
 
@@ -214,7 +231,7 @@ describe("visual bridge: prepared cast from packs", () => {
         else f.files.set("/characters/Wanderer/pack/default_neutral.png", "9".repeat(64));
         return { data: "late", format: "png" };
       });
-      await expect(drawPreparedCast(f.manager, f.queue, ["Wanderer"], "")).rejects.toThrow(PACK_CHANGED);
+      await expect(drawPreparedCast(f.manager, f.queue, ["Wanderer"], "")).rejects.toMatchObject({ name: "CastSetupGap", message: PACK_CHANGED, player: PLAYER_COPY.castRetry });
       expect(imageSave).not.toHaveBeenCalled(); expect(imagePlace).not.toHaveBeenCalled();
       expect(releaseGpu).toHaveBeenCalledWith("owned-lease"); expect(comfyReleaseReference).toHaveBeenCalledWith("owned-ref.png");
     }

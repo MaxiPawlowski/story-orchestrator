@@ -5,7 +5,7 @@
   "revision": 1,
   "styleRef": {
     "id": "fixture-ink-style",
-    "digest": "5938b361433c66d4196b0e3abb68f46b2227711468af7cfc54a10666883d01b9"
+    "digest": "1759b230d9ed6fb12e76be51cd04c5301563e537ba16f41a758c4fb5d18e69be"
   },
   "qa": {
     "status": "accepted",
@@ -78,7 +78,7 @@
     "freckles"
   ],
   "tagsByFamily": {
-    "illustrious": [
+    "sdxl-illustrious": [
       "1girl",
       "short silver hair",
       "amber eyes",
@@ -116,5 +116,5 @@
       "base": "look:festival_robe:base"
     }
   },
-  "digest": "9bc4a74d3f81b99f297feac04c4cb7c35d4ebc79738ad0b8ad88090260df12a3"
+  "digest": "2a61214960aff5bbb7059929ea18b9e4bbdf9378f6de26b4ff29dbd4a29828a7"
 }

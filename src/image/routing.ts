@@ -10,6 +10,7 @@ export interface ImageArgs {
   candidates?: number;
   seed?: number;
   route?: AutomaticRoute;
+  director?: string;
 }
 export interface Route {
   purpose: Purpose;

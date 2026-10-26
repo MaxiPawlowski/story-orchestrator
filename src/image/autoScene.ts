@@ -29,7 +29,7 @@ export const ROUTE_REASONS: Record<RouteReason, string> = {
   "second-input-missing": CAST_TWO_REFERENCE_MISSING,
 };
 
-export interface QwenSubject { name: string; member: CastSceneMember | null; missing?: "visible-not-in-cast" | "no-reference" }
+export interface QwenSubject { name: string; member: CastSceneMember | null; missing?: "visible-not-in-cast" | "no-reference"; detail?: string }
 export interface QwenReady { names: string[]; members: CastSceneMember[]; identities: CastSceneIdentity[]; recipe: SceneRecipe; plate: SceneFile | null }
 export type QwenReadiness = { ok: true; ready: QwenReady } | { ok: false; reason: RouteReason; detail: string };
 export interface RouteChoice { route: RenderRoute; reason: RouteReason; detail: string; setting: AutomaticRoute | null; ready: QwenReady | null }
@@ -48,7 +48,7 @@ export function qwenReadiness(input: { subjects: QwenSubject[]; discovery: Comfy
   if (!subjects.length) return refused("no-one-visible");
   if (subjects.length > 2) return refused("too-many-visible");
   const missing = subjects.find((subject) => !subject.member);
-  if (missing) return refused(missing.missing ?? "no-reference", `${ROUTE_REASONS[missing.missing ?? "no-reference"]} (${missing.name})`);
+  if (missing) return refused(missing.missing ?? "no-reference", missing.detail ?? `${ROUTE_REASONS[missing.missing ?? "no-reference"]} (${missing.name})`);
   const members = subjects.map((subject) => subject.member as CastSceneMember);
   const identities = identitiesFor(members);
   if (!Array.isArray(identities)) return identities;

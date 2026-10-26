@@ -1,6 +1,6 @@
 import { checkpointFor, FAMILIES } from "./catalog";
 import { buildGraph } from "./graph";
-import { assembleImagePrompt, imageMessages, sceneForImage } from "./prompt";
+import { assembleImagePrompt, imageMessages, joinTags, sceneForImage } from "./prompt";
 import { resolveImageRoute } from "./routing";
 import { automationAllowsCues, defaultImageSettings, messageAlreadyDrawn, sanitizeImageChatState, sanitizeImageOverride, sanitizeImageSettings } from "./settings";
 import { firedLoreKeys, visualLore } from "./lore";
@@ -49,6 +49,12 @@ describe("Image Director merge", () => {
     expect(route.family.id).toBe("sdxl-illustrious");
     const { positive, negative } = assembleImagePrompt(route, null, "a ruined temple at dusk");
     expect(positive).toContain("no humans, scenery");
+    const reply = { caption: "c", checkpoint: "", reason: "", visible: [], aspect: null, shot: null, prompt: "no humans, tavern interior, Scenery, warm glow", negative: "worst quality, blurry" };
+    const directed = assembleImagePrompt(route, reply, "");
+    expect(directed.positive.match(/no humans/g)).toHaveLength(1);
+    expect(directed.positive.match(/scenery/gi)).toHaveLength(1);
+    expect(directed.negative.match(/worst quality/g)).toHaveLength(1);
+    expect(joinTags(["no humans, scenery", " no humans ,  tavern interior", "", null])).toBe("no humans, scenery, tavern interior");
     expect(positive.split(", ").length).toBeGreaterThan(3);
     expect(negative).toContain("worst quality");
     expect(Object.values(FAMILIES).map((family) => family.id)).toEqual(["sdxl-illustrious", "sdxl-noobai"]);

@@ -122,6 +122,22 @@ describe("automatic scene pictures choose their route", () => {
     expect(renderAutomaticQwen).toHaveBeenCalledTimes(1);
     expect(renderAutomaticQwen.mock.calls[0][4]).toBe(5);
   });
+
+  it("a frozen director answer is reused for both arms without calling the director, and the picture says so", async () => {
+    host.readiness = ready;
+    const director = harness();
+    const plan = await director.plan({ purpose: "scene", text: "", messageId: 1, automatic: true }, { route: "auto" });
+    expect(host.director).toHaveBeenCalledTimes(1);
+    const answer = JSON.stringify(plan.reply);
+    await director.direct({ purpose: "scene", text: "", messageId: 1, automatic: true }, { route: "qwen", seed: 101, director: answer });
+    await director.direct({ purpose: "scene", text: "", messageId: 1, automatic: true }, { route: "sdxl", seed: 101, director: answer });
+    expect(host.director).toHaveBeenCalledTimes(1);
+    const records = imagePlace.mock.calls.map((call) => (call[3] as { image_director: Record<string, unknown> }).image_director);
+    expect(records[0]).toMatchObject({ route: { name: "qwen" }, director: "frozen", prompt_source: "directed",
+      positive: expect.stringContaining("Ash leans over the table and traces the route with one finger.") });
+    expect(records[1]).toMatchObject({ route: { name: "sdxl", reason: "setting-sdxl" }, director: "frozen", prompt_source: "directed",
+      positive: expect.stringContaining("map on table") });
+  });
 });
 
 describe("automatic pictures land on the reply that cued them", () => {

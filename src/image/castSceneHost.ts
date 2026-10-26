@@ -10,7 +10,7 @@ import { reserveGpu, releaseGpu, renewGpu } from "@services/stHost/gpuBroker";
 import { anySignal } from "@utils/signals";
 import { verifyVisualSource, sourceStillCurrent } from "../sprites/visualHost";
 import { contentHash, qwenImageInput, recipeProblems } from "../sprites/builder/recipes";
-import { castSceneGraph, castSceneIdentities, castSceneKey, CastSetupGap, CAST_SCENE_RECIPE, CAST_TWO_REFERENCE_MISSING, discoveredSceneRecipe, LookPending,
+import { castSceneGraph, castSceneIdentities, castSceneKey, CastSetupGap, CAST_SCENE_RECIPE, CAST_TWO_REFERENCE_MISSING, discoveredSceneRecipe, LookPending, packGap,
   sceneRecipe, type CastSceneIdentity, type CastSceneMember, type CastScenePack } from "./castScene";
 import { bindsPacks, visualRecord, type SceneFile, type SceneSubject, type VisualScene } from "../sprites/packs/scene";
 import { packKey } from "../sprites/packs/pack";
@@ -24,6 +24,7 @@ import { decodeImage, encodeImage } from "../sprites/builder/images";
 import { hostGenerating, leaseOutsideTurns, waitForTextPriority } from "../sprites/builder/textPriority";
 import { gpuBrokerStatus } from "@services/stHost/gpuBroker";
 import { log } from "@utils/log";
+import { PLAYER_COPY } from "@runtime/narrative";
 
 async function discardUnplaced(path: string): Promise<void> {
   const removed = await imageDelete(path).catch((reason: unknown) => ({ ok: false as const, reason: reason instanceof Error ? reason.message : String(reason) }));
@@ -64,8 +65,9 @@ export function castMember(story: Story, roster: RosterMember, folder: string, s
 function selectedMembers(story: Story, cast: Cast, selected: string[], values: Values, visual: VisualScene | null): CastSceneMember[] {
   const sources = getGlobalSettings().sprites.visualSources;
   return selected.map((folder) => {
-    const member = castMember(story, rosterFor(story, cast, folder), folder, sources, values, visual);
-    if (!member) throw new Error("Prepare each selected character's base and bust first, or bind a visual pack to them.");
+    const roster = rosterFor(story, cast, folder);
+    const member = castMember(story, roster, folder, sources, values, visual);
+    if (!member) throw packGap(roster.name ?? roster.id, visual?.subjects.find((row) => row.member === roster.id), story.illustrations?.packs?.identities?.[roster.id]);
     return member;
   });
 }
@@ -133,10 +135,10 @@ export async function renderQwenJob(job: QwenJob, signal: AbortSignal): Promise<
   const settings = getGlobalSettings().sprites, selected = job.members.map((member) => member.character);
   const config = (() => {
     try { return sceneRecipe(selected, settings.builders, settings.sceneRecipe, discoveredSceneRecipe(discovery)); }
-    catch (error) { throw new Error([error instanceof Error ? error.message : String(error), discoveryProblem(discovery)].filter(Boolean).join(" ")); }
+    catch (error) { throw new CastSetupGap([error instanceof Error ? error.message : String(error), discoveryProblem(discovery)].filter(Boolean).join(" ")); }
   })();
   const problems = recipeProblems(discovery, config.models);
-  if (problems.length) throw new Error(problems.join(" "));
+  if (problems.length) throw new CastSetupGap(problems.join(" "));
   if (job.identities.length === 2 && !qwenImageInput(discovery, "image_2")) throw new CastSetupGap(CAST_TWO_REFERENCE_MISSING);
   const plate = job.plate && qwenImageInput(discovery, `image_${job.identities.length + 1}`) ? job.plate : null;
   const [diffusion, encoder, vae] = await Promise.all([comfyFingerprint("diffusionModels", config.models.diffusion, signal),
@@ -185,7 +187,7 @@ export async function drawPreparedCast(manager: RuntimeManager, queue: ImageQueu
     const { members, identities } = await settledLooks(() => selectedMembers(story, cast, selected, manager.getCachedSnapshot().blackboard, visual), run);
     const packed = members.some((member) => member.pack);
     const packsCurrent = async (signal: AbortSignal) => {
-      if (visual && packed && !(await visualBridge().stillCurrent(visual, signal))) throw new Error(PACK_CHANGED);
+      if (visual && packed && !(await visualBridge().stillCurrent(visual, signal))) throw new CastSetupGap(PACK_CHANGED, PLAYER_COPY.castRetry);
     };
     const target = options.target !== undefined && (options.target === null || chat.messages[options.target]) ? options.target : illustratedReply(chat.messages);
     const targetText = target === null ? null : chat.messages[target].mes;

@@ -347,7 +347,7 @@ export class SpriteStage {
   private requestLook(actor: Actor): void {
     const story = this.manager.getStory();
     if (!story || !this.settings().onDemand) return;
-    if (this.settings().poses) { this.chooseBody(actor); return; }
+    if (this.settings().poses && this.chooseBody(actor)) return;
     const member = story.roster.find((member) => (member.name ?? member.id).toLowerCase() === actor.name.toLowerCase());
     if (!member) return;
     const fields = cardValues(story, this.manager.getCachedSnapshot().blackboard, member.id, true);

@@ -23,6 +23,12 @@ jest.mock("@services/STAPI", () => ({
 jest.mock("@services/stHost/image", () => ({ imageModel: jest.fn() }));
 jest.mock("./packs/bridgeHost", () => ({ visualBridge: jest.fn() }));
 jest.mock("@runtime/settingsStore", () => ({ setGlobalSettings: jest.fn() }));
+const mockLookRequests: Array<{ folder: string; fields: Record<string, string> }> = [];
+jest.mock("./builder/onDemand", () => ({ OnDemandLooks: class {
+  request(request: { folder: string; fields: Record<string, string> }) { mockLookRequests.push({ folder: request.folder, fields: request.fields }); }
+  revalidate() { return undefined; }
+  close() { return undefined; }
+} }));
 
 interface Row { name: string; is_user?: boolean; mes: string; swipe_id?: number; extra?: Record<string, unknown> }
 
@@ -766,5 +772,22 @@ describe("sprite stage: visual packs", () => {
     await flush();
     expect(sprites.view().actors[0]).toMatchObject({ set: "pk_rain_cloak", path: RAIN });
     expect(settings.builders).toEqual({});
+  });
+});
+
+describe("sprite stage: on-demand looks with poses on", () => {
+  it("a member the pose path does not take (no pose in its library) still asks for an on-demand changed look", async () => {
+    members = [{ name: "Ellie", avatar: "ellie.png" }];
+    roster = [{ id: "ellie", name: "Ellie" }];
+    storyExtra = { poses: { use: ["no_such_pose"] }, cardFieldByQuality: { ellie_coat: { owner: "ellie", field: "coat", quality: "ellie_coat", visual: true } } };
+    settings = { ...settings, poses: true, onDemand: true };
+    mockLookRequests.length = 0;
+    await started();
+    board = { ellie_coat: "yellow oilskin coat" };
+    storyListeners.forEach((listener) => listener());
+    for (let round = 0; round < 5; round += 1) await new Promise((resolve) => setTimeout(resolve, 0));
+    storyListeners.forEach((listener) => listener());
+    await flush();
+    expect(mockLookRequests).toContainEqual({ folder: "Ellie", fields: { coat: "yellow oilskin coat" } });
   });
 });

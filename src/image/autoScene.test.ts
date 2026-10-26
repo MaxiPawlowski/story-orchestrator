@@ -92,7 +92,7 @@ describe("automatic picture route: the Qwen instruction", () => {
 
   it("is built from the director's plain words, the current look, the current place and a pose clause, and names no future look or place", async () => {
     const values = { wanderer_outfit: "grey rain cloak" };
-    const visual = await bridge.scene({ story, members: ["wanderer"], values, path: ["quay"], family: "illustrious" }, { fresh: true });
+    const visual = await bridge.scene({ story, members: ["wanderer"], values, path: ["quay"], family: "sdxl-illustrious" }, { fresh: true });
     const subject = visual.subjects[0];
     const root = `pack:${packKey(subject.pack!)}`;
     const member = { character: "Wanderer", fields: subject.intended.fields, pack: { root, substituted: false, look: { root, signature: subject.intended.signature,

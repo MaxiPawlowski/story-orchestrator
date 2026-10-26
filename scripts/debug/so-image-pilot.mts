@@ -12,25 +12,26 @@ import { openGroup, openChat } from './st-navigation.mts';
 import { executeSlashCommand, waitForIdle } from './st-actions.mts';
 import { P41_MARKER } from './lib/pocDrivers.mts';
 import {
-  ARM_ROUTE, DEFAULT_SEEDS, PILOT_ARMS, buildBlindPack, imageFileName, lookFor, parsePilotCases, pilotJobs,
-  type PilotArm, type PilotCase, type PilotCases, type PilotRow, type RefImage,
+  ARM_ROUTE, DEFAULT_SEEDS, DIRECTOR_DIR, PILOT_ARMS, buildBlindPack, directorFile, frozenDirector, imageFileName, lookFor, parsePilotCases, pilotJobs,
+  type FrozenDirector, type PilotArm, type PilotCase, type PilotCases, type PilotRow, type RefImage,
 } from './lib/imagePilot.mts';
 
 const USAGE = `Usage: node scripts/debug/so-image-pilot.mts <plan|run|pack> [options]
 
-Plan 20 stage-2 route pilot: 12 frozen cases (test/fixtures/image-pilot/cases.json) x seeds x arms, rendered through the
-real automatic-picture path (storyOrchestratorImage.direct with the arm forced), then a blind pack like review 18's.
+Plan 20 stage-2 route pilot: 12 frozen cases (test/fixtures/image-pilot/cases.json) x seeds x 2 arms (sdxl-directed, qwen-refs),
+rendered through the real automatic-picture path (storyOrchestratorImage.direct with the arm forced), then a blind pack like review 18's.
+The image director is called once per case (storyOrchestratorImage.plan, route auto); its answer is stored in <runDir>/${DIRECTOR_DIR}/<case>.json
+and passed to every arm and seed of that case, so the comparison isolates the renderer. A rerun into the same --out reuses stored answers.
 
   plan   print the schedule (no ST)
   run    render on a lane that holds the p41 cast with prepared looks (after so-p41-journey run <k> --keep):
            st-lanes.mts run <n> -- scripts/debug/so-image-pilot.mts run --group "<group>" --chat <chatId>
-         [--marker ${P41_MARKER}] [--seeds ${DEFAULT_SEEDS.join(',')}] [--arms sdxl-directed,qwen-refs,composite] [--out <dir>] [--only c01,c09]
-         Needs the lane cleared for ComfyUI (allowComfy or SO_ALLOW_COMFY=1). Appends each case's frozen lines to the chat (compact, no generation), sets its look, then draws every seed x arm on
-         that case's last reply. Automatic cues are paused (image.automation.mode manual) for the run and restored after.
+         [--marker ${P41_MARKER}] [--seeds ${DEFAULT_SEEDS.join(',')}] [--arms ${PILOT_ARMS.join(',')}] [--out <dir>] [--only c01,c09]
+         Needs the lane cleared for ComfyUI (allowComfy or SO_ALLOW_COMFY=1). Appends each case's frozen lines to the chat (compact, no generation), sets its look,
+         freezes the director answer, then draws every seed x arm on that case's last reply. Automatic cues are paused (image.automation.mode manual) for the run and restored after.
   pack   <runDir> [--seed <text>]: shuffle the rendered images under neutral labels into <runDir>/blind
          (img-NN.png, ref-X.png, items.txt, brief.md, about 10% hidden duplicates); the key goes to <runDir>/key.json.
 
-The composite arm is skipped and recorded in the key: no compositing route exists yet.
 Default out: <debug dir>/image-pilot/<stamp>.`;
 
 const args = stripCommonArgs(process.argv.slice(2));
@@ -114,18 +115,31 @@ async function appendCase(page: Page, row: PilotCase, marker: string, keys: stri
   return target;
 }
 
-async function draw(page: Page, target: number, route: 'sdxl' | 'qwen', seed: number) {
-  return page.evaluate(async ({ target, route, seed }) => {
+async function freeze(page: Page, dir: string, row: PilotCase, target: number): Promise<FrozenDirector> {
+  const file = resolve(dir, directorFile(row.id));
+  if (existsSync(file)) return JSON.parse(await readFile(file, 'utf8')) as FrozenDirector;
+  const plan = await page.evaluate(async (target) => {
+    const planned = await (globalThis as any).storyOrchestratorImage.plan({ purpose: 'scene', text: '', messageId: target, automatic: true }, { route: 'auto' });
+    return { reply: planned.reply, promptSource: planned.promptSource, directorIssue: planned.directorIssue, routeReason: planned.routeReason };
+  }, target);
+  const frozen = frozenDirector(row.id, plan, new Date().toISOString());
+  await mkdir(resolve(dir, DIRECTOR_DIR), { recursive: true });
+  await writeFile(file, JSON.stringify(frozen, null, 2));
+  return frozen;
+}
+
+async function draw(page: Page, target: number, route: 'sdxl' | 'qwen', seed: number, director: string) {
+  return page.evaluate(async ({ target, route, seed, director }) => {
     const image = (globalThis as any).storyOrchestratorImage;
     const started = Date.now();
     try {
-      const path = await image.direct({ purpose: 'scene', text: '', messageId: target, automatic: true }, { route, seed, placement: 'inline', candidates: 1 });
+      const path = await image.direct({ purpose: 'scene', text: '', messageId: target, automatic: true }, { route, seed, placement: 'inline', candidates: 1, director });
       const media = ((globalThis as any).SillyTavern.getContext().chat[target]?.extra?.media ?? []).filter((row: any) => row?.url === path).at(-1);
       return { path: path || null, record: media?.image_director ?? null, error: path ? null : 'discarded', ms: Date.now() - started };
     } catch (error) {
       return { path: null, record: null, error: error instanceof Error ? error.message : String(error), ms: Date.now() - started };
     }
-  }, { target, route, seed });
+  }, { target, route, seed, director });
 }
 
 async function run(page: Page) {
@@ -149,17 +163,21 @@ async function run(page: Page) {
   await page.evaluate(() => { const image = (globalThis as any).storyOrchestratorImage; image.updateSettings({ automation: { ...image.settings().automation, mode: 'manual' } }); });
   await saveSettingsNow(page);
   const keys = [...new Set(cases.cases.flatMap((row) => Object.keys(row.set ?? {})))];
-  const header = { at: new Date().toISOString(), lane: process.env.SO_LANE, group, chat, marker, seeds: plan.seeds, arms: plan.arms, skipped: plan.skipped, frozen: cases.frozen, jobs: plan.jobs.length };
+  const header = { at: new Date().toISOString(), lane: process.env.SO_LANE, group, chat, marker, seeds: plan.seeds, arms: plan.arms, director: 'frozen per case', frozen: cases.frozen, jobs: plan.jobs.length };
   await writeFile(resolve(dir, 'run.json'), JSON.stringify(header, null, 2));
   await rm(resolve(dir, 'run.jsonl'), { force: true });
   try {
     for (const row of plan.chosen) {
       const target = await appendCase(page, row, marker, keys);
+      const frozen = await freeze(page, dir, row, target).catch((error: unknown) => (error instanceof Error ? error : new Error(String(error))));
+      const director = frozen instanceof Error ? null : directorFile(row.id);
+      if (frozen instanceof Error) console.log(frozen.message);
       for (const job of plan.jobs.filter((entry) => entry.case === row.id)) {
-        const drawn = await draw(page, target, ARM_ROUTE[job.arm] as 'sdxl' | 'qwen', job.seed);
+        const drawn = frozen instanceof Error ? { path: null, record: null, error: frozen.message, ms: 0 }
+          : await draw(page, target, ARM_ROUTE[job.arm], job.seed, JSON.stringify(frozen.reply));
         const file = drawn.path ? resolve(dir, 'images', imageFileName(job)) : null;
         if (drawn.path && file) await downloadTo(page, drawn.path, file);
-        const result: PilotRow = { ...job, file, error: drawn.error, ms: drawn.ms, members: row.members, moment: row.moment, record: drawn.record,
+        const result: PilotRow = { ...job, file, error: drawn.error, ms: drawn.ms, members: row.members, moment: row.moment, record: drawn.record, director,
           looks: Object.fromEntries(row.members.map((member) => [member, lookFor(row, member, cases.looks)])) };
         await appendFile(resolve(dir, 'run.jsonl'), `${JSON.stringify(result)}\n`);
         console.log(`${job.case} s${job.seed} ${job.arm}: ${drawn.error ?? 'ok'} (${Math.round(drawn.ms / 1000)} s, route ${JSON.stringify(drawn.record?.route ?? null)})`);
@@ -177,7 +195,7 @@ async function pack(dir: string) {
   const header = JSON.parse(await readFile(resolve(dir, 'run.json'), 'utf8'));
   const rows = (await readFile(resolve(dir, 'run.jsonl'), 'utf8')).split('\n').filter(Boolean).map((line) => JSON.parse(line) as PilotRow);
   const { refs, names } = JSON.parse(await readFile(resolve(dir, 'refs.json'), 'utf8')) as { refs: RefImage[]; names: Record<string, string> };
-  const built = buildBlindPack({ rows, refs, seed: argValue(args, '--seed', header.at) ?? header.at, frozen: header.frozen, skipped: header.skipped, names });
+  const built = buildBlindPack({ rows, refs, seed: argValue(args, '--seed', header.at) ?? header.at, frozen: header.frozen, names });
   const blind = resolve(dir, 'blind');
   await rm(blind, { recursive: true, force: true });
   await mkdir(blind, { recursive: true });
@@ -186,8 +204,7 @@ async function pack(dir: string) {
   await writeFile(resolve(blind, 'items.txt'), built.itemsTxt);
   await writeFile(resolve(blind, 'brief.md'), built.brief);
   await writeFile(resolve(dir, 'key.json'), JSON.stringify(built.key, null, 1));
-  console.log(JSON.stringify({ blind, images: built.items.length, duplicates: built.items.filter((item) => item.duplicateOf).length, missing: built.missing.length,
-    skipped: header.skipped }, null, 2));
+  console.log(JSON.stringify({ blind, images: built.items.length, duplicates: built.items.filter((item) => item.duplicateOf).length, missing: built.missing.length }, null, 2));
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
@@ -197,7 +214,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   }
   if (command === 'plan') {
     const plan = schedule(await loadCases());
-    console.log(JSON.stringify({ cases: plan.chosen.length, seeds: plan.seeds, arms: plan.arms, renders: plan.jobs.length, skipped: plan.skipped }, null, 2));
+    console.log(JSON.stringify({ cases: plan.chosen.length, seeds: plan.seeds, arms: plan.arms, renders: plan.jobs.length, directorCalls: plan.chosen.length }, null, 2));
   } else if (command === 'pack') {
     const dir = args[1];
     if (!dir || !existsSync(resolve(dir, 'run.jsonl'))) throw new Error('pack <runDir>: the folder needs run.json, run.jsonl and refs.json from a run');

@@ -69,7 +69,7 @@ const setup = (offerPlate = true) => {
 };
 
 const planFor = async (manager: never, values: Record<string, string>) => {
-  const visual = await visualBridge().scene({ story, members: ["wanderer"], values, path: ["quay"], family: "illustrious" }, { fresh: true });
+  const visual = await visualBridge().scene({ story, members: ["wanderer"], values, path: ["quay"], family: "sdxl-illustrious" }, { fresh: true });
   const check = await qwenCheck(story, visual, values);
   const ready = check(["Wanderer"]);
   if (!ready.ok) throw new Error(ready.detail);
@@ -85,20 +85,20 @@ beforeEach(() => jest.clearAllMocks());
 describe("automatic pictures: who can be drawn from references", () => {
   it("a pack-bound member is ready, a narrator is never drawn, an unknown name or an unprepared member falls back by name", async () => {
     const { values } = setup();
-    const visual = await visualBridge().scene({ story, members: ["wanderer", "guide"], values, path: ["quay"], family: "illustrious" }, { fresh: true });
+    const visual = await visualBridge().scene({ story, members: ["wanderer", "guide"], values, path: ["quay"], family: "sdxl-illustrious" }, { fresh: true });
     const check = await qwenCheck(story, visual, values);
     const ready = check(["Wanderer", "Keeper"]);
     expect(ready.ok && ready.ready.names).toEqual(["Wanderer"]);
     expect(ready.ok && ready.ready.plate?.path).toBe("/backgrounds/fixture_harbor_day.png");
     expect(check(["Wanderer", "the visitor"])).toMatchObject({ ok: false, reason: "visible-not-in-cast" });
-    expect(check(["Guide"])).toMatchObject({ ok: false, reason: "no-reference" });
+    expect(check(["Guide"])).toMatchObject({ ok: false, reason: "no-reference", detail: expect.stringMatching(/^Guide has no accepted base and bust and no identity pack\./) });
     expect(check(["Keeper"])).toMatchObject({ ok: false, reason: "no-one-visible" });
   });
 
   it("an unreachable ComfyUI is a recorded reason, not an error", async () => {
     const { values } = setup();
     jest.mocked(comfyDiscover).mockRejectedValue(new Error("down"));
-    const visual = await visualBridge().scene({ story, members: ["wanderer"], values, path: ["quay"], family: "illustrious" }, { fresh: true });
+    const visual = await visualBridge().scene({ story, members: ["wanderer"], values, path: ["quay"], family: "sdxl-illustrious" }, { fresh: true });
     const check = await qwenCheck(story, visual, values);
     expect(check(["Wanderer"])).toMatchObject({ ok: false, reason: "media-unavailable" });
   });
