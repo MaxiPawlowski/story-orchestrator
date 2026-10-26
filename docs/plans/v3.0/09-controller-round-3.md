@@ -323,3 +323,35 @@ vs 10.95 s (J1 partly contended by a gates run), warm 6.48 s on 18K-token prompt
 9 misses).
 
 **Decision (owner, 2026-10-26): adopt A despite the literal miss of the thinking floor.**
+
+## Gate record: A adopted on the owner's controller (2026-10-26)
+
+- Merge: master `622c6249` (fast-forward of `v3.0-09-controller-r3`), pushed. Before it: `npm run gates` all green, no
+  `--resume` (294.6 s); `npm run test:plugin` green.
+- `npm run build && npm run stage && npm run plugins:install` (restartNeeded) then ST restarted (`/` 200).
+- Owner config backed up to `C:\devackups\story-orchestrator\local-config.before-member-cache-2026-10-26.json`, then
+  switched: `binary` = `C:/dev/tools/llama-b11888-so-cu128/llama-server.exe` (patched b11888, so-cache-patch),
+  `memberCache {enabled, store "ram", budgetMiB 4096, serverKeys true, erase false, park false}`. Controller restarted.
+- `/status` after load: phase text, profile fast, `speculative draft-mtp2`, `cacheRamMiB 4096`, memberCache `store ram`,
+  `serverKeys true`, `fitCorrectionMiB 0` (no refit spill: every layer on the GPU), `lastError null`, GPU free 1,711 MiB
+  (reserve 1,024; ComfyUI idle and resident).
+- Live check 1, member rotation (lane 42, `09/live-ram-cache.scenario.json`, 4 members, 7 real turns through the owner's
+  controller): `ok: true`, 17/17 steps, 0 failed steps, residue clean; one thought-only reply recovered by the product
+  (`emptyReply`, swiped once). Gateway: 43 requests, 0 errors, member cache 6 planned, 2 hits, 4 misses, prefill p50
+  3.0 s. Two generate requests aborted by the page at cleanup (`ERR_ABORTED`), none refused. Evidence
+  `C:\dev\so-lanes"\debuguns6-10-26T10-11-20-105Z-so-scenario-run`, log `09/live-owner-ram.log`.
+- Live check 2, image through reload (`render-benchmark.mjs <owner config> auto scene 128`): admitted, scene rendered in
+  20.2 s, text reloaded (loads 2, new pid) and the next reply came back in 26.2 s including the reload; decode 50.7 tok/s,
+  `fitCorrectionMiB 0`, `gpuReserveCrossed false`, `lastError null`, GPU free 1,612 MiB after. Log `09/live-owner-image.log`.
+- Controller left RUNNING on the new config.
+
+### Rollback
+
+1. `node scripts/local/cli.mjs stop`
+2. `copy C:\devackups\story-orchestrator\local-config.before-member-cache-2026-10-26.json C:\dev	ools\story-orchestrator-local\config.json`
+   (or edit by hand: `binary` back to `C:\dev	ools\story-orchestrator-local\llama-b11388-cuda12.4\llama-server.exe`
+   and delete the `memberCache` block)
+3. `node scripts/local/cli.mjs start`, then check `/status`: `cacheRamMiB` absent, `memberCache` null.
+
+Partial rollback (keep the stock binary, drop only the patch): set `serverKeys false` (the controller works on any
+b11888+ binary without the patch); keep `store "ram"` or remove `memberCache` for the plan 08 behaviour.
