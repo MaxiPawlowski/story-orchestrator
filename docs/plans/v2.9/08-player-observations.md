@@ -1,6 +1,6 @@
 # Plan 08 — Player observations ("You notice…")
 
-**Status 2026-10-26: BUILT, on master since 2026-10-21 (wave 1); O1 40/40, O2 12/12 cuts, O3 deterministic 0/0/0 and second-model review 0/40 imposed, 0/40 actions (planted controls caught). Left: O4 (10 Sol-written tasks frozen 2026-10-25) waits for the owner playtest Part A (v2.9 13 C1); Studio `quality-never-in-scope` false positive on observation-only qualities, not fixed. Records: §GPU run 2026-10-22, §O4 prep 2026-10-25.**
+**Status 2026-10-26: BUILT, on master since 2026-10-21 (wave 1); O1 40/40, O2 12/12 cuts, O3 deterministic 0/0/0 and second-model review 0/40 imposed, 0/40 actions (planted controls caught). Left: O4 (10 Sol-written tasks frozen 2026-10-25) waits for the owner playtest Part A (v2.9 13 C1); Studio `quality-never-in-scope` false positive on observation-only qualities: fixed `f090e510`/`96c3eb46` (re-checked v3.0 14 §D8). Records: §GPU run 2026-10-22, §O4 prep 2026-10-25.**
 
 **Was 2026-10-21: written 2026-10-21 from the v2.9 triage (`01-triage-sol.md`); not built; owner decisions pending.** Implementation
 tier **D** (pure engine + runtime + UI, no model call on the play path); acceptance **D** (floors O1–O3, Storybook, no-model
