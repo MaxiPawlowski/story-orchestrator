@@ -329,7 +329,7 @@ vs 10.95 s (J1 partly contended by a gates run), warm 6.48 s on 18K-token prompt
 - Merge: master `622c6249` (fast-forward of `v3.0-09-controller-r3`), pushed. Before it: `npm run gates` all green, no
   `--resume` (294.6 s); `npm run test:plugin` green.
 - `npm run build && npm run stage && npm run plugins:install` (restartNeeded) then ST restarted (`/` 200).
-- Owner config backed up to `C:\devackups\story-orchestrator\local-config.before-member-cache-2026-10-26.json`, then
+- Owner config backed up to `C:\dev\backups\story-orchestrator\local-config.before-member-cache-2026-10-26.json`, then
   switched: `binary` = `C:/dev/tools/llama-b11888-so-cu128/llama-server.exe` (patched b11888, so-cache-patch),
   `memberCache {enabled, store "ram", budgetMiB 4096, serverKeys true, erase false, park false}`. Controller restarted.
 - `/status` after load: phase text, profile fast, `speculative draft-mtp2`, `cacheRamMiB 4096`, memberCache `store ram`,
@@ -348,8 +348,8 @@ vs 10.95 s (J1 partly contended by a gates run), warm 6.48 s on 18K-token prompt
 ### Rollback
 
 1. `node scripts/local/cli.mjs stop`
-2. `copy C:\devackups\story-orchestrator\local-config.before-member-cache-2026-10-26.json C:\dev	ools\story-orchestrator-local\config.json`
-   (or edit by hand: `binary` back to `C:\dev	ools\story-orchestrator-local\llama-b11388-cuda12.4\llama-server.exe`
+2. `copy C:\dev\backups\story-orchestrator\local-config.before-member-cache-2026-10-26.json C:\dev\tools\story-orchestrator-local\config.json`
+   (or edit by hand: `binary` back to `C:\dev\tools\story-orchestrator-local\llama-b11388-cuda12.4\llama-server.exe`
    and delete the `memberCache` block)
 3. `node scripts/local/cli.mjs start`, then check `/status`: `cacheRamMiB` absent, `memberCache` null.
 
