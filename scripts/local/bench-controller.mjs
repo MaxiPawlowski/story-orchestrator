@@ -6,6 +6,7 @@ import { createHash } from 'node:crypto';
 import path from 'node:path';
 import { nativeArgs, slots } from '../../server-plugin/story-orchestrator-gpu/broker/backend.mjs';
 import { PromptReuse, promptReuseOptions } from '../../server-plugin/story-orchestrator-gpu/broker/promptReuse.mjs';
+import { MemberCache, memberCacheOptions } from '../../server-plugin/story-orchestrator-gpu/broker/memberCache.mjs';
 
 const argv = process.argv.slice(2);
 const command = argv[0] ?? 'help';
@@ -45,6 +46,8 @@ const MODIFIERS = {
     reuse: (a) => a,
     member: (a) => [...setFlag(a, '--cache-ram', 0), '--slot-save-path', memberDir],
     membercut: (a) => [...setFlag(a, '--cache-ram', 0), '--slot-save-path', memberDir],
+    memcache: (a) => [...setFlag(setFlag(a, '--cache-ram', 0), '--ctx-checkpoints', 3), '--slot-save-path', memberDir],
+    norewind: (a) => a,
     config: (a) => a,
     nopark: (a) => a,
     cram0: (a) => setFlag(a, '--cache-ram', 0),
@@ -212,6 +215,19 @@ async function completeWithMember(item, budget, cutFirst, seen) {
         prefillMs: prefill?.ms ?? null, prefillPromptN: prefill?.promptN ?? null, saveMs: save.ms, saveOk: save.ok, fileMiB, promptN: (result.promptN ?? 0) + (prefill?.promptN ?? 0), reusedFinal: result.reused };
 }
 
+async function completeWithCache(cache, item, budget) {
+    const began = performance.now();
+    const body = requestBody(item, budget, 0);
+    const plan = await cache.before(body, 0);
+    const startedAt = performance.now();
+    const result = await complete(body);
+    const ttftMs = result.ttftMs === null ? null : Math.round(startedAt + result.ttftMs - began);
+    const saved = plan ? await cache.afterReply(plan) : null;
+    return { ...result, ttftMs, member: plan?.key ?? null, restoreMs: plan?.timing.restoreMs ?? null, restored: plan?.timing.restored ?? null, resident: plan?.timing.resident ?? null,
+        prefillMs: plan?.timing.prefillMs ?? null, prefillPromptN: plan?.timing.prefillTokens ?? null, saveMs: saved?.saveMs ?? null, rewindMs: saved?.rewindMs ?? null,
+        fileMiB: saved?.bytes ? Math.round(saved.bytes / 1048576) : null, saveReason: saved?.reason ?? null, promptN: (result.promptN ?? 0) + (plan?.timing.prefillTokens ?? 0), reusedFinal: result.reused, cache: cache.status() };
+}
+
 function serverCounts(log) {
     return { lru: (log.match(/selected slot by LRU/g) ?? []).length, lcp: (log.match(/selected slot by LCP similarity/g) ?? []).length,
         exceed: (log.match(/exceeds cache size limit/g) ?? []).length, restored: (log.match(/restored context checkpoint/g) ?? []).length, forced: (log.match(/forcing full prompt re-processing/g) ?? []).length, cacheEvict: (log.match(/making room for prompt cache entry/g) ?? []).length,
@@ -222,11 +238,13 @@ function serverCounts(log) {
 
 async function runArm(config, corpus, arm, dir, telemetry) {
     const baseline = gpuQuery('memory.free')[0];
-    if (arm.split('+').some((part) => part.startsWith('member'))) { await fs.rm(memberDir, { recursive: true, force: true }); await fs.mkdir(memberDir, { recursive: true }); }
+    if (arm.split('+').some((part) => part.startsWith('member') || part === 'memcache')) { await fs.rm(memberDir, { recursive: true, force: true }); await fs.mkdir(memberDir, { recursive: true }); }
     const server = await startServer(config, arm, dir);
     const rows = [];
     const memberMode = arm.split('+').find((part) => part === 'member' || part === 'membercut');
     const seen = new Set();
+    const cache = arm.split('+').includes('memcache') ? new MemberCache({ ...memberCacheOptions({ memberCache: { enabled: true, dir: memberDir, budgetMiB: Number(option('member-budget', 6144)), rewind: !arm.split('+').includes('norewind') } }) },
+        { baseUrl: `http://127.0.0.1:${port}`, snapshot: async () => ({ host: { availableMiB: Math.round(os.freemem() / 1048576) } }), reserves: { ramMiB: 2048 } }) : null;
     const reuse = reusing(arm, config) ? new PromptReuse({ ...promptReuseOptions(config), ...(pinned(arm, config) ? { history: 1 } : {}), parkWhenIdle: !arm.split('+').includes('nopark') && !pinned(arm, config) && (promptReuseOptions(config)?.parkWhenIdle ?? true) }) : null;
     try {
         await sleep(1500);
@@ -241,12 +259,13 @@ async function runArm(config, corpus, arm, dir, telemetry) {
             const slot = pinned(arm, config) ? (item.kind === 'chat' || item.kind === 'swipe' || item.kind === 'long' ? 0 : 1) : null;
             const budget = item.kind === 'chat' ? chatCap : item.kind === 'long' || item.kind === 'swipe' ? 32 : sideCap;
             telemetry.tag = `${arm}:${item.index}`;
-            const result = memberMode && (item.kind === 'chat' || item.kind === 'swipe') ? await completeWithMember(item, budget, memberMode === 'membercut', seen)
+            const result = cache ? await completeWithCache(cache, item, budget)
+                : memberMode && (item.kind === 'chat' || item.kind === 'swipe') ? await completeWithMember(item, budget, memberMode === 'membercut', seen)
                 : reuse ? await completeWithReuse(reuse, item, budget, slot) : await complete(requestBody(item, budget, slot));
             await sleep(250);
             const { text, ...kept } = result;
-            rows.push({ arm, index: item.index, kind: item.kind, role: item.role ?? item.kind, promptChars: item.body.prompt.length, ...kept, outputChars: text.length, ...telemetry.window(`${arm}:${item.index}`) });
-            process.stdout.write(`${arm} ${item.index} ${item.kind} ttft=${result.ttftMs} pn=${result.promptN} reused=${result.reused} tps=${result.decodeTps?.toFixed(1)} acc=${result.draftAccepted ?? '-'}/${result.draftN ?? '-'}\n`);
+            rows.push({ arm, index: item.index, kind: item.kind, role: item.role ?? item.kind, promptChars: item.body.prompt.length, ...kept, outputChars: text.length, ...(flag('keep-text') ? { text } : {}), ...telemetry.window(`${arm}:${item.index}`) });
+            process.stdout.write(`${arm} ${item.index} ${item.kind} ttft=${result.ttftMs} pn=${result.promptN} reused=${result.reused} tps=${result.decodeTps?.toFixed(1)} acc=${result.draftAccepted ?? '-'}/${result.draftN ?? '-'}${result.member ? ` member=${result.member} restore=${result.restoreMs} prefill=${result.prefillMs}/${result.prefillPromptN} rewind=${result.rewindMs} save=${result.saveMs} file=${result.fileMiB}MiB${result.saveReason ? ` skip=${result.saveReason}` : ''}` : ''}\n`);
         }
         const log = await fs.readFile(server.logFile, 'utf8');
         return { arm, args: server.args, loadMs: server.loadMs, baselineGpuFreeMiB: Number(baseline), afterLoad, counts: serverCounts(log), rows };
@@ -271,7 +290,10 @@ function summarize(result) {
         minGpuFreeMiB: Math.min(...result.rows.map((row) => row.minGpuFreeMiB).filter(Number.isFinite)), minRamAvailMiB: Math.min(...result.rows.map((row) => row.minRamAvailMiB).filter(Number.isFinite)),
         maxPowerW: Math.max(...result.rows.map((row) => row.maxPowerW).filter(Number.isFinite)), medianSmMHz: median(result.rows.map((row) => row.medianSmMHz)),
         longPrefill: long ? { promptN: long.promptN, prefillTps: long.prefillTps, ttftMs: long.ttftMs } : null,
-        swipe: swipe ? { promptN: swipe.promptN, reused: swipe.reused, ttftMs: swipe.ttftMs } : null, counts: result.counts };
+        swipe: swipe ? { promptN: swipe.promptN, reused: swipe.reused, ttftMs: swipe.ttftMs } : null, counts: result.counts,
+        ...(by('chat').some((row) => row.member) ? { memberCache: { ttftChatWarm: stat(by('chat').filter((row) => row.restored || row.resident), 'ttftMs'), ttftChatCold: stat(by('chat').filter((row) => row.member && !row.restored && !row.resident), 'ttftMs'),
+            restoreMs: stat(rows, 'restoreMs'), prefillMs: stat(rows, 'prefillMs'), rewindMs: stat(rows, 'rewindMs'), saveMs: { ...stat(rows, 'saveMs'), max: Math.max(...rows.map((row) => row.saveMs).filter(Number.isFinite)) },
+            fileMiB: stat(rows, 'fileMiB'), final: result.rows.at(-1)?.cache ?? null } } : {}) };
 }
 
 async function preflight() {

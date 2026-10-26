@@ -12,7 +12,7 @@ import { withinReserve } from './policy.mjs';
 import { comfyPort } from './controllerStatus.mjs';
 
 export const BROKER_SOURCE_FILES = Object.freeze(['arbiter', 'backend', 'controllerStatus', 'estimate', 'fastTelemetry', 'footprints', 'gateway', 'gguf', 'imageResidency',
-    'imageCache', 'models', 'policy', 'ramEstimates', 'responseTiming', 'runtimeIdentity', 'safetensors', 'scheduler', 'telemetry']);
+    'imageCache', 'memberCache', 'models', 'policy', 'promptReuse', 'ramEstimates', 'responseTiming', 'runtimeIdentity', 'safetensors', 'scheduler', 'telemetry']);
 
 export async function brokerBuild(extra = []) {
     const source = createHash('sha256');

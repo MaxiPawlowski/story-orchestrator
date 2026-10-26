@@ -718,3 +718,22 @@ test('timings measured with a draft model are kept apart from timings without it
     await scheduler.recordTiming({ timings: { predicted_per_second: 40, predicted_n: 100, prompt_ms: 900 } });
     assert.deepEqual(Object.keys(scheduler.timings), ['fast+draft-mtp2:full']);
 });
+
+test('image admission asks the member cache for RAM first and reads memory again only when it freed something', async () => {
+    const { scheduler } = setup();
+    const asked = [];
+    let reads = 0;
+    scheduler.snapshot = async () => { reads += 1; return free(22000); };
+    scheduler.onImageRam = async (need) => { asked.push(need); return 0; };
+    const lease = await scheduler.reserve({ needRamMiB: 3000 });
+    const firstReads = reads;
+    assert.equal(asked.length, 1);
+    assert.equal(asked[0].availableMiB, 24000);
+    assert.ok(asked[0].needRamMiB >= 3000);
+    await scheduler.release(lease.lease);
+    const before = reads;
+    scheduler.onImageRam = async () => 1024 * 1048576;
+    const second = await scheduler.reserve({ needRamMiB: 3000 });
+    assert.equal(reads - before, firstReads + 1, 'a fresh snapshot follows a cache eviction');
+    await scheduler.release(second.lease);
+});

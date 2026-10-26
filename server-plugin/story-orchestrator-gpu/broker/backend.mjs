@@ -4,6 +4,7 @@ import path from 'node:path';
 import { memorySnapshot } from './telemetry.mjs';
 import { withinReserve } from './policy.mjs';
 import { CONTROLLER_DEFAULTS } from './controllerStatus.mjs';
+import { memberCacheOptions } from './memberCache.mjs';
 
 export const SPECULATIVE_DEFAULTS = Object.freeze({ type: 'draft-mtp', nMax: 2, estimatedGpuMiB: 900 });
 
@@ -47,8 +48,9 @@ export function nativeArgs(config, profile, fitTargetMiB = config.reserves.gpuMi
         if (at >= 0) args.splice(at, 2);
         args.push('--load-mode', config.modelLoadMode);
     }
-    const checkpoints = Number.isInteger(config.ctxCheckpoints) ? ['--ctx-checkpoints', String(config.ctxCheckpoints)] : [];
-    const slotActions = slots(config) ? ['--slot-save-path', path.join(config.stateDir ?? '.', 'slots')] : [];
+    const members = memberCacheOptions(config);
+    const checkpoints = Number.isInteger(config.ctxCheckpoints) ? ['--ctx-checkpoints', String(config.ctxCheckpoints)] : members ? ['--ctx-checkpoints', String(members.ctxCheckpoints)] : [];
+    const slotActions = members ? ['--slot-save-path', members.dir] : slots(config) ? ['--slot-save-path', path.join(config.stateDir ?? '.', 'slots')] : [];
     return ['--model', config.model, '--host', '127.0.0.1', '--port', String(config.backendPort), '--alias', config.modelAlias,
         '--offline', '--no-mmproj', '--no-webui', '--threads', '8', '--threads-batch', '8', '--parallel', String(slots(config)?.count ?? 1), '--kv-unified',
         '--flash-attn', 'on', '--cache-type-k', 'q8_0', '--cache-type-v', 'q8_0', '--cache-ram', String(config.cacheRamMiB ?? 512), ...checkpoints, ...slotActions,
@@ -147,6 +149,7 @@ export class NativeBackend {
             throw new Error('Not enough free GPU/physical RAM for this profile while preserving desktop headroom.');
         }
         await fs.mkdir(slots(this.config) ? path.join(this.config.stateDir, 'slots') : this.config.stateDir, { recursive: true });
+        if (memberCacheOptions(this.config)) await fs.mkdir(memberCacheOptions(this.config).dir, { recursive: true });
         const log = await fs.open(path.join(this.config.stateDir, `native-${Date.now()}-${name}.log`), 'a');
         this.crashed = null;
         const fitConfig = { ...this.config, fitMarginMiB: (this.config.fitMarginMiB ?? 0) + (this.fitCorrections.get(name) ?? 0) };

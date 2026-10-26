@@ -184,6 +184,10 @@ export class ResidencyScheduler {
             let { needRamMiB, ramSource } = this.ramNeed({ body, footprint, models, runtime, resident: memory.credit ? this.residentImages : null });
             const benchmarkMode = this.config.experiments ? body.benchmarkMode : null;
             let snapshot = memory.snapshot;
+            if (this.onImageRam) {
+                try { if (await this.onImageRam({ needRamMiB, availableMiB: snapshot?.host?.availableMiB ?? null }) > 0) snapshot = await this.snapshot({ fresh: true }); }
+                catch (error) { this.lastError = error.message; }
+            }
             let decision;
             if (memory.credit && (benchmarkMode === 'swap' || !admission(creditedSnapshot(snapshot, memory.credit), { gpuMiB: needGpuMiB, ramMiB: needRamMiB }, this.config.reserves).allowed)) {
                 await this.freeImages();

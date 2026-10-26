@@ -143,3 +143,45 @@ test('pinned slots route streamed chat to the chat slot and side passes to the s
         assert.equal(props.total_slots, 2);
     } finally { await gateway.close(); }
 });
+
+test('with the member cache on, a streamed completion is planned before the backend call and saved after the reply only when idle; other generations clear the slot', async () => {
+    const arbiter = fakeArbiter({ pid: 7, loading: false, profile: 'fast' });
+    arbiter.scheduler.pending = [];
+    const order = [];
+    const members = {
+        syncBackend: (pid) => order.push(`sync ${pid}`),
+        before: async (body, slot) => { order.push(`before ${slot}`); return body.stream ? { key: 'k', slot } : null; },
+        afterReply: async (plan, { idle }) => { order.push(`after ${plan.key} idle=${idle()}`); },
+        noteOther: (slot) => order.push(`other ${slot}`),
+        status: () => ({}),
+    };
+    const fetchImpl = async (url, init) => { order.push(`backend ${new URL(url).pathname} ${JSON.parse(init.body).n_predict}`); return new Response(JSON.stringify({ content: 'ok' }), { headers: { 'content-type': 'application/json' } }); };
+    const gateway = createGateway({ arbiter, config: { modelAlias: 'm', defaultProfile: 'fast', promptReuse: { enabled: true, minChars: 1, minPrefixChars: 1, minTailChars: 1 } }, fetchImpl, memberCache: members });
+    const { port } = await gateway.listen(0);
+    const send = async (route, body) => {
+        const pending = fetch(`http://127.0.0.1:${port}${route}`, { method: 'POST', body: JSON.stringify(body) });
+        while (!arbiter.queued.length) await new Promise((resolve) => setTimeout(resolve, 5));
+        arbiter.queued.shift()();
+        assert.equal((await pending).status, 200);
+    };
+    try {
+        await send('/completion', { prompt: 'chat prompt', n_predict: 8, stream: true });
+        await send('/v1/chat/completions', { messages: [], max_tokens: 4 });
+        arbiter.scheduler.pending = [{}];
+        await send('/completion', { prompt: 'chat prompt', n_predict: 8, stream: true });
+        assert.deepEqual(order, ['sync 7', 'before 0', 'backend /completion 8', 'after k idle=true',
+            'sync 7', 'other 0', 'backend /v1/chat/completions undefined',
+            'sync 7', 'before 0', 'backend /completion 8', 'after k idle=false']);
+        assert.equal(gateway.memberCache, members);
+    } finally { await gateway.close(); }
+});
+
+test('the member cache is off by default and gives up image RAM through the scheduler hook', async () => {
+    const off = createGateway({ arbiter: fakeArbiter({ pid: 7 }), config: { modelAlias: 'm' }, fetchImpl: backendFetch });
+    assert.equal(off.memberCache, null);
+    const arbiter = fakeArbiter({ pid: 7 });
+    const on = createGateway({ arbiter, config: { modelAlias: 'm', stateDir: (await import('node:os')).tmpdir(), memberCache: { enabled: true, dir: `${(await import('node:os')).tmpdir()}/so-gw-member-test` } }, fetchImpl: backendFetch });
+    assert.equal(typeof arbiter.scheduler.onImageRam, 'function');
+    assert.equal(await arbiter.scheduler.onImageRam({ needRamMiB: 8000, availableMiB: 1000 }), 0);
+    assert.equal(on.memberCache.status().entries, 0);
+});
