@@ -1,6 +1,6 @@
 # v3.0 16 — Twine / Twee 3 interop (SPIKE)
 
-**Status: SPIKE, not built (owner 2026-10-26). Triage with Astra pending; build decision after triage.**
+**Status: SPIKE-LATER (Astra triage 2026-10-26, verified): not built; reopen only for a concrete Twine workflow the owner wants; first slice = author-only graph export.**
 
 ## Idea
 
@@ -28,3 +28,20 @@ Twine (twinery.org) authors branching fiction as passages + links + variables, s
 - Which story format(s) to support (SugarCube 2 / Harlowe 3 / format-agnostic Twee only)?
 - How should a link's condition map to a typed gate?
 - Is export alone (visualizer) worth it without import?
+
+## Triage 2026-10-26 (Astra, `research/astra-twine-triage.md`; checked in code)
+
+- Verdict SPIKE-LATER: authoring convenience, does not advance the replan priorities (performance, quality, images).
+- Verified: `newTransition` creates `gate: {all: []}`, which evaluates true, so an import mapping links to transitions would
+  turn player choices into automatic progression; Studio already exports the graph as Mermaid (`StudioGraph` `toMermaid`);
+  `studio/io.ts` JSON export is unredacted.
+- Fit: Twee 3 specifies passages, tags and metadata only; variables, conditions and effects belong to story formats
+  (Harlowe, SugarCube), a maintenance trap. A lossless structural round trip (ids, start, static adjacency, labels) is
+  possible; behaviour is not.
+- Wizard drafting Twee: dropped (adds translation and repair, omits the hard semantics).
+- Smallest later slice: local author-only graph exporter (one passage per checkpoint, static links, start, deterministic
+  positions, omission notice; no prose, macros, importer or wizard change). Floors: exact node/start/adjacency on synthetic
+  fixtures incl. cycles and self-links; byte-stable output; 0 planted sensitive strings exported; 0 script execution; a pinned
+  Twine import check; no converter in the main bundle. Est. 2-4 days, GPU 0.
+- Privacy: a shareable export allowlists fields and drops hidden content, private guidance, lore and held secrets; even an
+  anonymized graph is author-only (topology can spoil the campaign for the owner's fresh play).
