@@ -1,4 +1,5 @@
 import { readFile } from 'node:fs/promises';
+import { markStep, replayTargetFromEnv, sessionStats } from './lib/replayClient.mts';
 import { schedulerIdle } from './lib/schedulerIdle.mts';
 import { readModelSettings, writeModelSettings } from './lib/scenarioModelSettings.mts';
 import { fixtureCleanupSteps } from './lib/scenarioCleanup.mts';
@@ -1166,6 +1167,8 @@ async function runStep(page, key, value, { scenarioDir = PROJECT_ROOT, importedH
 
 // With a sandbox guard every step first proves the page is still on a chat the run created, so a
 // chat switched under the run (a shared debug browser) stops it before it writes anywhere else.
+const REPLAY_TARGET = replayTargetFromEnv();
+
 async function runSteps(page, steps, { scenarioDir = PROJECT_ROOT, importedHashes = [], label = '', assetBaseline = null, guard = null, requireStory = false, dismissBlocks = false } = {}) {
   const result: { steps: unknown[]; ok: boolean; error: string | null; vacuous?: boolean; retries: Array<{ index: number; key: string; attempt: number; of: number; error: string }>; firstAttempt?: 'pass' | 'fail'; blocksPaneDismissed?: Array<{ index: number; blocks: string[]; after: 'check' | 'intercept' }> } = { steps: [], ok: true, error: null, retries: [] };
   const attempts = new Map<number, number>();
@@ -1200,6 +1203,7 @@ async function runSteps(page, steps, { scenarioDir = PROJECT_ROOT, importedHashe
       const chatsByGroupBefore = guard && step.adoptsNewChat === 'other-group'
         ? await evaluateInST(page, () => Object.fromEntries(SillyTavern.getContext().groups.map((group) => [group.id, [...group.chats]])))
         : null;
+      await markStep(REPLAY_TARGET, `${label}${index + 1}:${key}`);
       output = await runStep(page, key, step[key], { scenarioDir, importedHashes, assetBaseline, guard });
       // T2: a verb that answered `{ok:false}` used to be logged as a passing step, so an import
       // that never landed or a restart that never happened read as green and every later
@@ -1215,7 +1219,7 @@ async function runSteps(page, steps, { scenarioDir = PROJECT_ROOT, importedHashe
       if (chatsBeforeStep) await adoptNewSandboxChat(page, guard, chatsBeforeStep);
       if (chatsByGroupBefore) await adoptForeignChat(page, guard, chatsByGroupBefore);
       if (guard) await recordSandboxStory(page, guard);
-      const entry = { index, key, ok: true, ms: Date.now() - startedAt };
+      const entry = { index, key, ok: true, ms: Date.now() - startedAt, ...(step.keep === true ? { output: output ?? null } : {}) };
       outputs[index] = output;
       result.steps.push(entry);
       console.log(`${label}${index + 1}/${steps.length} ${key} ok ${entry.ms}ms`);
@@ -1417,6 +1421,7 @@ async function runScenario(page, file, { sandbox = false, keep = false, group = 
   if (viewportBefore) await page.setViewportSize(viewportBefore).catch(() => undefined);
   const capture = currentPageCapture();
   if (capture && pageMark !== null) result.page = capture.summary(pageMark);
+  if (REPLAY_TARGET) result.replay = await sessionStats(REPLAY_TARGET);
   await writeJSON(result, 'so-scenario-result');
   console.log(JSON.stringify({ ok: result.ok, steps: (result.steps as unknown[]).length, cleanup: result.cleanup }, null, 2));
   return result;

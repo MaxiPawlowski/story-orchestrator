@@ -1,4 +1,5 @@
 import { pathToFileURL } from 'node:url';
+import { REPLAY_PORT } from './replayStore.mts';
 
 export const NO_MODEL_BACKUP = 'secrets.json.no-model-backup';
 
@@ -73,7 +74,7 @@ export const memoryPodPorts = (env: NodeJS.ProcessEnv = process.env): number[] =
 
 export function offlineProblems(settings: unknown, lanePort: number, podLane: OfflinePodLane | null = null): string[] {
   const seen = new Set<string>();
-  rewire(settings, lanePort, seen, [...(podLane?.podPort ? [podLane.podPort] : []), ...(podLane?.extraPorts ?? [])]);
+  rewire(settings, lanePort, seen, [REPLAY_PORT, ...(podLane?.podPort ? [podLane.podPort] : []), ...(podLane?.extraPorts ?? [])]);
   const ours = isRecord(settings) && isRecord(settings.extension_settings) && isRecord(settings.extension_settings['story-orchestrator'])
     ? (settings.extension_settings['story-orchestrator'] as Record<string, any>).settings : null;
   const disabled = isRecord(settings) && isRecord(settings.extension_settings) ? settings.extension_settings.disabledExtensions : null;

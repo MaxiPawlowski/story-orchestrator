@@ -11,6 +11,7 @@ export const RESERVED_PORTS: Readonly<Record<number, string>> = {
   8188: 'ComfyUI',
   8765: 'the showcase server',
   9222: 'the shared CDP browser',
+  18078: 'the replay backend (so-replay.mts)',
   18079: "offline lanes' closed port",
   18080: 'the pod tunnel',
   18888: 'the local controller',

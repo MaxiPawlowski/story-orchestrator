@@ -1,0 +1,43 @@
+{
+  "model": "any",
+  "_note": "v3.0 F3 (controller audit risk 8: concurrent side passes / --parallel 2 change inner-beat freshness). Model lane through the local controller, inner voice on (both cast members carry a drive): four real group turns, then the session journal's per-draft inner-beat lines are counted. Every drafted member must get a beat built for this turn (Inner beat used); a stale beat (built on an older reply) or no beat at its chat request fails the check. Floor 100 % (audit). No journal line at all fails as vacuous. The last step keeps the counts in the run record. Run on the controller under test, parallel 1 and parallel 2, same build. GPU: yes (live controller).",
+  "requires": {
+    "lane": "model",
+    "group": "Group: Arin, DM Narrator",
+    "members": ["Arin", "DM Narrator"],
+    "judge": "off",
+    "briefingDraft": "off",
+    "why": "the inner beat races its member's real chat request on the controller under test"
+  },
+  "steps": [
+    { "ext_setting": { "extension": "story-orchestrator", "key": ["settings", "image", "enabled"], "value": false } },
+    { "ext_setting": { "extension": "story-orchestrator", "key": ["settings", "sprites", "enabled"], "value": false } },
+    { "log": true, "eval": "for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; const ctx = SillyTavern.getContext(); for (let id = ctx.chat.length - 1; id >= 0; id -= 1) await ctx.deleteMessage(id, undefined, false); if (ctx.chat.length !== 0) throw new Error('the sandbox chat still holds ' + ctx.chat.length + ' message(s)'); const settings = globalThis.storyOrchestratorRuntime.getGlobalSettings(); return { innerVoice: settings.inner ?? null };" },
+    {
+      "import_story": {
+        "id": "so-v30-f3-inner-freshness",
+        "title": "SO-V30-F3 Inner freshness",
+        "description": "Synthetic F3 fixture: two people at a ferry crossing who each want something from the player, so both carry an inner voice.",
+        "qualities": [
+          { "key": "crossed", "type": "bool", "source": "extractor", "rubric": "Has the player boarded the ferry?" }
+        ],
+        "checkpoints": [
+          { "id": "dock", "name": "The dock", "player_name": "The dock", "player_text": "Talk your way onto the ferry.", "type": "anchor", "start": true, "objective": "Arin runs the ferry and wants a fare; the narrator describes the river." },
+          { "id": "across", "name": "Across", "player_name": "Across", "type": "anchor", "objective": "Walk on." }
+        ],
+        "transitions": [{ "from": "dock", "to": "across", "priority": 0, "gate": { "q": "crossed", "op": "==", "v": true } }],
+        "roster": [
+          { "id": "arin", "name": "Arin", "role": "the ferryman", "drive": "collect a fair fare before dusk" },
+          { "id": "narrator", "name": "DM Narrator", "role": "narrator", "drive": "keep the river's danger in view" }
+        ],
+        "requirements": { "members": ["Arin", "DM Narrator"] }
+      }
+    },
+    { "slash": "/sendas name=\"DM Narrator\" raw=false The ferry bumps against the dock. Arin leans on his pole and looks you over." },
+    { "send_generate": { "text": "I need to cross before nightfall. What is the fare?", "expectReply": true } },
+    { "send_generate": { "text": "I can pay half now and half on the other side.", "expectReply": true } },
+    { "send_generate": { "text": "Is the river safe tonight?", "expectReply": true } },
+    { "send_generate": { "text": "Fine. Here is the full fare.", "expectReply": true } },
+    { "keep": true, "log": true, "eval": "const events = globalThis.storyOrchestratorRuntime.getSessionJournal() ?? []; const lines = events.map((event) => /^(Inner beat used|Inner beat stale|No inner beat) for (.+)$/.exec(String(event.summary ?? ''))).filter(Boolean); if (!lines.length) throw new Error('vacuous: no inner beat journal line (inner voice off, or no member drafted)'); const counts = { used: 0, stale: 0, none: 0 }; const byMember = {}; for (const match of lines) { const kind = match[1] === 'Inner beat used' ? 'used' : match[1] === 'Inner beat stale' ? 'stale' : 'none'; counts[kind] += 1; byMember[match[2]] = byMember[match[2]] ?? { used: 0, stale: 0, none: 0 }; byMember[match[2]][kind] += 1; } if (counts.stale || counts.none) throw new Error('an inner beat was not fresh at its member chat request: ' + JSON.stringify({ counts, byMember })); return { counts, byMember };" }
+  ]
+}
