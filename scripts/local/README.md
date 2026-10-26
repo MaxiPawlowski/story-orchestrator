@@ -189,17 +189,25 @@ presets live in `config.json` under `modes` (edit them there) and the selected o
 
 | Setting | Max (only playing) | Balanced (as before) | Safe (using the PC too) | Applies |
 |---|---|---|---|---|
-| `reserves.gpuMiB` | 1536 | 2048 | 3072 | now for images and admission; the text layout at its next load |
-| `reserves.ramMiB` | 3072 | 4096 | 6144 | now |
+| `reserves.gpuMiB` | 1024 | 2048 | 3072 | now for images and admission; the text layout at its next load |
+| `reserves.ramMiB` | 2048 | 4096 | 6144 | now |
 | `streamImages.enabled` | on | on | off | now (next image) |
 | `streamImages.minFreeGpuMiB` | 2400 | 2400 | 2400 | now |
 | `idleRestoreMs` | 180000 | 600000 | 600000 | now |
 | `keepTextResident` | on | on | on | now |
 | `fitMarginMiB` | 512 | 512 | 512 | next text load |
 | `imageCacheMode` | warm | warm | evict | now (next image release) |
-| `memberCache.budgetMiB` | 6144 | (current) | 2048 | next text load (`--cache-ram` of the RAM member cache) |
+| `memberCache.budgetMiB` | 4096 | (current) | 2048 | next text load (`--cache-ram` of the RAM member cache) |
 
-Why these numbers (records: `docs/plans/v2.7/22-local-residency.md`, `22b-residency-harvest-2026-10-07.md`):
+Why these numbers (records: `docs/plans/v2.7/22-local-residency.md`, `22b-residency-harvest-2026-10-07.md`, and for Max
+`docs/plans/v3.0/09-controller-round-3.md` §M):
+
+- Max (2026-10-26, A setup: patched b11888, MTP 2, RAM member cache). GPU headroom 1024 and 1536 behaved the same: text
+  left 2.2 GiB free after load, every SDXL scene swapped the text out (MTP leaves less than the 2400 MiB stream floor),
+  no spill, no fit correction, no refusal, and decode after each image matched decode before it. 1024 only admits more
+  reloads beside foreign VRAM, and the spill guard backs off if that ever spills. A 6144 MiB member cache filled to 6.2 GiB
+  in 30 requests and left 7.8-9.3 GiB available, below the 10,240 MiB floor, so Max keeps 4096. Every image swap
+  restarts llama-server, which empties the RAM member cache.
 
 - GPU reserve. The desktop holds about 0.8 GiB; full `fast` text leaves about 2.7 GiB free at a 2048 + 512 fit target,
   all layers on the GPU. Max 1536 (fit target 2048, measured `--fit` undershoot ≤ 0.25 GiB still clears it) does not

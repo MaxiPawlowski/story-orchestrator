@@ -28,13 +28,13 @@ export const KNOBS = Object.freeze([
 const KNOB_DEFAULTS = Object.freeze({ keepTextResident: true, imageCacheMode: 'warm', fitMarginMiB: 0, idleRestoreMs: 0, 'streamImages.enabled': false, 'streamImages.minFreeGpuMiB': 2400, 'memberCache.budgetMiB': 6144 });
 
 export const PRESET_NOTES = Object.freeze({
-    max: 'Only playing: smaller desktop headroom, images stream beside text, full speed back after 3 idle minutes.',
+    max: 'Only playing: VRAM and RAM used to the measured-safe limit (GPU headroom 1 GiB, spill guard backs off on a shared-memory spill), full speed back after 3 idle minutes.',
     balanced: 'The values this install ran with before modes existed.',
     safe: 'Using the PC too: more VRAM and RAM left for your apps, images swap the text out, image cache returned after each render. Text may run slower.',
 });
 
 export const PRESETS = Object.freeze({
-    max: Object.freeze({ 'reserves.gpuMiB': 1536, 'reserves.ramMiB': 3072, 'streamImages.enabled': true, 'streamImages.minFreeGpuMiB': 2400, idleRestoreMs: 180000, keepTextResident: true, fitMarginMiB: 512, imageCacheMode: 'warm', 'memberCache.budgetMiB': 6144 }),
+    max: Object.freeze({ 'reserves.gpuMiB': 1024, 'reserves.ramMiB': 2048, 'streamImages.enabled': true, 'streamImages.minFreeGpuMiB': 2400, idleRestoreMs: 180000, keepTextResident: true, fitMarginMiB: 512, imageCacheMode: 'warm', 'memberCache.budgetMiB': 4096 }),
     safe: Object.freeze({ 'reserves.gpuMiB': 3072, 'reserves.ramMiB': 6144, 'streamImages.enabled': false, 'streamImages.minFreeGpuMiB': 2400, idleRestoreMs: 600000, keepTextResident: true, fitMarginMiB: 512, imageCacheMode: 'evict', 'memberCache.budgetMiB': 2048 }),
 });
 
