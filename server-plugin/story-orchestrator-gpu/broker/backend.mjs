@@ -103,7 +103,9 @@ export class NativeBackend {
         this.fitCorrections = new Map();
         this.lastFitCorrection = null;
         this.slotTokens = new Map();
-        this.slotStats = { requests: { chat: 0, side: 0 }, erased: 0 };
+        this.slotStats = { requests: { chat: 0, side: 0 }, erased: 0, waited: 0, chatErasedBySide: 0 };
+        this.slotBusy = new Set();
+        this.onSlotErased = null;
     }
 
     async load(name = this.config.defaultProfile, options = {}) {
@@ -182,6 +184,7 @@ export class NativeBackend {
                         this.profile = name;
                         this.fitTarget = fitTarget;
                         this.slotTokens.clear();
+                        this.slotBusy.clear();
                         if (fitTarget === null || this.desiredProfile === null) this.desiredProfile = name;
                         this.lastError = null;
                         this.loadMs = Date.now() - began;
@@ -240,14 +243,30 @@ export class NativeBackend {
         let others = 0;
         for (const [id, tokens] of this.slotTokens) if (id !== slot) others += tokens;
         if (required + others + 1 > context) {
-            for (const id of [...this.slotTokens.keys()].filter((id) => id !== slot)) {
+            const victims = [...this.slotTokens.keys()].filter((id) => id !== slot);
+            if (victims.some((id) => this.slotBusy.has(id))) { this.slotStats.waited += 1; await this.slotsIdle(victims, signal); }
+            for (const id of victims) {
                 const reply = await this.fetch(`${this.url}/slots/${id}?action=erase`, { method: 'POST', signal });
                 if (!reply.ok) throw new Error(`Could not free slot ${id} for a ${required}-token request (${reply.status}); the shared context would overflow.`);
                 this.slotTokens.delete(id);
                 this.slotStats.erased += 1;
+                if (pin && id === pin.chat && slot !== pin.chat) this.slotStats.chatErasedBySide += 1;
+                this.onSlotErased?.(id);
             }
         }
         this.slotTokens.set(slot, required);
+        this.slotBusy.add(slot);
+    }
+
+    releaseSlot(slot) { this.slotBusy.delete(slot); }
+
+    async slotsIdle(ids, signal) {
+        const deadline = Date.now() + (this.config.queueTimeoutMs ?? 600000);
+        while (ids.some((id) => this.slotBusy.has(id))) {
+            if (signal?.aborted) throw new Error('Request cancelled.');
+            if (Date.now() > deadline) throw new Error('The other slot did not finish before the shared context could be freed.');
+            await new Promise((resolve) => setTimeout(resolve, 25));
+        }
     }
 
     async promptTokens(body, signal) {
@@ -306,5 +325,5 @@ export class NativeBackend {
     }
 
     status() { return { profile: this.profile, desiredProfile: this.desiredProfile, fitTargetMiB: this.fitTarget, fitCorrectionMiB: this.fitCorrections.get(this.profile) ?? 0,
-        lastFitCorrection: this.lastFitCorrection, gpuReclaims: this.reclaims, speculative: speculativeTag(this.config), slots: slots(this.config) ? { ...slots(this.config), held: Object.fromEntries(this.slotTokens), requests: { ...this.slotStats.requests }, erased: this.slotStats.erased } : null, cacheRamMiB: memberCacheOptions(this.config)?.store === 'ram' ? memberCacheOptions(this.config).budgetMiB : this.config.cacheRamMiB ?? 512, pid: this.child?.pid ?? null, loading: Boolean(this.loading), loadMs: this.loadMs, loads: this.loads, lastError: this.lastError, crashed: this.crashed, servedContext: this.servedContext() }; }
+        lastFitCorrection: this.lastFitCorrection, gpuReclaims: this.reclaims, speculative: speculativeTag(this.config), slots: slots(this.config) ? { ...slots(this.config), held: Object.fromEntries(this.slotTokens), requests: { ...this.slotStats.requests }, erased: this.slotStats.erased, waited: this.slotStats.waited, chatErasedBySide: this.slotStats.chatErasedBySide, busy: [...this.slotBusy] } : null, cacheRamMiB: memberCacheOptions(this.config)?.store === 'ram' ? memberCacheOptions(this.config).budgetMiB : this.config.cacheRamMiB ?? 512, pid: this.child?.pid ?? null, loading: Boolean(this.loading), loadMs: this.loadMs, loads: this.loads, lastError: this.lastError, crashed: this.crashed, servedContext: this.servedContext() }; }
 }

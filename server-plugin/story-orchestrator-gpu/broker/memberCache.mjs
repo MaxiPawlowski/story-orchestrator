@@ -153,7 +153,9 @@ export class MemberCache {
             if (!idle()) { this.stats.idleYields += 1; break; }
             const prefix = nextPrefix(this.heads.get(key), this.lastPrompt);
             if (!prefix || this.idleDone.get(key) === prefix.length) continue;
-            const step = await this.post('/completion', { prompt: prefix, n_predict: 0, cache_prompt: true, stream: false, ...this.slotField(slot), cache_key: key, cache_ckpt_max: 1e9 }, signal);
+            let step;
+            try { step = await this.post('/completion', { prompt: prefix, n_predict: 0, cache_prompt: true, stream: false, ...this.slotField(slot), cache_key: key, cache_ckpt_max: 1e9 }, signal); }
+            catch (error) { if (signal?.aborted && !idle()) this.stats.idleYields += 1; else this.lastError = `idle prefill failed: ${error.message}`; break; }
             if (!step.ok) { this.lastError = `idle prefill answered ${step.status}`; break; }
             this.idleDone.set(key, prefix.length);
             this.owner.set(slot, null);

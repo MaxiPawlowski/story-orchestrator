@@ -225,3 +225,34 @@ test('after a cached chat reply the gateway runs the idle prefill through the te
     } finally { await gateway.close(); }
 });
 
+test('a request arriving during the idle prefill aborts it at once without recording an error', async () => {
+    const arbiter = fakeArbiter({ pid: 7, loading: false, profile: 'fast' });
+    const listeners = new Set();
+    arbiter.scheduler.pending = [];
+    arbiter.scheduler.onArrival = (listener) => { listeners.add(listener); return () => listeners.delete(listener); };
+    const seen = [];
+    let started;
+    const running = new Promise((resolve) => { started = resolve; });
+    const members = { store: 'ram', idlePrefill: true, idleDelayMs: 10, lastError: null, syncBackend: () => {}, before: async (body, slot) => ({ key: 'k', slot }), afterReply: async () => {},
+        noteOther: () => {}, afterOther: async () => {}, status: () => ({}),
+        runIdlePrefill: ({ idle, signal }) => new Promise((resolve) => { started(); signal.addEventListener('abort', () => { seen.push(`aborted idle=${idle()}`); resolve({ prefilled: 0 }); }, { once: true }); }) };
+    const fetchImpl = async () => new Response(JSON.stringify({ content: 'ok' }), { headers: { 'content-type': 'application/json' } });
+    const gateway = createGateway({ arbiter, config: { modelAlias: 'm', defaultProfile: 'fast' }, fetchImpl, memberCache: members });
+    const { port } = await gateway.listen(0);
+    try {
+        const pending = fetch(`http://127.0.0.1:${port}/completion`, { method: 'POST', body: JSON.stringify({ prompt: 'chat', n_predict: 4, stream: true }) });
+        while (!arbiter.queued.length) await new Promise((resolve) => setTimeout(resolve, 5));
+        arbiter.queued.shift()();
+        assert.equal((await pending).status, 200);
+        while (!arbiter.queued.length) await new Promise((resolve) => setTimeout(resolve, 5));
+        const idleRun = arbiter.queued.shift()();
+        await running;
+        assert.equal(listeners.size, 1);
+        for (const listener of [...listeners]) listener();
+        await idleRun;
+        await new Promise((resolve) => setTimeout(resolve, 5));
+        assert.deepEqual(seen, ['aborted idle=false']);
+        assert.equal(members.lastError, null);
+        assert.equal(listeners.size, 0);
+    } finally { await gateway.close(); }
+});

@@ -55,8 +55,10 @@ Optional `config.json` keys, all read by `broker/backend.mjs` `nativeArgs` (plan
   the last chat prompt's state and checkpoints while side passes run, without a RAM prompt cache. Each extra slot adds
   `estimatedGpuMiB` to the load admission (not to `--fit-target`: llama-server's fit measures its own KV slots).
   The slots share `--ctx-size`, so the gateway keeps each slot's last prompt + output and erases the other slots
-  (`POST /slots/<id>?action=erase`) before a request that would not fit beside them. `/props` reports `total_slots`;
-  `/status` reports `text.slots` (`held` tokens per slot, `requests.chat`/`requests.side`, `erased`). With slots the
+  (`POST /slots/<id>?action=erase`) before a request that would not fit beside them. A slot still generating is never
+  erased: the overflowing request waits for it to finish (`waited`), and a side pass that erases the chat slot is
+  counted (`chatErasedBySide`) and drops that slot's member owner. `/props` reports `total_slots`;
+  `/status` reports `text.slots` (`held` tokens per slot, `requests.chat`/`requests.side`, `erased`, `busy`). With slots the
   prompt-reuse park is never sent (it would land on a pinned slot).
 - `promptReuse: { enabled, minChars, minPrefixChars, minTailChars, history, parkWhenIdle }` (off unless `enabled`).
   Gemma 4 keeps 50 of 60 layers as sliding-window attention, so llama-server can resume a shared prompt prefix only
@@ -105,8 +107,9 @@ Optional `config.json` keys, all read by `broker/backend.mjs` `nativeArgs` (plan
   ~1.2-1.4 GiB per member), so `erase` can be off. `idlePrefill: true` (needs `serverKeys`) warms, after `idleDelayMs`
   (3000) with nothing waiting, each known member's next stable prefix: its head plus every history turn of the latest
   chat prompt except the last three (the depth-4 blocks sit four turns before the end, so the next prompt of any member
-  starts with exactly this text; checked byte-exact on 22 of 22 recorded turns). It runs in the text lane, yields between
-  members when a request arrives, and never loads text. The gateway cannot see the chat id, so keys are head hashes; the
+  starts with exactly this text; checked byte-exact on 22 of 22 recorded turns). It runs in the text lane, never loads
+  text and never counts toward image fairness; any text request or image arriving aborts the running step at once (the
+  server stops at its next batch) and counts an `idleYields`. The gateway cannot see the chat id, so keys are head hashes; the
   server only reuses state for an identical token prefix, so a shared head reuses only identical text.
 
 `node scripts/local/stable-head.mjs plan|apply|revert --data <ST user data dir> --group <id>[,<id>] [--backup <dir>]`

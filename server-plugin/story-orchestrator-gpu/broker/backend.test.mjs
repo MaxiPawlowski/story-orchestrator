@@ -237,10 +237,14 @@ test('a pinned request that would overflow the shared context with the other slo
     const backend = new Backend(pinned);
     const erased = [];
     backend.fetch = async (url, init) => { erased.push([url, init.method]); return new Response('{}'); };
+    const gone = [];
+    backend.onSlotErased = (id) => gone.push(id);
     backend.tokens = 3000;
     await backend.forRequest({ prompt: 'side', n_predict: 100 }, undefined, 1);
+    backend.releaseSlot(1);
     backend.tokens = 20000;
     await backend.forRequest({ prompt: 'chat', n_predict: 1000 }, undefined, 0);
+    backend.releaseSlot(0);
     assert.deepEqual(erased, []);
     assert.deepEqual(backend.status().slots.held, { 0: 21000, 1: 3100 });
     backend.tokens = 29000;
@@ -248,6 +252,8 @@ test('a pinned request that would overflow the shared context with the other slo
     assert.deepEqual(erased, [['http://127.0.0.1:undefined/slots/1?action=erase', 'POST']]);
     assert.deepEqual(backend.status().slots.held, { 0: 30000 });
     assert.equal(backend.status().slots.erased, 1);
+    assert.deepEqual(gone, [1]);
+    backend.releaseSlot(0);
     assert.deepEqual(backend.status().slots.requests, { chat: 2, side: 1 });
     assert.equal(backend.status().slots.side, 1);
     backend.fetch = async () => new Response('{}', { status: 501 });
@@ -312,4 +318,29 @@ test('when nothing can be reclaimed the reserve miss falls back to the bounded r
     await backend.load('fast');
     assert.equal(calls.length, 2);
     assert.equal(backend.status().gpuReclaims, 0);
+});
+
+test('an overflowing request never erases a slot that is still generating: it waits for it, and a side pass erasing the chat slot is counted', async () => {
+    const pinned = { ...config, slots: { count: 2 } };
+    const backend = new Backend(pinned);
+    const order = [];
+    backend.fetch = async (url) => { order.push(`erase ${url.slice(url.indexOf('/slots/'), url.indexOf('?'))}`); return new Response('{}'); };
+    backend.tokens = 25000;
+    await backend.forRequest({ prompt: 'chat', n_predict: 1000 }, undefined, 0);
+    backend.tokens = 9000;
+    const side = backend.forRequest({ prompt: 'side', n_predict: 500 }, undefined, 1).then(() => order.push('side held'));
+    await new Promise((resolve) => setTimeout(resolve, 80));
+    assert.deepEqual(order, []);
+    assert.equal(backend.status().slots.waited, 1);
+    order.push('chat done');
+    backend.releaseSlot(0);
+    await side;
+    assert.deepEqual(order, ['chat done', 'erase /slots/0', 'side held']);
+    assert.equal(backend.status().slots.chatErasedBySide, 1);
+    assert.deepEqual(backend.status().slots.busy, [1]);
+    const stop = new AbortController();
+    backend.tokens = 30000;
+    const blocked = backend.forRequest({ prompt: 'chat', n_predict: 1000 }, stop.signal, 0);
+    stop.abort();
+    await assert.rejects(blocked, /cancelled/);
 });

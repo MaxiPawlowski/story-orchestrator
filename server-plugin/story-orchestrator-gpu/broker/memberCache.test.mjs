@@ -259,3 +259,21 @@ test('idle prefill warms other members first with their key, skips repeats and y
     assert.equal(cache.status().idlePrefills, 4);
 });
 
+test('an idle prefill step aborted by an arriving request counts as a yield, not an error', async () => {
+    const stop = new AbortController();
+    let posts = 0;
+    const fetchImpl = async (url, init) => {
+        const body = JSON.parse(init.body);
+        if (body.n_predict === 0 && body.cache_ckpt_max === 1e9) { posts += 1; stop.abort(); throw new DOMException('aborted', 'AbortError'); }
+        return Response.json({ tokens_evaluated: 700, timings: { prompt_n: 700, cache_n: 0 } });
+    };
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'so-member-idle-abort-'));
+    const cache = new MemberCache(memberCacheOptions({ stateDir: dir, memberCache: { enabled: true, store: 'ram', serverKeys: true, erase: false, park: false, idlePrefill: true, minPromptChars: 1000, minCutChars: 1000, minTailChars: 100 } }), { fetch: fetchImpl, baseUrl: 'http://backend' });
+    await cache.init();
+    await cache.before({ prompt: prompt('Ana', 6), stream: true }, 0);
+    await cache.before({ prompt: prompt('Bob', 7), stream: true }, 0);
+    assert.deepEqual(await cache.runIdlePrefill({ idle: () => !stop.signal.aborted, signal: stop.signal }), { prefilled: 0 });
+    assert.equal(posts, 1);
+    assert.equal(cache.status().idleYields, 1);
+    assert.equal(cache.status().lastError, null);
+});

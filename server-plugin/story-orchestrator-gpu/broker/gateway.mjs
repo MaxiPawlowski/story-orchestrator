@@ -38,6 +38,7 @@ export function createGateway({ arbiter, config, fetchImpl = fetch, allowOrigin 
         snapshot: arbiter.scheduler?.snapshot ? () => arbiter.scheduler.snapshot({ fresh: true }) : null, reserves: () => config.reserves ?? {} }) : null;
     const membersReady = members?.init ? members.init().catch((error) => { members.lastError = error.message; }) : null;
     if (members && arbiter.scheduler) arbiter.scheduler.onImageRam = (need) => members.makeRoom(need);
+    if (members && arbiter.backend) arbiter.backend.onSlotErased = (id) => members.noteOther(id);
     const memberIdle = () => idle() && !arbiter.scheduler?.imageQueued && !arbiter.scheduler?.imagePending;
     let idleTimer = null;
     const backendReady = () => { const state = arbiter.backend.status(); return Boolean(state.pid) && !state.loading; };
@@ -46,8 +47,13 @@ export function createGateway({ arbiter, config, fetchImpl = fetch, allowOrigin 
         clearTimeout(idleTimer);
         idleTimer = setTimeout(() => {
             if (closing || !memberIdle() || !backendReady()) return;
-            arbiter.text(async () => { if (backendReady() && memberIdle()) await members.runIdlePrefill({ idle: memberIdle, slot }); }, undefined, null)
-                .catch((error) => { members.lastError = error.message; });
+            const stop = new AbortController();
+            const unsubscribe = arbiter.scheduler?.onArrival?.(() => stop.abort()) ?? (() => {});
+            const signal = AbortSignal.any([stop.signal, AbortSignal.timeout(120000)]);
+            const stillIdle = () => !stop.signal.aborted && memberIdle();
+            arbiter.text(async () => { if (backendReady() && stillIdle()) await members.runIdlePrefill({ idle: stillIdle, slot, signal }); }, stop.signal, null, 'idle')
+                .catch((error) => { if (!stop.signal.aborted) members.lastError = error.message; })
+                .finally(unsubscribe);
         }, members.idleDelayMs ?? 3000);
         idleTimer.unref?.();
     };
@@ -131,10 +137,12 @@ export function createGateway({ arbiter, config, fetchImpl = fetch, allowOrigin 
             const state = backend.status();
             if (COUNTING_ROUTES.includes(route) && state.pid && !state.loading && state.profile) { await forward(); return; }
             await arbiter.text(async () => {
-                if (body && GENERATION_ROUTES.includes(route)) await backend.forRequest(body, abort.signal, slot);
-                else await backend.ensure(backend.profile ?? config.defaultProfile);
-                try { await forward(); }
-                finally { if (!memberDone && members?.afterOther && generating && backend.status().pid) await members.afterOther(slot ?? 0).catch((error) => { members.lastError = error.message; }); }
+                try {
+                    if (body && GENERATION_ROUTES.includes(route)) await backend.forRequest(body, abort.signal, slot);
+                    else await backend.ensure(backend.profile ?? config.defaultProfile);
+                    try { await forward(); }
+                    finally { if (!memberDone && members?.afterOther && generating && backend.status().pid) await members.afterOther(slot ?? 0).catch((error) => { members.lastError = error.message; }); }
+                } finally { if (slot !== null) backend.releaseSlot?.(slot); }
             }, abort.signal, GENERATION_ROUTES.includes(route) ? Number(body?.n_predict ?? body?.max_tokens ?? 1400) : null, generating && body?.stream === true ? 'chat' : 'side');
         } catch (error) {
             if (error instanceof ContextRefusal) answer(res, 400, { error: { code: 400, message: error.message, type: 'exceed_context_size_error', n_prompt_tokens: error.promptTokens, n_ctx: error.context } });

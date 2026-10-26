@@ -791,3 +791,20 @@ test('with two slots a chat runs beside a side pass, never two of one lane, and 
     assert.ok(log.indexOf('end sideA') < log.indexOf('start sideB'));
 });
 
+test('an idle prefill step neither counts toward image fairness nor announces itself; a real request or an image does', async () => {
+    const { scheduler } = setup({ config: { maxQueue: 8 } });
+    const heard = [];
+    const unsubscribe = scheduler.onArrival(() => heard.push(scheduler.status().waitingText));
+    await scheduler.text(async () => {}, undefined, null, 'idle');
+    assert.equal(scheduler.status().servedText, 0);
+    assert.deepEqual(heard, []);
+    await scheduler.text(async () => {}, undefined, null, 'side');
+    assert.equal(scheduler.status().servedText, 1);
+    assert.equal(heard.length, 1);
+    const lease = await scheduler.reserve();
+    assert.equal(heard.length, 2);
+    await scheduler.release(lease.lease);
+    unsubscribe();
+    await scheduler.text(async () => {}, undefined, null, 'chat');
+    assert.equal(heard.length, 2);
+});

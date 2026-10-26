@@ -36,6 +36,7 @@ export class ResidencyScheduler {
         this.pending = [];
         this.activeText = 0;
         this.activeLanes = new Set();
+        this.arrivals = new Set();
         this.imagePending = false;
         this.lease = null;
         this.manualHold = false;
@@ -81,16 +82,21 @@ export class ResidencyScheduler {
         if (this.manualHold) return Promise.reject(new Error('Text is manually unloaded. Select Automatic or Load text in the tray.'));
         if (this.pending.length >= this.config.maxQueue) return Promise.reject(new Error('Local text queue is full.'));
         return new Promise((resolve, reject) => {
-            const entry = { run, resolve, reject, signal, budget, lane: lane === 'chat' ? 'chat' : 'side', timer: null, abort: null };
+            const entry = { run, resolve, reject, signal, budget, lane: lane === 'chat' ? 'chat' : 'side', idle: lane === 'idle', timer: null, abort: null };
             const remove = (error) => { this.pending = this.pending.filter((row) => row !== entry); this.cleanup(entry); reject(error); };
             entry.abort = () => remove(new Error('Queued request was cancelled.'));
             entry.timer = setTimeout(() => remove(new Error('Local resource queue deadline exceeded.')), this.config.queueTimeoutMs);
             signal?.addEventListener('abort', entry.abort, { once: true });
             if (signal?.aborted) { entry.abort(); return; }
             this.pending.push(entry);
+            if (!entry.idle) this.notifyArrival();
             void this.pump();
         });
     }
+
+    onArrival(listener) { this.arrivals.add(listener); return () => this.arrivals.delete(listener); }
+
+    notifyArrival() { for (const listener of [...this.arrivals]) { try { listener(); } catch { this.arrivals.delete(listener); } } }
 
     cleanup(entry) { clearTimeout(entry.timer); entry.signal?.removeEventListener('abort', entry.abort); }
 
@@ -134,7 +140,7 @@ export class ResidencyScheduler {
             entry.resolve(await entry.run());
         }
         catch (error) { this.lastError = error.message; entry.reject(error); }
-        finally { this.activeText -= 1; this.activeLanes.delete(entry.lane); this.servedText += 1; void this.pump(); }
+        finally { this.activeText -= 1; this.activeLanes.delete(entry.lane); if (!entry.idle) this.servedText += 1; void this.pump(); }
     }
 
     async needFor(body, key) {
@@ -177,6 +183,7 @@ export class ResidencyScheduler {
         this.lastImageRequestAt = Date.now();
         const deadline = Date.now() + this.config.queueTimeoutMs;
         this.imageQueued = { at: Date.now(), served: this.servedText };
+        this.notifyArrival();
         try {
             while (this.restoring || ((this.activeText || (this.pending.length && !this.manualHold)) && !this.imageTurn())) {
                 if (Date.now() > deadline) throw new Error('The text generation did not finish before the image deadline.');
