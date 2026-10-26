@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { parseChatJsonl, talkMetrics } from './talkMetrics.mts';
+import { parseChatJsonl, parseSpeechLedger, speechLedgerMetrics, talkMetrics } from './talkMetrics.mts';
 
 const cast = ['Narrator', 'Mara', 'Finn'];
 
@@ -35,4 +35,36 @@ test('a narrator-only opening has no hook and no first address', () => {
 test('reads an ST chat file, skipping its metadata header and bad lines', () => {
   const rows = parseChatJsonl(['{"chat_metadata":{}}', '{"name":"Mara","mes":"Hi"}', 'not json', ''].join('\n'));
   assert.deepEqual(rows, [{ name: 'Mara', mes: 'Hi' }]);
+});
+
+test('budget compliance, spotlight share and gaps, lead length within target', () => {
+  const rows = [
+    { name: 'Rook', mes: 'Go.', is_user: true },
+    { name: 'Narrator', mes: 'one two three four five six seven eight nine ten' },
+    { name: 'Mara', mes: '"Fine."' },
+    { name: 'Finn', mes: '"Sure."' },
+    { name: 'Rook', mes: 'On.', is_user: true },
+    { name: 'Narrator', mes: 'one two three' },
+    { name: 'Rook', mes: 'And?', is_user: true },
+    { name: 'Narrator', mes: 'one two' },
+    { name: 'Mara', mes: '"Hm."' },
+  ];
+  const metrics = talkMetrics({ rows, player: 'Rook', lead: 'Narrator', cast, budget: 2, leadWords: 4 });
+  assert.deepEqual(metrics.budget, { limit: 2, rounds: 3, compliant: 2, rate: 2 / 3 });
+  assert.deepEqual(metrics.spotlight.share, { Mara: 2 / 3, Finn: 1 / 3 });
+  assert.equal(metrics.spotlight.longestPartyGap, 1);
+  assert.deepEqual(metrics.spotlight.longestQuiet, { Mara: 2, Finn: 2 });
+  assert.deepEqual(metrics.leadLength, { target: 4, within: 2, lines: 3, rate: 2 / 3 });
+});
+
+test('reads the speech ledger from the chat file header', () => {
+  const header = { chat_metadata: { story_orchestrator: { selectedStoryId: 's', stories: { s: { extras: { speech: [
+    { send: 0, origin: 'chain', generated: true, messageId: 2 },
+    { send: 0, origin: 'npc', generated: false, messageId: 3 },
+    { send: 0, origin: 'chain', generated: true, messageId: null },
+    { send: -1, origin: 'entry', generated: false, messageId: 0 },
+  ] } } } } } };
+  const ledger = parseSpeechLedger([JSON.stringify(header), '{"name":"Mara","mes":"Hi"}'].join('\n'));
+  assert.deepEqual(speechLedgerMetrics(ledger), { events: 4, byOrigin: { chain: 2, npc: 1, entry: 1 }, failedAttempts: 1, maxVoicesPerSend: 2 });
+  assert.deepEqual(parseSpeechLedger('{"name":"Mara","mes":"Hi"}'), []);
 });

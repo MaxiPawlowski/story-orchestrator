@@ -1,3 +1,6 @@
+import type { NpcReplyEffect } from "@engine/index";
+import { npcReplyId } from "@engine/validate/talkPacing";
+
 // NPC reply fire counts are keyed by checkpoint/trigger/member/index, so a rollback has no message
 // to compare against. Recording the message id each fire happened at lets a rollback past that id
 // re-arm the reply instead of silently skipping it on the replay.
@@ -16,7 +19,7 @@ export const releaseNpcReplyFire = (counts: Record<string, number>, at: Record<s
   else delete at[key];
 };
 
-export const NPC_REPLY_SPACING = 8;
+export const NPC_REPLY_COOLDOWN_TURNS = 2;
 
 export type ActiveTrigger = "afterSpeak" | "sceneBreak";
 
@@ -25,12 +28,29 @@ export const heldLine = (replies: Array<{ trigger: string; enabled?: boolean }>,
     ? [`a ${trigger} line of ${checkpoint} was held`, `the writes queued for the next boundary move the story to ${leaving}, so the line would land in the next scene`]
     : null;
 
+export interface ReplyScopeView {
+  entryStart: number;
+  send: number;
+  playerTurns: readonly number[];
+}
+
+export const npcReplyKey = (checkpointId: string, reply: Pick<NpcReplyEffect, "id" | "trigger" | "member">, index: number): string => `${checkpointId}:${npcReplyId(reply, index)}`;
+
+const scopedFires = (fires: readonly number[], count: number, scope: NpcReplyEffect["once_per"], view: ReplyScopeView): number => {
+  if (scope === "entry") return fires.filter((id) => id >= view.entryStart).length;
+  if (scope === "player_turn") return fires.filter((id) => id >= view.send).length;
+  return Math.max(count, fires.length);
+};
+
 export const npcReplyMayFire = (
-  counts: Record<string, number>, at: Record<string, number[]> | undefined, key: string, maxTriggers: number | undefined, trigger: string, messageId: number,
+  counts: Record<string, number>, at: Record<string, number[]> | undefined, key: string, reply: Pick<NpcReplyEffect, "maxTriggers" | "once_per" | "cooldown_player_turns" | "trigger">,
+  view: ReplyScopeView,
 ): boolean => {
-  if ((counts[key] ?? 0) >= Math.max(1, maxTriggers ?? 1)) return false;
-  const last = at?.[key]?.at(-1);
-  return trigger === "onEnter" || last === undefined || messageId - last >= NPC_REPLY_SPACING;
+  const fires = at?.[key] ?? [];
+  if (scopedFires(fires, counts[key] ?? 0, reply.once_per, view) >= Math.max(1, reply.maxTriggers ?? 1)) return false;
+  const last = fires.at(-1);
+  const cooldown = reply.cooldown_player_turns ?? (reply.trigger === "onEnter" ? 0 : NPC_REPLY_COOLDOWN_TURNS);
+  return last === undefined || view.playerTurns.filter((id) => id > last).length >= cooldown;
 };
 
 const lineGone = (line: number, messageId: number, mutation: PostMutation): boolean =>

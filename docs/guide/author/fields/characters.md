@@ -10,6 +10,7 @@ Each section is one guide topic. The Studio's "How to write this" and the wizard
 - [Drives and motives](#drives-motives)
 - [Inner voice](#inner-voice)
 - [Speaker direction](#talk-control)
+- [Pacing profiles and speech budget](#talk-pacing)
 - [Character life](#character-life)
 - [Factions and standing](#factions)
 - [Rumors and gossip](#rumors)
@@ -101,6 +102,30 @@ Field: `checkpoints[].talk_control`: `speakers` `[{ member, weight }]`, `lead`, 
 - **Bad.** A `lead` left out of `speakers`; an enabled character missing from `speakers`, whom the narrator then voices.
 - **Chain repeats.** `no_repeat` defaults on: each member answers at most once in the chain, including a scripted sequence. With no unused member, the chain ends; a repeated scripted entry ends it too. `no_repeat: false` permits repeats up to `max`. A new player line or STOP always ends the old chain, even while its next voice is being chosen.
 - **If wrong.** A lead outside the list still joins at weight 1 (`talk-lead-outside-speakers`); a name nobody has falls back to SillyTavern (`talk-member-unknown`); `allow_silence` without the director never happens (`talk-silence-without-director`); a scripted chain without a sequence speaks one voice (`talk-chain-empty`), and an unknown voice in it is skipped (`talk-chain-member-unknown`).
+
+<a id="talk-pacing"></a>
+
+## Pacing profiles and speech budget
+
+Topic `talk-pacing`.
+
+Fields: `checkpoints[].talk_control.profile`, `budget` (`{ voices, attempts }`), `lead_words`, `spotlight` (`{ quiet_after, members }` or `false`), `address_player` (`{ after_player_turns, by, cooldown_player_turns }` or `false`), `reaction` (`true`, `{ members }` or `false`), and the story's `talk_defaults` (`{ profile, budget }`) (`engine/talkSchema.ts`, `validate/talkPacing.ts`, `talk/policy.ts` `resolveTalkPolicy`, `runtime/speechBudget.ts`, `runtime/talkPacing.ts`).
+
+- **What it does.** One player message is answered by a few automatic voices, and on a local model each is a full generation. The **speech budget** caps them per player message: `voices` is how many character messages may follow the player's line (the first reply counts), `attempts` how many generations may be started (a failed generation still costs one; a scripted line costs a voice, not a generation). Chain voices, `afterSpeak` and `sceneBreak` NPC lines, spotlight voices and reaction lines all draw on the same budget, so "two voices at most" holds end to end; entering lines (the opener, the hook, a beat's `onEnter` lines) are the entry sequence and do not draw on it. Without a `budget`, a beat with `talk_control` keeps today's shape: `voices` is the chain's `max` (or 1 with `chain: false`) plus one when the beat has an `afterSpeak` or `sceneBreak` line, and `attempts` is `voices` + 1. A beat without `talk_control` has no budget unless the story sets `talk_defaults`.
+- **Profiles.** `profile` names a pacing shape and expands into explicit policy; any field you set on the beat wins, and the story's `talk_defaults` apply where the beat sets neither. A profile never switches a built feature off (the chain, yield on question, thinking and the inner voice stay as they are).
+  - `opening`: 2 voices, the lead first, lead near 180 words, a member turns to the player after 1 player turn (then every 2), no spotlight, no reaction.
+  - `conversation`: 3 voices, the lead does not get the first word, lead near 120 words, spotlight after 2 quiet player turns, a member turns to the player after 3 (then every 3), reaction on.
+  - `decision`: 2 voices, the lead first, lead near 140 words, no spotlight, no turning to the player (the choice is already there), no reaction.
+  - `action`: 3 voices, the lead first, lead near 160 words, spotlight after 3 quiet player turns, reaction on.
+  - `aftermath`: 2 voices, the lead does not get the first word, lead near 100 words, spotlight after 1 quiet player turn, a member turns to the player after 2 (then every 4), reaction on.
+- **`lead_words`.** A soft length target for the lead, sent privately to the lead's own reply ("Length for X only: keep this reply near N words…"). It is a prompt hint only: the reply's token cap is never lowered, because thinking shares it.
+- **`spotlight`.** When the judge or director picks the next chain voice, a relevant member who has been quiet for `quiet_after` player turns (counted from the chat since the beat was entered) takes that voice instead, with a one-line private nudge to speak up briefly. It **replaces** the voice, never adds one, and it never overrides a member the player or the last voice named. `members` limits who may be brought in (default: every speaker except the lead). Ties draw from the chat's seeded chance.
+- **`address_player`.** After `after_player_turns` player turns with no party member asking the player something, the next voice that is already planned and is not the lead (`by: "relevant_member"`, or a list of members) gets a private one-shot direction to turn to the player and ask one thing in their own voice; it costs no extra generation, and the turn then goes to the player. `cooldown_player_turns` (default `after_player_turns`, at least 1) is the wait before the next such beat. Swiping that reply keeps its direction.
+- **`reaction`.** After something consequential in this player message (a transition fired, a quest closed or was rewarded, a check was rolled), one relevant member who has not spoken yet in this answer reacts briefly, then the turn is the player's. At most one per event, only in a `director` chain, only when the budget still has a voice, and never after a voice asked the player something. `members` limits who reacts.
+- **Rollback.** Nothing here is a bare counter: the budget, spotlight and address checks read the chat and a speech record whose rows carry the message they answered and its revision; a swipe, edit or delete drops the rows at and after it, so replaying the same messages gives the same decisions.
+- **Good.** `"talk_control": { "lead": "Ruins Narrator", "speakers": [...], "profile": "conversation" }` in a camp scene; `"profile": "decision", "budget": { "voices": 2 }` at a choice; `"talk_defaults": { "profile": "conversation" }` with `"profile": "decision"` on the few choice beats.
+- **Bad.** `spotlight` on a confession with `chain: false`; `address_player` with `after_player_turns: 0` on every beat (an interrogation); a `lead_words` of 40 for a narrator who must describe a new place.
+- **If wrong.** A `budget` below the chain's explicit `max` cuts the chain short (`talk-budget-below-chain`): "The speech budget stops the chain before its max, so fewer voices answer than the chain allows." Spotlight or reaction with one voice per message, or with no chain, never happens (`talk-pacing-no-room`): "Spotlight and reaction lines replace or add a second voice, so with one voice per player message or no chain they never happen." A `members` or `by` name nobody has is `talk-member-unknown`.
 
 <a id="character-life"></a>
 

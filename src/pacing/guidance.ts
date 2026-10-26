@@ -31,11 +31,20 @@ export const oneShotDirectionText = (reply: { instruction?: string; ask_player?:
   return instruction ? `${instruction} ${ASK_PLAYER_TAIL}` : ASK_PLAYER_DIRECTION;
 };
 
+export const leadLengthLine = (name: string, words: number): string =>
+  `Length for ${name} only: keep this reply near ${words} words; say what changed and what it looks like now, and skip what the chat already holds.`;
+
+export const SPOTLIGHT_DIRECTION = "Speak up now with what you notice, know or feel about this moment, in your own voice and briefly; "
+  + `then stop, and never speak or decide for ${PLAYER_REF}.`;
+
+export const REACTION_DIRECTION = "React briefly, in your own voice, to what just happened: one or two sentences that add your view or what you notice; "
+  + `then stop and leave the next move to ${PLAYER_REF}.`;
+
 export const oneShotDirectionLine = (member: MemberGuidanceLine): string => `Direction for ${member.name} only, this reply: ${member.text.trim()} ${ONE_SHOT_SCOPE}`;
 
 export const composeGuidanceBlock = (
   checkpoint: Checkpoint | null | undefined, policy: AgencyPolicy, withObjective = false, member: MemberGuidanceLine | null = null, stretch: string | null = null,
-  oneShot: MemberGuidanceLine | null = null,
+  oneShot: MemberGuidanceLine | null = null, length: string | null = null,
 ): string => {
   const guidance = guidanceShared(checkpoint?.guidance).trim();
   const directed = [
@@ -43,6 +52,7 @@ export const composeGuidanceBlock = (
     stretch ?? "",
     member?.text.trim() ? memberGuidanceLine(member) : "",
     oneShot?.text.trim() ? oneShotDirectionLine(oneShot) : "",
+    length ?? "",
     withObjective && checkpoint?.objective?.trim() ? objectiveLine(checkpoint, policy) : "",
   ].filter(Boolean);
   return [

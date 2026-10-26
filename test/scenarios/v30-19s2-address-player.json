@@ -1,0 +1,107 @@
+{
+  "model": "none",
+  "_note": "Address-the-player rides a planned voice: lead DM Narrator, director on (storyOrchestratorDebugDirectorResponse picks Arin), address_player after 1 player turn. The first voice the director picks is Arin, a non-lead member, so the one-shot ask rides it: the speech record holds an address event for Arin with recipient player, instructed and yield-after, whether or not the no-model lane renders the reply (a failed generation is recorded as an attempt with no message). No extra voice is started for it. Assumes the no-model lane runs the group wrapper and the talk interceptor; if it does not, run on a model lane. Written for v3.0 plan 19 stage 2, NOT YET RUN (the live gate is owed); schema-validated only.",
+  "requires": {
+    "lane": "no-model",
+    "group": "Group: Arin, DM Narrator",
+    "members": [
+      "Arin",
+      "DM Narrator"
+    ],
+    "why": "the decision and the speech record are code; the reply text is not asserted",
+    "judge": "off"
+  },
+  "steps": [
+    {
+      "eval": "for (const name of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[name]; globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; globalThis.storyOrchestratorDebugDirectorResponse = 'SPEAKER: Arin'; return { director: 'Arin' };",
+      "log": true
+    },
+    {
+      "import_story": {
+        "title": "SO-V3019S2 Address",
+        "description": "v3.0 plan 19 stage 2 no-model fixture.",
+        "qualities": [
+          {
+            "key": "at_gate",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Has the party reached the gate?"
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "camp",
+            "name": "Camp",
+            "objective": "Make camp.",
+            "type": "anchor",
+            "start": true,
+            "talk_control": {
+              "lead": "DM Narrator",
+              "speakers": [
+                {
+                  "member": "DM Narrator"
+                },
+                {
+                  "member": "Arin"
+                }
+              ],
+              "director": true,
+              "chain": {
+                "max": 2
+              },
+              "address_player": {
+                "after_player_turns": 1
+              }
+            }
+          },
+          {
+            "id": "gate",
+            "name": "Gate",
+            "objective": "Open it.",
+            "type": "anchor"
+          }
+        ],
+        "transitions": [
+          {
+            "from": "camp",
+            "to": "gate",
+            "priority": 1,
+            "gate": {
+              "q": "at_gate",
+              "op": "==",
+              "v": true
+            }
+          }
+        ],
+        "roster": [
+          {
+            "id": "DM Narrator",
+            "name": "DM Narrator"
+          },
+          {
+            "id": "Arin",
+            "name": "Arin"
+          }
+        ]
+      },
+      "log": true
+    },
+    {
+      "send_generate": {
+        "text": "We stop for the night.",
+        "timeoutMs": 60000
+      }
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 1500,
+        "timeoutMs": 30000
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const speech = rt.extras.speech ?? []; const address = speech.filter((e) => e.origin === 'address'); const state = { address, speech, decisions: rt.getTalkState().decisions.slice(-4) }; if (address.length !== 1 || address[0].member !== 'Arin' || address[0].recipient !== 'player' || !address[0].instructed || !address[0].yieldAfter) throw new Error('one address event for Arin expected: ' + JSON.stringify(state)); if (speech.filter((e) => e.send === address[0].send && e.origin !== 'entry').length > 1) throw new Error('the address beat must ride a voice, not add one: ' + JSON.stringify(state)); return state;",
+      "log": true
+    }
+  ]
+}

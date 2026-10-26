@@ -230,6 +230,10 @@ describe("runDiagnostics", () => {
       ...runDiagnostics({ ...clean, checkpoints: [{ ...clean.checkpoints[0], effects: { npc_replies: [
         { trigger: "onEnter", member: "Arin", kind: "llm", instruction: "Ask what the player will do next." },
       ] } }, clean.checkpoints[1]] }),
+      ...runDiagnostics({ ...clean, checkpoints: [
+        { ...clean.checkpoints[0], talk_control: { chain: { max: 4 }, budget: { voices: 2 } } },
+        { ...clean.checkpoints[1], talk_control: { chain: false, spotlight: {} }, effects: { npc_replies: [{ trigger: "onEnter", member: "Arin", kind: "scripted", text: "Hm.", once_per: "player_turn" }] } },
+      ] }),
     ];
     const counts = new Map<string, number>();
     diagnostics.forEach((entry) => counts.set(entry.code, (counts.get(entry.code) ?? 0) + 1));

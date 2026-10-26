@@ -1,6 +1,9 @@
 import type { NpcReplyEffect } from "@engine/index";
 import { getActiveGroup, getContext, guardHostStream, isHostGenerating, resolveGroupMemberId, stopHostGeneration, watchHostChatMove } from "@services/STAPI";
 import { oneShotDirectionText } from "@pacing/guidance";
+import type { SpeechRequest, SpeechReservation } from "./speechLedger";
+import type { SpeechBudget } from "./speechBudget";
+import { messageRevision } from "./yourMove";
 import { isRecord } from "@utils/guards";
 import type { WriteResult } from "@utils/writeResult";
 import { castFlag } from "./effectLedger";
@@ -29,6 +32,32 @@ export const memberSpeaks = (name: string): boolean => {
   const member = resolveGroupMemberId(name);
   return Boolean(group && member && !castFlag(group, member).disabled);
 };
+
+export const rollsReply = (reply: NpcReplyEffect, trigger: string, key: string, deps: SpeakDeps & { roll?: (key: string) => number | null }): boolean => {
+  if (typeof reply.probability !== "number") return true;
+  const roll = deps.roll?.(key) ?? Math.random();
+  const fired = roll <= reply.probability;
+  deps.journal?.(`NPC reply ${reply.member} (${trigger}) ${fired ? "fired" : "skipped"} by its roll`, `rolled ${roll.toFixed(3)} against ${reply.probability} at ${key}`);
+  return fired;
+};
+
+export const settleSpeech = (
+  speech: Pick<SpeechBudget, "settle" | "recordEntry"> | undefined, reply: NpcReplyEffect, entry: string | null, reservation: SpeechReservation | null, rendered: number | null,
+) => {
+  if (reservation) speech?.settle(reservation, rendered);
+  else if (entry !== null && rendered !== null) speech?.recordEntry(reply.member, rendered, reply.kind !== "scripted", entry);
+};
+
+export const npcSpeechRequest = (reply: NpcReplyEffect, entry: string): SpeechRequest => ({
+  origin: "npc",
+  member: reply.member,
+  generated: reply.kind !== "scripted",
+  source: { messageId: lastMessageId(), revision: messageRevision(hostChat().at(-1)) },
+  entry,
+  recipient: reply.ask_player ? "player" : "scene",
+  instruction: reply.kind === "scripted" ? null : oneShotDirectionText(reply) || null,
+  yieldAfter: reply.ask_player === true,
+});
 
 const armDirection = (reply: NpcReplyEffect, deps: SpeakDeps): { text: string; release: (() => void) | null } => {
   const text = oneShotDirectionText(reply);

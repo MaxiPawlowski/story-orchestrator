@@ -175,11 +175,18 @@ export interface NpcReplyEffect {
   probability?: number;
   after_member?: string;
   enabled?: boolean;
+  id?: string;
+  once_per?: NpcReplyScope;
+  cooldown_player_turns?: number;
 }
 
-export { TALK_CHAIN_MAX_CAP, TALK_CHAIN_MAX_DEFAULT } from "./talkSchema";
-export type { TalkControl, TalkControlChain, TalkControlDirector, TalkControlSpeaker } from "./talkSchema";
-import type { TalkControl } from "./talkSchema";
+export {
+  TALK_CHAIN_MAX_CAP, TALK_CHAIN_MAX_DEFAULT, TALK_PROFILES, TALK_BUDGET_CAP, TALK_ATTEMPTS_CAP, TALK_TURNS_CAP, TALK_LEAD_WORDS_MIN, TALK_LEAD_WORDS_MAX, NPC_REPLY_SCOPES,
+} from "./talkSchema";
+export type {
+  TalkControl, TalkControlChain, TalkControlDirector, TalkControlSpeaker, TalkProfileName, TalkBudget, TalkSpotlight, TalkAddressPlayer, TalkReaction, StoryTalkDefaults, NpcReplyScope,
+} from "./talkSchema";
+import type { NpcReplyScope, StoryTalkDefaults, TalkControl } from "./talkSchema";
 
 // Which objectives are the world pressing on the player and which need the
 // player's own act, and whether narration may write the player's decisions. Optional per checkpoint;
@@ -471,6 +478,7 @@ export interface Story {
   codex?: import("./codexSchema").StoryCodex; observations?: import("./observationSchema").Observation[];
   clock?: StoryClock; calendar?: import("./lifeSchema").CalendarInput;
   living?: StoryLiving; factions?: import("./factionSchema").Faction[]; norms?: import("./cueSchema").StoryNorm[];
+  talk_defaults?: StoryTalkDefaults;
 }
 
 export const LIVING_PREFIX = "liv_";

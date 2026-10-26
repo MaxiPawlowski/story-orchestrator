@@ -8,6 +8,7 @@ import { CARRY_TOPICS } from "./guideTopicsCarry";
 import { TIME_TOPICS } from "./guideTopicsTime";
 import { LIVING_TOPICS } from "./guideTopicsLiving";
 import { OFFER_DIAGNOSTIC_TOPICS, OFFER_TOPICS } from "./guideTopicsOffers";
+import { TALK_DIAGNOSTIC_TOPICS, TALK_TOPICS } from "./guideTopicsTalk";
 
 export interface GuideTopic {
   title: string;
@@ -208,9 +209,10 @@ export const GUIDE_TOPICS = {
   "npc-replies": {
     title: "NPC replies",
     fields: "effects.npc_replies[]",
-    text: "Lines a character speaks on their own: trigger onEnter, afterSpeak or sceneBreak; after_member names the speaker it follows. kind scripted posts text verbatim; "
-      + "kind llm gets instruction privately for that one reply; ask_player (llm) has it ask {{user}} one thing, never what they do. maxTriggers caps fires per chat, "
-      + "probability is a seeded chance, enabled: false parks one. Use scripted for an exact line (no time or place check), llm for one that must fit the moment.",
+    text: "Lines a character speaks on their own: trigger onEnter, afterSpeak or sceneBreak; the member speaks; after_member names the speaker it follows. kind scripted "
+      + "posts text verbatim; kind llm gets instruction privately for that one reply; ask_player (llm) asks {{user}} one thing, never what they do. id names its counter. "
+      + "maxTriggers caps fires per once_per scope: story (default), entry (each visit) or player_turn; cooldown_player_turns spaces repeats (afterSpeak and sceneBreak "
+      + "default 2). probability is a seeded chance, enabled: false parks one. afterSpeak and sceneBreak lines draw on the speech budget.",
   },
   "experimental-effects": {
     title: "Experimental effects",
@@ -245,15 +247,7 @@ export const GUIDE_TOPICS = {
     text: "{arcMatch, anchor, amount}: when the memory confirms a story thread resolved whose words match arcMatch, progress toward that anchor rises by amount. A side plot "
       + "can then move the main one. anchor must be an anchor beat.",
   },
-  "talk-control": {
-    title: "Speaker direction",
-    fields: "checkpoints[].talk_control",
-    text: "Who speaks next in a group: speakers [{member, weight}], lead (picked first), no_repeat, allow_silence (needs the director), director (an AI picks the speaker), "
-      + "chain (several voices answer one message: mode director or scripted with a sequence, max, stop_on_transition, stop_on_player, hold_extraction, "
-      + "yield_on_question: default on, a voice asking the player ends it). List the lead in speakers. no_repeat defaults on: no member repeats within a chain; "
-      + "false permits repeats up to max. A player line or STOP ends the old chain. "
-      + "An unlisted lead joins at weight 1. A name nobody has is skipped.",
-  },
+  ...TALK_TOPICS,
   stagecraft: {
     title: "Curator scope",
     fields: "stagecraft.lorebooks, stagecraft.exclude, stagecraft.createCap",
@@ -449,6 +443,7 @@ export const DIAGNOSTIC_GUIDE_TOPIC: Record<DiagnosticCode, GuideTopicId> = {
   "opener-uses-player-name": "player",
   "npc-reply-directs-player": "npc-replies",
   "opening-narrator-only": "opening-scene",
+  ...TALK_DIAGNOSTIC_TOPICS,
   "player-spoiler-risk": "player",
   "agenda-pace-no-chapters": "character-life",
   ...FACTION_DIAGNOSTIC_TOPICS,

@@ -1,0 +1,95 @@
+{
+  "model": "none",
+  "_note": "Pacing profile resolution and the lead's soft length hint: profile decision with lead DM Narrator resolves to 2 voices / 3 generations, the lead first, lead_words 140, no spotlight, no address, no reaction; the guidance block drafted for the narrator carries the length line and the one drafted for Arin does not. No generation. Written for v3.0 plan 19 stage 2, NOT YET RUN (the live gate is owed); schema-validated only.",
+  "requires": {
+    "lane": "no-model",
+    "group": "Group: Arin, DM Narrator",
+    "members": [
+      "Arin",
+      "DM Narrator"
+    ],
+    "why": "policy resolution and the guidance block are code",
+    "judge": "off"
+  },
+  "steps": [
+    {
+      "eval": "for (const name of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[name]; globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; return { cleared: true };",
+      "log": true
+    },
+    {
+      "import_story": {
+        "title": "SO-V3019S2 Profile",
+        "description": "v3.0 plan 19 stage 2 no-model fixture.",
+        "qualities": [
+          {
+            "key": "at_gate",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Has the party reached the gate?"
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "choice",
+            "name": "Choice",
+            "objective": "Choose the road.",
+            "type": "anchor",
+            "start": true,
+            "talk_control": {
+              "lead": "DM Narrator",
+              "speakers": [
+                {
+                  "member": "DM Narrator"
+                },
+                {
+                  "member": "Arin"
+                }
+              ],
+              "profile": "decision"
+            }
+          },
+          {
+            "id": "road",
+            "name": "Road",
+            "objective": "Walk.",
+            "type": "anchor"
+          }
+        ],
+        "transitions": [
+          {
+            "from": "choice",
+            "to": "road",
+            "priority": 1,
+            "gate": {
+              "q": "at_gate",
+              "op": "==",
+              "v": true
+            }
+          }
+        ],
+        "roster": [
+          {
+            "id": "DM Narrator",
+            "name": "DM Narrator"
+          },
+          {
+            "id": "Arin",
+            "name": "Arin"
+          }
+        ]
+      },
+      "log": true
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 1500,
+        "timeoutMs": 30000
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const policy = rt.talkPolicy(); const want = { profile: 'decision', budget: { voices: 2, attempts: 3 }, leadPreferred: true, leadWords: 140, spotlight: null, addressPlayer: null, reaction: null }; if (JSON.stringify(policy) !== JSON.stringify(want)) throw new Error('decision profile did not resolve: ' + JSON.stringify(policy)); const ctx = SillyTavern.getContext(); const idx = (name) => ctx.characters.findIndex((c) => c.name === name); const block = () => String(ctx.extensionPrompts?.story_orchestrator_guidance?.value ?? ''); rt.onMemberDrafted(idx('DM Narrator')); const narrator = block(); rt.onMemberDrafted(idx('Arin')); const arin = block(); if (!narrator.includes('Length for DM Narrator only: keep this reply near 140 words')) throw new Error('the narrator draft lacks the length line: ' + narrator); if (arin.includes('Length for')) throw new Error('Arin got the lead length line: ' + arin); return { policy, narratorHasLength: true };",
+      "log": true
+    }
+  ]
+}

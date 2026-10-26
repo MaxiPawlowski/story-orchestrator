@@ -265,6 +265,7 @@ describe("fireNpcReplies v1 parity", () => {
 describe("sceneBreak replies (T1-1 runaway)", () => {
   const dusk = { trigger: "sceneBreak", member: "Adolion Narrator", kind: "scripted", text: "The light is going.", maxTriggers: 2 };
   const postsOnSend = () => (executeSlashCommands as jest.Mock).mockImplementation(async () => { mockContext.chat = [...mockContext.chat, { mes: "The light is going." }]; return true; });
+  const playerEveryFourth = () => ({ entryStart: 0, send: -1, entry: "", playerTurns: mockContext.chat.map((_: unknown, index: number) => index).filter((index: number) => index % 4 === 0) });
   const chatUpTo = (last: number) => { mockContext.chat = Array.from({ length: last + 1 }, (_, index) => ({ mes: `m${index}` })); };
 
   beforeEach(() => {
@@ -275,7 +276,7 @@ describe("sceneBreak replies (T1-1 runaway)", () => {
   afterAll(() => (executeSlashCommands as jest.Mock).mockImplementation(async () => true));
 
   it("caps a sceneBreak reply at maxTriggers across the checkpoint's breaks, and a break on its own post never fires it", async () => {
-    const applier = new EffectsApplier(testOwnership());
+    const applier = new EffectsApplier(testOwnership(), { scope: playerEveryFourth });
     const extras = { ...makeExtras(), firedNpcRepliesAt: {} } as RuntimeExtras;
     const checkpoint = checkpointWith([dusk]);
     const breakAt = async (at: number) => { if (mockContext.chat.length - 1 < at) chatUpTo(at); await applier.fireNpcReplies(checkpoint, extras, "sceneBreak", at); };
@@ -292,7 +293,7 @@ describe("sceneBreak replies (T1-1 runaway)", () => {
   });
 
   it("T3-4: a capped line never repeats within a few messages of its own post (Victory's Tusk, fired at 44 and 47)", async () => {
-    const applier = new EffectsApplier(testOwnership());
+    const applier = new EffectsApplier(testOwnership(), { scope: playerEveryFourth });
     const extras = { ...makeExtras(), firedNpcRepliesAt: {} } as RuntimeExtras;
     const checkpoint = checkpointWith([{ ...dusk, text: "The night wears on at Victory's Tusk." }]);
     chatUpTo(43);
@@ -309,7 +310,7 @@ describe("sceneBreak replies (T1-1 runaway)", () => {
   });
 
   it("re-arms the reply a rollback took back, and caps it again on the replay", async () => {
-    const applier = new EffectsApplier(testOwnership());
+    const applier = new EffectsApplier(testOwnership(), { scope: playerEveryFourth });
     const extras = { ...makeExtras(), firedNpcRepliesAt: {} } as RuntimeExtras;
     const checkpoint = checkpointWith([dusk]);
     const breakAt = async (at: number) => { chatUpTo(at); await applier.fireNpcReplies(checkpoint, extras, "sceneBreak", at); };
@@ -821,5 +822,38 @@ describe("T5-1: a cast change written with roster ids", () => {
     await new EffectsApplier(testOwnership(), { journal }).applyCheckpoint(story, start(["ghost_id", "nobody"]), extras(), {} as RuntimeSnapshot, "activate", []);
     expect(setGroupMembersDisabled).not.toHaveBeenCalled();
     expect(journal).toHaveBeenCalledWith(CAST_UNRESOLVED, `Ghost, nobody: ${CAST_UNRESOLVED_NOTE}`);
+  });
+});
+
+describe("v3.0 19 stage 2: afterSpeak lines draw on the shared speech budget", () => {
+  beforeEach(() => { (executeSlashCommands as jest.Mock).mockClear(); });
+
+  it("a line the budget refuses is not posted and its fire is not counted; an admitted one settles with the posted message", async () => {
+    const reserve = jest.fn().mockReturnValueOnce(null).mockReturnValueOnce({ id: 7, send: 1, request: {} });
+    const settle = jest.fn();
+    const recordEntry = jest.fn();
+    const applier = new EffectsApplier(testOwnership(), { speech: { reserve, settle, recordEntry } as never });
+    const extras = { ...makeExtras(), firedNpcRepliesAt: {} } as RuntimeExtras;
+    const checkpoint = checkpointWith([{ trigger: "afterSpeak", member: "Mara", kind: "scripted", text: "Hm.", maxTriggers: 3, cooldown_player_turns: 0 }]);
+    mockContext.chat = [{ mes: "one" }, { mes: "two", name: "Rook" }];
+    expect(await applier.fireNpcReplies(checkpoint, extras, "afterSpeak")).toBe(0);
+    expect(executeSlashCommands).not.toHaveBeenCalled();
+    expect(extras.firedNpcReplies).toEqual({});
+    expect(reserve).toHaveBeenCalledWith(expect.objectContaining({ origin: "npc", member: "Mara", generated: false, yieldAfter: false }));
+    (executeSlashCommands as jest.Mock).mockImplementationOnce(async () => { mockContext.chat = [...mockContext.chat, { mes: "Hm.", name: "Mara" }]; return true; });
+    expect(await applier.fireNpcReplies(checkpoint, extras, "afterSpeak")).toBe(1);
+    expect(settle).toHaveBeenCalledWith({ id: 7, send: 1, request: {} }, 2);
+    expect(recordEntry).not.toHaveBeenCalled();
+  });
+
+  it("an entering line is recorded as the entry sequence, never reserved", async () => {
+    const reserve = jest.fn();
+    const recordEntry = jest.fn();
+    const applier = new EffectsApplier(testOwnership(), { speech: { reserve, settle: jest.fn(), recordEntry } as never, scope: () => ({ entryStart: 0, send: -1, playerTurns: [], entry: "cp@0" }) });
+    mockContext.chat = [{ mes: "one" }];
+    (executeSlashCommands as jest.Mock).mockImplementationOnce(async () => { mockContext.chat = [...mockContext.chat, { mes: "Halt!", name: "Mara" }]; return true; });
+    await applier.fireNpcReplies(checkpointWith([{ trigger: "onEnter", member: "Mara", kind: "scripted", text: "Halt!" }]), makeExtras(), "onEnter");
+    expect(reserve).not.toHaveBeenCalled();
+    expect(recordEntry).toHaveBeenCalledWith("Mara", 1, false, "cp@0");
   });
 });

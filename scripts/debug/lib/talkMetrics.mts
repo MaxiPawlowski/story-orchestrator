@@ -12,6 +12,15 @@ export interface TalkMetricsInput {
   player: string;
   lead: string;
   cast: string[];
+  budget?: number;
+  leadWords?: number;
+}
+
+export interface SpeechLedgerRow {
+  send: number;
+  origin: string;
+  generated: boolean;
+  messageId: number | null;
 }
 
 export interface TalkMetrics {
@@ -25,6 +34,16 @@ export interface TalkMetrics {
   voicesPerSend: { mean: number | null; max: number };
   partyShare: number | null;
   leadWords: { p50: number | null; p90: number | null };
+  budget: { limit: number; rounds: number; compliant: number; rate: number | null } | null;
+  spotlight: { share: Record<string, number>; longestPartyGap: number; longestQuiet: Record<string, number> };
+  leadLength: { target: number; within: number; lines: number; rate: number | null } | null;
+}
+
+export interface SpeechLedgerMetrics {
+  events: number;
+  byOrigin: Record<string, number>;
+  failedAttempts: number;
+  maxVoicesPerSend: number;
 }
 
 const speaking = (rows: ChatRow[]) => rows.filter((row) => !row.is_system && typeof row.mes === 'string');
@@ -37,7 +56,7 @@ const quantile = (values: number[], q: number): number | null => {
 
 const words = (text: string) => text.trim().split(/\s+/).filter(Boolean).length;
 
-export const talkMetrics = ({ rows, player, lead, cast }: TalkMetricsInput): TalkMetrics => {
+export const talkMetrics = ({ rows, player, lead, cast, budget, leadWords: leadTarget }: TalkMetricsInput): TalkMetrics => {
   const lines = speaking(rows);
   const same = (a: string | undefined, b: string) => (a ?? '').trim().toLowerCase() === b.trim().toLowerCase();
   const asks = (row: ChatRow) => !row.is_user && asksPlayer(row.mes ?? '', { player: [player], others: cast.filter((name) => !same(row.name, name)) });
@@ -64,7 +83,75 @@ export const talkMetrics = ({ rows, player, lead, cast }: TalkMetricsInput): Tal
     voicesPerSend: { mean: rounds.length ? rounds.reduce((sum, count) => sum + count, 0) / rounds.length : null, max: Math.max(0, ...rounds) },
     partyShare: ai.length ? ai.filter((row) => !same(row.name, lead)).length / ai.length : null,
     leadWords: { p50: quantile(leadWords, 0.5), p90: quantile(leadWords, 0.9) },
+    budget: budget === undefined ? null : budgetCompliance(rounds, budget),
+    spotlight: spotlightMetrics(lines, lead, cast, same),
+    leadLength: leadTarget === undefined ? null : {
+      target: leadTarget, within: leadWords.filter((count) => count <= leadTarget * LEAD_SLACK).length, lines: leadWords.length,
+      rate: leadWords.length ? leadWords.filter((count) => count <= leadTarget * LEAD_SLACK).length / leadWords.length : null,
+    },
   };
+};
+
+const LEAD_SLACK = 1.25;
+
+const budgetCompliance = (rounds: number[], limit: number) => {
+  const compliant = rounds.filter((count) => count <= limit).length;
+  return { limit, rounds: rounds.length, compliant, rate: rounds.length ? compliant / rounds.length : null };
+};
+
+const spotlightMetrics = (lines: ChatRow[], lead: string, cast: string[], same: (a: string | undefined, b: string) => boolean) => {
+  const party = cast.filter((name) => !same(name, lead));
+  const partyLines = lines.filter((row) => !row.is_user && party.some((name) => same(row.name, name)));
+  const share = Object.fromEntries(party.map((name) => [name, partyLines.length ? partyLines.filter((row) => same(row.name, name)).length / partyLines.length : 0]));
+  let gap = 0;
+  let longestPartyGap = 0;
+  let sawParty = false;
+  const quiet = Object.fromEntries(party.map((name) => [name, 0]));
+  const longestQuiet = { ...quiet };
+  for (const row of lines) {
+    if (row.is_user) {
+      if (!sawParty) gap += 1;
+      longestPartyGap = Math.max(longestPartyGap, gap);
+      sawParty = false;
+      for (const name of party) {
+        quiet[name] += 1;
+        longestQuiet[name] = Math.max(longestQuiet[name], quiet[name]);
+      }
+      continue;
+    }
+    const speaker = party.find((name) => same(row.name, name));
+    if (!speaker) continue;
+    sawParty = true;
+    gap = 0;
+    quiet[speaker] = 0;
+  }
+  return { share, longestPartyGap, longestQuiet };
+};
+
+export const speechLedgerMetrics = (rows: SpeechLedgerRow[]): SpeechLedgerMetrics => {
+  const byOrigin: Record<string, number> = {};
+  const voices = new Map<number, number>();
+  for (const row of rows) {
+    byOrigin[row.origin] = (byOrigin[row.origin] ?? 0) + 1;
+    if (row.messageId !== null && row.origin !== 'entry') voices.set(row.send, (voices.get(row.send) ?? 0) + 1);
+  }
+  return {
+    events: rows.length, byOrigin, failedAttempts: rows.filter((row) => row.generated && row.messageId === null && row.origin !== 'entry').length,
+    maxVoicesPerSend: Math.max(0, ...voices.values()),
+  };
+};
+
+export const parseSpeechLedger = (text: string): SpeechLedgerRow[] => {
+  const first = text.split(/\r?\n/).find((line) => line.trim());
+  try {
+    type Blob = { selectedStoryId?: string | null; stories?: Record<string, { extras?: { speech?: unknown } }> };
+    const header = first ? JSON.parse(first) as { chat_metadata?: { story_orchestrator?: Blob } } : null;
+    const blob = header?.chat_metadata?.story_orchestrator;
+    const speech = blob?.stories?.[blob.selectedStoryId ?? '']?.extras?.speech;
+    return Array.isArray(speech) ? speech.filter((row): row is SpeechLedgerRow => Boolean(row) && typeof row === 'object' && typeof (row as SpeechLedgerRow).origin === 'string') : [];
+  } catch {
+    return [];
+  }
 };
 
 export const parseChatJsonl = (text: string): ChatRow[] => text.split(/\r?\n/).filter((line) => line.trim()).flatMap((line) => {
