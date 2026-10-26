@@ -38,6 +38,7 @@ extension stages. Changing a fixture changes its sha256 and the diff refuses it:
 node scripts/debug/so-payload-golden.mts capture --label c0 --out test/measurements/v2.7/payload/c0
 node scripts/debug/so-payload-golden.mts capture --label c3 --out test/measurements/v2.7/payload/c3
 node scripts/debug/so-payload-golden.mts diff test/measurements/v2.7/payload/c0 test/measurements/v2.7/payload/c3 --declared test/measurements/v2.7/payload/declared.json
+node scripts/debug/so-payload-golden.mts prefix test/measurements/v2.7/payload/c3 --declared test/measurements/v2.7/payload/prefix-declared.json
 ```
 
 Run on a lane serving the dev build (`st-lanes.mts run <n> -- scripts/debug/so-payload-golden.mts capture ...`).
