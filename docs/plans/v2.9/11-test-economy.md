@@ -143,7 +143,8 @@ B4 journey/scenario check classes:
   J14.1, J3.2-J3.8 on J3.1, J6.2-J6.4 on J6.1, J5.5 on J5.4, J1.7 on J1.6.
 - Scenarios (305 with steps): judged 48, any 78, none 179. Every none is a `requires.lane no-model` file; every
   `requires.lane model` file is any or judged.
-- Journey checks (188): judged 49, any 56, none 83.
+- Journey checks (188): judged 50, any 59, none 79 (C8 2026-10-26 reclassed J4.7, J11.1, J11.18 any, J5.6 judged; J8.3 stays
+  none with `dependsOn` J8.1, J8.2, so it leaves the none-only list).
   - GS1: judged 2, any 7, none 1. judged GS1.3, GS1.9; any GS1.1, GS1.2, GS1.4, GS1.5, GS1.6, GS1.7, GS1.8; none GS1.10
   - GS2: judged 3, any 5, none 0. judged GS2.2, GS2.3, GS2.6; any GS2.1, GS2.4, GS2.5, GS2.7, GS2.8
   - GS3: judged 2, any 5, none 0. judged GS3.3, GS3.6; any GS3.1, GS3.2, GS3.4, GS3.5, GS3.7
@@ -155,15 +156,15 @@ B4 journey/scenario check classes:
   - J1: judged 1, none 9. judged J1.6; none J1.1-J1.5, J1.7-J1.10
   - J2: any 2, none 10. any J2.6, J2.9; none J2.1-J2.5, J2.7, J2.8, J2.10-J2.12
   - J3: judged 4, any 1, none 8. judged J3.1, J3.7, J3.10, J3.13; any J3.6; none J3.2-J3.5, J3.8, J3.9, J3.11, J3.12
-  - J4: judged 1, none 6. judged J4.4; none J4.1-J4.3, J4.5-J4.7
-  - J5: any 3, none 5. any J5.4, J5.7, J5.8; none J5.1-J5.3, J5.5, J5.6
+  - J4: judged 1, any 1, none 5. judged J4.4; any J4.7; none J4.1-J4.3, J4.5, J4.6
+  - J5: judged 1, any 3, none 4. judged J5.6; any J5.4, J5.7, J5.8; none J5.1-J5.3, J5.5
   - J6: any 4, none 8. any J6.1, J6.6, J6.7, J6.8; none J6.2-J6.5, J6.9-J6.12
   - J7: judged 10 (J7.1-J7.10)
-  - J8: judged 5, any 5, none 1. judged J8.5, J8.6, J8.10, J8.11, J8.12; any J8.1, J8.2, J8.4, J8.9, J8.13; none J8.3
+  - J8: judged 5, any 5, none 1. judged J8.5, J8.6, J8.10, J8.11, J8.12; any J8.1, J8.2, J8.4, J8.9, J8.13; none J8.3 (dependsOn J8.1, J8.2)
   - J9: judged 4, none 6. judged J9.1, J9.3, J9.5, J9.6; none J9.2, J9.2b, J9.2c, J9.2d, J9.4, J9.7
   - J10: any 1, none 11. any J10.15; none J10.1-J10.7, J10.9, J10.10, J10.13, J10.14
-  - J11: judged 7, any 14, none 5. judged J11.9, J11.12, J11.16, J11.20, J11.22, J11.23, J11.25; any J11.2-J11.4, J11.7,
-    J11.8, J11.11, J11.13-J11.15, J11.17, J11.19, J11.21, J11.24, J11.26; none J11.1, J11.5, J11.6, J11.10, J11.18
+  - J11: judged 7, any 16, none 3. judged J11.9, J11.12, J11.16, J11.20, J11.22, J11.23, J11.25; any J11.1-J11.4, J11.7,
+    J11.8, J11.11, J11.13-J11.15, J11.17-J11.19, J11.21, J11.24, J11.26; none J11.5, J11.6, J11.10
   - J12: judged 3, none 2. judged J12.3, J12.4, J12.5; none J12.1, J12.2
   - J13: judged 1 (J13.1)
   - J14: judged 1, none 1. judged J14.1; none J14.2
