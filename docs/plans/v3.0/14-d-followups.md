@@ -65,3 +65,11 @@ floors unchanged (v2.9 11 stop rules). No GPU, no model lane was used for this p
   scenarioRequires (44/44); `npx jest arrivalEquivalence` 5/5 (golden unchanged, no re-record needed).
 - End batch: `node scripts/debug/st-lanes.mts batch --lanes <model lane> --repeat 2 --strict J6` (J6 x2 on a model lane,
   v2.9 13 close-out row).
+
+## D3 — 02 harder-set repetition
+
+- Computed offline from the recorded S6 harder replies (lane 45 st-eval dumps of 2026-10-25, 60 + 60): tic + avoid hits
+  baseline 0/60, prevention 0/60 (whole phrase as frozen; substring 0/0 too). `repetitionDownPct` = 1 - 0/0: **undefined;
+  floor (>= 25 %) neither met nor missed.** No rater call (deterministic metric). Record and the reason the corpus cannot move
+  it: v2.9 02 §Harder-set repetition, computed offline 2026-10-26.
+- End batch: none.

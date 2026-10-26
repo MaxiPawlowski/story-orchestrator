@@ -1,6 +1,6 @@
 # Plan 02 — Roster voice prevention
 
-**Status 2026-10-26: BUILT, on master since 2026-10-21 (wave 1); S6 first set gain 0 points at the 60/60 ceiling (miss), harder set 2026-10-25 baseline 0/60 vs prevention 60/60, gain 100 points (floor >= 10: met); guidance max 113 tokens (<= 120: met); repetition -50 % on 2 -> 1 hits (first set; harder set not computed, owed); S5 wizard recheck arin 2/2 (luke void by design); leak floor green in jest. Left: harder-set repetition score, campaign adoption (not decided). Records: §GPU run 2026-10-23, §S6 harder run 2026-10-25.**
+**Status 2026-10-26: BUILT, on master since 2026-10-21 (wave 1); S6 first set gain 0 points at the 60/60 ceiling (miss), harder set 2026-10-25 baseline 0/60 vs prevention 60/60, gain 100 points (floor >= 10: met); guidance max 113 tokens (<= 120: met); repetition -50 % on 2 -> 1 hits (first set); harder set 0 -> 0 hits, `repetitionDownPct` undefined (v3.0 14 §D3); S5 wizard recheck arin 2/2 (luke void by design); leak floor green in jest. Left: campaign adoption (not decided). Records: §GPU run 2026-10-23, §S6 harder run 2026-10-25.**
 
 **Was 2026-10-21: written 2026-10-21 from the v2.9 triage (`01-triage-sol.md`); not built; owner decisions pending.** Implementation
 tier **D** (schema, validation, renderer, per-speaker miner, Studio, tools, guide, payload goldens); wizard slice **CL**
@@ -502,3 +502,17 @@ port (`earlyDrafts`) but not surfaced in the UI; 09's resolver mapping/parity fi
 - Reading: with cards identical except hair and eye colour, baseline replies carry no voice to attribute; the delivery notes give
   three distinct voices (clipped / ornate / loose and warm), checked by reading a sample. Mean reply length 148 vs 71 words.
 - Evidence: `so-evidence` label `lean-suite-G-20261025` (lane 45 `debug/s6h/`), so-sessions `0eb30314`.
+
+### Harder-set repetition, computed offline 2026-10-26 (v3.0 14 §D3)
+
+- Replies: the two lane-45 dumps the S6 harder run scored (`C:\dev\so-lanes%\debug6-10-25T11-05-29-762Z_st-eval.json`
+  baseline, `…11-05-32-117Z_st-eval.json` prevention), 60 + 60 replies, all 20 situations complete in both arms.
+- Metric as frozen (`frozen.json` `repetition`: authored tic + avoid hits per reply for the speaker, case-insensitive whole phrase;
+  5 phrases per member, 2 tics + 3 avoid): baseline **0 hits / 60**, prevention **0 hits / 60**. A looser substring count (trailing
+  punctuation dropped) is also 0 / 0. `rate.mjs`'s own `report.json` already held `baseline.hits: 0`, `prevention.hits: 0`; its
+  `repetitionDownPct: null` is the division by a zero baseline, not a skipped computation.
+- Verdict: **`repetitionDownPct` is undefined on this corpus (0 -> 0); the >= 25 % floor is neither met nor missed.** Recorded, not
+  retuned. No rater was needed (the metric is deterministic). Why it cannot move here: with sheets off the model never sees the
+  authored phrases, and the cards have empty `mes_example`, so the baseline has no route to them; the first set's 2 -> 1 is the
+  only nonzero reading so far. A repetition reading needs a corpus whose cards themselves carry the tics (example dialogue), or
+  per-speaker hot-phrase repetition (V03 fold), which is a new metric and would need its own frozen floor.
