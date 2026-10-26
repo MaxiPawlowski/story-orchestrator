@@ -94,3 +94,23 @@ only part of an adoption that needs it (plan 08: parity passed, no gain alone). 
 ## GPU budget
 
 ≤ 90 min total for this plan, logged per block.
+
+## E. llama.cpp patch: toolchain and design (no build)
+
+Toolchain on this host (checked 2026-10-26): MSVC 14.44 (VS 2022 Build Tools) `cl.exe` and CUDA toolkit **12.0** `nvcc`
+are installed; **no CMake or Ninja**. MSVC 14.44's STL refuses CUDA < 12.4 (`yvals_core.h` STL1002), so a build would need
+`-D_ALLOW_COMPILER_AND_STL_VERSION_MISMATCH` plus `-allow-unsupported-compiler`, a user-level CMake (pip), and would link
+the CUDA 12.0 runtime instead of the 12.4 one the shipped binaries use: an untested toolchain combination for a
+production binary. Not built; the design, in order of value:
+
+1. **No zero-fill and pinned staging in `server_prompt_cache::alloc`** (`tools/server/server-task.cpp`): the state buffers
+   are `std::vector<uint8_t>::resize` (value-initialised, a 2 GiB memset per save) in pageable memory. Allocate
+   uninitialised (`std::unique_ptr<uint8_t[]>(new uint8_t[n])`) and copy through a reused pinned bounce buffer
+   (`cudaHostAlloc`, 64-256 MiB) with `cudaMemcpyAsync`: expected save 0.6-1.0 s → ~0.35 s for 2 GiB at Gen3 x8 (I).
+2. **Cache key per request** (`cache_key` in the completion body, kept on the cache entry; `load` prefers the entry with
+   the same key, `alloc` never evicts a keyed entry for an unkeyed one): removes the need for the gateway's erase and
+   lets side passes keep their own small entries. Same effect as the erase on this workload.
+3. **Keep only the newest checkpoint at or before a marker** when saving to the cache (a `checkpoint_keep_before`
+   position on the request): drops the reply's own two end checkpoints from the entry (2 × 425 MiB), ~2.1 → ~1.3 GiB per
+   member, so 4-5 members fit the same RAM.
+4. Async save overlapping the next request is not feasible with one slot: the next prompt reuses the same KV cells.
