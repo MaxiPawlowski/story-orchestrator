@@ -218,6 +218,7 @@ Each flag from the owner's playthrough (Flag button + end notes) gets one verdic
 
 ### Added 2026-10-26
 
+- 17 `17-reply-polish-integration-review.md`: reply polish stays OFF; review the integration (thought-carry fix, ratings, route, S3 lane) before it returns (owner).
 - 16 `16-twine-twee-spike.md`: Twine / Twee 3 import-export, SPIKE only; triage with Astra before any build (owner).
 
 ### Unresolved questions (owner decisions)
