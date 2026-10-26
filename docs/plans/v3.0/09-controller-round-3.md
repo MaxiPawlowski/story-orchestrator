@@ -780,6 +780,34 @@ Addendum, before running them: S768 never streamed. Free VRAM with text loaded w
 MiB that 768 + 1,024 require, so all three images swapped. Two more arms run under the same floors: S384 and
 S384-LH (stream gate 1,408 MiB).
 
+### K result (2026-10-26, 14:36-14:45Z)
+
+Evidence: `09/logs-sk/k0.json`, `k1.json`, `K0.status.json`, `K1.status.json`. Pattern R R R I ×3 on the
+`corpus-rate` chat.
+
+| | K0 (kill for image) | K1 (sleep, cache kept) |
+|---|---|---|
+| 3 replies after each image, TTFT | 31.6, 8.3, 8.5 / 32.3, 9.1, 9.4 s | 26.6, 3.8, 3.8 / 27.1, 4.6, 4.6 s |
+| p50 | 9.36 s | 4.59 s (49 %) |
+| text back after an image (load / wake) | 23.3 s | 22.8 s (2 wakes, 3 sleeps of about 1.4 s, 0 wake failures) |
+| lowest host RAM in the last lease | 18,265 MiB | 12,925 MiB (cache kept; 0 drops) |
+| fit / spill / failures | 0 / 0 / 0 | 0 / 0 / 0 |
+| decode p50 | 46.7 tok/s | 47.6 tok/s |
+| replies that waited on a reload | 2 of 9, p50 23.6 s | 2 of 9, p50 23.1 s |
+
+The first reply after each image still waits for the weights to reload (the wake), about as long as a restart. The two
+members that follow are warm (3.8-4.6 s instead of 8.3-9.4 s), because their states survive the image in the prompt
+cache.
+
+Floors:
+1. 49 % ≤ 70 %: pass.
+2. Wake 22.8 s ≤ 23.3 + 3 s: pass.
+3. RAM pass (12.9 GB ≥ 10,240 MiB). Only the last lease's low point is in `/status`, and the other two leases ran the
+   same workload.
+4. 0 failures, fit 0, spill 0, decode +1.9 %: pass.
+
+**K passes.** `keepAcrossImages` and the so3 binary are adopted at the merge after the R2 window.
+
 ## R2: duplicate-checkpoint drop plus a blind rating (owner 2026-10-26; floors declared before the run)
 
 Binary `llama-b11888-so3-cu128` (patch `8897e3b`): after `cache_rewind`, the cut checkpoint is dropped, because it is
