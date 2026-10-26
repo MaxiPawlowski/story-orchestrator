@@ -836,7 +836,9 @@ test('a shared-memory spill of the text server raises the GPU headroom and the s
 
 test('an open image burst holds the text reload between its leases, ends after its count, and expires on its deadline', async () => {
     let n = 0;
-    const { scheduler, backend } = setup({ snapshot: async () => free(n++ % 2 === 0 ? 3000 : 22000), config: { textReloadGraceMs: 1000 } });
+    const off = setup().scheduler;
+    assert.deepEqual(off.openBurst({ count: 2 }).burst, null);
+    const { scheduler, backend } = setup({ snapshot: async () => free(n++ % 2 === 0 ? 3000 : 22000), config: { textReloadGraceMs: 1000, imageBursts: true } });
     assert.throws(() => scheduler.openBurst({ count: 0 }), /count 1..64/);
     const opened = scheduler.openBurst({ count: 2, ttlMs: 60000, kind: 'sprites' });
     assert.equal(opened.remaining, 2);

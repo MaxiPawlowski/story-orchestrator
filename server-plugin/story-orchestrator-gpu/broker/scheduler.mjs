@@ -67,6 +67,7 @@ export class ResidencyScheduler {
 
     openBurst({ count, ttlMs, kind } = {}, now = Date.now()) {
         if (!Number.isInteger(count) || count < 1 || count > 64) throw new Error('A burst needs count 1..64 (image leases still to come).');
+        if (this.config.imageBursts !== true) return { burst: null, reason: 'imageBursts is off in the controller config.' };
         const maxMs = this.config.burstMaxMs ?? 600000;
         const ttl = Number.isInteger(ttlMs) ? Math.min(Math.max(ttlMs, 5000), maxMs) : (this.config.burstDefaultMs ?? 120000);
         if (this.burst) this.burstStats.closed += 1;

@@ -261,6 +261,18 @@ of `thresholdMiB` held for `sustainMs` is a spill. The controller then raises `r
 only: a restart or a mode save resets them) and, when the text server spilled, reloads text as soon as nothing runs.
 `/status` → `spill { backoffMiB, textSpilled, events }`.
 
+**Image bursts and reply waits** (plan 11a):
+- `reclaimFreeFirst` (on by default). On a text reserve miss, the controller first asks the idle owned ComfyUI to free
+  its models (`/free` + host-cache release). It stops ComfyUI only when free VRAM still misses the reserve after
+  `reclaimFreeWaitMs`.
+- `imageBursts` (off unless `true`). The page announces a run of image leases with `POST /burst {count, ttlMs, kind}`
+  (on-demand look edits do). While the burst is open and no text request waits, the text reload between its leases is
+  held, and so are idle restore and the ComfyUI reclaim. A reply still loads text at once. The burst ends after `count`
+  leases, on `{close: id}`, or at its deadline (`burstMaxMs`, 600 s).
+- `replyBeforeImage` (off unless `true`). A queued chat reply runs before a queued image, within `imageFairWaitMs`.
+- `/status` → `burst`, `replyWaits {replies, waitedOnReload, share, reloadWaitP50Ms}` (time each streamed reply waited
+  while text was unloaded or an image held the GPU), `comfy.reclaims {freed, stopped}`.
+
 **Settings page**: `http://127.0.0.1:18888/ui` (served by the controller, loopback only, no external files). It shows
 live GPU/RAM free, the mode picker, and each setting with a one-line trade-off; edits save as `custom`, through the same
 backed-up path. Changes need a same-origin request with the `x-so-local-ui: 1` header and a JSON body, and the page
