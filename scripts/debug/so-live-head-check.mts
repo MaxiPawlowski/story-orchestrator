@@ -21,6 +21,7 @@ const argument = (key: string, fallback: string) => {
   return at < 0 ? fallback : process.argv[at + 1] || fallback;
 };
 const row = argument('--row', 'all');
+const holdSeconds = Number(argument('--hold-s', '0'));
 const label = argument('--label', new Date().toISOString().replace(/[:.]/g, '-'));
 const pause = (ms: number) => new Promise((done) => setTimeout(done, ms));
 const digest = (bytes: Buffer) => createHash('sha256').update(bytes).digest('hex');
@@ -166,6 +167,12 @@ async function main(page: Page, connection: ConnectResult) {
     });
     record.build = served; record.fixtureHash = digest(Buffer.from(JSON.stringify({ story, rig })));
     const check = (id: string, details: any, ok: boolean) => { record.checks.push({ id, ...details, ok }); console.log(`${id}: ${ok ? 'PASS' : 'FAIL'} ${JSON.stringify(details)}`); };
+    if (holdSeconds > 0) {
+      console.log(`LIVE-HEAD-HOLD ${holdSeconds}s renderer=${served.renderer}`);
+      await pause(holdSeconds * 1000);
+      const held = await page.evaluate(readLiveHeadSamples);
+      check('hold', { seconds: holdSeconds, renderer: served.renderer, contexts: held.contexts }, held.contexts > 0);
+    }
     if (row === 'all' || row === 'LI1') {
       const motion = await page.context().newCDPSession(page);
       await motion.send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: 'no-preference' }] });

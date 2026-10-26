@@ -732,3 +732,46 @@ Bound (measured end to end, from the send to each event):
 - **Rollback.**
   - chatFirst: set `"chatFirst": false` in config.json, then `cli.mjs stop` and `start`.
   - Max: `node scripts/local/cli.mjs mode balanced`, or copy the backup above back over config.json.
+
+## S and K: stream floor under 2,400 and member cache across an image (owner items 2-3; floors declared before the bench)
+
+Base for every arm: the owner's current config (Max, chatFirst, A setup), each arm with its own stateDir.
+`09/run-sk.sh`.
+
+### S: stream floor
+
+- **S2400 (control).** `streamImages.minFreeGpuMiB` 2400. A stream needs 2400 + 1024 free; text leaves 1.8–2.2 GiB, so
+  every image swaps.
+- **S768.** `minFreeGpuMiB` 768, so a stream starts with about 1.8 GiB free.
+- **S768-LH.** S768 with the live head rendering in a headed lane-42 browser: `so-live-head-check.mts --row none
+  --hold-s 300`, real WebGL on the GPU, held through the renders.
+- Each arm runs 3 SDXL scenes through `render-benchmark … auto scene 256`, with a reply before and after each.
+
+Floors (S768 and S768-LH, each against S2400):
+1. 0 spill events (text or ComfyUI), 0 refusals or 409s, `fitCorrectionMiB` 0.
+2. Image → next reply (`totalCycleMs`) p50 ≤ 75 % of S2400. This is the purpose of the change.
+3. Render time p50 ≤ 150 % of S2400.
+4. Decode of the reply after each image ≥ 90 % of the reply before it.
+5. LH row: the live head still has its WebGL context at the end of the hold (check `hold`).
+
+Adoption: Max moves to the lowest floor that passes every row, the LH row included. If anything misses, it stays at 2400.
+
+### K: member cache across an image
+
+- **K0.** Binary `llama-b11888-so3-cu128`, `keepAcrossImages` off: the controller kills llama-server for an image, as
+  now.
+- **K1.** Same binary, `keepAcrossImages: true`: llama-server is put to sleep with its prompt cache and woken after the
+  image.
+- Pattern `RRRIRRRIRRRI` through `burst-bench.mjs`: the 3-member recorded chat of `09/corpus-rate.json`, 128-token
+  replies, an SDXL scene after every 3 replies.
+
+Floors (K1 against K0):
+1. The 3 replies after each image: TTFT p50 ≤ 70 % of K0's. This is the warm member switch after an image.
+2. Wake time (`sleepStats.lastWakeMs`) ≤ K0's text reload time + 3 s.
+3. Host RAM available during each image lease ≥ 10,240 MiB, or the drop path fired (`sleepStats.dropped` counted, the
+   lease then admitted). 0 RAM-short refusals.
+4. 0 failed requests, `fitCorrectionMiB` 0, 0 spill events, decode ±3 %.
+
+Adoption: `keepAcrossImages` and the so3 binary go onto the owner's controller only if every K floor passes. The so3
+binary also carries the R patch (checkpoint_at, rewind, duplicate-checkpoint drop), which stays unused while
+`checkpointAt` and `serverRewind` are off.
