@@ -85,10 +85,45 @@ Order: C1 first (it feeds C2-C5), the rest in parallel where they do not share a
   sent request": guidance, pacing, check outcome) though master's src is unchanged since cdbfd6a6: the uncommitted part of
   that staged build, not a fixture; re-check on a clean staged build.
 
+### C8 fixes and final run (2026-10-26, merged to master 90bfb9cc + 5a94b11c)
+
+- v27-d-01 FIXED (a4e94ad5): `revealSetting` moved to `src/runtime/settingReveal.ts`; a control not in the DOM opens the page
+  that owns it (`settingIntent` in `workspaceRoutes.ts`: `so-feature-<id>-*` -> This story > Features > <id>, else Orchestrator >
+  Connections) with `control`, and `WorkspaceShell` reveals it; the Setup row's Show me uses the same path (no 250 ms timer).
+  `featureOfControl` shared with `guide/showTarget.ts`. Test `runtime/settingReveal.test.ts`.
+- v27-d-08 FIXED (owner delegated; same commit): the harvest lines (`#so-inner-harvest-silent`, `#so-inner-harvest-idle`,
+  same ids and conditions) live in `components/settings/InnerHarvestNotes.tsx`, rendered on the inner voice feature page
+  (`FeaturePages.tsx`, story and Defaults) and by `InnerVoiceControls`. `THINKING_TARGET_ID` is now
+  `so-feature-inner-harvestReasoning` and the registry's inner-voice `where` is `featureAt("inner", "enabled", ...)`, so the
+  model-not-thinking row's Show me lands on that page. Fixture step 20 now goes This story > Play, checks the author detail,
+  clicks Show me and finds the line on the inner page. Storybook `FeaturePages` InnerVoiceModelNotThinking +
+  OtherFeatureHasNoHarvestLine.
+- v27-d-10 FIXED (same commit): the editReread spike queues its re-read on the read lane (`spikes/editRereadHost.ts`
+  `readEdited(..., lane)`, a priority-0 run job with reason `rollback:<id>:edit`), so `scheduler.rereadReason` and the
+  "Catching up after your edit" line are set while it waits; the spike's outcome resolves when the job runs, is dropped
+  (new `SchedulerJob.dropped`, called by `clearForNewWorld`, priority-2 eviction and pump's discard) or after
+  `EDIT_HOLD_CAP_MS` (the job still reads later, only while the cycle's run owns). Tests in `editReread.review.test.ts` and
+  `schedulerClear.review.test.ts`; census row `editRereadHost.ts#readEdited.run` (local).
+- v28-35-g7-shipped-blocks: red on the clean staged build too, so not the dirty build. It is a fixture problem: on a
+  freshly loaded page a background profile probe (Chat Completion, "Reply with exactly: PONG") went through the fixture's
+  fetch stub and was read as a sent request without the story blocks. Warm-page runs passed. Fixed in 5a94b11c: the stub only
+  answers the main API's generate route.
+- Plan 11 B4 census updated for J4.7, J11.1, J11.18 (any), J5.6 (judged), J8.3 (none, dependsOn J8.1/J8.2) (6598a499).
+- Gates (worktree `C:\dev\so-13-c8`): `npm run gates:quick` green; `npm run gates` (Storybook, no `--resume`) green in
+  310 s on 90bfb9cc (first full run RED on ownership census + S3 file budget, both fixed in 90bfb9cc); `gates:quick` green
+  on 5a94b11c. Bundle 1,269,122 B.
+- Staged 90bfb9cc (`dirty` = untracked files in the main checkout), bundle 1a39540ae56f, built 04:09:30Z.
+- Defect rows x2 on lane 30 (offline, prepared by `suite:nomodel --prepare-only`), batch `--repeat 2 --fresh-page`
+  (`C:\dev\so-lanesatch-2026-10-26T04-11-23-910Z.json`): v27-d-01 2/2, v27-d-08 2/2, v27-d-10 2/2 GREEN; g7 0/2 there,
+  then 2/2 GREEN after the fixture fix (`batch-2026-10-26T04-30-41-697Z.json`).
+- **suite:nomodel 2026-10-26 04:42Z-05:55Z, lanes 30,31, build held still (no void): GREEN 188, RED 0, INCOMPLETE 0,
+  NOT-RUNNABLE 0** (178 scenarios + 10 journeys / 48 none checks; `C:\dev\so-lanesatch-2026-10-26T04-42-58-382Z.json`);
+  lanes stopped by the suite. One green run; the "green x2 consecutively" bar needs one more run on the same build.
+
 ### C8 product defects
 
-Rows `suite:nomodel` keeps red because the product is wrong, not the fixture or the lane. Fixtures keep their strict
-assertions; src is not changed in C8. Evidence paths are row dirs listed per row.
+Rows `suite:nomodel` kept red because the product was wrong, not the fixture or the lane. Fixtures keep their strict
+assertions. The v27-d-01, d-08 and d-10 fixes are in §C8 fixes and final run above. Evidence paths are row dirs listed per row.
 
 - **v27-d-01-in-app-walk, step 5: Show me for the memory model does nothing on Library.** Getting started's "Show me" and the
   Repair row's "Show me the setting" call `settingsHost.revealSetting` (`src/index.tsx`), which only looks the id up in the DOM;
@@ -174,7 +209,7 @@ assertions; src is not changed in C8. Evidence paths are row dirs listed per row
 - C5: DONE, F4 miss (plan 06 §LT run): F1 40/40, F2 36/40, F3 0 leaks, F4 +0.0 (floor +0.5), F5 80/80.
 - C6: DONE for 06 and 53 (no-model, green x2); A02 model scenario runs after the image journey frees the stage.
 - C7: DONE (headroom merged).
-- C8: in progress (agent).
+- C8: 3 product defects fixed (90bfb9cc); suite:nomodel green once, 188/188 (2026-10-26); x2 still open.
 - C9: DONE.
 - C10: DONE (B2-ext merged).
 - C11: evidence archived: `so-evidence archive --label close-out-20261025 --lanes 45,46 --since 2026-10-25T09:00:00Z` (301 files,
