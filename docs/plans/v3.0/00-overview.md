@@ -216,6 +216,10 @@ Each flag from the owner's playthrough (Flag button + end notes) gets one verdic
 13. D1 06 usefulness: one prompt change and a rerun.
 14. llama.cpp patch: keep the fork for now; decide upstreaming after it is proven in play.
 
+### Added 2026-10-26
+
+- 16 `16-twine-twee-spike.md`: Twine / Twee 3 import-export, SPIKE only; triage with Astra before any build (owner).
+
 ### Unresolved questions (owner decisions)
 
 1. Track order A -> B -> playtest triage -> D -> C: confirm, or put images (B1) level with A1?
