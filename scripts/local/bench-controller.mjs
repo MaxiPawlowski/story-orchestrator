@@ -69,6 +69,8 @@ const armArgs = (config, arm) => {
     const tuned = controller ? config : { ...config, speculative: undefined, cacheRamMiB: undefined, ctxCheckpoints: undefined, slots: undefined, promptReuse: undefined };
     let args = nativeArgs({ ...tuned, backendPort: port }, profile, config.reserves.gpuMiB);
     for (const part of arm.split('+')) {
+        const cram = part.match(/^cram(\d+)$/);
+        if (cram && !MODIFIERS[part]) { args = setFlag([...args], '--cache-ram', Number(cram[1])); continue; }
         if (!MODIFIERS[part]) throw new Error(`Unknown arm part ${part}; known: ${Object.keys(MODIFIERS).join(', ')}`);
         args = MODIFIERS[part]([...args]);
     }
