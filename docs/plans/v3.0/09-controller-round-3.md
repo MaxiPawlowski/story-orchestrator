@@ -780,6 +780,29 @@ Addendum, before running them: S768 never streamed. Free VRAM with text loaded w
 MiB that 768 + 1,024 require, so all three images swapped. Two more arms run under the same floors: S384 and
 S384-LH (stream gate 1,408 MiB).
 
+### S result (2026-10-26, 14:19-14:55Z) and a guard fix
+
+Evidence: `09/logs-sk/`, `aggregate-s.json`, live-head records `C:\dev\so-lanes"\debuguns\live-head-sk-lh*`.
+
+| | S2400 | S768 | S768-LH | S384 | S384-LH (void) |
+|---|---|---|---|---|---|
+| decisions | swap ×3 | swap ×3 | swap ×3 | stream ×3 | stream, swap, swap |
+| render p50 | 17.2 s | 17.2 s | 17.2 s | 23.4 s (136 %) | 13.2 s |
+| image → reply p50 | 49.2 s | 49.3 s | 49.4 s | 31.6 s (64 %) | 54.1 s |
+| lowest decode ratio after / before | 1.03 | 0.99 | 0.99 | 0.93 | 0.92 |
+| lowest GPU free in the lease | 13,767 MiB | same | 13,650 MiB | 168-226 MiB | 192 MiB, then swap |
+| spill events / fit | 0 / 0 | 0 / 0 | 0 / 0 | 0 / 0 | 1 / 0 |
+| live head context at end of hold | — | — | 1 (PASS) | — | 1 (PASS) |
+
+S384 passes floors 1-4 on its own. The S384-LH row is void: its one "spill" was a guard false positive.
+- The probe's first reading for the new text pid was 0 shared MiB, and the guard took that as the baseline.
+- Its normal 1,640 MiB of pinned host buffers then read as a 1,640 MiB spill.
+- The guard backed off by 1,792 MiB and reloaded text, so images 2 and 3 swapped.
+
+Fix (commit `29362bd4`): the baseline comes only from non-zero readings taken after a 15 s settle window (`settleMs`).
+Until that merges, the owner's config has `spillGuard: {enabled: false}`; the controller restarted after R2 reads it.
+S384 and S384-LH are rerun after R2 on the fixed guard, under the same floors (`run-s3.sh`).
+
 ### K result (2026-10-26, 14:36-14:45Z)
 
 Evidence: `09/logs-sk/k0.json`, `k1.json`, `K0.status.json`, `K1.status.json`. Pattern R R R I ×3 on the
