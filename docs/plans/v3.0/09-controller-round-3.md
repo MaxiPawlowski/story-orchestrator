@@ -159,3 +159,34 @@ Extra floors (predeclared):
   zero-fill fix is a plain win; a PR to ggml-org/llama.cpp would remove the fork. Until merged, the controller works on
   stock binaries too (`serverKeys` off falls back to the erase mode).
 - The controller never depends on the fork: the gateway only sends the extra fields when `memberCache.serverKeys` is on.
+
+## Round 3b protocol (owner 2026-10-26 "time allows, focus on the quality"; written after batch 1, before batch 2)
+
+Batch 1 (single runs, `corpus.json`, 07:27-08:07Z) is exploratory only; it chose the candidates below. Decisions rest on
+batch 2 and the rating.
+
+Candidates: **A** = self-built b11888 + patch `so-cache-patch` (`cache_key`, `cache_ckpt_max`), MTP 2 greedy, RAM member
+cache (`memberCache.store: 'ram'`, `serverKeys: true`, `erase: false`, `budgetMiB` 4096); **B** = A + probabilistic
+drafting; **S** = official b11888 stock, RAM member cache with erase, `--cache-ram` 9216 (no patch). Control **J1** = the
+owner's config (official b11388, MTP 2 greedy, cache-ram 512). **J2** = self-built stock b11888 MTP 2 (parity).
+
+Speed protocol: `bench-controller.mjs text --gap-ms 1000` (the next request arrives 1 s after a reply; cache work
+that has not finished delays it and is counted; a park is skipped once the next request has arrived), `corpus.json`,
+end-to-end totals (cache work included), 3 repeats of every arm in an order shuffled once with a fixed seed, each job its
+own server start. Summary per arm = median over repeats of each metric; p95 over pooled rows.
+
+Speed floors (A, B, S against J1; J2 against J1):
+1. Warm chat TTFT p50 ≤ 4.5 s and ≤ 55 % of J1 chat TTFT p50; cold chat p50 ≤ 110 %; chat TTFT p95 ≤ 110 % of J1's.
+2. Side TTFT p50 ≤ 110 % and p95 ≤ 115 %; member-turn (chat TTFT + inner and read end-to-end) p50 ≤ 80 %.
+3. Decode chat p50 within ±3 % (B: prob counts as a gain only at ≥ +3 % over A); GPU free after load ≥ J1 − 128 MiB;
+   RAM available minimum ≥ 10,240 MiB.
+4. J2 parity: chat/side TTFT ±5 %, decode ±3 %.
+
+Quality protocol (any candidate that changes binary, batch split, sampling mode or restores states): full-length replies
+(1,024 tokens, thinking on, seed 1234) on ≥ 20 real chat prompts in their recorded order (long chat of the lane 42
+capture, members rotating, so the cache restores states), control J1 vs candidate on the same prompts. Rater opencode
+`openai/gpt-6.1-sol`, tools off, blind (pair order by hash), one call per prompt.
+
+Quality floors: every category (coherence, voice, guidance, continuity) mean delta candidate − control ≥ −0.2; flagged
+replies (voice bleed, guidance ignored, thinking not closed or leaked) candidate count ≤ control count per flag;
+preference informational. A miss is recorded; nothing is adopted on a miss.
