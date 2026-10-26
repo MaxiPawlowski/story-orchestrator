@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { transform } from 'esbuild';
+import { build } from 'esbuild';
 import { renderSignature } from '../../server-plugin/story-orchestrator-gpu/broker/policy.mjs';
 import { memorySnapshot, gpuMemory } from '../../server-plugin/story-orchestrator-gpu/broker/telemetry.mjs';
 import { bytesToMiB, estimateGpuMiB } from '../../server-plugin/story-orchestrator-gpu/broker/estimate.mjs';
@@ -20,8 +20,8 @@ const positive = process.env.SO_BENCH_PROMPT ?? 'an empty old stone hall, firepl
 if (!Number.isInteger(replyTokens) || replyTokens < 8 || replyTokens > 2048) throw new Error('Benchmark reply budget must be 8..2048 tokens.');
 const home = fileURLToPath(new URL('../../', import.meta.url));
 const moduleFrom = async (file) => {
-    const { code } = await transform(await fs.readFile(path.join(home, file), 'utf8'), { loader: 'ts', format: 'esm' });
-    return import(`data:text/javascript;base64,${Buffer.from(code).toString('base64')}`);
+    const bundled = await build({ entryPoints: [path.join(home, file)], bundle: true, format: 'esm', platform: 'node', write: false, tsconfig: path.join(home, 'tsconfig.json'), logLevel: 'silent' });
+    return import(`data:text/javascript;base64,${Buffer.from(bundled.outputFiles[0].text).toString('base64')}`);
 };
 const { buildGraph } = await moduleFrom('src/image/graph.ts');
 const { FAMILIES, checkpointFor, familyOf } = await moduleFrom('src/image/catalog.ts');

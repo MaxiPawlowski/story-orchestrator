@@ -131,7 +131,20 @@ export function createArbiter(config, deps = {}) {
         child.once?.('error', () => owned.delete(child));
         return child;
     };
-    const backend = deps.backend ?? new NativeBackend(config, { snapshot: () => snapshot({ fresh: true }), spawn: ownedSpawn, killTree, fetch: fetchImpl });
+    let lastReclaim = null;
+    const stopIdleComfy = async ({ shortMiB = 0 } = {}) => {
+        const child = comfyChild;
+        if (!child || scheduler?.lease || scheduler?.imagePending) return false;
+        try { const queue = await jsonFetch('/queue'); if (queue.queue_running?.length || queue.queue_pending?.length) return false; } catch { return false; }
+        const ended = new Promise((resolve) => child.once('exit', resolve));
+        if (killTree && child.pid) await killTree(child.pid); else child.kill();
+        await Promise.race([ended, new Promise((resolve) => setTimeout(resolve, 15000).unref?.())]);
+        telemetryAt = 0;
+        lastReclaim = { at: new Date().toISOString(), pid: child.pid, shortMiB: Math.round(shortMiB) };
+        (deps.log ?? ((line) => console.log(`[story-orchestrator-gpu] ${line}`)))(`text reclaim: stopped the idle owned ComfyUI (pid ${child.pid}) because text was ${Math.round(shortMiB)} MiB short of the GPU reserve; the next image starts it again.`);
+        return true;
+    };
+    const backend = deps.backend ?? new NativeBackend(config, { snapshot: () => snapshot({ fresh: true }), spawn: ownedSpawn, killTree, fetch: fetchImpl, reclaimGpu: stopIdleComfy });
     const imageCache = deps.imageCache ?? new ImageCache({ config, jsonFetch, snapshot, emptyHostCache: async () => {
         const response = await fetchImpl(`${comfyUrl}/so-local/host-cache`, { method: 'POST', headers: { 'X-SO-Local': '1' }, signal: AbortSignal.timeout(15000) });
         if (response.status === 404 || response.status === 501) return false;
@@ -230,7 +243,7 @@ export function createArbiter(config, deps = {}) {
             return { ...sched, adapter: 'supervise', guarding: true, state, mayRetain, reserves: config.reserves ?? null, reservesFrom,
                 telemetry: reading, telemetryError, imageCache: imageCache.last, imageCacheFailure: imageCache.lastFailure, imageCacheHostTrim: imageCache.lastHostTrim ?? null,
                 imageCacheMode: config.imageCacheMode ?? 'warm', maxContext: config.maxContext, profiles: Object.keys(config.profiles ?? {}),
-                comfy: { supervised: config.comfySupervise === true, ownedPid: comfyChild?.pid ?? null } };
+                comfy: { supervised: config.comfySupervise === true, ownedPid: comfyChild?.pid ?? null, lastReclaim } };
         },
         ownedChildren() { return [...owned]; },
         async stop() {

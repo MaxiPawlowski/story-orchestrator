@@ -80,8 +80,10 @@ export class MemoryReserveError extends Error {
 }
 
 export class NativeBackend {
-    constructor(config, { snapshot = memorySnapshot, spawn = spawnDefault, killTree = null, fetch: fetchImpl = fetch } = {}) {
+    constructor(config, { snapshot = memorySnapshot, spawn = spawnDefault, killTree = null, fetch: fetchImpl = fetch, reclaimGpu = null } = {}) {
         this.config = config;
+        this.reclaimGpu = reclaimGpu;
+        this.reclaims = 0;
         this.snapshot = snapshot;
         this.spawn = spawn;
         this.fetch = fetchImpl;
@@ -127,7 +129,7 @@ export class NativeBackend {
             const layerAt = profile.args.indexOf('--n-gpu-layers');
             if (!(error instanceof MemoryReserveError) || !error.hostFits || !(error.gpuShortMiB > 0)
                 || layerAt < 0 || profile.args[layerAt + 1] !== 'auto') throw error;
-            const correction = (this.fitCorrections.get(name) ?? 0) + Math.ceil(error.gpuShortMiB) + Math.max(256, this.config.fitMarginMiB ?? 0);
+            const correction = (this.fitCorrections.get(name) ?? 0) + Math.ceil(error.gpuShortMiB) + Math.max(256, this.config.fitMarginMiB ?? 0, this.config.fitRetryStepMiB ?? 1280);
             this.fitCorrections.set(name, correction);
             this.lastFitCorrection = { profile: name, extraMiB: correction, gpuShortMiB: error.gpuShortMiB, at: new Date().toISOString() };
             await this.start(name, profile, fitTarget);
@@ -166,6 +168,7 @@ export class NativeBackend {
         const deadline = Date.now() + 240000;
         const admissionWindowMs = this.config.admissionWindowMs ?? 30000;
         let admissionUntil = null;
+        let reclaimed = false;
         while (Date.now() < deadline) {
             if (spawnError) throw spawnError;
             if (child.exitCode !== null) throw new Error(`Native backend exited with ${child.exitCode}; read its local log.`);
@@ -181,6 +184,12 @@ export class NativeBackend {
                         this.loadMs = Date.now() - began;
                         this.loads += 1;
                         return;
+                    }
+                    if (!reclaimed && this.reclaimGpu && after.gpus?.[0]?.freeMiB < this.config.reserves.gpuMiB) {
+                        reclaimed = true;
+                        let freed = false;
+                        try { freed = await this.reclaimGpu({ shortMiB: this.config.reserves.gpuMiB - after.gpus[0].freeMiB }); } catch (error) { this.lastError = error.message; }
+                        if (freed) { this.reclaims += 1; admissionUntil = null; continue; }
                     }
                     admissionUntil ??= Date.now() + admissionWindowMs;
                     if (Date.now() >= admissionUntil) throw new MemoryReserveError(after, this.config.reserves, admissionWindowMs);
@@ -294,5 +303,5 @@ export class NativeBackend {
     }
 
     status() { return { profile: this.profile, desiredProfile: this.desiredProfile, fitTargetMiB: this.fitTarget, fitCorrectionMiB: this.fitCorrections.get(this.profile) ?? 0,
-        lastFitCorrection: this.lastFitCorrection, speculative: speculativeTag(this.config), slots: slots(this.config) ? { ...slots(this.config), held: Object.fromEntries(this.slotTokens), requests: { ...this.slotStats.requests }, erased: this.slotStats.erased } : null, cacheRamMiB: memberCacheOptions(this.config)?.store === 'ram' ? memberCacheOptions(this.config).budgetMiB : this.config.cacheRamMiB ?? 512, pid: this.child?.pid ?? null, loading: Boolean(this.loading), loadMs: this.loadMs, loads: this.loads, lastError: this.lastError, crashed: this.crashed, servedContext: this.servedContext() }; }
+        lastFitCorrection: this.lastFitCorrection, gpuReclaims: this.reclaims, speculative: speculativeTag(this.config), slots: slots(this.config) ? { ...slots(this.config), held: Object.fromEntries(this.slotTokens), requests: { ...this.slotStats.requests }, erased: this.slotStats.erased } : null, cacheRamMiB: memberCacheOptions(this.config)?.store === 'ram' ? memberCacheOptions(this.config).budgetMiB : this.config.cacheRamMiB ?? 512, pid: this.child?.pid ?? null, loading: Boolean(this.loading), loadMs: this.loadMs, loads: this.loads, lastError: this.lastError, crashed: this.crashed, servedContext: this.servedContext() }; }
 }

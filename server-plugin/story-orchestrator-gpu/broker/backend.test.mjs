@@ -159,15 +159,15 @@ test('measured GPU reserve misses refit automatic layers once and retain the cor
     const { backend, calls } = await fittedBackend(t);
     await backend.load('fast');
     const targets = () => calls.map((args) => Number(args[args.indexOf('--fit-target') + 1]));
-    assert.deepEqual(targets(), [2560, 3420]);
+    assert.deepEqual(targets(), [2560, 4188]);
     assert.equal(backend.status().fitTargetMiB, null);
-    assert.equal(backend.status().fitCorrectionMiB, 860);
+    assert.equal(backend.status().fitCorrectionMiB, 1628);
     assert.equal(backend.status().lastFitCorrection.gpuShortMiB, 348);
     assert.equal(backend.status().lastError, null);
     await backend.ensure();
     assert.equal(calls.length, 2);
     await backend.unload(); await backend.load('fast');
-    assert.deepEqual(targets(), [2560, 3420, 3420]);
+    assert.deepEqual(targets(), [2560, 4188, 4188]);
     assert.equal(calls.every((args) => args[args.indexOf('--ctx-size') + 1] === '32768'), true);
     assert.deepEqual(backend.config.reserves, { gpuMiB: 2048, ramMiB: 4096 });
 });
@@ -275,4 +275,41 @@ test('memberCache store ram sizes --cache-ram from its budget and keeps the slot
     assert.ok(args.includes('--slot-save-path'));
     const file = nativeArgs({ ...config, model: 'm', backendPort: 1, modelAlias: 'a', cacheRamMiB: 0, stateDir: 'D:/s', memberCache: { enabled: true } }, { args: [] });
     assert.equal(file[file.indexOf('--cache-ram') + 1], '0');
+});
+
+test('a GPU reserve miss after load first asks to reclaim idle image memory and keeps the loaded text when that frees enough', async (t) => {
+    const stateDir = await mkdtemp(path.join(tmpdir(), 'so-reclaim-'));
+    let child = null;
+    let freed = false;
+    const calls = [];
+    const reclaims = [];
+    const backend = new NativeBackend({ ...config, stateDir, backendPort: 18889, model: 'fixture', modelAlias: 'fixture', admissionWindowMs: 0, admissionPollMs: 1, reserves: { gpuMiB: 1024, ramMiB: 2048 },
+        profiles: { fast: { args: ['--ctx-size', '32768', '--n-gpu-layers', 'auto'], estimatedGpuMiB: 20500, estimatedRamMiB: 3000 } } }, {
+        snapshot: async () => ({ host: { availableMiB: 12000, commitFreeMiB: 30000 }, gpus: [{ freeMiB: child ? (freed ? 2100 : 974) : 22000 }] }),
+        fetch: async () => { if (!child) throw new Error('not listening'); return { ok: true }; },
+        spawn: (_binary, args) => {
+            calls.push(args);
+            const next = new EventEmitter();
+            next.pid = calls.length; next.exitCode = null;
+            next.kill = () => { child = null; next.exitCode = 0; next.emit('exit', 0); };
+            child = next;
+            return next;
+        },
+        reclaimGpu: async ({ shortMiB }) => { reclaims.push(shortMiB); freed = true; return true; },
+    });
+    t.after(async () => { await backend.unload(); await rm(stateDir, { recursive: true, force: true }); });
+    await backend.load('fast');
+    assert.equal(calls.length, 1);
+    assert.deepEqual(reclaims, [50]);
+    assert.equal(backend.status().gpuReclaims, 1);
+    assert.equal(backend.status().fitCorrectionMiB, 0);
+    assert.equal(backend.status().profile, 'fast');
+});
+
+test('when nothing can be reclaimed the reserve miss falls back to the bounded refit', async (t) => {
+    const { backend, calls } = await fittedBackend(t);
+    backend.reclaimGpu = async () => false;
+    await backend.load('fast');
+    assert.equal(calls.length, 2);
+    assert.equal(backend.status().gpuReclaims, 0);
 });
