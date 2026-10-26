@@ -73,3 +73,40 @@ floors unchanged (v2.9 11 stop rules). No GPU, no model lane was used for this p
   floor (>= 25 %) neither met nor missed.** No rater call (deterministic metric). Record and the reason the corpus cannot move
   it: v2.9 02 §Harder-set repetition, computed offline 2026-10-26.
 - End batch: none.
+
+## D1 — 06 F4 usefulness (owner decision 13: one prompt change, then rerun)
+
+- Read: Sol's pass-A usefulness notes (one per situation) and pass-B engagement reasons in
+  `C:\dev\so-lanes\gpu-b2ext\lt06-gpu1\rater\` against `score.json` (mean +0.0, 10 wins / 18 ties / 12 losses).
+- Cause of the 12 losses (counts; synthetic corpus, no campaign content):
+  - 6 of 12: the anchored set "introduces an unsupported" person, object or premise. In 5 of them (s07, s08, s10, s12, s36)
+    the line is the tagged line for a `dormant-thread` anchor: an old arc that the prompt hands over but that neither the
+    player's panel nor the recent messages show, so the line reads as invented to anyone holding only the visible scene (the
+    rater's view is the player's view). The sixth (s34) is an authored offer, also absent from the visible scene. The 2
+    dormant situations the anchored arm won (s09, s11) carry the same remark ("lacks visible context").
+  - 4 of 12: overlap inside the set (two tagged lines on the same matter, or a line repeating the player's own worry).
+  - 2 of 12: other (less concrete / less relevant).
+- Change (one, `src/runtime/suggestions.ts`): a `dormant-thread` anchor is marked `(from earlier, not in this scene)` in the
+  numbered block, and only when one is present the instruction adds "A line for an idea marked from earlier brings it back up
+  in the player's own words and says what it was, so it makes sense without the earlier scene." Every other prompt is
+  byte-identical (no dormant anchor = no change; the `current` arm never has anchors). Test: `suggestionAnchors.test.ts`
+  "marks a dormant thread as from earlier …". Floors unchanged. The lt06 golden (s01, s05: no dormant anchor) still holds
+  (`promptBatchLtGolden.test.mts` 3/3).
+- Expected reach, stated before the rerun: 7 of 40 situations get a different anchored prompt (s07-s12, s36; at most one
+  dormant anchor per ask). Their current paired deltas sum to -3; even if all 7 became wins the mean moves to at most +0.25.
+  **Ceiling**: the current arm already scored 5 in 22 of 40 situations (3: 7, 4: 11, 5: 22), so the largest mean delta any
+  anchored set can reach on this corpus is +0.625 against the +0.5 floor; passing needs a 5 on nearly every situation with no
+  loss. The rerun is therefore unlikely to clear F4 whatever the prompt does; that is a property of the corpus and the 1-5
+  scale, recorded here, not a reason to retune the floor. Next candidate change if the owner wants another round: the overlap
+  cluster (4 of 12).
+- End batch (GPU, ~60 min + Sol rating; one lane 30+ that is not 45; after the branch is merged, built and staged):
+  1. `node scripts/debug/st-lanes.mts stop <n>; node scripts/debug/st-lanes.mts no-model <n>; node scripts/debug/st-lanes.mts start <n>`
+  2. `node scripts/debug/st-lanes.mts run <n> -- scripts/debug/so-prompt-batch.mts capture --measurement lt06 --profile "Story Orchestrator Memory RunPod" --out C:/dev/so-lanes/<n>/b2ext/lt06-d1`
+     (expect exactly the 7 anchored rows above to differ in sha from `C:/dev/so-lanes/33/b2ext/lt06/manifest.json`; anything
+     else moving means another prompt changed)
+  3. model up on `:18888` (`node scripts/local/cli.mjs automatic`), then
+     `node scripts/debug/so-prompt-batch.mts send --out C:/dev/so-lanes/<n>/b2ext/lt06-d1 --base-url http://127.0.0.1:18888`
+  4. `node scripts/debug/so-prompt-batch.mts score --out C:/dev/so-lanes/<n>/b2ext/lt06-d1`
+  5. `node scripts/debug/so-prompt-batch.mts rate --out C:/dev/so-lanes/<n>/b2ext/lt06-d1 --pass both --model openai/gpt-6.1-sol`
+  6. `node scripts/debug/so-prompt-batch.mts score --out C:/dev/so-lanes/<n>/b2ext/lt06-d1`, then record F1-F5 in v2.9 06 and
+     here (F4 floor +0.5 unchanged), archive with `so-evidence.mts archive --label v30-14-d1`.
