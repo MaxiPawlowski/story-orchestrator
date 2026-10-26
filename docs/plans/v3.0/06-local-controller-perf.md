@@ -1,6 +1,6 @@
 # Plan 06 — Local controller performance (Artemis 31B on the 3090)
 
-**Status: MTP on, layout fixed, prompt reuse built (off until the owner's head change), 2026-10-25 evening; see Follow-up.** Earlier: PLAN + partial bench, 2026-10-25. Offline spikes done (logs, payload captures, source). GPU bench run once
+**Status 2026-10-26: MTP on; slot pinning built (off); stable head NOT applied (blind rating below floor, B and C); depth-0 layout on master awaits the owner's call; see Follow-up 2026-10-26.** Earlier: MTP on, layout fixed, prompt reuse built, 2026-10-25 evening. Earlier: PLAN + partial bench, 2026-10-25. Offline spikes done (logs, payload captures, source). GPU bench run once
 (owner lifted the GPU pause for this topic, then paused it again at 20:42Z; 15 arms finished, 1 diagnostic arm killed
 during load). No change to `src/`, `server-plugin/` or `config.json`. Bench: `scripts/local/bench-controller.mjs`; raw
 logs: `C:\dev\so-lanes\bench-controller\` (outside the repo: the corpus holds real prompts).
@@ -365,3 +365,103 @@ With the owner's head change and `promptReuse` the measured chat TTFT p50 is 2.1
   drop MTP while streaming?
 - Blind rating of replies with the per-turn blocks at depth 0 (was 1-4) before calling the layout change settled?
 - Side passes (78 % of requests) gain nothing from any of this; merging the inner beat into the read (E) is the lever.
+
+## Follow-up 2026-10-26: slot pinning, privacy check, three-arm blind rating
+
+Owner 2026-10-25: "whatever you recommend, continue"; then (quality concern) the stable head goes to the owner's
+install only if it passes a blind rating.
+
+### Built
+
+- `slots: { count, chat, side, estimatedGpuMiB }` (off unless `count` > 1): `--parallel <count>`, every generation
+  request pinned with `id_slot` (streamed = chat slot 0, non-streamed = side slot 1; the lane 42 capture has 226 chat
+  requests all `stream: true`, 349 side all `stream: false`), extra slot VRAM in the load admission (not in
+  `--fit-target`), `--slot-save-path` (llama-server answers `/slots/<id>?action=erase` only with it: 501 without,
+  measured), each slot's prompt + output held and the other slots erased before a request that would overflow the
+  shared context, `/props` `total_slots`, `/status` `text.slots`.
+- Prompt reuse keeps one history per slot (`history: 1` with slots): a prompt prefills only against what its own slot
+  last ran, so per-speaker heads send no prefill. Without it the recorded corpus paid the prefill for nothing
+  (9.60 s chat TTFT vs 9.23 s with it). The park is never sent with slots.
+- Bench: the `config` arm pins slots when the config has them.
+
+### Bench (measured, controller config arm: MTP 2 + parallel 2 pinned + reuse, `cacheRamMiB` 0, `ctxCheckpoints` 3)
+
+| Corpus | Chat TTFT p50 | Side TTFT p50 | Processed / reused tokens | Decode chat | MTP acc. | GPU free min |
+|---|---|---|---|---|---|---|
+| joined-late (stable head) | **1.98 s** | 2.37 s | 38,570 / 60,067 | 38.2 tok/s | 0.59 | 1,099 MiB |
+| recorded (per-speaker heads, as played) | 9.23 s | 2.39 s | 94,984 / 0 | 40.2 tok/s | 0.61 | 1,481 MiB |
+
+Runs `text-2026-10-25T23-55-10-337Z`, `text-2026-10-25T23-58-06-391Z`. MTP only on the recorded corpus was 8.66 s
+(`text-2026-10-25T22-45-07-416Z`): slots buy nothing without the stable head and cost ~0.5 GiB of VRAM.
+
+### Privacy check of the owner's groups (counts only)
+
+12 groups checked, 297 member slots (131 distinct cards; description, personality, scenario, examples, depth prompt).
+3 groups (7 cards) hold nothing hidden from other members. 9 groups have 3-62 cards each with text meant to stay hidden
+from other members (131 slots, 62 distinct cards); 0 secrets sit only in a depth prompt. Read by a separate model;
+counts only. In join mode ST also injects every enabled member's depth prompt, and 6 of the 9 groups have 18-40 enabled
+members (47-93K characters of joined card text, 12-23K tokens), so join mode would not fit 32K there anyway.
+
+### Three-arm blind rating (predeclared `rating-2026-10-26/floor-3arm.json`)
+
+20 real captured chat prompts (test stories of lanes 42 and 45), Artemis + MTP 2, seed 1234, thinking on, n_predict
+1400. A = captured (blocks at depth 1-4, own card, `{{char}}` sentences in the system prompt); B = depth 0 only
+(master); C = depth 0 + stable head (joined cards, `{{char}}` sentences after the depth-0 blocks). Rater opencode
+`openai/gpt-6.1-sol`, tools off, three replies per prompt in hashed order, one call per prompt, 20 of 20 rated.
+
+| | A | B | C |
+|---|---|---|---|
+| coherence | 4.20 | 4.10 (-0.10) | 4.05 (-0.15) |
+| voice | 4.60 | 4.25 (**-0.35**) | 4.25 (**-0.35**) |
+| guidance use | 3.60 | 3.50 (-0.10) | 3.30 (**-0.30**) |
+| continuity | 3.95 | 3.80 (-0.15) | 3.85 (-0.10) |
+| voice bleed flags (rise vs A) | 0 | 2 (2) | 0 (0) |
+| guidance ignored flags (rise vs A) | 7 | 8 (**3**) | 10 (**5**) |
+| ranked first / mean rank | 5 / 2.05 | 7 / 2.00 | 8 / 1.95 |
+| prompt tokens (mean) | 8,173 | 8,173 | 8,540 |
+
+**Floors: B FAIL (voice -0.35, ignored +3), C FAIL (voice -0.35, guidance -0.30, ignored +5).** Ranking mildly favours
+B and C, and the split is by source (lane 42 prompts favour A, lane 45 favour B/C), so one seed of 20 may be noise; the
+floor stands as declared. Decision per the plan: the stable head is **not applied** to the owner's install, and the
+depth-0 layout on master is **not reverted** without the owner. Proposal for the owner: move the memory and guidance
+blocks back to depth 1-2 (keeping the scene line at depth 0), or rerun the three arms with a second seed first.
+
+Reuse on vs off (`reuse-equivalence.json`, `determinism.json`, 4 C prompts, config server): fresh vs fresh identical
+4/4; restored-from-checkpoint vs restored identical 3/4; fresh vs restored differ from character 12-438. Restoring a
+checkpoint computes the prefix KV in a different batch split, so logits differ in the last bits and sampling takes a
+different branch at the first near-tie: same distribution, not byte-identical text. Stock `cache_prompt` reuse does the
+same today.
+
+### Live (lane 42, toy four-member group, 5 player turns, real generation through the gateway, thinking on)
+
+| Run | Chat replies | Chat TTFT p50 | Chat prompt tokens processed | Side TTFT p50 |
+|---|---|---|---|---|
+| before: controller master (MTP 2), swap | 12 | 2.41 s | 0.8-3.6K (full reprocess) | 1.65 s |
+| after: slots + reuse, swap | 7 | 2.27 s | 0.9-2.6K (full reprocess) | 0.97 s |
+| after: slots + reuse, stable head on the lane copy | 10 | 2.41 s | 0.4-2.6K of 2.3-5.7K (3 prefills) | 2.23 s |
+
+Pinning verified live (`/status` `text.slots.requests` chat 17 / side 32, chat always slot 0, side always slot 1,
+`/props` `total_slots` 2). A five-turn toy chat stays under 6K tokens, so TTFT barely moves; the bench rows are the
+long-chat numbers. Side passes reused the same share of their prompts before and after (70 % vs 67 % processed).
+
+### Image baseline before the unlock (quiet: no gates, controller stopped)
+
+`image-2026-10-26T00-08-58-385Z`: RTX 3090, driver 621.01, power limit 350 W (default 350), max SM 2100 MHz, SM under
+load 1695-1815 MHz (P2), peak 350 W. SDXL story graph 1344x768, SDPA (`Using pytorch attention`): median exec
+**7.84 s**, wall 8.05 s, 6 timed runs 7.73-8.96 s.
+
+## Gate record 2026-10-26
+
+- GPU time about 66 min: live before 5, bench 4 arms 12, rating A/B 16, C 10, reuse equivalence 2, determinism 6,
+  image 2.5, two live runs plus controller loads 12.
+- Owner's install: stable head applied to the 3 join-safe groups at 23:2xZ, then reverted at 23:4xZ when the owner asked
+  for the rating first (`stable-head.mjs revert --backup C:/dev/backups/story-orchestrator/stable-head-1792970440271`,
+  settings.json byte-identical to the backup, sysprompt copy removed); ST stopped for both edits and restarted with
+  `cli.mjs start-st`. Net change to the owner's ST data: none.
+- Controller config: backup `C:\dev\backups\story-orchestrator\local-config.before-slots-2026-10-26.json`; the trial
+  config with `slots`/`promptReuse`/`cacheRamMiB` 0/`ctxCheckpoints` 3 kept as `local-config.slots-trial-2026-10-26.json`;
+  live config restored to MTP only (slots would only cost ~0.5 GiB with per-speaker heads; free VRAM fell to 929 MiB
+  with a lane browser open, under the 1024 reserve).
+- Lane 42: stable head applied and reverted (`stable-head-lane42-2026-10-26`), lane stopped.
+- Evidence: `C:\dev\so-lanes\bench-controller\rating-2026-10-26\` (items, replies, ratings, summaries, floors),
+  `privacy-2026-10-25\result.json` (counts only), `live-*-lane42.log`, `run-slots*.log`, `run-det-image.log`.

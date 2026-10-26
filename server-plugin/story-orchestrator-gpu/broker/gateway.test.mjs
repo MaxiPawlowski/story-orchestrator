@@ -10,7 +10,7 @@ const fakeArbiter = (state, refuse = null) => {
         status: () => state,
         servedContext: () => 32768,
         ensure: async () => {},
-        forRequest: async (body) => { if (refuse) throw refuse(body); },
+        forRequest: async (body, signal, slot) => { state.slots = [...(state.slots ?? []), slot]; if (refuse) throw refuse(body); },
     };
     return {
         queued, backend, scheduler: { recordTiming: async () => {} },
@@ -110,4 +110,36 @@ test('prompt reuse stays off by default and skips the park while requests are qu
         await pending;
         assert.deepEqual(calls.map((call) => call.prompt), ['x']);
     } finally { await on.close(); }
+});
+
+test('pinned slots route streamed chat to the chat slot and side passes to the side slot, prefill included, never a park', async () => {
+    const arbiter = fakeArbiter({ pid: 7, loading: false, profile: 'fast' });
+    arbiter.scheduler.pending = [];
+    const calls = [];
+    const fetchImpl = async (url, init) => {
+        if (!init?.body) return new Response(JSON.stringify({ default_generation_settings: {} }), { headers: { 'content-type': 'application/json' } });
+        const body = JSON.parse(init.body);
+        calls.push([body.n_predict, body.id_slot, body.prompt.startsWith('Idle.') ? 'park' : body.prompt.length]);
+        return new Response(JSON.stringify({ content: 'ok' }), { headers: { 'content-type': 'application/json' } });
+    };
+    const gateway = createGateway({ arbiter, config: { modelAlias: 'm', defaultProfile: 'fast', slots: { count: 2 }, promptReuse: { enabled: true, minChars: 100, minPrefixChars: 50, minTailChars: 10 } }, fetchImpl });
+    const { port } = await gateway.listen(0);
+    const send = async (body) => {
+        const pending = fetch(`http://127.0.0.1:${port}/completion`, { method: 'POST', body: JSON.stringify(body) });
+        while (!arbiter.queued.length) await new Promise((resolve) => setTimeout(resolve, 5));
+        arbiter.queued.shift()();
+        assert.equal((await pending).status, 200);
+    };
+    const history = 'line of history\n'.repeat(10);
+    try {
+        await send({ prompt: `${history}tail one that is long enough`, n_predict: 8, stream: true });
+        await send({ prompt: 'side pass', n_predict: 4, stream: false });
+        await send({ prompt: `${history}reply\ntail two that is long enough`, n_predict: 8, stream: true });
+        await send({ prompt: 'explicit', n_predict: 4, id_slot: 3 });
+        await new Promise((resolve) => setTimeout(resolve, 20));
+        assert.deepEqual(calls, [[8, 0, history.length + 28], [4, 1, 9], [0, 0, history.length], [8, 0, history.length + 34], [4, 3, 8]]);
+        assert.deepEqual(arbiter.backend.status().slots, [0, 1, 0, 3]);
+        const props = await (await fetch(`http://127.0.0.1:${port}/props`)).json();
+        assert.equal(props.total_slots, 2);
+    } finally { await gateway.close(); }
 });

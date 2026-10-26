@@ -48,6 +48,16 @@ Optional `config.json` keys, all read by `broker/backend.mjs` `nativeArgs` (plan
   0.56-0.59, prefill -6 %, about 0.85 GiB VRAM, so free VRAM after load drops from ~2.9 to ~2.0 GiB: below
   `streamImages.minFreeGpuMiB` (2400), images swap the text out instead of streaming beside it.
 - `cacheRamMiB` (default 512) is `--cache-ram`; `ctxCheckpoints` (default unset, llama.cpp 32) is `--ctx-checkpoints`.
+- `slots: { count, chat, side, estimatedGpuMiB, enabled }` (off unless `count` > 1; defaults 1, 0, 1, 400) runs
+  `--parallel <count>` over the one unified KV pool and pins every generation request with `id_slot`: a streamed
+  request (SillyTavern's chat reply) to `chat`, a non-streamed one (Story Orchestrator's side passes: read, inner
+  beat, synthesis, suggestions) to `side`; a request that names its own `id_slot` keeps it. The chat slot then keeps
+  the last chat prompt's state and checkpoints while side passes run, without a RAM prompt cache. Each extra slot adds
+  `estimatedGpuMiB` to the load admission (not to `--fit-target`: llama-server's fit measures its own KV slots).
+  The slots share `--ctx-size`, so the gateway keeps each slot's last prompt + output and erases the other slots
+  (`POST /slots/<id>?action=erase`) before a request that would not fit beside them. `/props` reports `total_slots`;
+  `/status` reports `text.slots` (`held` tokens per slot, `requests.chat`/`requests.side`, `erased`). With slots the
+  prompt-reuse park is never sent (it would land on a pinned slot).
 - `promptReuse: { enabled, minChars, minPrefixChars, minTailChars, history, parkWhenIdle }` (off unless `enabled`).
   Gemma 4 keeps 50 of 60 layers as sliding-window attention, so llama-server can resume a shared prompt prefix only
   from a context checkpoint, and it takes checkpoints only 4 and 516 tokens before the end of a prompt (a checkpoint
@@ -56,17 +66,22 @@ Optional `config.json` keys, all read by `broker/backend.mjs` `nativeArgs` (plan
   `history` (16) prompts, cuts it at a line break and, when that leaves at least `minPrefixChars` (8000) before and
   `minTailChars` (1200) after, first sends that prefix alone (`n_predict: 0`): the server checkpoints exactly where
   the next turn will diverge. When no request is waiting it then sends a short park prompt, so the finished prompt's
-  state is saved to the RAM prompt cache in idle time, not on the next request's clock. Use with `cacheRamMiB` 6144
-  and `ctxCheckpoints` 3 (three checkpoints keep the boundary one through the reply's own two). It only pays off when
+  state is saved to the RAM prompt cache in idle time, not on the next request's clock. Use either with `slots`
+  `{ count: 2 }`, `cacheRamMiB` 0, `ctxCheckpoints` 3 and `parkWhenIdle: false` (about 0.4-0.5 GiB VRAM, no host
+  RAM; with slots the gateway compares a prompt only with the last one its slot ran, so per-speaker heads send no
+  prefill and cost nothing extra), or with `cacheRamMiB` 6144 and `ctxCheckpoints` 3 (same TTFT, up to 6 GiB of host RAM
+  beside ComfyUI's staging); three checkpoints keep the boundary one through the reply's own two. It only pays off when
   consecutive chat prompts share their start, which needs the stable prompt head below; with per-speaker heads it costs
   ~0.3-0.5 s per chat reply and the cache's RAM for nothing. `/status` reports `promptReuse` counts.
 
 `node scripts/local/stable-head.mjs plan|apply|revert --data <ST user data dir> --group <id>[,<id>] [--backup <dir>]`
 moves the system prompt's `{{char}}` sentences to its post-history instruction (a new `... (stable head)` system-prompt
 preset, selected) and sets the named groups to "Join character cards (exclude muted)", so every member's prompt starts
-the same. `apply` backs the files up to `C:/dev/backups/story-orchestrator/stable-head-<time>/` (with a manifest that
+the same (it puts every enabled member's card, and in join mode every member's depth prompt, into every member's
+prompt: check the cards for text hidden from the other members first). `apply` backs the files up to `C:/dev/backups/story-orchestrator/stable-head-<time>/` (with a manifest that
 `revert --backup` restores). Run it with that SillyTavern stopped; it is the owner's data, so it is only run on a lane
-copy unless the owner asks.
+copy unless the owner asks. Not applied on this install: the blind rating of 2026-10-26 (plan v3.0 06) put it below its
+floor, so the owner's preset and groups stay as they were.
 
 ## Memory and wait policy
 

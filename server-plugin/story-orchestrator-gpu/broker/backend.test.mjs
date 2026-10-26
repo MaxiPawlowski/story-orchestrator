@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { ContextRefusal, NativeBackend, nativeArgs, profileContext, profileGpuMiB } from './backend.mjs';
+import { ContextRefusal, NativeBackend, nativeArgs, profileContext, profileGpuMiB, slotFor, slots } from './backend.mjs';
 import { withControllerDefaults } from './controllerStatus.mjs';
 import { EventEmitter } from 'node:events';
 import { mkdtemp, rm } from 'node:fs/promises';
@@ -208,4 +208,49 @@ test('a configured MTP drafter adds the draft flags, its VRAM estimate and its s
     assert.equal(new NativeBackend(config).status().speculative, null);
     assert.throws(() => nativeArgs({ ...spec, speculative: { nMax: 2 } }, config.profiles.fast), /speculative.model/);
     assert.throws(() => nativeArgs({ ...spec, speculative: { model: 'x', nMax: 0 } }, config.profiles.fast), /nMax/);
+});
+
+test('pinned slots set --parallel, add the extra slot to the VRAM estimate but not the fit target, and pick chat or side by streaming', () => {
+    const base = { ...config, backendPort: 1, model: 'm', modelAlias: 'a' };
+    const pinned = { ...base, slots: { count: 2 } };
+    const args = nativeArgs(pinned, config.profiles.fast);
+    assert.equal(args[args.indexOf('--parallel') + 1], '2');
+    const plain = nativeArgs(base, config.profiles.fast);
+    assert.equal(plain[plain.indexOf('--parallel') + 1], '1');
+    assert.ok(args.includes('--slot-save-path'), 'llama-server answers /slots erase only with a slot save path');
+    assert.equal(plain.includes('--slot-save-path'), false);
+    assert.equal(args[args.indexOf('--fit-target') + 1], plain[plain.indexOf('--fit-target') + 1], 'llama-server fit measures its own KV slots');
+    assert.equal(profileGpuMiB(pinned, { estimatedGpuMiB: 20500 }), 20900);
+    assert.equal(slotFor(pinned, { stream: true }), 0);
+    assert.equal(slotFor(pinned, { stream: false }), 1);
+    assert.equal(slotFor(base, { stream: true }), null);
+    assert.equal(slots({ slots: { count: 1 } }), null);
+    assert.equal(slots({ slots: { count: 2, enabled: false } }), null);
+    assert.throws(() => slots({ slots: { count: 2, side: 2 } }), /slots.side/);
+    assert.throws(() => slots({ slots: { count: 9 } }), /slots.count/);
+    assert.equal(new NativeBackend(pinned).status().slots.count, 2);
+    assert.equal(new NativeBackend(base).status().slots, null);
+});
+
+test('a pinned request that would overflow the shared context with the other slot erases that slot first', async () => {
+    const pinned = { ...config, slots: { count: 2 } };
+    const backend = new Backend(pinned);
+    const erased = [];
+    backend.fetch = async (url, init) => { erased.push([url, init.method]); return new Response('{}'); };
+    backend.tokens = 3000;
+    await backend.forRequest({ prompt: 'side', n_predict: 100 }, undefined, 1);
+    backend.tokens = 20000;
+    await backend.forRequest({ prompt: 'chat', n_predict: 1000 }, undefined, 0);
+    assert.deepEqual(erased, []);
+    assert.deepEqual(backend.status().slots.held, { 0: 21000, 1: 3100 });
+    backend.tokens = 29000;
+    await backend.forRequest({ prompt: 'chat', n_predict: 1000 }, undefined, 0);
+    assert.deepEqual(erased, [['http://127.0.0.1:undefined/slots/1?action=erase', 'POST']]);
+    assert.deepEqual(backend.status().slots.held, { 0: 30000 });
+    assert.equal(backend.status().slots.erased, 1);
+    assert.deepEqual(backend.status().slots.requests, { chat: 2, side: 1 });
+    assert.equal(backend.status().slots.side, 1);
+    backend.fetch = async () => new Response('{}', { status: 501 });
+    backend.tokens = 3000;
+    await assert.rejects(backend.forRequest({ prompt: 'side', n_predict: 100 }, undefined, 1), /Could not free slot 0/);
 });

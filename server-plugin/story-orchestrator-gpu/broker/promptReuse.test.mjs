@@ -44,3 +44,15 @@ test('park answers only when the server is idle', () => {
     assert.deepEqual(reuse.park(true), { prompt: PARK_PROMPT, n_predict: 0, cache_prompt: true, stream: false });
     assert.equal(new PromptReuse({ parkWhenIdle: false }).park(true), null);
 });
+
+test('lanes keep their own history, so a prompt only prefills against what its own slot last held', () => {
+    const reuse = new PromptReuse({ minChars: 20, minPrefixChars: 10, minTailChars: 5, history: 1 });
+    const memberA = `${'head A line\n'.repeat(3)}`;
+    const memberB = `${'head B line\n'.repeat(3)}`;
+    assert.equal(reuse.prefill({ prompt: `${memberA}turn one tail` }, 0), null);
+    assert.equal(reuse.prefill({ prompt: `${memberA}turn one tail` }, 1), null, 'another lane has not seen it');
+    assert.equal(reuse.prefill({ prompt: `${memberB}turn one tail` }, 0), null);
+    assert.equal(reuse.prefill({ prompt: `${memberA}turn two tail` }, 0), null, 'slot 0 now holds member B, so a member A prefill would only add work');
+    assert.equal(reuse.prefill({ prompt: `${memberA}turn three tail` }, 0).prompt, memberA);
+    assert.equal(reuse.status().remembered, 2);
+});
