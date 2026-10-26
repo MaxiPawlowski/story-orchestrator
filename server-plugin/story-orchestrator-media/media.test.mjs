@@ -319,3 +319,24 @@ test('control: an unlisted node is refused, by the check and by the jobs route, 
     assert.deepEqual(await answer({ '1': { class_type: 'EmptySD3LatentImage', inputs: {} } }), { status: 400, body: { error: 'The recipe contains an unsupported node.' } });
     assert.deepEqual(fetched, []);
 });
+
+test('a render ComfyUI no longer knows (restarted) fails after a minute instead of waiting fifteen', async () => {
+    let now = 1000;
+    let known = true;
+    const jobs = new ComfyJobs({ url: 'http://comfy', now: () => now, fetchImpl: async (url) => {
+        if (url.endsWith('/prompt')) return Response.json({ prompt_id: 'p' });
+        if (url.includes('/history/')) return Response.json({});
+        return Response.json(known ? { queue_running: [], queue_pending: [[1, 'p']] } : { queue_running: [], queue_pending: [] });
+    } });
+    const id = randomUUID();
+    await jobs.submit('a', id, {});
+    assert.equal((await jobs.poll('a', id)).status, 'queued');
+    known = false;
+    assert.equal((await jobs.poll('a', id)).status, 'queued');
+    now += 30_000;
+    assert.equal((await jobs.poll('a', id)).status, 'queued');
+    now += 31_000;
+    const failed = await jobs.poll('a', id);
+    assert.equal(failed.status, 'failed');
+    assert.match(failed.error, /no longer has this render/);
+});

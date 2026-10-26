@@ -737,3 +737,20 @@ test('image admission asks the member cache for RAM first and reads memory again
     assert.equal(reads - before, firstReads + 1, 'a fresh snapshot follows a cache eviction');
     await scheduler.release(second.lease);
 });
+
+test('a text load left with a fit correction (layers on the CPU) is reloaded clean once images have been quiet, at most once per window', async () => {
+    const { scheduler, calls, backend } = setup({ config: { reclaimImageGraceMs: 1000, fitRecoverMs: 60000 } });
+    let correction = 1125;
+    backend.status = () => ({ pid: backend.profile ? 42 : null, profile: backend.profile, desiredProfile: 'fast', fitTargetMiB: backend.fitTarget, fitCorrectionMiB: correction, loading: false });
+    backend.clearFitCorrection = () => { const had = correction; correction = 0; calls.push(`clear ${had}`); return had; };
+    const now = Date.now();
+    scheduler.lastLeaseAt = now - 500;
+    assert.equal(await scheduler.recoverFitSpill(now), false);
+    scheduler.lastLeaseAt = now - 5000;
+    assert.equal(await scheduler.recoverFitSpill(now), true);
+    assert.deepEqual(calls, ['clear 1125', 'unload', 'load']);
+    correction = 900;
+    assert.equal(await scheduler.recoverFitSpill(now + 1000), false);
+    assert.equal(await scheduler.recoverFitSpill(now + 61000), true);
+});
+

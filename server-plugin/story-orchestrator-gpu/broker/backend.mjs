@@ -118,6 +118,8 @@ export class NativeBackend {
         finally { this.loading = null; }
     }
 
+    clearFitCorrection(name = this.profile) { const had = this.fitCorrections.get(name) ?? 0; this.fitCorrections.delete(name); return had; }
+
     async ensure(name = this.profile ?? this.config.defaultProfile) {
         while (this.loading) await this.loading;
         return this.load(name, { fitTarget: this.fitTarget });

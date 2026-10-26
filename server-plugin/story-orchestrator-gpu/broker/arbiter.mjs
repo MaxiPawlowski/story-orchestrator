@@ -134,7 +134,9 @@ export function createArbiter(config, deps = {}) {
     };
     let lastReclaim = null;
     const reclaimComfy = async ({ shortMiB = 0 } = {}) => {
-        const result = await stopIdleComfy({ child: () => comfyChild, busy: () => Boolean(scheduler?.lease || scheduler?.imagePending || scheduler?.imageQueued), queue: () => jsonFetch('/queue'),
+        const recentImage = scheduler?.lastLeaseAt && Date.now() - scheduler.lastLeaseAt < (config.reclaimImageGraceMs ?? 180000);
+        if (recentImage) { lastReclaim = { at: new Date().toISOString(), shortMiB: Math.round(shortMiB), stopped: false, reason: 'recent-image' }; return false; }
+        const result = await stopIdleComfy({ child: () => comfyChild, busy: () => Boolean(scheduler?.lease || scheduler?.imagePending || scheduler?.imageQueued), queue: () => jsonFetch('/queue'), settleMs: config.reclaimSettleMs ?? 1500,
             kill: async (child) => { if (killTree && child.pid) await killTree(child.pid); else child.kill(); }, timeoutMs: config.comfyStopTimeoutMs ?? 15000,
             log: deps.log ?? ((line) => console.log(`[story-orchestrator-gpu] ${line}`)) }, { shortMiB });
         telemetryAt = 0;

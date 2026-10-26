@@ -50,3 +50,11 @@ test('a process that does not exit, or a failing kill, is not reported as freed'
     const unreadable = deps(process(), { queue: async () => { throw new Error('down'); } });
     assert.match((await stopIdleComfy(unreadable.deps)).reason, /queue unreadable/);
 });
+
+test('a render posted straight to ComfyUI between two queue reads keeps it running', async () => {
+    const child = process();
+    let reads = 0;
+    const late = deps(child, { settleMs: 5, queue: async () => (++reads === 1 ? { queue_running: [], queue_pending: [] } : { queue_running: [[1, 'image-director']], queue_pending: [] }) });
+    assert.equal((await stopIdleComfy(late.deps)).reason, 'queue');
+    assert.deepEqual(late.kills, []);
+});

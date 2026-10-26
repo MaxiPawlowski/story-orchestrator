@@ -1,9 +1,16 @@
-export async function stopIdleComfy({ child: getChild, busy, queue, kill, timeoutMs = 15000, log = () => {} }, { shortMiB = 0 } = {}) {
+const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+export async function stopIdleComfy({ child: getChild, busy, queue, kill, timeoutMs = 15000, settleMs = 0, log = () => {} }, { shortMiB = 0 } = {}) {
     const child = getChild();
     if (!child || busy()) return { stopped: false, reason: child ? 'busy' : 'not-owned' };
     let pending;
     try { pending = await queue(); } catch (error) { return { stopped: false, reason: `queue unreadable: ${error.message}` }; }
     if (pending.queue_running?.length || pending.queue_pending?.length) return { stopped: false, reason: 'queue' };
+    if (settleMs > 0) {
+        await pause(settleMs);
+        try { pending = await queue(); } catch (error) { return { stopped: false, reason: `queue unreadable: ${error.message}` }; }
+        if (pending.queue_running?.length || pending.queue_pending?.length) return { stopped: false, reason: 'queue' };
+    }
     if (getChild() !== child || busy()) return { stopped: false, reason: 'changed' };
     if (child.exitCode !== null && child.exitCode !== undefined) return { stopped: true, pid: child.pid };
     const ended = new Promise((resolve) => child.once('exit', () => resolve(true)));

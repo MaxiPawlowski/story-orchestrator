@@ -86,7 +86,14 @@ export class ComfyJobs {
         if (!item) {
             const queue = await (await this.request('/queue')).json();
             if (job.status === 'cancelled') return this.view(job);
-            job.status = queue.queue_running?.some((entry) => entry[1] === job.promptId) ? 'running' : 'queued';
+            const running = queue.queue_running?.some((entry) => entry[1] === job.promptId);
+            const pending = queue.queue_pending?.some((entry) => entry[1] === job.promptId);
+            job.status = running ? 'running' : 'queued';
+            if (running || pending) job.missingSince = null;
+            else {
+                job.missingSince ??= this.now();
+                if (this.now() - job.missingSince > 60_000) { job.status = 'failed'; job.error = 'ComfyUI no longer has this render (it restarted or dropped it); try again.'; job.at = this.now(); return this.view(job); }
+            }
             if (this.now() - job.at > 900_000) { job.status = 'cancelled'; await this.removeQueued(job); job.error = 'The render exceeded fifteen minutes.'; }
             return this.view(job);
         }

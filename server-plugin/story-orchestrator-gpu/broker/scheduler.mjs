@@ -423,7 +423,27 @@ export class ResidencyScheduler {
         return true;
     }
 
+    async recoverFitSpill(now = Date.now()) {
+        const state = this.backend.status();
+        if (!(state.fitCorrectionMiB > 0) || !state.pid || state.loading || state.fitTargetMiB !== null || this.restoring) return false;
+        if (this.lease || this.imagePending || this.imageQueued || this.activeText || this.manualHold || this.pending.length) return false;
+        if (this.imagesCooling(now) || (this.lastLeaseAt && now - this.lastLeaseAt < (this.config.reclaimImageGraceMs ?? 180000))) return false;
+        if (this.lastSpillRecoveryAt && now - this.lastSpillRecoveryAt < (this.config.fitRecoverMs ?? 600000)) return false;
+        this.lastSpillRecoveryAt = now;
+        this.restoring = true;
+        try {
+            const cleared = this.backend.clearFitCorrection(state.profile);
+            this.log(`text spill recovery: reloading ${state.profile} without its ${cleared} MiB fit correction`);
+            await this.backend.unload();
+            await this.backend.load(state.profile, { fitTarget: null });
+            this.lastError = null;
+            return true;
+        } catch (error) { this.lastError = error.message; return false; }
+        finally { this.restoring = false; void this.pump(); }
+    }
+
     async restoreIfIdle() {
+        if (await this.recoverFitSpill()) return;
         const idleMs = this.config.idleRestoreMs ?? 0;
         if (!idleMs || this.restoring) return;
         if (this.lease || this.imagePending || this.imageQueued || this.activeText || this.manualHold || this.pending.length) return;

@@ -167,6 +167,10 @@ floor, so the owner's preset and groups stay as they were.
   rechecked after every await; counted only once the process has exited; the next image starts it again) and re-checks
   the reserve, keeping the loaded text (`text.gpuReclaims`, `comfy.lastReclaim`). With MTP a full load leaves ~1.5-2 GiB, so
   an idle ComfyUI context plus another GPU user could leave 974 MiB and fail a chat reply with 409 (lane 46, 2026-10-26).
+  ComfyUI is not stopped within `reclaimImageGraceMs` (180000) of the last image lease (no image/text ping-pong of cold
+  starts) or while either of two ComfyUI queue reads `reclaimSettleMs` (1500) apart lists any job (direct submissions from
+  Image Director or `/sd` included). A text load left with a fit correction is reloaded clean once images have been quiet for
+  that grace, at most every `fitRecoverMs` (600000), so a CPU spill does not last until the next restart.
   Only when nothing can be reclaimed does the backend retry once with its measured shortfall plus `fitRetryStepMiB` (1280;
   llama-server's `--fit` keeps ~1 GiB of slack, so a smaller step moved no layers) added to the fit target. The learned correction
   stays in memory for later loads of that profile; `/status` reports `text.fitCorrectionMiB` and `text.lastFitCorrection`.
