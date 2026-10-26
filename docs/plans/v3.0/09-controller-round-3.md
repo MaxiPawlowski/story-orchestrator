@@ -877,9 +877,9 @@ The coordinator relayed that the owner wants to playtest. GPU work stopped and K
 
   | | warm switch p50 | share warm | cached state p50 | decode / acceptance | failed / rewind failures |
   |---|---|---|---|---|---|
-  | A3s at 4096 (3 runs) | 3.38 s | 0.92 | 808 MiB | 42.7 / 0.522 | 0 / 0 |
-  | A3s at 2048 (2 runs) | none warm | 0.00 | 808 MiB | 41.8 / 0.526 | 0 / 0 |
+  | A3s at 4096 (3 runs) | 3.20 s | 0.92 | 808 MiB | 43.0 / 0.526 | 0 / 0 |
+  | A3s at 2048 (2 runs) | 3.15 s | 0.17 | 808 MiB | 42.5 / 0.523 | 0 / 0 |
 
-  At 2048 there are still no warm hits, so dropping the duplicate checkpoint did not make two members fit. The 808 MiB
+  At 2048 the warm share rises from 0 (A3) to 0.17, still far under the 60 % floor. The 808 MiB
   logged is the state alone. Why the 2048 cache still misses needs a look at `cache state` lines (entry size with draft
   state). Following the declared rule, the candidate would be A2. Its full-length run and rating are pending.
