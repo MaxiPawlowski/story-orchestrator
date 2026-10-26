@@ -810,7 +810,7 @@ test('an idle prefill step neither counts toward image fairness nor announces it
 });
 
 test('a shared-memory spill of the text server raises the GPU headroom and the stream floor, and reloads text once idle without waiting out the image grace', async () => {
-    const { scheduler, calls, backend } = setup({ config: { reclaimImageGraceMs: 600000, fitRecoverMs: 600000, streamImages: { enabled: true, minFreeGpuMiB: 2400 }, spillGuard: { sustainMs: 0 } }, comfyPid: () => 77 });
+    const { scheduler, calls, backend } = setup({ config: { reclaimImageGraceMs: 600000, fitRecoverMs: 600000, streamImages: { enabled: true, minFreeGpuMiB: 2400 }, spillGuard: { sustainMs: 0, settleMs: 0 } }, comfyPid: () => 77 });
     backend.status = () => ({ pid: backend.profile ? 42 : null, profile: backend.profile, desiredProfile: 'fast', fitTargetMiB: backend.fitTarget, fitCorrectionMiB: 0, loading: false });
     backend.clearFitCorrection = () => 0;
     const reading = (text, comfy) => ({ ...free(1500), gpuProcesses: { 42: { sharedMiB: text }, 77: { sharedMiB: comfy } } });

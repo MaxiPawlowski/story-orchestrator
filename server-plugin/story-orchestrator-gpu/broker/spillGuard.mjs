@@ -1,4 +1,4 @@
-export const SPILL_DEFAULTS = Object.freeze({ thresholdMiB: 512, sustainMs: 3000, stepMiB: 512, maxBackoffMiB: 2048 });
+export const SPILL_DEFAULTS = Object.freeze({ thresholdMiB: 512, sustainMs: 3000, stepMiB: 512, maxBackoffMiB: 2048, settleMs: 15000 });
 
 export function spillGuardOptions(config) {
     const raw = config?.spillGuard;
@@ -24,8 +24,9 @@ export class SpillGuard {
             const reading = readings[pid] ?? readings[String(pid)];
             if (!Number.isFinite(reading?.sharedMiB)) continue;
             let row = this.tracked.get(pid);
-            if (!row || row.role !== role) { row = { role, baseMiB: reading.sharedMiB, overSince: null, fired: false }; this.tracked.set(pid, row); }
-            row.baseMiB = Math.min(row.baseMiB, reading.sharedMiB);
+            if (!row || row.role !== role) { row = { role, firstAt: now, baseMiB: null, overSince: null, fired: false }; this.tracked.set(pid, row); }
+            if (now - row.firstAt < this.settleMs || reading.sharedMiB <= 0) continue;
+            row.baseMiB = row.baseMiB === null ? reading.sharedMiB : Math.min(row.baseMiB, reading.sharedMiB);
             const deltaMiB = reading.sharedMiB - row.baseMiB;
             if (deltaMiB < this.thresholdMiB) { row.overSince = null; row.fired = false; continue; }
             row.overSince ??= now;

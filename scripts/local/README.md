@@ -251,11 +251,12 @@ next time text loads (after an image, an idle restore, Load text); the loaded mo
 `cli mode` then saves the file and says it applies at the next controller start. With the controller stopped, `cli`
 saves directly.
 
-**Spill guard** (`spillGuard: { enabled, thresholdMiB 512, sustainMs 3000, stepMiB 512, maxBackoffMiB 2048 }`, on unless
+**Spill guard** (`spillGuard: { enabled, thresholdMiB 512, sustainMs 3000, stepMiB 512, maxBackoffMiB 2048, settleMs 15000 }`, on unless
 `enabled: false`). Under WDDM a CUDA allocation that does not fit in VRAM can land in shared system memory instead of
 failing (text then ran 1.4 tok/s on 2026-10-22). The telemetry probe reads each GPU process's `Shared Usage` counter
 (PDH `\GPU Process Memory(pid_*)`, once a second) for the text server and the owned ComfyUI. Each process keeps the
-lowest value seen as its baseline (llama-server holds ~1.2-1.7 GiB of pinned host buffers there from the start); a rise
+lowest non-zero value seen after its first `settleMs` as its baseline (a reading of 0 right after a load once made normal
+pinned buffers look like a 1.6 GiB spill) (llama-server holds ~1.2-1.7 GiB of pinned host buffers there from the start); a rise
 of `thresholdMiB` held for `sustainMs` is a spill. The controller then raises `reserves.gpuMiB` and
 `streamImages.minFreeGpuMiB` by at least the spilled amount (`stepMiB` minimum, `maxBackoffMiB` in total, in memory
 only: a restart or a mode save resets them) and, when the text server spilled, reloads text as soon as nothing runs.
