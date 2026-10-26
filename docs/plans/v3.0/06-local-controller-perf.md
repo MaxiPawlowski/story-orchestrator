@@ -469,3 +469,10 @@ load 1695-1815 MHz (P2), peak 350 W. SDXL story graph 1344x768, SDPA (`Using pyt
   text read for the privacy check is not archived, counts only).
 - Evidence: `C:\dev\so-lanes\bench-controller\rating-2026-10-26\` (items, replies, ratings, summaries, floors),
   `privacy-2026-10-25\result.json` (counts only), `live-*-lane42.log`, `run-slots*.log`, `run-det-image.log`.
+
+## Depth revert 2026-10-26
+
+- The depth-0 move (from `28eab941`) failed the blind three-arm floor (B: voice -0.35, guidance-ignored flags +3) and buys no TTFT
+  without the stable head, which is rejected (member-secret card text in 9 of 12 groups; C failed the floor too). Reverted the 19
+  src/docs files of that commit to their prior depths (injection registry, late-lore depth 4, Author's Note depth 4, guide + tests).
+  MTP, the gateway reuse module (off), slot pinning (off) and the median timing fix stay.

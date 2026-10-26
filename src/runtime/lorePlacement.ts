@@ -62,7 +62,7 @@ export function applyLorePlacement(arrays: HostScannableEntry[][], plan: LorePla
     }
     const before = position === WI_POSITION_BEFORE_CHAR;
     entry.position = WI_POSITION_AT_DEPTH;
-    entry.depth = before && plan.depth > 0 ? plan.depth + 1 : plan.depth;
+    entry.depth = before ? plan.depth + 1 : plan.depth;
     entry.role = WI_ROLE_SYSTEM;
     stats.moved += 1;
     stats[before ? "before" : "after"] += 1;

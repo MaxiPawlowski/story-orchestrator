@@ -281,7 +281,7 @@ const CORE_FEATURES: readonly Feature[] = [
   {
     id: "late-lore", name: "Per-turn lore after the history", area: "world", audience: "author",
     oneLine: "Lore that changes every turn is placed near the end of the prompt, so the start can be reused.",
-    what: "Story lorebook entries that activate by keyword or lore select land after the last chat message instead of beside the character card, "
+    what: "Story lorebook entries that activate by keyword or lore select land a few messages from the end of the chat instead of beside the character card, "
       + "with the same text and order. Per chat gating only; a story can keep its authored positions with lore_select.position.",
     where: settingsAt("#so-wi-late-lore", "World › Lorebooks"),
     settings: ["worldInfo.lateLore", "worldInfo.lateLoreDepth"], guideTopic: "world-info", doc: authorGuideDoc("world-info"), status: "shipped",

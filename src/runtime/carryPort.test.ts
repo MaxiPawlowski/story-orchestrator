@@ -57,7 +57,7 @@ describe("v2.8 plan 45 N5: the Previously block has a bounded life", () => {
     notice.opened("impersonate");
     notice.closed();
     const key = INJECTION_REGISTRY.previously.key;
-    expect(writes).toEqual([`set ${key} 0 Previously: x`, `clear ${key}`]);
+    expect(writes).toEqual([`set ${key} 4 Previously: x`, `clear ${key}`]);
   });
 });
 

@@ -7,13 +7,13 @@ import { defaultGlobalSettings, sanitizeGlobalSettings } from "./settingsStore";
 
 describe("worldInfo settings (v2.5 plan 01)", () => {
   it("R7: defaults to per-chat (scan) gating with an empty ledger and no provenance", () => {
-    expect(defaultGlobalSettings().worldInfo).toEqual({ gatingMode: "scan", normalized: {}, normalizedFrom: {}, scanMemory: true, keptGlobal: [], lateLore: true, lateLoreDepth: 0 });
-    expect(sanitizeGlobalSettings({}).worldInfo).toEqual({ gatingMode: "scan", normalized: {}, normalizedFrom: {}, scanMemory: true, keptGlobal: [], lateLore: true, lateLoreDepth: 0 });
+    expect(defaultGlobalSettings().worldInfo).toEqual({ gatingMode: "scan", normalized: {}, normalizedFrom: {}, scanMemory: true, keptGlobal: [], lateLore: true, lateLoreDepth: 4 });
+    expect(sanitizeGlobalSettings({}).worldInfo).toEqual({ gatingMode: "scan", normalized: {}, normalizedFrom: {}, scanMemory: true, keptGlobal: [], lateLore: true, lateLoreDepth: 4 });
   });
 
   it("keeps an explicit scan mode and a clean ledger, and drops anything else", () => {
     expect(sanitizeGlobalSettings({ worldInfo: { gatingMode: "scan", normalized: { Ruins: ["CP1", "CP1", "", 3], Empty: [], Junk: "x" } } }).worldInfo)
-      .toEqual({ gatingMode: "scan", normalized: { Ruins: ["CP1"] }, normalizedFrom: {}, scanMemory: true, keptGlobal: [], lateLore: true, lateLoreDepth: 0 });
+      .toEqual({ gatingMode: "scan", normalized: { Ruins: ["CP1"] }, normalizedFrom: {}, scanMemory: true, keptGlobal: [], lateLore: true, lateLoreDepth: 4 });
     expect(sanitizeGlobalSettings({ worldInfo: { gatingMode: "FILE" } }).worldInfo.gatingMode).toBe("scan");
   });
 
