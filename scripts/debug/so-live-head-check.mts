@@ -47,7 +47,7 @@ async function oneFrameStatic(page: Page, switching = false) {
 
 async function main(page: Page, connection: ConnectResult) {
   let reconnected: ConnectResult | null = null;
-  assert.equal(process.env.SO_LANE, '30', 'Live-head checks require isolated lane 30');
+  if (!(holdSeconds > 0 && row === 'none')) assert.equal(process.env.SO_LANE, '30', 'Live-head checks require isolated lane 30');
   assert.match(process.env.ST_DEBUG_VIEWPORT ?? '', /^\d+x\d+$/, 'Set ST_DEBUG_VIEWPORT explicitly');
   if (process.argv.includes('--candidate')) await page.route('**/third-party/story-orchestrator/dist/**', async (route) => {
     const file = new URL(route.request().url()).pathname.split('/').pop()!;

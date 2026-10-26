@@ -775,3 +775,7 @@ Floors (K1 against K0):
 Adoption: `keepAcrossImages` and the so3 binary go onto the owner's controller only if every K floor passes. The so3
 binary also carries the R patch (checkpoint_at, rewind, duplicate-checkpoint drop), which stays unused while
 `checkpointAt` and `serverRewind` are off.
+
+Addendum, before running them: S768 never streamed. Free VRAM with text loaded was 1,643-1,790 MiB, under the 1,792
+MiB that 768 + 1,024 require, so all three images swapped. Two more arms run under the same floors: S384 and
+S384-LH (stream gate 1,408 MiB).
