@@ -880,3 +880,19 @@ test('reply waits are logged per reply, and with replyBeforeImage a queued chat 
     assert.deepEqual(order, ['side', 'chat', 'image']);
     await scheduler.release(lease.lease);
 });
+
+test('a sleeping text server with its member cache is dropped first when an image would leave host RAM under the floor', async () => {
+    let available = 20000;
+    const { scheduler, backend } = setup({ snapshot: async () => ({ ...free(22000), host: { availableMiB: available, commitFreeMiB: 80000 } }), config: { keepCacheRamFloorMiB: 10240 } });
+    const dropped = [];
+    backend.status = () => ({ pid: null, profile: null, sleeping: { profile: 'fast' }, fitTargetMiB: null });
+    backend.dropSleeping = async () => { dropped.push('drop'); return 4096; };
+    assert.equal(await scheduler.dropSleepingForRam(6000), 0);
+    available = 9000;
+    assert.equal(await scheduler.dropSleepingForRam(6000), 4096);
+    available = 14000;
+    assert.equal(await scheduler.dropSleepingForRam(11000), 4096);
+    assert.deepEqual(dropped, ['drop', 'drop']);
+    backend.status = () => ({ pid: 42, profile: 'fast', sleeping: null, fitTargetMiB: null });
+    assert.equal(await scheduler.dropSleepingForRam(9000), 0);
+});

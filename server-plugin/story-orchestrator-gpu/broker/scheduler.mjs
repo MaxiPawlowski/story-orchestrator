@@ -212,6 +212,16 @@ export class ResidencyScheduler {
         return this.servedText - queued.served >= (this.config.imageFairTextRequests ?? 3) || Date.now() - queued.at >= (this.config.imageFairWaitMs ?? 45000);
     }
 
+    async dropSleepingForRam(needRamMiB) {
+        if (!this.backend.status().sleeping || !this.backend.dropSleeping) return 0;
+        const floor = Math.max(needRamMiB + (this.config.reserves?.ramMiB ?? 0), this.config.keepCacheRamFloorMiB ?? 10240);
+        const reading = await this.snapshot({ fresh: true }).catch(() => null);
+        const available = reading?.host?.availableMiB;
+        if (Number.isFinite(available) && available >= floor) return 0;
+        this.log(`text sleep: dropping the sleeping text server and its member cache, host RAM ${Number.isFinite(available) ? Math.round(available) : 'unreadable'} MiB is under ${floor} MiB for this image`);
+        return this.backend.dropSleeping();
+    }
+
     ramShortError(detail) {
         const error = new Error(`Image admission refused: ${detail} Host RAM is short for this image; the render waits and retries when RAM frees up, and the reserve is kept.`);
         error.retryable = true;
@@ -307,11 +317,12 @@ export class ResidencyScheduler {
                     this.lastError = error.message;
                 }
                 if (!decision) {
-                    await this.backend.unload(); await freeFor(needRamMiB);
+                    await this.backend.unload({ keepCache: true }); await this.dropSleepingForRam(needRamMiB); await freeFor(needRamMiB);
                     snapshot = await this.snapshot({ fresh: true }); decision = 'swap-text';
                 }
             } else {
-                await this.backend.unload();
+                await this.backend.unload({ keepCache: true });
+                await this.dropSleepingForRam(needRamMiB);
                 await freeFor(needRamMiB);
                 snapshot = await this.snapshot({ fresh: true });
                 decision = 'swap-text';

@@ -3,7 +3,7 @@ import fsDefault from 'node:fs/promises';
 import path from 'node:path';
 
 export const MEMBER_CACHE_DEFAULTS = Object.freeze({ headChars: 2000, budgetMiB: 6144, minPromptChars: 16000, minCutChars: 8000, minTailChars: 1200,
-    cutMarker: '<|turn>system\n', rewind: true, ramHeadroomMiB: 0, ctxCheckpoints: 3, store: 'file', park: true, erase: true, serverKeys: false, idlePrefill: false, idleDelayMs: 3000, idleMembers: 4, pinSlots: false, checkpointAt: false, serverRewind: false });
+    cutMarker: '<|turn>system\n', rewind: true, ramHeadroomMiB: 0, ctxCheckpoints: 3, store: 'file', park: true, erase: true, serverKeys: false, idlePrefill: false, idleDelayMs: 3000, idleMembers: 4, pinSlots: false, checkpointAt: false, serverRewind: false, keepAcrossImages: false });
 
 export function memberCacheOptions(config = {}) {
     const raw = config.memberCache;
@@ -16,7 +16,7 @@ export function memberCacheOptions(config = {}) {
     if (!['file', 'ram'].includes(merged.store)) throw new Error("memberCache.store must be 'file' or 'ram'.");
     if (merged.store === 'ram' && merged.budgetMiB < 1024) throw new Error('memberCache.budgetMiB must be at least 1024 with store ram (it sizes --cache-ram).');
     if (merged.idlePrefill === true && !(merged.store === 'ram' && merged.serverKeys === true)) throw new Error('memberCache.idlePrefill needs store ram and serverKeys (a patched llama-server).');
-    for (const key of ['checkpointAt', 'serverRewind']) if (merged[key] === true && !(merged.store === 'ram' && merged.serverKeys === true)) throw new Error(`memberCache.${key} needs store ram and serverKeys (a patched llama-server).`);
+    for (const key of ['checkpointAt', 'serverRewind', 'keepAcrossImages']) if (merged[key] === true && !(merged.store === 'ram' && merged.serverKeys === true)) throw new Error(`memberCache.${key} needs store ram and serverKeys (a patched llama-server).`);
     return merged;
 }
 

@@ -54,7 +54,7 @@ export function nativeArgs(config, profile, fitTargetMiB = config.reserves.gpuMi
     return ['--model', config.model, '--host', '127.0.0.1', '--port', String(config.backendPort), '--alias', config.modelAlias,
         '--offline', '--no-mmproj', '--no-webui', '--threads', '8', '--threads-batch', '8', '--parallel', String(slots(config)?.count ?? 1), '--kv-unified',
         '--flash-attn', 'on', '--cache-type-k', 'q8_0', '--cache-type-v', 'q8_0', '--cache-ram', String(members?.store === 'ram' ? members.budgetMiB : config.cacheRamMiB ?? 512), ...checkpoints, ...slotActions,
-        ...(slots(config)?.cacheIdle === false ? ['--no-cache-idle-slots'] : []), '--sleep-idle-seconds', '-1', ...speculativeArgs(config),
+        ...(slots(config)?.cacheIdle === false ? ['--no-cache-idle-slots'] : []), '--sleep-idle-seconds', keepsCacheAcrossImages(config) ? '31536000' : '-1', ...speculativeArgs(config),
         '--fit', 'on', '--fit-target', String(fitTargetMiB + (config.fitMarginMiB ?? 0) + (speculative(config)?.estimatedGpuMiB ?? 0)), ...args];
 }
 
@@ -78,6 +78,8 @@ export class MemoryReserveError extends Error {
         this.hostFits = snapshot.host.availableMiB >= reserves.ramMiB && snapshot.host.commitFreeMiB >= reserves.ramMiB;
     }
 }
+
+export const keepsCacheAcrossImages = (config) => memberCacheOptions(config)?.keepAcrossImages === true;
 
 export class NativeBackend {
     constructor(config, { snapshot = memorySnapshot, spawn = spawnDefault, killTree = null, fetch: fetchImpl = fetch, reclaimGpu = null } = {}) {
@@ -106,6 +108,8 @@ export class NativeBackend {
         this.slotStats = { requests: { chat: 0, side: 0 }, erased: 0, waited: 0, chatErasedBySide: 0 };
         this.slotBusy = new Set();
         this.onSlotErased = null;
+        this.sleeping = null;
+        this.sleepStats = { sleeps: 0, wakes: 0, wakeFailures: 0, dropped: 0, lastWakeMs: null, lastSleepMs: null };
     }
 
     async load(name = this.config.defaultProfile, options = {}) {
@@ -114,6 +118,14 @@ export class NativeBackend {
         if (this.child && this.profile === name && this.fitTarget === fitTarget) return;
         const profile = this.config.profiles[name];
         if (!profile || profile.disabled) throw new Error('That residency profile is unavailable.');
+        if (this.sleeping && this.child) {
+            if (this.sleeping.profile === name && fitTarget === null && this.sleeping.correction === (this.fitCorrections.get(name) ?? 0)) {
+                this.loading = this.wake(name, profile);
+                try { await this.loading; return; }
+                catch (error) { this.lastError = error.message; this.sleepStats.wakeFailures += 1; await this.stopOwned(); }
+                finally { this.loading = null; }
+            } else await this.stopOwned();
+        }
         this.loading = this.startWithFit(name, profile, fitTarget);
         try { await this.loading; }
         catch (error) { this.lastError = error.message; await this.stopOwned(); throw error; }
@@ -167,7 +179,7 @@ export class NativeBackend {
         child.on('exit', (code) => {
             void log.close();
             if (this.child !== child) return;
-            this.child = null; this.profile = null;
+            this.child = null; this.profile = null; this.sleeping = null;
             if (this.stopping !== child && this.loading === null) this.crashed = { code: code ?? null, at: new Date().toISOString() };
         });
         const deadline = Date.now() + 240000;
@@ -206,13 +218,68 @@ export class NativeBackend {
         throw new Error('Native backend load timed out.');
     }
 
-    async unload() {
+    async unload({ keepCache = false } = {}) {
         while (this.loading) await this.loading.catch(() => {});
+        if (keepCache && keepsCacheAcrossImages(this.config) && this.child && !this.sleeping && this.profile && this.fitTarget === null) {
+            try { await this.sleep(); return; }
+            catch (error) { this.lastError = `text could not sleep, stopped instead: ${error.message}`; }
+        }
         await this.stopOwned();
+    }
+
+    async sleep() {
+        const began = Date.now();
+        const reply = await this.fetch(`${this.url}/sleep`, { method: 'POST', signal: AbortSignal.timeout(10000) });
+        if (!reply.ok) throw new Error(`/sleep answered ${reply.status}`);
+        const deadline = Date.now() + (this.config.textSleepTimeoutMs ?? 60000);
+        while (true) {
+            const props = await (await this.fetch(`${this.url}/props`, { signal: AbortSignal.timeout(5000) })).json().catch(() => ({}));
+            if (props.is_sleeping === true) break;
+            if (Date.now() > deadline) throw new Error('llama-server did not reach its sleeping state in time.');
+            await new Promise((resolve) => setTimeout(resolve, 250));
+        }
+        this.sleeping = { profile: this.profile, correction: this.fitCorrections.get(this.profile) ?? 0, at: Date.now() };
+        this.profile = null;
+        this.slotTokens.clear();
+        this.slotBusy.clear();
+        this.sleepStats.sleeps += 1;
+        this.sleepStats.lastSleepMs = Date.now() - began;
+    }
+
+    async wake(name, profile) {
+        const began = Date.now();
+        const snapshot = await this.snapshot();
+        const gpuBudget = snapshot.gpus[0].freeMiB - this.config.reserves.gpuMiB;
+        const ramRequired = (profile.estimatedRamMiB ?? 6000) + Math.max(0, profileGpuMiB(this.config, profile) - gpuBudget);
+        if (gpuBudget < 2048 || snapshot.host.availableMiB < ramRequired + this.config.reserves.ramMiB) {
+            throw new Error('Not enough free GPU/physical RAM to wake the sleeping text server while preserving desktop headroom.');
+        }
+        const reply = await this.fetch(`${this.url}/completion`, { method: 'POST', headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ prompt: '\n', n_predict: 0, cache_prompt: false, stream: false }), signal: AbortSignal.timeout(240000) });
+        if (!reply.ok) throw new Error(`waking request answered ${reply.status}`);
+        const after = await this.snapshot();
+        if (!withinReserve(after, this.config.reserves)) throw new MemoryReserveError(after, this.config.reserves, 0);
+        this.sleeping = null;
+        this.profile = name;
+        this.fitTarget = null;
+        this.desiredProfile = name;
+        this.lastError = null;
+        this.loadMs = Date.now() - began;
+        this.loads += 1;
+        this.sleepStats.wakes += 1;
+        this.sleepStats.lastWakeMs = this.loadMs;
+    }
+
+    async dropSleeping() {
+        if (!this.sleeping) return 0;
+        await this.stopOwned();
+        this.sleepStats.dropped += 1;
+        return memberCacheOptions(this.config)?.budgetMiB ?? 0;
     }
 
     async stopOwned() {
         this.fitTarget = null;
+        this.sleeping = null;
         const child = this.child;
         if (!child) return;
         const ended = new Promise((resolve) => child.once('exit', resolve));
@@ -325,5 +392,5 @@ export class NativeBackend {
     }
 
     status() { return { profile: this.profile, desiredProfile: this.desiredProfile, fitTargetMiB: this.fitTarget, fitCorrectionMiB: this.fitCorrections.get(this.profile) ?? 0,
-        lastFitCorrection: this.lastFitCorrection, gpuReclaims: this.reclaims, speculative: speculativeTag(this.config), slots: slots(this.config) ? { ...slots(this.config), held: Object.fromEntries(this.slotTokens), requests: { ...this.slotStats.requests }, erased: this.slotStats.erased, waited: this.slotStats.waited, chatErasedBySide: this.slotStats.chatErasedBySide, busy: [...this.slotBusy] } : null, cacheRamMiB: memberCacheOptions(this.config)?.store === 'ram' ? memberCacheOptions(this.config).budgetMiB : this.config.cacheRamMiB ?? 512, pid: this.child?.pid ?? null, loading: Boolean(this.loading), loadMs: this.loadMs, loads: this.loads, lastError: this.lastError, crashed: this.crashed, servedContext: this.servedContext() }; }
+        lastFitCorrection: this.lastFitCorrection, gpuReclaims: this.reclaims, speculative: speculativeTag(this.config), slots: slots(this.config) ? { ...slots(this.config), held: Object.fromEntries(this.slotTokens), requests: { ...this.slotStats.requests }, erased: this.slotStats.erased, waited: this.slotStats.waited, chatErasedBySide: this.slotStats.chatErasedBySide, busy: [...this.slotBusy] } : null, cacheRamMiB: memberCacheOptions(this.config)?.store === 'ram' ? memberCacheOptions(this.config).budgetMiB : this.config.cacheRamMiB ?? 512, pid: this.sleeping ? null : this.child?.pid ?? null, sleeping: this.sleeping ? { profile: this.sleeping.profile, pid: this.child?.pid ?? null, since: new Date(this.sleeping.at).toISOString() } : null, sleepStats: { ...this.sleepStats }, loading: Boolean(this.loading), loadMs: this.loadMs, loads: this.loads, lastError: this.lastError, crashed: this.crashed, servedContext: this.servedContext() }; }
 }
