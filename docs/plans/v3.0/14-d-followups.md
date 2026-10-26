@@ -134,3 +134,11 @@ floors unchanged (v2.9 11 stop rules). No GPU, no model lane was used for this p
 - End batch: after the owner's Part B play, `node scripts/debug/so-swipe-backs.mts "C:/dev/SillyTavern-MainBranch/data/default-user/group chats/<playthrough chat id>.jsonl"`
   (read-only; record counts in v3.0 01 and v2.9 13 C1). S4 decides 01: below 3 per 100 over >= 300 turns, or fewer turns at
   the freeze, the drop runs.
+
+## Gates (branch `v3.0-d-followups`, 2026-10-26)
+
+- `npm run gates:quick`: green in 183.3 s (typecheck, typecheck:test, lint changed, jest related, defect replay 32/32 killed).
+- `npm run test:debug`: 1573/1574 before a build; the one red (`so-run-header.test.mts` "reads plan 08s nested manifest")
+  needs `dist/manifest.json`, absent in a fresh worktree. After `npm run build` (bundle 1,269,120 B, budget 1,300,000) that
+  file is 35/35.
+- Not run here (coordinator batches them): full `npm run gates`, merge, stage, push; every GPU or model-lane row above.
