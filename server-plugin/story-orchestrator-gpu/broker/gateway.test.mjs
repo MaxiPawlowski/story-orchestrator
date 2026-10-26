@@ -153,6 +153,7 @@ test('with the member cache on, a streamed completion is planned before the back
         before: async (body, slot) => { order.push(`before ${slot}`); return body.stream ? { key: 'k', slot } : null; },
         afterReply: async (plan, { idle }) => { order.push(`after ${plan.key} idle=${idle()}`); },
         noteOther: (slot) => order.push(`other ${slot}`),
+        afterOther: async (slot) => order.push(`erase ${slot}`),
         status: () => ({}),
     };
     const fetchImpl = async (url, init) => { order.push(`backend ${new URL(url).pathname} ${JSON.parse(init.body).n_predict}`); return new Response(JSON.stringify({ content: 'ok' }), { headers: { 'content-type': 'application/json' } }); };
@@ -170,7 +171,7 @@ test('with the member cache on, a streamed completion is planned before the back
         arbiter.scheduler.pending = [{}];
         await send('/completion', { prompt: 'chat prompt', n_predict: 8, stream: true });
         assert.deepEqual(order, ['sync 7', 'before 0', 'backend /completion 8', 'after k idle=true',
-            'sync 7', 'other 0', 'backend /v1/chat/completions undefined',
+            'sync 7', 'other 0', 'backend /v1/chat/completions undefined', 'erase 0',
             'sync 7', 'before 0', 'backend /completion 8', 'after k idle=false']);
         assert.equal(gateway.memberCache, members);
     } finally { await gateway.close(); }

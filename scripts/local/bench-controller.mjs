@@ -52,6 +52,12 @@ const MODIFIERS = {
     nopark: (a) => a,
     cram0: (a) => setFlag(a, '--cache-ram', 0),
     ctx64k: (a) => setFlag(setFlag(a, '--ctx-size', 65536), '--fit-ctx', 65536),
+    ub1024: (a) => setFlag(setFlag(a, '--batch-size', 2048), '--ubatch-size', 1024),
+    ub2048: (a) => setFlag(setFlag(a, '--batch-size', 2048), '--ubatch-size', 2048),
+    prob: (a) => [...a, '--spec-draft-sampling', 'probabilistic'],
+    ramcut: (a) => [...setFlag(a, '--ctx-checkpoints', 3), '--slot-save-path', memberDir],
+    noerase: (a) => a,
+    park: (a) => a,
 };
 const DEFAULT_ARMS = ['base', 'cram6144', 'par2pin', 'par2', 'mtp3', 'mtp2', 'mtp4', 'cms2048', 'cram4096', 'kvq4v', 'base'];
 
@@ -223,7 +229,8 @@ async function completeWithCache(cache, item, budget) {
     const result = await complete(body);
     const ttftMs = result.ttftMs === null ? null : Math.round(startedAt + result.ttftMs - began);
     const saved = plan ? await cache.afterReply(plan) : null;
-    return { ...result, ttftMs, member: plan?.key ?? null, restoreMs: plan?.timing.restoreMs ?? null, restored: plan?.timing.restored ?? null, resident: plan?.timing.resident ?? null,
+    const erased = !plan && cache.store === 'ram' && cache.erase !== false ? await cache.afterOther(0) : null;
+    return { ...result, ttftMs, member: plan?.key ?? null, erased: erased?.erased ?? null, cachedTokens: plan?.timing.cachedTokens ?? null, parked: saved?.parked ?? null, restoreMs: plan?.timing.restoreMs ?? null, restored: plan?.timing.restored ?? null, resident: plan?.timing.resident ?? null,
         prefillMs: plan?.timing.prefillMs ?? null, prefillPromptN: plan?.timing.prefillTokens ?? null, saveMs: saved?.saveMs ?? null, rewindMs: saved?.rewindMs ?? null,
         fileMiB: saved?.bytes ? Math.round(saved.bytes / 1048576) : null, saveReason: saved?.reason ?? null, promptN: (result.promptN ?? 0) + (plan?.timing.prefillTokens ?? 0), reusedFinal: result.reused, cache: cache.status() };
 }
@@ -232,18 +239,23 @@ function serverCounts(log) {
     return { lru: (log.match(/selected slot by LRU/g) ?? []).length, lcp: (log.match(/selected slot by LCP similarity/g) ?? []).length,
         exceed: (log.match(/exceeds cache size limit/g) ?? []).length, restored: (log.match(/restored context checkpoint/g) ?? []).length, forced: (log.match(/forcing full prompt re-processing/g) ?? []).length, cacheEvict: (log.match(/making room for prompt cache entry/g) ?? []).length,
         swaKv: log.match(/SWA KV cache, size = (\d+) cells/)?.[1] ?? null, ctxSlot: log.match(/n_ctx_slot = (\d+)/)?.[1] ?? null,
+        offloaded: log.match(/offloaded (\d+\/\d+) layers/)?.[1] ?? null, computeBuffers: [...log.matchAll(/CUDA0 compute buffer size =\s+([\d.]+) MiB/g)].map((m) => Number(m[1])),
+        cacheLoads: (log.match(/found better prompt/g) ?? []).length, cacheSaves: (log.match(/saving prompt with length/g) ?? []).length, restoredCkpt: (log.match(/restored context checkpoint/g) ?? []).length,
         kvBuffers: [...log.matchAll(/CUDA0 KV buffer size =\s+([\d.]+) MiB/g)].map((m) => Number(m[1])),
         draftLoaded: /draft/i.test(log.match(/load_model[^\n]*draft[^\n]*/)?.[0] ?? '') };
 }
 
 async function runArm(config, corpus, arm, dir, telemetry) {
     const baseline = gpuQuery('memory.free')[0];
-    if (arm.split('+').some((part) => part.startsWith('member') || part === 'memcache')) { await fs.rm(memberDir, { recursive: true, force: true }); await fs.mkdir(memberDir, { recursive: true }); }
+    if (arm.split('+').some((part) => part.startsWith('member') || part === 'memcache' || part === 'ramcut')) { await fs.rm(memberDir, { recursive: true, force: true }); await fs.mkdir(memberDir, { recursive: true }); }
     const server = await startServer(config, arm, dir);
     const rows = [];
     const memberMode = arm.split('+').find((part) => part === 'member' || part === 'membercut');
     const seen = new Set();
-    const cache = arm.split('+').includes('memcache') ? new MemberCache({ ...memberCacheOptions({ memberCache: { enabled: true, dir: memberDir, budgetMiB: Number(option('member-budget', 6144)), rewind: !arm.split('+').includes('norewind') } }) },
+    const parts = arm.split('+');
+    const ram = parts.includes('ramcut');
+    const cache = parts.includes('memcache') || ram ? new MemberCache({ ...memberCacheOptions({ memberCache: { enabled: true, dir: memberDir, budgetMiB: Number(option('member-budget', 6144)), rewind: !parts.includes('norewind'),
+        store: ram ? 'ram' : 'file', park: parts.includes('park') } }), erase: !parts.includes('noerase') },
         { baseUrl: `http://127.0.0.1:${port}`, snapshot: async () => ({ host: { availableMiB: Math.round(os.freemem() / 1048576) } }), reserves: { ramMiB: 2048 } }) : null;
     const reuse = reusing(arm, config) ? new PromptReuse({ ...promptReuseOptions(config), ...(pinned(arm, config) ? { history: 1 } : {}), parkWhenIdle: !arm.split('+').includes('nopark') && !pinned(arm, config) && (promptReuseOptions(config)?.parkWhenIdle ?? true) }) : null;
     try {
@@ -279,10 +291,11 @@ function summarize(result) {
     const side = rows.filter((row) => row.kind !== 'chat');
     const accepted = rows.reduce((sum, row) => sum + (row.draftAccepted ?? 0), 0);
     const drafted = rows.reduce((sum, row) => sum + (row.draftN ?? 0), 0);
+    const turns = rows.map((row, at) => (row.kind === 'chat' && at >= 2 && rows[at - 1].kind !== 'chat' && rows[at - 2].kind !== 'chat' ? row.ttftMs + rows[at - 1].ttftMs + rows[at - 2].ttftMs : null)).filter(Number.isFinite);
     const long = result.rows.find((row) => row.index === 'long');
     const swipe = result.rows.find((row) => row.index === 'swipe');
     return { arm: result.arm, loadMs: result.loadMs, gpuFreeAfterLoadMiB: result.afterLoad.gpuFreeMiB, ramAvailAfterLoadMiB: result.afterLoad.ramAvailMiB,
-        ttftChat: stat(by('chat'), 'ttftMs'), ttftSide: stat(side, 'ttftMs'), ttftAll: stat(rows, 'ttftMs'),
+        ttftChat: stat(by('chat'), 'ttftMs'), ttftSide: stat(side, 'ttftMs'), ttftAll: stat(rows, 'ttftMs'), memberTurnMs: { p50: median(turns), n: turns.length },
         promptProcessedSum: rows.reduce((sum, row) => sum + (row.promptN ?? 0), 0), reusedSum: rows.reduce((sum, row) => sum + (row.reused ?? 0), 0),
         prefillTps: median(rows.filter((row) => row.promptN >= 1000).map((row) => row.prefillTps)), decodeTpsChat: median(by('chat').map((row) => row.decodeTps)),
         decodeTpsSide: median(side.map((row) => row.decodeTps)), wallMs: rows.reduce((sum, row) => sum + row.totalMs, 0),

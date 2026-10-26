@@ -143,3 +143,67 @@ test('short or unstreamed prompts are not planned; init removes stale state file
     assert.equal(cache.plan({ prompt: 'tiny', stream: true }), null);
     assert.equal(cache.plan({ messages: [], stream: true }), null);
 });
+
+async function ramHarness({ park = true, cacheN = (prompt) => 0 } = {}) {
+    const calls = [];
+    const fetchImpl = async (url, init) => {
+        const route = new URL(url).pathname + new URL(url).search;
+        const body = JSON.parse(init.body);
+        calls.push({ route, body });
+        if (route.includes('action=erase')) return Response.json({ n_erased: 1 });
+        const evaluated = Math.ceil((body.prompt ?? '').length / 4);
+        const cached = cacheN(body.prompt ?? '');
+        return Response.json({ tokens_evaluated: evaluated, timings: { prompt_n: evaluated - cached, cache_n: cached } });
+    };
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'so-member-ram-'));
+    const cache = new MemberCache(memberCacheOptions({ stateDir: dir, memberCache: { enabled: true, store: 'ram', park, budgetMiB: 6144, minPromptChars: 1000, minCutChars: 1000, minTailChars: 100 } }),
+        { fetch: fetchImpl, baseUrl: 'http://backend', snapshot: async () => ({ host: { availableMiB: 20000 } }), reserves: { ramMiB: 2048 } });
+    await cache.init();
+    return { cache, calls };
+}
+
+test('store ram: no slot files; prefill to the cut counts a hit when the server restored most of it; other requests erase the slot', async () => {
+    assert.throws(() => memberCacheOptions({ memberCache: { enabled: true, store: 'disk' } }), /store/);
+    assert.throws(() => memberCacheOptions({ memberCache: { enabled: true, store: 'ram', budgetMiB: 512 } }), /budgetMiB/);
+    let restoreAna = false;
+    const { cache, calls } = await ramHarness({ park: false, cacheN: (text) => (restoreAna && text.includes('You are Ana') ? Math.floor(text.length / 8) : 0) });
+    const ana = await cache.before({ prompt: prompt('Ana', 3), stream: true }, 0);
+    assert.deepEqual(calls.map((call) => call.route), ['/completion']);
+    assert.equal(calls[0].body.prompt, prompt('Ana', 3).slice(0, ana.cut));
+    assert.equal(ana.timing.restored, false);
+    assert.deepEqual(await cache.afterReply(ana), { saved: false, reason: 'park-off' });
+    calls.length = 0;
+    assert.deepEqual(await cache.afterOther(0), { erased: true });
+    assert.deepEqual(calls.map((call) => call.route), ['/slots/0?action=erase']);
+    restoreAna = true;
+    const again = await cache.before({ prompt: prompt('Ana', 6), stream: true }, 0);
+    assert.equal(again.timing.restored, true);
+    assert.ok(again.timing.cachedTokens > 0);
+    assert.equal(calls.filter((call) => call.route.includes('restore') || call.route.includes('save')).length, 0);
+    const resident = await cache.before({ prompt: prompt('Ana', 6), stream: true }, 0);
+    assert.equal(resident.timing.resident, true);
+    const status = cache.status();
+    assert.equal(status.store, 'ram');
+    assert.equal(status.hits, 1);
+    assert.equal(status.misses, 1);
+    assert.equal(status.resident, 1);
+    assert.equal(status.erases, 1);
+    assert.equal(await cache.makeRoom({ needRamMiB: 8000, availableMiB: 1000 }), 0);
+});
+
+test('store ram: when idle the reply is parked (the server copies it to its RAM cache) and the park is erased; busy skips it', async () => {
+    const { cache, calls } = await ramHarness();
+    const ana = await cache.before({ prompt: prompt('Ana', 3), stream: true }, 0);
+    calls.length = 0;
+    const parked = await cache.afterReply(ana, { idle: () => true });
+    assert.equal(parked.saved, true);
+    assert.deepEqual(calls.map((call) => call.route), ['/completion', '/slots/0?action=erase']);
+    assert.equal(calls[0].body.n_predict, 0);
+    assert.equal(calls[0].body.id_slot, 0);
+    const bob = await cache.before({ prompt: prompt('Bob', 3), stream: true }, 0);
+    calls.length = 0;
+    assert.deepEqual(await cache.afterReply(bob, { idle: () => false }), { saved: false, reason: 'busy' });
+    assert.deepEqual(calls, []);
+    assert.equal(cache.status().parks, 1);
+    assert.equal(cache.status().skippedBusy, 1);
+});

@@ -3,7 +3,7 @@ import fsDefault from 'node:fs/promises';
 import path from 'node:path';
 
 export const MEMBER_CACHE_DEFAULTS = Object.freeze({ headChars: 2000, budgetMiB: 6144, minPromptChars: 16000, minCutChars: 8000, minTailChars: 1200,
-    cutMarker: '<|turn>system\n', rewind: true, ramHeadroomMiB: 0, ctxCheckpoints: 3 });
+    cutMarker: '<|turn>system\n', rewind: true, ramHeadroomMiB: 0, ctxCheckpoints: 3, store: 'file', park: true });
 
 export function memberCacheOptions(config = {}) {
     const raw = config.memberCache;
@@ -13,6 +13,8 @@ export function memberCacheOptions(config = {}) {
     if (!Number.isInteger(merged.headChars) || merged.headChars < 200 || merged.headChars > 20000) throw new Error('memberCache.headChars must be a whole number from 200 to 20000.');
     if (!Number.isInteger(merged.ctxCheckpoints) || merged.ctxCheckpoints < 3 || merged.ctxCheckpoints > 32) throw new Error('memberCache.ctxCheckpoints must be a whole number from 3 to 32.');
     if (typeof merged.cutMarker !== 'string' || !merged.cutMarker) throw new Error('memberCache.cutMarker must be a non-empty string.');
+    if (!['file', 'ram'].includes(merged.store)) throw new Error("memberCache.store must be 'file' or 'ram'.");
+    if (merged.store === 'ram' && merged.budgetMiB < 1024) throw new Error('memberCache.budgetMiB must be at least 1024 with store ram (it sizes --cache-ram).');
     return merged;
 }
 
@@ -41,8 +43,8 @@ export class MemberCache {
         this.entries = new Map();
         this.owner = new Map();
         this.lastError = null;
-        this.stats = { requests: 0, planned: 0, hits: 0, misses: 0, resident: 0, restoreFailures: 0, saves: 0, saveFailures: 0, skippedBusy: 0, skippedRam: 0, evictions: 0, evictedForImages: 0 };
-        this.times = { restoreMs: [], prefillMs: [], rewindMs: [], saveMs: [] };
+        this.stats = { requests: 0, planned: 0, hits: 0, misses: 0, resident: 0, restoreFailures: 0, saves: 0, saveFailures: 0, skippedBusy: 0, skippedRam: 0, evictions: 0, evictedForImages: 0, parks: 0, erases: 0, eraseFailures: 0 };
+        this.times = { restoreMs: [], prefillMs: [], rewindMs: [], saveMs: [], parkMs: [] };
     }
 
     async init() {
@@ -81,7 +83,9 @@ export class MemberCache {
         if (!plan) { this.noteOther(slot); return null; }
         this.stats.planned += 1;
         const timing = { restoreMs: null, prefillMs: null, restored: false, resident: false };
+        const ram = this.store === 'ram';
         if (this.owner.get(slot) === plan.key) { this.stats.resident += 1; timing.resident = true; }
+        else if (ram) this.owner.set(slot, null);
         else {
             this.owner.set(slot, null);
             const entry = this.entries.get(plan.key);
@@ -96,13 +100,39 @@ export class MemberCache {
         timing.prefillMs = prefill.ms;
         timing.prefillTokens = prefill.data?.timings?.prompt_n ?? null;
         if (!prefill.ok) { this.lastError = `prefill answered ${prefill.status}`; this.noteOther(slot); return null; }
+        if (ram && !timing.resident) {
+            const evaluated = Number(prefill.data?.tokens_evaluated);
+            const cached = Number.isFinite(prefill.data?.timings?.cache_n) ? prefill.data.timings.cache_n : evaluated - (timing.prefillTokens ?? evaluated);
+            timing.cachedTokens = Number.isFinite(cached) ? cached : null;
+            if (Number.isFinite(cached) && Number.isFinite(evaluated) && evaluated > 0 && cached >= evaluated / 4) { this.stats.hits += 1; timing.restored = true; } else this.stats.misses += 1;
+        }
         this.remember(this.times.prefillMs, prefill.ms);
         this.owner.set(slot, plan.key);
         return { ...plan, slot, timing };
     }
 
+    async afterOther(slot = 0, signal = AbortSignal.timeout(30000)) {
+        this.owner.set(slot, null);
+        if (this.store !== 'ram') return { erased: false };
+        const erase = await this.post(`/slots/${slot}?action=erase`, {}, signal);
+        if (erase.ok) this.stats.erases += 1; else { this.stats.eraseFailures += 1; this.lastError = `erase answered ${erase.status}`; }
+        return { erased: erase.ok };
+    }
+
+    async parkInRam(plan, idle, signal) {
+        if (!this.park) return { saved: false, reason: 'park-off' };
+        if (!idle()) { this.stats.skippedBusy += 1; return { saved: false, reason: 'busy' }; }
+        const park = await this.post('/completion', { prompt: '\n', n_predict: 0, cache_prompt: true, stream: false, id_slot: plan.slot }, signal);
+        if (!park.ok) { this.lastError = `park answered ${park.status}`; return { saved: false, reason: 'park' }; }
+        this.stats.parks += 1;
+        this.remember(this.times.parkMs, park.ms);
+        await this.afterOther(plan.slot, signal);
+        return { saved: true, saveMs: park.ms, parked: true };
+    }
+
     async afterReply(plan, { idle = () => true, signal = AbortSignal.timeout(120000) } = {}) {
         if (!plan || this.owner.get(plan.slot) !== plan.key) return { saved: false, reason: 'not-owner' };
+        if (this.store === 'ram') return this.parkInRam(plan, idle, signal);
         if (this.budgetMiB === 0) return { saved: false, reason: 'budget' };
         if (!idle()) { this.stats.skippedBusy += 1; return { saved: false, reason: 'busy' }; }
         const estimate = this.estimateMiB();
@@ -168,7 +198,7 @@ export class MemberCache {
     }
 
     async makeRoom({ needRamMiB = 0, availableMiB = null } = {}) {
-        if (!this.entries.size) return 0;
+        if (this.store === 'ram' || !this.entries.size) return 0;
         const floor = needRamMiB + (this.reserves().ramMiB ?? 0);
         let available = Number.isFinite(availableMiB) ? availableMiB : -Infinity;
         let freed = 0;
@@ -182,7 +212,7 @@ export class MemberCache {
     }
 
     status() {
-        return { dir: this.dir, budgetMiB: this.budgetMiB, rewind: this.rewind, entries: this.entries.size, sizeMiB: Math.round(this.bytes() / MiB), ...this.stats,
+        return { store: this.store, dir: this.dir, budgetMiB: this.budgetMiB, rewind: this.rewind, park: this.park, entries: this.entries.size, sizeMiB: Math.round(this.bytes() / MiB), ...this.stats, parkMsP50: median(this.times.parkMs),
             restoreMsP50: median(this.times.restoreMs), prefillMsP50: median(this.times.prefillMs), rewindMsP50: median(this.times.rewindMs), saveMsP50: median(this.times.saveMs),
             saveMsMax: this.times.saveMs.length ? Math.max(...this.times.saveMs) : null, lastError: this.lastError };
     }

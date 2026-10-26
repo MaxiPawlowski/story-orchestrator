@@ -107,6 +107,7 @@ export function createGateway({ arbiter, config, fetchImpl = fetch, allowOrigin 
                     if (response.ok && timing.timings) await arbiter.scheduler.recordTiming({ timings: timing.timings }).catch((error) => { arbiter.scheduler.lastError = error.message; });
                 } else res.end();
                 if (memberPlan && response.ok) await members.afterReply(memberPlan, { idle: memberIdle }).catch((error) => { members.lastError = error.message; members.noteOther(memberPlan.slot); });
+                else if (members?.afterOther && generating && !memberPlan) await members.afterOther(slot ?? 0).catch((error) => { members.lastError = error.message; });
                 const park = reusing && !memberPlan && response.ok && slot === null ? reuse.park(idle()) : null;
                 if (park) await backendCall(park).catch((error) => { reuse.lastError = error.message; });
             };

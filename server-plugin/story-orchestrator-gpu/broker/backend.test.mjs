@@ -267,3 +267,12 @@ test('the member cache adds a slot save path in its own folder and three checkpo
     assert.equal(set.filter((arg) => arg === '--slot-save-path').length, 1);
     assert.equal(set[set.indexOf('--slot-save-path') + 1], path.join('C:/state', 'member-states'));
 });
+
+test('memberCache store ram sizes --cache-ram from its budget and keeps the slot path for erase', () => {
+    const args = nativeArgs({ ...config, model: 'm', backendPort: 1, modelAlias: 'a', cacheRamMiB: 512, stateDir: 'D:/s', memberCache: { enabled: true, store: 'ram', budgetMiB: 6144 } }, { args: [] });
+    assert.equal(args[args.indexOf('--cache-ram') + 1], '6144');
+    assert.equal(args[args.indexOf('--ctx-checkpoints') + 1], '3');
+    assert.ok(args.includes('--slot-save-path'));
+    const file = nativeArgs({ ...config, model: 'm', backendPort: 1, modelAlias: 'a', cacheRamMiB: 0, stateDir: 'D:/s', memberCache: { enabled: true } }, { args: [] });
+    assert.equal(file[file.indexOf('--cache-ram') + 1], '0');
+});
