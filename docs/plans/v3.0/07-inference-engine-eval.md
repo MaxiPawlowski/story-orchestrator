@@ -1,6 +1,6 @@
 # Plan 07 — Inference engine evaluation (Artemis 31B, one 3090)
 
-**Status: RESEARCH done 2026-10-25; spike staged (downloads + installs done, no GPU used yet).** Follows plan 06
+**Status: SPIKE done 2026-10-26: ExLlamaV3 dropped (floors missed); llama.cpp b11888 + gateway member-state cache recommended (warm member switch 9-10 s → 4.7-6.0 s measured). See Spike results.** Research 2026-10-25. Follows plan 06
 (`06-local-controller-perf.md`): same model, same corpus, same bench. Question (owner): is there a custom layer or another
 inference engine that fits our workload better than llama.cpp?
 
@@ -219,10 +219,133 @@ Predeclared floors (adopt ExLlamaV3 only if all hold; a miss is recorded, never 
 - b11888 adopted if it is no worse than b11388 on `text --arms base,config` (TTFT ±5 %, decode ±3 %) and the slot
   save/restore round trip keeps checkpoints (reused tokens > 0 after restore on the same-member corpus).
 
+## Spike results 2026-10-26 (GPU 00:41-01:44Z, 63 min)
+
+New facts before the run (coordinator, owner): the stable head is **rejected** (9 of 12 groups have member-secret card
+text, so join mode leaks; blind rating voice -0.35, guidance -0.30) and the depth-0 block move is being reverted. Owner
+keeps per-member heads and the old depths, so the measured path is a **per-member state cache** on the recorded layout.
+
+Conditions (M): recorded rotating corpus (`corpus.json`: 8 chat 7.9-9.6K tokens from 3 members in rotation, 16 side
+passes, seed 1234, chat 192 / side 96 tokens), same-member corpus where stated. The machine was shared: another agent
+ran `npm run gates` (jest, Storybook with Chromium) and no-model lanes during the whole window; b11888 `base` decode
+dipped to 21-26 tok/s mid-run while b11388 `base` 20 min later held 30-31, so treat single-arm decode as ±15 %.
+Power limit 350 W, Gen3 x8 link (as above).
+
+### llama.cpp b11888 vs b11388 (rotating, recorded layout)
+
+| Arm | Build | Chat TTFT p50 | Side TTFT p50 | Decode chat | MTP accept | GPU free min | Prompt tokens processed |
+|---|---|---|---|---|---|---|---|
+| base | b11388 | 8.46 s | 2.10 s | 30.9 | | 2,298 | 94,984 |
+| base | b11888 | 9.21 s | 2.20 s | 24.4 (contended) | | 2,293 | 94,984 |
+| config (MTP 2) | b11888 | 9.11 s | 2.16 s | 42.9 | 0.61 | 1,310 | 94,984 |
+| config (MTP 2), plan 06 22:45 run | b11388 | 8.66 s | 2.21 s | 41.7 | 0.59 | 1,547 | 94,984 |
+| config + member cache, cut prefill | **b11388** | 9.63 s | 2.16 s | 42.1 | 0.59 | 1,397 | 94,984 (restore kept no checkpoint) |
+| config + member cache, no cut | b11888 | 9.45 s | 2.16 s | 44.2 | 0.61 | 1,215 | 94,984; exact repeat 10.1 → 1.7 s |
+| **config + member cache, cut prefill** | **b11888** | **5.97 s** | 2.07 s | 44.1 | 0.59 | 1,498 | **64,203 (-32 %)** |
+
+Full-length outputs (8 chat prompts, 1,024-token cap, MTP 2, thinking on), b11888: decode 40.8 tok/s, acceptance 0.51,
+every reply closed its thinking (M).
+
+Member cache (bench `membercut` arm; M): key = hash of the first 2,000 prompt characters (the member's head); before a
+member's chat, `POST /slots/0?action=restore` of that member's file, then a prefill of the prompt cut at the first
+in-history `<|turn>system` block (the depth-4 Author's Note / Story Orchestrator blocks), then the request; after the
+reply, `action=save`. `--cache-ram 0 --ctx-checkpoints 4 --slot-save-path`.
+
+- Cold turns (first appearance of each member, 3 of 8): 7.8-8.2 s, as base.
+- Warm turns (5 of 8): **4.7-6.0 s** = restore 1.40-1.62 s + prefill to the cut 1.8-2.7 s (1.4-2.3K tokens: the
+  messages since that member's previous cut) + final 1.1-1.2K tokens (the depth-4 tail). That tail and the 4 messages
+  under it are reprocessed every turn by construction of the old layout; this is close to the floor for it.
+- State per member: **2.0-2.1 GiB** on disk (KV of ~8-9K tokens + SWA ring + 4 window checkpoints of 425 MiB). Restore
+  ran at ~1.4 GiB/s, below the Gen3 x8 link: the file path is the bound, not PCIe.
+- Save: 1.46-2.13 s normally, with **outliers of 11.5, 39.5 and 63.2 s** while the gates run hammered C: (92-95 % full).
+  A save blocks the slot, so the next request waits.
+- The same arm on **b11388 restored tokens but no checkpoint** (#26004 not in that build): every warm turn reprocessed
+  in full (9.3-10.8 s). The cache needs b11888 or later.
+- No-cut variant: end-of-prompt checkpoints never cover the next turn's divergence, so nothing but exact repeats reuse.
+
+### ExLlamaV3 1.6.5 / TabbyAPI, Artemis v1.1 EXL3 4.0 bpw
+
+Config: `cache_mode 8,8`, `max_batch_size 1`, checkpoint grid 1,024 (end/generation) and 2,048 (ingestion),
+`sysmem_recurrent_cache` 6-8 GiB; MTP = `gemma-4-31B-it-assistant` as draft model, 2 tokens.
+
+| Arm | Chat TTFT p50 | Side TTFT p50 | Prefill | Decode chat / side | MTP accept | GPU free after load / min | RAM avail min |
+|---|---|---|---|---|---|---|---|
+| no draft, cache 32K, rotating | 13.0 s | 2.74 s | 773 tok/s | 31.1 / 33.7 | | 4,610 / 3,779 | 5.2 GB |
+| no draft, same-member corpus | **4.84 s** (52-79 % cached) | 2.45 s | 720 | 31.0 / 33.5 | | 4,042 / 3,766 | 4.9 GB |
+| MTP 2, cache 64K, rotating (sampler fix) | 11.2 s | 2.48 s | 788 | 40.7 / 59.9 | 0.51 | 2,373 / 1,486 | 4.3 GB |
+| MTP 2, full length 1,024 | | | 679 | 38.3 | 0.39 | 1,633 / 1,525 | 5.1 GB |
+
+- Loads in 13-26 s. Prefill is **~25 % slower than llama.cpp** on this card (773-788 vs ~1,030 tok/s); decode without
+  MTP matches llama.cpp, with MTP is -5 % (rotating) to -6 % (full length).
+- The checkpoint grid works natively for one member (same-member p50 4.84 s with no gateway; llama.cpp base was 10.73 s
+  on that corpus in plan 06), but **rotation evicts it**: two other members' chats plus six side passes between a
+  member's turns overflow the recurrent-state cache (FP16 window states), so rotating reuse was 0. More RAM is not
+  available: RAM available already fell to 4.3-5.2 GB.
+- **Sampler trap (found here):** our payloads carry `adaptive_target: -0.01`, which llama.cpp reads as disabled
+  (negative = off) and TabbyAPI enables (`adaptive_target < 1.0`, `backends/exllamav3/sampler.py`). The first MTP run
+  had 4-17 % acceptance and garbled text because of it. The bench now drops a negative target; a production adapter
+  would have to do the same. DRY, min_p, penalties were accepted by name (TabbyAPI log).
+- Quality, Sol blind A/B (`openai/gpt-6.1-sol`, 8 chat prompts, order shuffled, a = llama.cpp b11888 MTP, b = EXL3 4.0
+  bpw MTP, both 1,024-token cap, same sampler values): **EXL3 preferred 3 of 8 (37.5 %)**; mean deltas EXL3 - llama:
+  coherence -0.50, voice -0.75, guidance -0.50, continuity -0.13, prose -0.75; broken 2 vs 1; **2 of 8 EXL3 replies
+  never closed their thinking** (planning leaked into the reply), 0 of 8 for llama.cpp. Small sample, one rater.
+
+### Floors (predeclared above)
+
+- b11888 adoption: TTFT within ±5 % and decode within ±3 % of b11388 on `base,config`: MTP arm decode +2.9 % (42.9 vs
+  41.7) and TTFT +5.2 % (9.11 vs 8.66, different day); `base` TTFT +8.9 % and decode -21 % in a contended window, against
+  a same-session b11388 `base` run 20 min later. **Not decided cleanly**: the MTP arm (the owner's config) is at parity,
+  the `base` arm needs a quiet rerun. Checkpoints after restore: **pass** (64,203 vs 94,984 tokens processed).
+- Member cache, plan 06 floor B (chat TTFT p50 ≤ 50 % of base): 5.97 / 9.11 = 66 % (warm turns only ≈ 57 %): **miss**.
+- ExLlamaV3: TTFT **miss** (11.2 s vs ≤ 0.5 × base 4.6 s); decode **pass** (40.7 ≥ 37.5); GPU free **pass** (2,373 ≥
+  1,536); RAM ≥ 10 GiB **miss** (4.3 GB); Sol preference **miss** (37.5 % < 45 %, voice and prose below); thinking breaks
+  **miss** (2 of 8); DRY/XTC/min_p by name **pass**. **Dropped.**
+
+### Recommendation (2026-10-26)
+
+1. **llama.cpp b11888** is required for any member cache (checkpoint-preserving slot files). Swap after one quiet
+   `text --arms base,config` rerun confirms the `base` decode dip was contention.
+2. **Build the member-state cache in the gateway** (the bench arm is the prototype): key on the head hash, prefill to the
+   first in-history system block, restore before the member's chat, save after the reply. Measured gain: warm member
+   switch 9-10 s → 4.7-6.0 s; p50 over a rotation with cold first turns 9.1 → 6.0 s. Before shipping:
+   - keep only the cut checkpoint (2.0 → ~1.2 GiB per member; `--ctx-checkpoints` keeps the newest, which drops the
+     cut one, so this needs the gateway to order the save or a server patch) (I);
+   - hold the states in RAM (an in-process store or the server's RAM cache sized per member), not on C:, to remove the
+     11-63 s save stalls and the 1.4 s file restore (expected ~0.3 s at the Gen3 x8 rate) (I);
+   - do the save in the idle gap after a reply, never in front of the next request (I);
+   - budget: 3-5 members × ~1.2-2 GiB of host RAM beside ComfyUI's 8 GiB staging; evict least recently spoken.
+   Expected warm TTFT then ≈ 3.5-4.5 s (I), limited by the old layout's 1.1-1.2K-token tail plus new messages.
+3. Drop ExLlamaV3, vLLM and SGLang for this workload. EXL3 files, the drafter and TabbyAPI were deleted after the run
+   (25.5 GB freed); b11888 stays at `C:\dev\tools\llama-b11888-cuda12.4`.
+
+## Gate record 2026-10-26
+
+- GPU 00:41-01:44Z (63 min): b11888 `base,config` (00:41), member arms (00:50, the first attempt failed at load because
+  `--slot-save-path` needs an existing directory; fixed), b11388 control `base,config+membercut` (01:00), llama
+  full-length (01:09), TabbyAPI no-draft rotating + same-member (01:14-01:24), MTP rotating (01:24, invalid: adaptive-P
+  trap), MTP rotating fixed + full length (01:36-01:43).
+- Runs under `C:\dev\so-lanes\bench-controller\`: `text-2026-10-26T00-41-28-323Z` (b11888 base/config),
+  `text-2026-10-26T00-50-37-411Z` (member arms), `text-2026-10-26T01-00-08-666Z` (b11388 control),
+  `endpoint-l888-full-2026-10-26T01-09-14-120Z`, `endpoint-exl3-nodraft-2026-10-26T01-14-12-922Z`,
+  `endpoint-exl3-samemember-2026-10-26T01-19-42-464Z`, `endpoint-exl3-mtp2-c64k-2026-10-26T01-23-55-435Z` (invalid),
+  `endpoint-exl3-mtp2-fixed-2026-10-26T01-36-21-220Z`, `endpoint-exl3-full-fixed-2026-10-26T01-40-10-175Z`;
+  rating and TabbyAPI logs in `rating-07/`. Logs `run-07-*.log`.
+- Controller stopped with `node scripts/local/cli.mjs stop` before each GPU block and restarted with `start`; final
+  `/status`: phase `text`, `speculative: draft-mtp2`, profile `fast`, image residency `ram-warm` (as found). Controller
+  config untouched (b11888 ran from a scratch copy passed with `--config`). Owner's ST data untouched.
+- Bench changes (`scripts/local/bench-controller.mjs`): `endpoint` mode (OpenAI `/v1/completions`, any engine,
+  `--llama-arm`, `--full`), `member`/`membercut` arms (`--slot-save-path`, `--member-dir`), negative `adaptive_target`
+  dropped on the OpenAI path. Checked with `node --check` and the live runs above; no gates run (scripts/local bench
+  only, no `src/` change).
+- Deviations: machine shared with another agent's gates for the whole window (decode noise); no b11388 full-length
+  outputs, so build parity on quality rests on identical settings and closed thinking, not a rating; Sol rating on 8
+  pairs (floor asked for 16); vLLM skipped (coordinator).
+
 ## Unresolved questions
 
-- Stable head on the owner's install (plan 06 question) decides whether the member-state cache is needed at all.
+- Quiet rerun of b11888 `base` (decode dipped under another agent's load) before swapping the controller binary?
+- Member cache store: in-process RAM store in the gateway, or a llama.cpp patch so the RAM prompt cache keys by member
+  and keeps only the cut checkpoint? RAM budget per member (1.2-2 GiB) beside ComfyUI's 8 GiB staging.
 - Card at PCIe Gen3 **x8** (max x16): slot sharing or seating? Doubles every host↔GPU restore if it can run x16.
-- GBNF users (copilot, sprites): accept EBNF/JSON-schema conversion if ExLlamaV3 wins, or keep llama.cpp for those calls?
-- Move to Artemis v1.2 (has W4A16, DFlash, EAGLE3 builds)? Out of scope here; it would reopen C and the drafter options.
-- Delete the EXL3 files (19.7 GB) after the spike if it misses its floors?
+- Side passes (78 % of requests) stay uncached; a per-role cache for read/inner prompts was not measured.
+- Move to Artemis v1.2 (has W4A16, DFlash, EAGLE3 builds)? Out of scope here.

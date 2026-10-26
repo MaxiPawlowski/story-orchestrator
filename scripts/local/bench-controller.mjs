@@ -2,6 +2,7 @@ import fs from 'node:fs/promises';
 import { createWriteStream, openSync, closeSync } from 'node:fs';
 import { spawn, execFileSync } from 'node:child_process';
 import os from 'node:os';
+import { createHash } from 'node:crypto';
 import path from 'node:path';
 import { nativeArgs, slots } from '../../server-plugin/story-orchestrator-gpu/broker/backend.mjs';
 import { PromptReuse, promptReuseOptions } from '../../server-plugin/story-orchestrator-gpu/broker/promptReuse.mjs';
@@ -18,6 +19,7 @@ const seed = Number(option('seed', 1234));
 const chatCap = Number(option('chat-tokens', 192));
 const sideCap = Number(option('side-tokens', 96));
 const MTP = option('mtp', 'C:/dev/models/hf/hub/models--TheDrummer--Artemis-31B-v1.1-GGUF/snapshots/65d0086759d0d45f728b610f48651d4a98d89ed4/MTP/mtp-Artemis-31B-v1m-Q8_0.gguf');
+const memberDir = option('member-dir', 'C:/dev/so-lanes/bench-controller/member-slots');
 const RESERVED = [6006, 8000, 8095, 8096, 8188, 8765, 9222, 18079, 18080, 18888, 18889];
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const stamp = () => new Date().toISOString().replace(/[:.]/g, '-');
@@ -41,6 +43,8 @@ const MODIFIERS = {
     ckpt3: (a) => [...a, '--ctx-checkpoints', '3'],
     ckpt4: (a) => [...a, '--ctx-checkpoints', '4'],
     reuse: (a) => a,
+    member: (a) => [...setFlag(a, '--cache-ram', 0), '--slot-save-path', memberDir],
+    membercut: (a) => [...setFlag(a, '--cache-ram', 0), '--slot-save-path', memberDir],
     config: (a) => a,
     nopark: (a) => a,
     cram0: (a) => setFlag(a, '--cache-ram', 0),
@@ -180,6 +184,34 @@ async function completeWithReuse(reuse, item, budget, slot) {
         prefillPromptN: steps.find((step) => step.kind === 'prefill')?.promptN ?? null, steps };
 }
 
+const memberKey = (prompt) => createHash('sha1').update(prompt.slice(0, Number(option('member-head', 2000)))).digest('hex').slice(0, 16);
+const historyCut = (prompt) => { const turns = [...prompt.matchAll(/<\|turn>system\n/g)].map((m) => m.index); return turns.length > 1 ? turns[1] : null; };
+async function slotAction(action, filename) {
+    const began = performance.now();
+    const response = await fetch(`http://127.0.0.1:${port}/slots/0?action=${action}`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ filename }), signal: AbortSignal.timeout(120000) });
+    const data = await response.json().catch(() => ({}));
+    return { ok: response.ok, ms: Math.round(performance.now() - began), data };
+}
+async function completeWithMember(item, budget, cutFirst, seen) {
+    const began = performance.now();
+    const body = requestBody(item, budget, 0);
+    const key = memberKey(item.body.prompt);
+    const filename = `m-${key}.bin`;
+    let restore = null; let prefill = null;
+    if (seen.has(key)) restore = await slotAction('restore', filename);
+    const cut = cutFirst ? historyCut(item.body.prompt) : null;
+    if (cut) prefill = await post({ ...body, prompt: item.body.prompt.slice(0, cut), n_predict: 0, stream: false });
+    const startedAt = performance.now();
+    const result = await complete(body);
+    const ttftMs = result.ttftMs === null ? null : Math.round(startedAt + result.ttftMs - began);
+    const save = await slotAction('save', filename);
+    seen.add(key);
+    let fileMiB = null;
+    try { fileMiB = Math.round((await fs.stat(path.join(memberDir, filename))).size / 1048576); } catch {}
+    return { ...result, ttftMs, member: key, restoreMs: restore?.ms ?? null, restoreOk: restore?.ok ?? null, restoredTokens: restore?.data?.n_restored ?? null,
+        prefillMs: prefill?.ms ?? null, prefillPromptN: prefill?.promptN ?? null, saveMs: save.ms, saveOk: save.ok, fileMiB, promptN: (result.promptN ?? 0) + (prefill?.promptN ?? 0), reusedFinal: result.reused };
+}
+
 function serverCounts(log) {
     return { lru: (log.match(/selected slot by LRU/g) ?? []).length, lcp: (log.match(/selected slot by LCP similarity/g) ?? []).length,
         exceed: (log.match(/exceeds cache size limit/g) ?? []).length, restored: (log.match(/restored context checkpoint/g) ?? []).length, forced: (log.match(/forcing full prompt re-processing/g) ?? []).length, cacheEvict: (log.match(/making room for prompt cache entry/g) ?? []).length,
@@ -190,8 +222,11 @@ function serverCounts(log) {
 
 async function runArm(config, corpus, arm, dir, telemetry) {
     const baseline = gpuQuery('memory.free')[0];
+    if (arm.split('+').some((part) => part.startsWith('member'))) { await fs.rm(memberDir, { recursive: true, force: true }); await fs.mkdir(memberDir, { recursive: true }); }
     const server = await startServer(config, arm, dir);
     const rows = [];
+    const memberMode = arm.split('+').find((part) => part === 'member' || part === 'membercut');
+    const seen = new Set();
     const reuse = reusing(arm, config) ? new PromptReuse({ ...promptReuseOptions(config), ...(pinned(arm, config) ? { history: 1 } : {}), parkWhenIdle: !arm.split('+').includes('nopark') && !pinned(arm, config) && (promptReuseOptions(config)?.parkWhenIdle ?? true) }) : null;
     try {
         await sleep(1500);
@@ -206,7 +241,8 @@ async function runArm(config, corpus, arm, dir, telemetry) {
             const slot = pinned(arm, config) ? (item.kind === 'chat' || item.kind === 'swipe' || item.kind === 'long' ? 0 : 1) : null;
             const budget = item.kind === 'chat' ? chatCap : item.kind === 'long' || item.kind === 'swipe' ? 32 : sideCap;
             telemetry.tag = `${arm}:${item.index}`;
-            const result = reuse ? await completeWithReuse(reuse, item, budget, slot) : await complete(requestBody(item, budget, slot));
+            const result = memberMode && (item.kind === 'chat' || item.kind === 'swipe') ? await completeWithMember(item, budget, memberMode === 'membercut', seen)
+                : reuse ? await completeWithReuse(reuse, item, budget, slot) : await complete(requestBody(item, budget, slot));
             await sleep(250);
             const { text, ...kept } = result;
             rows.push({ arm, index: item.index, kind: item.kind, role: item.role ?? item.kind, promptChars: item.body.prompt.length, ...kept, outputChars: text.length, ...telemetry.window(`${arm}:${item.index}`) });
@@ -284,6 +320,7 @@ const openAiBody = (item, budget, model) => {
     const body = {};
     for (const [from, to] of Object.entries(OPENAI_KEYS)) if (item.body[from] !== undefined && item.body[from] !== '') body[to] = item.body[from];
     if (body.penalty_range === 0) delete body.penalty_range;
+    if (!(body.adaptive_target >= 0)) { delete body.adaptive_target; delete body.adaptive_decay; }
     const max = Math.min(item.body.n_predict ?? budget, budget);
     return { ...body, ...(model ? { model } : {}), max_tokens: max, n_predict: max, seed, stream: true, stream_options: { include_usage: true }, cache_prompt: true };
 };
