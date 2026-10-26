@@ -3,7 +3,7 @@ import fsDefault from 'node:fs/promises';
 import path from 'node:path';
 
 export const MEMBER_CACHE_DEFAULTS = Object.freeze({ headChars: 2000, budgetMiB: 6144, minPromptChars: 16000, minCutChars: 8000, minTailChars: 1200,
-    cutMarker: '<|turn>system\n', rewind: true, ramHeadroomMiB: 0, ctxCheckpoints: 3, store: 'file', park: true, erase: true, serverKeys: false, idlePrefill: false, idleDelayMs: 3000, idleMembers: 4 });
+    cutMarker: '<|turn>system\n', rewind: true, ramHeadroomMiB: 0, ctxCheckpoints: 3, store: 'file', park: true, erase: true, serverKeys: false, idlePrefill: false, idleDelayMs: 3000, idleMembers: 4, pinSlots: false });
 
 export function memberCacheOptions(config = {}) {
     const raw = config.memberCache;
@@ -82,6 +82,8 @@ export class MemberCache {
         return { key: memberKey(prompt, this.headChars), cut, prefix: prompt.slice(0, cut) };
     }
 
+    slotField(slot) { return this.store === 'ram' && !this.pinSlots ? {} : { id_slot: slot }; }
+
     noteOther(slot) { this.owner.set(slot, null); }
 
     syncBackend(pid) { if (pid !== this.pid) { this.owner.clear(); this.pid = pid; } }
@@ -116,7 +118,7 @@ export class MemberCache {
                 else { this.stats.restoreFailures += 1; this.lastError = `restore answered ${restore.status}`; await this.drop(plan.key); }
             } else this.stats.misses += 1;
         }
-        const prefill = await this.post('/completion', { prompt: plan.prefix, n_predict: 0, cache_prompt: true, stream: false, id_slot: slot, ...(ram && this.serverKeys ? { cache_key: plan.key } : {}) }, signal);
+        const prefill = await this.post('/completion', { prompt: plan.prefix, n_predict: 0, cache_prompt: true, stream: false, ...this.slotField(slot), ...(ram && this.serverKeys ? { cache_key: plan.key } : {}) }, signal);
         timing.prefillMs = prefill.ms;
         timing.prefillTokens = prefill.data?.timings?.prompt_n ?? null;
         if (!prefill.ok) { this.lastError = `prefill answered ${prefill.status}`; this.noteOther(slot); return null; }
@@ -151,7 +153,7 @@ export class MemberCache {
             if (!idle()) { this.stats.idleYields += 1; break; }
             const prefix = nextPrefix(this.heads.get(key), this.lastPrompt);
             if (!prefix || this.idleDone.get(key) === prefix.length) continue;
-            const step = await this.post('/completion', { prompt: prefix, n_predict: 0, cache_prompt: true, stream: false, id_slot: slot, cache_key: key, cache_ckpt_max: 1e9 }, signal);
+            const step = await this.post('/completion', { prompt: prefix, n_predict: 0, cache_prompt: true, stream: false, ...this.slotField(slot), cache_key: key, cache_ckpt_max: 1e9 }, signal);
             if (!step.ok) { this.lastError = `idle prefill answered ${step.status}`; break; }
             this.idleDone.set(key, prefix.length);
             this.owner.set(slot, null);
@@ -173,7 +175,7 @@ export class MemberCache {
     async parkInRam(plan, idle, signal) {
         if (!this.park) return { saved: false, reason: 'park-off' };
         if (!idle()) { this.stats.skippedBusy += 1; return { saved: false, reason: 'busy' }; }
-        const park = await this.post('/completion', { prompt: '\n', n_predict: 0, cache_prompt: true, stream: false, id_slot: plan.slot }, signal);
+        const park = await this.post('/completion', { prompt: '\n', n_predict: 0, cache_prompt: true, stream: false, ...this.slotField(plan.slot) }, signal);
         if (!park.ok) { this.lastError = `park answered ${park.status}`; return { saved: false, reason: 'park' }; }
         this.stats.parks += 1;
         this.remember(this.times.parkMs, park.ms);

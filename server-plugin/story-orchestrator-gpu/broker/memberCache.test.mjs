@@ -199,7 +199,7 @@ test('store ram: when idle the reply is parked (the server copies it to its RAM 
     assert.equal(parked.saved, true);
     assert.deepEqual(calls.map((call) => call.route), ['/completion', '/slots/0?action=erase']);
     assert.equal(calls[0].body.n_predict, 0);
-    assert.equal(calls[0].body.id_slot, 0);
+    assert.equal(calls[0].body.id_slot, undefined);
     const bob = await cache.before({ prompt: prompt('Bob', 3), stream: true }, 0);
     calls.length = 0;
     assert.deepEqual(await cache.afterReply(bob, { idle: () => false }), { saved: false, reason: 'busy' });

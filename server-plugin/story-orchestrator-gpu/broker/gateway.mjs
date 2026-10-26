@@ -34,7 +34,7 @@ export function createGateway({ arbiter, config, fetchImpl = fetch, allowOrigin 
     const reuse = promptReuse !== undefined ? promptReuse : reuseOptions ? new PromptReuse(slots(config) ? { ...reuseOptions, history: 1 } : reuseOptions) : null;
     const idle = () => !(arbiter.scheduler?.pending?.length > 0);
     const memberOptions = memberCacheOptions(config);
-    const members = memberCache !== undefined ? memberCache : memberOptions ? new MemberCache(memberOptions, { fetch: fetchImpl, baseUrl: () => arbiter.backend.url,
+    const members = memberCache !== undefined ? memberCache : memberOptions ? new MemberCache({ ...memberOptions, pinSlots: Boolean(slots(config)) }, { fetch: fetchImpl, baseUrl: () => arbiter.backend.url,
         snapshot: arbiter.scheduler?.snapshot ? () => arbiter.scheduler.snapshot({ fresh: true }) : null, reserves: () => config.reserves ?? {} }) : null;
     const membersReady = members?.init ? members.init().catch((error) => { members.lastError = error.message; }) : null;
     if (members && arbiter.scheduler) arbiter.scheduler.onImageRam = (need) => members.makeRoom(need);

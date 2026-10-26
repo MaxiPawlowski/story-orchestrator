@@ -231,7 +231,7 @@ async function completeWithCache(cache, item, budget, lane) {
     const began = performance.now();
     if (lane.pending) await lane.pending;
     const laneWaitMs = Math.round(performance.now() - began);
-    const body = requestBody(item, budget, 0);
+    const body = requestBody(item, budget, cache.store === 'ram' ? null : 0);
     const plan = await cache.before(body, 0);
     const startedAt = performance.now();
     const result = await complete(body);
