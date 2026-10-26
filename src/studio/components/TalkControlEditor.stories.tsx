@@ -63,6 +63,17 @@ export const Populated: Story = {
   },
 };
 
+export const ChainYieldsOnQuestion: Story = {
+  args: { initial: { speakers: [{ member: "The Guide" }] } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const yieldBox = canvas.getByLabelText("End the chain when a voice asks the player something");
+    await expect(yieldBox).toBeChecked();
+    await userEvent.click(yieldBox);
+    await expect(canvas.getByLabelText("End the chain when a voice asks the player something")).not.toBeChecked();
+  },
+};
+
 export const RemoveSpeaker: Story = {
   args: { initial: { speakers: [{ member: "The Guide" }] } },
   play: async ({ canvasElement }) => {

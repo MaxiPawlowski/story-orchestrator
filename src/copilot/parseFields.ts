@@ -208,6 +208,10 @@ const readNpcReplies = (value: unknown, path: string, issues: string[]): NpcRepl
       ...(typeof entry.instruction === "string" ? { instruction: entry.instruction } : {}),
       ...(typeof entry.maxTriggers === "number" ? { maxTriggers: entry.maxTriggers } : {}),
       ...(typeof entry.probability === "number" ? { probability: entry.probability } : {}),
+      ...(entry.new_chat_only === true ? { new_chat_only: true } : {}),
+      ...(entry.ask_player === true ? { ask_player: true } : {}),
+      ...(typeof entry.after_member === "string" ? { after_member: entry.after_member } : {}),
+      ...(typeof entry.enabled === "boolean" ? { enabled: entry.enabled } : {}),
     };
   }).filter((entry): entry is NpcReplyEffect => Boolean(entry));
 };

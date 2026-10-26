@@ -40,6 +40,7 @@ export class PacingCoordinator {
   private sampled: { to: number; before: number | null } | null = null;
   private drafted: string | null = null;
   private withheld = false;
+  private direction: { rosterId: string; name: string; text: string; scope: "call" | "draft" } | null = null;
 
   constructor(private readonly deps: PacingCoordinatorDeps) {}
 
@@ -50,6 +51,7 @@ export class PacingCoordinator {
   reset() {
     this.pending = null;
     this.sampled = null;
+    this.direction = null;
   }
 
   applyExtractorTension(acceptedDeltas: ParsedDelta[], windowTo: number): { accepted: ParsedDelta[]; levels: TensionLevel[] } {
@@ -136,7 +138,8 @@ export class PacingCoordinator {
     const active = activeId ? story.checkpointById[activeId] : null;
     const rows = this.deps.hosts.chat?.chatRows() ?? [];
     const turns = active?.stretch ? playerTurnsInCheckpoint(this.deps.getState(), rows) : 0;
-    const guidance = composeGuidanceBlock(active, policy, objectiveLineApplies(story, active, turns), this.memberLine(story, active), this.stretchLine(story, active, rows, turns));
+    const guidance = composeGuidanceBlock(active, policy, objectiveLineApplies(story, active, turns), this.memberLine(story, active), this.stretchLine(story, active, rows, turns),
+      this.oneShotLine());
     if (guidance) prompt.setStoryExtensionPrompt(GUIDANCE.key, guidance, GUIDANCE.depth);
     else this.clearGuidance();
   }
@@ -158,6 +161,25 @@ export class PacingCoordinator {
     return { name: member?.name ?? id, text };
   }
 
+  private oneShotLine() {
+    const direction = this.direction;
+    return direction && !this.withheld && this.drafted === direction.rosterId ? { name: direction.name, text: direction.text } : null;
+  }
+
+  armDirection(member: string, text: string, scope: "call" | "draft" = "call"): (() => void) | null {
+    const ref = member.trim().toLowerCase();
+    const entry = this.deps.getStory()?.roster.find((candidate) => [candidate.id, candidate.name ?? ""].some((name) => name.trim().toLowerCase() === ref));
+    if (!entry || !text.trim()) return null;
+    const direction = { rosterId: entry.id, name: entry.name ?? entry.id, text: text.trim(), scope };
+    this.direction = direction;
+    this.updateSteering();
+    return () => {
+      if (this.direction !== direction) return;
+      this.direction = null;
+      this.updateSteering();
+    };
+  }
+
   draftGuidance(rosterId: string | null) {
     this.drafted = rosterId;
     this.updateSteering();
@@ -167,6 +189,7 @@ export class PacingCoordinator {
 
   releaseDraftGuidance() {
     this.drafted = null;
+    if (this.direction?.scope === "draft") this.direction = null;
     this.setHold(false);
     this.updateSteering();
   }

@@ -91,6 +91,10 @@ const ChainFields: React.FC<{
           Let the judge hand the turn back to the player
         </label>
         <label className="flex items-center gap-2 text-sm">
+          <input type="checkbox" checked={chain.yield_on_question !== false} onChange={(event) => setChain({ yield_on_question: event.target.checked ? undefined : false })} />
+          End the chain when a voice asks the player something
+        </label>
+        <label className="flex items-center gap-2 text-sm">
           <input type="checkbox" checked={chain.hold_extraction === true} onChange={(event) => setChain({ hold_extraction: event.target.checked ? true : undefined })} />
           Wait for the whole reply before reading the scene
         </label>

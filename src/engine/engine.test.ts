@@ -117,15 +117,27 @@ describe("schema validation", () => {
     ]);
   });
 
-  it("retains fresh-chat-only scripted openings on import and refuses other uses", () => {
+  it("retains fresh-chat-only openings and hooks on import and refuses other uses", () => {
     const withOpening = (reply: Record<string, unknown>) => ({ ...linearStory, checkpoints: [
       { ...(linearStory as any).checkpoints[0], effects: { npc_replies: [reply] } },
       ...(linearStory as any).checkpoints.slice(1),
     ] });
     const opening = { trigger: "onEnter", member: "Adolion Narrator", kind: "scripted", text: "Welcome.", new_chat_only: true };
     expect(parseStoryOrThrow(withOpening(opening)).checkpointById.start.effects?.npc_replies).toEqual([opening]);
-    expect(JSON.stringify(parseStory(withOpening({ ...opening, kind: "llm" })))).toContain("new_chat_only requires a scripted onEnter reply");
-    expect(JSON.stringify(parseStory(withOpening({ ...opening, trigger: "afterSpeak" })))).toContain("new_chat_only requires a scripted onEnter reply");
+    const hook = { trigger: "onEnter", member: "Mara", kind: "llm", new_chat_only: true, ask_player: true, after_member: "Adolion Narrator" };
+    expect(parseStoryOrThrow(withOpening(hook)).checkpointById.start.effects?.npc_replies).toEqual([hook]);
+    expect(JSON.stringify(parseStory(withOpening({ ...opening, trigger: "afterSpeak" })))).toContain("new_chat_only requires an onEnter reply");
+    expect(JSON.stringify(parseStory(withOpening({ ...opening, ask_player: true })))).toContain("ask_player is true or false, on an llm reply only");
+    expect(JSON.stringify(parseStory(withOpening({ ...hook, ask_player: "yes" })))).toContain("ask_player is true or false, on an llm reply only");
+  });
+
+  it("keeps chain.yield_on_question as a boolean and refuses anything else", () => {
+    const withChain = (chain: unknown) => ({ ...linearStory, checkpoints: [
+      { ...(linearStory as any).checkpoints[0], talk_control: { chain } },
+      ...(linearStory as any).checkpoints.slice(1),
+    ] });
+    expect(parseStoryOrThrow(withChain({ yield_on_question: false })).checkpointById.start.talk_control?.chain).toEqual({ yield_on_question: false });
+    expect(JSON.stringify(parseStory(withChain({ yield_on_question: "no" })))).toContain("chain yield_on_question must be a boolean");
   });
 
   it("accepts valid talk_control and rejects bad shapes", () => {

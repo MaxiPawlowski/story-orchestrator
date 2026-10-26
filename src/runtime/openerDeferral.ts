@@ -5,6 +5,7 @@ export interface DeferredOpener {
   checkpointId: string;
   at: number;
   gate?: number;
+  recheck?: true;
 }
 
 interface ChatRow {
@@ -49,15 +50,28 @@ export const holdOpener = (checkpoint: Checkpoint, chat: readonly unknown[], pla
 export const heldOpenerLine = (checkpoint: Checkpoint, held: DeferredOpener): [string, string] =>
   [`the opening of ${checkpoint.name || checkpoint.id} waits for the player's answer`, `message ${held.at} ends on a line addressed to the player`];
 
-export type OpenerRelease = { kind: "wait" } | { kind: "drop" } | { kind: "fire"; gate?: number };
+export type OpenerRelease = { kind: "wait" } | { kind: "drop" } | { kind: "fire"; gate?: number; recheck?: true };
 
 export const openerRelease = (deferred: DeferredOpener | undefined, checkpointId: string, chat: readonly unknown[]): OpenerRelease => {
   if (!deferred) return { kind: "wait" };
   if (deferred.checkpointId !== checkpointId) return { kind: "drop" };
-  return playerAnsweredSince(chat, deferred.at) ? { kind: "fire", ...(deferred.gate !== undefined ? { gate: deferred.gate } : {}) } : { kind: "wait" };
+  const gate = deferred.gate !== undefined ? { gate: deferred.gate } : {};
+  if (deferred.recheck) return { kind: "fire", ...gate, recheck: true };
+  return playerAnsweredSince(chat, deferred.at) ? { kind: "fire", ...gate } : { kind: "wait" };
+};
+
+export const rewindDeferredOpener = (deferred: DeferredOpener | undefined, messageId: number, mutation?: { kind: "edit" | "delete" | "swipe"; removed?: number }): DeferredOpener | undefined => {
+  const removed = mutation?.kind === "delete" ? Math.max(1, mutation.removed ?? 1) : 0;
+  if (!deferred || (!removed && (deferred.gate ?? -1) >= messageId)) return undefined;
+  if (deferred.at < messageId) return deferred;
+  if (!mutation) return undefined;
+  const shifted = (index: number) => (index >= messageId + removed ? index - removed : Math.min(index, messageId - 1));
+  const gate = deferred.gate === undefined ? {} : { gate: shifted(deferred.gate) };
+  if (deferred.at >= messageId + Math.max(removed, 1)) return { ...deferred, at: deferred.at - removed, ...gate };
+  return { checkpointId: deferred.checkpointId, at: messageId - 1, ...gate, recheck: true };
 };
 
 export const sanitizeDeferredOpener = (value: unknown): DeferredOpener | undefined =>
   isRecord(value) && typeof value.checkpointId === "string" && typeof value.at === "number" && (value.gate === undefined || typeof value.gate === "number")
-    ? { checkpointId: value.checkpointId, at: value.at, ...(typeof value.gate === "number" ? { gate: value.gate } : {}) }
+    ? { checkpointId: value.checkpointId, at: value.at, ...(typeof value.gate === "number" ? { gate: value.gate } : {}), ...(value.recheck === true ? { recheck: true as const } : {}) }
     : undefined;

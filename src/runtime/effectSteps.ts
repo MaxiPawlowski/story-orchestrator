@@ -1,4 +1,4 @@
-import { type CheckpointEffects, type NormalizedStory, type NpcReplyEffect } from "@engine/index";
+import { type Checkpoint, type CheckpointEffects, type NormalizedStory, type NpcReplyEffect } from "@engine/index";
 import { applyCharacterAN, clearCharacterAN, executeSlashCommands, groupMemberPosition, lorebookExists, readSamplerPreset, setWIEntriesState } from "@services/STAPI";
 import { quoteSlashArg } from "@utils/string";
 import type { SamplerApi } from "@utils/samplerKeys";
@@ -10,6 +10,13 @@ import type { RunGuard } from "./runToken";
 import type { RuntimeSnapshot } from "./types";
 
 export const readNpcReplies = (effects: CheckpointEffects | undefined): NpcReplyEffect[] => (Array.isArray(effects?.npc_replies) ? effects.npc_replies : []);
+
+export const isOpeningHook = (reply: NpcReplyEffect): boolean => reply.new_chat_only === true && reply.kind !== "scripted";
+
+export const waitsForOpener = (checkpoint: Checkpoint, openerFired: boolean, chatLength: number): boolean => !openerFired && chatLength === 0
+  && readNpcReplies(checkpoint.effects).some((reply) => reply.new_chat_only === true && reply.kind === "scripted" && reply.enabled !== false);
+
+export const needsCast = (reply: NpcReplyEffect): boolean => reply.kind !== "scripted" && (reply.new_chat_only === true || reply.ask_player === true);
 
 // What the authored note resolves to, so the ledger can record it before the host is touched.
 export const authorNoteText = (value: unknown, snapshot: RuntimeSnapshot): string | null => {

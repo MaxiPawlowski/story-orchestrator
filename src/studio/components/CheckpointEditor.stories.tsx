@@ -97,6 +97,26 @@ export const ToggleNpcReply: Story = {
   },
 };
 
+export const AuthorsAnOpeningHook: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByLabelText("NPC replies"));
+    await userEvent.selectOptions(canvas.getByLabelText("Reply kind"), "llm");
+    await userEvent.click(canvas.getByLabelText("Reply 1 new chat only"));
+    await userEvent.click(canvas.getByLabelText("Reply 1 asks the player"));
+    await userEvent.type(canvas.getByLabelText("Reply instruction"), "Ask about the riders.");
+    await userEvent.type(canvas.getByLabelText("Reply member"), "Mara");
+    const draft = useDraftStore.getState().draft;
+    await expect(draft.checkpoints[0].effects?.npc_replies?.[0]).toEqual({
+      trigger: "onEnter", member: "Mara", kind: "llm", new_chat_only: true, ask_player: true, instruction: "Ask about the riders.",
+    });
+    await expect(canvas.getByLabelText("Reply after member")).toHaveValue("");
+    await expect(importDraft(exportDraft(draft))).toEqual(draft);
+    await userEvent.selectOptions(canvas.getByLabelText("Reply kind"), "scripted");
+    await expect(useDraftStore.getState().draft.checkpoints[0].effects?.npc_replies?.[0]?.ask_player).toBeUndefined();
+  },
+};
+
 // Deterministic stagecraft: a checkpoint names a background and the boundary switches to it.
 export const ToggleBackground: Story = {
   args: { backgroundNames: ["tavern day.jpg", "landscape postapoc.jpg"] },

@@ -1,7 +1,7 @@
 import { TALK_CHAIN_MAX_CAP, TALK_CHAIN_MAX_DEFAULT, type RosterMember, type TalkControl, type TalkControlChain } from "@engine/index";
 import type { JudgeDirectorDecision, JudgeDirectorInput } from "@judge/index";
 import {
-  addressedMembers, buildCandidates, chooseByRules, directorEnabled, directorInstruction, findCandidate, latestPlayerLine, narrowByMention,
+  addressedMembers, asksPlayer, buildCandidates, directlyAddressed, chooseByRules, directorEnabled, directorInstruction, findCandidate, latestPlayerLine, narrowByMention,
   parseDirectorResponse, withAddressed, renderDirectorPrompt, type DirectorWindowMessage, type TalkCandidate, type TalkDecisionSource,
 } from "@talk/index";
 import { timeoutAbortReason } from "@utils/signals";
@@ -38,6 +38,7 @@ export interface TalkChainConfig {
   stopOnTransition: boolean;
   holdExtraction: boolean;
   stopOnPlayer: boolean;
+  yieldOnQuestion: boolean;
 }
 
 export const resolveChainConfig = (
@@ -56,6 +57,7 @@ export const resolveChainConfig = (
     stopOnTransition: chain.stop_on_transition ?? system.stopOnTransition,
     holdExtraction: chain.hold_extraction ?? system.holdExtraction,
     stopOnPlayer: chain.stop_on_player !== false,
+    yieldOnQuestion: chain.yield_on_question !== false,
   };
 };
 
@@ -284,6 +286,7 @@ export class TalkController {
     const lastSpeaker = this.host.getLastSpeakerRosterId() ?? chain.expected;
     if (lastSpeaker) chain.speakers.push(lastSpeaker);
     chain.expected = null;
+    if (config.yieldOnQuestion && this.voiceAsksPlayer()) { this.recordYield(chain); this.endChain(); return; }
     if (chain.spokeCount >= config.max) { this.endChain(); return; }
     if (this.sceneMoves(chain, config)) { this.endChain(); return; }
     const run = beginRun(this.host.ownership, this.window());
@@ -300,6 +303,32 @@ export class TalkController {
       this.host.setExtractionHold?.(true);
     }
     this.trigger(next, chain);
+  }
+
+  private handedTo(window: DirectorWindowMessage[], candidates: TalkCandidate[]): TalkCandidate | null {
+    const last = window.at(-1);
+    if (!last || last.isUser) return null;
+    const speaker = last.speaker.trim().toLowerCase();
+    const roster = this.host.getRoster().filter((member) => (member.name ?? member.id).trim().toLowerCase() !== speaker);
+    const id = directlyAddressed(roster, last.text);
+    return candidates.find((candidate) => candidate.rosterId === id) ?? null;
+  }
+
+  private voiceAsksPlayer(): boolean {
+    const last = this.host.getWindow().at(-1);
+    const player = this.host.getPlayerName?.()?.trim() ?? "";
+    const speaker = last?.speaker.trim().toLowerCase() ?? "";
+    if (!last || last.isUser || !player || speaker === player.toLowerCase()) return false;
+    const others = this.host.getRoster().filter((member) => (member.name ?? member.id).trim().toLowerCase() !== speaker)
+      .flatMap((member) => [member.name ?? member.id, ...(member.aliases ?? [])]);
+    return asksPlayer(last.text, { player: [player], others });
+  }
+
+  private recordYield(chain: ChainState): void {
+    this.host.recordDecision({
+      at: new Date().toISOString(), messageId: this.host.getLastMessageId(), checkpointId: this.host.getCheckpointInfo()?.id ?? chain.checkpointId,
+      chosenRosterId: null, chosenName: null, source: "rules", latencyMs: 0, chainStep: chain.spokeCount, ...this.stamp("player"),
+    });
   }
 
   private sceneMoves(chain: ChainState, config: TalkChainConfig): boolean {
@@ -327,8 +356,9 @@ export class TalkController {
     const messageId = this.host.getLastMessageId();
     const checkpointId = this.host.getCheckpointInfo()?.id ?? chain.checkpointId;
     const revision = this.host.getLastMessageRevision?.() ?? null;
-    if (pending.length === 1) {
-      const [next] = pending;
+    const handed = pending.length ? null : this.handedTo(window, candidates);
+    if (pending.length === 1 || handed) {
+      const next = handed ?? pending[0];
       this.host.recordDecision({
         at: new Date().toISOString(), messageId, checkpointId, chosenRosterId: next.rosterId, chosenName: next.name,
         source: "mention", latencyMs: 0, chainStep: chain.spokeCount, ...this.stamp("member"),

@@ -128,3 +128,31 @@ export function onEnterRollbackPlan(posts: OnEnterPost[] | undefined, kind: "swi
   }
   return null;
 }
+
+export interface CuedLine {
+  messageId: number;
+  member: string;
+  text: string;
+}
+
+export const CUED_LINE_LIMIT = 20;
+
+export const recordCuedLine = (lines: CuedLine[] | undefined, line: CuedLine): CuedLine[] =>
+  [...(lines ?? []).filter((entry) => entry.messageId !== line.messageId), line].slice(-CUED_LINE_LIMIT);
+
+export const rewindCuedLines = (lines: CuedLine[] | undefined, messageId: number, mutation?: { kind: "edit" | "delete" | "swipe"; removed?: number }): CuedLine[] => {
+  const removed = Math.max(1, mutation?.removed ?? 1);
+  return (lines ?? []).flatMap((line) => {
+    if (line.messageId < messageId) return [line];
+    if (!mutation) return [];
+    if (mutation.kind !== "delete") return line.messageId === messageId ? [line] : [];
+    return line.messageId >= messageId + removed ? [{ ...line, messageId: line.messageId - removed }] : [];
+  });
+};
+
+const isCuedLine = (entry: unknown): entry is CuedLine => Boolean(entry) && typeof entry === "object"
+  && Number.isInteger((entry as CuedLine).messageId) && typeof (entry as CuedLine).member === "string" && typeof (entry as CuedLine).text === "string";
+
+export const sanitizeCuedLines = (value: unknown): CuedLine[] => (Array.isArray(value) ? value : []).filter(isCuedLine).slice(-CUED_LINE_LIMIT);
+
+export const cueForSwipe = (lines: CuedLine[] | undefined, messageId: number): CuedLine | null => (lines ?? []).find((line) => line.messageId === messageId) ?? null;

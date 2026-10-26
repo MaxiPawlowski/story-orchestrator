@@ -59,6 +59,7 @@ export const startTalk = (live: LiveParts, judgeRuntime: JudgeRuntime, window: W
   live.talk = new TalkController(talkHost(live, judgeRuntime, window));
   globalThis.talkControlInterceptor = gatedInterceptor(live.loudGate, () => Boolean(getActiveGroup()), async (chat, contextSize, abort, type) => {
     live.interceptEntry?.(type);
+    runtimeManager.cueSwipe(type, (getContext().chat?.length ?? 0) - 1);
     promptCost.noteGenerationBudget(contextSize);
     let aborted = false;
     await live.talk?.intercept((immediate) => { aborted = true; abort(immediate); }, type);

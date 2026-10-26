@@ -199,17 +199,18 @@ export const GUIDE_TOPICS = {
   },
   "opening-scene": {
     title: "The opening scene",
-    fields: "first_mes, new_chat_only, cast_changes",
+    fields: "first_mes, new_chat_only, cast_changes, ask_player",
     text: "In a group every card with a first message greets at once. Give a first message only to characters present in the start beat, for that scene only: no secret, twist "
-      + "or later reveal. Everyone else gets none, and enters through cast_changes. A story-owned opener is a scripted onEnter npc_reply with new_chat_only, which posts only into an empty chat. "
-      + "A greeting addressing the player (\"you are the lamplighter\") makes that role the player's: no card plays it.",
+      + "or later reveal. Everyone else gets none, and enters through cast_changes. A story-owned opener is a scripted onEnter npc_reply with new_chat_only (empty chat only); "
+      + "an llm one (ask_player) is the opening hook, posted once after the opener and entering lines. "
+      + "A greeting addressing the player (\"you are the lamplighter\") makes the role the player's: no card plays it.",
   },
   "npc-replies": {
     title: "NPC replies",
     fields: "effects.npc_replies[]",
-    text: "Lines a character speaks on their own: trigger onEnter (the beat starts), afterSpeak (after a character reply; after_member narrows whose) or sceneBreak. "
-      + "kind scripted posts text verbatim; kind llm generates from an instruction. maxTriggers caps repeats, probability is a seeded chance, enabled: false parks one. "
-      + "Use scripted for a line that must be exact, llm for a reaction that must fit the moment. A scripted line has no time or place check, so word it to fit wherever it fires.",
+    text: "Lines a character speaks on their own: trigger onEnter, afterSpeak or sceneBreak; after_member names the speaker it follows. kind scripted posts text verbatim; "
+      + "kind llm gets instruction privately for that one reply; ask_player (llm) has it ask {{user}} one thing, never what they do. maxTriggers caps fires per chat, "
+      + "probability is a seeded chance, enabled: false parks one. Use scripted for an exact line (no time or place check), llm for one that must fit the moment.",
   },
   "experimental-effects": {
     title: "Experimental effects",
@@ -248,8 +249,9 @@ export const GUIDE_TOPICS = {
     title: "Speaker direction",
     fields: "checkpoints[].talk_control",
     text: "Who speaks next in a group: speakers [{member, weight}], lead (picked first), no_repeat, allow_silence (needs the director), director (an AI picks the speaker), "
-      + "chain (several voices answer one message: mode director or scripted with a sequence, max, stop_on_transition, stop_on_player, hold_extraction). List the lead in "
-      + "speakers. no_repeat defaults on: no member repeats within a chain; false permits repeats up to max. A player line or STOP ends the old chain. "
+      + "chain (several voices answer one message: mode director or scripted with a sequence, max, stop_on_transition, stop_on_player, hold_extraction, "
+      + "yield_on_question: default on, a voice asking the player ends it). List the lead in speakers. no_repeat defaults on: no member repeats within a chain; "
+      + "false permits repeats up to max. A player line or STOP ends the old chain. "
       + "An unlisted lead joins at weight 1. A name nobody has is skipped.",
   },
   stagecraft: {
@@ -445,6 +447,8 @@ export const DIAGNOSTIC_GUIDE_TOPIC: Record<DiagnosticCode, GuideTopicId> = {
   "briefing-spoiler-risk": "briefing",
   "story-kind-invalid": "story-basics",
   "opener-uses-player-name": "player",
+  "npc-reply-directs-player": "npc-replies",
+  "opening-narrator-only": "opening-scene",
   "player-spoiler-risk": "player",
   "agenda-pace-no-chapters": "character-life",
   ...FACTION_DIAGNOSTIC_TOPICS,

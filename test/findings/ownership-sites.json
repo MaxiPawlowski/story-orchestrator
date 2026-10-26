@@ -501,9 +501,9 @@
       "status": "checked",
       "note": "v2.3 plan 03: the only effect that SPEAKS — fireReply posts a message into whatever chat is open, so a late fire is visible in the transcript. One await per reply, so the check is inside the loop. Limit: beginRun mints at entry, so it detects the world moving DURING the sequence, not before; the caller owns that decision. Live-proven 2026-09-20: plan02-runtime scenario green twice against a group with the required cast, npcFired=1 — the guard does not suppress a real scripted reply. The trigger (generating) branch is still unproven live. v2.4 follow-up (2026-09-25): the row said checked while the write after the LAST reply's await (`extras.lastSelfInjectionMessageId = lastMessageId()`, the open chat's id into the entry chat's extras) had no check after it, because the loop-top check guards only the NEXT reply; a check now sits between the await and that write (npcRepliesOwnership.review.test.ts, generating-reply case + control). v2.5 plan 02 C1 step 2 (2026-09-25): an llm reply now goes through EffectsApplier.speak, which stops the in-flight /trigger generation when the world moves while it streams, only when it is provably the trigger's own (see that row). Built ahead of its live step 0; the generating branch is still unproven live."
     },
-    "src/runtime/effectsApplier.ts#EffectsApplier.speak": {
+    "src/runtime/npcSpeak.ts#speakGenerated": {
       "status": "local",
-      "note": "v2.5 plan 02 C1 step 2: one NPC reply, awaited. `fireReply` is the reply itself (its caller, fireNpcReplies, checks the run before it and after it); after the await it removes its own abort listener and releases its stream guard. v2.5 C1 fix (D1): an llm reply arms guardHostStream(openChatId()) (stHost/streamGuard.ts), which wraps the streaming processor's onProgressStreaming, the one write path for every tick and for the finish (script.js:3886-3896, :3756, :3808-3815), and refuses any write whose open chat id or chat[messageId] object is not the one the stream started in: it marks the stream stopped+finished and aborts its fetch, so onFinishStreaming never runs and nothing is saved (npcStreamLanding.review.test.ts). release() then gives the send button back (activateSendButtons) only when it halted a stream, because the halted Generate never unblocks by itself; that host call after the await is deliberate, the halted stream belongs to no chat. On lapse, halt() stops the live stream through the guard; only when no streaming processor exists (non-streaming, or before the request) does the old stop run, and only if exactly one outermost generation opened since the trigger and ST still generates (npcTriggerStop.review.test.ts). v2.6 plan 04 C1r: the same stop (once, via a `stopped` flag) also runs from watchHostChatMove the moment the open chat id stops matching the reply's, before CHAT_CHANGED, so a non-streaming reply or late headers cannot land in the loaded next chat (npcLateLanding.review.test.ts); unwatch runs in the finally with the other releases."
+      "note": "v2.5 plan 02 C1 step 2: one NPC reply, awaited. `fireReply` is the reply itself (its caller, fireNpcReplies, checks the run before it and after it); after the await it removes its own abort listener and releases its stream guard. v2.5 C1 fix (D1): an llm reply arms guardHostStream(openChatId()) (stHost/streamGuard.ts), which wraps the streaming processor's onProgressStreaming, the one write path for every tick and for the finish (script.js:3886-3896, :3756, :3808-3815), and refuses any write whose open chat id or chat[messageId] object is not the one the stream started in: it marks the stream stopped+finished and aborts its fetch, so onFinishStreaming never runs and nothing is saved (npcStreamLanding.review.test.ts). release() then gives the send button back (activateSendButtons) only when it halted a stream, because the halted Generate never unblocks by itself; that host call after the await is deliberate, the halted stream belongs to no chat. On lapse, halt() stops the live stream through the guard; only when no streaming processor exists (non-streaming, or before the request) does the old stop run, and only if exactly one outermost generation opened since the trigger and ST still generates (npcTriggerStop.review.test.ts). v2.6 plan 04 C1r: the same stop (once, via a `stopped` flag) also runs from watchHostChatMove the moment the open chat id stops matching the reply's, before CHAT_CHANGED, so a non-streaming reply or late headers cannot land in the loaded next chat (npcLateLanding.review.test.ts); unwatch runs in the finally with the other releases. v3.0 19 (2026-10-26): moved to npcSpeak.ts speakGenerated (the file budget); it also arms the reply's one-shot direction before the /trigger and releases it in the same finally (pacing state, nothing that outlives the call)."
     },
     "src/runtime/effectsApplier.ts#EffectsApplier.releaseWorldInfo": {
       "status": "delegate",
@@ -760,10 +760,6 @@
     "src/runtime/turnBridge.ts#TurnBridge.enqueueBoundary": {
       "status": "checked",
       "note": "v2.3 plan 03 (moved out of onRenderedReply in the T0 fixes, 2026-10-01): captures ownership at event acceptance, queues its own pending entry (V4: no longer replaces a shared slot), and refuses a late afterSpeak continuation after its world lapses by removing its entry. The flush retains the same captured guard rather than minting in the landing world. A swipe back to a stored version enqueues with afterSpeak off (turnBridgeSwipeBack.test.ts)."
-    },
-    "src/runtime/effectsApplier.ts#EffectsApplier.openNewChat": {
-      "status": "checked",
-      "note": "2026-10-18 saga new chat: the authored new-chat opening, fired once per apply (the fired flag is set synchronously before the await) from the top of applyCheckpointNow and from a hydrate that joins a running apply after the identity step settled. Checks the apply's RunGuard before it asks; fireNpcReplies checks before and after each reply (effectsApplier.test.ts \"an identity settled while the activate apply still writes the cast\")."
     },
     "src/runtime/effectsApplier.ts#EffectsApplier.fireOnEnter": {
       "status": "checked",
@@ -1220,6 +1216,14 @@
     "src/runtime/polish/standIn.ts#createStandIn.settle": {
       "status": "checked",
       "note": "v2.9 03 S0 spike, debug seam only: after the delay the consumption ledger is ticked, writeMismatch (same row object, chat, swipe, fingerprint, deadline, abandon) and run.stillOwns() precede the one host write; stats are local counters. polishStandIn.review.test.ts reaches every abandon branch."
+    },
+    "src/runtime/openingSequence.ts#OpeningSequence.after": {
+      "status": "checked",
+      "note": "v3.0 19: the start beat's entering lines held while the identity step was pending, then the opening hook. Checks the apply's RunGuard before it fires the held lines and again in hook() after the cast writes settle; fireOnEnter and fireNpcReplies check before and after each reply (openingHook.review.test.ts)."
+    },
+    "src/runtime/openingSequence.ts#OpeningSequence.post": {
+      "status": "delegate",
+      "note": "v3.0 19 (replaces EffectsApplier.openNewChat): posts the chat's opening lines. `posting` is in-memory state of this object, reset in the finally; it awaits EffectsApplier.fireNpcReplies, which checks the run before and after each reply."
     }
   }
 }

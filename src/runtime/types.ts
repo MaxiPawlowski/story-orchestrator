@@ -8,7 +8,7 @@ import type {
 } from "@memory/index";
 import type { ChapterSettings, ChapterView } from "./chapters";
 import type { SealSkip } from "@memory/reverse";
-import type { OnEnterPost } from "./npcReplyRewind";
+import type { CuedLine, OnEnterPost } from "./npcReplyRewind";
 import type { BriefingRecord, BriefingState } from "./briefing";
 import type { PlayerSetupRecord, PlayerSetupView } from "./playerSetup";
 import type { ContextOverServer } from "./replyContext";
@@ -110,6 +110,7 @@ export interface RuntimeExtras {
   firedNpcReplies: Record<string, number>;
   firedNpcRepliesAt: Record<string, number[]>;
   onEnterPosts?: OnEnterPost[];
+  cuedLines?: CuedLine[];
   deferredOpener?: DeferredOpener;
   requirements: RequirementsState;
   lastAppliedCheckpointId: string | null;

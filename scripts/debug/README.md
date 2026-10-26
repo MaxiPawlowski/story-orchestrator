@@ -77,6 +77,7 @@ copy, move or download weights.
 | `so-scenario.mts` | `run <file.json> [--sandbox] [--keep]` |
 | `so-journey.mts` | `--list`, `run <id\|file> [--strict] [--keep] [--only ids] [--no-config]`, `restore-config [--file p]` |
 | `so-journal.mts` | `export [--md\|--json] [--kind k,k] [--limit n]`, `show` |
+| `so-talk-metrics.mts` | `--player <name> --lead <name> --cast <a,b,c> <chat.jsonl>...` (offline, reads ST chat files): opening hook, turns to first party address, yield after a question to the player, voices per send, party share, lead words p50/p90 (v3.0 19) |
 | `so-mutation-check.mts` | `[--keep]` |
 | `so-tour-check.mts` | `player`, `author`, `setup`, `help`, `quick-start`, `all` `[--label <name>]`: coach-mark tour plumbing (walks every stop with real clicks, records found/hidden/missing and card placement, Escape keeps the workspace open; Help opens the chooser and the setup path page; the quick start ticks from real state and its Show me starts a stop); record + screenshots in `<debug dir>/tour/`, viewport via `ST_DEBUG_VIEWPORT` |
 | `so-turn-types-check.mts` | `[--group <name>] [--character <name>] [--image sd\|synthetic\|auto] [--skip-reply] [--skip-image] [--skip-solo] [--keep]` |
