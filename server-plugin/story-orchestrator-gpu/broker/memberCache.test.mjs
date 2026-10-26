@@ -277,3 +277,22 @@ test('an idle prefill step aborted by an arriving request counts as a yield, not
     assert.equal(cache.status().idleYields, 1);
     assert.equal(cache.status().lastError, null);
 });
+
+test('with checkpointAt the cut is counted with /tokenize and marked on the chat request itself: no prefill request', async () => {
+    assert.throws(() => memberCacheOptions({ memberCache: { enabled: true, store: 'ram', checkpointAt: true } }), /checkpointAt needs/);
+    const calls = [];
+    const fetchImpl = async (url, init) => { const body = JSON.parse(init.body); calls.push({ route: new URL(url).pathname, body }); return Response.json({ tokens: Array.from({ length: 2345 }, (_, i) => i) }); };
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'so-member-ckptat-'));
+    const cache = new MemberCache(memberCacheOptions({ stateDir: dir, memberCache: { enabled: true, store: 'ram', serverKeys: true, checkpointAt: true, serverRewind: true, erase: false, park: false, minPromptChars: 1000, minCutChars: 1000, minTailChars: 100 } }), { fetch: fetchImpl, baseUrl: 'http://backend' });
+    await cache.init();
+    const body = { prompt: prompt('Ana', 6), stream: true };
+    const plan = await cache.before(body, 0);
+    assert.deepEqual(calls.map((call) => call.route), ['/tokenize']);
+    assert.equal(calls[0].body.content, plan.prefix);
+    assert.equal(calls[0].body.add_special, true);
+    assert.deepEqual(body.checkpoint_at, [2345]);
+    assert.equal(body.cache_ckpt_max, 2345);
+    assert.equal(body.cache_rewind, true);
+    assert.equal(body.cache_key, plan.key);
+    assert.equal(plan.timing.cutTokens, 2345);
+});
