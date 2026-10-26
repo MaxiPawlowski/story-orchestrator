@@ -782,7 +782,7 @@ S384-LH (stream gate 1,408 MiB).
 
 ### S result (2026-10-26, 14:19-14:55Z) and a guard fix
 
-Evidence: `09/logs-sk/`, `aggregate-s.json`, live-head records `C:\dev\so-lanes"\debuguns\live-head-sk-lh*`.
+Evidence: `09/logs-sk/`, `aggregate-s.json`, live-head records `C:\dev\so-lanes\42\debug\runs\live-head-sk-lh*`.
 
 | | S2400 | S768 | S768-LH | S384 | S384-LH (void) |
 |---|---|---|---|---|---|
