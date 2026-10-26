@@ -216,6 +216,25 @@ Each flag from the owner's playthrough (Flag button + end notes) gets one verdic
 13. D1 06 usefulness: one prompt change and a rerun.
 14. llama.cpp patch: keep the fork for now; decide upstreaming after it is proven in play.
 
+### Additions 2026-10-26 (playtest 1)
+
+Plans 13-17 live on the unmerged integration branch `v3.0-wave1-integration` (`C:\dev\so-dev`); 18-21 on master or their branches.
+
+| Plan | Subject | Where | State 2026-10-26 |
+|---|---|---|---|
+| 13 | Prefix stability gate | integration branch | built, gates:quick green |
+| 14 | D follow-ups | integration branch | built |
+| 15 | End test batch (GPU, ~6-7 h) | integration branch | planned, owed |
+| 16 | Twine/Twee spike | integration branch | spike-later (Astra triage) |
+| 17 | Reply polish integration review | integration branch | polish stays off; review later |
+| 18 | Image e2e review (live, showcase lane) | master (written by the run) | baseline e2e26 NOT GREEN (4 misses, 2 environment); probe running |
+| 19 | Talk pacing: one-shot instruction, yield on question, opening hook | branch `v3.0-talk-pacing` | in build; campaign hooks (63, private plan) wait for its keys |
+| 20 | Visual bridge: identity/place packs, style recipe, resolver, default Qwen recipe, background renders | branch `v3.0-visual-bridge` | stage 1 in build |
+| 21 | Image fixes from playtest 1 | master | done (`2403c70f`, `f96dabda`, `d12deead`) |
+
+Research for 18-21: `research/image-audit-2026-10-26.md`, `image-astra-2026-10-26.md`, `image-astra-prep-bridge-2026-10-26.md`,
+`talk-pacing-review-2026-10-26.md`, `talk-astra-2026-10-26.md`. Campaign hook placement: private, `adolion-campaign/docs/talk-hooks-plan-2026-10-26.md`.
+
 ### Unresolved questions (owner decisions)
 
 1. Track order A -> B -> playtest triage -> D -> C: confirm, or put images (B1) level with A1?
