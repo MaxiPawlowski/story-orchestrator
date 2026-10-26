@@ -190,3 +190,87 @@ capture, members rotating, so the cache restores states), control J1 vs candidat
 Quality floors: every category (coherence, voice, guidance, continuity) mean delta candidate − control ≥ −0.2; flagged
 replies (voice bleed, guidance ignored, thinking not closed or leaked) candidate count ≤ control count per flag;
 preference informational. A miss is recorded; nothing is adopted on a miss.
+
+## Results 2026-10-26
+
+### Chat reply refused during image work (top priority from the lane 46 image journey)
+
+- **Cause (M):** after an image swaps text out, text reloads while the idle ComfyUI process (and any other GPU user)
+  still holds VRAM. With MTP a full load leaves 1.5-2.0 GiB (bench 2.3 GiB without ComfyUI), so ~1.1 GiB of other
+  allocations leaves 974-986 MiB, under the 1,024 MiB reserve: `MemoryReserveError` → gateway 409 → silent turn. The
+  refit added shortfall + 512 MiB, but llama-server's `--fit` keeps ~1 GiB of slack, so the first refit moved no layer
+  and failed too; a later background reload reached a 1,125 MiB correction and succeeded with layers on the CPU, a slow
+  state that persists until the controller restarts (the owner's controller had `fitCorrectionMiB` 1125 at 07:17Z).
+- **Reproduction (M)** (`render-benchmark.mjs <config> auto sprite 128`, qwen-image edit then a reply, plus
+  `09/repro/holder.py 800` holding ~1.1 GiB like the lane browser): master → "violates the measured memory reserve after
+  30s (GPU 986 MiB free)" and the +550 refit failed; branch → reply OK, the idle owned ComfyUI stopped once
+  (`gpuReclaims` 1), 1,342 MiB free, no refit, all layers on the GPU, cycle 54 s. Evidence `09/repro/`.
+- **Fix:** before refitting, the backend asks the arbiter to stop the owned ComfyUI if it is idle (no lease, no queued
+  image, empty ComfyUI queue; rechecked after every await; counted only on a confirmed exit) and re-checks; refit step
+  shortfall + `fitRetryStepMiB` (1280). Tests: `comfyReclaim.test.mjs` (image arriving during the queue read, replaced
+  process, stuck process, failed kill, unreadable queue), `backend.test.mjs` (reclaim keeps the loaded text; refit when
+  nothing can be reclaimed).
+
+### Batch 1 (exploratory, single runs, `corpus.json`, 07:27-08:07Z)
+
+| Arm | Binary | Chat TTFT p50 | Side p50 | Prefill | Decode chat / side | Accept | GPU free after load |
+|---|---|---|---|---|---|---|---|
+| mtp2 (first arm of the session) | official b11888 | 8.83 s | 2.23 | 952 | 42.9 / 46.8 | 0.61 | 2,343 |
+| mtp2 + ub1024 | official b11888 | 8.79 | 2.21 | 946 | 39.8 / 44.5 | 0.59 | 1,866 |
+| mtp2 + ub2048 | official b11888 | 8.17 | 1.95 | 1,070 | 40.0 / 48.0 | 0.60 | **918** |
+| mtp3 | official b11888 | 8.45 | 2.15 | 983 | 42.0 / 50.8 | 0.51 | 2,342 |
+| mtp2 + prob | official b11888 | 8.43 | 2.13 | 983 | 45.6 / 48.5 | 0.61 | 2,342 |
+| mtp2 | self-built b11888 (CUDA 12.8) | 8.41 | 2.14 | 996 | 44.8 / 51.1 | 0.60 | 2,342 |
+| mtp2 | official b11889 CUDA 12.4 | 8.43 | 2.14 | 992 | 45.2 / 50.0 | 0.61 | 2,342 |
+| mtp2 | official b11889 CUDA 13.4 | 8.40 | 2.13 | 995 | 44.7 / 51.3 | 0.60 | 2,342 |
+| RAM cache, stock, cache-ram 6144 | official b11888 | 8.70 (0 hits) | 2.12 | | 44.5 | | 2,342 |
+| RAM cache, patched + keys, cache-ram 6144 | patched b11888 | 4.78 (warm 3.96) | 2.30 | | 44.9 | 0.61 | 2,342 |
+| RAM cache, patched + keys, cache-ram 4096 | patched b11888 | 4.62 (warm 3.78) | 2.19 | | 45.3 | 0.61 | 2,342 |
+
+- **B (`-ub`) rejected:** 2048 gains +12 % prefill but costs 1.4 GiB of VRAM (918 MiB free, under the 1,536 fit target)
+  and decode −7 %; 1024 gains nothing. Floors B1/B3/B4 miss.
+- **C:** n-max 3 rejected (acceptance 0.51, decode −2 %). Probabilistic drafting looked +6 % here, but against a slow
+  first arm; batch 2 below says no.
+- **CUDA 13.4 vs 12.4 and b11889 vs b11888: parity** (±0.5 %). No system CUDA or driver change would help this
+  workload: the official builds bundle their cudart and the driver (CUDA UMD 13.5) already runs the 13.4 build.
+- Stock RAM cache at 6144 MiB: three ~2.3 GiB member states do not fit, each member is evicted before it returns (0 hits).
+
+### Batch 2 (3 repeats each, shuffled, `--gap-ms 1000`, end-to-end accounting, 08:13-09:05Z)
+
+Median over repeats (per-repeat spread under 1 %); p95 over pooled rows; member-turn = chat TTFT + inner and read
+end-to-end.
+
+| Arm | Chat p50 / p95 | Warm p50 (n) | Cold p50 | Side p50 / p95 | Member-turn p50 / p95 | Prefill | Decode chat / side | GPU free | RAM min |
+|---|---|---|---|---|---|---|---|---|---|
+| **J1 owner config** (b11388, MTP 2) | 8.55 / 9.43 s | | | 2.16 / 2.33 | 14.57 / 15.26 | 985 | 43.0 / 49.3 | 2,374 | 20.8 GB |
+| J2 self-built b11888 stock | 8.40 / 9.30 | | | 2.14 / 2.30 | 14.37 / 14.87 | 994 | 44.8 / 51.0 | 2,342 | 20.9 GB |
+| **A** patched + RAM cache (keys, 4096) | **4.62** / 8.50 | **3.81** (15) | 8.29 | 2.19 / 2.57 | **10.52** / 15.50 | 894 | 45.5 / 51.4 | 2,342 | 16.5 GB |
+| B = A + probabilistic | 4.65 / 8.46 | 3.79 (15) | 8.34 | 2.19 / 2.58 | 10.70 / 15.49 | 889 | 45.0 / 50.3 | 2,342 | 16.4 GB |
+| S stock + RAM cache 9216 + erase | 8.72 / 9.62 | (0 hits) | 8.70 | 2.12 / 2.28 | 15.26 / 15.71 | 887 | 44.5 / 49.9 | 2,342 | 11.8 GB |
+
+Floors (A vs J1): warm 3.81 s ≤ 4.5 and 45 % ≤ 55 % **pass**; cold 97 % **pass**; chat p95 90 % **pass**; side p50 101 %
+**pass**, p95 110.5 % ≤ 115 % **pass**; member-turn 72 % ≤ 80 % **pass**; GPU free −32 MiB **pass**; RAM min 16.5 GB
+**pass**; decode +5.8 % is **outside the literal ±3 % band on the fast side** (J2 parity: +4.2 %, same cause, b11888 vs
+b11388): recorded as a miss of the band as written, not as a regression. B: prob gains −1 % vs A, under the +3 % bar:
+**not adopted**. S: 0 hits; cause found afterwards (below), not a property of the stock server.
+
+Found from S: the gateway and the bench pinned `id_slot: 0`; llama-server skips the prompt-cache load for a pinned
+**empty** slot (`get_available_slot`: `f_keep` is computed over an empty prompt, the update branch never runs), so erase
+mode never restored. RAM mode now leaves the slot unpinned unless `slots` is configured (commit after batch 2). A was
+unaffected (its slot is never empty) but is re-measured unpinned in batch 3.
+
+### Offline findings
+
+- **Next-member prefix is predictable byte-exact:** on the recorded long chat (25 chat prompts, 3 members), every next
+  member's prompt up to its cut equals that member's head plus all but the last three history turns of the latest prompt
+  (22 of 22). Built as `memberCache.idlePrefill` (needs the patched server), not yet benched.
+- **Side passes overlap in real traffic:** in the lane 42 capture a read often arrives 0.2-0.7 s after an inner beat
+  starts, then the chat 1.4-2 s later; the gateway serializes them. A concurrent `--parallel 2` arm is prepared
+  (`09/overlap.mjs`), not yet run.
+
+### Batch 3 (prepared, held by the owner 09:08Z)
+
+`09/run-gpu-3.sh`: full-length replies (1,024 tokens) on `09/corpus-rate.json` (25 real chat prompts in recorded order)
+for J1 and A + idle prefill → Sol blind rating (`09/rate/rate-pairs.mjs`); idle-prefill speed (J1 / A / A + idle × 3,
+typing gap 8 s); S × 3 unpinned with J1 × 2; overlap parallel 1 vs 2 × 2. It was started at 09:08Z and stopped within
+two minutes on the owner's hold (nothing measured); no adoption is possible before the rating.
