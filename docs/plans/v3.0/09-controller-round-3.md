@@ -283,3 +283,21 @@ idle prefill, no probabilistic drafting), `09/corpus-rate.json` (25 real chat pr
 
 Floor (coordinator's wording, supersedes the round 3b quality floor for this decision): every category mean delta
 A − J1 ≥ −0.2; per flag (voice bleed, guidance ignored, leak) A count ≤ J1 count + 2; thinking closes in every A reply.
+
+## C2: chat priority and a second slot (Fable study §6/§10, audit risks 4/6; floors declared before the bench)
+
+Fable's offline study of 674 recorded requests: 81 of 106 chat requests that follow a side pass were issued before it
+finished and waited 4.8 s p50 / 11.2 s p90 in the gateway queue. Built (commit `a1820893`): `chatFirst` (a chat request
+overtakes queued side passes; the client never issues a chat before the side passes it waits for, so overtaking only
+skips work the reply does not need) and, with `slots.count` 2, per-lane concurrency (one chat beside one side pass, only
+while text is fully resident and no image release is pending; an image lease waits for both). `slots.cacheIdle: false`
+keeps the idle chat slot's state resident (`--no-cache-idle-slots`).
+
+Bench `09/replay-gateway.mjs`: the first 80 requests of the lane 42 capture replayed through the branch controller's
+gateway at their recorded start offsets (concurrent arrival, recorded bodies, seed 1234, outputs capped at 600 tokens).
+Arms on the A configuration (patched b11888, MTP 2, RAM member cache keys 4 GiB): P0 single slot FIFO (control), P1
+`chatFirst`, P2 `chatFirst` + `slots {count 2, cacheIdle false}`; 2 repeats each, alternating order.
+
+Floors (P1/P2 vs P0): chat TTFT from issue p50 ≤ 60 % of P0 (Fable's floor) or, if P0's chat p50 is under 4 s (little
+queueing in this replay), p95 ≤ 75 %; chat decode p50 ≥ 85 % of P0; side total p50 ≤ 150 % of P0 (side passes are off the
+critical path, but they must still finish); 0 failed requests; P2 GPU free after load ≥ P0 − 512 MiB and ≥ 1,024 MiB.
