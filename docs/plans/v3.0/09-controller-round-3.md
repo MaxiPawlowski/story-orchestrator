@@ -114,3 +114,48 @@ production binary. Not built; the design, in order of value:
    position on the request): drops the reply's own two end checkpoints from the entry (2 × 425 MiB), ~2.1 → ~1.3 GiB per
    member, so 4-5 members fit the same RAM.
 4. Async save overlapping the next request is not feasible with one slot: the next prompt reuses the same KV cells.
+
+## Addendum 2026-10-26 (owner via coordinator, before any GPU arm): builds, newer releases, a patched fork
+
+Owner: "upgrading CUDA and llama is still on the table, performance is key". Added before any bench, floors below are
+predeclared like the ones above.
+
+- **Newest official release**: b11889 (2026-10-25 23:44Z, one commit after b11888), Windows x64 builds for CUDA 12.4
+  and CUDA 13.4, each with its own cudart (`C:\dev\tools\llama-b11889-cuda12.4` 1.2 GB, `...-cuda13.4` 0.7 GB). The
+  driver (621.01) reports CUDA UMD 13.5, so the 13.4 build runs without any system change.
+- **User-space toolchain**: conda env `C:\dev\tools\cuda128-env` (1.5 GB; package cache `C:\dev\tools\conda-pkgs`
+  1.3 GB, deletable) with NVIDIA's CUDA 12.8.93 `nvcc`, cudart, cuBLAS, CMake, Ninja; MSVC 14.44 `vcvars64`. Build
+  script `C:\dev\tools\build-llama.bat <src> <out>` (sm_86 only, CCCL v3.4.3 as the official Windows builds, Release,
+  `llama-server` target). No admin install, no system CUDA change.
+- **Patch** (branch `so-cache-patch` in `C:\dev\tools\src\llama.cpp-b11888-so`, commit `252ca4d`, 83 lines in
+  `tools/server`): `cache_key` per request (a keyed request restores only entries with its key; eviction drops unkeyed
+  entries first), `cache_ckpt_max` (the cached copy keeps only the newest checkpoint at or before that token count:
+  the cut, not the reply's two end checkpoints), and no value-initialisation of the cached state buffers (the 2 GiB
+  memset per save). Gateway side: `memberCache.serverKeys` sends both; `memberCache.erase` can then be off.
+  Pinned staging was not written: the state API copies straight into the destination buffer, so pinning needs either
+  a pinned allocation per entry (`cudaMallocHost` of ~2 GiB per save) or a chunked state writer in `llama-context`:
+  only worth it if the measured copy cost says so.
+
+Extra floors (predeclared):
+
+- **Self-built parity**: stock b11888 built here vs the official b11888 binary, `mtp2` arm: chat/side TTFT within ±5 %,
+  decode within ±3 %, prefill within ±5 %. A patched build is benched only if this passes.
+- **Newer official build** (b11889 CUDA 12.4 / CUDA 13.4, `mtp2` arm) is adopted only for a measured gain: prefill or
+  decode p50 ≥ +5 % with the other within −2 %, TTFT not worse, GPU free after load ≥ control − 256 MiB, and the
+  full-length output check (B5).
+- **Patched build**: the RAM member cache floors A1-A8 apply, measured against the same session's stock control; on top,
+  per-member cached state p50 ≤ 70 % of the unpatched RAM arm's (from `/slots` or the server log), or the same TTFT
+  with more members held.
+- Quality where outputs can differ (different binary, `-ub`, probabilistic drafting): full-length check (thinking
+  closes, coherent) plus a Sol blind spot-check of 8 pairs vs the control (floor: preference ≥ 40 % for the candidate,
+  0 broken replies more than the control).
+
+### Keeping a patched fork maintainable
+
+- Keep the patch small and server-only (`tools/server`), one commit on top of the release tag; rebase per adopted
+  release with `git rebase --onto <new tag> <old tag> so-cache-patch`, rebuild with the script, rerun the parity arm and
+  the RAM-cache arm before switching the controller's `binary`.
+- Upstream it: `cache_key`/`cache_ckpt_max` are generic (any multi-agent client with distinct heads benefits) and the
+  zero-fill fix is a plain win; a PR to ggml-org/llama.cpp would remove the fork. Until merged, the controller works on
+  stock binaries too (`serverKeys` off falls back to the erase mode).
+- The controller never depends on the fork: the gateway only sends the extra fields when `memberCache.serverKeys` is on.
