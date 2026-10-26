@@ -617,6 +617,78 @@ Floors. The owner asked for floors; they are declared here, before the runs, and
   - P2 and P4 are switched on in the owner's config only if T2 passes.
   - P1 stays on only if T3 passes. If T3 shows no reserve miss at all, P1 stays on as inert, and the record says so.
 
+### T result (2026-10-26, 13:23-13:55Z)
+
+Evidence `09/logs-t/` (`t1b.json`; the first `t1.json` read ComfyUI's pid from `/status`, which did not name it, so it
+is void).
+
+**T1: ComfyUI VRAM** (per-process PDH dedicated / shared, NVML free):
+
+| Point | ComfyUI | NVML free |
+|---|---|---|
+| just started, text loaded | 224 / 76 MiB | 2,073 MiB |
+| after an SDXL render (text reloaded) | 338 / 278 MiB | 1,927 MiB |
+| after `/free` (unload_models + free_memory) | 338 / 278 MiB | 1,927 MiB |
+| after the host-cache release | 338 / 278 MiB | 1,927 MiB |
+
+After a render, the controller's own release path has already freed the models. What stays is the CUDA context,
+about 0.3 GiB, and `/free` cannot release it.
+
+**T2: I I R I I R**, 2 repeats per arm:
+
+| | today r1 / r2 | new r1 / r2 |
+|---|---|---|
+| text reloads | 2 / 2 | 2 / 2 |
+| ComfyUI starts | 0 / 0 | 0 / 0 |
+| reply TTFT p50 | 29.7 / 30.7 s | 30.0 / 29.8 s |
+| image → reply | 32.6, 32.8 / 32.8, 33.8 s | 32.9, 32.9 / 32.7, 32.8 s |
+| image decisions | swap, retain, swap, retain | same |
+| held reloads | — | 0 (the burst opened and finished) |
+
+The second image of each pair already reuses the first one's state (`retain-text` within the existing reload grace),
+so there is no reload between back-to-back images for a burst to hold. Every reply pays one reload: about 22.6 s of
+waiting, then an 18K-token prefill.
+
+**T3: R R I ×5**:
+
+| | today | new (P1 on) |
+|---|---|---|
+| reloads | 4 | 4 |
+| ComfyUI starts | 0 | 0 |
+| reply TTFT p50 | 9.93 s | 9.92 s |
+| replies that waited on a reload | 4 of 10, p50 22.9 s | 4 of 10, p50 22.6 s |
+| image → reply | 32.8, 61.4, 34.4, 35.1 s | 32.9, 33.4, 35.3, 34.6 s |
+
+There was no reserve miss in either arm, so no reclaim ran.
+
+Floors:
+- **T2 misses "reloads ≤ today − 1"** (2 = 2). The other floors pass: TTFT, image → reply, starts, 0 failures, fit 0,
+  spills 0.
+- **T3 passes**: starts 0 = 0, reload-wait share 0.4 = 0.4, 0 failures, fit 0, spills 0. That pass is vacuous for P1:
+  no reserve miss occurred, and T1 shows `/free` would have had nothing left to free after the controller's release.
+
+Decisions:
+- `imageBursts` stays off. The code and the page call remain; the page gets `burst: null` and nothing changes. A burst
+  can only help when the gap between two images is longer than the 5 s reload grace, and no measured pattern had that.
+- `replyBeforeImage` stays off. T2 has no reply and image waiting at the same moment, so it was not exercised.
+- `reclaimFreeFirst` stays on, recorded as inert.
+- The reply-wait log stays on. It gives the number the 11a floors asked for: on per-turn illustrations, 40 % of replies
+  wait about 22.6 s on a text reload. That reload is the cost the stream-floor and keep-cache work below goes after.
+
+### Owner decisions 2026-10-26 ("as recommended", relayed by the coordinator)
+
+1. **Adopt P1 chatFirst, with one slot.** The C2 floor is recorded as a literal miss as written: TTFT 65 % of P0, against
+   ≤ 60 %. The owner adopted it anyway, since it is an ordering change only and has no effect on output.
+   - Before the owner's controller is switched, run the side-pass freshness row (`controller-regression` `parallel`
+     list: `inner-freshness`).
+   - The story read is applied at a boundary and never awaited by the reply, so it is not on this path.
+2. **Measure a stream floor under 2,400 MiB** (images beside text with MTP), now that the spill guard exists.
+   - Measurement comes first, including a row with the live head (browser WebGL) open.
+   - Adoption only with 0 spills and 0 refusals, and no decode or image slowdown beyond floors declared before the run.
+3. **Keep the member cache across an image swap**, or restore it fast from host RAM after the llama-server restart.
+   - It must stay within the 10,240 MiB RAM floor, and be evicted first when an image needs RAM.
+   - Measure the warm member switch after an image.
+
 ## I: idle prefill send-latency bound (declared 2026-10-26 before any run; audit risk 4, end batch row)
 
 `idlePrefill` stays off in the owner's config. Before it can be switched on, a send-latency probe must pass.
