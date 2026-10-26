@@ -38,5 +38,12 @@ export class FastTelemetry {
 
     subscribe(listener) { this.listeners.add(listener); return () => this.listeners.delete(listener); }
     setProcess(pid) { if (!this.child.stdin.destroyed) this.child.stdin.write(`${JSON.stringify({ pid })}\n`); }
+
+    setGpuProcesses(pids) {
+        const key = pids.join(',');
+        if (key === this.gpuKey || this.child.stdin.destroyed) return;
+        this.gpuKey = key;
+        this.child.stdin.write(`${JSON.stringify({ gpu: pids })}\n`);
+    }
     stop() { this.child.kill(); }
 }

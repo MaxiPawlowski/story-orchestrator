@@ -186,11 +186,12 @@ export function createArbiter(config, deps = {}) {
                 queue: () => jsonFetch('/queue'), freeImages,
                 saveFootprints: (data) => fsImpl.writeFile(footprintsPath, JSON.stringify(data, null, 2)), footprints,
                 timings, saveTimings: (data) => fsImpl.writeFile(timingsPath, JSON.stringify({ identity, timings: data }, null, 2)), runtime,
-                log: deps.log ?? ((line) => console.log(`[story-orchestrator-gpu] ${line}`)) });
+                log: deps.log ?? ((line) => console.log(`[story-orchestrator-gpu] ${line}`)), comfyPid: () => comfyChild?.pid ?? null });
             if (fast) unsubscribe = fast.subscribe((sample) => scheduler.observe(sample));
             if (deps.timers !== false) {
                 timer = setInterval(() => {
                     void scheduler.sampleLease();
+                    fast?.setGpuProcesses?.([backend.status().pid, comfyChild?.pid].filter(Boolean));
                     void scheduler.restoreIfIdle();
                     if (!backend.crashed) void scheduler.keepResident();
                 }, 2500);

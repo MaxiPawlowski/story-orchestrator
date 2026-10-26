@@ -808,3 +808,28 @@ test('an idle prefill step neither counts toward image fairness nor announces it
     await scheduler.text(async () => {}, undefined, null, 'chat');
     assert.equal(heard.length, 2);
 });
+
+test('a shared-memory spill of the text server raises the GPU headroom and the stream floor, and reloads text once idle without waiting out the image grace', async () => {
+    const { scheduler, calls, backend } = setup({ config: { reclaimImageGraceMs: 600000, fitRecoverMs: 600000, streamImages: { enabled: true, minFreeGpuMiB: 2400 }, spillGuard: { sustainMs: 0 } }, comfyPid: () => 77 });
+    backend.status = () => ({ pid: backend.profile ? 42 : null, profile: backend.profile, desiredProfile: 'fast', fitTargetMiB: backend.fitTarget, fitCorrectionMiB: 0, loading: false });
+    backend.clearFitCorrection = () => 0;
+    const reading = (text, comfy) => ({ ...free(1500), gpuProcesses: { 42: { sharedMiB: text }, 77: { sharedMiB: comfy } } });
+    scheduler.observe(reading(1600, 200));
+    assert.equal(scheduler.status().spill.backoffMiB, 0);
+    scheduler.observe(reading(2500, 200));
+    const spill = scheduler.status().spill;
+    assert.equal(spill.backoffMiB, 1024);
+    assert.equal(spill.textSpilled, true);
+    assert.equal(spill.events[0].role, 'text');
+    assert.equal(scheduler.config.reserves.gpuMiB, 3072);
+    assert.equal(scheduler.config.streamImages.minFreeGpuMiB, 3424);
+    scheduler.lastLeaseAt = Date.now() - 1000;
+    assert.equal(await scheduler.recoverFitSpill(), true);
+    assert.deepEqual(calls, ['unload', 'load']);
+    assert.equal(scheduler.status().spill.textSpilled, false);
+    scheduler.observe(reading(1600, 200));
+    scheduler.observe(reading(1600, 900));
+    assert.equal(scheduler.status().spill.events.at(-1).role, 'comfy');
+    assert.equal(scheduler.status().spill.textSpilled, false);
+    assert.equal(scheduler.status().spill.backoffMiB, 1792);
+});

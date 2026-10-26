@@ -1,3 +1,4 @@
+import { SpillGuard, spillGuardOptions } from './spillGuard.mjs';
 import { randomUUID } from 'node:crypto';
 import { admission, residencyChoice, textLatencyDecision } from './policy.mjs';
 import { measuredRamMiB } from './ramEstimates.mjs';
@@ -19,8 +20,11 @@ export function median(values) {
 export const timingProfile = (config, profile) => { const tag = speculativeTag(config); return tag ? `${profile}+${tag}` : profile; };
 
 export class ResidencyScheduler {
-    constructor({ config, backend, snapshot, queue, freeImages, startComfy, saveFootprints, footprints = {}, timings = {}, saveTimings = async () => {}, runtime = async () => ({ id: 'unknown', streaming: false }), log = () => {} }) {
-        Object.assign(this, { config, backend, snapshot, queue, freeImages, startComfy, saveFootprints, footprints, timings, saveTimings, runtime, log });
+    constructor({ config, backend, snapshot, queue, freeImages, startComfy, saveFootprints, footprints = {}, timings = {}, saveTimings = async () => {}, runtime = async () => ({ id: 'unknown', streaming: false }), log = () => {}, comfyPid = () => null }) {
+        Object.assign(this, { config, backend, snapshot, queue, freeImages, startComfy, saveFootprints, footprints, timings, saveTimings, runtime, log, comfyPid });
+        const spillOptions = spillGuardOptions(config);
+        this.spillGuard = spillOptions ? new SpillGuard(spillOptions) : null;
+        this.spill = { events: [], backoffMiB: 0, textSpilled: false };
         this.residentImages = null;
         this.imagesNeedRelease = false;
         this.imageReleaseTargetMiB = null;
@@ -379,7 +383,27 @@ export class ResidencyScheduler {
         try { await this.release(lease.id); } catch (error) { this.lastError = error.message; }
     }
 
+    watchSpill(snapshot, now = Date.now()) {
+        if (!this.spillGuard) return null;
+        const state = this.backend.status();
+        if (state.loading) return null;
+        const event = this.spillGuard.observe(snapshot, { text: state.pid, comfy: this.comfyPid() }, now);
+        if (!event) return null;
+        const step = this.spillGuard.nextStep(this.spill.backoffMiB, event.deltaMiB);
+        if (step > 0 && this.config.reserves) {
+            this.config.reserves.gpuMiB += step;
+            if (this.config.streamImages) this.config.streamImages.minFreeGpuMiB = (this.config.streamImages.minFreeGpuMiB ?? 2400) + step;
+            this.spill.backoffMiB += step;
+        }
+        if (event.role === 'text') this.spill.textSpilled = true;
+        this.spill.events.push({ at: new Date(now).toISOString(), ...event, stepMiB: step, during: this.lease ? 'image' : this.activeText ? 'text' : 'idle', reserveMiB: this.config.reserves?.gpuMiB ?? null });
+        if (this.spill.events.length > 20) this.spill.events.shift();
+        this.log(`GPU memory spilled to shared memory: ${event.role} +${event.deltaMiB} MiB; GPU headroom raised by ${step} MiB to ${this.config.reserves?.gpuMiB} MiB`);
+        return event;
+    }
+
     observe(snapshot) {
+        this.watchSpill(snapshot);
         const lease = this.lease;
         if (!lease) return;
         lease.peakGpu = Math.max(lease.peakGpu, snapshot.gpus[0].usedMiB);
@@ -453,15 +477,17 @@ export class ResidencyScheduler {
 
     async recoverFitSpill(now = Date.now()) {
         const state = this.backend.status();
-        if (!(state.fitCorrectionMiB > 0) || !state.pid || state.loading || state.fitTargetMiB !== null || this.restoring) return false;
+        const spilled = this.spill.textSpilled;
+        if (!(state.fitCorrectionMiB > 0 || spilled) || !state.pid || state.loading || state.fitTargetMiB !== null || this.restoring) return false;
         if (this.lease || this.imagePending || this.imageQueued || this.activeText || this.manualHold || this.pending.length) return false;
-        if (this.imagesCooling(now) || (this.lastLeaseAt && now - this.lastLeaseAt < (this.config.reclaimImageGraceMs ?? 180000))) return false;
-        if (this.lastSpillRecoveryAt && now - this.lastSpillRecoveryAt < (this.config.fitRecoverMs ?? 600000)) return false;
+        if (!spilled && (this.imagesCooling(now) || (this.lastLeaseAt && now - this.lastLeaseAt < (this.config.reclaimImageGraceMs ?? 180000)))) return false;
+        if (!spilled && this.lastSpillRecoveryAt && now - this.lastSpillRecoveryAt < (this.config.fitRecoverMs ?? 600000)) return false;
         this.lastSpillRecoveryAt = now;
         this.restoring = true;
         try {
             const cleared = this.backend.clearFitCorrection(state.profile);
-            this.log(`text spill recovery: reloading ${state.profile} without its ${cleared} MiB fit correction`);
+            this.spill.textSpilled = false;
+            this.log(`text spill recovery: reloading ${state.profile} without its ${cleared} MiB fit correction${spilled ? ' after a shared-memory spill' : ''}`);
             await this.backend.unload();
             await this.backend.load(state.profile, { fitTarget: null });
             this.lastError = null;
@@ -536,7 +562,7 @@ export class ResidencyScheduler {
 
     status() {
         return { phase: this.imagePending ? 'reserving' : this.lease ? 'image' : this.restoring ? 'restoring' : this.manualHold ? 'manual-hold' : 'text',
-            activeText: this.activeText, overlappedText: this.overlapped ?? 0, waitingText: this.pending.length, imageLease: Boolean(this.lease),
+            activeText: this.activeText, overlappedText: this.overlapped ?? 0, spill: { backoffMiB: this.spill.backoffMiB, textSpilled: this.spill.textSpilled, events: this.spill.events.slice(-5) }, waitingText: this.pending.length, imageLease: Boolean(this.lease),
             imageWaiting: Boolean(this.imageQueued), servedText: this.servedText, fairImages: true, ramShort: this.ramShort,
             text: this.backend.status(), objective: this.config.residencyObjective ?? 'total-wait', timings: this.timings, lastTextDecision: this.lastTextDecision,
             lastDecision: this.lastDecision, lastResidency: this.lastResidency, lastNeedGpuMiB: this.lastNeedGpuMiB, measurement: this.lastMeasurement ? { ...this.lastMeasurement, trace: undefined } : null,
