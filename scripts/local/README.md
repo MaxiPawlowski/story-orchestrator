@@ -197,6 +197,7 @@ presets live in `config.json` under `modes` (edit them there) and the selected o
 | `keepTextResident` | on | on | on | now |
 | `fitMarginMiB` | 512 | 512 | 512 | next text load |
 | `imageCacheMode` | warm | warm | evict | now (next image release) |
+| `memberCache.budgetMiB` | 6144 | (current) | 2048 | next text load (`--cache-ram` of the RAM member cache) |
 
 Why these numbers (records: `docs/plans/v2.7/22-local-residency.md`, `22b-residency-harvest-2026-10-07.md`):
 
