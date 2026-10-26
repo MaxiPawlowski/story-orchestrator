@@ -92,6 +92,22 @@ Optional `config.json` keys, all read by `broker/backend.mjs` `nativeArgs` (plan
   per chat reply. There is no RAM disk on this host; files are served from the Windows file cache. `/status` reports
   `memberCache` (hits, misses, resident, saves, skips, evictions, ms p50). Side passes are not cached (same-role prompts
   share under 800 characters).
+- `memberCache.store: 'ram'` (plan v3.0 09) keeps member states in llama-server's own RAM prompt cache instead of
+  files: `--cache-ram` is `budgetMiB` (at least 1024), the load admission counts that budget as RAM, and nothing is
+  written to disk. The gateway still prefills each chat prompt to its cut; the server copies the slot's state to RAM when
+  another prompt takes the slot and loads the best matching entry back. `erase` (default on) clears the slot after every
+  non-chat generation, including failed or aborted ones, so side passes never enter the cache; `park` (default on) sends
+  a one-token prompt after an idle reply so that copy happens before the next request. On stock llama.cpp a member state
+  is ~2.3 GiB (KV, SWA window, three checkpoints, the MTP draft state), so three members need ~7-9 GiB of cache.
+  `serverKeys: true` needs the patched server (branch `so-cache-patch` of `C:\dev	ools\src\llama.cpp-b11888-so`,
+  built with `C:\dev	oolsuild-llama.bat`): requests carry `cache_key` (the member key; entries restore only for the
+  same key, unkeyed states never evict keyed ones) and `cache_ckpt_max` (the cached copy keeps only the cut checkpoint,
+  ~1.2-1.4 GiB per member), so `erase` can be off. `idlePrefill: true` (needs `serverKeys`) warms, after `idleDelayMs`
+  (3000) with nothing waiting, each known member's next stable prefix: its head plus every history turn of the latest
+  chat prompt except the last three (the depth-4 blocks sit four turns before the end, so the next prompt of any member
+  starts with exactly this text; checked byte-exact on 22 of 22 recorded turns). It runs in the text lane, yields between
+  members when a request arrives, and never loads text. The gateway cannot see the chat id, so keys are head hashes; the
+  server only reuses state for an identical token prefix, so a shared head reuses only identical text.
 
 `node scripts/local/stable-head.mjs plan|apply|revert --data <ST user data dir> --group <id>[,<id>] [--backup <dir>]`
 moves the system prompt's `{{char}}` sentences to its post-history instruction (a new `... (stable head)` system-prompt
@@ -147,7 +163,12 @@ floor, so the owner's preset and groups stay as they were.
 
 `/status` names the resident/desired profile, fit target, load count/cost, objective, learned timings and image cache
   state (`imageResidency.mode` is `gpu-warm` while images stay resident). If an automatic-layer text load misses only the GPU reserve,
-  the backend retries once with its measured shortfall plus a margin added to llama-server's fit target. The learned correction
+  the backend first asks the arbiter to stop the owned ComfyUI when it is idle (no lease, no queued image, empty ComfyUI queue,
+  rechecked after every await; counted only once the process has exited; the next image starts it again) and re-checks
+  the reserve, keeping the loaded text (`text.gpuReclaims`, `comfy.lastReclaim`). With MTP a full load leaves ~1.5-2 GiB, so
+  an idle ComfyUI context plus another GPU user could leave 974 MiB and fail a chat reply with 409 (lane 46, 2026-10-26).
+  Only when nothing can be reclaimed does the backend retry once with its measured shortfall plus `fitRetryStepMiB` (1280;
+  llama-server's `--fit` keeps ~1 GiB of slack, so a smaller step moved no layers) added to the fit target. The learned correction
   stays in memory for later loads of that profile; `/status` reports `text.fitCorrectionMiB` and `text.lastFitCorrection`.
   Fixed-layer layouts and host-RAM misses refuse directly; a second failed fit refuses and stops its owned backend.
   Context, KV settings and the admission reserves stay unchanged. Timings are invalidated when model/binary identity, loading mode or profiles change. JSON and streaming replies
