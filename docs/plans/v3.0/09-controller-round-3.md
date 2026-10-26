@@ -866,3 +866,20 @@ rating replaces them as the quality gate.
 
 Adoption: the candidate goes onto the owner's controller only if every floor above passes. That means `checkpointAt`
 (+ `serverRewind` for A3s) and the so3 binary, which also carries `keepAcrossImages` support.
+
+### Window stopped for the owner's playtest (2026-10-26, 15:25Z)
+
+The coordinator relayed that the owner wants to playtest. GPU work stopped and K was adopted alone.
+- **S: not adopted.** S384 passed floors 1-4 alone, but its live-head row is void (spill-guard false positive, fixed in
+  `29362bd4`). The rerun on the fixed guard (`run-s3.sh`) never started. Max keeps a stream floor of 2400. The rerun is
+  pending.
+- **R2: partial, pending.** 5 of 6 performance runs finished; the full-length run and the Sol rating never started.
+
+  | | warm switch p50 | share warm | cached state p50 | decode / acceptance | failed / rewind failures |
+  |---|---|---|---|---|---|
+  | A3s at 4096 (3 runs) | 3.38 s | 0.92 | 808 MiB | 42.7 / 0.522 | 0 / 0 |
+  | A3s at 2048 (2 runs) | none warm | 0.00 | 808 MiB | 41.8 / 0.526 | 0 / 0 |
+
+  At 2048 there are still no warm hits, so dropping the duplicate checkpoint did not make two members fit. The 808 MiB
+  logged is the state alone. Why the 2048 cache still misses needs a look at `cache state` lines (entry size with draft
+  state). Following the declared rule, the candidate would be A2. Its full-length run and rating are pending.
