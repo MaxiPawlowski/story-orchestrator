@@ -113,6 +113,10 @@
       "status": "checked",
       "note": "v2.7 33 W1 (2026-10-07; dev-only import, install-wide flag spikes.editReread, default off): the run is minted when the settle window fires, and checked before the cycle starts, after its rollback, after the re-enqueue commit and after the read, before every write. The stats it bumps and the rollingBack flag are in-memory; the flag is set only around its own rollback so the scheduler does not queue a second re-read (editReread.review.test.ts)."
     },
+    "src/runtime/spikes/editRereadHost.ts#readEdited.run": {
+      "status": "local",
+      "note": "v2.9 13 C8 (v27-d-10): the edit re-read queued on the read lane; settle only resolves this call's own promise (and clears its own cap timer) after the read. The read itself checks the cycle's RunGuard before it starts, and runExtractionNow owns its writes under its own read ownership. Tests: editReread.review.test.ts (lane, drop, failure, cap, lapsed run)."
+    },
     "src/runtime/spikes/swipeBack.ts#SwipeBack.restore": {
       "status": "checked",
       "note": "v2.5 plan 09 SP1 spike (2026-09-26; dev-only import, install-wide flag spikes.swipeBackCache, default off): the run minted when the bridge handed the swipe over is checked before the record is written back. loadSelectedFromChat starts a new epoch by design, so after it the chat id and the engine's last message are compared with the cache key before the queued writes are re-enqueued, and a run minted after the load is checked before notify. persist goes through the ChatSave chokepoint, which refuses another chat's write; the stats it bumps are in-memory counters."

@@ -147,8 +147,6 @@ export class ExtractionScheduler {
   clearForNewWorld() {
     const dropped = [...this.queue.splice(0), ...this.heavyQueue.splice(0)];
     dropped.forEach((job) => job.dropped?.());
-    // Boundary numbers restart with a new story, so a carried-over cursor makes the new world look
-    // as though its cadence read had already happened.
     this.cadenceBoundary = -1;
     this.cadenceTo = null;
     this.settling = null;
