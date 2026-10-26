@@ -329,3 +329,24 @@ owner-install check that the discovered Qwen route resolves (`sprite-qwen-route-
 - Deviation: `lookHealth.test.ts` expectation changed on purpose (a character without an accepted source now gets the
   precise "No accepted base and bust" reason instead of "choose a reference expression pack").
 - Live gate: NOT run, owed (section 11). No ST staging, no GPU, no lanes in this task.
+- 2026-10-26, stage 2, branch `v3.0-visual-bridge-s2` (from `v3.0-visual-bridge` `cd5208a8`), code `a058db0a`, pilot harness `fac36852`; CPU/dev only.
+  - `npm run gates:quick`: green (typecheck, typecheck:test, lint changed, jest whole suite, defect replay cached).
+  - `npm run gates` (full, Storybook included, no `--resume`): all green in 276.7 s. typecheck, typecheck:test, debug:typecheck,
+    lint, build, test:release, test:replay (32 of 32 killed): ok. jest 903 suites passed, 1 skipped; 10,510 tests passed,
+    1 skipped. test:debug 1,572 + 408 pass / 0 fail; test:plugin 128 pass / 0 fail; test-storybook:ci 166 suites, 1,004 tests.
+    Main bundle `dist/index.js` 1,272,761 B (budget 1,300,000); route, instruction and Qwen render code ride the lazy image chunk.
+  - Earlier full runs on the way, both environment: one jest timing test (`consequences.test.ts` C6 p95 <= 5 ms) under load,
+    passing alone; and test:debug charter/index rows because `worktree:setup` copied master's gitignored campaign story index
+    (pin `c5723c5`) while this branch pins `abc94b5` (the index matching this branch's pin was copied in; no code change).
+  - Guard updates: error-copy rows for the new route/readiness/render sites, the stage-1 cast-scene recipe row moved to
+    `renderQwenJob`; session baseline names `image.automaticRoute`; settings reference (`docs:settings`) and author guide
+    (`docs:guide`) regenerated.
+  - Tests that fail without each change: `autoScene.test.ts` (readiness reasons, plate input check, route choice and
+    references-only refusal, visible list, instruction contents with no future look or place, aspect size, illustrated reply),
+    `autoSceneHost.test.ts` (who can be drawn, unreachable ComfyUI, plate render and record, idle lease hand-back with the wait
+    recorded, pack or reply change discards before save, saved file removed on a lost run), `autoRoute.test.ts` (route record on
+    placed pictures, SDXL fallback reason, director's visible list, SDXL setting, manual not routed, forced arm, placement on the
+    cueing reply and refusal of a vanished target), `castSceneHost.test.ts` (cast scene placement target, idle wait recorded),
+    `imagePilot.test.mts` (frozen cases, schedule, blind pack).
+  - Live gate and pilot: NOT run (no GPU, no lanes, no staging in this task). Owed: the pilot (section 7 stage 2, "Pilot run
+    needs") and section 11's live checks plus an automatic picture through each route.
