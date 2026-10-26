@@ -21,9 +21,11 @@ export const KNOBS = Object.freeze([
         about: 'Extra VRAM llama-server plans to leave on top of the GPU headroom. Below 512 the measured load undershot the 2 GiB reserve.' },
     { path: 'imageCacheMode', type: 'enum', values: ['warm', 'evict'], applies: 'live', label: 'Image cache after a render',
         about: 'warm keeps ComfyUI\'s cache in RAM (next image ~20 s); evict gives that RAM back to your apps (next image starts cold, ~30-40 s).' },
+    { path: 'memberCache.budgetMiB', type: 'int', min: 1024, max: 16384, step: 512, applies: 'text-load', label: 'Speaker memory cache (MiB)',
+        about: 'RAM llama-server keeps for each group member\'s prepared prompt (about 1.3 GiB a member). Bigger = a returning speaker starts sooner in big groups; smaller returns that RAM to your apps.' },
 ]);
 
-const KNOB_DEFAULTS = Object.freeze({ keepTextResident: true, imageCacheMode: 'warm', fitMarginMiB: 0, idleRestoreMs: 0, 'streamImages.enabled': false, 'streamImages.minFreeGpuMiB': 2400 });
+const KNOB_DEFAULTS = Object.freeze({ keepTextResident: true, imageCacheMode: 'warm', fitMarginMiB: 0, idleRestoreMs: 0, 'streamImages.enabled': false, 'streamImages.minFreeGpuMiB': 2400, 'memberCache.budgetMiB': 6144 });
 
 export const PRESET_NOTES = Object.freeze({
     max: 'Only playing: smaller desktop headroom, images stream beside text, full speed back after 3 idle minutes.',
@@ -32,8 +34,8 @@ export const PRESET_NOTES = Object.freeze({
 });
 
 export const PRESETS = Object.freeze({
-    max: Object.freeze({ 'reserves.gpuMiB': 1536, 'reserves.ramMiB': 3072, 'streamImages.enabled': true, 'streamImages.minFreeGpuMiB': 2400, idleRestoreMs: 180000, keepTextResident: true, fitMarginMiB: 512, imageCacheMode: 'warm' }),
-    safe: Object.freeze({ 'reserves.gpuMiB': 3072, 'reserves.ramMiB': 6144, 'streamImages.enabled': false, 'streamImages.minFreeGpuMiB': 2400, idleRestoreMs: 600000, keepTextResident: true, fitMarginMiB: 512, imageCacheMode: 'evict' }),
+    max: Object.freeze({ 'reserves.gpuMiB': 1536, 'reserves.ramMiB': 3072, 'streamImages.enabled': true, 'streamImages.minFreeGpuMiB': 2400, idleRestoreMs: 180000, keepTextResident: true, fitMarginMiB: 512, imageCacheMode: 'warm', 'memberCache.budgetMiB': 6144 }),
+    safe: Object.freeze({ 'reserves.gpuMiB': 3072, 'reserves.ramMiB': 6144, 'streamImages.enabled': false, 'streamImages.minFreeGpuMiB': 2400, idleRestoreMs: 600000, keepTextResident: true, fitMarginMiB: 512, imageCacheMode: 'evict', 'memberCache.budgetMiB': 2048 }),
 });
 
 const knob = (key) => KNOBS.find((row) => row.path === key);
@@ -185,7 +187,11 @@ export function createLiveSettings({ target, scheduler, backend, mode = 'balance
         if (!pending) return true;
         const change = pending;
         try {
-            await scheduler().exclusive(async () => { applyValues(target, change.values); });
+            await scheduler().exclusive(async () => {
+                applyValues(target, change.values);
+                const spill = scheduler().spill;
+                if (spill && ('reserves.gpuMiB' in change.values || 'streamImages.minFreeGpuMiB' in change.values)) spill.backoffMiB = 0;
+            });
         } catch (error) {
             if (/Wait for the active work/.test(error.message)) return false;
             throw error;

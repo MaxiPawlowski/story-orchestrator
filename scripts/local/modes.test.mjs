@@ -50,8 +50,9 @@ test('a mode patches only its own keys and keeps the rest of nested settings', (
     assert.deepEqual(plan.config.reserves, { gpuMiB: 3072, ramMiB: 6144 });
     assert.equal(plan.config.shedCeilingMiB, 13000);
     assert.deepEqual(plan.config.comfyExtraArgs, ['--fast-disk']);
-    assert.deepEqual(plan.changed.sort(), ['imageCacheMode', 'reserves.gpuMiB', 'reserves.ramMiB', 'streamImages.enabled'].sort());
-    assert.deepEqual(plan.textLoad, ['reserves.gpuMiB']);
+    assert.deepEqual(plan.changed.sort(), ['imageCacheMode', 'memberCache.budgetMiB', 'reserves.gpuMiB', 'reserves.ramMiB', 'streamImages.enabled'].sort());
+    assert.deepEqual(plan.textLoad.sort(), ['memberCache.budgetMiB', 'reserves.gpuMiB']);
+    assert.deepEqual(plan.config.memberCache, { budgetMiB: 2048 });
     assert.equal(currentMode(plan.config), 'safe');
 });
 
@@ -113,11 +114,13 @@ const fakeScheduler = () => {
 test('live settings apply at once when idle, and wait for running work otherwise', async () => {
     const target = { ...install(), comfySupervise: true };
     const scheduler = fakeScheduler();
+    scheduler.spill = { backoffMiB: 512 };
     const text = { pid: 9, loading: false, loads: 3 };
     const live = createLiveSettings({ target, scheduler: () => scheduler, backend: { status: () => text }, timers: false });
     const reservesBefore = target.reserves;
     assert.equal(await live.request(planChange(install(), { mode: 'max' })), 'now');
     assert.deepEqual(target.reserves, { gpuMiB: 1536, ramMiB: 3072 });
+    assert.equal(scheduler.spill.backoffMiB, 0);
     assert.deepEqual(reservesBefore, { gpuMiB: 2048, ramMiB: 4096 });
     assert.equal(target.idleRestoreMs, 180000);
     assert.equal(target.comfySupervise, true);
