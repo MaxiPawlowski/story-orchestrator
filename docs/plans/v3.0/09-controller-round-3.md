@@ -406,3 +406,44 @@ Floors for max = R (the lowest R that passes all of them is adopted, otherwise m
 4. Lowest GPU free during each stream ≥ 256 MiB.
 5. With `memberCache.budgetMiB` 6144: lowest host RAM available during the stream, minus the cache's unfilled part
    (6144 minus the RAM the cache held then, counted as llama-server private bytes minus their value right after load), ≥ 10,240 MiB (the audit floor). If it misses, max keeps 4096.
+
+## R: rewound entries and `checkpoint_at` (Fable §10 item 2; floors declared before the bench)
+
+Built on the patch branch `so-cache-patch` (commit `603203f`, binary `C:/dev/tools/llama-b11888-so2-cu128`). The owner's
+`llama-b11888-so-cu128` is untouched. The patch adds two request fields:
+- `checkpoint_at: [token positions]` (at most 8). The prompt batch breaks at each position and a context checkpoint is
+  created there, inside the chat request's own prefill.
+- `cache_rewind: true` (with `cache_ckpt_max`). Before the slot state is saved to the RAM cache, it is rewound to the
+  newest checkpoint at or before `cache_ckpt_max`: the checkpoint's SWA window and draft state are loaded, and global KV
+  and tokens after it are dropped. The entry then holds the shared prefix and nothing that the next turn of that member
+  would re-prefill anyway.
+
+Gateway (commit `9c3f2508`):
+- `memberCache.checkpointAt` counts the cut with `/tokenize` (add_special, parse_special, as the completion does) and
+  marks it on the chat request. This replaces the separate prefill-to-cut request.
+- `memberCache.serverRewind` sends `cache_rewind`.
+- Both need `serverKeys`.
+
+Arms: `bench-controller.mjs text --gap-ms 1000` on `09/corpus-rate.json` (25 chat prompts, 3 members, recorded order),
+3 repeats each, interleaved, all at `--verbosity 4` for the state sizes.
+
+| Arm | Binary | Arm string |
+|---|---|---|
+| A (control, adopted) | so | `mtp2+cram4096+ramcut+keys+noerase+v4` |
+| A2 | so2 | `mtp2+cram4096+ramcut+keys+noerase+ckat+v4` |
+| A3 | so2 | `mtp2+cram4096+ramcut+keys+noerase+ckat+rewind+v4` |
+| A3-2048 | so2 | `mtp2+cram2048+ramcut+keys+noerase+ckat+rewind+v4` |
+
+Floors (the Fable floors plus the plan 09 decode band):
+1. A3 warm chat TTFT p50 ≤ 3.0 s, and ≤ A's warm p50.
+2. A3 cached state p50 ≤ 0.8 GiB, from `saving prompt ... total state size`.
+3. A3-2048 warm hit share ≥ 60 % of member turns that follow another member.
+4. Chat decode within ±3 % of A, and draft acceptance within 0.03 of A.
+5. 0 failed requests, and 0 `could not rewind` warnings.
+6. Exactness. Greedy (`temperature` 0, `top_k` 1, seed 1234, 96 tokens) on 4 member prompts:
+   - each prompt is served after a member rotation, from the rewound entry;
+   - its output must equal the same prompt served with `cache_prompt: false` on the same server, character for character;
+   - a mismatch is investigated (batch-split rounding, per plan 06) before anything is adopted.
+
+Adopt A3 (or A2) into the owner's config only if every floor passes. A2 alone is adopted only if it passes floors 1, 4,
+5 and 6.
