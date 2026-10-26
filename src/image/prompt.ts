@@ -1,6 +1,7 @@
 import { ASPECTS, checkpointFor, FAMILIES, familyOf, modelId, SHOTS, type Aspect, type Shot } from "./catalog";
 import type { ImageChat, ImageCharacter } from "@services/stHost/image";
 import { mentions } from "./lore";
+import { stripReasoningBlocks } from "@extraction/parse";
 import type { Route } from "./routing";
 
 export interface ImageRequest {
@@ -92,7 +93,7 @@ export const imageMessages = (request: ImageRequest, scene: ImageScene, route: R
 };
 
 export const parseImageReply = (raw: string, route: Route): ImageReply => {
-  const cleaned = raw.replace(/^\s*(?:<think(?:ing)?>[\s\S]*?<\/think(?:ing)?>)\s*/i, "").replace(/```(?:json)?/gi, "");
+  const cleaned = stripReasoningBlocks(raw).replace(/```(?:json)?/gi, "");
   const start = cleaned.indexOf("{");
   const end = cleaned.lastIndexOf("}");
   if (start < 0 || end <= start) throw new Error("The image director returned no JSON object.");
@@ -114,9 +115,13 @@ export const parseImageReply = (raw: string, route: Route): ImageReply => {
   };
 };
 
+export const SHOT_TAGS: Record<Shot, string> = {
+  close: "close-up", upper: "upper body", cowboy: "cowboy shot", full: "full body", wide: "wide shot", pov: "pov", from_above: "from above", from_below: "from below",
+};
+
 export const assembleImagePrompt = (route: Route, reply: ImageReply | null, text: string): { positive: string; negative: string } => {
   const prompt = reply?.prompt ?? text;
-  const positive = [route.checkpoint.qualityBlock, ...route.positive, prompt, route.shot === "close" ? "close-up" : route.shot.replaceAll("_", " ")].filter(Boolean).join(", ");
+  const positive = [route.checkpoint.qualityBlock, ...route.positive, prompt, SHOT_TAGS[reply?.shot ?? route.shot]].filter(Boolean).join(", ");
   const negative = [route.checkpoint.negativeBlock, ...route.negative, reply?.negative].filter(Boolean).join(", ");
   return { positive, negative };
 };

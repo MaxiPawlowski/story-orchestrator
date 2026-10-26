@@ -21,7 +21,8 @@ import { automationAllowsCues, messageAlreadyDrawn, sanitizeImageChatState, sani
 import { setGlobalSettings } from "@runtime/settingsStore";
 import { worldInfoPlan } from "@runtime/worldInfoGates";
 import { firedLoreKeys, visualLore } from "./lore";
-import { authoredPlace, beatIllustrated, beatLabel, castForImage, cueText, lookFor, stageAlreadySet } from "./cast";
+import { log } from "@utils/log";
+import { authoredPlace, beatIllustrated, beatLabel, castForImage, cueText, lookFor, sceneCueLabel, stageAlreadySet } from "./cast";
 import { fnv1a } from "@runtime/hash";
 import { beginRun, type RunGuard } from "@runtime/runToken";
 import { busyWork } from "@runtime/busy";
@@ -40,6 +41,7 @@ export interface ImagePlan {
   aspect: Aspect;
   positive: string;
   negative: string;
+  promptSource: "directed" | "template" | "degraded";
   caption: string;
   workflow: string | null;
 }
@@ -136,7 +138,7 @@ export class StoryImageDirector {
     this.pending.add(key);
     if (target) this.pendingTargets.add(target);
     try {
-      const label = kind === "checkpoint" ? beatLabel(story?.checkpointById[name]) : name;
+      const label = kind === "checkpoint" ? beatLabel(story?.checkpointById[name]) : sceneCueLabel(name, this.manager.getSnapshot().scene?.facts?.location);
       await this.direct({ purpose: "scene", text: cueText(kind, label), messageId: at }, {}, key);
     } catch (error) {
       this.lastError = error instanceof Error ? error.message : String(error);
@@ -156,7 +158,7 @@ export class StoryImageDirector {
       this.manager.subscribe(() => {
         const chat = imageChat();
         const snapshot = this.manager.getSnapshot();
-        if (!chat || !this.manager.ownsImageChat(chat.id) || !snapshot.ready || snapshot.boundary !== 0 || initialChat === chat.id) return;
+        if (!chat || !this.manager.ownsImageChat(chat.id) || !snapshot.ready || !snapshot.requirements.ready || snapshot.boundary !== 0 || initialChat === chat.id) return;
         initialChat = chat.id;
         if (stageAlreadySet(this.manager.getStory(), snapshot.activeCheckpointId)) return;
         void this.cue("checkpoint", null, snapshot.activeCheckpointId ?? "opening");
@@ -179,16 +181,14 @@ export class StoryImageDirector {
     const chat = imageChat();
     const message = chat?.messages[messageId];
     if (!chat || !this.manager.ownsImageChat(chat.id) || !message || message.is_user || message.is_system) return;
-    if (!chat.messages.slice(0, messageId).some((row) => row.is_user)) return;
+    const before = chat.messages.slice(0, messageId);
+    const count = before.filter((row) => row.is_user).length;
+    const lastPlayer = before.map((row) => row.is_user).lastIndexOf(true);
+    if (!count || before.slice(lastPlayer + 1).some((row) => !row.is_user && !row.is_system)) return;
     const run = beginRun(this.manager.getOwnership(), { from: messageId, to: messageId });
     const replyText = message.mes;
     try {
-      const state = current(this.manager.getSnapshot().storyId);
-      const count = state.automationCount + 1;
-      if (!run.stillOwns()) return;
-      const saved = await imageWriteChatSettings({ ...state, automationCount: count }, chat.id);
-      if (!saved.ok) { this.lastError = saved.reason; this.notify(); return; }
-      if (messageAlreadyDrawn(chat, messageId) || !(await this.serviceReady(settings)) || !run.stillOwns()) return;
+      if (!run.stillOwns() || messageAlreadyDrawn(chat, messageId) || !(await this.serviceReady(settings)) || !run.stillOwns()) return;
       const cadence = settings.automation.mode === "everyN" && count % settings.automation.everyN === 0;
       const judge = this.manager.getJudge();
       const pick = judge?.active("pictureCue") ? await (await import("./judgePicture")).judgePicture(judge, replyText).catch(() => null) : null;
@@ -239,19 +239,24 @@ export class StoryImageDirector {
       route = { ...route, allowed: [resolved.file] };
     }
     let reply: ImageReply | null = null;
+    let promptSource: ImagePlan["promptSource"] = settings.directorProfileId && !request.raw ? "degraded" : "template";
     if (!request.raw && settings.directorProfileId && listConnectionProfiles().some((profile) => profile.id === settings.directorProfileId)) {
       const messages = imageMessages(request, scene, route);
-      let raw = await imageModel(settings.directorProfileId, messages, settings.maxTokens);
       try {
-        reply = parseImageReply(raw, route);
-      } catch {
-        raw = await imageModel(settings.directorProfileId, [
-          ...messages, { role: "assistant", content: raw },
-          { role: "user", content: "The image JSON was invalid. Return one valid JSON object with the requested fields." },
-        ], settings.maxTokens);
-        reply = parseImageReply(raw, route);
+        const raw = await imageModel(settings.directorProfileId, messages, settings.maxTokens);
+        try {
+          reply = parseImageReply(raw, route);
+        } catch {
+          reply = parseImageReply(await imageModel(settings.directorProfileId, [
+            ...messages, { role: "assistant", content: raw },
+            { role: "user", content: "The image JSON was invalid. Return one valid JSON object with the requested fields." },
+          ], settings.maxTokens), route);
+        }
+        route = pickImageCheckpoint(route, reply.checkpoint);
+        promptSource = "directed";
+      } catch (error) {
+        log.warn(`The image-prompt model gave no usable answer, so this picture used the template prompt: ${error instanceof Error ? error.message : String(error)}`);
       }
-      route = pickImageCheckpoint(route, reply.checkpoint);
     }
     const aspect = route.aspect !== "auto" ? route.aspect : reply?.aspect ?? (request.purpose === "background" ? "wide" : "portrait");
     const fallback = !request.raw && !reply ? templateImagePrompt(scene, request.purpose, request.text) : request.text;
@@ -264,7 +269,7 @@ export class StoryImageDirector {
       backend: settings.backend,
       request, chatId: chat.id, folder: chat.folder, target: scene.target, workflow: await this.storyWorkflow(settings.backend, story, request.purpose),
       targetText: scene.target === null ? null : chat.messages[scene.target]?.mes ?? null,
-      route, reply, scene, aspect, positive: assembled.positive, negative: assembled.negative,
+      route, reply, scene, aspect, positive: assembled.positive, negative: assembled.negative, promptSource,
       caption: reply?.caption || request.text.slice(0, 120) || scene.checkpoint || "Story illustration",
     };
     this.lastPlan = plan;
@@ -384,7 +389,7 @@ export class StoryImageDirector {
         image_director: {
           purpose: plan.route.purpose, checkpoint: plan.route.checkpoint.file, seed: candidate.seed,
           size: { width: candidate.width, height: candidate.height }, positive: plan.positive,
-          negative: plan.negative, reason: plan.reply?.reason ?? "",
+          negative: plan.negative, reason: plan.reply?.reason ?? "", prompt_source: plan.promptSource,
         },
       };
       const placed = await imagePlace(plan.chatId, plan.target, plan.caption, media, plan.route.placement);

@@ -1,7 +1,7 @@
 import { readFileSync } from "fs";
 import { join } from "path";
 import { parseStory, parseStoryOrThrow, isValidationErrorList, type NormalizedStory } from "@engine/index";
-import { authoredPlace, beatIllustrated, beatLabel, castForImage, cueText, isNarratorMember, lookFor, stageAlreadySet } from "./cast";
+import { authoredPlace, beatIllustrated, beatLabel, castForImage, cueText, isNarratorMember, lookFor, sceneCueLabel, stageAlreadySet } from "./cast";
 import { firedLoreKeys, visualLore } from "./lore";
 import { imageMessages, sceneForImage, templateImagePrompt, type ImageScene } from "./prompt";
 import { resolveImageRoute } from "./routing";
@@ -206,5 +206,14 @@ describe("opening pictures: a stage the story already set is not drawn again", (
   it("names the place from the latest authored background on the path", () => {
     expect(authoredPlace(staged, ["a", "b"])).toBe("guild hall night");
     expect(authoredPlace(staged, ["b"])).toBeNull();
+  });
+});
+
+describe("scene-change cues never show a code word", () => {
+  it("names the new place only for a location break, else a neutral line", () => {
+    expect(cueText("scene", sceneCueLabel("location", "the old mill"))).toBe("The scene moves to the old mill.");
+    expect(cueText("scene", sceneCueLabel("location", null))).toBe("A new scene begins.");
+    expect(cueText("scene", sceneCueLabel("time_skip", "the old mill"))).toBe("A new scene begins.");
+    expect(cueText("scene", sceneCueLabel("divider", null))).not.toMatch(/divider|time_skip|location/);
   });
 });

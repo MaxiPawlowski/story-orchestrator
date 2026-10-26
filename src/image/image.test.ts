@@ -55,6 +55,17 @@ describe("Image Director merge", () => {
     expect(Object.values(settings.purposes).every((row) => row.checkpoint === "" && row.family in FAMILIES)).toBe(true);
   });
 
+  it("ends with a real framing tag, the director's shot over the route default", () => {
+    const route = resolveImageRoute(defaultImageSettings(), "scene", {}, sanitizeImageOverride(null));
+    const tail = (positive: string) => positive.split(", ").at(-1);
+    expect(tail(assembleImagePrompt({ ...route, shot: "cowboy" }, null, "a hall").positive)).toBe("cowboy shot");
+    expect(tail(assembleImagePrompt({ ...route, shot: "upper" }, null, "a hall").positive)).toBe("upper body");
+    const reply = { caption: "c", checkpoint: "", reason: "", visible: [], aspect: null, shot: "wide" as const, prompt: "1girl, hall", negative: "" };
+    const directed = assembleImagePrompt({ ...route, shot: "cowboy" }, reply, "").positive;
+    expect(tail(directed)).toBe("wide shot");
+    expect(directed).not.toMatch(/(^|, )cowboy(,|$)/);
+  });
+
   it("falls a stored FLUX choice back to the default and records it for the Repair row", () => {
     const stored = {
       ...defaultImageSettings(),
@@ -150,8 +161,8 @@ describe("Image Director merge", () => {
   });
   it("keeps image counters and cue keys with their own chat", () => {
     const state = { chatId: "chat-a", override: { paused: true }, emitted: ["chat-a:story:checkpoint:0", "chat-b:story:checkpoint:0"], automationCount: 4 };
-    expect(sanitizeImageChatState(state, "chat-a", "story")).toMatchObject({ override: { paused: true }, emitted: ["chat-a:story:checkpoint:0"], automationCount: 4 });
-    expect(sanitizeImageChatState(state, "chat-b")).toMatchObject({ override: { paused: false }, emitted: [], automationCount: 0 });
+    expect(sanitizeImageChatState(state, "chat-a", "story")).toMatchObject({ override: { paused: true }, emitted: ["chat-a:story:checkpoint:0"] });
+    expect(sanitizeImageChatState(state, "chat-b")).toMatchObject({ override: { paused: false }, emitted: [] });
     expect(sanitizeImageChatState({ ...state, chatId: undefined }, "chat-a").emitted).toEqual(["chat-a:story:checkpoint:0"]);
     expect(sanitizeImageChatState({ ...state, emitted: ["chat-a:story:checkpoint:0", "chat-a:other:checkpoint:0"] }, "chat-a", "story").emitted)
       .toEqual(["chat-a:story:checkpoint:0"]);

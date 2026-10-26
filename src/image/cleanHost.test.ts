@@ -7,6 +7,8 @@ const host = {
   checkpoints: [] as string[],
   onReady: null as null | (() => void),
   generating: false,
+  profiles: [] as Array<{ id: string }>,
+  director: async () => "",
   messages: [{ name: "Narrator", mes: "The gate opens.", is_user: false, is_system: false }] as Array<{ name: string; mes: string; is_user: boolean; is_system: boolean }>,
 };
 
@@ -16,11 +18,11 @@ const comfyDiscover = jest.fn(async () => ({ nodes: {}, embeddings: [], checkpoi
 const reserveGpu = jest.fn(async () => ({ lease: null, brokered: false }));
 const imagePlace = jest.fn(async () => ({ ok: true as const, placed: true as const }));
 
-jest.mock("@services/STAPI", () => ({ isHostGenerating: () => host.generating, listConnectionProfiles: () => [], getScannableEntries: async () => [] }));
+jest.mock("@services/STAPI", () => ({ isHostGenerating: () => host.generating, listConnectionProfiles: () => host.profiles, getScannableEntries: async () => [] }));
 jest.mock("@services/stHost/image", () => ({
   imageChat: () => ({ id: "chat-1", groupId: "g1", folder: "g1", userName: "Player", characters: [],
     messages: host.messages }),
-  imageModel: async () => "", imageSave: async () => "/user/images/comfy.png", imageDelete: async () => ({ ok: true }),
+  imageModel: () => host.director(), imageSave: async () => "/user/images/comfy.png", imageDelete: async () => ({ ok: true }),
   imagePlace: (...args: unknown[]) => imagePlace(...(args as [])), imageChatSettings: () => null,
   imageWriteChatSettings: async () => ({ ok: true, chatId: "chat-1" }),
 }));
@@ -86,9 +88,26 @@ beforeEach(() => {
   host.checkpoints = [];
   host.onReady = null;
   host.generating = false;
+  host.profiles = [];
+  host.director = async () => "";
   host.messages = [{ name: "Narrator", mes: "The gate opens.", is_user: false, is_system: false }];
   jest.clearAllMocks();
   workflowHost.swaps = [];
+});
+
+describe("an image-prompt model with no usable answer falls back to the template", () => {
+  it("draws from the template and says so when the reply is not JSON twice", async () => {
+    host.stReady = true;
+    host.settings = { ...defaultImageSettings(), directorProfileId: "p1" };
+    host.profiles = [{ id: "p1" }];
+    host.director = async () => "no json here";
+    const { director, fire, stop } = harness();
+    fire();
+    await settle();
+    expect(renderStImage).toHaveBeenCalledTimes(1);
+    expect(director.status().lastPlan?.promptSource).toBe("degraded");
+    stop();
+  });
 });
 
 describe("opening pictures: the greeting is never drawn by the reply cadence", () => {
@@ -101,6 +120,29 @@ describe("opening pictures: the greeting is never drawn by the reply cadence", (
     expect(renderStImage).not.toHaveBeenCalled();
     host.messages = [{ name: "Player", mes: "We go in.", is_user: true, is_system: false }, { name: "Narrator", mes: "The gate opens.", is_user: false, is_system: false }];
     await director.onReply(1, "normal");
+    await settle();
+    expect(renderStImage).toHaveBeenCalledTimes(1);
+    stop();
+  });
+});
+
+describe("the every-N cadence counts player turns, not member replies", () => {
+  const turn = (n: number) => [{ name: "Player", mes: `Turn ${n}.`, is_user: true, is_system: false }, { name: "Narrator", mes: `Reply ${n}.`, is_user: false, is_system: false },
+    { name: "Mira", mes: `Second voice ${n}.`, is_user: false, is_system: false }];
+
+  it("considers only the first reply of a turn and fires on every Nth turn", async () => {
+    host.stReady = true;
+    host.settings = { ...defaultImageSettings(), automation: { mode: "everyN", everyN: 2 } };
+    host.messages = turn(1);
+    const { director, stop } = harness();
+    await director.onReply(1, "normal");
+    await settle();
+    expect(renderStImage).not.toHaveBeenCalled();
+    host.messages = [...turn(1), ...turn(2)];
+    await director.onReply(5, "normal");
+    await settle();
+    expect(renderStImage).not.toHaveBeenCalled();
+    await director.onReply(4, "normal");
     await settle();
     expect(renderStImage).toHaveBeenCalledTimes(1);
     stop();

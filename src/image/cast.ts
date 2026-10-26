@@ -12,7 +12,10 @@ export const beatLabel = (checkpoint: Pick<Checkpoint, "player_name"> | null | u
   checkpoint?.player_name?.trim() || null;
 
 export const cueText = (kind: "checkpoint" | "scene", label: string | null): string =>
-  kind === "checkpoint" ? (label ? `Establishing shot of ${label}.` : "Establishing shot of the current scene.") : `The scene moves to ${label ?? "a new place"}.`;
+  kind === "checkpoint" ? (label ? `Establishing shot of ${label}.` : "Establishing shot of the current scene.") : label ? `The scene moves to ${label}.` : "A new scene begins.";
+
+export const sceneCueLabel = (reason: string, location: string | null | undefined): string | null =>
+  reason === "location" ? location?.trim() || null : null;
 
 export const beatIllustrated = (story: NormalizedStory | null, checkpointId: string | null): boolean =>
   !checkpointId || story?.checkpointById[checkpointId]?.illustrate !== false;

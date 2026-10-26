@@ -352,11 +352,11 @@ export const SETTING_COPY = {
   "image.backend": copy("Image backend", "Use SillyTavern’s configured Image Generation service, or advanced ComfyUI recipes through the optional media plugin."),
   "image.automation.mode": copy(
     "When pictures are drawn",
-    "Story: at the moments each story asks for. Every N: every few replies, plus those moments. Model requests: when the model asks. Manual: only when you ask.",
+    "Story: at the moments each story asks for. Every N: every few of your turns, plus those moments. Model requests: when the model asks. Manual: only when you ask.",
   ),
   "image.automation.everyN": copy(
-    "Every N replies",
-    "Draw a picture every this many replies. Lower draws more often and keeps the GPU busier.",
+    "Every N turns",
+    "Draw a picture on the first reply of every this many of your turns (the greeting never counts). Lower draws more often and keeps the GPU busier.",
   ),
   "image.directorProfileId": copy(
     "Image-prompt model",

@@ -67,7 +67,7 @@ export default function ImageGroup({ manager }: { manager: RuntimeManager }) {
             automation: { ...settings.automation, mode: event.target.value as ImageSettings["automation"]["mode"] },
           })}>
             <option value="manual">Manual only</option><option value="story">Story-authored moments</option>
-            <option value="everyN">Every N replies + story moments</option><option value="tool">Model requests</option>
+            <option value="everyN">Every N turns + story moments</option><option value="tool">Model requests</option>
           </select>
         </div>
         {settings.automation.mode === "everyN" && <div className="flex flex-col gap-1">

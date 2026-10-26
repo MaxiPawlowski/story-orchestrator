@@ -15,7 +15,7 @@ export interface ImageRoute {
 }
 export interface LoraUse { file: string; weight: number }
 export interface ImageOverride { checkpoint: string; quality: Quality | ""; extraPositive: string; loras: LoraUse[]; paused: boolean }
-export interface ImageChatState { override: ImageOverride; emitted: string[]; automationCount: number }
+export interface ImageChatState { override: ImageOverride; emitted: string[] }
 export interface ImageSettings {
   enabled: boolean;
   backend: "st" | "comfy";
@@ -102,7 +102,6 @@ export const sanitizeImageChatState = (value: unknown, chatId: string, storyId?:
     emitted: own && Array.isArray(raw.emitted) ? raw.emitted.filter(
       (key): key is string => typeof key === "string" && key.startsWith(prefix),
     ).slice(-100) : [],
-    automationCount: own ? Math.floor(num(raw.automationCount, 0, 0, Number.MAX_SAFE_INTEGER)) : 0,
   };
 };
 
