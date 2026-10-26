@@ -135,3 +135,7 @@ Scenario `C:\dev\so-lanes\bench-controller\08\live-member-cache.scenario.json`, 
   `02-27-46-750Z` under `C:\dev\so-lanes\bench-controller\`; logs, live config, scenario, live log, `image-live.json` in
   `bench-controller\08\`. State files deleted after the runs.
 - Owner's controller config untouched; owner's controller restarted on master with its config (`cli.mjs start`).
+- `npm run gates` from `C:\dev\so-memcache`: run 1 RED at `test` (jest transform cache `EPERM` in the shared temp folder,
+  environment; every other step green, `test:release` not run); run 2 on `91df3cc6`'s tree: **all green in 295.6 s** (11
+  steps, Storybook included, no `--resume`). `npm run test:plugin` 375 tests, 370 pass, 0 fail (5 skipped).
+  `npm run gates:quick` green. No GPU work ran during the gates.
