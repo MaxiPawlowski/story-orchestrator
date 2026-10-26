@@ -56,6 +56,12 @@ file or profile name:
    W7/S32-2 looks ×3, card overlay per member). Raw evidence goes to `test/sessions/evidence/measurements-v2.7/`
    (private so-sessions), never `test/measurements/`.
 
+`so-image-pilot.mts plan | run | pack` is plan 20's stage-2 route pilot: 12 frozen cases (`test/fixtures/image-pilot/cases.json`)
+x 2 seeds through the real automatic-picture path with the route forced per arm (directed SDXL, Qwen references; the composite arm
+is skipped and recorded), on a lane holding the kept p41 cast and chat (`run --group <g> --chat <id>`, lane cleared for ComfyUI),
+then `pack <runDir>` writes a blind folder (shuffled `img-NN.png`, `ref-X.png`, `items.txt`, `brief.md`, about 10% hidden
+duplicates) with `key.json` beside it, outside the blind folder.
+
 `so-sprite-builder.mts setup --story <file>` imports a story into the explicitly opened group, disables extraction on
 the isolated lane, selects Author view and opens Studio › Sprites. Never run setup against a user's playing chat.
 
