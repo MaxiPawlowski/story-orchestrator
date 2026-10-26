@@ -112,9 +112,10 @@ bridge iterates until no new asset is asked (fallbacks get hashed too). Hashes a
   named in the instruction ("the reference predates …"), unless an accepted source has the exact look. Generation config is
   separate from assets: builder entry, else `sprites.sceneRecipe`, else the one discovered Qwen 2.1 edit route; the picture
   records `recipe_source` and `visual`.
-- **Automatic pictures (built, SDXL unchanged):** identity tags from the pack are pinned in code (count tags lead), the
-  director sees `identity tags (copy verbatim)` plus the current look, and the place pack's name and description replace the
-  background-name guess. Reference rendering for automatic pictures is stage 2.
+- **Automatic pictures (built):** identity tags from the pack are pinned in code (count tags lead), the director sees
+  `identity tags (copy verbatim)` plus the current look, and the place pack's name and description replace the
+  background-name guess. Stage 2 (built): when every visible character (1–2) has a current look with a usable reference,
+  the scene renders through the prepared-cast Qwen graph instead (`image.automaticRoute`, section 7 stage 2).
 - **On-demand looks, posed bodies, reference views (built):** with no builder entry, the install-wide default Qwen route is
   used with the crop box and base set of the character's accepted visual source (section 9).
 - Later routes: liveHead loads the rig of the exact displayed bust hash; backgrounds display the plate; composites place
@@ -147,16 +148,60 @@ picture of that character, so a secret form must never be in them (author guide 
    bindings (schema, validate, storyDiff, Studio list, guide), one resolver, consumption by the stage, the manual cast scene
    and automatic pictures (tags + place), install-wide default Qwen recipe, review-18 prompt fixes (section 8), fixtures and
    tests. Live gate owed (section 11).
-2. **Automatic scenes through the Qwen reference route** (next; evidence: 18). When every visible character (1–2) has a
-   prepared, verified look: render through the prepared-cast graph with the director's caption as the direction, grounded in
-   the resolver's place (name, description, background words, or the plate once a third Qwen input is verified). Items:
-   - feed location and background into the Qwen instruction (today none reaches it);
-   - place each picture on the message it illustrates (today all stack on the last message);
-   - a "do not copy the reference pose" clause or pose hint (two-person scenes copy the side-by-side reference);
-   - deferral/coalescing instead of the 240 s look wait for automatic cues;
-   - blind comparison against SDXL on the Astra floors before adoption (section 10);
-   - cost: each automatic picture adds about 25–35 s to the next reply's first token (text wake); draw automatic pictures
-     only in idle windows (no send within about 20 s) and record image → next-reply TTFT as a standing metric.
+2. **Automatic scenes through the Qwen reference route** (built, branch `v3.0-visual-bridge-s2`, CPU/dev only; evidence: 18).
+   Adoption is owed: the 72-image route pilot plus 18's blind result, then the full gameplay comparison, before it is the
+   settled default (owner decision 4). Until then the setting defaults to `auto` (every built feature on) and the owner can
+   choose `sdxl` to keep the earlier pictures. Built:
+   - **Route choice** (`src/image/autoScene.ts` pure, `autoSceneHost.ts` host, wired in `runtime.ts` `plan`/`direct`):
+     `image.automaticRoute` `auto` | `sdxl` | `qwen` (settings copy, Connections → Images select, settings reference). Only
+     automatic scene requests are routed (story cues, every-N replies; `ImageRequest.automatic`); manual pictures, portraits
+     and backgrounds record `not-automatic` / `background`. `auto` renders through Qwen when the director's visible list (or
+     the scene's subjects without a director) names 1–2 present, non-narrator story members, each with a resolved current look
+     from a pack or an accepted visual source (`castSceneIdentities`, no look wait: a look still being prepared is
+     `look-pending` and the picture goes to SDXL instead of the cast scene's 240 s wait), and the builder / `sprites.sceneRecipe`
+     / discovered Qwen route resolves with its nodes and models (two characters also need `images.image_2`). Otherwise SDXL
+     with the reason. `qwen` (references only) refuses with the reason before the director call; a request can force an arm
+     (`ImageArgs.route`, used by the pilot). Every picture records `image_director.route {name, reason, setting}` beside
+     `visual` and `prompt_source`; Qwen pictures also record `qwen {checkpoint, recipe, recipe_source, identities, plate,
+     aspect}`, positive = the Qwen instruction, negative = the Qwen negative. Reasons: `references-ready`, `setting-sdxl`,
+     `not-automatic`, `background`, `no-story`, `no-one-visible`, `too-many-visible`, `visible-not-in-cast` (e.g. the player
+     persona; persona packs later), `no-reference`, `look-pending`, `media-unavailable`, `recipe-missing`, `models-missing`,
+     `second-input-missing`.
+   - **Scene grounding**: when the route can be Qwen, the director is asked for an extra `instruction` field (plain English:
+     action, pose, expression, props, place; never hair, eyes, body or clothing; the prompt is unchanged otherwise, so the
+     plan-32 invariance holds). The Qwen instruction is that text (else the caption, else the cue text plus the illustrated
+     reply), then `Character N is <name>, current look: …` per subject (a substituted pack look names what the reference
+     predates), "the current look wins", `Setting: <place name>, <description> (<tags>)` from the resolver's current place
+     (pack, scene fact, authored or displayed background; never another look, variant or unreached place), the plate clause,
+     and a pose clause against copying the reference's standing pose or side-by-side arrangement; the graph keeps "one
+     coherent scene, never panels or a collage". The place plate is a reference only when
+     `qwenImageInput(discovery, "image_<n+1>")` holds (the recorded ComfyUI v0.37.4 Autogrow node offers 16 inputs); it is
+     hashed against the pack before upload and is part of the render key.
+   - **Placement**: automatic pictures place on `plan.target` (the reply that cued them); a cued message that no longer exists
+     refuses ("The message this picture illustrates is gone.") instead of falling back to the last message. The manual cast
+     scene places on the last character reply (`illustratedReply`), not the last message, and takes an explicit `target`.
+   - **Aspect**: not applied. `TextEncodeQwenImage21` has only `resolution` (an area) and outputs an empty latent on the first
+     reference's size ("any other size shifts the edit", `comfy_extras/nodes_qwen.py`), and no 64-channel latent node exists to
+     replace it. Qwen pictures take the first reference's shape at the recipe's area (`qwenOutputSize`, recorded as the size);
+     the director's aspect is recorded as `aspect.requested`, with `drawn: "reference"`.
+   - **Idle window**: the shared Qwen render (`castSceneHost.renderQwenJob`, used by the cast scene and automatic pictures)
+     waits for text priority, then leases through `leaseOutsideTurns` (no reply or chained voice pending; a lease granted as
+     the player sends is handed back and retried). SDXL already leased that way. Both record `idle_wait_ms` (render start →
+     lease) on the picture. No 20 s quiet window and no image → next-reply TTFT metric yet (pilot and live measurement).
+   - **Stale discard**: the automatic Qwen render re-checks the run, the chat, the cued reply's text, accepted sources and the
+     current identities before upload, after the render and after save (a saved file is removed on refusal), and the pack
+     catalog with every file hash after the render; `direct` re-checks the packs before placement.
+   - **Pilot harness** (not run): `scripts/debug/so-image-pilot.mts plan | run | pack`, cases frozen in
+     `test/fixtures/image-pilot/cases.json` (12 cases on the p41 cast: 8 single, 4 pairs, Ash's prepared navy-coat look twice,
+     close/upper/full views, night, lightning, lantern and lens-glow lighting), seeds 101/202, arms `sdxl-directed` and
+     `qwen-refs` forced through `storyOrchestratorImage.direct`; the composite arm is skipped and recorded (no compositing route
+     exists; stage 5), so a full run is 48 renders, not 72. `pack` writes `blind/` (shuffled `img-NN.png`, `ref-X.png`,
+     `items.txt`, `brief.md` with a pose/composition question, about 10% hidden duplicates) and `key.json` outside it.
+   - **Pilot run needs**: a lane ≥ 30 after `so-p41-journey run <k> --keep` (the p41 cast with accepted visual sources and
+     Ash's navy-coat look, the kept chat with the story running), the lane cleared for ComfyUI (`allowComfy` or
+     `SO_ALLOW_COMFY=1`), the installed Qwen 2.1 edit files and the SDXL scene checkpoint, an image-prompt profile, and an
+     agreed GPU window (about 48 renders: SDXL ~8–15 s, Qwen ~25–35 s each plus model swaps and director calls); then two blind
+     raters on the pack and a comparison against 18's floors.
 3. **Campaign export and install (private repo, campaign side).** `build_cards.py`/a new exporter writes identity, place
    and style packs with digests from hydrated bytes (LFS pulled, pointers refused); `install_st.py` materialises images by
    content hash, verifies every byte, writes the pack files, and writes story bindings; it also provisions `visualSources`
@@ -247,15 +292,23 @@ p41 journey twice on one frozen build, plus an install with fixture packs: stage
 cast scene from a pack, an automatic picture carrying `image_director.visual`, a file swapped mid-render discarded, and the
 owner-install check that the discovered Qwen route resolves (`sprite-qwen-route-missing` absent).
 
+## Owner decisions (2026-10-26, "as recommended")
+
+1. Place bindings stay keyed by checkpoint.
+2. Player persona identity packs: later (a visible persona keeps the picture on SDXL, `visible-not-in-cast`).
+3. `install_st.py` writes the catalog folder directly (no media-plugin write route).
+4. Stage-2 adoption is gated by the 72-image pilot plus 18's blind result, then the full gameplay comparison before it becomes
+   the settled default. Built with `image.automaticRoute: "auto"` per "every built feature on"; the owner can choose `sdxl`.
+5. `sprites.sceneRecipe` stays discovery-only (no picker).
+6. Pack assets in QA `review` stay usable and flagged (`qa` on the picture).
+
 ## Unresolved questions
 
-1. Should place bindings key by checkpoint (built) or by background file name, so one binding covers every checkpoint
-   showing that background?
-2. Player persona identity packs: bind by persona name, or by `player` in the story?
-3. Install the catalog through the media plugin (a write route) or let `install_st.py` write the folder directly?
-4. Stage-2 adoption floor: Astra's full gameplay confirmation, or the 72-image pilot plus 18's blind result?
-5. A settings picker for `sprites.sceneRecipe`, or discovery only?
-6. Should pack QA `review` assets be refused by default once the campaign's 449 unreviewed expressions are triaged?
+1. The pilot as built has two arms (48 renders): build a composite arm (stage 5 work) before the pilot, or run two arms now?
+2. Should the director reply be frozen per case for the pilot (both arms share one director answer), or is a live director per
+   render the fairer product comparison (current harness)?
+3. Aspect: pad the first reference to the requested shape (keeps latent and reference equal) once a blind check shows it does
+   not cost identity, or keep the reference's shape?
 
 ## Gate record
 
