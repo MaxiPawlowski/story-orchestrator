@@ -12,13 +12,15 @@ export function validateBox(image: Pick<PixelImage, "width" | "height">, box: He
     || box.x + box.width > image.width || box.y + box.height > image.height) throw new Error("The head box must fit inside the reference image.");
 }
 
+export const EYE_BAND = { top: 0.12, bottom: 0.55 } as const;
+
 export function editWeights(box: Pick<HeadBox, "width" | "height">, kind: EditKind, frameRegion?: FrameRegion): Float64Array {
   const mouth = isMouthFrameKey(kind) || kind === "rest";
   const region = mouth ? frameRegion ?? mouthRegion(box) : undefined;
   const eyeExclusion = kind === "blink" ? mouthRegion(box) : undefined;
   if (region) validateRegion(box, region);
-  const low = kind === "blink" ? 0.12 : isMouthFrameKey(kind) ? 0.55 : 0;
-  const high = kind === "blink" ? 0.55 : 1;
+  const low = kind === "blink" ? EYE_BAND.top : isMouthFrameKey(kind) ? 0.55 : 0;
+  const high = kind === "blink" ? EYE_BAND.bottom : 1;
   const weights = new Float64Array(box.width * box.height);
   for (let y = 0; y < box.height; y += 1) for (let x = 0; x < box.width; x += 1) {
     const distance = Math.sqrt(((x + 0.5 - box.width / 2) / (box.width / 2)) ** 2 + ((y + 0.5 - box.height / 2) / (box.height / 2)) ** 2);

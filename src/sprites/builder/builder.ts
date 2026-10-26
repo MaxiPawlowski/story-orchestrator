@@ -1,5 +1,6 @@
 import { beginRun, type RunGuard, type RunOwnership } from "@runtime/runToken";
 import { blinkProblems, isCutout, overBase, stillOpen, type EyeRead } from "./eyeOpen";
+import { faceBoxProblem } from "./headBox";
 import { seamProblem } from "./seam";
 import { cleanEdges } from "./edges";
 import { checkPixels, checkMouthCoverage, pasteEdit, validateBox, type HeadBox, type PixelImage, type PixelQA } from "./pixels";
@@ -111,11 +112,21 @@ export class SpriteBuilder {
     }
   }
 
-  private async frameReasons(kind: SpriteBuildRequest["kind"], base: PixelImage, output: PixelImage, signal: AbortSignal, guard: () => void): Promise<string[]> {
+  private async frameReasons(kind: SpriteBuildRequest["kind"], base: PixelImage, output: PixelImage, signal: AbortSignal, guard: () => void,
+    before: EyeRead | null): Promise<string[]> {
     if (kind === "base") return this.faceReasons(base, output, signal, guard);
     if (!isFrameKey(kind)) return [];
     const seam = seamProblem(base, output);
-    return kind === "blink" ? [...seam, ...await this.blinkReasons(base, output, signal, guard)] : seam;
+    return kind === "blink" ? [...seam, ...await this.blinkReasons(base, output, signal, guard, before)] : seam;
+  }
+
+  private async faceInBox(kind: SpriteBuildRequest["kind"], base: PixelImage, box: HeadBox, signal: AbortSignal, guard: () => void): Promise<EyeRead | null> {
+    if (!this.deps.eyes || !MASK_IMPORT_KINDS.includes(kind)) return null;
+    const read = await this.deps.eyes(base, signal).catch(() => null);
+    guard();
+    const problem = faceBoxProblem(read?.boxes, box);
+    if (problem) throw new Error(problem);
+    return read;
   }
 
   private async faceReasons(reference: PixelImage, output: PixelImage, signal: AbortSignal, guard: () => void): Promise<string[]> {
@@ -125,10 +136,8 @@ export class SpriteBuilder {
     return read && read.faces === 0 ? ["The new look lost the head: no face is found in the render. Render it again."] : [];
   }
 
-  private async blinkReasons(base: PixelImage, output: PixelImage, signal: AbortSignal, guard: () => void): Promise<string[]> {
+  private async blinkReasons(base: PixelImage, output: PixelImage, signal: AbortSignal, guard: () => void, before: EyeRead | null): Promise<string[]> {
     const read = (image: PixelImage) => this.deps.eyes ? this.deps.eyes(image, signal).catch(() => null) : Promise.resolve(null);
-    const before = await read(base);
-    guard();
     if (!before?.boxes) return [];
     const shown = overBase(base, output), after = await read(shown);
     guard();
@@ -173,6 +182,7 @@ export class SpriteBuilder {
       if (request.kind !== "base" && (!base.data.some((value, at) => at % 4 === 3 && value < 255) || !base.data.some((value, at) => at % 4 === 3 && value > 0))) {
         throw new Error("Choose a transparent reference sprite with a visible subject before generating expressions.");
       }
+      const before = await this.faceInBox(request.kind, base, box, controller.signal, guard);
       const baseHash = base.sha256 ?? await contentHash(new Uint8Array(base.data));
       if (request.referenceHash && request.referenceHash !== baseHash) throw new Error("The reference sprite changed before the render. Read the pack again.");
       const inputs = { base: baseHash, models: request.models, kind: request.kind, value: request.value, seed: request.seed,
@@ -214,7 +224,7 @@ reference: reference as string, instruction: editInstruction(request.kind, reque
         alphaPixels: output.data.filter((value, at) => at % 4 === 3 && value <= 8).length, ringDrift: 0 }
         : checkPixels(base, output, box, isFrameKey(request.kind));
       if (region) qa.reasons.push(...checkMouthCoverage(base, output, box, region, request.kind !== "rest"));
-      qa.reasons.push(...await this.frameReasons(request.kind, base, output, controller.signal, guard));
+      qa.reasons.push(...await this.frameReasons(request.kind, base, output, controller.signal, guard, before));
       qa.maskImport = maskImport;
       qa.ok = qa.ok && !qa.reasons.length;
       if (!qa.ok) throw new Error(qa.reasons.join(" "));

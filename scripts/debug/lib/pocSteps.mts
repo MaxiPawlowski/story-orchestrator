@@ -1,5 +1,5 @@
 import type { Page } from 'playwright';
-import { buildSpriteFromUI } from '../so-sprite-builder.mts';
+import { buildSpriteFromUI, waitBoxReady } from '../so-sprite-builder.mts';
 import { openCheckpointStudio, switchStudioTab } from '../so-ui.mts';
 import { executeSlashCommand } from '../st-actions.mts';
 import { dismissBriefing } from './briefingHarness.mts';
@@ -59,6 +59,7 @@ export async function chooseCharacter(ctx: StepEnv, member: Member) {
 
 export async function readBox(ctx: StepEnv): Promise<number[]> {
   const root = ctx.page.locator('#so-sprite-builder');
+  await waitBoxReady(ctx.page);
   return Promise.all(['x', 'y', 'width', 'height'].map(async (field) => Number(await root.getByLabel(field, { exact: true }).inputValue())));
 }
 

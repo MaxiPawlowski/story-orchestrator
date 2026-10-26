@@ -1,5 +1,5 @@
 import { CROSS_CHECK_LIMITS, readDetectorResult } from "../liveHead/synthesis/landmarkCheck";
-import type { HeadBox, PixelImage } from "./pixels";
+import { EYE_BAND, type HeadBox, type PixelImage } from "./pixels";
 
 export interface FaceAnchor { cx: number; top: number; chin: number }
 
@@ -33,6 +33,17 @@ export function headBox(image: Pick<PixelImage, "width" | "height">, face?: Face
   const height = Math.min(image.height, Math.round(faceHeight * BOX_FACES)), width = Math.min(image.width, Math.round(height * BOX_ASPECT));
   const clamp = (value: number, most: number) => Math.min(Math.max(0, Math.round(value)), most);
   return { x: clamp(face.cx - width / 2, image.width - width), y: clamp(face.top - faceHeight * ABOVE_FACE, image.height - height), width, height };
+}
+
+export function faceBoxProblem(eyes: readonly HeadBox[] | null | undefined, box: HeadBox): string | null {
+  if (!eyes?.length) return null;
+  const centres = eyes.map((eye) => ({ x: eye.x + eye.width / 2 - box.x, y: (eye.y + eye.height / 2 - box.y) / box.height }));
+  const band = `${Math.round(EYE_BAND.top * 100)}–${Math.round(EYE_BAND.bottom * 100)}%`;
+  if (centres.some((eye) => eye.x < 0 || eye.x > box.width || eye.y < 0 || eye.y > 1)) {
+    return `The head box misses the face: an eye is outside it. Check the head box for this reference (eyes at ${band} of its height), then generate again.`;
+  }
+  const off = centres.find((eye) => eye.y < EYE_BAND.top || eye.y > EYE_BAND.bottom);
+  return off ? `The head box misses the face: an eye sits at ${Math.round(off.y * 100)}% of its height, outside ${band}. Check the head box for this reference, then generate again.` : null;
 }
 
 export function bustBox(image: Pick<PixelImage, "width" | "height">, head: HeadBox): HeadBox {

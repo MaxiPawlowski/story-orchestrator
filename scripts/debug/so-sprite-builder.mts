@@ -12,6 +12,10 @@ import { parseBox, setSlug } from './lib/imageHarnessConfig.mts';
 const args = process.argv.slice(2);
 const value = (flag: string, fallback: string): string => { const at = args.indexOf(flag); return at < 0 ? fallback : args[at + 1] ?? fallback; };
 
+export async function waitBoxReady(page) {
+  await page.waitForFunction(() => document.getElementById('so-sprite-builder')?.dataset.boxReady === 'true', undefined, { polling: 100, timeout: 60000 });
+}
+
 export async function buildSpriteFromUI(page, options: { character: string; set: string; label: string; kind: string; box: number[]; reference: string; seed: number; steps: number; value?: string; resolution?: number; region?: Record<string, number>; models?: { diffusion: string; encoder: string; vae: string } }) {
   const models = options.models ?? requireHarness(['editModels']).editModels;
   const root = page.locator('#so-sprite-builder');
@@ -29,6 +33,7 @@ export async function buildSpriteFromUI(page, options: { character: string; set:
     if (error) throw new Error(error);
   }
   for (const key of ['diffusion', 'encoder', 'vae'] as const) await root.getByLabel(key, { exact: true }).selectOption(models[key]);
+  await waitBoxReady(page);
   for (const [at, field] of ['x', 'y', 'width', 'height'].entries()) await root.getByLabel(field, { exact: true }).fill(String(options.box[at]));
   await root.getByLabel('Edit', { exact: true }).selectOption(options.kind);
   if (options.kind === 'look') await root.getByLabel('Visible change', { exact: true }).fill(options.value ?? '');

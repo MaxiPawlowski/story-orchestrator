@@ -1,4 +1,4 @@
-import { headBox, faceAnchor, fractionHeadBox, bustBox, referenceHeadBox } from "./headBox";
+import { headBox, faceAnchor, faceBoxProblem, fractionHeadBox, bustBox, referenceHeadBox } from "./headBox";
 import { mouthRegion } from "./frameRegion";
 import { validateBox, type PixelImage } from "./pixels";
 
@@ -55,6 +55,19 @@ test("presentation retains the hatted chin, neck and shoulders when the face det
   expect(box.x + box.width).toBeGreaterThanOrEqual(300);
   expect(bustBox(image(), { x: 200, y: 500, width: 200, height: 100 })).toEqual({ x: 0, y: 450, width: 400, height: 150 });
   expect(bustBox(image(), { x: 120, y: 65, width: 160, height: 130 }).y).toBe(0);
+});
+
+test("a head box holds the eyes inside the blink band; another member's box over a hatted sprite does not", () => {
+  const eyes = [{ x: 370, y: 234, width: 20, height: 12 }, { x: 440, y: 234, width: 20, height: 12 }];
+  expect(faceBoxProblem(eyes, { x: 275, y: 141, width: 288, height: 240 })).toBeNull();
+  expect(faceBoxProblem(eyes, { x: 283, y: 41, width: 264, height: 220 })).toMatch(/an eye sits at 90% of its height, outside 12–55%/);
+  expect(faceBoxProblem(eyes, { x: 0, y: 141, width: 300, height: 240 })).toMatch(/an eye is outside it/);
+  expect(faceBoxProblem(null, { x: 0, y: 0, width: 8, height: 8 })).toBeNull();
+  for (const top of [60, 140, 300]) for (const height of [80, 110, 160]) {
+    const box = headBox({ width: 832, height: 1248 }, { cx: 416, top, chin: top + height });
+    const line = top + height * 0.4;
+    expect(faceBoxProblem([{ x: 380, y: line - 5, width: 20, height: 10 }, { x: 430, y: line - 5, width: 20, height: 10 }], box)).toBeNull();
+  }
 });
 
 test("selecting an existing reference preserves its valid measured edit box instead of resetting to fractions", async () => {

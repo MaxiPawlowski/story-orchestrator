@@ -1,4 +1,4 @@
-import React, { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
+import React, { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { comfyDiscover, comfyFingerprint, spriteManifest, generatedSpriteSets, deleteGeneratedSprite, spriteReferencePack, spriteReferenceSets, type ComfyDiscovery } from "@services/stHost/media";
 import { spriteBuilderMembers, spriteList, spriteReferences } from "@services/stHost/sprites";
 import { createSpriteBuilder } from "../../sprites/builder/host";
@@ -33,7 +33,7 @@ async function selectedHeadBox(image: Awaited<ReturnType<typeof decodeImage>>, r
 }
 
 function useReferenceBox(reference: string, character: string, services: SpriteBuilderHost, setSize: (size: { width: number; height: number }) => void,
-  setBox: (box: HeadBox) => void, setError: (error: string) => void): void {
+  setBox: (box: HeadBox, source: string) => void, setError: (error: string) => void): void {
   useEffect(() => {
     let current = true;
     if (reference) void services.decode(reference).then(async (image) => {
@@ -41,11 +41,14 @@ function useReferenceBox(reference: string, character: string, services: SpriteB
       const box = await selectedHeadBox(image, reference, character, services);
       if (!current) return;
       setSize({ width: image.width, height: image.height });
-      setBox(box);
+      setBox(box, boxSource(character, reference));
     }).catch((reason) => { if (current) setError(String(reason)); });
     return () => { current = false; };
   }, [character, reference, services, setBox, setError, setSize]);
 }
+
+const boxSource = (character: string, reference: string): string => `${character}
+${reference}`;
 
 export interface SpriteBuilderHost {
   discover: typeof comfyDiscover;
@@ -112,7 +115,10 @@ export default function SpriteBuilder({ services = host }: { services?: SpriteBu
     return () => { current = false; };
   }, [character, services]);
 
-  useReferenceBox(reference, character, services, setSize, setBox, setError);
+  const [boxFor, setBoxFor] = useState("");
+  const resolveBox = useCallback((next: HeadBox, source: string) => { setBox(next); setBoxFor(source); }, []);
+  useReferenceBox(reference, character, services, setSize, resolveBox, setError);
+  const boxPending = Boolean(reference) && boxFor !== boxSource(character, reference);
 
   const discover = async () => {
     setBusy(true); setError(null);
@@ -162,7 +168,7 @@ export default function SpriteBuilder({ services = host }: { services?: SpriteBu
     finally { if (live.current) setBusy(false); }
   };
 
-  return <section id="so-sprite-builder" className="flex flex-col gap-3">
+  return <section id="so-sprite-builder" className="flex flex-col gap-3" data-box-ready={reference && !boxPending ? "true" : "false"}>
     <h3 className="text-base font-semibold">Build character sprites</h3>
     <p className="text-sm">Edit an existing transparent sprite. Choose the reference and check the head box before generating. Saving uses a separate set; the character card stays unchanged.</p>
     {!members.length && <p role="status">Add this story’s cast in the Roster tab, and install their character cards first.</p>}
@@ -176,10 +182,11 @@ export default function SpriteBuilder({ services = host }: { services?: SpriteBu
       if (!file || file.size > 32 * 1024 * 1024) return;
       const reader = new FileReader(); reader.onload = () => { if (live.current && typeof reader.result === "string") setReference(reader.result); }; reader.readAsDataURL(file);
     }} /></label>
-    <SpriteEditRegion reference={reference} size={size} box={box} changeBox={setBox} region={regions[reference]} busy={busy}
+    {boxPending && <p role="status">Finding the head box for this reference…</p>}
+    <SpriteEditRegion reference={reference} size={size} box={box} changeBox={setBox} region={regions[reference]} busy={busy || boxPending}
       mouth={isMouthFrameKey(kind) || kind === "rest"} changeRegion={(region) => setRegions((all) => ({ ...all, [reference]: region }))} />
     <Suspense fallback={<p role="status">Loading presentation review…</p>}><PreparePresentation key={character} character={character}
-      card={members.find((member) => member.folder === character)?.image} reference={reference} box={box} busy={busy} setBusy={setBusy} /></Suspense>
+      card={members.find((member) => member.folder === character)?.image} reference={reference} box={box} busy={busy || boxPending} setBusy={setBusy} /></Suspense>
     {character && <Suspense fallback={<p role="status">Loading changed looks…</p>}><ChangedLookRebuild key={`looks:${character}`} character={character}
       member={rosterIdOf(draft.roster ?? [], members, character)} name={members.find((member) => member.folder === character)?.name ?? character} busy={busy} setBusy={setBusy} /></Suspense>}
     <PresentationRoutes />
@@ -191,7 +198,7 @@ export default function SpriteBuilder({ services = host }: { services?: SpriteBu
           <option key={name}>{name}</option>)}</select></label>)}
     </fieldset>}
     {discovery && <ReferencePackPicker key={`reference:${character}`} character={character} discovery={discovery} models={models}
-      box={box} steps={steps} resolution={resolution} busy={busy} setBusy={setBusy} services={services} />}
+      box={box} steps={steps} resolution={resolution} busy={busy || boxPending} setBusy={setBusy} services={services} />}
     {discovery && <BaseSpriteBuilder key={`base:${character}`} character={character} image={members.find((member) => member.folder === character)?.image}
       set={set} models={models} discovery={discovery} steps={steps} resolution={resolution} seed={seed} busy={busy} setBusy={setBusy} builder={builder} services={services}
       onSaved={(path) => { setReference(path); void services.list(character).then((rows) => { if (live.current) setSources(rows); }); }} />}
@@ -206,7 +213,7 @@ export default function SpriteBuilder({ services = host }: { services?: SpriteBu
     <label>Seed<input type="number" min={0} max={4294967295} className="text_pole" disabled={busy} value={seed} onChange={(event) => setSeed(Number(event.target.value))} /></label>
     <SpriteRenderControls controls={render} busy={busy} />
     <div className="flex flex-wrap gap-2"><button type="button" className="st-button primary"
-      disabled={busy || !discovery || !reference || !character || !/^[a-z0-9_]+$/.test(set) || !/^[a-z0-9_]+$/.test(label)}
+      disabled={busy || boxPending || !discovery || !reference || !character || !/^[a-z0-9_]+$/.test(set) || !/^[a-z0-9_]+$/.test(label)}
       onClick={() => void generate()}>Generate preview</button>
       <button type="button" className="st-button" disabled={!busy} onClick={() => builder.cancel()}>Cancel render</button></div>
     {busy && <p role="status">Working on the sprite…</p>}

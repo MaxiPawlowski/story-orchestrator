@@ -80,3 +80,22 @@ export const DetectedReferenceBox: Story = {
     await expect(canvas.getByRole("spinbutton", { name: /^y$/ })).toHaveValue(21);
   },
 };
+
+let releaseDetect: (() => void) | null = null;
+export const HeadBoxWaitsForItsReference: Story = {
+  args: { services: { ...services,
+    list: async () => [{ label: "neutral", path: "/characters/Test/measured/neutral.png" }],
+    decode: async () => ({ width: 400, height: 600, data: new Uint8ClampedArray(400 * 600 * 4) }),
+    detect: () => new Promise((resolve) => { releaseDetect = () => resolve(null); }),
+  } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(await canvas.findByText("Finding the head box for this reference…")).toBeInTheDocument();
+    await expect(canvas.getByRole("spinbutton", { name: /^height$/ })).toBeDisabled();
+    await expect(canvasElement.querySelector("#so-sprite-builder")).toHaveAttribute("data-box-ready", "false");
+    await waitFor(() => expect(releaseDetect).not.toBeNull());
+    releaseDetect?.();
+    await waitFor(() => expect(canvasElement.querySelector("#so-sprite-builder")).toHaveAttribute("data-box-ready", "true"));
+    await expect(canvas.getByRole("spinbutton", { name: /^height$/ })).toBeEnabled();
+  },
+};

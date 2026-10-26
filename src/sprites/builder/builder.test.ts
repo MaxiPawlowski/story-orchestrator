@@ -1,6 +1,6 @@
 import { webcrypto } from "node:crypto";
 import type { EyeRead } from "./eyeOpen";
-import { renderedBox, RETRY_SEED_STEP, SpriteBuilder, type BuilderDeps, type SpriteBuildRequest } from "./builder";
+import { renderedBox, RETRY_REFUSAL, RETRY_SEED_STEP, SpriteBuilder, type BuilderDeps, type SpriteBuildRequest } from "./builder";
 import { checkPixels, pasteEdit, type PixelImage } from "./pixels";
 import { cropPixels } from "./maskImport";
 import { editKey } from "./recipes";
@@ -195,7 +195,7 @@ test("a base render's fringe is cleaned before QA and save: background-coloured 
   expect(fringe[2]).toBe(30);
 });
 
-test("a blink frame is checked eye by eye when the face detector answers; expressions are not", async () => {
+test("a blink frame is checked eye by eye when the face detector answers; expressions read the face once, before rendering", async () => {
   const { builder, deps } = fixture();
   const white = image(32, 32);
   for (let y = 11; y < 14; y++) for (let x = 10; x < 22; x++) white.data.set([246, 246, 248, 255], (y * 32 + x) * 4);
@@ -212,7 +212,23 @@ test("a blink frame is checked eye by eye when the face detector answers; expres
   eyes.mockClear();
   deps.decode = async (src) => src === "base" ? base : edit;
   await builder.build(request).catch(() => undefined);
-  expect(eyes).not.toHaveBeenCalled();
+  expect(eyes).toHaveBeenCalledTimes(1);
+});
+
+test("a head box that misses the eyes is refused before any lease or render, and is not retried", async () => {
+  const { builder, deps } = fixture();
+  const lease = jest.fn(deps.lease);
+  deps.lease = lease;
+  deps.eyes = async () => ({ boxes: [{ x: 10, y: 21, width: 4, height: 2 }, { x: 17, y: 21, width: 4, height: 2 }], openness: [0.8, 0.8] });
+  for (const kind of ["blink", "talk", "expression"] as const) {
+    const refusal = builder.build({ ...request, kind, label: "neutral", value: "neutral" });
+    await expect(refusal).rejects.toThrow(/head box misses the face: an eye sits at 88% of its height/);
+    await expect(refusal).rejects.not.toThrow(RETRY_REFUSAL);
+  }
+  expect(lease).not.toHaveBeenCalled();
+  expect(deps.render).not.toHaveBeenCalled();
+  deps.eyes = async () => ({ boxes: null, openness: null, faces: 0 });
+  await expect(builder.build(request)).resolves.toBeDefined();
 });
 
 test("a retryable refusal re-renders once with a new seed; any other refusal is not retried", async () => {
