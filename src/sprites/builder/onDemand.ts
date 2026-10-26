@@ -1,6 +1,6 @@
 import { comfyDiscover, comfyFingerprint, spriteFileFingerprint, spriteManifest, spriteReferencePack } from "@services/stHost/media";
 import { spriteList } from "@services/stHost/sprites";
-import { gpuBrokerStatus } from "@services/stHost/gpuBroker";
+import { closeImageBurst, gpuBrokerStatus, openImageBurst } from "@services/stHost/gpuBroker";
 import { beginRun } from "@runtime/runToken";
 import type { RuntimeManager } from "@runtime/runtimeManager";
 import { createSpriteBuilder } from "./host";
@@ -8,7 +8,7 @@ import { contentHash, EDIT_RECIPE, recipeProblems } from "./recipes";
 import { publicLook } from "@engine/cardFields";
 import { log } from "@utils/log";
 import { hostGenerating, waitForTextPriority } from "./textPriority";
-import { completeLookFrames, lookFrameRequest, lookKeyInput, lookStillRequest } from "./lookFrames";
+import { completeLookFrames, LOOK_FRAME_KINDS, lookFrameRequest, lookKeyInput, lookStillRequest } from "./lookFrames";
 import { frameIndex, type AnimationFrames } from "../animation";
 import { visualRoot } from "../visualManifest";
 import { verifyVisualSource, sourceStillCurrent, publishDerivedVisual } from "../visualHost";
@@ -19,6 +19,8 @@ export interface LookRequest {
   accepts(): boolean; apply(set: string, files: Array<{ label: string; path: string }>, frames?: AnimationFrames): void;
   failed?(reason: string): void;
 }
+
+const LOOK_BURST_MS = 180_000;
 
 export class OnDemandLooks {
   private stopped = false;
@@ -51,6 +53,8 @@ export class OnDemandLooks {
   private async drain(): Promise<void> {
     if (this.running || this.stopped) return;
     this.running = true;
+    const opened = await openImageBurst({ count: this.queue.size * (1 + LOOK_FRAME_KINDS.length), ttlMs: LOOK_BURST_MS, kind: "looks" });
+    if (!opened.ok) log.info("The GPU broker was not told about the look burst", opened.reason);
     try {
       while (this.queue.size && !this.stopped) {
         const [key, request] = this.queue.entries().next().value as [string, LookRequest];
@@ -60,7 +64,13 @@ export class OnDemandLooks {
         if (this.attempted.size > 200) this.attempted.delete(this.attempted.values().next().value as string);
         await this.edit(request).then(() => this.attempted.delete(key)).catch((error) => log.warn("A changed-look sprite was not generated", error));
       }
-    } finally { this.running = false; }
+    } finally {
+      this.running = false;
+      if (opened.ok && opened.burst) {
+        const closed = await closeImageBurst(opened.burst);
+        if (!closed.ok) log.info(closed.reason);
+      }
+    }
   }
 
   private async edit(request: LookRequest): Promise<void> {
