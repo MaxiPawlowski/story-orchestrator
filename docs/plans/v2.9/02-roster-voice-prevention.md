@@ -1,6 +1,8 @@
 # Plan 02 — Roster voice prevention
 
-**Status: written 2026-10-21 from the v2.9 triage (`01-triage-sol.md`); not built; owner decisions pending.** Implementation
+**Status 2026-10-26: BUILT, on master since 2026-10-21 (wave 1); S6 first set gain 0 points at the 60/60 ceiling (miss), harder set 2026-10-25 baseline 0/60 vs prevention 60/60, gain 100 points (floor >= 10: met); guidance max 113 tokens (<= 120: met); repetition -50 % on 2 -> 1 hits (first set; harder set not computed, owed); S5 wizard recheck arin 2/2 (luke void by design); leak floor green in jest. Left: harder-set repetition score, campaign adoption (not decided). Records: §GPU run 2026-10-23, §S6 harder run 2026-10-25.**
+
+**Was 2026-10-21: written 2026-10-21 from the v2.9 triage (`01-triage-sol.md`); not built; owner decisions pending.** Implementation
 tier **D** (schema, validation, renderer, per-speaker miner, Studio, tools, guide, payload goldens); wizard slice **CL**
 (authoring route); acceptance **LT/RP** (real Artemis replies, thinking and inner voice on) + CL/independent rater. Overview
 rules: `docs/plans/v2.8/00-overview.md` §Rules.

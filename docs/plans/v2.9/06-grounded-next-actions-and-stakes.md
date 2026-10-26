@@ -1,6 +1,8 @@
 # Plan 06 — Grounded next actions and stakes
 
-**Status: written 2026-10-21 from the v2.9 triage (`01-triage-sol.md` §06); slices 1–4 built 2026-10-21 on branch `v2.9-06-next-actions` (Gate record below); LT acceptance not run (no GPU).** Implementation
+**Status 2026-10-26: BUILT, on master since 2026-10-22 (wave 2); LT 2026-10-25 (40 situations x 2 arms, 3090): F1 40/40, F2 36/40, F3 0 leaks, F5 80/80 pass; F4 blind usefulness +0.0 (floor +0.5): MISS; help line on the player surface, greyed offers Author view only (owner 2026-10-25, built). Feature stays on. Left: F4 follow-up (v3.0). Records: §LT run 2026-10-25.**
+
+**Was 2026-10-21: written 2026-10-21 from the v2.9 triage (`01-triage-sol.md` §06); slices 1–4 built 2026-10-21 on branch `v2.9-06-next-actions` (Gate record below); LT acceptance not run (no GPU).** Implementation
 tier **D** (pure anchor ranking, schema, validation, Storybook, no-LLM scenarios). Acceptance **LT** (suggestions run on the
 memory model, 3090, authorized window only) + independent rater on the authoring route (opencode `openai/gpt-6.1-sol`) +
 owner decision for the two new panel elements (00-overview rule 4).

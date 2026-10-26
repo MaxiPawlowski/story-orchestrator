@@ -1,6 +1,8 @@
 # Plan 09 — Effective feature state in Help
 
-**Status: written 2026-10-21 from the v2.9 triage (`01-triage-sol.md`); not built; owner decisions pending.** Implementation
+**Status 2026-10-26: BUILT, on master since 2026-10-21 (wave 1); 24/24 state agreement, 0 author-only disclosures (jest); Show me conditional targets merged, every offered Show me reached in 8 of 8 lane cases (desktop and 390 px). No model rows. Left: nothing. Records: §Gate record, §Show me conditional targets 2026-10-23.**
+
+**Was 2026-10-21: written 2026-10-21 from the v2.9 triage (`01-triage-sol.md`); not built; owner decisions pending.** Implementation
 tier **D**; acceptance **D** (jest state matrix, Storybook, browser check on a lane at desktop and phone sizes). No model
 call, so no real-LLM row. Overview rules: `docs/plans/v2.8/00-overview.md` §Rules.
 

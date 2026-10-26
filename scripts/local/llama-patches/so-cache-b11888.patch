@@ -1,0 +1,374 @@
+From 252ca4db6572943b8d0d0a7d808ec837c5e933c3 Mon Sep 17 00:00:00 2001
+From: MaxiPawlowski <maxipawlowski@gmail.com>
+Date: Mon, 26 Oct 2026 03:36:29 -0300
+Subject: [PATCH 1/2] server: prompt cache key, cache_ckpt_max, no zero-fill of
+ cached state buffers
+
+---
+ tools/server/server-context.cpp | 15 ++++++++---
+ tools/server/server-schema.cpp  | 10 +++++++
+ tools/server/server-task.cpp    | 48 ++++++++++++++++++++++++++-------
+ tools/server/server-task.h      | 27 ++++++++++++++++---
+ 4 files changed, 83 insertions(+), 17 deletions(-)
+
+diff --git a/tools/server/server-context.cpp b/tools/server/server-context.cpp
+index a5cba1d..7393ff2 100644
+--- a/tools/server/server-context.cpp
++++ b/tools/server/server-context.cpp
+@@ -339,6 +339,10 @@ struct server_slot {
+ 
+     server_prompt prompt;
+ 
++    // prompt cache options of the task that produced the current prompt state
++    std::string cache_key;
++    int32_t     cache_ckpt_max = -1;
++
+     bool prompt_save(server_prompt_cache & prompt_cache) const {
+         if (prompt.tokens.size() == 0) {
+             return false;
+@@ -352,7 +356,7 @@ struct server_slot {
+         SRV_TRC(" - saving prompt with length %d, total state size = %.3f MiB (draft: %.3f MiB)\n",
+                 (int) prompt.tokens.size(), cur_size / (1024.0 * 1024.0), cur_size_dft / (1024.0 * 1024.0));
+ 
+-        auto * cur = prompt_cache.alloc(prompt, cur_size_tgt, cur_size_dft);
++        auto * cur = prompt_cache.alloc(prompt, cur_size_tgt, cur_size_dft, cache_key, cache_ckpt_max);
+         if (cur == nullptr) {
+             return false;
+         }
+@@ -365,8 +369,8 @@ struct server_slot {
+         return true;
+     }
+ 
+-    bool prompt_load(server_prompt_cache & prompt_cache, const server_tokens & tokens) {
+-        bool res = prompt_cache.load(prompt, tokens, ctx_tgt, ctx_dft, id);
++    bool prompt_load(server_prompt_cache & prompt_cache, const server_tokens & tokens, const std::string & key = "") {
++        bool res = prompt_cache.load(prompt, tokens, ctx_tgt, ctx_dft, id, key);
+         if (!res) {
+             SLT_WRN(*this, "%s", "failed to load prompt from cache\n");
+         }
+@@ -1866,7 +1870,7 @@ private:
+ 
+                 ret->prompt_save(*prompt_cache);
+ 
+-                if (!ret->prompt_load(*prompt_cache, task.tokens)) {
++                if (!ret->prompt_load(*prompt_cache, task.tokens, task.params.cache_key)) {
+                     ret->prompt_clear();
+                 }
+ 
+@@ -2054,6 +2058,9 @@ private:
+         // the per-request limit takes priority over the global one
+         slot.n_predict_max = task.params.n_predict != -1 ? task.params.n_predict : params_base.n_predict;
+ 
++        slot.cache_key      = task.params.cache_key;
++        slot.cache_ckpt_max = task.params.cache_ckpt_max;
++
+         slot.task = std::make_unique<const server_task>(std::move(task));
+ 
+         if (slot.task->type == SERVER_TASK_TYPE_TTS) {
+diff --git a/tools/server/server-schema.cpp b/tools/server/server-schema.cpp
+index 0a14a96..0e14d1e 100644
+--- a/tools/server/server-schema.cpp
++++ b/tools/server/server-schema.cpp
+@@ -33,6 +33,16 @@ std::vector<std::unique_ptr<field>> make_llama_cmpl_schema(const common_params &
+     add((new field_bool("cache_prompt", params.cache_prompt))
+         ->set_desc("Re-use KV cache from a previous request if possible. This way the common prefix does not have to be re-processed, only the suffix that differs between the requests"));
+ 
++    add((new field_str("cache_key"))
++        ->set_desc("Prompt cache key: the state this request leaves is cached under it, and a keyed request only restores entries with the same key")
++        ->set_handler([&](field_eval_context & ctx, const json & data) {
++            ctx.params.cache_key = data.at("cache_key").get<std::string>();
++        }));
++
++    add((new field_num("cache_ckpt_max", params.cache_ckpt_max))
++        ->set_hard_limits(-1, INT32_MAX)
++        ->set_desc("When this request's state is saved to the prompt cache, keep only the newest context checkpoint at or before this many tokens (-1 keeps all)"));
++
+     add((new field_bool("return_tokens", params.return_tokens))
+         ->set_desc("Return the raw generated token ids in the `tokens` field"));
+ 
+diff --git a/tools/server/server-task.cpp b/tools/server/server-task.cpp
+index d7ac2a1..dd83b39 100644
+--- a/tools/server/server-task.cpp
++++ b/tools/server/server-task.cpp
+@@ -1743,7 +1743,17 @@ size_t server_prompt_cache::n_tokens() const {
+     return res;
+ }
+ 
+-server_prompt_cache_state * server_prompt_cache::alloc(const server_prompt & prompt, size_t state_size_tgt, size_t state_size_dft) {
++void server_prompt_cache::pop_oldest() {
++    for (auto it = states.begin(); it != states.end(); ++it) {
++        if (it->key.empty()) {
++            states.erase(it);
++            return;
++        }
++    }
++    states.pop_front();
++}
++
++server_prompt_cache_state * server_prompt_cache::alloc(const server_prompt & prompt, size_t state_size_tgt, size_t state_size_dft, const std::string & key, int32_t ckpt_max) {
+     // first check if the current state is contained fully in the cache
+     for (auto it = states.begin(); it != states.end(); ++it) {
+         const int cur_lcp_len = it->prompt.tokens.get_common_prefix(prompt.tokens);
+@@ -1754,9 +1764,23 @@ server_prompt_cache_state * server_prompt_cache::alloc(const server_prompt & pro
+         }
+     }
+ 
++    // keep only the newest checkpoint at or before ckpt_max when asked
++    std::list<common_prompt_checkpoint> checkpoints;
++    if (ckpt_max >= 0) {
++        for (auto it = prompt.checkpoints.rbegin(); it != prompt.checkpoints.rend(); ++it) {
++            if (it->n_tokens <= ckpt_max) {
++                checkpoints.push_back(*it);
++                break;
++            }
++        }
++        SRV_INF(" - caching %zu of %zu checkpoint(s) (ckpt_max = %d)\n", checkpoints.size(), prompt.checkpoints.size(), ckpt_max);
++    } else {
++        checkpoints = prompt.checkpoints;
++    }
++
+     // calculate checkpoints size to see if it will fit with the prompt
+     size_t checkpoints_size = 0;
+-    for (const auto & ckpt : prompt.checkpoints) {
++    for (const auto & ckpt : checkpoints) {
+         checkpoints_size += ckpt.size();
+     }
+ 
+@@ -1788,12 +1812,12 @@ server_prompt_cache_state * server_prompt_cache::alloc(const server_prompt & pro
+             SRV_WRN(" - making room for prompt cache entry, removing oldest entry (size = %.3f MiB)\n",
+                     states.front().size() / (1024.0 * 1024.0));
+ 
+-            states.pop_front();
++            pop_oldest();
+         }
+     }
+ 
+-    std::vector<uint8_t> state_data_tgt;
+-    std::vector<uint8_t> state_data_dft;
++    server_state_buffer state_data_tgt;
++    server_state_buffer state_data_dft;
+ 
+     // check if we can allocate enough memory for the new state
+     try {
+@@ -1814,18 +1838,19 @@ server_prompt_cache_state * server_prompt_cache::alloc(const server_prompt & pro
+     states.push_back({
+         /*.prompt =*/ {
+             /*.tokens      =*/ prompt.tokens.clone(),
+-            /*.checkpoints =*/ prompt.checkpoints,
++            /*.checkpoints =*/ std::move(checkpoints),
+         },
+         /*.data   =*/ {
+             /*.main =*/ std::move(state_data_tgt),
+             /*.drft =*/ std::move(state_data_dft),
+         },
++        /*.key    =*/ key,
+     });
+ 
+     return &states.back();
+ }
+ 
+-bool server_prompt_cache::load(server_prompt & prompt, const server_tokens & tokens_new, llama_context * ctx_tgt, llama_context * ctx_dft, int32_t id_slot) {
++bool server_prompt_cache::load(server_prompt & prompt, const server_tokens & tokens_new, llama_context * ctx_tgt, llama_context * ctx_dft, int32_t id_slot, const std::string & key) {
+     const int lcp_best = prompt.tokens.get_common_prefix(tokens_new);
+ 
+     float f_keep_best = prompt.tokens.size() > 0 ? float(lcp_best) / prompt.tokens.size() : -1.0f; // empty slot: any cache entry wins
+@@ -1849,6 +1874,11 @@ bool server_prompt_cache::load(server_prompt & prompt, const server_tokens & tok
+             continue;
+         }
+ 
++        // a keyed request only takes entries with its own key
++        if (!key.empty() && it->key != key) {
++            continue;
++        }
++
+         if (f_keep_best < f_keep_cur && f_sim_best < f_sim_cur) {
+             f_keep_best = f_keep_cur;
+             f_sim_best  = f_sim_cur;
+@@ -1907,7 +1937,7 @@ void server_prompt_cache::update() {
+         while (!states.empty() && size() > limit_size) {
+             SRV_WRN(" - cache size limit reached, removing oldest entry (size = %.3f MiB)\n", states.front().size() / (1024.0 * 1024.0));
+ 
+-            states.pop_front();
++            pop_oldest();
+         }
+     }
+ 
+@@ -1922,7 +1952,7 @@ void server_prompt_cache::update() {
+             SRV_WRN(" - cache token limit (%zu, est: %zu) reached, removing oldest entry (size = %.3f MiB)\n",
+                     limit_tokens, limit_tokens_cur, states.front().size() / (1024.0 * 1024.0));
+ 
+-            states.pop_front();
++            pop_oldest();
+         }
+     }
+ 
+diff --git a/tools/server/server-task.h b/tools/server/server-task.h
+index d6b6f4b..9b679b3 100644
+--- a/tools/server/server-task.h
++++ b/tools/server/server-task.h
+@@ -63,6 +63,9 @@ struct task_params {
+     bool stream          = false;
+     bool include_usage   = false;
+     bool cache_prompt    = true; // remember the prompt to avoid reprocessing all prompt
++
++    std::string cache_key;          // prompt cache: entries saved from this request's state carry the key; a keyed request loads only entries with its key
++    int32_t     cache_ckpt_max = -1; // prompt cache: keep only the newest context checkpoint at or before this many tokens when the state is cached (-1 = all)
+     bool return_tokens   = false;
+     bool return_progress = false;
+ 
+@@ -670,9 +673,21 @@ struct server_prompt {
+     }
+ };
+ 
++// state buffers are overwritten in full right after allocation: skip the value-initialisation of std::vector::resize
++template <typename T>
++struct server_uninit_allocator : std::allocator<T> {
++    template <typename U> struct rebind { using other = server_uninit_allocator<U>; };
++    server_uninit_allocator() = default;
++    template <typename U> server_uninit_allocator(const server_uninit_allocator<U> &) noexcept {}
++    template <typename U> void construct(U * p) noexcept { ::new (static_cast<void *>(p)) U; }
++    template <typename U, typename... A> void construct(U * p, A &&... args) { ::new (static_cast<void *>(p)) U(std::forward<A>(args)...); }
++};
++
++using server_state_buffer = std::vector<uint8_t, server_uninit_allocator<uint8_t>>;
++
+ struct server_prompt_data {
+-    std::vector<uint8_t> main;
+-    std::vector<uint8_t> drft;
++    server_state_buffer main;
++    server_state_buffer drft;
+ 
+     size_t size() const {
+         return main.size() + drft.size();
+@@ -682,6 +697,7 @@ struct server_prompt_data {
+ struct server_prompt_cache_state {
+     server_prompt prompt;
+     server_prompt_data data;
++    std::string key;
+ 
+     size_t size() const {
+         size_t res = data.size();
+@@ -712,9 +728,12 @@ struct server_prompt_cache {
+ 
+     size_t n_tokens() const;
+ 
+-    server_prompt_cache_state * alloc(const server_prompt & prompt, size_t state_size_main, size_t state_size_drft);
++    server_prompt_cache_state * alloc(const server_prompt & prompt, size_t state_size_main, size_t state_size_drft, const std::string & key = "", int32_t ckpt_max = -1);
++
++    bool load(server_prompt & prompt, const server_tokens & tokens_new, llama_context * ctx_tgt, llama_context * ctx_dft, int32_t id_slot, const std::string & key = "");
+ 
+-    bool load(server_prompt & prompt, const server_tokens & tokens_new, llama_context * ctx_tgt, llama_context * ctx_dft, int32_t id_slot);
++    // drop the oldest unkeyed entry first, then the oldest entry
++    void pop_oldest();
+ 
+     void update();
+ };
+-- 
+2.55.0.windows.3
+
+
+From 8f17b1a416f28e24a64f2ac65d7fdfefb36140f1 Mon Sep 17 00:00:00 2001
+From: MaxiPawlowski <maxipawlowski@gmail.com>
+Date: Mon, 26 Oct 2026 04:52:59 -0300
+Subject: [PATCH 2/2] server: keys isolate cache entries both ways, unkeyed
+ never evicts keyed, dedup per key, keyed tasks skip foreign slots, validate
+ state write length
+
+---
+ tools/server/server-context.cpp | 16 +++++++++++++---
+ tools/server/server-task.cpp    | 24 +++++++++++++++++++++---
+ 2 files changed, 34 insertions(+), 6 deletions(-)
+
+diff --git a/tools/server/server-context.cpp b/tools/server/server-context.cpp
+index 7393ff2..e51ebbc 100644
+--- a/tools/server/server-context.cpp
++++ b/tools/server/server-context.cpp
+@@ -361,9 +361,14 @@ struct server_slot {
+             return false;
+         }
+ 
+-        llama_state_seq_get_data_ext(ctx_tgt, cur->data.main.data(), cur_size_tgt, id, LLAMA_STATE_SEQ_FLAGS_NONE);
+-        if (ctx_dft) {
+-            llama_state_seq_get_data_ext(ctx_dft, cur->data.drft.data(), cur_size_dft, id, LLAMA_STATE_SEQ_FLAGS_NONE);
++        const size_t n_tgt = llama_state_seq_get_data_ext(ctx_tgt, cur->data.main.data(), cur_size_tgt, id, LLAMA_STATE_SEQ_FLAGS_NONE);
++        const size_t n_dft = ctx_dft ? llama_state_seq_get_data_ext(ctx_dft, cur->data.drft.data(), cur_size_dft, id, LLAMA_STATE_SEQ_FLAGS_NONE) : 0;
++
++        // the buffers are not zero-filled: keep the entry only when every byte was written
++        if (n_tgt != cur_size_tgt || n_dft != cur_size_dft) {
++            SRV_WRN(" - prompt state write incomplete (%zu of %zu, draft %zu of %zu), dropping the entry\n", n_tgt, cur_size_tgt, n_dft, cur_size_dft);
++            prompt_cache.states.pop_back();
++            return false;
+         }
+ 
+         return true;
+@@ -1809,6 +1814,11 @@ private:
+ 
+                 const auto & tokens = slot.prompt.tokens;
+ 
++                // a keyed task only reuses a slot holding its own key's state
++                if (!task.params.cache_key.empty() && slot.cache_key != task.params.cache_key) {
++                    continue;
++                }
++
+                 // skip the slot if it does not contains cached tokens
+                 if (tokens.empty()) {
+                     SLT_TRC(slot, "%s", " - skipping, slot is empty\n");
+diff --git a/tools/server/server-task.cpp b/tools/server/server-task.cpp
+index dd83b39..c0f89b1 100644
+--- a/tools/server/server-task.cpp
++++ b/tools/server/server-task.cpp
+@@ -1756,6 +1756,10 @@ void server_prompt_cache::pop_oldest() {
+ server_prompt_cache_state * server_prompt_cache::alloc(const server_prompt & prompt, size_t state_size_tgt, size_t state_size_dft, const std::string & key, int32_t ckpt_max) {
+     // first check if the current state is contained fully in the cache
+     for (auto it = states.begin(); it != states.end(); ++it) {
++        if (it->key != key) {
++            continue;
++        }
++
+         const int cur_lcp_len = it->prompt.tokens.get_common_prefix(prompt.tokens);
+ 
+         if (cur_lcp_len == (int) prompt.tokens.size()) {
+@@ -1795,7 +1799,7 @@ server_prompt_cache_state * server_prompt_cache::alloc(const server_prompt & pro
+ 
+     // remove any cached prompts that are fully contained in the current prompt
+     for (auto it = states.begin(); it != states.end();) {
+-        const int len = it->prompt.tokens.get_common_prefix(prompt.tokens);
++        const int len = it->key == key ? it->prompt.tokens.get_common_prefix(prompt.tokens) : -1;
+ 
+         if (len == (int) it->prompt.tokens.size()) {
+             SRV_TRC(" - removing obsolete cached prompt with length %d\n", len);
+@@ -1807,6 +1811,20 @@ server_prompt_cache_state * server_prompt_cache::alloc(const server_prompt & pro
+     }
+ 
+     if (limit_size > 0) {
++        // an unkeyed state never pushes out a keyed one
++        if (key.empty()) {
++            size_t unkeyed = 0;
++            for (const auto & state : states) {
++                if (state.key.empty()) {
++                    unkeyed += state.size();
++                }
++            }
++            if (size() - unkeyed + state_size_new > limit_size) {
++                SRV_WRN(" - unkeyed prompt state %.3f MiB would evict keyed entries, skipping\n", state_size_new / (1024.0 * 1024.0));
++                return nullptr;
++            }
++        }
++
+         // make room before allocating the new vectors to avoid breaching the limit
+         while (!states.empty() && size() + state_size_new > limit_size) {
+             SRV_WRN(" - making room for prompt cache entry, removing oldest entry (size = %.3f MiB)\n",
+@@ -1874,8 +1892,8 @@ bool server_prompt_cache::load(server_prompt & prompt, const server_tokens & tok
+             continue;
+         }
+ 
+-        // a keyed request only takes entries with its own key
+-        if (!key.empty() && it->key != key) {
++        // entries are only restored by requests with the same key (unkeyed by unkeyed)
++        if (it->key != key) {
+             continue;
+         }
+ 
+-- 
+2.55.0.windows.3
+
