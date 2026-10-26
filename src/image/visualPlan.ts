@@ -21,7 +21,7 @@ export function withVisualScene(scene: ImageScene, visual: VisualScene): ImageSc
   const place = visual.place.source === "pack" && view.place ? view.place : null;
   return {
     ...scene, subjects,
-    ...(place ? { location: place.name, placeDetail: [place.description, place.tags.join(", ")].filter(Boolean).join(". ") } : {}),
+    ...(place ? { location: place.name, placeDetail: [place.description?.replace(/[\s.]+$/, ""), place.tags.join(", ")].filter(Boolean).join(". ") } : {}),
   };
 }
 

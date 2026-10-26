@@ -97,22 +97,22 @@
     "packs": {
       "style": {
         "id": "fixture-ink-style",
-        "digest": "5938b361433c66d4196b0e3abb68f46b2227711468af7cfc54a10666883d01b9"
+        "digest": "1759b230d9ed6fb12e76be51cd04c5301563e537ba16f41a758c4fb5d18e69be"
       },
       "identities": {
         "wanderer": {
           "id": "fixture-wanderer",
-          "digest": "9bc4a74d3f81b99f297feac04c4cb7c35d4ebc79738ad0b8ad88090260df12a3"
+          "digest": "2a61214960aff5bbb7059929ea18b9e4bbdf9378f6de26b4ff29dbd4a29828a7"
         }
       },
       "places": {
         "quay": {
           "id": "fixture-harbor",
-          "digest": "eb5ddb52824c0c8879637ecb70f778060341f3129a03cae5070b2625d764134a"
+          "digest": "6a116d80c1470e6b7981bc3365669233ed64ea35a105910dfbb9ba116551b166"
         },
         "hilltop": {
           "id": "fixture-observatory",
-          "digest": "ef97d45115473f1800afa9828c6b8bacac3df422777445f5647fbbd03295ee6b"
+          "digest": "aef3a4f85d5d98a3c803324391a762b919a63bc77f80f42caabc3c166a6ac88d"
         }
       }
     }

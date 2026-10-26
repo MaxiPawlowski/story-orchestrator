@@ -5,7 +5,7 @@
   "revision": 1,
   "styleRef": {
     "id": "fixture-ink-style",
-    "digest": "5938b361433c66d4196b0e3abb68f46b2227711468af7cfc54a10666883d01b9"
+    "digest": "1759b230d9ed6fb12e76be51cd04c5301563e537ba16f41a758c4fb5d18e69be"
   },
   "qa": {
     "status": "accepted",
@@ -53,5 +53,5 @@
       "plate": "plate:night"
     }
   },
-  "digest": "eb5ddb52824c0c8879637ecb70f778060341f3129a03cae5070b2625d764134a"
+  "digest": "6a116d80c1470e6b7981bc3365669233ed64ea35a105910dfbb9ba116551b166"
 }

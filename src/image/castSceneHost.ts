@@ -9,7 +9,7 @@ import { reserveGpu, releaseGpu, renewGpu } from "@services/stHost/gpuBroker";
 import { anySignal } from "@utils/signals";
 import { verifyVisualSource, sourceStillCurrent } from "../sprites/visualHost";
 import { contentHash, qwenImageInput, recipeProblems } from "../sprites/builder/recipes";
-import { castSceneGraph, castSceneIdentities, castSceneKey, CastSetupGap, CAST_SCENE_RECIPE, CAST_TWO_REFERENCE_MISSING, discoveredSceneRecipe, LookPending,
+import { castSceneGraph, castSceneIdentities, castSceneKey, CastSetupGap, CAST_SCENE_RECIPE, CAST_TWO_REFERENCE_MISSING, discoveredSceneRecipe, LookPending, packGap,
   sceneRecipe, type CastSceneIdentity, type CastSceneMember, type CastScenePack } from "./castScene";
 import { bindsPacks, visualRecord, type SceneSubject, type VisualScene } from "../sprites/packs/scene";
 import { packKey } from "../sprites/packs/pack";
@@ -21,6 +21,7 @@ import { decodeImage, encodeImage } from "../sprites/builder/images";
 import { hostGenerating, waitForTextPriority } from "../sprites/builder/textPriority";
 import { gpuBrokerStatus } from "@services/stHost/gpuBroker";
 import { log } from "@utils/log";
+import { PLAYER_COPY } from "@runtime/narrative";
 
 async function discardUnplaced(path: string): Promise<void> {
   const removed = await imageDelete(path).catch((reason: unknown) => ({ ok: false as const, reason: reason instanceof Error ? reason.message : String(reason) }));
@@ -51,10 +52,10 @@ function selectedMembers(story: Story, cast: ReturnType<typeof spriteCast>, sele
   const sources = getGlobalSettings().sprites.visualSources;
   return selected.map((folder) => {
     const roster = rosterFor(story, cast, folder);
-    const source = sources[folder], pack = packLook(visual?.subjects.find((subject) => subject.member === roster.id));
+    const subject = visual?.subjects.find((row) => row.member === roster.id), source = sources[folder], pack = packLook(subject);
     const fields = cardValues(story, blackboard, roster.id, true);
     if (pack && (!pack.substituted || !source)) return { character: folder, fields, pack, card: roster.card };
-    if (!source) throw new Error("Prepare each selected character's base and bust first, or bind a visual pack to them.");
+    if (!source) throw packGap(roster.name ?? roster.id, subject, story.illustrations?.packs?.identities?.[roster.id]);
     return { character: folder, fields, source, card: roster.card };
   });
 }
@@ -92,7 +93,7 @@ export async function drawPreparedCast(manager: RuntimeManager, queue: ImageQueu
     const { members, identities } = await settledLooks(() => selectedMembers(story, cast, selected, manager.getCachedSnapshot().blackboard, visual), run);
     const packed = members.some((member) => member.pack);
     const packsCurrent = async (signal: AbortSignal) => {
-      if (visual && packed && !(await visualBridge().stillCurrent(visual, signal))) throw new Error(PACK_CHANGED);
+      if (visual && packed && !(await visualBridge().stillCurrent(visual, signal))) throw new CastSetupGap(PACK_CHANGED, PLAYER_COPY.castRetry);
     };
     const target = chat.messages.length ? chat.messages.length - 1 : null;
     const targetText = target === null ? null : chat.messages[target].mes;
@@ -122,11 +123,11 @@ export async function drawPreparedCast(manager: RuntimeManager, queue: ImageQueu
       const discovery = await comfyDiscover(signal);
       const config = (() => {
         try { return sceneRecipe(selected, settings.builders, settings.sceneRecipe, discoveredSceneRecipe(discovery)); }
-        catch (error) { throw new Error([error instanceof Error ? error.message : String(error), discoveryProblem(discovery)].filter(Boolean).join(" ")); }
+        catch (error) { throw new CastSetupGap([error instanceof Error ? error.message : String(error), discoveryProblem(discovery)].filter(Boolean).join(" ")); }
       })();
       recipeSource = config.source;
       const problems = recipeProblems(discovery, config.models);
-      if (problems.length) throw new Error(problems.join(" "));
+      if (problems.length) throw new CastSetupGap(problems.join(" "));
       if (identities.length === 2 && !qwenImageInput(discovery, "image_2")) throw new CastSetupGap(CAST_TWO_REFERENCE_MISSING);
       const [diffusion, encoder, vae] = await Promise.all([comfyFingerprint("diffusionModels", config.models.diffusion, signal),
         comfyFingerprint("textEncoders", config.models.encoder, signal), comfyFingerprint("vaes", config.models.vae, signal)]);

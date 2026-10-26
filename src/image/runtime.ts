@@ -12,7 +12,7 @@ import { imageSize, resolutionProblem, resolveCheckpointFile, resolveUpscaler, t
 import { imageServiceReady } from "./service";
 import { buildGraph } from "./graph";
 import { renderFacts, renderKey } from "./renderFacts";
-import { imageMessages, parseImageReply, sceneForImage, assembleImagePrompt, directedTags, templateImagePrompt, type ImageRequest, type ImageReply, type ImageScene } from "./prompt";
+import { imageMessages, parseImageReply, sceneForImage, assembleImagePrompt, directedTags, joinTags, templateImagePrompt, type ImageRequest, type ImageReply, type ImageScene } from "./prompt";
 import { renderStImage, stImageReadiness } from "@services/stHost/stImage";
 import { comfyDiscover, comfyRenderOwned, mediaStatus } from "@services/stHost/media";
 import { ImageQueue } from "./queue";
@@ -81,8 +81,8 @@ function assemblePlan(backend: ImageSettings["backend"], request: ImageRequest, 
   const hygiene = { names: [...drawn.subjects.map((subject) => subject.name), userName], visible: request.purpose === "background" ? 0 : reply?.visible.length ?? 0,
     keepAngle: angle === "from_below" || angle === "from_above" || /from[ _](below|above)/i.test(request.text) };
   return backend === "st" ? {
-    positive: [...route.positive, ...directedTags(reply, fallback, pinned, hygiene)].filter(Boolean).join(", "),
-    negative: [...route.negative.filter((term) => !term.startsWith("embedding:")), reply?.negative].filter(Boolean).join(", "),
+    positive: joinTags([...route.positive, ...directedTags(reply, fallback, pinned, hygiene)]),
+    negative: joinTags([...route.negative.filter((term) => !term.startsWith("embedding:")), reply?.negative]),
   } : assembleImagePrompt(route, reply, fallback, pinned, hygiene);
 }
 

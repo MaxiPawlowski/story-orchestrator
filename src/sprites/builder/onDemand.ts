@@ -11,7 +11,7 @@ import { hostGenerating, waitForTextPriority } from "./textPriority";
 import { completeLookFrames, LOOK_FRAME_KINDS, lookFrameRequest, lookKeyInput, lookStillRequest } from "./lookFrames";
 import { frameIndex, type AnimationFrames } from "../animation";
 import { visualRoot } from "../visualManifest";
-import { withDefaultBuilders } from "../defaultRecipe";
+import { builderGap, recipeChecked, RECIPE_WAIT_MS, withDefaultBuilders } from "../defaultRecipe";
 import { verifyVisualSource, sourceStillCurrent, publishDerivedVisual } from "../visualHost";
 import { anySignal } from "@utils/signals";
 
@@ -22,6 +22,7 @@ export interface LookRequest {
 }
 
 const LOOK_BURST_MS = 180_000;
+export const ON_DEMAND_OFF = "On-demand look edits are off for this install (sprites.onDemand).";
 
 export class OnDemandLooks {
   private stopped = false;
@@ -88,12 +89,14 @@ export class OnDemandLooks {
       if (accepted && !sourceStillCurrent(accepted)) throw new Error("The accepted visual source changed before this look was ready.");
     };
     try {
+      if (!this.manager.getGlobalSettings().sprites.onDemand) throw new Error(ON_DEMAND_OFF);
+      if (!this.manager.getGlobalSettings().sprites.builders[request.folder]) await recipeChecked(RECIPE_WAIT_MS, signal);
       const settings = withDefaultBuilders(this.manager.getGlobalSettings().sprites);
       const config = settings.builders[request.folder];
       guard();
       if (accepted) await verifyVisualSource(accepted, signal);
       guard();
-      if (!config || !settings.onDemand) throw new Error("Choose an expression reference pack in Studio before enabling on-demand look edits.");
+      if (!config) throw new Error(builderGap(settings, request.folder) ?? "No Qwen edit route is set for this character.");
       const story = this.manager.getCachedSnapshot().storyId;
       if (!story) return;
       const discovery = await comfyDiscover(signal);

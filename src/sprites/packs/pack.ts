@@ -3,6 +3,7 @@ import { stableStringify } from "@runtime/hash";
 import { VISUAL_PACK_DIGEST, VISUAL_PACK_ID } from "@engine/validate/illustrations";
 import type { VisualPackRef } from "@engine/schema";
 import { lookSignature } from "../visualManifest";
+import { FAMILY_IDS } from "../../image/catalog";
 
 export const VISUAL_PACK_FORMAT = 1;
 export const PACK_KINDS = ["identity", "place", "style"] as const;
@@ -45,6 +46,7 @@ export const packAsset = (pack: VisualPack, role: string): PackAsset | undefined
 const ROLE = /^[a-z0-9][a-z0-9_.:-]{0,127}$/;
 const LOOK_ID = /^[a-z0-9_]{1,64}$/;
 const FAMILY = /^[a-z0-9][a-z0-9_.-]{0,63}$/;
+export const TAG_FAMILIES = [...FAMILY_IDS, "default"];
 
 export const servedPackPath = (value: unknown): value is string => {
   if (typeof value !== "string" || value.length > 2048 || !/^\/(characters|backgrounds)\/./.test(value)) return false;
@@ -84,6 +86,14 @@ class Reader {
       const read_ = read(entry, `${path}.${id}`);
       return read_ === undefined ? [] : [[id, read_]];
     }));
+  }
+  families<T>(value: Record<string, T>, path: string, allowed: readonly string[]): Record<string, T> {
+    for (const key of Object.keys(value)) {
+      if (allowed.includes(key)) continue;
+      const route = FAMILY_IDS.find((id) => id.endsWith(`-${key}`));
+      this.fail(`${path}.${key}`, `names no renderer family; use ${allowed.join(", ")}${route ? ` ('${key}' is written '${route}')` : ""}`);
+    }
+    return value;
   }
   fields(value: unknown, path: string): Record<string, string> | undefined {
     return this.map(value, path, 16, /^[A-Za-z0-9_ -]{1,64}$/, (entry, at) => this.text(entry, at, 400));
@@ -150,7 +160,7 @@ function imageRole(r: Reader, envelope: Envelope, value: unknown, path: string):
 function readIdentity(r: Reader, value: Record<string, unknown>, envelope: Envelope): IdentityPack | undefined {
   const subjectId = r.pattern(value.subjectId, "subjectId", VISUAL_PACK_ID, "a subject id");
   const traits = r.list(value.traits, "traits", 32, 120);
-  const tagsByFamily = r.map(value.tagsByFamily, "tagsByFamily", 8, FAMILY, (entry, at) => r.list(entry, at, 64, 80)) ?? {};
+  const tagsByFamily = r.families(r.map(value.tagsByFamily, "tagsByFamily", 8, FAMILY, (entry, at) => r.list(entry, at, 64, 80)) ?? {}, "tagsByFamily", TAG_FAMILIES);
   const looks = r.map(value.looks, "looks", 64, LOOK_ID, (entry, at) => {
     if (!isRecord(entry)) return r.fail(at, "needs a look object");
     r.keys(entry, ["fields", "base", "bust", "face", "expressions"], at);
@@ -199,6 +209,7 @@ function readStyle(r: Reader, value: Record<string, unknown>, envelope: Envelope
     return { positive: r.list(entry.positive, `${at}.positive`, 64, 80), negative: r.list(entry.negative, `${at}.negative`, 64, 80),
       ...(checkpoint ? { checkpoint } : {}), ...(sampler ? { sampler } : {}), ...(steps ? { steps } : {}), ...(cfg ? { cfg } : {}) };
   }) ?? {};
+  r.families(recipes, "recipes", FAMILY_IDS);
   if (!target) return undefined;
   return { ...envelope, kind: "style", target, recipes };
 }

@@ -38,8 +38,9 @@ the sprite; SDXL with authored appearance 2.4 / 2.4 (0 of 5); SDXL with card tex
 
 ### Identity pack
 
-- `subjectId`, `traits` (immutable visible traits), `tagsByFamily` (renderer-specific identity tags, e.g.
-  `illustrious`; `default` as fallback), `defaultLook`, `looks`.
+- `subjectId`, `traits` (immutable visible traits), `tagsByFamily` (renderer-specific identity tags keyed by route family id,
+  `sdxl-illustrious` | `sdxl-noobai` (`src/image/catalog.ts` `FAMILIES`), plus `default` as fallback; any other key, short
+  aliases such as `illustrious` included, refuses the pack by name), `defaultLook`, `looks`.
 - Each look: `fields` (the card-field values that select it; the default look has none), `base` (role), optional `bust`,
   `face`, `expressions` (label → role). Two looks may not share the same fields.
 - Later (stage 6+): optional conditioning entries (type, source hashes, preprocessing, encoder/adapter hashes, tensor
@@ -53,7 +54,7 @@ the sprite; SDXL with authored appearance 2.4 / 2.4 (0 of 5); SDXL with card tex
 
 ### Style pack
 
-- `target` (visual target text), `recipes` (per renderer family: `positive`, `negative`, `checkpoint`, `sampler`,
+- `target` (visual target text), `recipes` (per route family id, same keys as `tagsByFamily` without `default`: `positive`, `negative`, `checkpoint`, `sampler`,
   `steps`, `cfg`). Later: model/encoder/VAE hashes, adapters, workflow revision, seed policy, cutout/upscale settings.
 
 ### Story bindings (story JSON: bindings only)
@@ -371,3 +372,47 @@ owner-install check that the discovered Qwen route resolves (`sprite-qwen-route-
     - The lane's `sprites`, `display` and `image` settings were restored from ST's pre-run backup
       (`settings_default-user_20261026-165052.json`).
     - Lane stopped and set to no-model. The landmarks server was stopped.
+- Live-gate defect fixes 2026-10-26, branch `v3.0-visual-bridge` (from `412f34b6`). Each fix has a test that fails without it (checked by
+  stashing the source change).
+  - D1 `src/sprites/defaultRecipe.ts`: discovery pairs by generation. The one known generation is Qwen Image 2.1: a 2.1 edit diffusion
+    model (turbo/lightning excluded), a Qwen3-VL encoder (`qwen3vl…`) and a 2.1 VAE (`qwen_image_2.1…`). That is the known-good trio
+    of `scripts/debug/so-showcase.mts`, `scripts/local/render-benchmark.mjs` and `retainBatchLi.mjs`; `qwen_2.5_vl_7b…` + `qwen_image_vae`
+    are the 2512 trio (`scripts/debug/lib/poseS0Models.mts`). Exactly one complete trio resolves. Otherwise the Repair row names each gap,
+    candidates for "more than one", and the other-generation Qwen files for "no". Test: the owner's exact file list resolves to
+    `qwen_image_2.1_int8_convrot` + `qwen3vl_8b_int8_convrot` + `qwen_image_2.1_vae_bf16` (`defaultRecipe.test.ts`).
+  - D2: `CastSetupGap` carries player copy (`PLAYER_COPY.castSetup|castArtChanged|castArtMissing|castUnprepared|castRetry`, `narrative.ts`).
+    The no-recipe and recipe-problem refusals, `PACK_CHANGED`, and a member with no source whose pack was refused (`packGap`:
+    `pack-missing` names the bound id and any newer revision, `asset-mismatch`, `pack-kind`, unbound) are now `CastSetupGap`.
+    `CastSceneControls` shows the message in Author view and the specific player line otherwise. Other errors keep `imageError`.
+    Tests: `castSceneHost.test.ts` (refused and missing pack, recipe, mid-render change), story `SetupGapPlainForThePlayer`.
+  - D3 `src/sprites/builder/onDemand.ts`: on-demand off says so (`ON_DEMAND_OFF`). With no builder of its own, a look waits for the
+    install-wide route (`recipeChecked`, at most 60 s, abortable), then runs on the derived builder or fails with `builderGap`'s
+    precise reason. The old "Choose an expression reference pack…" copy is gone. Test: `onDemandRecipe.test.ts` (a look asked
+    while the route is unchecked does not fail, then reaches ComfyUI discovery once the route resolves; missing route gives the
+    discovery problem).
+  - D4: renderer family keys are route family ids. `tagsByFamily` takes `sdxl-illustrious`, `sdxl-noobai` and `default`;
+    `recipes` takes the route ids only. Any other key is refused by name, and the problem gives the route id for a short alias
+    (`'illustrious' is written 'sdxl-illustrious'`). The reader does not normalise, so the exporter's digest stays the reader's
+    canonical form. Section 1, the guide (`story-guide.md`, `guideTopicsVisual.ts`, `docs:guide`) and the fixtures were updated:
+    keys renamed, digests recomputed, and `styleRef` plus story bindings re-pinned. Test: `packs.test.ts`.
+  - D5: `visualPlan.ts` strips trailing periods from a place description before joining it. `joinTags` (`prompt.ts`) dedupes
+    comma tags case-insensitively for both the ST and workflow positive/negative. Tests: `packs.test.ts` placeDetail, `image.test.ts`
+    background with a director prompt starting `no humans`.
+  - Pre-existing `src/sprites/stage.ts:347` fixed for the case where the pose path declines (`chooseBody` false: no pose in the
+    member's library, a directed set, no matching roster key). Such a member now asks for the on-demand look; before, nothing was
+    asked. Test: `stage.test.ts` "on-demand looks with poses on". Not changed: a member the pose path does take (shipped library,
+    `stand_relaxed`) still gets the posed body route, not the expression look edit. Whether that was the live case is unverified.
+  - `npm run gates:quick`: first run RED (`guideTopics.test.ts`: the compact visual-packs topic was over 800 chars; shortened), then green.
+  - `npm run gates` (full, Storybook included, no `--resume`): all green in 423.2 s, first run.
+    - Every step ok: build, typecheck, typecheck:test, debug:typecheck, lint, test:release, test:replay.
+    - jest: 901 suites passed, 1 skipped; 10,493 tests passed, 1 skipped.
+    - test:plugin 128/0; test:debug 1,569 + 408 / 0; test-storybook:ci 166 suites, 1,005 tests.
+    - main bundle `dist/index.js` 1,273,037 B.
+  - Live re-check owed (no GPU, lanes or staging in this task):
+    - D1: on the owner's real ComfyUI with empty `sprites.builders` and no `sprites.sceneRecipe`, `spriteRecipe` should read
+      `ready / discovered` with the 2.1 trio, `sprite-qwen-route-missing` should be absent, and a cast scene should record
+      `recipe_source: discovered`.
+    - D3: right after a reload, change a prepared character's look with no builder entry. The look should wait for the route and
+      then render, with no `lookError`. Repeat with `sprites.poses` on for a member the pose path declines.
+    - D2: Author view and player copy for a tampered pack.
+    - D4: a campaign or fixture pack keyed `sdxl-illustrious` should pin its family tags in the SDXL positive.

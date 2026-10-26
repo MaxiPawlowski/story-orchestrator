@@ -9,25 +9,39 @@ export interface RecipeDeps {
   fingerprint(kind: "diffusionModels" | "textEncoders" | "vaes", name: string): Promise<unknown>;
 }
 
-const QWEN_EDIT = /qwen[\w.-]*image[\w.-]*2[._]?1/i;
-const KINDS = [["diffusionModels", "Qwen Image 2.1 edit diffusion model"], ["textEncoders", "Qwen VL text encoder"], ["vaes", "Qwen Image VAE"]] as const;
-const candidates = (discovery: Pick<ComfyDiscovery, "diffusionModels" | "textEncoders" | "vaes">) => ({
-  diffusionModels: discovery.diffusionModels.filter((name) => QWEN_EDIT.test(name) && !/turbo|lightning/i.test(name)),
-  textEncoders: discovery.textEncoders.filter((name) => /qwen/i.test(name)),
-  vaes: discovery.vaes.filter((name) => /qwen/i.test(name)),
-});
+type Discovery = Pick<ComfyDiscovery, "diffusionModels" | "textEncoders" | "vaes">;
+type Kind = keyof Discovery;
+const QWEN_21 = /qwen[\w.-]*image[\w.-]*2[._]?1/i;
+const GENERATIONS: Array<{ id: string; kinds: Record<Kind, { label: string; match(name: string): boolean }> }> = [{
+  id: "Qwen Image 2.1",
+  kinds: {
+    diffusionModels: { label: "Qwen Image 2.1 edit diffusion model", match: (name) => QWEN_21.test(name) && !/turbo|lightning/i.test(name) },
+    textEncoders: { label: "Qwen3-VL text encoder (Qwen Image 2.1)", match: (name) => /qwen[\W_]*3[\W_]*vl/i.test(name) },
+    vaes: { label: "Qwen Image 2.1 VAE", match: (name) => QWEN_21.test(name) },
+  },
+}];
+const KINDS: Kind[] = ["diffusionModels", "textEncoders", "vaes"];
+const PLURAL: Record<Kind, string> = { diffusionModels: "diffusion models", textEncoders: "text encoders", vaes: "VAEs" };
+const trios = (discovery: Discovery) => GENERATIONS.map((generation) => ({ generation,
+  found: Object.fromEntries(KINDS.map((kind) => [kind, discovery[kind].filter((name) => generation.kinds[kind].match(name))])) as Record<Kind, string[]> }));
 
-export function discoveredSceneRecipe(discovery: Pick<ComfyDiscovery, "diffusionModels" | "textEncoders" | "vaes">): SceneRecipeSetting | null {
-  const found = candidates(discovery);
-  return KINDS.every(([kind]) => found[kind].length === 1)
-    ? { models: { diffusion: found.diffusionModels[0], encoder: found.textEncoders[0], vae: found.vaes[0] }, ...RENDER_PRESETS.standard } : null;
+export function discoveredSceneRecipe(discovery: Discovery): SceneRecipeSetting | null {
+  const complete = trios(discovery).filter(({ found }) => KINDS.every((kind) => found[kind].length === 1));
+  if (complete.length !== 1) return null;
+  const { found } = complete[0];
+  return { models: { diffusion: found.diffusionModels[0], encoder: found.textEncoders[0], vae: found.vaes[0] }, ...RENDER_PRESETS.standard };
 }
 
-export function discoveryProblem(discovery: Pick<ComfyDiscovery, "diffusionModels" | "textEncoders" | "vaes">): string | null {
-  const found = candidates(discovery);
-  const gaps = KINDS.flatMap(([kind, label]) => (found[kind].length === 1 ? [] : found[kind].length
-    ? [`more than one ${label} (${found[kind].join(", ")})`] : [`no ${label}`]));
-  return gaps.length ? `ComfyUI offers ${gaps.join(", ")}. Install the missing files, or set sprites.sceneRecipe to choose one.` : null;
+export function discoveryProblem(discovery: Discovery): string | null {
+  if (discoveredSceneRecipe(discovery)) return null;
+  const gaps = trios(discovery).flatMap(({ found, generation }) => KINDS.flatMap((kind) => {
+    const label = generation.kinds[kind].label, names = found[kind];
+    if (names.length > 1) return [`more than one ${label} (${names.join(", ")})`];
+    if (names.length) return [];
+    const others = discovery[kind].filter((name) => /qwen/i.test(name));
+    return [others.length ? `no ${label} (its other Qwen ${PLURAL[kind]}, ${others.join(", ")}, belong to another Qwen generation)` : `no ${label}`];
+  }));
+  return `ComfyUI offers ${gaps.join(", ")}. Install the missing files, or set sprites.sceneRecipe to choose one.`;
 }
 
 export async function resolveDefaultRecipe(settings: Pick<SpriteSettings, "sceneRecipe">, deps: RecipeDeps): Promise<DefaultRecipe> {
@@ -53,11 +67,24 @@ export async function resolveDefaultRecipe(settings: Pick<SpriteSettings, "scene
 }
 
 let current: DefaultRecipe = { status: "unchecked", recipe: null, problem: null };
+const checked = new Set<() => void>();
 export const defaultRecipe = (): DefaultRecipe => current;
+export const RECIPE_WAIT_MS = 60_000;
+
+export function recipeChecked(waitMs = RECIPE_WAIT_MS, signal?: AbortSignal): Promise<DefaultRecipe> {
+  if (current.status !== "unchecked" || signal?.aborted) return Promise.resolve(current);
+  return new Promise((resolve) => {
+    const done = () => { clearTimeout(timer); checked.delete(done); signal?.removeEventListener("abort", done); resolve(current); };
+    const timer = setTimeout(done, waitMs);
+    checked.add(done);
+    signal?.addEventListener("abort", done, { once: true });
+  });
+}
 
 export function setDefaultRecipe(next: DefaultRecipe, settings: Pick<SpriteSettings, "builders" | "visualSources">): void {
   current = next;
   publishSpriteRecipe(recipeHealth(next, settings));
+  if (next.status !== "unchecked") for (const done of [...checked]) done();
 }
 
 export const recipeHealth = (recipe: DefaultRecipe, settings: Pick<SpriteSettings, "builders" | "visualSources">): SpriteRecipeHealth => ({
