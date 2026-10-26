@@ -1,6 +1,6 @@
 import { beginRun, type RunGuard, type RunOwnership } from "@runtime/runToken";
 import { blinkProblems, isCutout, overBase, stillOpen, type EyeRead } from "./eyeOpen";
-import { faceBoxProblem } from "./headBox";
+import { faceBoxProblem, HeadBoxRefusal } from "./headBox";
 import { seamProblem } from "./seam";
 import { cleanEdges } from "./edges";
 import { checkPixels, checkMouthCoverage, pasteEdit, validateBox, type HeadBox, type PixelImage, type PixelQA } from "./pixels";
@@ -125,7 +125,7 @@ export class SpriteBuilder {
     const read = await this.deps.eyes(base, signal).catch(() => null);
     guard();
     const problem = faceBoxProblem(read?.boxes, box);
-    if (problem) throw new Error(problem);
+    if (problem) throw new HeadBoxRefusal(problem, read?.boxes ?? []);
     return read;
   }
 

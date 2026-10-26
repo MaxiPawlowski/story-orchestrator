@@ -6,6 +6,7 @@ import { cropPixels } from "./maskImport";
 import { editKey } from "./recipes";
 import { referenceProblems } from "./referencePack";
 import { sanitizeSpriteSettings } from "../settings";
+import { HeadBoxRefusal } from "./headBox";
 
 Object.defineProperty(globalThis, "crypto", { value: webcrypto, configurable: true });
 
@@ -224,6 +225,8 @@ test("a head box that misses the eyes is refused before any lease or render, and
     const refusal = builder.build({ ...request, kind, label: "neutral", value: "neutral" });
     await expect(refusal).rejects.toThrow(/head box misses the face: an eye sits at 88% of its height/);
     await expect(refusal).rejects.not.toThrow(RETRY_REFUSAL);
+    await expect(refusal).rejects.toBeInstanceOf(HeadBoxRefusal);
+    await expect(refusal).rejects.toMatchObject({ eyes: [{ x: 10, y: 21, width: 4, height: 2 }, { x: 17, y: 21, width: 4, height: 2 }] });
   }
   expect(lease).not.toHaveBeenCalled();
   expect(deps.render).not.toHaveBeenCalled();

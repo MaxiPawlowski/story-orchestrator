@@ -1,4 +1,4 @@
-import { headBox, faceAnchor, faceBoxProblem, fractionHeadBox, bustBox, referenceHeadBox } from "./headBox";
+import { headBox, faceAnchor, faceBoxProblem, HeadBoxRefusal, ownBoxRepair, fractionHeadBox, bustBox, referenceHeadBox } from "./headBox";
 import { mouthRegion } from "./frameRegion";
 import { validateBox, type PixelImage } from "./pixels";
 
@@ -68,6 +68,18 @@ test("a head box holds the eyes inside the blink band; another member's box over
     const line = top + height * 0.4;
     expect(faceBoxProblem([{ x: 380, y: line - 5, width: 20, height: 10 }, { x: 430, y: line - 5, width: 20, height: 10 }], box)).toBeNull();
   }
+});
+
+test("a refused saved box is repaired only by the member's own prepared box, and only when that box holds the eyes", () => {
+  const eyes = [{ x: 370, y: 234, width: 20, height: 12 }, { x: 440, y: 234, width: 20, height: 12 }];
+  const saved = { x: 283, y: 41, width: 264, height: 220 }, own = { x: 275, y: 141, width: 288, height: 240 }, image = { width: 832, height: 1248 };
+  const refusal = new HeadBoxRefusal(faceBoxProblem(eyes, saved) ?? "", eyes);
+  expect(ownBoxRepair(refusal, saved, own, image)).toEqual(own);
+  expect(ownBoxRepair(new Error(refusal.message), saved, own, image)).toBeNull();
+  expect(ownBoxRepair(refusal, saved, undefined, image)).toBeNull();
+  expect(ownBoxRepair(refusal, own, own, image)).toBeNull();
+  expect(ownBoxRepair(refusal, saved, { ...own, y: 300 }, image)).toBeNull();
+  expect(ownBoxRepair(refusal, saved, own, { width: 500, height: 1248 })).toBeNull();
 });
 
 test("selecting an existing reference preserves its valid measured edit box instead of resetting to fractions", async () => {

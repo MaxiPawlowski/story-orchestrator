@@ -35,6 +35,18 @@ export function headBox(image: Pick<PixelImage, "width" | "height">, face?: Face
   return { x: clamp(face.cx - width / 2, image.width - width), y: clamp(face.top - faceHeight * ABOVE_FACE, image.height - height), width, height };
 }
 
+export class HeadBoxRefusal extends Error {
+  constructor(message: string, readonly eyes: readonly HeadBox[]) { super(message); this.name = "HeadBoxRefusal"; }
+}
+
+const sameBox = (a: HeadBox, b: HeadBox): boolean => a.x === b.x && a.y === b.y && a.width === b.width && a.height === b.height;
+
+export function ownBoxRepair(refusal: unknown, current: HeadBox, own: HeadBox | undefined, image: Pick<PixelImage, "width" | "height">): HeadBox | null {
+  if (!(refusal instanceof HeadBoxRefusal) || !own || sameBox(current, own)) return null;
+  if (own.x < 0 || own.y < 0 || own.width < 8 || own.height < 8 || own.x + own.width > image.width || own.y + own.height > image.height) return null;
+  return faceBoxProblem(refusal.eyes, own) ? null : { ...own };
+}
+
 export function faceBoxProblem(eyes: readonly HeadBox[] | null | undefined, box: HeadBox): string | null {
   if (!eyes?.length) return null;
   const centres = eyes.map((eye) => ({ x: eye.x + eye.width / 2 - box.x, y: (eye.y + eye.height / 2 - box.y) / box.height }));

@@ -3,6 +3,7 @@ import { expect, userEvent, waitFor, within } from "@storybook/test";
 import SpriteBuilder, { type SpriteBuilderHost } from "./SpriteBuilder";
 import { useDraftStore, newStoryDraft } from "../draft";
 import { EDIT_NODES } from "../../sprites/builder/recipes";
+import { HeadBoxRefusal } from "../../sprites/builder/headBox";
 
 const services: SpriteBuilderHost = {
   members: () => [{ name: "Test", folder: "Test" }],
@@ -78,6 +79,32 @@ export const DetectedReferenceBox: Story = {
     await waitFor(() => expect(canvas.getByRole("spinbutton", { name: /^height$/ })).toHaveValue(248));
     await expect(canvas.getByRole("spinbutton", { name: /^width$/ })).toHaveValue(298);
     await expect(canvas.getByRole("spinbutton", { name: /^y$/ })).toHaveValue(21);
+  },
+};
+
+export const OffersMembersOwnHeadBox: Story = {
+  args: { services: { ...services,
+    list: async () => [{ label: "neutral", path: "/characters/Test/pilot/neutral.png" }],
+    decode: async () => ({ width: 400, height: 600, data: new Uint8ClampedArray(400 * 600 * 4) }),
+    detect: async () => null,
+    ownBox: () => ({ x: 100, y: 120, width: 200, height: 160 }),
+    builder: () => ({ close: () => {}, cancel: () => {}, save: async () => { throw new Error("No preview to save."); },
+      build: async () => { throw new HeadBoxRefusal("The head box misses the face: an eye sits at 90% of its height, outside 12–55%.",
+        [{ x: 150, y: 175, width: 20, height: 10 }, { x: 230, y: 175, width: 20, height: 10 }]); } }),
+  } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await waitFor(() => expect(canvasElement.querySelector("#so-sprite-builder")).toHaveAttribute("data-box-ready", "true"));
+    await userEvent.click(canvas.getByRole("button", { name: "Discover image-edit setup" }));
+    const generate = canvas.getByRole("button", { name: "Generate preview" });
+    await waitFor(() => expect(generate).toBeEnabled());
+    await userEvent.click(generate);
+    await expect(await canvas.findByRole("alert")).toHaveTextContent("head box misses the face");
+    await userEvent.click(await canvas.findByRole("button", { name: "Use Test’s head box" }));
+    await expect(canvas.getByRole("spinbutton", { name: /^y$/ })).toHaveValue(120);
+    await expect(canvas.getByRole("spinbutton", { name: /^height$/ })).toHaveValue(160);
+    await expect(canvas.queryByRole("button", { name: "Use Test’s head box" })).toBeNull();
+    await expect(canvas.queryByRole("alert")).toBeNull();
   },
 };
 

@@ -3,7 +3,7 @@ import { comfyDiscover, comfyFingerprint, spriteManifest, generatedSpriteSets, d
 import { spriteBuilderMembers, spriteList, spriteReferences } from "@services/stHost/sprites";
 import { createSpriteBuilder } from "../../sprites/builder/host";
 import { decodeImage, encodeImage } from "../../sprites/builder/images";
-import { referenceHeadBox } from "../../sprites/builder/headBox";
+import { ownBoxRepair, referenceHeadBox } from "../../sprites/builder/headBox";
 import { EDIT_RECIPE, EXPRESSIONS, recipeProblems, type EditKind, type EditModels } from "../../sprites/builder/recipes";
 import type { HeadBox } from "../../sprites/builder/pixels";
 import type { SpriteBuilder as Builder, SpriteCandidate } from "../../sprites/builder/builder";
@@ -47,8 +47,26 @@ function useReferenceBox(reference: string, character: string, services: SpriteB
   }, [character, reference, services, setBox, setError, setSize]);
 }
 
-const boxSource = (character: string, reference: string): string => `${character}
-${reference}`;
+const boxSource = (character: string, reference: string): string => JSON.stringify([character, reference]);
+
+function useHeadBox(reference: string, character: string, services: SpriteBuilderHost, setError: (error: string | null) => void) {
+  const [box, setBox] = useState<HeadBox>({ x: 0, y: 0, width: 64, height: 64 });
+  const [size, setSize] = useState({ width: 1, height: 1 });
+  const [boxFor, setBoxFor] = useState("");
+  const [repair, setRepair] = useState<HeadBox | null>(null);
+  const resolveBox = useCallback((next: HeadBox, source: string) => { setBox(next); setBoxFor(source); }, []);
+  useReferenceBox(reference, character, services, setSize, resolveBox, setError);
+  useEffect(() => setRepair(null), [character, reference]);
+  const boxPending = Boolean(reference) && boxFor !== boxSource(character, reference);
+  const offerRepair = (reason: unknown, used: HeadBox) => setRepair(ownBoxRepair(reason, used, services.ownBox?.(character), size));
+  const adoptOwnBox = () => {
+    if (!repair) return;
+    const settings = getGlobalSettings().sprites, config = settings.builders[character];
+    if (config) setGlobalSettings({ sprites: { builders: { ...settings.builders, [character]: { ...config, box: { ...repair } } } } });
+    resolveBox(repair, boxSource(character, reference)); setRepair(null); setError(null);
+  };
+  return { box, setBox, size, boxPending, repair, clearRepair: () => setRepair(null), offerRepair, adoptOwnBox };
+}
 
 export interface SpriteBuilderHost {
   discover: typeof comfyDiscover;
@@ -63,6 +81,7 @@ export interface SpriteBuilderHost {
   referenceSets: typeof spriteReferenceSets;
   referencePack: typeof spriteReferencePack;
   detect?(png: string): Promise<unknown>;
+  ownBox?(character: string): HeadBox | undefined;
 }
 
 const detectFace = async (png: string): Promise<unknown> => {
@@ -72,7 +91,8 @@ const detectFace = async (png: string): Promise<unknown> => {
 
 const host: SpriteBuilderHost = { discover: comfyDiscover, fingerprint: comfyFingerprint, manifest: spriteManifest,
   members: spriteBuilderMembers, list: spriteReferences, decode: decodeImage, builder: () => createSpriteBuilder(draftOwnership),
-  sets: generatedSpriteSets, delete: deleteGeneratedSprite, referenceSets: spriteReferenceSets, referencePack: spriteReferencePack, detect: detectFace };
+  sets: generatedSpriteSets, delete: deleteGeneratedSprite, referenceSets: spriteReferenceSets, referencePack: spriteReferencePack, detect: detectFace,
+  ownBox: (character) => getGlobalSettings().sprites.visualSources[character]?.box };
 
 const rosterIdOf = (roster: readonly { id: string; name?: string }[], members: readonly { folder: string; name: string }[], folder: string): string => {
   const name = members.find((member) => member.folder === folder)?.name ?? folder;
@@ -88,8 +108,6 @@ export default function SpriteBuilder({ services = host }: { services?: SpriteBu
   const [sources, setSources] = useState<Array<{ label: string; path: string }>>([]);
   const [discovery, setDiscovery] = useState<ComfyDiscovery | null>(null);
   const [models, setModels] = useState({ diffusion: "", encoder: "", vae: "" });
-  const [box, setBox] = useState<HeadBox>({ x: 0, y: 0, width: 64, height: 64 });
-  const [size, setSize] = useState({ width: 1, height: 1 });
   const [kind, setKind] = useState<EditKind>("expression");
   const [label, setLabel] = useState("neutral");
   const [value, setValue] = useState("");
@@ -101,6 +119,7 @@ export default function SpriteBuilder({ services = host }: { services?: SpriteBu
   const [error, setError] = useState<string | null>(null);
   const [preview, setPreview] = useState<SpriteCandidate | null>(null);
   const [saved, setSaved] = useState<string | null>(null);
+  const { box, setBox, size, boxPending, repair, clearRepair, offerRepair, adoptOwnBox } = useHeadBox(reference, character, services, setError);
   const builder = useMemo(() => services.builder(), [services]);
   const live = useRef(true);
   useEffect(() => { live.current = true; return () => { live.current = false; builder.close(); }; }, [builder]);
@@ -115,10 +134,6 @@ export default function SpriteBuilder({ services = host }: { services?: SpriteBu
     return () => { current = false; };
   }, [character, services]);
 
-  const [boxFor, setBoxFor] = useState("");
-  const resolveBox = useCallback((next: HeadBox, source: string) => { setBox(next); setBoxFor(source); }, []);
-  useReferenceBox(reference, character, services, setSize, resolveBox, setError);
-  const boxPending = Boolean(reference) && boxFor !== boxSource(character, reference);
 
   const discover = async () => {
     setBusy(true); setError(null);
@@ -131,7 +146,7 @@ export default function SpriteBuilder({ services = host }: { services?: SpriteBu
 
   const generate = async () => {
     if (!discovery) return;
-    setBusy(true); setError(null); setPreview(null); setSaved(null);
+    setBusy(true); setError(null); setPreview(null); setSaved(null); clearRepair();
     try {
       const problems = recipeProblems(discovery, models);
       if (problems.length) throw new Error(problems.join(" "));
@@ -146,7 +161,11 @@ export default function SpriteBuilder({ services = host }: { services?: SpriteBu
         resolution, frameRegion: regions[reference] });
       if (result.timings) { result.timings.fingerprintMs = fingerprintMs; result.timings.totalMs += fingerprintMs; result.seconds = result.timings.totalMs / 1000; }
       if (live.current) setPreview(result);
-    } catch (reason) { if (live.current) setError(reason instanceof Error ? reason.message : String(reason)); }
+    } catch (reason) {
+      if (!live.current) return;
+      setError(reason instanceof Error ? reason.message : String(reason));
+      offerRepair(reason, box);
+    }
     finally { if (live.current) setBusy(false); }
   };
 
@@ -218,6 +237,8 @@ export default function SpriteBuilder({ services = host }: { services?: SpriteBu
       <button type="button" className="st-button" disabled={!busy} onClick={() => builder.cancel()}>Cancel render</button></div>
     {busy && <p role="status">Working on the sprite…</p>}
     {error && <p role="alert">{error}</p>}
+    {repair && <button id="so-sprite-use-own-box" type="button" className="st-button" disabled={busy} onClick={adoptOwnBox}>
+      Use {members.find((member) => member.folder === character)?.name ?? character}’s head box</button>}
     {preview && <SpritePreview candidate={preview} busy={busy} saved={Boolean(saved)} keep={() => void save()} />}
     {saved && <p role="status">Saved to {saved}</p>}
     <Suspense fallback={<p role="status">Loading poses…</p>}><PosesList /></Suspense>

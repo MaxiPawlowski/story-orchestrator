@@ -58,6 +58,8 @@
       "surface": "author", "rawError": false, "silentCatch": "probe", "verdict": "pass", "reason": "The face detector only anchors the head box: when it is not running the kept base gets the fraction head box, as before the detector existed." },
     { "site": "src/sprites/builder/builder.ts#read", "kind": 3, "template": ".catch(() => null)",
       "surface": "author", "rawError": false, "silentCatch": "probe", "verdict": "pass", "reason": "The face detector only adds the lid check to a blink: when it is not running the blink keeps the eye-white check alone." },
+    { "site": "src/sprites/builder/builder.ts#SpriteBuilder.faceInBox", "kind": 3, "template": ".catch(() => null)",
+      "surface": "author", "rawError": false, "silentCatch": "probe", "verdict": "pass", "reason": "The face detector only adds the face-in-box check before a face edit: when it is not running the edit renders and the mask import and frame checks still judge it." },
     { "site": "src/sprites/builder/builder.ts#SpriteBuilder.faceReasons", "kind": 3, "template": ".catch(() => null)",
       "surface": "author", "rawError": false, "silentCatch": "probe", "verdict": "pass", "reason": "The face detector only adds the lost-head check to a new look: when it is not running the look keeps the transparency checks alone." },
     { "site": "src/sprites/builder/headBox.ts#referenceHeadBox", "kind": 3, "template": ".catch(() => null)",
