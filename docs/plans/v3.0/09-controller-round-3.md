@@ -446,6 +446,50 @@ Floors for max = R (the lowest R that passes all of them is adopted, otherwise m
 5. With `memberCache.budgetMiB` 6144: lowest host RAM available during the stream, minus the cache's unfilled part
    (6144 minus the RAM the cache held then, counted as llama-server private bytes minus their value right after load), ≥ 10,240 MiB (the audit floor). If it misses, max keeps 4096.
 
+### M result (2026-10-26, 11:50-12:00Z)
+
+Run: `09/run-m.sh`, evidence `09/logs-m/`. Per arm:
+1. Text loaded.
+2. A 30-request fill: the lane 42 capture at 4× speed, so the member cache fills.
+3. Two SDXL scenes (`render-benchmark … auto scene 256`).
+4. `/status` before and after, and llama-server private bytes at each step.
+
+| | M1536 | M1024 |
+|---|---|---|
+| GPU free after text load | 2,179 MiB | 2,179 MiB |
+| image decision | swap-text ×2 | swap-text ×2 |
+| render | 21.2 / 14.2 s | 21.4 / 18.2 s |
+| reply after image (includes text reload) | 29.8 / 29.9 s | 29.8 / 30.9 s |
+| decode before → after image | 50.5→50.8, 46.5→50.8 | 50.7→50.9, 46.5→50.6 |
+| spill events / fit correction / reclaims / refusals | 0 / 0 / 0 / 0 | 0 / 0 / 0 / 0 |
+| lowest GPU free during the lease | 14,157 MiB (text swapped out) | 14,157 MiB |
+| llama-server private bytes: load → after fill | 23.7 → 30.0 GB (+6.2 GB: 6144 cache full) | same |
+| host RAM available before scene 1 (cache full) | 9,322 MiB | 7,831 MiB |
+| lowest host RAM during the lease | 15,452 MiB | 13,855 MiB |
+
+Findings:
+- With MTP, text leaves 2.2 GiB free, under the 2,400 MiB stream floor, so every SDXL image swaps text out. A
+  `fit`-placed text load lands at the same layout under both reserves. The GPU reserve therefore only decides
+  admission of reloads beside foreign VRAM: 1024 lets more of them in, and the spill guard backs off if one spills.
+- Every image swap restarts llama-server, which empties the RAM member cache. The first turn of each member after an
+  image is cold, whatever the budget.
+
+Floors:
+- R = 1024 passes floors 1-4. Floor 4 holds trivially: no stream started.
+- Floor 5 misses at 6144: the cache was full and only 7.8-9.3 GiB stayed available, against 10,240.
+
+**Result: Max = GPU headroom 1024, RAM 2048, member cache 4096** (commit `b6cc4f98`), plus stream on, idle restore
+180 s, warm image cache, and fit margin 512 (unchanged).
+
+This matches the owner's current `custom` values except idle restore (180 s, against 600 s now). Switching the owner
+to `max` therefore changes only that, and it labels the mode.
+
+Proposals, not built:
+1. A stream floor under 2,400 MiB, now that the spill guard exists. Measure at 2,048 with the guard on. This would keep
+   text and its member cache resident through SDXL images.
+2. Keeping the member cache across an image swap: park the keyed entries to disk with `/slots` save before the unload,
+   or move ComfyUI's model into the freed RAM instead of restarting llama-server.
+
 ## R: rewound entries and `checkpoint_at` (Fable §10 item 2; floors declared before the bench)
 
 Built on the patch branch `so-cache-patch` (commit `603203f`, binary `C:/dev/tools/llama-b11888-so2-cu128`). The owner's
