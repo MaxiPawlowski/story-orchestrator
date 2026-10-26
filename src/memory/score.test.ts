@@ -44,6 +44,14 @@ describe("scoreEntry", () => {
     expect(relevant).toBeGreaterThan(irrelevant);
   });
 
+  it("ranks a fact written near the current message above one written long before it", () => {
+    const context = ctx({ lastMessageId: 200 });
+    const near = scoreEntry(entry({ messageId: 195 }), context);
+    const far = scoreEntry(entry({ messageId: 5 }), context);
+    expect(near).toBeGreaterThan(far);
+    expect(scoreEntry(entry({ messageId: 195 }), ctx())).toBe(scoreEntry(entry({ messageId: 5 }), ctx()));
+  });
+
   it("rewards entity overlap with the current turn", () => {
     const context = ctx({ turnText: "Mara enters the room", turnEntities: ["Mara"] });
     const overlapping = scoreEntry(entry({ entities: ["Mara"] }), context);

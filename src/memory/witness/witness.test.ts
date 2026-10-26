@@ -247,6 +247,13 @@ describe("plan 42 B Wr: rollback by input range equals the replay of the kept re
     expect(witnessLookup(rolled, "b", 3)).toMatchObject({ state: "classified", heard: "yes" });
     expect(witnessState(rolled, 7)).toBe("invalidated");
     expect(witnessRevision(rolled)).not.toBe(witnessRevision(record));
+    const [tomb] = rolled.invalidated;
+    const ids = Array.from({ length: tomb.to - tomb.from + 1 }, (_, offset) => tomb.from + offset);
+    const lines = (named: number[]) => named.map((id) => `WITNESS m=${id} heard=a`);
+    const almost = acceptWitnessRead(rolled, "almost", witnessAudit("accepted", lines(ids.slice(0, -1)), at(tomb.from, tomb.to)).audit);
+    expect(almost.invalidated).toEqual(rolled.invalidated);
+    const all = acceptWitnessRead(rolled, "all", witnessAudit("accepted", lines(ids), at(tomb.from, tomb.to)).audit);
+    expect(all.invalidated).toEqual([]);
   });
 
   it("folding past the cap keeps every winning claim", () => {
