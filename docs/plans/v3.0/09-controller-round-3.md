@@ -355,3 +355,54 @@ vs 10.95 s (J1 partly contended by a gates run), warm 6.48 s on 18K-token prompt
 
 Partial rollback (keep the stock binary, drop only the patch): set `serverKeys false` (the controller works on any
 b11888+ binary without the patch); keep `store "ram"` or remove `memberCache` for the plan 08 behaviour.
+
+## M: performance modes on measured limits (owner ask "max memory"; floors declared before the bench)
+
+There is one toggle, and it already exists: `mode` max|balanced|safe (commit `3129bb28`: `cli.mjs mode`, `/ui`, and the
+tray's "Performance mode" submenu with `mode-probe`). Today each mode is a patch over these keys:
+
+| Key | max | balanced | safe | owner now (`custom`) |
+|---|---|---|---|---|
+| `reserves.gpuMiB` | 1536 | 2048 | 3072 | 1024 |
+| `reserves.ramMiB` | 3072 | 4096 | 6144 | 2048 |
+| `streamImages.enabled` / `minFreeGpuMiB` | on / 2400 | on / 2400 | off / 2400 | on / 2400 |
+| `idleRestoreMs` | 180000 | 600000 | 600000 | 600000 |
+| `keepTextResident` | on | on | on | on (default) |
+| `fitMarginMiB` | 512 | 512 | 512 | 512 |
+| `imageCacheMode` | warm | warm | evict | warm (default) |
+
+`custom` means a value was edited by hand or on `/ui`, so the config matches no preset. The owner's reserves were cut to
+1024/2048 during plan 80, which is lower than max. Nothing else in the config differs from max except `idleRestoreMs`.
+
+How the ask maps onto the toggle:
+- **max** is the default while playing. It uses VRAM and RAM up to the limit measured safe below.
+- **safe** is the headroom mode for development, when the PC runs other things. It is unchanged apart from the new
+  cache key.
+- **balanced** stays as it was.
+
+New in this round:
+1. Spill guard (commit `fe738667`). It detects a WDDM sysmem fallback through each GPU process's shared memory, then
+   raises the headroom and reloads text when the text server spilled. This is the back-off that makes a smaller
+   reserve acceptable.
+2. A new mode key, `memberCache.budgetMiB`, which is the llama-server `--cache-ram` size. It applies at the next text
+   load.
+   - max spends the freed RAM on member states: 6144 MiB, about four 1.3 GiB states, so a 4-member group stops
+     thrashing (audit risk 6).
+   - balanced keeps 4096.
+   - safe uses 2048.
+
+Bench: the branch controller with the A setup, one arm per candidate max reserve, R = 1024 and 1536 (the knob minimum
+is 1024).
+- Each arm: text loaded, then 2 SDXL scenes through `render-benchmark.mjs <arm config> auto scene 256`, each with the
+  128-token reply before it and the 256-token reply after it.
+- Then a RAM probe: member cache at 6144 with ComfyUI resident.
+- Readings: spill events from `/status`, lowest GPU free during the lease, `fitCorrectionMiB`, decode before and after,
+  and host RAM available (minimum).
+
+Floors for max = R (the lowest R that passes all of them is adopted, otherwise max keeps 1536):
+1. 0 spill events (text or ComfyUI) and `fitCorrectionMiB` 0.
+2. 0 refused requests: no 409 or MemoryReserveError.
+3. Decode after each image ≥ 90 % of decode before it.
+4. Lowest GPU free during each stream ≥ 256 MiB.
+5. With `memberCache.budgetMiB` 6144: lowest host RAM available during the stream, minus the cache's unfilled part
+   (6144 minus the RAM the cache held then, counted as llama-server private bytes minus their value right after load), ≥ 10,240 MiB (the audit floor). If it misses, max keeps 4096.
