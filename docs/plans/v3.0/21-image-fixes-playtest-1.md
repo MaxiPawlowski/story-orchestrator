@@ -25,7 +25,7 @@ Next stages: `20-visual-bridge.md`.
 - `d12deead`: harness images over ~1 MB are re-encoded as same-size JPEG before sending (opencode `WebSocket inbound queue
   overflow` refused live-head rigs; same miss as v2.8 74 and 80 a7/e2e26).
 
-## Owner settings changed (backups in `C:\devackups\story-orchestrator\`)
+## Owner settings changed (backups in `C:\dev\backups\story-orchestrator\`)
 
 - `image.directorProfileId` set to the existing "Image Director" profile (was a deleted profile id).
 - Stray `admin` removed from the scene purpose's extra negative.
