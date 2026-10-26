@@ -276,3 +276,98 @@ owner-install check that the discovered Qwen route resolves (`sprite-qwen-route-
 - Deviation: `lookHealth.test.ts` expectation changed on purpose (a character without an accepted source now gets the
   precise "No accepted base and bust" reason instead of "choose a reference expression pack").
 - Live gate: NOT run, owed (section 11). No ST staging, no GPU, no lanes in this task.
+- Live gate 2026-10-26 (lane 33, 3090, ComfyUI 8188, controller 18888, landmarks 8096; owner not playing). Verdict: NOT GREEN.
+  Check 1 fails on the live ComfyUI (D1), the on-demand changed look on the default route was not verified (D3), and the
+  journey misses gpu-idle.
+  - Build: `npm run build` in `C:\dev\so-bridge` at `cd5208a8` (clean; bundle `3a9a753f…`, 1,272,660 B). Served to the lane only
+    through the harness candidate route (`installCandidateRoute`, `dist/` of this worktree). Every probe run asserted the served
+    manifest commit. Nothing was staged into the owner's ST slot. Lane 33 went through `restore-model`, then `start 33 --headed`;
+    at the end it was stopped and set back with `no-model 33`.
+  - Harness deviations:
+    - The lane server runs the owner's installed server plugins, which lack `GET /packs`. The probe answered
+      `/api/plugins/story-orchestrator-media/packs` in the page with this branch's `readInstalledPacks(<lane>/data/default-user)`
+      from `packRoutes.mjs`, so the reader code is the same and only the Express mount is replaced.
+    - The fixture packs were built from POC showcase art (Pim neutral, bust, worried; a mirrored copy as the second look) and two
+      stock ST backgrounds as plates. Images are named by content hash under `/characters/SO-P41_packs/` and `/backgrounds/`.
+      The pack files are in `<lane data>/story-orchestrator/visual-packs/`.
+    - The probe story `SO-P41 Bridge` uses prepared Ash and Bram plus the pack-bound card `SO-P41 Pim`. The pack binds the start
+      checkpoint to a place, an unreached checkpoint to a second place, and a style. No campaign content was used.
+  - Commands:
+    - `node scripts/debug/st-lanes.mts run 33 -- scripts/debug/so-p41-journey.mts run 1 --candidate --keep --label vb20`
+    - the probe `vb-probe.mts <phases>`, with the lane env, run from `C:\dev\so-bridge`
+    - `node scripts/debug/st-lanes.mts run 33 -- scripts/debug/so-p41-journey.mts cleanup`
+    - `so-library.mts remove so-p41-bridge`
+  - Evidence: `C:\dev\so-lanes\reviews\visual-bridge-2026-10-26\`
+    - `p41-vb20-run1\record.json`
+    - `vb20\*.json|jsonl` and `vb20\probe.log`
+    - the probe and pack builder scripts, `packs-live.json` and the contact sheet `sheet.jpg`
+    - The originals are under `C:\dev\so-lanes\33\debug\{p41\2026-10-26T19-51-50-412Z-vb20-real-run1,vb20}`.
+  - Check 1, default Qwen recipe: FAIL as specified.
+    - The live state with empty `sprites.builders` is `spriteRecipe.status: missing`, and `sprite-qwen-route-missing` fires.
+      ComfyUI offers 2 Qwen VL encoders (`qwen3vl_8b…`, `qwen_2.5_vl_7b…`) and 2 Qwen VAEs (`qwen_image_2.1_vae_bf16`,
+      `qwen_image_vae`). Waiting: 11 characters (`recipe.json`, `scene-recipe-clear.json`). This is the same ComfyUI the owner's
+      install uses, so section 11's owner-install claim does not hold.
+    - With empty builders and no recipe, a cast scene is refused (`cast.jsonl` `pim`, 1.6 s).
+    - A harness fake of the `/discover` answer (one encoder and one VAE left; model folders untouched) gives `ready / discovered`
+      and the row is absent (`fake-single-on.json`).
+    - Prepared Ash's cast scene then rendered on the discovered route: `recipe_source: discovered`, root = Ash's accepted visual
+      source, 213 s cold.
+    - The on-demand changed look (Ash, `a yellow oilskin coat`, no builder entry) was not verified. It got `lookError` "Choose an
+      expression reference pack…" 7 s after the reload, before the default recipe had resolved (D3). Earlier attempts were harness
+      or environment (a member without authored poses while `sprites.poses` was on, and a wedged lane browser). The stop rule ended
+      the retries.
+    - `sprites.sceneRecipe` set (install) gives `ready / install`, the row is absent, and 2 cast scenes rendered with
+      `recipe_source: install`.
+    - A faked missing diffusion model makes the row fire with a precise problem. When restored, the real ambiguous state returns
+      (`qwen-missing.json`, `fake-off.json`).
+  - Check 2, pack-bound character: PASS (copy defect D2).
+    - Pim has no sprite folder and no builder, and stands from the pack's default look: stage path = the pack's base asset
+      `/characters/SO-P41_packs/so-p41-a1eed309….png` (`stage-default.json`).
+    - The `cape` checkpoint card effect switches Pim to set `pk_cape`, with path = the cape asset (`stage-pim-cape.json`).
+    - Cast scene, Pim alone, twice: identity root `pack:so-p41-pim@b074e703…`, `visual` recorded, 48 s and 52 s. The render matches
+      the pack art (`sheet.jpg`, left).
+    - Digest mismatch: Pim's installed pack edited after its digest is refused by the catalog. Pim leaves the stage and the cast
+      scene is refused (`tamper.json`). The refusal copy is the generic player line (D2). The pack was restored afterwards.
+  - Check 3, automatic SDXL picture: PASS (caveat D4).
+    - Real turn with everyN 1, Pim on her default look (`auto-default-look.json`): `prompt_source: directed`, and
+      `image_director.visual` recorded (packs pim, style, tavern; place `pack`; subject `pack/default`).
+    - Positive prompt: quality block, then `1girl` first, then pinned identity tags, then one shot tag (`cowboy shot`). No names, no
+      angle tags. Location `Harbor tavern common room` with its description.
+    - Director request (`auto-default-look-director-requests.json`): it holds the bound place and Pim's tags. It holds none of the
+      unworn look's field value or the unreached place's name, description or tags (4 spoiler strings, 0 found).
+  - Check 4, director 409 path: NOT REPRODUCED (`q409.json`).
+    - `image.direct(scene)` fired straight after the Pim cast scene was placed. The controller was already back in the `text` phase
+      (image lease released), so the director answered directed with no `director_issue`. No 409 appears in the lane log.
+  - Check 5, p41 journey on the branch build: NOT GREEN, 1 miss.
+    - The miss is gpu-idle: 14–15 % > 10 %, the known lane-browser draw.
+    - All other 31 steps pass. That includes the 3 steps e2e26 missed (rig Cleo, look-rebuild, background). Background is directed
+      now; it was the 409 refusal in e2e26.
+    - Against e2e26 (4 misses): 47 ComfyUI calls vs 45 (plan-80 floor ≤ 35, still a miss); 8 turns / 14 replies, 0 silent;
+      0 stale findings; cleanup leaked 0.
+  - Defects:
+    - D1: `src/sprites/defaultRecipe.ts:14-18`. Encoders and VAEs are matched by `/qwen/` alone, so an install holding both Qwen
+      Image generations is always ambiguous. The fix is to pair by generation (2.1 diffusion with `qwen3vl` and the 2.1 VAE), or to
+      prefer the name sharing the diffusion model's version token.
+    - D2: `src/image/CastSceneControls.tsx:24` shows only `CastSetupGap` messages. The no-recipe error
+      (`src/image/castSceneHost.ts:125`) and the no-source/refused-pack error (`castSceneHost.ts:57`) both reach the author as
+      "The last image could not be made. Try again in a moment.", even in Author view.
+    - D3: `src/sprites/builder/onDemand.ts:96` still throws the pre-bridge copy when no derived builder exists, instead of
+      `builderGap`. A look requested before `startDefaultRecipe` resolves (about 8 s after load) fails with that `lookError`.
+      Whether the stage retries after the recipe-changed reload is unverified.
+    - D4: `tagsByFamily` keys must equal the route family id (`sdxl-illustrious`, `src/image/catalog.ts:50`), but plan section 1
+      and `test/fixtures/visual-packs/*` use `illustrious`. A pack written to that example pins the `default` tags (live: the
+      `illustrious` set with `purple hooded coat` was skipped), and SDXL invented Pim's outfit (`sheet.jpg`, middle).
+    - D5, minor:
+      - `src/image/visualPlan.ts:24` joins a description that ends in `.` with `. ` (`hearth.. tavern interior`);
+      - the background prompt carries `no humans` twice (journey `background` step).
+  - Pre-existing, not from this branch: `src/sprites/stage.ts:347`. With `sprites.poses` on, looks go only through the body path,
+    so a member without authored poses gets no on-demand look.
+  - Cleanup:
+    - `so-p41-journey cleanup` removed the cards, groups, sprites, settings rows and the journey story (leaked 0);
+      `so-library remove` removed the bridge story.
+    - Residue moved to `C:\dev\backups\story-orchestrator\vb20-lane33-residue-20261026\`: 3 empty character folders, the pack
+      image folder, 2 plates, the visual-packs folder, the orphan first bridge chat and 2 image folders, plus a post-run copy of
+      `settings.json`.
+    - The lane's `sprites`, `display` and `image` settings were restored from ST's pre-run backup
+      (`settings_default-user_20261026-165052.json`).
+    - Lane stopped and set to no-model. The landmarks server was stopped.
