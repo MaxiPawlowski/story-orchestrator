@@ -5,6 +5,7 @@ import { spriteVisualCardPresent } from "@services/stHost/sprites";
 import { reserveGpu, releaseGpu, renewGpu, gpuBrokerStatus } from "@services/stHost/gpuBroker";
 import { log } from "@utils/log";
 import { builderRender } from "./settings";
+import { withDefaultBuilders } from "./defaultRecipe";
 import { contentHash, editGraph, recipeProblems } from "./builder/recipes";
 import { decodeImage, encodeImage } from "./builder/images";
 import { referenceProblems } from "./builder/referencePack";
@@ -18,7 +19,7 @@ const textHash = (value: string): Promise<string> => contentHash(new TextEncoder
 const dataHash = (data: string): Promise<string> => contentHash(Uint8Array.from(atob(data), (char) => char.charCodeAt(0)));
 
 async function viewRoute(character: string, signal: AbortSignal): Promise<ViewRoute> {
-  const config = getGlobalSettings().sprites.builders[character];
+  const config = withDefaultBuilders(getGlobalSettings().sprites).builders[character];
   if (!config) throw new Error("Configure this character's Qwen edit route under Prepare presentation first.");
   const discovery = await comfyDiscover(signal), problems = recipeProblems(discovery, config.models);
   if (problems.length) throw new Error(problems.join(" "));

@@ -157,8 +157,6 @@ export const CHECKPOINT_REASONING = ["off", "low", "medium", "high"] as const;
 
 export type CheckpointReasoning = (typeof CHECKPOINT_REASONING)[number];
 
-// Deterministic stagecraft (spec addendum §Stagecraft): the checkpoint names a background and the
-// boundary switches to it. A bare string authored form normalizes into this shape at parse time.
 export interface BackgroundEffect {
   name: string;
 }
@@ -389,9 +387,6 @@ export interface StoryRequirements {
   lorebooks?: string[];
 }
 
-// The explicit allowlist a background curator may write into (user decision). No
-// inference from requirements or effects: an absent or empty list means the curator has nothing to
-// write, full stop.
 export const STAGECRAFT_CREATE_CAP_DEFAULT = 5;
 export const STAGECRAFT_CREATE_CAP_MAX = 20;
 
@@ -411,11 +406,14 @@ export interface IllustrationLook {
   appearances?: Record<string, string>;
 }
 
+export type { VisualPackRef, StoryVisualPacks } from "./visualPackSchema";
+import type { StoryVisualPacks } from "./visualPackSchema";
 export interface StoryIllustrations extends IllustrationLook {
   checkpoints?: boolean;
   scenes?: boolean;
   workflows?: WorkflowMap;
   bundle?: Record<string, BundledWorkflow>;
+  packs?: StoryVisualPacks;
 }
 
 // The scene read's vocabulary. The judge can only select, so a location is asked only

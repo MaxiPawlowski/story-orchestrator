@@ -3,6 +3,7 @@ import type { ImageChat, ImageCharacter } from "@services/stHost/image";
 import { mentions } from "./lore";
 import { stripReasoningBlocks } from "@extraction/parse";
 import type { Route } from "./routing";
+import { tidyTags, type TagHygiene } from "./tagHygiene";
 
 export interface ImageRequest {
   purpose: Route["purpose"];
@@ -13,9 +14,10 @@ export interface ImageRequest {
 export interface ImageScene {
   target: number | null;
   messages: Array<{ name: string; text: string; target: boolean }>;
-  subjects: Array<{ key: string; name: string; appearance: string; focus: boolean; described?: boolean }>;
+  subjects: Array<{ key: string; name: string; appearance: string; focus: boolean; described?: boolean; identityTags?: string[] }>;
   focus: string | null;
   location: string | null;
+  placeDetail?: string;
   checkpoint: string | null;
   visualDetails?: string[];
   visualStyle?: string;
@@ -35,6 +37,7 @@ export const templateImagePrompt = (scene: ImageScene, purpose: string, text: st
   scene.visualStyle,
   purpose === "background" ? "Scenery, no people" : scene.subjects.filter((person) => !person.described).map((person) => person.appearance).filter(Boolean).join("; "),
   scene.location,
+  scene.placeDetail,
   scene.checkpoint,
   ...(scene.visualDetails ?? []),
   text,
@@ -61,7 +64,9 @@ export const sceneForImage = (chat: ImageChat, request: ImageRequest, contextMes
 };
 
 const TAG_SKILL = [
-  "Write 25–45 comma-separated visual tags for SDXL. Count only visible people.",
+  "Write 25–45 comma-separated visual tags for SDXL. Start with count tags (1girl, 1boy, 2girls, solo) that match the visible list exactly.",
+  "Each CURRENT CAST appearance is authoritative: never take hair, eyes or clothing from the STORY text; take only action, pose, expression and props from it.",
+  "Do not use from_below or from_above unless the instruction asks for that angle.",
   "Copy fixed hair, eyes, clothing from their descriptions. Do not include names, ages, artist names or quality tags.",
   "Describe one frozen moment and use a camera/framing tag.",
 ].join(" ");
@@ -82,10 +87,11 @@ export const imageMessages = (request: ImageRequest, scene: ImageScene, route: R
     `PURPOSE: ${request.purpose}; scene image is the target reply, background contains no people.`,
     request.text ? `INSTRUCTION: ${request.text}` : "",
     scene.checkpoint ? `STORY BEAT (not an image model): ${scene.checkpoint}` : "",
-    scene.location ? `CURRENT LOCATION: ${scene.location}` : "",
+    scene.location ? `CURRENT LOCATION: ${scene.location}${scene.placeDetail ? ` (${scene.placeDetail})` : ""}` : "",
     scene.visualStyle ? `STORY VISUAL DIRECTION: ${scene.visualStyle}` : "",
     `AVAILABLE IMAGE MODELS:\n${menu}`,
-    `CURRENT CAST:\n${scene.subjects.map((person) => `${person.name}${person.focus ? " (focus)" : ""}: ${person.appearance}`).join("\n") || "No people"}`,
+    `CURRENT CAST:\n${scene.subjects.map((person) => `${person.name}${person.focus ? " (focus)" : ""}${person.identityTags?.length ? " (identity tags, copy verbatim)" : ""}: `
+      + person.appearance).join("\n") || "No people"}`,
     scene.visualDetails?.length ? `NAMED NPCS AND PLACES VISIBLE IN THE STORY (appearance only):\n${scene.visualDetails.join("\n")}` : "",
     `STORY (newest last):\n${scene.messages.map((message) => `${message.target ? "TARGET " : ""}${message.name}: ${message.text}`).join("\n")}`,
   ].filter(Boolean).join("\n\n");
@@ -119,9 +125,14 @@ export const SHOT_TAGS: Record<Shot, string> = {
   close: "close-up", upper: "upper body", cowboy: "cowboy shot", full: "full body", wide: "wide shot", pov: "pov", from_above: "from above", from_below: "from below",
 };
 
-export const assembleImagePrompt = (route: Route, reply: ImageReply | null, text: string): { positive: string; negative: string } => {
-  const prompt = reply?.prompt ?? text;
-  const positive = [route.checkpoint.qualityBlock, ...route.positive, prompt, SHOT_TAGS[reply?.shot ?? route.shot]].filter(Boolean).join(", ");
+export const directedTags = (reply: ImageReply | null, text: string, pinned: string[], hygiene?: TagHygiene): string[] => {
+  if (!reply || !hygiene) return [...pinned, reply?.prompt ?? text];
+  const tidy = tidyTags(reply.prompt, pinned, hygiene);
+  return [...tidy.counts, ...tidy.pinned, ...tidy.rest];
+};
+
+export const assembleImagePrompt = (route: Route, reply: ImageReply | null, text: string, pinned: string[] = [], hygiene?: TagHygiene): { positive: string; negative: string } => {
+  const positive = [route.checkpoint.qualityBlock, ...route.positive, ...directedTags(reply, text, pinned, hygiene), SHOT_TAGS[reply?.shot ?? route.shot]].filter(Boolean).join(", ");
   const negative = [route.checkpoint.negativeBlock, ...route.negative, reply?.negative].filter(Boolean).join(", ");
   return { positive, negative };
 };

@@ -8,6 +8,7 @@ import { fingerprint, pngBytes, saveSprite, reconcileSet, deleteSprite, listSets
 import { createDownloads, SECRET_KEYS } from './downloads.mjs';
 import { mountDownloadRoutes } from './downloadRoutes.mjs';
 import { mountLandmarkRoutes } from './landmarkRoutes.mjs';
+import { mountPackRoutes } from './packRoutes.mjs';
 
 export const info = { id: 'story-orchestrator-media', name: 'Story Orchestrator media', description: 'Owned ComfyUI jobs and generated sprite files.' };
 const home = path.dirname(fileURLToPath(import.meta.url));
@@ -129,6 +130,7 @@ export async function init(router) {
     mountDownloadRoutes(router, { downloads: createDownloads({ config, log: (line) => console.log(`[story-orchestrator-media] ${line}`) }),
         readKey: (req, provider) => readProviderKey(req, provider), log: (line) => console.log(`[story-orchestrator-media] ${line}`) });
     mountLandmarkRoutes(router, { configured: config.landmarkUrl });
+    mountPackRoutes(router);
     console.log('[story-orchestrator-media] owned render jobs ready');
 }
 

@@ -27,6 +27,8 @@ import { applyLookResult } from "./lookApply";
 import { storedReadRecord, storedReads, type StoredRead } from "./storedReads";
 import { passageRead, passageTarget } from "./passageClick";
 import { castInventory, loadCast, SpriteListCache, type Actor } from "./castLoad";
+import { packedSet, packIdentityDeps } from "./packs/stagePacks";
+import { withDefaultBuilders } from "./defaultRecipe";
 import { stagePackIssues } from "./stageHealth";
 import { ExpressionCallRing, expressionDeps, type ExpressionCallTrace } from "./expressionCalls";
 export { storedReads, type StoredRead } from "./storedReads";
@@ -62,7 +64,7 @@ export class SpriteStage {
     this.snapshot = this.compose();
   }
   private settings(): SpriteSettings {
-    return this.manager.getEffectiveSettings().sprites;
+    return withDefaultBuilders(this.manager.getEffectiveSettings().sprites);
   }
   view = (): StageView => this.snapshot;
   beginHeadRun = () => beginRun(this.manager.getOwnership());
@@ -219,6 +221,7 @@ export class SpriteStage {
       list: (folder) => this.lists.get(cast.chatId, folder), keysFor: (name) => this.keysFor(name), builders: this.settings().builders,
       sources: this.settings().visualSources,
       verifySource: async (source) => (await import("./visualHost")).verifyVisualSource(source, new AbortController().signal),
+      ...packIdentityDeps(this.manager.getStory()),
 ...(Object.keys(this.settings().builders).length ? { bodies: async (folder: string) => (await import("@services/stHost/media")).generatedSpriteSets(folder),
         storyId: this.manager.getCachedSnapshot().storyId ?? undefined } : {}),
     });
@@ -311,7 +314,7 @@ export class SpriteStage {
       this.requestLook(actor);
       const cached = actor.generatedLook === JSON.stringify(fields) && actor.set.startsWith("look_") ? actor.set : null;
       const pending = Object.keys(fields).length && !look && this.settings().onDemand ? actor.set : null;
-      const wanted = [directed.set, look, cached, pending, actor.keyword, placeSet(actor.rules, place)].find((id) => id && actor.packs.has(id)) ?? "default";
+      const wanted = [directed.set, look, packedSet(actor, fields), cached, pending, actor.keyword, placeSet(actor.rules, place)].find((id) => id && actor.packs.has(id)) ?? "default";
       const face = moved && directed.face ? directed.face : actor.label;
       if (wanted === actor.set && face === actor.label) continue;
       actor.set = wanted;
@@ -348,7 +351,7 @@ export class SpriteStage {
     const member = story.roster.find((member) => (member.name ?? member.id).toLowerCase() === actor.name.toLowerCase());
     if (!member) return;
     const fields = cardValues(story, this.manager.getCachedSnapshot().blackboard, member.id, true);
-    if (!Object.keys(fields).length || cardSet(actor.rules, fields)) return;
+    if (!Object.keys(fields).length || cardSet(actor.rules, fields) || packedSet(actor, fields)) return;
     if (!this.looks) {
       const ticket = this.loading;
       if (!this.lookModule) this.lookModule = import("./builder/onDemand").then(({ OnDemandLooks }) => {

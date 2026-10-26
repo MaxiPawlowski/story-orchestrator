@@ -13,6 +13,7 @@ import StoryDisplayEditor from "./StoryDisplayEditor";
 import ReplyPolishEditor from "./ReplyPolishEditor";
 import WorkflowMapEditor, { useWorkflowNames } from "./WorkflowMapEditor";
 import BundledWorkflowsPanel from "./BundledWorkflowsPanel";
+import VisualPacksPanel from "./VisualPacksPanel";
 import { bundleMapped, installBundled, mappedNames } from "../workflowBundle";
 import { comfyDiscover } from "@services/stHost/media";
 import { useDraftStore } from "../draft";
@@ -302,6 +303,9 @@ const IllustrationsSection = ({ draft, mutate }: { draft: Draft; mutate: Mutate 
         const { [name]: _dropped, ...rest } = art?.bundle ?? {};
         update({ bundle: Object.keys(rest).length ? rest : undefined });
       }} />
+    <VisualPacksPanel packs={art?.packs} memberNames={Object.fromEntries(draft.roster.map((member) => [member.id, member.name ?? member.id]))}
+      checkpointNames={Object.fromEntries(draft.checkpoints.map((checkpoint) => [checkpoint.id, checkpoint.name]))}
+      onChange={(packs) => mutate((current) => setStoryField(current, "illustrations", { ...current.illustrations, packs }))} />
     {draft.roster.map((member) => <Field key={member.id} label={`${member.name ?? member.id} — appearance`} hint="Appearance the image-prompt model should preserve for this story's cast member.">
       <input className="text_pole st-input" aria-label={`${member.name ?? member.id} appearance`} value={art?.appearances?.[member.id] ?? ""}
         onChange={(event) => update({ appearances: { ...art?.appearances, [member.id]: event.target.value } })} />

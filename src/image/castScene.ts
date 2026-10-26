@@ -2,6 +2,7 @@ import { stableStringify } from "@runtime/hash";
 import { currentVisual, lookSignature, visualRoot, type VisualManifest, type VisualLook } from "../sprites/visualManifest";
 import { editGraph, type EditModels } from "../sprites/builder/recipes";
 import { builderRender, type SpriteSettings } from "../sprites/settings";
+export { discoveredSceneRecipe } from "../sprites/defaultRecipe";
 import { lookLayers } from "../sprites/poses/layers";
 import type { CardBinding } from "@engine/schema";
 
@@ -10,7 +11,8 @@ export const CAST_TWO_REFERENCE_MISSING = "Two characters need a second image in
   + "and this ComfyUI does not offer it. Update ComfyUI's Qwen nodes, or draw one character.";
 export class CastSetupGap extends Error { override name = "CastSetupGap"; }
 export class LookPending extends Error { override name = "LookPending"; }
-export interface CastSceneMember { character: string; fields: Record<string, string>; source?: VisualManifest; card?: CardBinding }
+export interface CastScenePack { root: string; look: VisualLook; substituted: boolean }
+export interface CastSceneMember { character: string; fields: Record<string, string>; source?: VisualManifest; card?: CardBinding; pack?: CastScenePack }
 export interface CastSceneIdentity { character: string; root: string; signature: string; look: VisualLook; layered?: string[] }
 function layeredLook(member: CastSceneMember & { source: VisualManifest }): { signature: string; look: VisualLook; layered: string[] } | null {
   if (!member.card) return null;
@@ -24,6 +26,8 @@ export function castSceneIdentities(members: CastSceneMember[]): CastSceneIdenti
     throw new Error("Choose one or two different prepared cast members.");
   }
   return members.map((member) => {
+    if (member.pack) return { character: member.character, root: member.pack.root, signature: lookSignature(member.fields), look: member.pack.look,
+      ...(member.pack.substituted && Object.keys(member.fields).length ? { layered: Object.keys(member.fields).sort() } : {}) };
     if (!member.source || member.source.character !== member.character) throw new Error("Prepare each selected character's base and bust first.");
     const source = member.source, signature = lookSignature(member.fields), look = currentVisual(source, signature);
     if (look) return { character: member.character, root: visualRoot(source), signature, look };
@@ -33,10 +37,23 @@ export function castSceneIdentities(members: CastSceneMember[]): CastSceneIdenti
   });
 }
 type SceneBuilder = Pick<SpriteSettings["builders"][string], "models" | "steps" | "resolution">;
+export type SceneRecipeSource = "builders" | "install" | "discovered";
+export interface SceneRecipe { models: SceneBuilder["models"]; steps: number; resolution: number; source: SceneRecipeSource }
+export const SCENE_RECIPE_MISSING = "No Qwen edit route is set for a selected character, and no install-wide scene recipe could be chosen. "
+  + "Set sprites.sceneRecipe, or configure the character's Qwen edit route under Prepare presentation.";
+export function sceneRecipe(selected: string[], builders: Record<string, SceneBuilder | undefined>, install: SceneBuilder | null, discovered: SceneBuilder | null): SceneRecipe {
+  const fallback = install ?? discovered;
+  if (!selected.length || (!fallback && selected.some((folder) => !builders[folder]))) throw new Error(SCENE_RECIPE_MISSING);
+  const source: SceneRecipeSource = selected.every((folder) => builders[folder]) ? "builders" : install ? "install" : "discovered";
+  return { ...mergedBuilders(selected.map((folder) => builders[folder] ?? fallback) as SceneBuilder[]), source };
+}
 export function castSceneBuilder(selected: string[], builders: Record<string, SceneBuilder | undefined>): { models: SceneBuilder["models"]; steps: number; resolution: number } {
   const configs = selected.map((folder) => builders[folder]);
   if (!configs.length || configs.some((config) => !config)) throw new Error("Configure every selected character's Qwen edit route under Prepare presentation.");
-  const ready = configs as SceneBuilder[], models = ready[0].models;
+  return mergedBuilders(configs as SceneBuilder[]);
+}
+function mergedBuilders(ready: SceneBuilder[]): { models: SceneBuilder["models"]; steps: number; resolution: number } {
+  const models = ready[0].models;
   if (ready.some((config) => stableStringify(config.models) !== stableStringify(models))) {
     throw new Error("The selected characters use different Qwen models. Choose the same diffusion, encoder and VAE for each before illustrating them together.");
   }

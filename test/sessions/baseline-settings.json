@@ -233,6 +233,7 @@
       "onDemand": true,
       "renderPreset": "standard",
       "builders": {},
+      "sceneRecipe": null,
       "poses": true,
       "customPoses": []
     },

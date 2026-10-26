@@ -1,0 +1,120 @@
+{
+  "formatVersion": 1,
+  "id": "fixture-wanderer",
+  "kind": "identity",
+  "revision": 1,
+  "styleRef": {
+    "id": "fixture-ink-style",
+    "digest": "5938b361433c66d4196b0e3abb68f46b2227711468af7cfc54a10666883d01b9"
+  },
+  "qa": {
+    "status": "accepted",
+    "rubric": "fixture-rubric-1"
+  },
+  "provenance": {
+    "source": "invented test fixture",
+    "recipe": "none"
+  },
+  "assets": [
+    {
+      "path": "/characters/Wanderer/pack/default_neutral.png",
+      "sha256": "28815f1b1dd4765c8179048e81cbd0aebc545f2913326cf7c3720ec650d40167",
+      "bytes": 1024,
+      "media": "image/png",
+      "role": "look:default:base",
+      "width": 512,
+      "height": 768
+    },
+    {
+      "path": "/characters/Wanderer/pack/default_bust.png",
+      "sha256": "0306e26074df1c5d8e3b8a536eeb25b17064aca918121f047ddc4fba560335c5",
+      "bytes": 1024,
+      "media": "image/png",
+      "role": "look:default:bust",
+      "width": 256,
+      "height": 256
+    },
+    {
+      "path": "/characters/Wanderer/pack/default_happy.png",
+      "sha256": "63dcaab6d60a519aadf51f23966ac4b745c6372331db346c62e0004b3eb1cdfa",
+      "bytes": 1024,
+      "media": "image/png",
+      "role": "look:default:happy",
+      "width": 512,
+      "height": 768
+    },
+    {
+      "path": "/characters/Wanderer/pack/rain_cloak_neutral.png",
+      "sha256": "36948c101e4dbb9b680bcf6203f286be5be417c514f17a3405d91f1b96863894",
+      "bytes": 1024,
+      "media": "image/png",
+      "role": "look:rain_cloak:base",
+      "width": 512,
+      "height": 768
+    },
+    {
+      "path": "/characters/Wanderer/pack/rain_cloak_happy.png",
+      "sha256": "1b98311bfd1496d2b984650e08b5e18a340290e2c99f3e1483c6e93ce0379c9c",
+      "bytes": 1024,
+      "media": "image/png",
+      "role": "look:rain_cloak:happy",
+      "width": 512,
+      "height": 768
+    },
+    {
+      "path": "/characters/Wanderer/pack/festival_robe_neutral.png",
+      "sha256": "6c619347825ff2d0287e3ce2d95bb9bc5286a9fb5ad5acb78db5eb8ea1bf6708",
+      "bytes": 1024,
+      "media": "image/png",
+      "role": "look:festival_robe:base",
+      "width": 512,
+      "height": 768
+    }
+  ],
+  "subjectId": "wanderer",
+  "traits": [
+    "short silver hair",
+    "amber eyes",
+    "freckles"
+  ],
+  "tagsByFamily": {
+    "illustrious": [
+      "1girl",
+      "short silver hair",
+      "amber eyes",
+      "freckles"
+    ],
+    "default": [
+      "short silver hair",
+      "amber eyes",
+      "freckles"
+    ]
+  },
+  "defaultLook": "default",
+  "looks": {
+    "default": {
+      "fields": {},
+      "base": "look:default:base",
+      "bust": "look:default:bust",
+      "expressions": {
+        "happy": "look:default:happy"
+      }
+    },
+    "rain_cloak": {
+      "fields": {
+        "outfit": "grey rain cloak"
+      },
+      "base": "look:rain_cloak:base",
+      "expressions": {
+        "happy": "look:rain_cloak:happy"
+      }
+    },
+    "festival_robe": {
+      "fields": {
+        "outfit": "embroidered festival robe"
+      },
+      "base": "look:festival_robe:base"
+    }
+  },
+  "digest": "9bc4a74d3f81b99f297feac04c4cb7c35d4ebc79738ad0b8ad88090260df12a3"
+}

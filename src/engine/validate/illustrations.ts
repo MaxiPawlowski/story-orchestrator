@@ -1,9 +1,13 @@
-import { ILLUSTRATION_PURPOSES, type BundledWorkflow, type IllustrationLook, type StoryIllustrations, type ValidationError, type WorkflowMap } from "../schema";
+import { ILLUSTRATION_PURPOSES, type BundledWorkflow, type IllustrationLook, type StoryIllustrations, type StoryVisualPacks, type ValidationError, type VisualPackRef,
+  type WorkflowMap } from "../schema";
 import { isRecord } from "@utils/guards";
 import { addError, rejectUnknownKeys } from "./common";
 
 const LOOK_KEYS = ["style", "appearances"] as const;
-const STORY_KEYS = ["checkpoints", "scenes", "workflows", "bundle", ...LOOK_KEYS] as const;
+const STORY_KEYS = ["checkpoints", "scenes", "workflows", "bundle", "packs", ...LOOK_KEYS] as const;
+const PACK_KEYS = ["style", "identities", "places"] as const;
+export const VISUAL_PACK_ID = /^[a-z0-9][a-z0-9_.-]{0,127}$/;
+export const VISUAL_PACK_DIGEST = /^[a-f0-9]{64}$/;
 export const isWorkflowFileName = (name: unknown): name is string => typeof name === "string" && /^[\w(][\w .()[\]+,;=!@#$%&'~-]{0,194}\.json$/i.test(name);
 
 export const readWorkflowMap = (value: unknown, path: string, errors: ValidationError[]): WorkflowMap | undefined => {
@@ -27,6 +31,44 @@ const readLookFields = (image: Record<string, unknown>, path: string, errors: Va
   };
 };
 
+const readPackRef = (value: unknown, path: string, errors: ValidationError[]): VisualPackRef | undefined => {
+  if (!isRecord(value)) return void addError(errors, path, "a pack binding is {id, digest}");
+  rejectUnknownKeys(value, ["id", "digest"], path, errors);
+  if (typeof value.id !== "string" || !VISUAL_PACK_ID.test(value.id)) return void addError(errors, `${path}.id`, "a pack id is lowercase letters, digits, '.', '_' or '-'");
+  if (typeof value.digest !== "string" || !VISUAL_PACK_DIGEST.test(value.digest)) return void addError(errors, `${path}.digest`, "a pack digest is the pack's sha256, 64 hex characters");
+  return { id: value.id, digest: value.digest };
+};
+
+const readPackMap = (value: unknown, path: string, errors: ValidationError[]): Record<string, VisualPackRef> | undefined => {
+  if (value === undefined) return undefined;
+  if (!isRecord(value)) return void addError(errors, path, "must map ids to pack bindings");
+  const map = Object.fromEntries(Object.entries(value).flatMap(([key, ref]) => {
+    const read = readPackRef(ref, `${path}.${key}`, errors);
+    return read ? [[key, read]] : [];
+  }));
+  return Object.keys(map).length ? map : undefined;
+};
+
+const readVisualPacks = (value: unknown, errors: ValidationError[]): StoryVisualPacks | undefined => {
+  if (value === undefined) return undefined;
+  if (!isRecord(value)) return void addError(errors, "illustrations.packs", "packs must be an object");
+  rejectUnknownKeys(value, PACK_KEYS, "illustrations.packs", errors);
+  const style = value.style === undefined ? undefined : readPackRef(value.style, "illustrations.packs.style", errors);
+  const identities = readPackMap(value.identities, "illustrations.packs.identities", errors);
+  const places = readPackMap(value.places, "illustrations.packs.places", errors);
+  const packs = { ...(style ? { style } : {}), ...(identities ? { identities } : {}), ...(places ? { places } : {}) };
+  return Object.keys(packs).length ? packs : undefined;
+};
+
+export const checkPackBindings = (packs: StoryVisualPacks | undefined, rosterIds: ReadonlySet<string>, checkpointIds: ReadonlySet<string>, errors: ValidationError[]): void => {
+  for (const id of Object.keys(packs?.identities ?? {})) {
+    if (!rosterIds.has(id)) addError(errors, `illustrations.packs.identities.${id}`, `unknown cast member '${id}'`);
+  }
+  for (const id of Object.keys(packs?.places ?? {})) {
+    if (!checkpointIds.has(id)) addError(errors, `illustrations.packs.places.${id}`, `unknown checkpoint '${id}'`);
+  }
+};
+
 export const readStoryIllustrations = (image: unknown, errors: ValidationError[]): StoryIllustrations | undefined => {
   if (image === undefined) return undefined;
   if (!isRecord(image)) return void addError(errors, "illustrations", "illustrations must be an object");
@@ -37,12 +79,14 @@ export const readStoryIllustrations = (image: unknown, errors: ValidationError[]
   const workflows = readWorkflowMap(image.workflows, "illustrations.workflows", errors);
   const bundle = image.bundle;
   if (bundle !== undefined && !isRecord(bundle)) addError(errors, "illustrations.bundle", "bundle must be an object");
+  const packs = readVisualPacks(image.packs, errors);
   const illustrations: StoryIllustrations = {
     ...(image.checkpoints === true ? { checkpoints: true } : {}),
     ...(image.scenes === true ? { scenes: true } : {}),
     ...readLookFields(image, "illustrations", errors),
     ...(workflows ? { workflows } : {}),
     ...(isRecord(bundle) ? { bundle: bundle as Record<string, BundledWorkflow> } : {}),
+    ...(packs ? { packs } : {}),
   };
   return Object.keys(illustrations).length ? illustrations : undefined;
 };

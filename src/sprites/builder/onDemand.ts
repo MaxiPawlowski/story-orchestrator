@@ -11,6 +11,7 @@ import { hostGenerating, waitForTextPriority } from "./textPriority";
 import { completeLookFrames, LOOK_FRAME_KINDS, lookFrameRequest, lookKeyInput, lookStillRequest } from "./lookFrames";
 import { frameIndex, type AnimationFrames } from "../animation";
 import { visualRoot } from "../visualManifest";
+import { withDefaultBuilders } from "../defaultRecipe";
 import { verifyVisualSource, sourceStillCurrent, publishDerivedVisual } from "../visualHost";
 import { anySignal } from "@utils/signals";
 
@@ -87,7 +88,7 @@ export class OnDemandLooks {
       if (accepted && !sourceStillCurrent(accepted)) throw new Error("The accepted visual source changed before this look was ready.");
     };
     try {
-      const settings = this.manager.getGlobalSettings().sprites;
+      const settings = withDefaultBuilders(this.manager.getGlobalSettings().sprites);
       const config = settings.builders[request.folder];
       guard();
       if (accepted) await verifyVisualSource(accepted, signal);

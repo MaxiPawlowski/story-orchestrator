@@ -43,6 +43,7 @@ const everything = (overrides: Record<string, unknown> = {}): RuntimeSnapshot =>
   imageHealth: IMAGE_HEALTH,
   imageRetired: [{ where: "background", was: "flux1-dev-fp8.safetensors" }],
   spriteLookIssues: [{ name: "Arin", reason: "Choose a reference expression pack in Studio." }],
+  spriteRecipe: { status: "missing", problem: "ComfyUI offers no Qwen Image 2.1 edit diffusion model.", source: null, waiting: ["Arin"] },
   spriteStage: { builtInExpressions: true, packIssues: [{ name: "Belle", reason: "no sprite pack on the card (so_sprites)" }], inventory: {} },
   gameAuthor: { quests: [], scopeOverflow: ["met_cartographer"], widgets: [], discoveryOverflow: ["heard_debt"] },
   sameCharacter: ["the captain"],
@@ -216,7 +217,7 @@ describe("v2.7 plan 04 C: one surface", () => {
 
   it("Getting started reads the install checks", () => {
     expect(installFindings(everything({ ui: { authorView: true } })).map((step) => step.check))
-      .toEqual(["context-over-server", "library-lost-to-tab", "state-size-large", "wi-gating-drift", "story-lore-global", "orphaned-lorebooks", "judge-route-uncalibrated", "styles-missing", "images-on-no-service", "image-model-missing", "image-model-retired", "image-prompt-profile-missing", "gpu-broker-no-text-model", "sprites-builtin-expressions"]);
+      .toEqual(["context-over-server", "library-lost-to-tab", "state-size-large", "wi-gating-drift", "story-lore-global", "orphaned-lorebooks", "judge-route-uncalibrated", "styles-missing", "images-on-no-service", "image-model-missing", "image-model-retired", "image-prompt-profile-missing", "sprite-qwen-route-missing", "gpu-broker-no-text-model", "sprites-builtin-expressions"]);
     expect(installFindings(everything()).map((step) => step.check)).toEqual(["context-over-server", "library-lost-to-tab", "state-size-large", "styles-missing", "sprites-builtin-expressions"]);
   });
 
