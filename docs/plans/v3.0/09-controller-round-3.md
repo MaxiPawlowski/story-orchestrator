@@ -531,6 +531,53 @@ Floors (the Fable floors plus the plan 09 decode band):
 Adopt A3 (or A2) into the owner's config only if every floor passes. A2 alone is adopted only if it passes floors 1, 4,
 5 and 6.
 
+### R result (2026-10-26, 12:00-13:25Z)
+
+Twelve runs (`09/logs-r/`, `aggregate.json`) plus the greedy check (`logs-r/greedy-{A3,P0}.json`).
+
+| | A (adopted) | A2 checkpoint_at | A3 + rewind | A3 at 2048 |
+|---|---|---|---|---|
+| chat TTFT p50 (3 repeats) | 7.37 s (7.37, 7.49, 7.29) | 3.39 s (3.39, 4.41, 3.32) | 3.36 s (3.36, 3.38, 3.29) | 10.80 s |
+| warm member switch p50 | 7.50 s | 3.31 s | 3.28 s | none warm |
+| warm share of member switches | (prefill request counted) | 0.71 | 0.92 | 0.00 |
+| cached state p50 | 866 MiB | 866 MiB | 808 MiB | 808 MiB |
+| chat decode / acceptance | 42.7 / 0.519 | 42.7 / 0.519 | 42.6 / 0.526 | 42.1 / 0.520 |
+| failed requests / rewind failures | 0 / — | 0 / — | 0 / 0 (78 rewinds) | 0 / 0 |
+| greedy equal to `cache_prompt: false` | 1 of 3 (first diff at char 188, 147) | not run | 1 of 3 (first diff at char 156, 316) | not run |
+
+The script found only 3 prompts that qualified, not 4.
+
+**What the adopted A gets wrong.** Its separate prefill-to-cut request is a different task from the chat request that
+follows it. That has two effects:
+- When the chat request adds its end-of-prompt checkpoints, llama-server's "too close to an earlier checkpoint" eviction
+  (in `create_checkpoint`, for checkpoints of other tasks) drops the newer cut checkpoints and keeps the member's first
+  one.
+- Each later turn of that member therefore re-prefills everything since its first turn: 1,296 → 2,221 → 3,061 → 3,933 →
+  4,808 → 5,709 tokens in run A r1.
+
+`checkpoint_at` creates the cut checkpoint inside the chat request itself. The per-turn prefill then stays at about
+2,050 tokens and TTFT stays flat at about 3.3 s. On the owner's live install, A's warm turns get slower as a chat grows.
+
+Floors:
+
+| Floor | Result |
+|---|---|
+| 1. warm p50 ≤ 3.0 s and ≤ A | **miss as written**: A3 3.28 s and A2 3.31 s are over 3.0 s, though under A's 7.50 s |
+| 2. state ≤ 0.8 GiB | pass (808 MiB = 0.79 GiB) |
+| 3. A3-2048 warm share ≥ 60 % | **miss**: 0 % |
+| 4. decode ±3 % and acceptance ±0.03 | pass |
+| 5. 0 failures and 0 rewind failures | pass |
+| 6. greedy identical | **miss as written**: 1 of 3. The adopted A control is also 1 of 3, so the divergence comes with any restored prefix (plan 06's batch-split rounding: same distribution, first divergence after a few hundred characters), not with checkpoint_at or rewind. |
+
+About floor 3: an entry holds the rewound state (808 MiB) and also the cut checkpoint (425 MiB), which is the same state
+stored twice. A 2,048 MiB cache therefore holds one member, and three members thrash.
+
+**Decision: nothing is adopted.** A2 and A3 both miss floors 1 and 6 as written. This goes to the owner with two facts:
+A2 halves warm TTFT against the adopted A on this corpus, and the adopted A misses floor 6 in the same way.
+
+Follow-up proposal, not built: after a rewind, drop the duplicated cut checkpoint (a few lines in `prompt_rewind_to_cut`).
+Entries would then hold about 808 MiB, so 2,048 MiB fits two members and 4,096 fits five. That needs one more bench arm.
+
 ## T: image/text thrash, plan 11a items (owner approved 2026-10-26; floors declared before the bench)
 
 Proposal: `C:\dev\so-b1\docs\plans\v3.0\11a-image-text-thrash-proposal.md` (branch `v3.0-b1-image-perf`). Built here.
