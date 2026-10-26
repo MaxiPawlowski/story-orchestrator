@@ -88,6 +88,7 @@ export function createGateway({ arbiter, config, fetchImpl = fetch, allowOrigin 
                 await reply.arrayBuffer();
                 if (!reply.ok) throw new Error(`prompt reuse step answered ${reply.status}`);
             };
+            let memberDone = false;
             const forward = async () => {
                 let memberPlan = null;
                 if (members && generating) {
@@ -106,8 +107,9 @@ export function createGateway({ arbiter, config, fetchImpl = fetch, allowOrigin 
                     await pipeline(Readable.fromWeb(response.body), timing, res);
                     if (response.ok && timing.timings) await arbiter.scheduler.recordTiming({ timings: timing.timings }).catch((error) => { arbiter.scheduler.lastError = error.message; });
                 } else res.end();
+                memberDone = true;
                 if (memberPlan && response.ok) await members.afterReply(memberPlan, { idle: memberIdle }).catch((error) => { members.lastError = error.message; members.noteOther(memberPlan.slot); });
-                else if (members?.afterOther && generating && !memberPlan) await members.afterOther(slot ?? 0).catch((error) => { members.lastError = error.message; });
+                else if (members?.afterOther && generating) await members.afterOther(slot ?? 0).catch((error) => { members.lastError = error.message; });
                 const park = reusing && !memberPlan && response.ok && slot === null ? reuse.park(idle()) : null;
                 if (park) await backendCall(park).catch((error) => { reuse.lastError = error.message; });
             };
@@ -116,7 +118,8 @@ export function createGateway({ arbiter, config, fetchImpl = fetch, allowOrigin 
             await arbiter.text(async () => {
                 if (body && GENERATION_ROUTES.includes(route)) await backend.forRequest(body, abort.signal, slot);
                 else await backend.ensure(backend.profile ?? config.defaultProfile);
-                await forward();
+                try { await forward(); }
+                finally { if (!memberDone && members?.afterOther && generating && backend.status().pid) await members.afterOther(slot ?? 0).catch((error) => { members.lastError = error.message; }); }
             }, abort.signal, GENERATION_ROUTES.includes(route) ? Number(body?.n_predict ?? body?.max_tokens ?? 1400) : null);
         } catch (error) {
             if (error instanceof ContextRefusal) answer(res, 400, { error: { code: 400, message: error.message, type: 'exceed_context_size_error', n_prompt_tokens: error.promptTokens, n_ctx: error.context } });

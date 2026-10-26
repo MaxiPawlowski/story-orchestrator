@@ -146,7 +146,8 @@ export class NativeBackend {
         const gpu = snapshot.gpus[0];
         const gpuBudget = gpu.freeMiB - Math.max(this.config.reserves.gpuMiB, fitTarget ?? 0);
         const spillMiB = Math.max(0, profileGpuMiB(this.config, profile) - gpuBudget);
-        const ramRequired = (profile.estimatedRamMiB ?? 6000) + spillMiB;
+        const ramCache = memberCacheOptions(this.config)?.store === 'ram' ? memberCacheOptions(this.config).budgetMiB : 0;
+        const ramRequired = (profile.estimatedRamMiB ?? 6000) + spillMiB + ramCache;
         if (gpuBudget < 2048 || snapshot.host.availableMiB < ramRequired + this.config.reserves.ramMiB || snapshot.host.commitFreeMiB < ramRequired + this.config.reserves.ramMiB) {
             throw new Error('Not enough free GPU/physical RAM for this profile while preserving desktop headroom.');
         }

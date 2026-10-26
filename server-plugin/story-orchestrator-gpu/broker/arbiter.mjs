@@ -2,6 +2,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { spawn as spawnDefault } from 'node:child_process';
 import { createHash } from 'node:crypto';
+import { stopIdleComfy } from './comfyReclaim.mjs';
 import { NativeBackend } from './backend.mjs';
 import { ResidencyScheduler } from './scheduler.mjs';
 import { memorySnapshot as memorySnapshotDefault, probeReserves } from './telemetry.mjs';
@@ -132,19 +133,15 @@ export function createArbiter(config, deps = {}) {
         return child;
     };
     let lastReclaim = null;
-    const stopIdleComfy = async ({ shortMiB = 0 } = {}) => {
-        const child = comfyChild;
-        if (!child || scheduler?.lease || scheduler?.imagePending) return false;
-        try { const queue = await jsonFetch('/queue'); if (queue.queue_running?.length || queue.queue_pending?.length) return false; } catch { return false; }
-        const ended = new Promise((resolve) => child.once('exit', resolve));
-        if (killTree && child.pid) await killTree(child.pid); else child.kill();
-        await Promise.race([ended, new Promise((resolve) => setTimeout(resolve, 15000).unref?.())]);
+    const reclaimComfy = async ({ shortMiB = 0 } = {}) => {
+        const result = await stopIdleComfy({ child: () => comfyChild, busy: () => Boolean(scheduler?.lease || scheduler?.imagePending || scheduler?.imageQueued), queue: () => jsonFetch('/queue'),
+            kill: async (child) => { if (killTree && child.pid) await killTree(child.pid); else child.kill(); }, timeoutMs: config.comfyStopTimeoutMs ?? 15000,
+            log: deps.log ?? ((line) => console.log(`[story-orchestrator-gpu] ${line}`)) }, { shortMiB });
         telemetryAt = 0;
-        lastReclaim = { at: new Date().toISOString(), pid: child.pid, shortMiB: Math.round(shortMiB) };
-        (deps.log ?? ((line) => console.log(`[story-orchestrator-gpu] ${line}`)))(`text reclaim: stopped the idle owned ComfyUI (pid ${child.pid}) because text was ${Math.round(shortMiB)} MiB short of the GPU reserve; the next image starts it again.`);
-        return true;
+        lastReclaim = { at: new Date().toISOString(), shortMiB: Math.round(shortMiB), ...result };
+        return result.stopped;
     };
-    const backend = deps.backend ?? new NativeBackend(config, { snapshot: () => snapshot({ fresh: true }), spawn: ownedSpawn, killTree, fetch: fetchImpl, reclaimGpu: stopIdleComfy });
+    const backend = deps.backend ?? new NativeBackend(config, { snapshot: () => snapshot({ fresh: true }), spawn: ownedSpawn, killTree, fetch: fetchImpl, reclaimGpu: reclaimComfy });
     const imageCache = deps.imageCache ?? new ImageCache({ config, jsonFetch, snapshot, emptyHostCache: async () => {
         const response = await fetchImpl(`${comfyUrl}/so-local/host-cache`, { method: 'POST', headers: { 'X-SO-Local': '1' }, signal: AbortSignal.timeout(15000) });
         if (response.status === 404 || response.status === 501) return false;

@@ -186,3 +186,21 @@ test('the member cache is off by default and gives up image RAM through the sche
     assert.equal(await arbiter.scheduler.onImageRam({ needRamMiB: 8000, availableMiB: 1000 }), 0);
     assert.equal(on.memberCache.status().entries, 0);
 });
+
+test('a generation that fails mid-way still clears the slot in the RAM member cache', async () => {
+    const arbiter = fakeArbiter({ pid: 7, loading: false, profile: 'fast' });
+    arbiter.scheduler.pending = [];
+    const order = [];
+    const members = { syncBackend: () => {}, before: async () => null, afterReply: async () => {}, noteOther: () => {}, afterOther: async (slot) => order.push(`erase ${slot}`), status: () => ({}) };
+    const fetchImpl = async () => { throw new Error('backend reset'); };
+    const gateway = createGateway({ arbiter, config: { modelAlias: 'm', defaultProfile: 'fast' }, fetchImpl, memberCache: members });
+    const { port } = await gateway.listen(0);
+    try {
+        const pending = fetch(`http://127.0.0.1:${port}/completion`, { method: 'POST', body: JSON.stringify({ prompt: 'side', n_predict: 4 }) });
+        while (!arbiter.queued.length) await new Promise((resolve) => setTimeout(resolve, 5));
+        arbiter.queued.shift()();
+        assert.equal((await pending).status, 409);
+        assert.deepEqual(order, ['erase 0']);
+    } finally { await gateway.close(); }
+});
+

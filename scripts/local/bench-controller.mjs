@@ -222,16 +222,24 @@ async function completeWithMember(item, budget, cutFirst, seen) {
         prefillMs: prefill?.ms ?? null, prefillPromptN: prefill?.promptN ?? null, saveMs: save.ms, saveOk: save.ok, fileMiB, promptN: (result.promptN ?? 0) + (prefill?.promptN ?? 0), reusedFinal: result.reused };
 }
 
-async function completeWithCache(cache, item, budget) {
+const gapMs = option('gap-ms') === null ? null : Number(option('gap-ms'));
+async function completeWithCache(cache, item, budget, lane) {
     const began = performance.now();
+    if (lane.pending) await lane.pending;
+    const laneWaitMs = Math.round(performance.now() - began);
     const body = requestBody(item, budget, 0);
     const plan = await cache.before(body, 0);
     const startedAt = performance.now();
     const result = await complete(body);
     const ttftMs = result.ttftMs === null ? null : Math.round(startedAt + result.ttftMs - began);
-    const saved = plan ? await cache.afterReply(plan) : null;
-    const erased = !plan && cache.store === 'ram' ? await cache.afterOther(0) : null;
-    return { ...result, ttftMs, member: plan?.key ?? null, erased: erased?.erased ?? null, cachedTokens: plan?.timing.cachedTokens ?? null, parked: saved?.parked ?? null, restoreMs: plan?.timing.restoreMs ?? null, restored: plan?.timing.restored ?? null, resident: plan?.timing.resident ?? null,
+    const responseAt = performance.now();
+    lane.arrival = gapMs === null ? Infinity : Date.now() + gapMs;
+    const after = (async () => ({ saved: plan ? await cache.afterReply(plan, { idle: () => Date.now() < lane.arrival }) : null,
+        erased: !plan && cache.store === 'ram' ? await cache.afterOther(0) : null, endedAt: performance.now() }))();
+    let saved = null; let erased = null; let totalMs = Math.round(responseAt - began);
+    if (gapMs === null) { const done = await after; saved = done.saved; erased = done.erased; totalMs = Math.round(done.endedAt - began); lane.pending = null; }
+    else lane.pending = after;
+    return { ...result, ttftMs, totalMs, laneWaitMs, member: plan?.key ?? null, erased: erased?.erased ?? null, cachedTokens: plan?.timing.cachedTokens ?? null, parked: saved?.parked ?? null, restoreMs: plan?.timing.restoreMs ?? null, restored: plan?.timing.restored ?? null, resident: plan?.timing.resident ?? null,
         prefillMs: plan?.timing.prefillMs ?? null, prefillPromptN: plan?.timing.prefillTokens ?? null, saveMs: saved?.saveMs ?? null, rewindMs: saved?.rewindMs ?? null,
         fileMiB: saved?.bytes ? Math.round(saved.bytes / 1048576) : null, saveReason: saved?.reason ?? null, promptN: (result.promptN ?? 0) + (plan?.timing.prefillTokens ?? 0), reusedFinal: result.reused, cache: cache.status() };
 }
@@ -253,6 +261,7 @@ async function runArm(config, corpus, arm, dir, telemetry) {
     const rows = [];
     const memberMode = arm.split('+').find((part) => part === 'member' || part === 'membercut');
     const seen = new Set();
+    const lane = { pending: null, arrival: Infinity };
     const parts = arm.split('+');
     const ram = parts.includes('ramcut');
     const cache = parts.includes('memcache') || ram ? new MemberCache({ ...memberCacheOptions({ memberCache: { enabled: true, dir: memberDir, budgetMiB: Number(option('member-budget', 6144)), rewind: !parts.includes('norewind'),
@@ -272,14 +281,15 @@ async function runArm(config, corpus, arm, dir, telemetry) {
             const slot = pinned(arm, config) ? (item.kind === 'chat' || item.kind === 'swipe' || item.kind === 'long' ? 0 : 1) : null;
             const budget = item.kind === 'chat' ? chatCap : item.kind === 'long' || item.kind === 'swipe' ? 32 : sideCap;
             telemetry.tag = `${arm}:${item.index}`;
-            const result = cache ? await completeWithCache(cache, item, budget)
+            const result = cache ? await completeWithCache(cache, item, budget, lane)
                 : memberMode && (item.kind === 'chat' || item.kind === 'swipe') ? await completeWithMember(item, budget, memberMode === 'membercut', seen)
                 : reuse ? await completeWithReuse(reuse, item, budget, slot) : await complete(requestBody(item, budget, slot));
-            await sleep(250);
+            await sleep(gapMs ?? 250);
             const { text, ...kept } = result;
             rows.push({ arm, index: item.index, kind: item.kind, role: item.role ?? item.kind, promptChars: item.body.prompt.length, ...kept, outputChars: text.length, ...(flag('keep-text') ? { text } : {}), ...telemetry.window(`${arm}:${item.index}`) });
             process.stdout.write(`${arm} ${item.index} ${item.kind} ttft=${result.ttftMs} pn=${result.promptN} reused=${result.reused} tps=${result.decodeTps?.toFixed(1)} acc=${result.draftAccepted ?? '-'}/${result.draftN ?? '-'}${result.member ? ` member=${result.member} restore=${result.restoreMs} prefill=${result.prefillMs}/${result.prefillPromptN} rewind=${result.rewindMs} save=${result.saveMs} file=${result.fileMiB}MiB${result.saveReason ? ` skip=${result.saveReason}` : ''}` : ''}\n`);
         }
+        if (lane.pending) await lane.pending;
         const log = await fs.readFile(server.logFile, 'utf8');
         return { arm, args: server.args, loadMs: server.loadMs, baselineGpuFreeMiB: Number(baseline), afterLoad, counts: serverCounts(log), rows };
     } finally { await stopServer(server); }
@@ -288,15 +298,15 @@ async function runArm(config, corpus, arm, dir, telemetry) {
 function summarize(result) {
     const rows = result.rows.filter((row) => Number.isInteger(row.index));
     const by = (kind) => rows.filter((row) => row.kind === kind);
-    const stat = (list, key) => ({ p50: median(list.map((row) => row[key])), p90: pct(list.map((row) => row[key]), 0.9), mean: list.length ? Math.round(list.reduce((sum, row) => sum + (row[key] ?? 0), 0) / list.length) : null });
+    const stat = (list, key) => ({ p50: median(list.map((row) => row[key])), p90: pct(list.map((row) => row[key]), 0.9), p95: pct(list.map((row) => row[key]), 0.95), max: Math.max(...list.map((row) => row[key]).filter(Number.isFinite)), mean: list.length ? Math.round(list.reduce((sum, row) => sum + (row[key] ?? 0), 0) / list.length) : null });
     const side = rows.filter((row) => row.kind !== 'chat');
     const accepted = rows.reduce((sum, row) => sum + (row.draftAccepted ?? 0), 0);
     const drafted = rows.reduce((sum, row) => sum + (row.draftN ?? 0), 0);
-    const turns = rows.map((row, at) => (row.kind === 'chat' && at >= 2 && rows[at - 1].kind !== 'chat' && rows[at - 2].kind !== 'chat' ? row.ttftMs + rows[at - 1].ttftMs + rows[at - 2].ttftMs : null)).filter(Number.isFinite);
+    const turns = rows.map((row, at) => (row.kind === 'chat' && at >= 2 && rows[at - 1].kind !== 'chat' && rows[at - 2].kind !== 'chat' ? row.ttftMs + rows[at - 1].totalMs + rows[at - 2].totalMs : null)).filter(Number.isFinite);
     const long = result.rows.find((row) => row.index === 'long');
     const swipe = result.rows.find((row) => row.index === 'swipe');
     return { arm: result.arm, loadMs: result.loadMs, gpuFreeAfterLoadMiB: result.afterLoad.gpuFreeMiB, ramAvailAfterLoadMiB: result.afterLoad.ramAvailMiB,
-        ttftChat: stat(by('chat'), 'ttftMs'), ttftSide: stat(side, 'ttftMs'), ttftAll: stat(rows, 'ttftMs'), memberTurnMs: { p50: median(turns), n: turns.length },
+        ttftChat: stat(by('chat'), 'ttftMs'), ttftSide: stat(side, 'ttftMs'), ttftAll: stat(rows, 'ttftMs'), memberTurnMs: { p50: median(turns), p95: pct(turns, 0.95), n: turns.length, definition: 'chat TTFT + inner and read totals (incl. decode and cache work)' }, gapMs,
         promptProcessedSum: rows.reduce((sum, row) => sum + (row.promptN ?? 0), 0), reusedSum: rows.reduce((sum, row) => sum + (row.reused ?? 0), 0),
         prefillTps: median(rows.filter((row) => row.promptN >= 1000).map((row) => row.prefillTps)), decodeTpsChat: median(by('chat').map((row) => row.decodeTps)),
         decodeTpsSide: median(side.map((row) => row.decodeTps)), wallMs: rows.reduce((sum, row) => sum + row.totalMs, 0),
