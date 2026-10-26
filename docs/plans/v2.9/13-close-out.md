@@ -203,3 +203,13 @@ About 2 h of model time plus the playtest.
 - C2: should a `degraded` final record still count as an ended run for New Game+ (it carries the blackboard, not the summary)?
 - ~~C8: should `suite:nomodel` select a memory profile on no-model lanes for checks that need one configured but never call it?~~
   Yes: the lane prepare selects a configured profile on the closed port 18079 (see §C8 result).
+
+## GPU rows 2026-10-26 (lane 45, staged `90bfb9cc`)
+
+- C6 A02 `v29-a02-stopped-reply.json` (model lane): GREEN x2 (batch `2026-10-26T04-10-55-498Z`).
+- J6 run 1 (batch `2026-10-26T04-14-24-497Z`): 10/11, J6.11 PASS (the `edf81db3` fix confirmed on a model lane); J6.4 FAIL was fixture
+  drift (Overview tab is Author-only, the rollback notice is on Play), fixed `7cd57056`.
+- J6 run 2 (batch `2026-10-26T04-24-27-988Z`, with the fix): J6.4 PASS; J6.8 FAIL (passed in run 1: model-dependent read evidence,
+  flaky); J6.11 BLOCKED by a page navigation mid-evaluate (harness, passed in run 1). Every J6 check passed at least once; not green x2.
+- Image journey p41 (lane 46, 2026-10-26): 31/32; frames[Cleo] refused 2/2: cause = stale head box from the previous member (race in
+  `SpriteBuilder.tsx`), fix on `v2.9-frames-mask` (`b12f4778`), GPU verification after the C8 suite releases the stage.
