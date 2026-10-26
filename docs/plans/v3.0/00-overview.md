@@ -199,6 +199,23 @@ Each flag from the owner's playthrough (Flag button + end notes) gets one verdic
 | E | 01, 04, 05.x, v2.9 03 S2/S3, v2.8 55-59, V3.0 rows | parked on triggers |
 | F | v2.9 11 B3, B6 review, F3 | not started |
 
+### Owner decisions 2026-10-26 ("as recommended")
+
+1. Order A -> B -> triage -> D -> C, with B1 images in parallel with A1.
+2. No controller changes on the owner's install during a play session.
+3. Max memory is the default; the tray toggle frees headroom.
+4. Output-changing bar: blind Sol rating on >= 25 real prompts, no category below -0.2, flags <= control + 2; thinking closure "no worse than control", declared before the run.
+5. Downloads OK if they fit: a ComfyUI attention backend, an IQ4_XS Artemis file. Image-to-video models only with 6.
+6. 05.7 image-to-video: one short trial, after B1.
+7. 05.5 per-chat avatars: wait for playtest flags.
+8. C1 witness redesign: offline design + scoring now, GPU later.
+9. R5 48K context: test once A2 max memory works.
+10. v2.9 03 S3: polish stays off; drop S3 for now.
+11. v2.8 55-59: stay parked until a playtest flag names the gap.
+12. SP1: count swipe-backs from the owner's playthrough; that decides S4.
+13. D1 06 usefulness: one prompt change and a rerun.
+14. llama.cpp patch: keep the fork for now; decide upstreaming after it is proven in play.
+
 ### Unresolved questions (owner decisions)
 
 1. Track order A -> B -> playtest triage -> D -> C: confirm, or put images (B1) level with A1?
