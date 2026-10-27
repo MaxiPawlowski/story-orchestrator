@@ -2,7 +2,7 @@ import { maxTokensCap } from "./callBudget";
 import { chunkMessages } from "./chunker";
 import { inputBudget } from "./inputBudget";
 import type { Preflight } from "./preflight";
-import { transcriptPrefixCost } from "./sharedRead";
+import { transcriptPrefixCost } from "./sharedReadEntry";
 import type { RequestBudget } from "./tokenMeter";
 import type { ChatMessageWindowEntry, SharedReadWindow } from "./types";
 

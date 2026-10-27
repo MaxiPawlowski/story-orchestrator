@@ -3,7 +3,8 @@ import type { RuntimeManager } from "@runtime/runtimeManager";
 import { getGlobalSettings } from "@runtime/settingsStore";
 import { cardValues, publicLook } from "@engine/cardFields";
 import type { PrimitiveValue, RosterMember } from "@engine/index";
-import { comfyDiscover, comfyFingerprint, comfyReference, comfyReleaseReference, comfyRenderOwned, spriteFileFingerprint } from "@services/stHost/media";
+import { comfyFingerprint, comfyReference, comfyReleaseReference, comfyRenderOwned, spriteFileFingerprint } from "@services/stHost/media";
+import { discoverWaking } from "../sprites/builder/comfyWake";
 import { spriteCast } from "@services/stHost/sprites";
 import { imageChat, imageSave, imagePlace, imageDelete } from "@services/stHost/image";
 import { reserveGpu, releaseGpu, renewGpu } from "@services/stHost/gpuBroker";
@@ -131,7 +132,7 @@ export async function renderQwenJob(job: QwenJob, signal: AbortSignal): Promise<
   const started = Date.now();
   job.guard(); signal.throwIfAborted();
   await verifyInputs(job, signal);
-  const discovery = await comfyDiscover(signal);
+  const discovery = await discoverWaking(signal);
   const settings = getGlobalSettings().sprites, selected = job.members.map((member) => member.character);
   const config = (() => {
     try { return sceneRecipe(selected, settings.builders, settings.sceneRecipe, discoveredSceneRecipe(discovery)); }

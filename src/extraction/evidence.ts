@@ -8,7 +8,7 @@
 // minimum span is one whole word. There is still no character-length rule: the review's own
 // evidence is the seven-character `"crossed"`, and a bool may legitimately cite `yes`.
 
-import { PLAYER_MARK } from "./contract";
+import { PLAYER_MARK } from "./question";
 
 const QUOTES = /["'‘’“”`]/g;
 // The elision marker has to survive punctuation stripping to still be a marker at split time.

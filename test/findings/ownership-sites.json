@@ -189,13 +189,13 @@
       "status": "local",
       "note": "v2.3 replan V3 (2026-09-23): writes only the pass-local `decisions` map; judge.ask records its own ring entry under its own check (JudgeRuntime.ask is checked)."
     },
-    "src/runtime/coordinators/copilotCoordinator.ts#CopilotCoordinator.recheckCreatedCard": {
+    "src/runtime/copilotProvisioning.ts#recheckCreatedCard": {
       "status": "local",
-      "note": "v2.8 09 harvest: after the read-back await it writes only the wizard session's created-card ledger (install-wide settings, keyed by avatar); no host write, so a stale run can at worst record a fresher read-back state."
+      "note": "v2.8 09 harvest: after the read-back await it writes only the wizard session's created-card ledger (install-wide settings, keyed by avatar); no host write, so a stale run can at worst record a fresher read-back state. v3.0 24 (2026-10-27): moved unchanged out of CopilotCoordinator into the lazy copilotProvisioning chunk; the coordinator method is a one-line delegate."
     },
-    "src/runtime/coordinators/copilotCoordinator.ts#CopilotCoordinator.applyProvisioning": {
+    "src/runtime/copilotProvisioning.ts#applyProvisioning": {
       "status": "checked",
-      "note": "v2.3 plan 03: checks ownership before every host write, including between lorebook activation and the entry upsert. Host writes already in flight remain non-atomic by plan design. Review 2026-10-16 #2 (v2.8 69 K12): the run is also handed to the stHost lorebook writer, which re-checks it after each of its own awaits (load, preflight server read, pending-edit flush) and immediately before the save and each debounce-rescue save; a lapse inside the writer writes nothing (stHost/worldInfoConflict.review.test.ts, runtime/wiWriterRun.review.test.ts)."
+      "note": "v2.3 plan 03: checks ownership before every host write, including between lorebook activation and the entry upsert. Host writes already in flight remain non-atomic by plan design. Review 2026-10-16 #2 (v2.8 69 K12): the run is also handed to the stHost lorebook writer, which re-checks it after each of its own awaits (load, preflight server read, pending-edit flush) and immediately before the save and each debounce-rescue save; a lapse inside the writer writes nothing (stHost/worldInfoConflict.review.test.ts, runtime/wiWriterRun.review.test.ts). v3.0 24 (2026-10-27): moved unchanged out of CopilotCoordinator into the lazy copilotProvisioning chunk; the coordinator method is a one-line delegate that writes nothing."
     },
     "src/runtime/coordinators/expansionCoordinator.ts#ExpansionCoordinator.commitValidated": {
       "status": "delegate",
@@ -851,7 +851,7 @@
     },
     "src/copilot/agent/drive.ts#confirmProvisioning": {
       "status": "checked",
-      "note": "v2.6 plan 04 agent bridge (2026-09-30): the author's confirmation of a provisioning step. The asset is created through the install's own write path (applyProvisioning, censused as CopilotCoordinator.applyProvisioning); the draft follow-ups (requirements, roster) are applied only when the draft run minted before that await still holds (drive.test.ts \"a provisioning confirmed after the draft was replaced leaves the draft alone\")."
+      "note": "v2.6 plan 04 agent bridge (2026-09-30): the author's confirmation of a provisioning step. The asset is created through the install's own write path (applyProvisioning, censused as applyProvisioning in runtime/copilotProvisioning.ts); the draft follow-ups (requirements, roster) are applied only when the draft run minted before that await still holds (drive.test.ts \"a provisioning confirmed after the draft was replaced leaves the draft alone\")."
     },
     "src/copilot/agent/loop.ts#advanceAgent": {
       "status": "local",

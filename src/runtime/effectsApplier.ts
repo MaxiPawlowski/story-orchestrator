@@ -99,6 +99,8 @@ export const NO_OPEN_GROUP = "the effect was not applied: stories play in group 
 const openChatId = () => String(getContext().chatId ?? "");
 const openGroupId = () => String(getContext().groupId ?? "");
 
+const openingAwaitsPlayer = (extras: RuntimeExtras): boolean => extras.lastSelfInjectionMessageId === lastMessageId() && !playerHasSpoken();
+
 export class EffectsApplier {
   private speaking = 0;
   constructor(private readonly ownership: RunOwnership, private readonly deps: EffectApplierDeps = {}) {}
@@ -474,7 +476,7 @@ export class EffectsApplier {
     checkpoint: Checkpoint, extras: RuntimeExtras, trigger: NpcReplyTrigger, breakAt?: number, speakerAliases: string[] = [], allow?: (reply: NpcReplyEffect) => boolean,
   ): Promise<number> {
     if (trigger === "afterSpeak" && (this.speaking > 0 || extras.lastSelfInjectionMessageId === lastMessageId())) return 0;
-    if (trigger === "sceneBreak" && (this.speaking > 0 || (breakAt !== undefined && extras.lastSelfInjectionMessageId === breakAt))) return 0;
+    if (trigger === "sceneBreak" && (this.speaking > 0 || (breakAt !== undefined && extras.lastSelfInjectionMessageId === breakAt) || openingAwaitsPlayer(extras))) return 0;
     const aliases = speakerAliases.map((alias) => alias.trim().toLowerCase());
     const authored = readNpcReplies(checkpoint.effects);
     const replies = authored.filter((reply) => reply.trigger === trigger && (!allow || allow(reply)));

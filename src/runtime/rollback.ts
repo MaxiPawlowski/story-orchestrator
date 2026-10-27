@@ -79,6 +79,9 @@ export const rollbackRecord = (previous: RollbackRecord | null | undefined, mess
 const historyNote = (messageId: number, oldest: { boundary: number }): string =>
   `message ${messageId} is older than what this chat can reconstruct (oldest boundary ${oldest.boundary}); the messages the edit invalidated were dropped and the story was not stepped back`;
 
+const keepsSelfInjection = (id: number | null, messageId: number, kind?: RollbackKind): boolean =>
+  typeof id !== "number" || id < messageId || (id === messageId && kind !== undefined && kind !== "delete");
+
 export async function runRollback(deps: RollbackDeps, messageId: number, decoded?: DecodeJournal, kind?: RollbackKind, removed?: number): Promise<RollbackOutcome> {
   const outcome = await rollbackOnce(deps, messageId, decoded, kind, removed);
   deps.notices.lastOutcome = rollbackRecord(deps.notices.lastOutcome, messageId, outcome, new Date().toISOString());
@@ -113,7 +116,7 @@ async function rollbackOnce(deps: RollbackDeps, messageId: number, decoded?: Dec
     if (extras.speech) extras.speech = rewindSpeech(extras.speech, messageId, mutation);
     const deferred = rewindDeferredOpener(extras.deferredOpener, messageId, mutation);
     if (deferred) extras.deferredOpener = deferred; else delete extras.deferredOpener;
-    if (typeof extras.lastSelfInjectionMessageId === "number" && extras.lastSelfInjectionMessageId >= messageId) extras.lastSelfInjectionMessageId = null;
+    if (!keepsSelfInjection(extras.lastSelfInjectionMessageId, messageId, kind)) extras.lastSelfInjectionMessageId = null;
     extras.extraction.audits = extras.extraction.audits.filter((audit) => audit.window.to < messageId);
     extras.lore = rollbackLoreFired(extras.lore, messageId);
     if (extras.chance) extras.chance = rollbackChanceDraws(extras.chance, messageId);

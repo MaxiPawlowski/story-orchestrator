@@ -114,6 +114,17 @@ describe("automatic pictures: who can be drawn from references", () => {
     const check = await qwenCheck(story, visual, values);
     expect(check(["Wanderer"])).toMatchObject({ ok: false, reason: "media-unavailable" });
   });
+
+  it("D10: a stopped ComfyUI is woken by a discovery lease before the reference check", async () => {
+    const { values } = setup();
+    jest.mocked(comfyDiscover).mockRejectedValueOnce(new Error("fetch failed"));
+    const visual = await visualBridge().scene({ story, members: ["wanderer"], values, path: ["quay"], family: "sdxl-illustrious" }, { fresh: true });
+    const check = await qwenCheck(story, visual, values);
+    expect(check(["Wanderer"]).ok).toBe(true);
+    expect(jest.mocked(reserveGpu).mock.calls.map(([request]) => request?.workflowKey)).toEqual(["comfy-discovery"]);
+    expect(jest.mocked(releaseGpu)).toHaveBeenCalledWith("lease");
+    expect(jest.mocked(comfyDiscover)).toHaveBeenCalledTimes(2);
+  });
 });
 
 describe("automatic pictures: the reference render", () => {

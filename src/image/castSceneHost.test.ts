@@ -93,6 +93,13 @@ test("cast pipeline uploads image bytes, places accepted-lineage metadata and re
   expect(releaseGpu).toHaveBeenCalledWith("owned-lease"); expect(comfyReleaseReference).toHaveBeenCalledWith("owned-ref.png");
 });
 
+test("D10: a cast scene wakes a stopped ComfyUI with a discovery lease before it reads the recipe", async () => {
+  const f = setup(); jest.mocked(comfyDiscover).mockRejectedValueOnce(new Error("fetch failed"));
+  await expect(drawPreparedCast(f.manager, f.queue, ["Synthetic"], "A fountain")).resolves.toBe("/images/synthetic.png");
+  expect(jest.mocked(reserveGpu).mock.calls.map(([request]) => request?.workflowKey)[0]).toBe("comfy-discovery");
+  expect(reserveGpu).toHaveBeenCalledTimes(2); expect(comfyRenderOwned).toHaveBeenCalledTimes(1);
+});
+
 test.each(["chat", "source", "cancel"])("%s during render discards the result before saving or placement and releases resources", async (event) => {
   const f = setup(); jest.mocked(comfyRenderOwned).mockImplementation(async () => {
     if (event === "chat") f.lapse(); if (event === "source") jest.mocked(sourceStillCurrent).mockReturnValue(false); if (event === "cancel") f.queue.cancelAll();

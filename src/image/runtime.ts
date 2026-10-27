@@ -30,6 +30,8 @@ import { busyWork } from "@runtime/busy";
 import { bindsPacks, visualRecord, type VisualScene } from "../sprites/packs/scene";
 import { pinnedTags, visualMembers, withVisualScene } from "./visualPlan";
 import { brokerSettled, withDirectorRetry } from "./directorRetry";
+import { discoverWaking } from "../sprites/builder/comfyWake";
+import { NEVER_ABORTS } from "@utils/signals";
 const workflowKit = () => import("./workflowRender");
 const qwenKit = () => import("./autoSceneHost");
 const visualBridge = () => import("../sprites/packs/bridgeHost").then((kit) => kit.visualBridge());
@@ -289,7 +291,7 @@ export class StoryImageDirector {
     } finally { run.release(); }
   }
 
-  async plan(request: ImageRequest, args: ImageArgs = {}): Promise<ImagePlan> {
+  async plan(request: ImageRequest, args: ImageArgs = {}, signal: AbortSignal = NEVER_ABORTS): Promise<ImagePlan> {
     const chat = imageChat();
     if (!chat) throw new Error("Open a chat before generating an image.");
     if (!chat.groupId) throw new Error("Open a group chat before generating story illustrations.");
@@ -314,14 +316,14 @@ export class StoryImageDirector {
     }
     let route = resolveImageRoute(settings, request.purpose, args, this.override());
     if (settings.backend === "comfy") {
-      const resolved = resolveCheckpointFile(route.checkpoint.file, route.family.id, (await comfyDiscover()).checkpoints);
+      const resolved = resolveCheckpointFile(route.checkpoint.file, route.family.id, (await discoverWaking(signal)).checkpoints);
       if (!resolved.ok) throw new Error(`No image was drawn. ${resolutionProblem(request.purpose, resolved)} under Picture types.`);
       route = withCheckpointFile(route, resolved.file);
       route = { ...route, allowed: [resolved.file] };
     }
     const { visual, issue: visualIssue } = await this.visualScene(story, scene.subjects, route.family.id);
     const drawn = visual ? withVisualScene(scene, visual) : scene;
-    const routing = await this.routing(request, args, story, drawn, visual);
+    const routing = await this.routing(request, args, story, drawn, visual, signal);
     const frozenVisible = args.director !== undefined && !request.raw ? parseImageReply(args.director, route).visible : undefined;
     const early = routing.check?.(visibleNames(drawn.subjects, frozenVisible)) ?? null;
     if (routing.setting === "qwen") chooseRoute({ ...routing, readiness: early });
@@ -347,13 +349,13 @@ export class StoryImageDirector {
     return plan;
   }
 
-  private async routing(request: ImageRequest, args: ImageArgs, story: ReturnType<RuntimeManager["getStory"]>, drawn: ImageScene, visual: VisualScene | null): Promise<Routing> {
+  private async routing(request: ImageRequest, args: ImageArgs, story: ReturnType<RuntimeManager["getStory"]>, drawn: ImageScene, visual: VisualScene | null, signal: AbortSignal): Promise<Routing> {
     const setting = request.automatic || args.route ? args.route ?? this.settings().automaticRoute : null;
     if (!setting || setting === "sdxl") return { setting, check: null };
     if (request.purpose !== "scene" || request.raw) return { setting, blocked: request.purpose === "background" ? "background" : "not-automatic", check: null };
     if (!story) return { setting, check: null };
     if (!drawn.subjects.length) return { setting, check: () => refused("no-one-visible") };
-    return { setting, check: await (await qwenKit()).qwenCheck(story, visual, this.manager.getSnapshot().blackboard) };
+    return { setting, check: await (await qwenKit()).qwenCheck(story, visual, this.manager.getSnapshot().blackboard, signal) };
   }
 
   private seed(plan: ImagePlan, index: number, override?: number): number {
@@ -424,7 +426,7 @@ export class StoryImageDirector {
     const run = beginRun(this.manager.getOwnership());
     const busy = busyWork.begin("image", imageChat()?.id ?? null);
     try {
-      const plan = await this.plan(request, args);
+      const plan = await this.plan(request, args, run.signal);
       if (!run.stillOwns()) throw new Error("The story changed while the image was being planned.");
       const qwen = plan.renderRoute === "qwen";
       const count = cueKey || qwen ? 1 : plan.route.candidates;

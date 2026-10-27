@@ -4,17 +4,19 @@ import {
 import type { CopilotMessage, CopilotStage, DriverContext, ProposalResult, Suggestion } from "@copilot/index";
 
 const authoring = () => import("@copilot/index");
+const provisioning = () => import("../copilotProvisioning");
 import type { ModelAsk, ModelCall } from "@extraction/index";
-import type { ProvisioningEnvironment, ProvisioningOp, ProvisioningResult, WizardCreatedCard, WizardSessionState } from "@wizard/types";
-import { newWizardSession, recordGrant, wizardSessionKey } from "@wizard/interview";
+import type { ProvisioningEnvironment, ProvisioningOp, ProvisioningResult, WizardSessionState } from "@wizard/types";
+import { wizardSessionKey } from "@wizard/sessionKey";
 import { draftCastNames } from "@wizard/castNames";
-import { describeReadBack, type CardReadBackRecord } from "@utils/cardReadBack";
+import type { CardReadBackRecord } from "@utils/cardReadBack";
 import type { WIEntrySnapshot } from "@services/STAPI";
 import { lorebookFileId } from "@utils/string";
 import { COPILOT_NUDGE_KEY } from "@constants/defaults";
 import { buildConvergenceReadout } from "../snapshot";
 import type { CopilotRuntimeSettings } from "../types";
-import { beginRun, type RunOwnership } from "../runToken";
+import type { RunOwnership } from "../runToken";
+import type { ProvisioningScope } from "../copilotProvisioning";
 import type { ChatHost, PromptHost, ProvisioningHost } from "../hostPorts";
 
 export interface CopilotCoordinatorDeps {
@@ -96,33 +98,15 @@ export class CopilotCoordinator {
     return (this.sessionFor(draft)?.grants ?? []).map((grant) => grant.lorebookFileId).filter(listed);
   }
 
-  // The session's created-asset ledger, written where the asset is made. The UI keeps its own copy
-  // for display; this is the one ownership is read back from.
-  private recordCreated(name: string, kind: "character" | "lorebook" | "group", draft?: Story): void {
-    const existing = this.sessionFor(draft);
-    const session = existing ?? newWizardSession(this.sessionKeyFor(draft));
-    const books = session.createdLorebooks;
-    const applied = session.applied.includes(name) ? session.applied : [...session.applied, name];
-    const createdLorebooks = kind === "lorebook" && !books.includes(name) ? [...books, name] : books;
-    if (applied === session.applied && createdLorebooks === books) return;
-    this.deps.saveWizardSession?.({ ...session, applied, createdLorebooks });
+  private provisioningScope(): ProvisioningScope {
+    return {
+      ownership: this.deps.ownership, host: this.deps.hosts.provisioning, session: (draft) => this.sessionFor(draft), sessionKey: (draft) => this.sessionKeyFor(draft),
+      storyScopeId: (draft) => this.storyScopeId(draft), environment: (draft) => this.getProvisioningEnvironment(draft), save: this.deps.saveWizardSession,
+    };
   }
 
-  private recordCreatedCard(card: WizardCreatedCard, draft?: Story): void {
-    const session = this.sessionFor(draft) ?? newWizardSession(this.sessionKeyFor(draft));
-    const createdCards = [...(session.createdCards ?? []).filter((entry) => entry.avatar !== card.avatar), card];
-    const applied = session.applied.includes(card.name) ? session.applied : [...session.applied, card.name];
-    this.deps.saveWizardSession?.({ ...session, applied, createdCards });
-  }
-
-  // A card whose read-back was unconfirmed or lossy may exist: the ledger keeps its avatar so the
-  // create-only rule refuses a second create, and the author can ask again later.
   async recheckCreatedCard(op: Extract<ProvisioningOp, { kind: "createCharacterCard" }>, avatar: string, draft?: Story): Promise<CardReadBackRecord> {
-    const read = this.deps.hosts.provisioning.readBackCharacterCard;
-    const readBack = read ? await read(avatar, op) : { state: "unconfirmed" as const, lossy: [], name: null };
-    const known = (this.sessionFor(draft)?.createdCards ?? []).find((entry) => entry.avatar === avatar);
-    this.recordCreatedCard({ name: readBack.name ?? known?.name ?? op.name, requested: op.name, avatar, readBack: readBack.state, lossy: readBack.lossy }, draft);
-    return { state: readBack.state, lossy: readBack.lossy, avatar };
+    return (await provisioning()).recheckCreatedCard(this.provisioningScope(), op, avatar, draft);
   }
 
   private sessionKeyFor(draft?: Story): string {
@@ -141,65 +125,8 @@ export class CopilotCoordinator {
     return this.deps.hosts.provisioning.readWIEntry(lorebook, comment);
   }
 
-  // The one write path to the user's install. Validation runs again here — the UI is a convenience,
-  // never the guard (spec addendum §Story wizard: enforced in op validation, not prompt-trusted).
   async applyProvisioning(op: ProvisioningOp, draft?: Story): Promise<ProvisioningResult> {
-    const run = beginRun(this.deps.ownership);
-    const lapsed = (): ProvisioningResult => ({ ok: false, message: "The story changed before this provisioning step could finish." });
-    const host = this.deps.hosts.provisioning;
-    const { validateProvisioningOp, loreEntryShape } = await import("@wizard/provisioning");
-    const validation = validateProvisioningOp(op, this.getProvisioningEnvironment(draft));
-    if (!validation.ok) return { ok: false, message: validation.message };
-    try {
-      if (op.kind === "createCharacterCard") {
-        if (!run.stillOwns()) return lapsed();
-        const created = await host.createCharacterCard(op);
-        if (!created.ok) return { ok: false, message: `Could not create the character card "${op.name}": ${created.reason}.` };
-        this.recordCreatedCard({ name: created.name, requested: op.name, avatar: created.avatar, readBack: created.readBack, lossy: created.lossy }, draft);
-        const readBack = { state: created.readBack, lossy: created.lossy, avatar: created.avatar };
-        return { ok: true, message: describeReadBack(created.name, readBack), created: created.name, readBack };
-      }
-      if (op.kind === "createStoryLorebook") {
-        if (!run.stillOwns()) return lapsed();
-        const result = await host.createLorebook(op.name);
-        if (!result.ok) return { ok: false, message: `Could not create the lorebook "${op.name}": ${result.reason}.` };
-        // Ownership is recorded HERE, at the write edge, not only by the review card's UI: a book
-        // created through the runtime path (a scenario, a scripted provision) then has to be
-        // writable, or the create-only rule would forbid the wizard its own book (found live).
-        this.recordCreated(op.name, "lorebook", draft);
-        return { ok: true, message: `Created the lorebook "${op.name}".`, created: op.name };
-      }
-      if (op.kind === "grantLorebook") {
-        // A grant is the author's own decision, taken from a card that exists the moment the wizard
-        // opens — before any conversation has been persisted. Opening a session here is what makes
-        // the permission durable rather than a card that cannot be confirmed.
-        const existing = this.sessionFor(draft);
-        const session = existing ?? newWizardSession(this.sessionKeyFor(draft));
-        if (!existing) this.deps.saveWizardSession?.(session);
-        this.deps.saveWizardSession?.(recordGrant(session, this.storyScopeId(draft), lorebookFileId(op.lorebook), !op.revoke));
-        return { ok: true, message: op.revoke ? `This story may no longer write into "${op.lorebook}".` : `This story may now write into "${op.lorebook}".` };
-      }
-      if (op.kind === "upsertLorebookEntry") {
-        if (!run.stillOwns()) return lapsed();
-        // The host is re-read at the write edge. The environment above was built when the card
-        // was rendered; a book can be created, granted or deleted in between.
-        const live = this.getProvisioningEnvironment(draft);
-        const fileId = lorebookFileId(op.lorebook);
-        if (!live.lorebookNames.some((name) => name.toLowerCase() === fileId.toLowerCase()) || !live.ownedLorebooks.some((name) => name.toLowerCase() === fileId.toLowerCase())) {
-          return { ok: false, message: `"${op.lorebook}" is not this story's to write into any more.` };
-        }
-        if (!run.stillOwns()) return lapsed();
-        const result = await host.upsertWIEntry(op.lorebook, op.comment, op.content, op.keys, { ...loreEntryShape(op), guard: run });
-        if (result === "failed") return { ok: false, message: `Could not write "${op.comment}" into "${op.lorebook}".` };
-        return { ok: true, message: `${result === "created" ? "Added" : "Updated"} "${op.comment}" in "${op.lorebook}".`, created: `${op.lorebook}/${op.comment}` };
-      }
-      if (!run.stillOwns()) return lapsed();
-      const group = await host.createGroup(op.name, op.members);
-      this.recordCreated(group.name, "group", draft);
-      return { ok: true, message: `Created the group "${group.name}" with ${group.members.length} member(s).`, created: group.name };
-    } catch (error) {
-      return { ok: false, message: error instanceof Error ? error.message : "Provisioning failed" };
-    }
+    return (await provisioning()).applyProvisioning(this.provisioningScope(), op, draft);
   }
 
   getDriverContext(): DriverContext | null {
