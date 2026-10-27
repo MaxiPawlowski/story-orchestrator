@@ -31,6 +31,12 @@ jest.mock("@services/STAPI", () => ({
   watchHostChatMove: () => () => undefined,
   guardHostStream: () => ({ halt: () => false, release: () => undefined }),
   groupMemberPosition: (name: string) => ({ ok: true, position: name.length }),
+  isHostGenerating: () => false,
+  startGroupVoiceAt: async (position: number) => {
+    spoken.push(`voice ${position}`);
+    speechGate.onSpeak?.(spoken.length);
+    return { ok: true };
+  },
   executeSlashCommands: async (command: string) => {
     spoken.push(command);
     speechGate.onSpeak?.(spoken.length);
@@ -114,7 +120,7 @@ control("an applier with no ownership still fires everything", async () => {
   expect(spoken).toHaveLength(3);
 });
 
-// v2.4 follow-up (2026-09-25, v2.5 plan 02 C1 step 1). An `llm` reply is `/trigger await=true`, a
+// v2.4 follow-up (2026-09-25, v2.5 plan 02 C1 step 1). An `llm` reply is a guarded group voice, a
 // real generation that can run for tens of seconds, and the write after it reads the OPEN chat's
 // last message id into the extras of the chat the sequence started in. The check before the NEXT
 // reply never runs for the last one, so a switch during it stamped chat B's index into chat A,
@@ -133,7 +139,7 @@ test("a chat switch during a generating reply writes nothing into the departed c
   };
   await h.applier.fireNpcReplies(generating, h.extras, "onEnter" as never);
   expect(spoken).toHaveLength(1);
-  expect(spoken[0]).toContain("/trigger await=true");
+  expect(spoken[0]).toBe("voice 5");
   expect(h.state.lastSelfInjectionMessageId).toBe(-1);
 });
 

@@ -1,11 +1,12 @@
 import type { Checkpoint, NormalizedStory } from "@engine/index";
 import { parseStoryOrThrow } from "@engine/validate";
-import { applyBackground, applyCharacterAN, clearCharacterAN, executeSlashCommands, getActiveGroup, setGroupMembersDisabled, setWIEntriesState } from "@services/STAPI";
+import { applyBackground, applyCharacterAN, clearCharacterAN, executeSlashCommands, getActiveGroup, setGroupMembersDisabled, setWIEntriesState, startGroupVoiceAt } from "@services/STAPI";
 import { EffectsApplier, NO_OPEN_CHAT, NO_OPEN_GROUP, PENDING_NOT_SAVED } from "./effectsApplier";
 import { CAST_UNRESOLVED, CAST_UNRESOLVED_NOTE } from "./castEffect";
 import { rewindNpcReplies } from "./npcReplyRewind";
 import { castInPlay } from "./castInPlay";
 import { isPlayerSend } from "./playerSend";
+import { watchVoiceChain } from "./voiceBusy";
 import { readGatingModeWith, setScanGatingActive, setScanGatingSettled } from "./worldInfoMode";
 import type { RuntimeExtras, RuntimeSnapshot } from "./types";
 import { testOwnership } from "../../test/findings/testOwnership";
@@ -34,6 +35,7 @@ jest.mock("@services/STAPI", () => ({
   stopHostGeneration: () => undefined,
   resolveGroupMemberId: jest.fn((name: string) => (name === "Mara" ? "mara-chid" : null)),
   groupMemberPosition: jest.fn((name: string) => (name === "2" ? { ok: true, position: 0 } : name === "Mara" ? { ok: true, position: 3 } : { ok: false, reason: `"${name}" is not a member of this group` })),
+  startGroupVoiceAt: jest.fn(async () => ({ ok: true })),
 }));
 
 const settle = async () => { for (let tick = 0; tick < 20; tick += 1) await new Promise((resolve) => setTimeout(resolve, 0)); };
@@ -55,20 +57,22 @@ const checkpointWith = (replies: unknown[]): Checkpoint => ({
 describe("v2.8 69 K10: an llm NPC reply triggers its member by group position", () => {
   beforeEach(() => {
     (executeSlashCommands as jest.Mock).mockClear();
+    (startGroupVoiceAt as jest.Mock).mockClear();
     mockContext.chat = [{ mes: "one" }, { mes: "two" }];
   });
 
   it("triggers the position the member resolves to, so a member named \"2\" gets its own reply", async () => {
     const applier = new EffectsApplier(testOwnership());
     await applier.fireNpcReplies(checkpointWith([{ trigger: "afterSpeak", member: "2", kind: "llm", instruction: "Answer." }]), makeExtras(), "afterSpeak");
-    expect((executeSlashCommands as jest.Mock).mock.calls.map((call) => call[0])).toEqual(["/trigger await=true 0"]);
+    expect((startGroupVoiceAt as jest.Mock).mock.calls).toEqual([[0, "2"]]);
+    expect(executeSlashCommands).not.toHaveBeenCalled();
   });
 
   it("a member the group does not hold is refused with a journal line and nothing is generated", async () => {
     const lines: string[] = [];
     const applier = new EffectsApplier(testOwnership(), { journal: (summary, note) => { lines.push(`${summary}: ${note ?? ""}`); } });
     await applier.fireNpcReplies(checkpointWith([{ trigger: "afterSpeak", member: "Zed", kind: "llm", instruction: "Answer." }]), makeExtras(), "afterSpeak");
-    expect(executeSlashCommands).not.toHaveBeenCalled();
+    expect(startGroupVoiceAt).not.toHaveBeenCalled();
     expect(lines).toEqual([expect.stringContaining("\"Zed\" is not a member of this group")]);
   });
 });
@@ -76,12 +80,13 @@ describe("v2.8 69 K10: an llm NPC reply triggers its member by group position", 
 describe("v3.0 19 P1: an llm reply carries its instruction to its member for that one reply", () => {
   beforeEach(() => {
     (executeSlashCommands as jest.Mock).mockClear();
+    (startGroupVoiceAt as jest.Mock).mockClear();
     mockContext.chat = [{ mes: "one" }, { mes: "two" }];
   });
 
   const recording = () => {
     const order: string[] = [];
-    (executeSlashCommands as jest.Mock).mockImplementation(async (command: string) => { order.push(command); return true; });
+    (startGroupVoiceAt as jest.Mock).mockImplementation(async (position: number) => { order.push(`voice ${position}`); return { ok: true }; });
     const direct = jest.fn((member: string, text: string) => { order.push(`arm ${member}: ${text}`); return () => { order.push(`release ${member}`); }; });
     return { order, direct };
   };
@@ -90,15 +95,15 @@ describe("v3.0 19 P1: an llm reply carries its instruction to its member for tha
     const { order, direct } = recording();
     const applier = new EffectsApplier(testOwnership(), { direct });
     await applier.fireNpcReplies(checkpointWith([{ trigger, member: "Mara", kind: "llm", instruction: "Ask who sent them." }]), makeExtras(), trigger);
-    expect(order).toEqual(["arm Mara: Ask who sent them.", "/trigger await=true 3", "release Mara"]);
+    expect(order).toEqual(["arm Mara: Ask who sent them.", "voice 3", "release Mara"]);
   });
 
   it("releases the direction when the trigger is refused, and never arms one for a scripted line or an llm reply without direction", async () => {
     const { order, direct } = recording();
-    (executeSlashCommands as jest.Mock).mockImplementationOnce(async (command: string) => { order.push(command); return false; });
+    (startGroupVoiceAt as jest.Mock).mockImplementationOnce(async (position: number) => { order.push(`voice ${position}`); return { ok: false, reason: "busy" }; });
     const applier = new EffectsApplier(testOwnership(), { direct });
     await applier.fireNpcReplies(checkpointWith([{ trigger: "onEnter", member: "Mara", kind: "llm", instruction: "Ask." }]), makeExtras(), "onEnter");
-    expect(order).toEqual(["arm Mara: Ask.", "/trigger await=true 3", "release Mara"]);
+    expect(order).toEqual(["arm Mara: Ask.", "voice 3", "release Mara"]);
     order.length = 0;
     await applier.fireNpcReplies(checkpointWith([
       { trigger: "onEnter", member: "Mara", kind: "scripted", text: "Hello.", instruction: "Ignored." },
@@ -112,7 +117,7 @@ describe("v3.0 19 P1: an llm reply carries its instruction to its member for tha
     const applier = new EffectsApplier(testOwnership(), { direct: () => null, journal: (summary) => { lines.push(summary); } });
     await applier.fireNpcReplies(checkpointWith([{ trigger: "onEnter", member: "Mara", kind: "llm", ask_player: true }]), makeExtras(), "onEnter");
     expect(lines).toEqual(["Mara's instruction was not delivered"]);
-    expect(executeSlashCommands).toHaveBeenCalledWith("/trigger await=true 3", { silent: false });
+    expect(startGroupVoiceAt).toHaveBeenCalledWith(3, "Mara");
   });
 
   it("an ask_player or opening-hook line is skipped while its member is switched off in the group", async () => {
@@ -121,9 +126,50 @@ describe("v3.0 19 P1: an llm reply carries its instruction to its member for tha
     const applier = new EffectsApplier(testOwnership(), { journal: (summary) => { lines.push(summary); } });
     const extras = makeExtras();
     await applier.fireNpcReplies(checkpointWith([{ trigger: "onEnter", member: "Mara", kind: "llm", ask_player: true }]), extras, "onEnter");
-    expect(executeSlashCommands).not.toHaveBeenCalled();
+    expect(startGroupVoiceAt).not.toHaveBeenCalled();
     expect(lines).toEqual(["Mara's line was skipped"]);
     expect(extras.firedNpcReplies).toEqual({});
+  });
+});
+
+describe("v3.0 19 stage 3: an llm NPC reply starts through the guarded voice starter, so it never races a chain or the player", () => {
+  const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+  let pending = false;
+  let unwatch = () => {};
+  beforeEach(() => {
+    (executeSlashCommands as jest.Mock).mockClear();
+    (startGroupVoiceAt as jest.Mock).mockClear();
+    (startGroupVoiceAt as jest.Mock).mockImplementation(async () => ({ ok: true }));
+    mockContext.chat = [{ mes: "one" }, { mes: "two" }];
+    pending = true;
+    unwatch = watchVoiceChain(() => pending);
+  });
+  afterEach(() => unwatch());
+
+  it("waits while a chain voice is pending and starts once the chain is done, never through a bare /trigger", async () => {
+    const applier = new EffectsApplier(testOwnership());
+    const fired = applier.fireNpcReplies(checkpointWith([{ trigger: "afterSpeak", member: "Mara", kind: "llm", instruction: "Answer." }]), makeExtras(), "afterSpeak");
+    await wait(250);
+    expect(startGroupVoiceAt).not.toHaveBeenCalled();
+    expect(executeSlashCommands).not.toHaveBeenCalled();
+    pending = false;
+    await fired;
+    expect((startGroupVoiceAt as jest.Mock).mock.calls).toEqual([[3, "Mara"]]);
+    expect(executeSlashCommands).not.toHaveBeenCalled();
+  });
+
+  it("yields to the player: a player line during the wait refuses the reply and gives its allowance back", async () => {
+    const lines: string[] = [];
+    const applier = new EffectsApplier(testOwnership(), { journal: (summary, note) => { lines.push(`${summary}: ${note ?? ""}`); } });
+    const extras = makeExtras();
+    const fired = applier.fireNpcReplies(checkpointWith([{ trigger: "afterSpeak", member: "Mara", kind: "llm", instruction: "Answer." }]), extras, "afterSpeak");
+    await wait(150);
+    mockContext.chat = [...mockContext.chat, { mes: "wait!", name: "Player", is_user: true } as never];
+    pending = false;
+    expect(await fired).toBe(0);
+    expect(startGroupVoiceAt).not.toHaveBeenCalled();
+    expect(extras.firedNpcReplies).toEqual({});
+    expect(lines).toEqual([expect.stringContaining("the player spoke first")]);
   });
 });
 

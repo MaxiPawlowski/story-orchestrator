@@ -181,7 +181,7 @@ export interface NpcReplyEffect {
 }
 
 export {
-  TALK_CHAIN_MAX_CAP, TALK_CHAIN_MAX_DEFAULT, TALK_PROFILES, TALK_BUDGET_CAP, TALK_ATTEMPTS_CAP, TALK_TURNS_CAP, TALK_LEAD_WORDS_MIN, TALK_LEAD_WORDS_MAX, NPC_REPLY_SCOPES,
+  TALK_CHAIN_MAX_CAP, TALK_CHAIN_MAX_DEFAULT, TALK_PROFILES, TALK_BUDGET_CAP, TALK_ATTEMPTS_CAP, TALK_TURNS_CAP, TALK_LEAD_WORDS_MIN, TALK_LEAD_WORDS_MAX, TALK_LEAD_RUN_CAP, NPC_REPLY_SCOPES,
 } from "./talkSchema";
 export type {
   TalkControl, TalkControlChain, TalkControlDirector, TalkControlSpeaker, TalkProfileName, TalkBudget, TalkSpotlight, TalkAddressPlayer, TalkReaction, StoryTalkDefaults, NpcReplyScope,

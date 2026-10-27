@@ -16,7 +16,20 @@ const mockContext = {
 };
 const mockTrigger: { during: () => void } = { during: () => undefined };
 
-jest.mock("@services/STAPI", () => ({
+jest.mock("@services/STAPI", () => {
+  const executeSlashCommands = jest.fn(async (command: string) => {
+    const sendas = /^\/sendas name="([^"]+)" raw=false "(.*)"$/.exec(command);
+    if (sendas) mockContext.chat.push({ mes: sendas[2], name: sendas[1] });
+    const voice = /^voice (\d+)$/.exec(command);
+    if (voice) {
+      mockTrigger.during();
+      mockContext.chat.push({ mes: "generated", name: ["Narrator", "Mara"][Number(voice[1])] });
+    }
+    return true;
+  });
+  return {
+  executeSlashCommands,
+  startGroupVoiceAt: jest.fn(async (position: number) => { await executeSlashCommands(`voice ${position}`); return { ok: true }; }),
   readLoreBindings: () => ({ global: [], chat: null, persona: null, characters: [] }),
   settingsAreLoaded: () => true,
   saveSettingsSoon: () => ({ ok: true, queued: true }),
@@ -39,16 +52,6 @@ jest.mock("@services/STAPI", () => ({
   vectorQuery: jest.fn(async () => []),
   vectorPurge: jest.fn(async () => undefined),
   DEFAULT_VECTOR_SOURCE: "transformers",
-  executeSlashCommands: jest.fn(async (command: string) => {
-    const sendas = /^\/sendas name="([^"]+)" raw=false "(.*)"$/.exec(command);
-    if (sendas) mockContext.chat.push({ mes: sendas[2], name: sendas[1] });
-    const trigger = /^\/trigger await=true (\d+)$/.exec(command);
-    if (trigger) {
-      mockTrigger.during();
-      mockContext.chat.push({ mes: "generated", name: ["Narrator", "Mara"][Number(trigger[1])] });
-    }
-    return true;
-  }),
   setGroupMembersDisabled: jest.fn(async () => ({ ok: true })),
   getActiveGroup: jest.fn(() => ({ id: "group-a", members: [], disabled_members: [] })),
   resolveGroupMemberId: jest.fn((name: string) => (["Narrator", "Mara"].includes(name) ? name.toLowerCase() : null)),
@@ -64,7 +67,8 @@ jest.mock("@services/STAPI", () => ({
   listPersonas: () => ["Max"],
   showTextPopup: jest.fn(async () => undefined),
   showConfirmPopup: jest.fn(async () => true),
-}));
+  };
+});
 
 const host: PersonaHost = {
   read: (): PersonaRead => ({
@@ -95,8 +99,8 @@ const storyJson = (replies: unknown[], over: Record<string, unknown> = {}) => JS
 const PLAYER = { role: "a hired courier", summary: "You carry a sealed letter.", assumes: ["can ride"] };
 
 const spoken = () => (executeSlashCommands as jest.Mock).mock.calls.map(([command]) => String(command))
-  .filter((command) => command.startsWith("/sendas") || command.startsWith("/trigger"))
-  .map((command) => (command.startsWith("/trigger") ? `trigger ${command.split(" ").at(-1)}` : /raw=false "(.*)"$/.exec(command)?.[1] ?? command));
+  .filter((command) => command.startsWith("/sendas") || command.startsWith("voice "))
+  .map((command) => (command.startsWith("voice ") ? `trigger ${command.split(" ").at(-1)}` : /raw=false "(.*)"$/.exec(command)?.[1] ?? command));
 
 const guidance = () => mockExtensionPrompts.story_orchestrator_guidance?.value ?? "";
 

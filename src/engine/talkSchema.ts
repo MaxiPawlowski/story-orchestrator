@@ -32,6 +32,7 @@ export const TALK_ATTEMPTS_CAP = 12;
 export const TALK_TURNS_CAP = 20;
 export const TALK_LEAD_WORDS_MIN = 30;
 export const TALK_LEAD_WORDS_MAX = 600;
+export const TALK_LEAD_RUN_CAP = 8;
 
 export interface TalkBudget {
   voices?: number;
@@ -63,6 +64,7 @@ export interface TalkControl {
   profile?: TalkProfileName;
   budget?: TalkBudget;
   lead_words?: number;
+  lead_max_consecutive?: number;
   spotlight?: TalkSpotlight | false;
   address_player?: TalkAddressPlayer | false;
   reaction?: TalkReaction | false;
