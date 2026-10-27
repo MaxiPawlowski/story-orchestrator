@@ -4,7 +4,9 @@ import {
   type Checkpoint, type EngineState, type NormalizedStory, type TensionLevel,
 } from "@engine/index";
 import type { ParsedDelta } from "@extraction/index";
-import { OPENING_LINE, composeGuidanceBlock, encounterOfferLine, leadLengthLine, getSteeringHint, pullLine, quietRead, tensionEvidenceFresh, updateEma, type EncounterOffer } from "@pacing/index";
+import {
+  OPENING_LINE, asksPlayerDirection, composeGuidanceBlock, encounterOfferLine, leadLengthLine, getSteeringHint, pullLine, quietRead, tensionEvidenceFresh, updateEma, type EncounterOffer,
+} from "@pacing/index";
 import { PACING_HINT_DEPTH, PACING_HINT_EXTENSION_KEY } from "@constants/defaults";
 import { INJECTION_REGISTRY } from "@constants/injectionRegistry";
 
@@ -17,6 +19,8 @@ import { playerTurnsInCheckpoint } from "../stretchTurns";
 import type { PacingSettings, TensionRuntimeState } from "../types";
 
 const TENSION_LEVEL_LIMIT = 50;
+
+interface OneShotDirection { rosterId: string; name: string; text: string; scope: "call" | "draft" }
 
 export interface PacingCoordinatorDeps {
   getStory: () => NormalizedStory | null;
@@ -41,7 +45,9 @@ export class PacingCoordinator {
   private sampled: { to: number; before: number | null } | null = null;
   private drafted: string | null = null;
   private withheld = false;
-  private direction: { rosterId: string; name: string; text: string; scope: "call" | "draft" } | null = null;
+  private direction: OneShotDirection | null = null;
+  private asking: OneShotDirection | null = null;
+  private answered: OneShotDirection | null = null;
 
   constructor(private readonly deps: PacingCoordinatorDeps) {}
 
@@ -53,6 +59,7 @@ export class PacingCoordinator {
     this.pending = null;
     this.sampled = null;
     this.direction = null;
+    this.asking = null;
   }
 
   applyExtractorTension(acceptedDeltas: ParsedDelta[], windowTo: number): { accepted: ParsedDelta[]; levels: TensionLevel[] } {
@@ -139,8 +146,11 @@ export class PacingCoordinator {
     const active = activeId ? story.checkpointById[activeId] : null;
     const rows = this.deps.hosts.chat?.chatRows() ?? [];
     const turns = active?.stretch ? playerTurnsInCheckpoint(this.deps.getState(), rows) : 0;
+    const oneShot = this.oneShotLine();
+    const direction = this.direction;
+    if (oneShot && direction && direction !== this.answered && asksPlayerDirection(oneShot.text)) this.asking = direction;
     const guidance = composeGuidanceBlock(active, policy, objectiveLineApplies(story, active, turns), this.memberLine(story, active), this.stretchLine(story, active, rows, turns),
-      this.oneShotLine(), this.lengthLine());
+      oneShot, this.lengthLine());
     if (guidance) prompt.setStoryExtensionPrompt(GUIDANCE.key, guidance, GUIDANCE.depth);
     else this.clearGuidance();
   }
@@ -188,10 +198,20 @@ export class PacingCoordinator {
 
   draftGuidance(rosterId: string | null) {
     this.drafted = rosterId;
+    this.asking = null;
     this.updateSteering();
   }
 
   get holding(): boolean { return this.withheld; }
+
+  takeAskingPlayer(speaker: string): boolean {
+    const asking = this.asking;
+    const ref = speaker.trim().toLowerCase();
+    if (!asking || !ref || ![asking.rosterId, asking.name].some((name) => name.trim().toLowerCase() === ref)) return false;
+    this.asking = null;
+    this.answered = asking;
+    return true;
+  }
 
   releaseDraftGuidance() {
     this.drafted = null;

@@ -113,10 +113,15 @@ export const CharacterStateGroup = ({ manager }: GroupProps) => {
 
 export const TalkGroup = ({ manager }: GroupProps) => {
   const [, bump] = useState(0);
-  const chain = getGlobalSettings().talk.chain;
+  const { chain, keepLastQuestion } = getGlobalSettings().talk;
   const update = (patch: Partial<TalkChainSettings>) => {
     manager.setTalkChainSettings(patch);
     bump((value) => value + 1);
+  };
+  const changeKeep = (on: boolean) => {
+    setGlobalSettings({ talk: { keepLastQuestion: on } });
+    bump((value) => value + 1);
+    manager.notify();
   };
   return (
     <div className="flex flex-col gap-2 border-t border-solid border-white/10 pt-2">
@@ -134,6 +139,7 @@ export const TalkGroup = ({ manager }: GroupProps) => {
           onChange={(event) => update({ max: Math.min(TALK_CHAIN_MAX_CAP, Math.max(1, Math.round(Number(event.target.value) || 1))) })}
         />
       </div>
+      <CheckRow id="so-keep-last-question" setting="talk.keepLastQuestion" checked={keepLastQuestion} onChange={changeKeep} />
     </div>
   );
 };

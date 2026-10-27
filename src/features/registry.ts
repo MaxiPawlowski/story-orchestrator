@@ -232,6 +232,14 @@ const CORE_FEATURES: readonly Feature[] = [
     settings: ["talk.chain"], guideTopic: "talk-control", doc: "player/playing.md", status: "shipped", needs: ["group-chat"],
   },
   {
+    id: "keep-last-question", name: "One question when a character asks you", area: "characters", audience: "player",
+    oneLine: "A character told to ask you one thing keeps only the last of its questions.",
+    what: "When a story has a character turn to you with one question, such as the line right after the opening, and the reply asks several, "
+      + "the earlier questions are taken out and the rest of the line stays. A reply the trim would break is left as written.",
+    where: settingsAt("#so-keep-last-question", "Characters › Speaker direction"),
+    settings: ["talk.keepLastQuestion"], guideTopic: "npc-replies", doc: "player/playing.md", status: "shipped", needs: ["group-chat", "story"],
+  },
+  {
     id: "private-knowledge", name: "Private knowledge", area: "characters", audience: "author",
     oneLine: "Tracks who knows what, so characters do not know things they never saw.",
     what: "The memory model also notes what each character knows, suspects or hides. Each character's prompt carries only its own knowledge, so secrets stay secret.",
