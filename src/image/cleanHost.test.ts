@@ -14,7 +14,8 @@ const host = {
 
 const renderStImage = jest.fn(async () => "/user/images/st.png");
 const comfyRenderOwned = jest.fn(async () => ({ data: "AAAA", format: "png" }));
-const comfyDiscover = jest.fn(async () => ({ nodes: {}, embeddings: [], checkpoints: host.checkpoints, diffusionModels: [], textEncoders: [], vaes: [], loras: [], upscalers: [] }));
+const discovered = async () => ({ nodes: {}, embeddings: [], checkpoints: host.checkpoints, diffusionModels: [], textEncoders: [], vaes: [], loras: [], upscalers: [] });
+const comfyDiscover = jest.fn(discovered);
 const reserveGpu = jest.fn(async () => ({ lease: null, brokered: false }));
 const imagePlace = jest.fn(async () => ({ ok: true as const, placed: true as const }));
 
@@ -29,6 +30,7 @@ jest.mock("@services/stHost/image", () => ({
 jest.mock("@services/stHost/gpuBroker", () => ({
   reserveGpu: (...args: unknown[]) => reserveGpu(...(args as [])), releaseGpu: async () => ({ ok: true, released: false }), gpuBrokerStatus: async () => null,
 }));
+jest.mock("@services/stHost/generation", () => ({ isHostGenerating: () => host.generating }));
 jest.mock("@services/stHost/stImage", () => ({
   stImageReadiness: async () => (host.onReady?.(), host.stReady ? { ready: true, reason: null, source: "comfy" } : { ready: false, reason: "Set up SillyTavern’s Image Generation extension first.", source: null }),
   renderStImage: (...args: unknown[]) => renderStImage(...(args as [])),
@@ -275,6 +277,45 @@ describe("v2.8 29 B: a story's workflow is used for its renders only, and a miss
     expect(director.status().workflowNote).toMatch(/SO-Missing.json is not installed/);
     await director.refreshHealth();
     expect(imageHealth()?.storyWorkflows).toEqual({ wanted: ["SO-Missing.json", "SO-Portrait.json"], missing: ["SO-Missing.json"], missingNodes: [], comfySource: true });
+    stop();
+  });
+});
+
+describe("v3.0 20 D10: a picture wakes a ComfyUI the controller stopped", () => {
+  const turn = () => {
+    host.settings = { ...defaultImageSettings(), backend: "comfy", automation: { mode: "everyN", everyN: 1 } };
+    host.media = { ready: true, comfyUrl: "http://comfy.test:8188" };
+    host.checkpoints = ["waiIllustriousSDXL_v170.safetensors"];
+    host.messages = [{ name: "Player", mes: "We go in.", is_user: true, is_system: false }, { name: "Narrator", mes: "The gate opens.", is_user: false, is_system: false }];
+  };
+  const keys = () => (reserveGpu.mock.calls as unknown as Array<[{ workflowKey?: string }]>).map(([request]) => request.workflowKey);
+
+  it("an automatic picture with ComfyUI down takes a discovery lease, finds it up and draws", async () => {
+    turn();
+    let up = false;
+    comfyDiscover.mockImplementation(async () => { if (!up) throw new Error("fetch failed"); return discovered(); });
+    reserveGpu.mockImplementation((async (request: { workflowKey?: string }) => { if (request.workflowKey === "comfy-discovery") up = true; return { lease: null, brokered: true }; }) as never);
+    const { director, stop } = harness();
+    try {
+      await director.onReply(1, "normal");
+      await settle();
+      expect(keys()[0]).toBe("comfy-discovery");
+      expect(keys()).toHaveLength(2);
+      expect(comfyRenderOwned).toHaveBeenCalledTimes(1);
+      expect(imagePlace).toHaveBeenCalledTimes(1);
+      expect(director.status().lastError).toBeNull();
+    } finally { reserveGpu.mockImplementation(async () => ({ lease: null, brokered: false })); comfyDiscover.mockImplementation(discovered); stop(); }
+  });
+
+  it("control: with ComfyUI up the picture takes only its render lease", async () => {
+    turn();
+    const { director, stop } = harness();
+    await director.onReply(1, "normal");
+    await settle();
+    expect(keys()).toHaveLength(1);
+    expect(keys()).not.toContain("comfy-discovery");
+    expect(comfyRenderOwned).toHaveBeenCalledTimes(1);
+    expect(director.status().lastError).toBeNull();
     stop();
   });
 });

@@ -794,3 +794,26 @@ Pilot harness (owner, 2026-10-26, after stage 2):
     pack image folder, 2 plates, the lane's `story-orchestrator\visual-packs` folder, 2 group image folders, the orphan probe group chat,
     and a post-run `settings.json`. Lane `judge` and `sprites` settings restored from the pre-run copy taken at lane start. ComfyUI left
     running and controller-managed (started with `cli.mjs start-comfy` for check 4).
+- D10 fix 2026-10-27 (branch `v3.0-d10-wake`, worktree `C:\dev\so-d10`, base `v3.0-merge-hs-bh` `ed58d2aa`; unit level, no GPU, lanes or
+  staging). Every image entry that discovered ComfyUI before taking a lease now discovers through D9's `discoverWaking` (discover; on
+  failure a `comfy-discovery` lease makes the controller start ComfyUI, discover again, release). ComfyUI up = one discovery, no extra lease.
+  - `image/runtime.ts` `plan`: the ComfyUI checkpoint resolve (`fa57a898`) wakes; `plan` takes an optional signal, `direct` passes
+    `run.signal`, so a lapsed run aborts the wake. Covers automatic and manual pictures.
+  - `image/autoSceneHost.ts` `qwenCheck` (automatic `qwen`/`auto` route): wakes before the reference check, so a stopped ComfyUI no
+    longer reads `media-unavailable` and silently drops to SDXL (with the `st` backend nothing else woke it before routing). Still `null`
+    discovery when the wake fails.
+  - `image/castSceneHost.ts` `renderQwenJob` (prepared cast scene and the automatic Qwen render): discovery ran before its render lease;
+    now wakes.
+  - Left as is: `render` (discovers inside its lease), health/workflow-health probes and settings/Studio model lists (a probe must not
+    wake an idle ComfyUI), `capabilities.ts`.
+  - Tests: `cleanHost.test.ts` D10 pair (ComfyUI down: automatic turn takes `comfy-discovery` then the render lease, draws and places, no
+    error; control up: only the render lease); `autoSceneHost.test.ts` (qwenCheck wakes, ready, lease released);
+    `castSceneHost.test.ts` (cast scene wakes then renders). All 3 fail with the source change reverted.
+  - `npm run gates:quick`: green (typecheck, typecheck:test, lint, jest related, replay --cached).
+  - `npm run gates` (no `--resume`, Storybook included): all green in 405.1 s, first run (jest 10669 passed / 1 skipped; test-storybook:ci
+    167 suites / 1009 tests).
+  - Main bundle 1,254,283 B (base 1,254,258, +25; budget 1,300,000 unchanged).
+  - Not live-checked. Owed lane check: ComfyUI stopped by the controller, `automaticRoute auto`, everyN 1: an automatic turn shows
+    `discover` fail, one `comfy-discovery` lease, `discover` 200, release, then the picture (qwen for a prepared member, sdxl fallback)
+    placed; with ComfyUI up, no `comfy-discovery` lease. Also a manual picture and a prepared cast scene with ComfyUI down.
+  - Not merged, not pushed.

@@ -2,7 +2,8 @@ import type { RuntimeManager } from "@runtime/runtimeManager";
 import type { RunGuard } from "@runtime/runToken";
 import { getGlobalSettings } from "@runtime/settingsStore";
 import type { PrimitiveValue } from "@engine/index";
-import { comfyDiscover } from "@services/stHost/media";
+import { discoverWaking } from "../sprites/builder/comfyWake";
+import { NEVER_ABORTS } from "@utils/signals";
 import { spriteCast } from "@services/stHost/sprites";
 import { imageChat, imageDelete } from "@services/stHost/image";
 import { sourceStillCurrent } from "../sprites/visualHost";
@@ -34,8 +35,9 @@ export function qwenSubjects(story: Story, names: string[], values: Record<strin
   });
 }
 
-export async function qwenCheck(story: Story, visual: VisualScene | null, values: Record<string, PrimitiveValue>): Promise<(names: string[]) => QwenReadiness> {
-  const discovery = await comfyDiscover().catch(() => null);
+export async function qwenCheck(story: Story, visual: VisualScene | null, values: Record<string, PrimitiveValue>,
+  signal: AbortSignal = NEVER_ABORTS): Promise<(names: string[]) => QwenReadiness> {
+  const discovery = await discoverWaking(signal).catch(() => null);
   const sprites = getGlobalSettings().sprites;
   return (names) => qwenReadiness({ subjects: qwenSubjects(story, names, values, visual), discovery, sprites, visual });
 }
