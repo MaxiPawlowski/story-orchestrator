@@ -11,6 +11,8 @@ import { saveSettingsNow } from './lib/settingsSave.mts';
 import { openGroup, openChat } from './st-navigation.mts';
 import { executeSlashCommand, waitForIdle } from './st-actions.mts';
 import { P41_MARKER } from './lib/pocDrivers.mts';
+import { installCandidateRoute } from './lib/pocLive.mts';
+import { freshPage } from './lib/pocSteps.mts';
 import {
   ARM_ROUTE, DEFAULT_SEEDS, DIRECTOR_DIR, PILOT_ARMS, buildBlindPack, directorFile, frozenDirector, imageFileName, lookFor, parsePilotCases, pilotJobs,
   type FrozenDirector, type PilotArm, type PilotCase, type PilotCases, type PilotRow, type RefImage,
@@ -26,9 +28,10 @@ and passed to every arm and seed of that case, so the comparison isolates the re
   plan   print the schedule (no ST)
   run    render on a lane that holds the p41 cast with prepared looks (after so-p41-journey run <k> --keep):
            st-lanes.mts run <n> -- scripts/debug/so-image-pilot.mts run --group "<group>" --chat <chatId>
-         [--marker ${P41_MARKER}] [--seeds ${DEFAULT_SEEDS.join(',')}] [--arms ${PILOT_ARMS.join(',')}] [--out <dir>] [--only c01,c09]
+         [--candidate] [--marker ${P41_MARKER}] [--seeds ${DEFAULT_SEEDS.join(',')}] [--arms ${PILOT_ARMS.join(',')}] [--out <dir>] [--only c01,c09]
          Needs the lane cleared for ComfyUI (allowComfy or SO_ALLOW_COMFY=1). Appends each case's frozen lines to the chat (compact, no generation), sets its look,
          freezes the director answer, then draws every seed x arm on that case's last reply. Automatic cues are paused (image.automation.mode manual) for the run and restored after.
+         --candidate serves this worktree's dist/ to the page (as so-p41-journey --candidate) instead of the staged build.
   pack   <runDir> [--seed <text>]: shuffle the rendered images under neutral labels into <runDir>/blind
          (img-NN.png, ref-X.png, items.txt, brief.md, about 10% hidden duplicates); the key goes to <runDir>/key.json.
 
@@ -152,6 +155,12 @@ async function run(page: Page) {
   const plan = schedule(cases);
   const dir = resolve(argValue(args, '--out', resolve(DEBUG_DIR, 'image-pilot', new Date().toISOString().replace(/[:.]/g, '-'))) ?? '');
   await mkdir(resolve(dir, 'images'), { recursive: true });
+  const candidate = args.includes('--candidate') ? await installCandidateRoute(page, resolve(PROJECT_ROOT, 'dist')) : null;
+  if (candidate) await freshPage(page);
+  try { await runCases(page, { group, chat, marker, cases, plan, dir }); } finally { await candidate?.stop(); }
+}
+
+async function runCases(page: Page, { group, chat, marker, cases, plan, dir }: { group: string; chat: string; marker: string; cases: PilotCases; plan: ReturnType<typeof schedule>; dir: string }) {
   await openGroup(page, group);
   await openChat(page, chat);
   const opened = await page.evaluate(() => { const ctx = (globalThis as any).SillyTavern.getContext(); return { groupId: ctx.groupId, chatId: ctx.chatId }; });
@@ -163,7 +172,8 @@ async function run(page: Page) {
   await page.evaluate(() => { const image = (globalThis as any).storyOrchestratorImage; image.updateSettings({ automation: { ...image.settings().automation, mode: 'manual' } }); });
   await saveSettingsNow(page);
   const keys = [...new Set(cases.cases.flatMap((row) => Object.keys(row.set ?? {})))];
-  const header = { at: new Date().toISOString(), lane: process.env.SO_LANE, group, chat, marker, seeds: plan.seeds, arms: plan.arms, director: 'frozen per case', frozen: cases.frozen, jobs: plan.jobs.length };
+  const served = await page.evaluate(async () => (await fetch('/scripts/extensions/third-party/story-orchestrator/dist/manifest.json', { cache: 'no-store' }).then((r) => r.json()).catch(() => null))?.extension?.revision?.commit ?? null);
+  const header = { at: new Date().toISOString(), lane: process.env.SO_LANE, served, group, chat, marker, seeds: plan.seeds, arms: plan.arms, director: 'frozen per case', frozen: cases.frozen, jobs: plan.jobs.length };
   await writeFile(resolve(dir, 'run.json'), JSON.stringify(header, null, 2));
   await rm(resolve(dir, 'run.jsonl'), { force: true });
   try {

@@ -8,6 +8,7 @@ import { imageChat, imageDelete } from "@services/stHost/image";
 import { sourceStillCurrent } from "../sprites/visualHost";
 import { visualBridge } from "../sprites/packs/bridgeHost";
 import type { VisualScene } from "../sprites/packs/scene";
+import { buildNameIndex, resolveName } from "@memory/nameFold";
 import { isNarratorMember } from "./cast";
 import { CAST_SCENE_RECIPE, packGap } from "./castScene";
 import { castMember, currentIdentities, identityRecord, LOOK_CHANGED, renderQwenJob } from "./castSceneHost";
@@ -19,9 +20,10 @@ export const AUTO_CHANGED = "The story or the reply changed while this picture w
 export const AUTO_PACK_CHANGED = "A visual pack or one of its files changed while this picture was drawn, so it was discarded.";
 
 export function qwenSubjects(story: Story, names: string[], values: Record<string, PrimitiveValue>, visual: VisualScene | null): QwenSubject[] {
-  const cast = spriteCast(), sources = getGlobalSettings().sprites.visualSources;
+  const cast = spriteCast(), sources = getGlobalSettings().sprites.visualSources, index = buildNameIndex({ roster: story.roster });
   return names.flatMap((name): QwenSubject[] => {
-    const roster = story.roster.find((row) => (row.name ?? row.id).toLowerCase() === name.toLowerCase());
+    const id = resolveName(index, name)?.id;
+    const roster = story.roster.find((row) => row.id === id);
     if (roster && isNarratorMember(roster)) return [];
     const installed = roster ? cast.members.find((row) => row.name === (roster.name ?? roster.id)) : undefined;
     if (!roster || !installed) return [{ name, member: null, missing: "visible-not-in-cast" }];

@@ -95,6 +95,18 @@ describe("automatic pictures: who can be drawn from references", () => {
     expect(check(["Keeper"])).toMatchObject({ ok: false, reason: "no-one-visible" });
   });
 
+  it("a visible name given as the roster id or one word of the card name resolves to that member", async () => {
+    const { values } = setup();
+    const named = parseStoryOrThrow({ ...STORY, roster: [...STORY.roster, { id: "guide", name: "SO-Test Guide", role: "A harbor guide" }, { id: "rook", name: "Rook Marrow", role: "A sailor" }] });
+    jest.mocked(spriteCast).mockReturnValue({ chatId: "chat", groupId: "group", members: ["Wanderer", "SO-Test Guide", "Rook Marrow"].map((name) => ({ name, folder: name, avatar: `${name}.png`, profile: {}, muted: false })) });
+    const visual = await visualBridge().scene({ story: named, members: ["wanderer", "guide", "rook"], values, path: ["quay"], family: "sdxl-illustrious" }, { fresh: true });
+    const check = await qwenCheck(named, visual, values);
+    expect(check(["Guide"])).toMatchObject({ ok: false, reason: "no-reference", detail: expect.stringMatching(/^SO-Test Guide has no accepted base and bust/) });
+    expect(check(["Rook"])).toMatchObject({ ok: false, reason: "no-reference", detail: expect.stringMatching(/^Rook Marrow has no accepted base and bust/) });
+    expect(check(["Marrow"])).toMatchObject({ ok: false, reason: "no-reference" });
+    expect(check(["the visitor"])).toMatchObject({ ok: false, reason: "visible-not-in-cast" });
+  });
+
   it("an unreachable ComfyUI is a recorded reason, not an error", async () => {
     const { values } = setup();
     jest.mocked(comfyDiscover).mockRejectedValue(new Error("down"));
