@@ -12,6 +12,7 @@ export type { DecodeJournal };
 import { dropJudgeCallsAfter } from "@judge/settings";
 import { rewindCuedLines, rewindNpcReplies, rewindOnEnterPosts } from "./npcReplyRewind";
 import { rewindSpeech } from "./speechLedger";
+import { rewindChainEnds } from "./chainEnds";
 import { rewindDeferredOpener } from "./openerDeferral";
 import { rollbackLoreFired } from "./loreFired";
 import { rollbackChanceDraws } from "./rolls";
@@ -114,6 +115,7 @@ async function rollbackOnce(deps: RollbackDeps, messageId: number, decoded?: Dec
     if (extras.onEnterPosts) extras.onEnterPosts = rewindOnEnterPosts(extras.onEnterPosts, messageId, mutation);
     if (extras.cuedLines) extras.cuedLines = rewindCuedLines(extras.cuedLines, messageId, mutation);
     if (extras.speech) extras.speech = rewindSpeech(extras.speech, messageId, mutation);
+    if (extras.chainEnds) extras.chainEnds = rewindChainEnds(extras.chainEnds, messageId, mutation);
     const deferred = rewindDeferredOpener(extras.deferredOpener, messageId, mutation);
     if (deferred) extras.deferredOpener = deferred; else delete extras.deferredOpener;
     if (!keepsSelfInjection(extras.lastSelfInjectionMessageId, messageId, kind)) extras.lastSelfInjectionMessageId = null;

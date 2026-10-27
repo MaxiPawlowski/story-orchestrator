@@ -36,6 +36,15 @@ describe("v3.0 19 stage 2: talk pacing keys validate", () => {
     expect(parsed.checkpoints[0].effects?.npc_replies?.[0]).toMatchObject({ id: "mara-hm", once_per: "entry", cooldown_player_turns: 1 });
   });
 
+  it("v3.0 19 stage 3: lead_max_consecutive is a whole number from 1 to 8, and alone loads the game layer", () => {
+    const parsed = parseStory(story({ talk_control: { lead: "Mara", lead_max_consecutive: 2 } }));
+    if (Array.isArray(parsed)) throw new Error(JSON.stringify(parsed));
+    expect(parsed.checkpoints[0].talk_control).toEqual({ lead: "Mara", lead_max_consecutive: 2 });
+    expect(errors(story({ talk_control: { lead_max_consecutive: 0 } }))).toEqual(["checkpoints.0.talk_control.lead_max_consecutive"]);
+    expect(errors(story({ talk_control: { lead_max_consecutive: 9 } }))).toEqual(["checkpoints.0.talk_control.lead_max_consecutive"]);
+    expect(errors(story({ talk_control: { lead_max_consecutive: 1.5 } }))).toEqual(["checkpoints.0.talk_control.lead_max_consecutive"]);
+  });
+
   it("false switches spotlight, address_player and reaction off explicitly", () => {
     expect(readTalkPacing({ spotlight: false, address_player: false, reaction: false }, "p", [])).toEqual({ spotlight: false, address_player: false, reaction: false });
   });

@@ -1,5 +1,5 @@
 import { readFileSync } from 'node:fs';
-import { parseChatJsonl, parseSpeechLedger, speechLedgerMetrics, talkMetrics } from './lib/talkMetrics.mts';
+import { chainEndMetrics, parseChainEnds, parseChatJsonl, parseSpeechLedger, speechLedgerMetrics, talkMetrics } from './lib/talkMetrics.mts';
 
 const USAGE = 'node scripts/debug/so-talk-metrics.mts --player <name> --lead <name> --cast <a,b,c> [--budget <voices>] [--lead-words <n>] <chat.jsonl> [more.jsonl]';
 
@@ -26,10 +26,13 @@ const rows = args.map((path) => {
       ...(budget ? { budget: Number(budget) } : {}), ...(leadWords ? { leadWords: Number(leadWords) } : {}),
     }),
     speech: speechLedgerMetrics(parseSpeechLedger(text)),
+    chainEnds: parseChainEnds(text),
   };
 });
+const chainEnds = chainEndMetrics(rows.flatMap((row) => row.chainEnds));
 console.log(JSON.stringify({
-  chats: rows,
+  chats: rows.map(({ chainEnds: ends, ...row }) => ({ ...row, chainEnds: chainEndMetrics(ends) })),
+  chainEnds,
   openingHookRate: rows.filter((row) => row.openingHook).length / rows.length,
   yieldIntegrity: rows.reduce((sum, row) => sum + row.yieldedAfterQuestion, 0) / Math.max(1, rows.reduce((sum, row) => sum + row.playerQuestions, 0)),
   budgetCompliance: budget ? rows.reduce((sum, row) => sum + (row.budget?.compliant ?? 0), 0) / Math.max(1, rows.reduce((sum, row) => sum + (row.budget?.rounds ?? 0), 0)) : null,

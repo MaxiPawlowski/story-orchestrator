@@ -45,6 +45,8 @@ jest.mock("@services/STAPI", () => ({
   setWIEntriesState: async () => hostWrite("worldInfo"),
   lorebookExists: async () => true,
   executeSlashCommands: async () => { hostWrite("slash"); return { pipe: "" }; },
+  isHostGenerating: () => false,
+  startGroupVoiceAt: async () => { hostWrite("slash"); return { ok: true }; },
   getActiveGroup: () => ({ id: "g1", disabled_members: [] }),
   watchHostChatMove: () => () => undefined,
   guardHostStream: () => ({ halt: () => false, release: () => undefined }),

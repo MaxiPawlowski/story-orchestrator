@@ -90,7 +90,8 @@ const ECHO: Record<keyof StoryEcho, Covered> = {
 };
 const TALK_CONTROL: Record<keyof TalkControl, Covered> = {
   speakers: "talk-control", lead: "talk-control", no_repeat: "talk-control", allow_silence: "talk-control", director: "talk-control", chain: "talk-control",
-  profile: "talk-pacing", budget: "talk-pacing", lead_words: "talk-pacing", spotlight: "talk-pacing", address_player: "talk-pacing", reaction: "talk-pacing",
+  profile: "talk-pacing", budget: "talk-pacing", lead_words: "talk-pacing", lead_max_consecutive: "talk-pacing", spotlight: "talk-pacing", address_player: "talk-pacing",
+  reaction: "talk-pacing",
 };
 const TALK_DEFAULTS: Record<keyof StoryTalkDefaults, Covered> = { profile: "talk-pacing", budget: "talk-pacing" };
 const NPC_REPLY: Record<keyof NpcReplyEffect, Covered> = {

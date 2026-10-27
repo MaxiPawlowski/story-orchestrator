@@ -113,6 +113,7 @@ export interface RuntimeExtras {
   onEnterPosts?: OnEnterPost[];
   cuedLines?: CuedLine[];
   speech?: import("./speechLedger").SpeechEvent[];
+  chainEnds?: import("./chainEnds").ChainEnd[];
   deferredOpener?: DeferredOpener;
   requirements: RequirementsState;
   lastAppliedCheckpointId: string | null;

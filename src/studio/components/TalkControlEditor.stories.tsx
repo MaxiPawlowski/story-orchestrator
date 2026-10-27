@@ -98,3 +98,18 @@ export const PicksPacingProfile: Story = {
     await expect(canvas.getByText(/Effective: 2 voices and 3 generations/)).toBeInTheDocument();
   },
 };
+
+export const CapsTheLeadsRun: Story = {
+  args: { initial: { speakers: [{ member: "The Guide" }, { member: "The Warden" }], lead: "The Guide" } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const field = canvasElement.querySelector('[data-so="talk-lead-run"]') as HTMLInputElement;
+    await expect(field).toHaveAttribute("placeholder", "off");
+    await expect(canvas.queryByText(/speaks at most/)).not.toBeInTheDocument();
+    await userEvent.selectOptions(canvasElement.querySelector('[data-so="talk-profile"]') as HTMLSelectElement, "conversation");
+    await expect(field).toHaveAttribute("placeholder", "1");
+    await expect(canvas.getByText(/the lead speaks at most 1 time in a row/)).toBeInTheDocument();
+    await userEvent.type(field, "2");
+    await expect(canvas.getByText(/the lead speaks at most 2 times in a row/)).toBeInTheDocument();
+  },
+};

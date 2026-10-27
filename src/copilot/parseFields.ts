@@ -271,7 +271,8 @@ const CHECKPOINT_FIELD_TYPES: Array<[string, string, (value: unknown) => boolean
   ["convergence_threshold", "a number", (value) => typeof value === "number"],
   ["tension_target", `one of ${TENSION_LEVELS.join(", ")}`, (value) => typeof value === "string" && (TENSION_LEVELS as readonly string[]).includes(value)],
   ["agency", "an object {protect_player_choice?, never_narrate_player_action?, objective_kind?, alternate?}", isRecord],
-  ["talk_control", "an object {speakers?: [{member, weight?}], lead?, director?, profile?, budget?: {voices, attempts}, lead_words?, spotlight?, address_player?, reaction?, …}",
+  ["talk_control", "an object {speakers?: [{member, weight?}], lead?, director?, profile?, budget?: {voices, attempts}, lead_words?, lead_max_consecutive? (1-8), spotlight?, "
+    + "address_player?, reaction?, …}",
     (value) => isTalkControl(value)],
 ];
 

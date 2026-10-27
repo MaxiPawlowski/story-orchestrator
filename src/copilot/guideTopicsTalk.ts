@@ -7,20 +7,21 @@ export const TALK_TOPICS = {
     text: "Who speaks next in a group: speakers [{member, weight}], lead (picked first), no_repeat, allow_silence (needs the director), director (an AI picks the speaker), "
       + "chain (several voices answer one message: mode director or scripted with a sequence, max, stop_on_transition, stop_on_player, hold_extraction, "
       + "yield_on_question: default on, a voice asking the player ends it). List the lead in speakers. no_repeat defaults on: no member repeats within a chain; "
-      + "false permits repeats up to max. A player line or STOP ends the old chain. "
+      + "false permits repeats up to max. A player line or STOP ends the old chain; every chain records why it ended (yield, judge, cap, budget, player, ...). "
       + "An unlisted lead joins at weight 1. A name nobody has is skipped.",
   },
   "talk-pacing": {
     title: "Pacing profiles and speech budget",
-    fields: "talk_control.profile, budget, lead_words, spotlight, address_player, reaction, talk_defaults",
+    fields: "talk_control.profile, budget, lead_words, lead_max_consecutive, spotlight, address_player, reaction, talk_defaults",
     text: "profile (opening, conversation, decision, action, aftermath) fills in policy; set fields win; never switches a feature off. budget {voices, attempts} per "
-      + "player message, shared by chain voices and afterSpeak/sceneBreak lines (default chain max, +1 with such lines). lead_words: soft lead length, no token cap. "
-      + "spotlight {quiet_after, members}: a quiet member replaces the next voice, or the first one if quieter than the pick "
-      + "(not a named member, not a lead-first lead). address_player {after_player_turns, by, cooldown_player_turns}: a planned "
+      + "player message, shared by chain voices and afterSpeak/sceneBreak lines. lead_words: soft lead length, no token cap. "
+      + "lead_max_consecutive: most lead lines in a row. "
+      + "spotlight {quiet_after, members}: a quiet member replaces a voice, never adds one. address_player {after_player_turns, by, cooldown_player_turns}: a planned "
       + "non-lead voice asks the player one thing. reaction: one line after a transition, quest or check. talk_defaults: story default.",
   },
 } as const satisfies Record<string, GuideTopic>;
 
 export const TALK_DIAGNOSTIC_TOPICS = {
   "talk-budget-below-chain": "talk-pacing", "talk-pacing-no-room": "talk-pacing", "npc-reply-scope-unused": "npc-replies",
+  "talk-lead-cap-idle": "talk-pacing", "talk-lead-cap-scripted": "talk-pacing",
 } as const;

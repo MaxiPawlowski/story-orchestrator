@@ -1,6 +1,6 @@
 import React from "react";
 import {
-  TALK_ATTEMPTS_CAP, TALK_BUDGET_CAP, TALK_LEAD_WORDS_MAX, TALK_LEAD_WORDS_MIN, TALK_PROFILES, TALK_TURNS_CAP,
+  TALK_ATTEMPTS_CAP, TALK_BUDGET_CAP, TALK_LEAD_RUN_CAP, TALK_LEAD_WORDS_MAX, TALK_LEAD_WORDS_MIN, TALK_PROFILES, TALK_TURNS_CAP,
   type StoryTalkDefaults, type TalkControl, type TalkProfileName,
 } from "@engine/index";
 import { TALK_PROFILE_SHAPES, describeTalkPolicy, resolveTalkPolicy } from "@talk/index";
@@ -57,8 +57,8 @@ const TalkPacingFields: React.FC<TalkPacingFieldsProps> = ({ control, defaults, 
       <label className="flex flex-col gap-1 text-sm">
         <span className="flex items-center gap-1 text-xs st-muted">
           Pacing profile
-          <HelpTooltip title={"A profile fills in the speech budget, whether the lead speaks first, a soft length for the lead, spotlight, turning to the player and "
-            + "reaction beats. Anything set below wins over it. A profile never switches a feature off."} />
+          <HelpTooltip title={"A profile fills in the speech budget, whether the lead speaks first, a soft length for the lead, how many lead lines may run "
+            + "in a row, spotlight, turning to the player and reaction beats. Anything set below wins over it. A profile never switches a feature off."} />
         </span>
         <select data-so="talk-profile" aria-label="Pacing profile" className="text_pole st-input" value={control.profile ?? ""}
           onChange={(event) => emit({ ...control, profile: TALK_PROFILES.find((name) => name === event.target.value) })}>
@@ -73,6 +73,8 @@ const TalkPacingFields: React.FC<TalkPacingFieldsProps> = ({ control, defaults, 
           placeholder={String(policy.budget?.attempts ?? "")} onChange={(attempts) => setBudget({ attempts })} />
         <NumberField label="Lead reply length (words)" so="talk-lead-words" value={control.lead_words} min={TALK_LEAD_WORDS_MIN} max={TALK_LEAD_WORDS_MAX}
           placeholder={shape ? String(shape.leadWords) : "off"} onChange={(lead_words) => emit({ ...control, lead_words })} />
+        <NumberField label="Lead lines in a row (at most)" so="talk-lead-run" value={control.lead_max_consecutive} min={1} max={TALK_LEAD_RUN_CAP}
+          placeholder={shape ? String(shape.leadMax) : "off"} onChange={(lead_max_consecutive) => emit({ ...control, lead_max_consecutive })} />
       </div>
       <label className="flex items-center gap-2 text-sm">
         <input data-so="talk-spotlight" type="checkbox" checked={policy.spotlight !== null}
