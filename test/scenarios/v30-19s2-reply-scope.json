@@ -1,0 +1,138 @@
+{
+  "model": "none",
+  "_note": "Stable npc reply ids and once_per scopes: an afterSpeak line with id arin-aside, once_per player_turn, maxTriggers 1, cooldown 0 fires once per player message (key camp:arin-aside), is held on the narrator's second line of the same message, and fires again after the next player message. No talk_control, so no budget applies. Written for v3.0 plan 19 stage 2, NOT YET RUN (the live gate is owed); schema-validated only.",
+  "requires": {
+    "lane": "no-model",
+    "group": "Group: Arin, DM Narrator",
+    "members": [
+      "Arin",
+      "DM Narrator"
+    ],
+    "why": "scripted lines only; scopes and counters are code",
+    "judge": "off"
+  },
+  "steps": [
+    {
+      "eval": "for (const name of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[name]; globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; return { cleared: true };",
+      "log": true
+    },
+    {
+      "import_story": {
+        "title": "SO-V3019S2 Reply Scope",
+        "description": "v3.0 plan 19 stage 2 no-model fixture.",
+        "qualities": [
+          {
+            "key": "at_gate",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Has the party reached the gate?"
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "camp",
+            "name": "Camp",
+            "objective": "Make camp.",
+            "type": "anchor",
+            "start": true,
+            "effects": {
+              "npc_replies": [
+                {
+                  "trigger": "afterSpeak",
+                  "member": "Arin",
+                  "kind": "scripted",
+                  "id": "arin-aside",
+                  "after_member": "DM Narrator",
+                  "once_per": "player_turn",
+                  "maxTriggers": 1,
+                  "cooldown_player_turns": 0,
+                  "text": "SO-V3019S2-ARIN Arin shrugs at the fire."
+                }
+              ]
+            }
+          },
+          {
+            "id": "gate",
+            "name": "Gate",
+            "objective": "Open it.",
+            "type": "anchor"
+          }
+        ],
+        "transitions": [
+          {
+            "from": "camp",
+            "to": "gate",
+            "priority": 1,
+            "gate": {
+              "q": "at_gate",
+              "op": "==",
+              "v": true
+            }
+          }
+        ],
+        "roster": [
+          {
+            "id": "DM Narrator",
+            "name": "DM Narrator"
+          },
+          {
+            "id": "Arin",
+            "name": "Arin"
+          }
+        ]
+      },
+      "log": true
+    },
+    {
+      "slash": "/send compact=true First watch."
+    },
+    {
+      "slash": "/sendas name=\"DM Narrator\" SO-V3019S2-N1 An owl calls."
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 1500,
+        "timeoutMs": 30000
+      }
+    },
+    {
+      "slash": "/sendas name=\"DM Narrator\" SO-V3019S2-N2 The owl calls again."
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 1500,
+        "timeoutMs": 30000
+      }
+    },
+    {
+      "eval": "const chat = SillyTavern.getContext().chat; const n = chat.filter((m) => String(m?.mes ?? '').startsWith('SO-V3019S2-ARIN')).length; if (n !== 1) throw new Error('once_per player_turn: exactly one Arin line for the first player message, got ' + n); return { lines: n };",
+      "log": true
+    },
+    {
+      "slash": "/send compact=true Second watch."
+    },
+    {
+      "slash": "/sendas name=\"DM Narrator\" SO-V3019S2-N3 Wind in the pines."
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 1500,
+        "timeoutMs": 30000
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const chat = SillyTavern.getContext().chat; const n = chat.filter((m) => String(m?.mes ?? '').startsWith('SO-V3019S2-ARIN')).length; const at = rt.extras.firedNpcRepliesAt?.['camp:arin-aside'] ?? []; if (n !== 2 || at.length !== 2) throw new Error('a new player message re-opens the scope: ' + JSON.stringify({ n, at })); return { n, at };",
+      "log": true
+    },
+    {
+      "expect": {
+        "npcFired": {
+          "camp:arin-aside": 2
+        }
+      }
+    }
+  ]
+}

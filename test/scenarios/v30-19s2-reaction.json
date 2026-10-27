@@ -1,0 +1,124 @@
+{
+  "model": "any",
+  "_note": "One reaction beat after a consequential event: at_gate is set by the author before the player's message, so the first voice's boundary fires camp -> gate (a consequential event). Both beats run a director chain with reaction on and stop_on_transition false; the next chain step is a reaction by a member who has not spoken in this answer, recorded as a talk decision with source reaction and a speech event with origin reaction and the event's cause, at most once for that cause. Written for v3.0 plan 19 stage 2, NOT YET RUN (the live gate is owed); schema-validated only. Model lane: send_generate drafts real voices; the assertions read code-made records only.",
+  "requires": {
+    "lane": "model",
+    "group": "Group: Arin, DM Narrator",
+    "members": [
+      "Arin",
+      "DM Narrator"
+    ],
+    "why": "the transition, the decision and the speech record are code",
+    "judge": "off"
+  },
+  "steps": [
+    {
+      "eval": "for (const name of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[name]; globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; globalThis.storyOrchestratorDebugDirectorResponse = 'SPEAKER: DM Narrator'; return { director: 'DM Narrator' };",
+      "log": true
+    },
+    {
+      "import_story": {
+        "title": "SO-V3019S2 Reaction",
+        "description": "v3.0 plan 19 stage 2 fixture.",
+        "qualities": [
+          {
+            "key": "at_gate",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Has the party reached the gate?"
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "camp",
+            "name": "Camp",
+            "objective": "Reach the gate.",
+            "type": "anchor",
+            "start": true,
+            "talk_control": {
+              "speakers": [
+                {
+                  "member": "DM Narrator"
+                },
+                {
+                  "member": "Arin"
+                }
+              ],
+              "director": true,
+              "chain": {
+                "max": 3,
+                "stop_on_transition": false
+              },
+              "reaction": true
+            }
+          },
+          {
+            "id": "gate",
+            "name": "Gate",
+            "objective": "Open it.",
+            "type": "anchor",
+            "talk_control": {
+              "speakers": [
+                {
+                  "member": "DM Narrator"
+                },
+                {
+                  "member": "Arin"
+                }
+              ],
+              "director": true,
+              "chain": {
+                "max": 3,
+                "stop_on_transition": false
+              },
+              "reaction": true
+            }
+          }
+        ],
+        "transitions": [
+          {
+            "from": "camp",
+            "to": "gate",
+            "priority": 1,
+            "gate": {
+              "q": "at_gate",
+              "op": "==",
+              "v": true
+            }
+          }
+        ],
+        "roster": [
+          {
+            "id": "DM Narrator",
+            "name": "DM Narrator"
+          },
+          {
+            "id": "Arin",
+            "name": "Arin"
+          }
+        ]
+      },
+      "log": true
+    },
+    {
+      "slash": "/cp set at_gate true"
+    },
+    {
+      "send_generate": {
+        "text": "We push on to the gate.",
+        "timeoutMs": 60000
+      }
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 1500,
+        "timeoutMs": 30000
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const reactions = (rt.extras.speech ?? []).filter((e) => e.origin === 'reaction'); const decisions = rt.getTalkState().decisions.filter((d) => d.source === 'reaction'); const state = { reactions, decisions, active: rt.getSnapshot().activeCheckpointId }; if (reactions.length !== 1 || !reactions[0].cause || !reactions[0].yieldAfter) throw new Error('exactly one reaction with its cause expected: ' + JSON.stringify(state)); if (decisions.length !== 1) throw new Error('one reaction decision expected: ' + JSON.stringify(state)); return state;",
+      "log": true
+    }
+  ]
+}

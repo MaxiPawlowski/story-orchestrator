@@ -67,7 +67,7 @@ describe("npc reply fire rewind (SP7 rollback)", () => {
       const state = fired(key, 4);
       rewindNpcReplies(state.counts, state.at, 4, { kind: "delete", removed: 1 });
       expect(state).toEqual({ counts: { [key]: 1 }, at: { [key]: [3] } });
-      expect(npcReplyMayFire(state.counts, state.at, key, undefined, "sceneBreak", 6)).toBe(false);
+      expect(npcReplyMayFire(state.counts, state.at, key, { trigger: "sceneBreak" }, { entryStart: 0, send: -1, playerTurns: [5] })).toBe(false);
     });
 
     it("Trial: the whispers line at msg 26 stays used through the edit of 27 and through an edit of its own gate (25); its second authored trigger waits for the spacing", () => {
@@ -76,7 +76,7 @@ describe("npc reply fire rewind (SP7 rollback)", () => {
         const state = fired(key, 25);
         rewindNpcReplies(state.counts, state.at, messageId, { kind: "edit" });
         expect(state).toEqual({ counts: { [key]: 1 }, at: { [key]: [25] } });
-        expect(npcReplyMayFire(state.counts, state.at, key, 2, "sceneBreak", 31)).toBe(false);
+        expect(npcReplyMayFire(state.counts, state.at, key, { trigger: "sceneBreak", maxTriggers: 2 }, { entryStart: 0, send: 30, playerTurns: [30] })).toBe(false);
       }
     });
 

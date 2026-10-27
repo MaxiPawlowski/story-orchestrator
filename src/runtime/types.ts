@@ -111,6 +111,7 @@ export interface RuntimeExtras {
   firedNpcRepliesAt: Record<string, number[]>;
   onEnterPosts?: OnEnterPost[];
   cuedLines?: CuedLine[];
+  speech?: import("./speechLedger").SpeechEvent[];
   deferredOpener?: DeferredOpener;
   requirements: RequirementsState;
   lastAppliedCheckpointId: string | null;

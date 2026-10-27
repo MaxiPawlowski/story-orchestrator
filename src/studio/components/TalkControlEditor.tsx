@@ -1,7 +1,8 @@
 import React from "react";
-import { TALK_CHAIN_MAX_CAP, type RosterMember, type TalkControl, type TalkControlChain, type TalkControlSpeaker } from "@engine/index";
+import { TALK_CHAIN_MAX_CAP, type RosterMember, type StoryTalkDefaults, type TalkControl, type TalkControlChain, type TalkControlSpeaker } from "@engine/index";
 import { directorEnabled, directorInstruction } from "@talk/index";
 import HelpTooltip from "@components/studio/HelpTooltip";
+import TalkPacingFields from "./TalkPacingFields";
 
 const memberLabel = (member: RosterMember) => member.name ?? member.id;
 
@@ -103,7 +104,13 @@ const ChainFields: React.FC<{
   </>
 );
 
-const TalkControlEditor: React.FC<{ control: TalkControl | undefined; roster: RosterMember[]; onChange: (next: TalkControl | undefined) => void }> = ({ control, roster, onChange }) => {
+const TalkControlEditor: React.FC<{
+  control: TalkControl | undefined;
+  roster: RosterMember[];
+  onChange: (next: TalkControl | undefined) => void;
+  defaults?: StoryTalkDefaults;
+  activeReplies?: boolean;
+}> = ({ control, roster, onChange, defaults, activeReplies }) => {
   const emit = (next: TalkControl) => {
     const cleaned: TalkControl = { ...next };
     (Object.keys(cleaned) as Array<keyof TalkControl>).forEach((key) => {
@@ -192,6 +199,7 @@ const TalkControlEditor: React.FC<{ control: TalkControl | undefined; roster: Ro
           ) : null}
 
           <ChainFields chain={chain} off={chainOff} setChain={setChain} onToggle={(on) => emit({ ...control, chain: on ? {} : false })} />
+          <TalkPacingFields control={control} defaults={defaults} activeReplies={activeReplies} emit={emit} />
         </div>
       ) : null}
     </div>

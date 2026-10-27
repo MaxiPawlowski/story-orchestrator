@@ -2,6 +2,7 @@ import React from "react";
 import {
   castMemberNames, isCastMember, NPC_REPLY_KINDS, NPC_REPLY_TRIGGERS, type CheckpointEffects, type NpcReplyEffect, type NpcReplyKind, type NpcReplyTrigger, type RosterMember,
 } from "@engine/index";
+import NpcReplyScope from "./NpcReplyScope";
 import MultiSelect from "@components/studio/MultiSelect";
 import HelpTooltip from "@components/studio/HelpTooltip";
 import type { DeclaredCardField } from "@engine/cardFields";
@@ -167,6 +168,7 @@ const NpcRepliesEditor: React.FC<{ replies: NpcReplyEffect[]; roster: RosterMemb
             <button type="button" className="st-button danger" aria-label={`Remove reply ${index + 1}`} onClick={() => onChange(replies.filter((_, entryIndex) => entryIndex !== index))}>×</button>
           </div>
           <NpcReplyFlags reply={reply} index={index} update={update} />
+          <NpcReplyScope reply={reply} index={index} update={update} />
           {reply.trigger !== "sceneBreak" ? (
             <label className="flex items-center gap-2 text-xs st-muted">
               {reply.trigger === "onEnter" ? "only right after" : "only after"}

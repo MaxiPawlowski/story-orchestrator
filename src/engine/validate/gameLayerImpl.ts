@@ -31,6 +31,7 @@ import { storyPolishPart } from "./polish";
 import { checkStretches, readStretch } from "./stretch";
 import { addOffers, checkOffers, readOffers } from "./offers";
 import { readEchoes } from "./echoes";
+import { readReplyScope, readTalkDefaults, readTalkPacing } from "./talkPacing";
 import { closeLapsedEcho, createEchoes, reconcileEchoes, rollbackEchoes, sanitizeEchoes, stepEchoes, storyClock } from "../life/echoes";
 import { echoAuthorView, echoCandidates, echoJournal } from "../life/echoView";
 import { addLivingQualities, checkLiving, livingOpening, needsLivingOpening, readLiving } from "./living";
@@ -95,6 +96,6 @@ export const GAME_LAYER = {
   readCheck, readChecks, checkStoryChecks, addCheckQualities,
   checkDisplays, readDisplay, addRewardQualities, checkQuests, expandRequires, readMilestones, readQuests, readWidgets, life: LIFE, poses, validateCardLayers,
   codex: CODEX, observations: OBSERVATIONS, factions: FACTIONS, carry: CARRY, rumors: RUMORS, patterns: PATTERNS, delivery: DELIVERY, living: LIVING, stretch: STRETCH, cues: CUES, offers: OFFERS,
-  echoes: ECHOES, latchWriters: LATCH_WRITERS,
+  echoes: ECHOES, latchWriters: LATCH_WRITERS, talk: { readTalkPacing, readTalkDefaults, readReplyScope },
   discoveryUnits: DISCOVERY_UNITS, entryWriters: ENTRY_WRITERS,
 };

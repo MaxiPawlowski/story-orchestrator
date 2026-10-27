@@ -15,8 +15,11 @@ import { earnedWorldInfo, releasePlan, worldInfoPlan } from "./worldInfoGates";
 import { applyAuthorNote, applyWorldInfo, authorNoteText, fireReply, needsCast, waitsForOpener, readNpcReplies, resolvePreset } from "./effectSteps";
 import { worldInfoFilesHeld } from "./worldInfoMode";
 import { beginRun, type RunGuard, type RunOwnership } from "./runToken";
-import { hostChat, lastMessageId, lastSpeakerName, memberSpeaks, playerHasSpoken, speakGenerated, type SpeakDeps } from "./npcSpeak";
-import { heldLine, npcReplyMayFire, recordCuedLine, recordNpcReplyFire, recordOnEnterPost, releaseNpcReplyFire, type ActiveTrigger } from "./npcReplyRewind";
+import { hostChat, lastMessageId, lastSpeakerName, memberSpeaks, npcSpeechRequest, playerHasSpoken, rollsReply, settleSpeech, speakGenerated, type SpeakDeps } from "./npcSpeak";
+import {
+  heldLine, npcReplyKey, npcReplyMayFire, recordCuedLine, recordNpcReplyFire, recordOnEnterPost, releaseNpcReplyFire, type ActiveTrigger, type ReplyScopeView,
+} from "./npcReplyRewind";
+import type { SpeechBudget } from "./speechBudget";
 import { castInPlayNote } from "./castInPlay";
 import { CAST_UNRESOLVED, CAST_UNRESOLVED_NOTE, holdsBackground, planCastChanges } from "./castEffect";
 import { InFlight } from "./inFlight";
@@ -70,7 +73,11 @@ export interface EffectApplierDeps extends SpeakDeps {
   roll?: (key: string) => number | null;
   speakerNames?: (name: string) => string[];
   awaitsPlayer?: () => boolean;
+  speech?: Pick<SpeechBudget, "reserve" | "settle" | "recordEntry">;
+  scope?: () => ReplyScopeView & { entry: string };
 }
+
+const NO_SCOPE: ReplyScopeView & { entry: string } = { entryStart: -1, send: -1, playerTurns: [], entry: "" };
 
 export const PENDING_NOT_SAVED = "the effect was not applied: its write-ahead record could not be saved";
 export const NO_OPEN_CHAT = "the effect was not applied: no chat is open to own it";
@@ -470,35 +477,27 @@ export class EffectsApplier {
     // the rest of this story's characters into somebody else's conversation, visibly, in the
     // transcript. The check is inside the loop because each reply is its own write.
     const run = beginRun(this.ownership);
+    const view = this.deps.scope?.() ?? NO_SCOPE;
     let spoken = 0;
     for (let index = 0; index < replies.length; index += 1) {
       if (!run.stillOwns()) return spoken;
       const reply = replies[index];
-      if (reply.enabled === false) continue;
-      if (reply.new_chat_only && (trigger !== "onEnter" || !this.openings.posts() || playerHasSpoken())) continue;
-      if (trigger === "afterSpeak" && reply.after_member && !aliases.includes(reply.after_member.trim().toLowerCase())) continue;
-      if (trigger === "onEnter" && reply.after_member && !this.lastSpeakerIs(reply.after_member)) continue;
-      if (needsCast(reply) && !memberSpeaks(reply.member)) {
-        this.deps.journal?.(`${reply.member}'s line was skipped`, "the member is not switched on in this group");
-        continue;
-      }
-      const key = `${checkpoint.id}:${trigger}:${reply.member}:${authored.indexOf(reply)}`;
-      if (!npcReplyMayFire(extras.firedNpcReplies, extras.firedNpcRepliesAt, key, reply.maxTriggers, trigger, lastMessageId())) continue;
-      if (typeof reply.probability === "number") {
-        const roll = this.deps.roll?.(key) ?? Math.random();
-        const fired = roll <= reply.probability;
-        this.deps.journal?.(`NPC reply ${reply.member} (${trigger}) ${fired ? "fired" : "skipped"} by its roll`, `rolled ${roll.toFixed(3)} against ${reply.probability} at ${key}`);
-        if (!fired) continue;
-      }
+      if (!this.admits(reply, trigger, aliases)) continue;
+      const key = npcReplyKey(checkpoint.id, reply, authored.indexOf(reply));
+      if (!npcReplyMayFire(extras.firedNpcReplies, extras.firedNpcRepliesAt, key, reply, view) || !rollsReply(reply, trigger, key, this.deps)) continue;
+      const reservation = trigger === "onEnter" ? null : this.deps.speech?.reserve(npcSpeechRequest(reply, view.entry)) ?? null;
+      if (trigger !== "onEnter" && this.deps.speech && !reservation) continue;
       extras.firedNpcRepliesAt = extras.firedNpcRepliesAt ?? {};
       recordNpcReplyFire(extras.firedNpcReplies, extras.firedNpcRepliesAt, key, lastMessageId());
       this.speaking += 1;
       let fired: WriteResult & { direction?: string };
       try { fired = await chatSettle.speak(() => this.speak(reply)); }
       catch (error) {
+        settleSpeech(this.deps.speech, reply, null, reservation, null);
         if (run.stillOwns()) releaseNpcReplyFire(extras.firedNpcReplies, extras.firedNpcRepliesAt, key);
         throw error;
       } finally { this.speaking -= 1; }
+      settleSpeech(this.deps.speech, reply, trigger === "onEnter" ? view.entry : null, reservation, fired.ok && run.stillOwns() && this.lastSpeakerIs(reply.member) ? lastMessageId() : null);
       if (!run.stillOwns()) return spoken;
       if (!fired.ok) {
         releaseNpcReplyFire(extras.firedNpcReplies, extras.firedNpcRepliesAt, key);
@@ -510,4 +509,16 @@ export class EffectsApplier {
     }
     return spoken;
   }
+
+  private admits(reply: NpcReplyEffect, trigger: NpcReplyTrigger, aliases: string[]): boolean {
+    if (reply.enabled === false) return false;
+    if (reply.new_chat_only && (trigger !== "onEnter" || !this.openings.posts() || playerHasSpoken())) return false;
+    if (trigger === "afterSpeak" && reply.after_member && !aliases.includes(reply.after_member.trim().toLowerCase())) return false;
+    if (trigger === "onEnter" && reply.after_member && !this.lastSpeakerIs(reply.after_member)) return false;
+    if (!needsCast(reply) || memberSpeaks(reply.member)) return true;
+    this.deps.journal?.(`${reply.member}'s line was skipped`, "the member is not switched on in this group");
+    return false;
+  }
+
+
 }

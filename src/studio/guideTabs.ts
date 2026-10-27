@@ -11,7 +11,7 @@ export const STUDIO_TAB_GUIDE: Partial<Record<StudioTab, readonly GuideTopicId[]
   qualities: ["qualities", "quality-rubric", "latching", "quality-reads", "chance-roll"],
   checkpoints: [
     "checkpoints", "objective-agency", "open-stretches", "tension", "guidance", "drives-motives", "author-note", "world-info", "preset", "background", "scenario", "cast-changes",
-    "opening-scene", "npc-replies", "talk-control", "convergence", "experimental-effects",
+    "opening-scene", "npc-replies", "talk-control", "talk-pacing", "convergence", "experimental-effects",
   ],
   transitions: ["gates", "transitions", "convergence"],
   roster: ["roster", "roster-polish", "drives-motives", "inner-voice", "opening-scene", "character-life", "factions", "relationship-labels", "commitments", "cues", "topics",

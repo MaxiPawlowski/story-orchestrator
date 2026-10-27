@@ -9,6 +9,7 @@ import { readCheckpointChapter } from "./chapters";
 import { readGuidance } from "../checkpointGuidance";
 import { gameLayer } from "./gameLayer";
 import { readWorkflowMap } from "./illustrations";
+import { checkReplyIds } from "./replyIds";
 
 type Member = Story["roster"][number];
 
@@ -132,8 +133,10 @@ export const readCheckpointEffects = (value: unknown, path: string, errors: Vali
     if (entry.ask_player !== undefined && (typeof entry.ask_player !== "boolean" || kind !== "llm")) {
       addError(errors, `${replyPath}.ask_player`, "ask_player is true or false, on an llm reply only: a scripted line is posted as written");
     }
+    const scope = gameLayer()?.talk.readReplyScope(entry, replyPath, errors) ?? {};
     if (!trigger || !member || !kind) return null;
     return {
+      ...scope,
       trigger,
       member,
       kind,
@@ -147,6 +150,7 @@ export const readCheckpointEffects = (value: unknown, path: string, errors: Vali
       ...(typeof entry.enabled === "boolean" ? { enabled: entry.enabled } : {}),
     };
   }).filter((entry): entry is NonNullable<typeof entry> => entry !== null);
+  checkReplyIds(replies, `${path}.npc_replies`, errors);
   effects.npc_replies = replies;
   return effects;
 };
@@ -277,7 +281,7 @@ const readTalkControl = (value: unknown, path: string, errors: ValidationError[]
       addError(errors, `${path}.chain`, "chain must be an object or false");
     }
   }
-  return control;
+  return { ...control, ...gameLayer()?.talk.readTalkPacing(value, path, errors) };
 };
 
 export const readCheckpoint = (value: unknown, path: string, errors: ValidationError[]): Checkpoint | null => {

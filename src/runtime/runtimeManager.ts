@@ -155,7 +155,7 @@ export class RuntimeManager extends SettingsDelegates {
     super();
     this.effects = hostEffectsApplier(this.owner.ownership, { persist: () => this.persist(), unsaved: () => hasUnsavedChanges(this.extras.saveHealth),
       journal: (summary, note) => this.noteRecap(summary, note ?? ""), roll: (key) => this.chance.npcRoll(key),
-      direct: (member, text) => this.pacing.armDirection(member, text), view: this });
+      direct: (member, text) => this.pacing.armDirection(member, text), speech: this.co.speech.speech, view: this });
   }
 
   subscribe(listener: () => void) { this.listeners.add(listener); return () => { this.listeners.delete(listener); }; }

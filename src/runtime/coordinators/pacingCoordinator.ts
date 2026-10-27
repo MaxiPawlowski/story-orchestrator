@@ -4,7 +4,7 @@ import {
   type Checkpoint, type EngineState, type NormalizedStory, type TensionLevel,
 } from "@engine/index";
 import type { ParsedDelta } from "@extraction/index";
-import { OPENING_LINE, composeGuidanceBlock, encounterOfferLine, getSteeringHint, pullLine, quietRead, tensionEvidenceFresh, updateEma, type EncounterOffer } from "@pacing/index";
+import { OPENING_LINE, composeGuidanceBlock, encounterOfferLine, leadLengthLine, getSteeringHint, pullLine, quietRead, tensionEvidenceFresh, updateEma, type EncounterOffer } from "@pacing/index";
 import { PACING_HINT_DEPTH, PACING_HINT_EXTENSION_KEY } from "@constants/defaults";
 import { INJECTION_REGISTRY } from "@constants/injectionRegistry";
 
@@ -30,6 +30,7 @@ export interface PacingCoordinatorDeps {
   hosts: { prompt: PromptHost; chat?: Pick<ChatHost, "chatRows"> };
   ended?: () => boolean;
   onHoldChange?: () => void;
+  leadLength?: () => { rosterId: string; name: string; words: number } | null;
 }
 
 // Tension is written twice: optimistically while extractor deltas are queued (so the smoothed
@@ -139,7 +140,7 @@ export class PacingCoordinator {
     const rows = this.deps.hosts.chat?.chatRows() ?? [];
     const turns = active?.stretch ? playerTurnsInCheckpoint(this.deps.getState(), rows) : 0;
     const guidance = composeGuidanceBlock(active, policy, objectiveLineApplies(story, active, turns), this.memberLine(story, active), this.stretchLine(story, active, rows, turns),
-      this.oneShotLine());
+      this.oneShotLine(), this.lengthLine());
     if (guidance) prompt.setStoryExtensionPrompt(GUIDANCE.key, guidance, GUIDANCE.depth);
     else this.clearGuidance();
   }
@@ -164,6 +165,11 @@ export class PacingCoordinator {
   private oneShotLine() {
     const direction = this.direction;
     return direction && !this.withheld && this.drafted === direction.rosterId ? { name: direction.name, text: direction.text } : null;
+  }
+
+  private lengthLine(): string | null {
+    const lead = this.withheld ? null : this.deps.leadLength?.() ?? null;
+    return lead && this.drafted === lead.rosterId ? leadLengthLine(lead.name, lead.words) : null;
   }
 
   armDirection(member: string, text: string, scope: "call" | "draft" = "call"): (() => void) | null {

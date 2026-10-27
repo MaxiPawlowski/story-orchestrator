@@ -2,7 +2,7 @@ import { parseStoryOrThrow, type EngineState, type NormalizedStory } from "@engi
 import { INJECTION_REGISTRY } from "@constants/injectionRegistry";
 import type { PromptHost } from "../hostPorts";
 import type { TensionRuntimeState } from "../types";
-import { ASK_PLAYER_DIRECTION, ASK_PLAYER_TAIL, ONE_SHOT_SCOPE, oneShotDirectionText } from "@pacing/guidance";
+import { ASK_PLAYER_DIRECTION, ASK_PLAYER_TAIL, ONE_SHOT_SCOPE, leadLengthLine, oneShotDirectionText } from "@pacing/guidance";
 import { NO_CLOSING_QUESTION_CLAUSE } from "@engine/agency";
 import { PacingCoordinator } from "./pacingCoordinator";
 
@@ -87,5 +87,39 @@ describe("v3.0 19 P1: an llm reply's instruction is a one-shot private direction
     expect(oneShotDirectionText({})).toBe("");
     expect(ONE_SHOT_SCOPE).toContain("never ask {{user}} what they do");
     expect(NO_CLOSING_QUESTION_CLAUSE).toBe("End on something that just happened or a character's move, not on scenery or mood, and never on a question asking {{user}} what they do.");
+  });
+});
+
+describe("v3.0 19 stage 2: lead_words is a soft length hint in the lead's own draft only", () => {
+  const withLead = (lead: { rosterId: string; name: string; words: number } | null) => {
+    const blocks = new Map<string, string>();
+    const prompt = {
+      setStoryExtensionPrompt: (key: string, value: string) => { blocks.set(key, value); },
+      clearStoryExtensionPrompt: (key: string) => { blocks.delete(key); },
+    } as unknown as PromptHost;
+    let tension: TensionRuntimeState = { levels: [], smoothed: null, history: [] };
+    const pacing = new PacingCoordinator({
+      getStory: () => story, getState: () => ({ activeCheckpointId: "a" } as EngineState), getStateLog: () => [], getTensionTarget: () => undefined,
+      getTension: () => tension, setTension: (next) => { tension = next; }, getPacing: () => ({ alpha: 0.5, shapeOverride: null, hintEnabled: false }),
+      hosts: { prompt }, leadLength: () => lead,
+    });
+    return { pacing, block: () => blocks.get(KEY) ?? "" };
+  };
+
+  it("the lead's draft carries the length line, another member's does not, and a withheld pass carries nothing", () => {
+    const { pacing, block } = withLead({ rosterId: "narrator", name: "Narrator", words: 140 });
+    pacing.draftGuidance("narrator");
+    expect(block()).toContain(leadLengthLine("Narrator", 140));
+    pacing.draftGuidance("mara");
+    expect(block()).not.toContain("Length for");
+    pacing.draftGuidance("narrator");
+    pacing.withholdGuidance();
+    expect(block()).toBe("");
+  });
+
+  it("control: no lead_words, no line, so a story without profiles keeps its payload", () => {
+    const { pacing, block } = withLead(null);
+    pacing.draftGuidance("narrator");
+    expect(block()).toBe("");
   });
 });

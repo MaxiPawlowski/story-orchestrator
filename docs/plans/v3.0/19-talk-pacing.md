@@ -87,22 +87,99 @@ Example, chapter-opening hook (any checkpoint):
 
 ## Limits kept (documented in the guide)
 
-- `afterSpeak` never follows a story-posted line, and can lose a race with a chain's next voice (it then waits for the next turn). No shared speech budget yet (next stage).
+- `afterSpeak` never follows a story-posted line, and can lose a race with a chain's next voice (it then waits for the next turn). Since stage 2 both draw on one speech budget, so the race can no longer exceed it; in-flight reservations count.
 - A held entering set and the cued-line re-arm are in memory for the current apply; a page reload between the opener and its held lines loses the held lines (the opener's own counters persist, so nothing posts twice).
 - The yield detector misses implicit invitations without a question mark; false negatives keep today's behaviour.
 
-## Next stage (not this branch)
+## Next stage (after stage 2)
 
-- One shared speech budget across chains and NPC effects; route NPC `llm` replies through the guarded `startVoice`.
-- Stable authored reply ids and `once_per: story | entry | player_turn` scopes; cooldowns in player turns, not message indexes.
-- Per-checkpoint pacing profiles (narrator message cap, soft prose target, spotlight default).
-- Address-the-player beats that ride an already-budgeted reply (0 extra calls).
-- Spotlight substitution (replace an optional voice, never add one).
-- Reaction beats (budgeted, yield after).
+Built in stage 2 (below): the shared speech budget, stable reply ids and scopes, pacing profiles, spotlight substitution, address-the-player beats, reaction beats. Still open:
+
+- Route NPC `llm` replies through the guarded `startVoice` (they still use `/trigger`; the budget now bounds them, the busy/draft guard does not).
+- A hard narrator message cap separate from the budget (today: the budget caps every automatic voice, and `no_repeat` keeps the lead to one line per chain).
 - Zero-cost idle nudge (UI offer only; generation on the player's request).
 - Narrowing the global closing-question clause by speaker (review P3, Opus P12): blind A/B first.
 - Judge `turn: player` signal (needs a calibration row).
-- Record every chain end reason (question, cap, script end, transition, cancel).
+- Record every chain end reason (question, cap, script end, transition, cancel, budget).
+
+## Stage 2 (branch `v3.0-talk-pacing-s2`, worktree `C:\dev\so-talk2`, from master `5719c721`), not merged
+
+### Decisions (owner, as recommended, 2026-10-26)
+
+1. Narrator length and the spotlight default belong to pacing profiles. No profile = today's behaviour (no spotlight, no address beats, no reactions, no length hint).
+2. No wall-clock idle nudge (not built; the zero-cost offer stays optional and open).
+3. Thinking and the inner voice stay on. Length is a prompt-side hint only, never `max_tokens`.
+4. Never narrate the player's decisions: every new one-shot direction carries `ONE_SHOT_SCOPE`.
+5. The global "no closing question" agency wording is unchanged (blind A/B later).
+6. Cost: every addition replaces or rides a voice except the reaction beat (at most one, budgeted).
+
+Lead decisions recorded here (state them to the owner):
+
+- **Default budget preserves today's shape.** A beat with `talk_control` and no `budget` gets `voices` = the resolved chain `max` (1 with `chain: false`) plus one when the beat has an enabled `afterSpeak`/`sceneBreak` line; `attempts` = `voices` + 1. Only a turn that used to exceed that (a full chain plus two NPC lines in one player message) is now cut. A beat without `talk_control` has no budget unless the story sets `talk_defaults`.
+- **Entering lines are the entry sequence.** `onEnter` lines (opener, hook, entering lines, earned effect lines) are recorded with origin `entry` and never draw on the per-send budget.
+- **Default cooldown is 2 player turns** for `afterSpeak`/`sceneBreak` (was 8 messages, `NPC_REPLY_SPACING`), 0 for `onEnter`. `test/scenarios/plan07-memory.json` was moved to player lines.
+- **Reply keys stay the stage 1 keys.** Without an `id`, a reply is keyed `checkpoint:trigger:member:index` exactly as before; an authored `id` keys it `checkpoint:id`. Duplicate ids in one beat are a load error.
+- **Reaction runs only in a director chain**, after the yield checks, before the judge, at most once per consequential event (`boundary@message`), and yields after.
+- **Spotlight replaces only judge/director picks** (never a `mention` addressee, never the first voice, never a scripted chain step).
+- **Address beats ride the first voice too**, when the first pick is a non-lead member; otherwise the next chain voice.
+
+### Schema (new keys)
+
+- `checkpoints[].talk_control.profile`: `opening | conversation | decision | action | aftermath`.
+- `checkpoints[].talk_control.budget`: `{ voices (1-8), attempts (1-12, >= voices) }`.
+- `checkpoints[].talk_control.lead_words`: 30-600, soft length target for the lead.
+- `checkpoints[].talk_control.spotlight`: `{ quiet_after (1-20 player turns), members? }` or `false`.
+- `checkpoints[].talk_control.address_player`: `{ after_player_turns (0-20, required), by?: "relevant_member" | [members], cooldown_player_turns? }` or `false`.
+- `checkpoints[].talk_control.reaction`: `true`, `{ members? }` or `false`.
+- `talk_defaults` (story): `{ profile?, budget? }`.
+- `effects.npc_replies[].id`, `.once_per` (`story | entry | player_turn`, default `story`), `.cooldown_player_turns` (0-20).
+
+Profiles (`talk/policy.ts` `TALK_PROFILE_SHAPES`; checkpoint fields > checkpoint profile > story `talk_defaults` fields > story profile > legacy):
+
+- opening: 2 voices, lead first, lead ~180 words, address after 1 (cooldown 2), no spotlight, no reaction.
+- conversation: 3 voices, lead not first, ~120 words, spotlight after 2, address after 3 (cooldown 3), reaction.
+- decision: 2 voices, lead first, ~140 words, nothing else.
+- action: 3 voices, lead first, ~160 words, spotlight after 3, reaction.
+- aftermath: 2 voices, lead not first, ~100 words, spotlight after 1, address after 2 (cooldown 4), reaction.
+
+Example:
+
+```json
+"talk_defaults": { "profile": "conversation" },
+"checkpoints": [{ "id": "crossroads", "talk_control": {
+  "lead": "Ruins Narrator", "speakers": [{ "member": "Ruins Narrator" }, { "member": "Mara" }, { "member": "Finn" }],
+  "director": true, "profile": "decision", "budget": { "voices": 2, "attempts": 3 }, "lead_words": 120,
+  "address_player": { "after_player_turns": 2, "by": ["Mara"], "cooldown_player_turns": 3 }, "reaction": { "members": ["Finn"] }
+}, "effects": { "npc_replies": [
+  { "trigger": "afterSpeak", "member": "Finn", "kind": "llm", "id": "finn-aside", "after_member": "Mara", "once_per": "entry", "maxTriggers": 1, "cooldown_player_turns": 2,
+    "instruction": "Finn grumbles about the weather." }
+] } }]
+```
+
+### What was built
+
+- **Speech record and budget** (`runtime/speechLedger.ts`, `runtime/speechBudget.ts`, `runtime/speechWiring.ts`). Every automatic request is a `SpeechRequest`: origin (`chain | npc | entry | spotlight | address | reaction`), member, generated, source message id + revision, entry identity (`checkpoint@startedMessageId`), recipient, instruction, `yieldAfter`, optional cause. `reserve` counts rendered voices since the player's latest line from the chat (entry lines excluded) plus in-flight reservations, and generations separately (scripted lines cost a voice, not a generation; a failed generation costs one). Settled requests land in `extras.speech` (cap 200) with message id, revision and word count; a settle after a chat switch records nothing. Refusals are journaled ("held by the speech budget").
+- **Chain integration** (`runtime/talkControl.ts`, `runtime/talkPacing.ts`, `runtime/talkDirector.ts`). Each chain voice reserves before its trigger; a refused reservation ends the chain. A rendered `yieldAfter` voice (address, reaction, an NPC `ask_player` line) ends the chain with a recorded hand-back. Judge and director calls moved to `talkDirector.ts` (file budget); `leadPreferred: false` drops the lead from the judge/director input and from the rules' lead eligibility.
+- **NPC replies** (`runtime/effectsApplier.ts`, `runtime/npcSpeak.ts`, `runtime/npcReplyRewind.ts`). `afterSpeak`/`sceneBreak` lines reserve from the same budget; `onEnter` lines record entry events. `npcReplyMayFire` takes the reply and a scope view (entry start, latest send, player turn ids); `npcReplyKey` keys by id.
+- **Spotlight**: substitutes the judge/director pick with the quietest eligible member (quiet = player turns since they last spoke in this beat, read from the chat), seeded ties, one-line private nudge (`SPOTLIGHT_DIRECTION`), decision source `spotlight`.
+- **Address-the-player**: due when no non-lead line asked the player (the stage 1 `asksPlayer`) for `after_player_turns` and the last address event is at least `cooldown_player_turns` behind; arms `ASK_PLAYER_DIRECTION` (or the tail) on the planned voice; 0 extra calls.
+- **Reaction**: consequential = fired transition, quest closed/rewarded, check rolled since the player's line (`runtime/speechConsequence.ts`); `REACTION_DIRECTION`, decision source `reaction`.
+- **Lead length**: `leadLengthLine` in the lead's own draft of the guidance block (`pacingCoordinator` `leadLength` dep).
+- **Rollback**: `rewindSpeech` in `rollback.ts` quarantine (drop at/after; swipe/edit keep the message's own row; delete shifts); directed chain voices are also recorded as cued lines, so a swipe keeps the direction.
+- **Authoring**: validation (`validate/talkPacing.ts`), storyDiff (`talk-defaults-changed`, roster refs), diagnostics `talk-budget-below-chain` (warning), `talk-pacing-no-room` (warning), `npc-reply-scope-unused` (info), and pacing member names under `talk-member-unknown` (`studio/talkDiagnostics.ts`); Studio `TalkPacingFields` (profile, budget, lead words, spotlight, address, reaction, effective-policy line), `NpcReplyScope` (id, at most N per scope, cooldown), story default profile/voices; wizard parser (`copilot/parseFields.ts`); guide topic `talk-pacing` + `npc-replies` update (story-guide.md, `copilot/guideTopicsTalk.ts`, `npm run docs:guide`), guide coverage tables for `talk_control`, `talk_defaults`, `npc_replies[]`.
+- **Main bundle**: the budget (`speechBudget.ts` + `talk/policy.ts`) loads as the lazy `speechUnit` chunk and the chain pacing as a lazy `talkPacing` chunk (both imported at startup; until they land, nothing is budgeted or substituted and no request is refused); the pacing validators ride the game layer, so a story using any stage 2 key loads it (`usesGameLayer`). Main bundle 1,293,742 B (base 1,281,363 B, budget 1,300,000 B).
+- **Metrics** (`scripts/debug/so-talk-metrics.mts`): `--budget` (per-round compliance), `--lead-words` (lead lines within 1.25x target), spotlight share, longest party gap, longest quiet run per member, and the chat file's speech record (events by origin, failed attempts, max voices per send).
+- **Scenarios (written, NOT run)**: `test/scenarios/v30-19s2-speech-budget.json`, `-reply-scope.json`, `-profile.json`, `-address-player.json`, `-reaction.json`, `-spotlight.json` (group `Group: Arin, DM Narrator`, schema-validated). Budget, reply scope and profile are no-model; address, reaction and spotlight use `send_generate`, so they are model-lane (`model: any`), with the talk director mocked and assertions on code-made records only. The spotlight substitution itself needs three members and is covered by `runtime/talkPacing.review.test.ts`.
+
+### Live gate stage 2 (owed, NOT green)
+
+- Run the three no-model stage 2 scenarios on a no-model lane and the three model-lane ones on a model lane, each twice (`so-scenario run <file> --sandbox --group "Group: Arin, DM Narrator"`).
+- Real-LLM on adolion-fresh, after the campaign pass: a `conversation` beat for 10 player turns: `so-talk-metrics.mts --budget 3 --lead-words 120` shows budget compliance 100%, every member speaking within 4 player turns, lead p90 within target; the speech record shows no send over its voices/attempts.
+- A `decision` beat: at most 2 voices per send, the lead first, no address beat.
+- An address beat: the non-lead voice asks the player one thing and the chain stops; payload check that the one-shot line reaches only that member's generation.
+- A reaction beat after a transition with `stop_on_transition: false`: exactly one reaction, then the player's turn.
+- Swipe and delete on a directed voice: the direction re-arms on swipe; a delete drops its speech row and re-opens the budget.
+- Blind pacing rating pair (profile vs no profile) before the campaign adopts profiles broadly.
 
 ## Evaluation (proposed floors, informational, freeze before the run)
 
@@ -139,6 +216,9 @@ The GPU and lanes were busy with another agent's image run, so no live run was m
 - Does the owner want hooks at chapter openings as well as story starts (campaign pass proposes 63)?
 - Should a hook be allowed in `player_action` beats as a question, or only as an offer? (Built: a question, never "what do you do".)
 - Should `yield_on_question` also end a chain on an implicit invitation (no `?`)? Needs the judge signal.
+- Stage 2: should a beat with `talk_control` and no profile get a default profile (e.g. `conversation`), switching spotlight on everywhere? Built: no (profiles decide, per the owner decision); the campaign pass can set `talk_defaults`.
+- Stage 2: is the 2-player-turn default cooldown for `afterSpeak`/`sceneBreak` right, or should it stay closer to the old 8 messages?
+- Stage 2: should spotlight be allowed to bring in the lead when the author lists the lead in `spotlight.members`? Built: the lead is never a spotlight pick.
 
 ## Gate record
 
@@ -175,3 +255,20 @@ Date 2026-10-26, branch `v3.0-talk-pacing` from master `2403c70f`.
   - Run header: `so-run-header diff` with the open-chat change and the 5 owned chats declared leaves one undeclared item, `thirdParty.installed` lost 3 extensions mid-run (the ST tree's global third-party dir changed at 22:19Z, not by this run).
   - Evidence: `C:/dev/so-lanes/34/debug/runs/2026-10-26-v3019-live/` (`summary.json` counts, `metrics/`, payload tail, run headers), archived in so-sessions `evidence/phase-c/v3019-live-2026-10-26/` (commit `9c68fc41`).
   - Not run: the journey twice (one pass per story only), 4 of 9 stories, blind pacing rating pair. Verdict: live gate **green on the checks run** (opening order, hook addressing, swipe, one-shot scope, yield, agency); single-question wording is a quality miss to raise with the owner, not a gate failure.
+
+### Gate record, stage 2
+
+Date 2026-10-26, branch `v3.0-talk-pacing-s2` from master `5719c721`.
+
+- `npm run gates:quick` green before the full run (typecheck, typecheck:test, lint changed, jest related, defect replay `--cached`).
+- `npm run gates` (no `--resume`, Storybook included): **all green in 260.1 s**.
+  - build, typecheck, typecheck:test, lint, debug:typecheck: ok.
+  - test (jest): 910 suites passed (1 skipped); 10564 tests passed, 1 skipped.
+  - test:replay: defect replay 32 of 32 killed.
+  - test:debug: 1574 of 1574 pass. test:plugin and test:release: ok (0 fail).
+  - test-storybook:ci: 166 suites, 1006 tests passed (new stories `Studio/TalkControlEditor` PicksPacingProfile, `Studio/NpcReplyScope` ScopesAReplyPerVisit).
+- Earlier full runs went red and were fixed before the green run: main bundle over budget (1,305,422 B; fixed by the lazy `speechUnit` and `talkPacing` chunks and game-layer validators, now 1,293,742 B), `legacyFree` and `errorCopy` guard rows (word renamed; two parseFields issue templates listed in `test/findings/errorCopy.json`), a Storybook query that matched the profile tooltip, and the model-class census (address, reaction, spotlight scenarios use `send_generate`, so `model: any`, lane `model`). The first full run waited for another worktree's Storybook to free port 6006.
+- New tests: `talk/policy.test.ts`, `talk/participation.test.ts`, `engine/validate/talkPacing.test.ts`, `runtime/speechBudget.test.ts` (budget, ledger rollback), `runtime/npcReplyScope.test.ts` (ids, scopes, cooldowns, rollback = replay, consequential events), `runtime/talkPacing.review.test.ts` (budget stops the chain, spotlight substitutes, address rides, cooldown, reaction, lead preference), `copilot/parseFieldsTalk.test.ts`, additions to `runtime/effectsApplier.test.ts`, `runtime/coordinators/oneShotDirection.review.test.ts`, `studio/diagnostics.test.ts`, `copilot/guideCoverage.test.ts`, `scripts/debug/lib/talkMetrics.test.mts`.
+- Goldens and findings: `test/goldens/arrival-findings.json` (+6 scenario stories, no findings), `test/findings/errorCopy.json` (+2 rows).
+- **Live gate: NOT run, owed, NOT green** (dev only, lanes in use). See "Live gate stage 2".
+- Deviations: the default `afterSpeak`/`sceneBreak` cooldown moved from 8 messages to 2 player turns (stated above); NPC `llm` replies still use `/trigger`, not `startVoice` (open).

@@ -12,6 +12,9 @@ import { promptCost } from "../promptCost";
 import type { LiveParts, WindowAccess } from "./types";
 import { presentRosterIds } from "../whereabouts";
 import { messageRevision } from "../yourMove";
+import { speechRows } from "@talk/index";
+import { entryKey } from "../effectsApplierHost";
+import { consequenceSince } from "../speechConsequence";
 
 const talkHost = (live: LiveParts, judgeRuntime: JudgeRuntime, { chatLastId, recentTurns }: WindowAccess): TalkControlHost => ({
   isGroupChat: () => Boolean(getActiveGroup()),
@@ -40,6 +43,18 @@ const talkHost = (live: LiveParts, judgeRuntime: JudgeRuntime, { chatLastId, rec
   random: () => runtimeManager.chance.talkRandom(),
   getChainConfig: () => runtimeManager.getTalkChainConfig(),
   setExtractionHold: (hold) => runtimeManager.setExtractionHold(hold),
+  getTalkPolicy: () => runtimeManager.talkPolicy(),
+  getSpeechRows: () => speechRows(getContext().chat ?? []),
+  getEntryStart: () => runtimeManager.getEngineState()?.checkpointStartedMessageId ?? 0,
+  getEntryKey: () => entryKey(runtimeManager.getEngineState()),
+  reserveSpeech: (request) => runtimeManager.speech.reserve(request),
+  settleSpeech: (reservation, messageId) => runtimeManager.speech.settle(reservation, messageId),
+  speechYielded: () => runtimeManager.speech.yieldPending(),
+  armDirection: (member, text) => runtimeManager.directDraft(member, text),
+  consequence: () => consequenceSince(runtimeManager.getBoundaryLog(), getContext().chat ?? []),
+  causeHandled: (cause) => runtimeManager.speech.causeHandled(cause),
+  lastAddressAt: () => runtimeManager.speech.lastAddressAt(),
+  recordCue: (line) => runtimeManager.recordCue(line),
   ownership: runtimeManager.getOwnership(),
 });
 

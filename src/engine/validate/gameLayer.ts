@@ -22,7 +22,17 @@ const LIFE_FIELDS = ["relationships", "mood", "agenda", "schedule", "commitments
 
 const listed = (value: unknown, key: string): boolean => Array.isArray(value) && value.some((entry) => isRecord(entry) && entry[key] !== undefined);
 
-export const usesGameLayer = (json: Record<string, unknown>): boolean =>
+const TALK_PACING_KEYS = ["profile", "budget", "lead_words", "spotlight", "address_player", "reaction"];
+const REPLY_SCOPE_KEYS = ["id", "once_per", "cooldown_player_turns"];
+
+const pacedCheckpoint = (cp: unknown): boolean => isRecord(cp)
+  && ((isRecord(cp.talk_control) && TALK_PACING_KEYS.some((key) => (cp.talk_control as Record<string, unknown>)[key] !== undefined))
+    || (isRecord(cp.effects) && REPLY_SCOPE_KEYS.some((key) => listed((cp.effects as Record<string, unknown>).npc_replies, key))));
+
+const usesTalkPacing = (json: Record<string, unknown>): boolean =>
+  json.talk_defaults !== undefined || (Array.isArray(json.checkpoints) ? json.checkpoints : []).some(pacedCheckpoint);
+
+export const usesGameLayer = (json: Record<string, unknown>): boolean => usesTalkPacing(json) ||
   json.quests !== undefined || json.milestones !== undefined || json.widgets !== undefined || json.codex !== undefined || json.observations !== undefined || json.factions !== undefined
   || json.outcome !== undefined || json.carry_from !== undefined || listed(json.roster, "factions") || json.rumors !== undefined || json.patterns !== undefined
   || json.norms !== undefined || json.echoes !== undefined || json.polish !== undefined

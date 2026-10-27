@@ -49,6 +49,7 @@ import { fnv1a } from "./hash";
 import { createRecapPort } from "./recapPort";
 import { createPatternsPort, patternHints, patternResting, reconcilePatternsOnUpdate } from "./patternsPort";
 import { createCarryActions } from "./carryPort";
+import { wireSpeech } from "./speechWiring";
 import { gameLayer } from "@engine/validate/gameLayer";
 
 const reconcileWith = (read: () => RuntimeExtras) => (previous: NormalizedStory, next: NormalizedStory): void => {
@@ -263,8 +264,10 @@ export function wireCoordinators(port: ManagerPort) {
     spikes: () => getGlobalSettings().spikes, promises, witness, journal: (summary, note) => port.journal("story", summary, note), heldReply: heldStoppedReply,
     ...lifecycle,
   });
+  const speech = wireSpeech(port);
   const pacing = new PacingCoordinator({
     ...view,
+    leadLength: speech.leadLength,
     getStateLog: () => engine.stateLog,
     getEncounters: (stretchId) => encounterOffers(port.extras().expansion.entries, stretchId),
     getTensionTarget: () => engine.activeCheckpoint?.tension_target,
@@ -334,6 +337,6 @@ export function wireCoordinators(port: ManagerPort) {
   const storyUpdateDeps = storyUpdateDepsFor(port, expansion, living, patternsWiring.reconcile);
   return {
     memory, expansion, extraction, pacing, stagecraft, copilot, inner, game, meanwhile, living, rollbackDeps, storyUpdateDeps, recap, patterns, promises, witness, rumors,
-    carry, narrator, delivery, cues, echoes, polish: { port, memory },
+    carry, narrator, delivery, cues, echoes, polish: { port, memory }, speech,
   };
 }
