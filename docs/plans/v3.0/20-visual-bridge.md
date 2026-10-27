@@ -817,3 +817,53 @@ Pilot harness (owner, 2026-10-26, after stage 2):
     `discover` fail, one `comfy-discovery` lease, `discover` 200, release, then the picture (qwen for a prepared member, sdxl fallback)
     placed; with ComfyUI up, no `comfy-discovery` lease. Also a manual picture and a prepared cast scene with ComfyUI down.
   - Not merged, not pushed.
+- D10 live gate 2026-10-27 (branch `v3.0-d10-wake` `b71c5133`, worktree `C:\dev\so-d10`; lane 33, 3090, ComfyUI 8188 under the controller,
+  landmarks 8096 for the run; owner away). Nothing staged into ST (its slot keeps master `727da9cc`), lane 0 untouched, not merged. Verdict:
+  checks 1-4 PASS.
+  - Serving: `npm run build` in the worktree (bundle `d2726c2ab427`, manifest commit `b71c5133`, `dirty: false`), served to lane 33's
+    browser by a CDP route holder (`candidate-hold.mjs`, as in the plan 24 live gate). In page: manifest commit `b71c5133`, `index.js`
+    sha256 `d2726c2ab427` = worktree build; 1031 files served, 0 chunk 404s. The probe refuses to run on any other commit.
+  - Lane 33: images deliberately ON for this image check (`image` has no `enabled` key on the lane = on by default; `sprites.enabled` on),
+    recorded here as the exception to "no ComfyUI from lanes". `st-lanes.mts restore-model 33`, `start 33 --headed`. Prepared cast from
+    `so-p41-journey.mts run 1 --keep --label d10prep --only preflight,wizard,story,card-art,base,prepare` (partial by design: 3 bases +
+    3 prepares pass; a first try without `card-art` was refused "default picture" and cleaned up). Then the post-install probe, adapted
+    (`d10-probe.mts`): fixture packs from `mkpacks-live.mjs`, story `SO-P41 Post` (prepared Ash and Bram, pack-bound Pim), `GET /packs` 200
+    with 4 packs and `errors: []`, all three on stage, sprite recipe `ready`.
+  - ComfyUI down = the 8188 listener killed (`taskkill`), then a `down` phase that waits until ComfyUI has stayed down for 12 checks
+    (60 s) with the controller in `text`, no image lease and text loaded, killing again if anything restarts it. Lease keys are read from
+    the request body (`workflowKey`).
+  - Harness finding (not a product defect): the first tampered-Pim try killed ComfyUI right after a render. The controller was
+    restoring text (`phase: restoring`), and the broker's `freeImages` calls `startComfy`, so ComfyUI was back ~43 s later with no page
+    lease (`discover` 400 then 200, no `comfy-discovery`). That run did not exercise the wake and is not counted; the `down` phase exists
+    because of it.
+  - Check 1, automatic turn, `automaticRoute auto`, everyN 1, ComfyUI down: PASS for both routes.
+    - Ash alone, prepared (`auto-ash-down.json`): `discover` 400 at 7.1 s, `comfy-discovery` lease 200 at 49.1 s (controller started
+      ComfyUI), `discover` 200 at 50.0 s, release 50.0 s, render lease 85.8 s, 1 job. Plan `qwen / references-ready`, picture `qwen`,
+      `recipe_source: discovered`, identity = Ash's accepted base, placed on the reply. No error.
+    - Pim alone with her pack tampered after its digest (`auto-pim-tampered.json`): `discover` 400 at 11.0 s, `comfy-discovery` lease 200
+      at 49.4 s, `discover` 200 at 50.2 s, release 50.4 s, SDXL checkpoint lease 86.7 s, 1 job. Plan `sdxl / no-reference`, SDXL picture
+      placed. Pack restored after (byte-identical to the original).
+  - Check 2, ComfyUI up (`auto-ash-up.json`): Ash, `qwen / references-ready`, placed; `discover` 200 x4, one lease (the render),
+    0 `comfy-discovery`. PASS.
+  - Check 3, ComfyUI down, PASS for both:
+    - Manual picture, a real click on the last reply's "Illustrate this moment" (`manual-manual-down.json`): `discover` 400, one
+      `comfy-discovery` lease 200 at 24.7 s, `discover` 200, release, SDXL lease, 1 job, 1 picture placed (`sdxl / not-automatic`),
+      84.7 s.
+    - Prepared cast scene, Play page "Draw current-look cast" with Ash and Bram (`cast-cast-down.json`): a `discover` 400 when the
+      workspace opened (health probe, no wake, as designed), then `renderQwenJob`'s `discover` 400, one `comfy-discovery` lease 200 at
+      38.8 s, `discover` 200, release, render lease, 1 job; placed with both members' current-look identities, no alert, 121 s.
+  - Check 4, ComfyUI unstartable, PASS (`auto-ash-blocked.json`): ComfyUI held down, then a stub on 127.0.0.1:8188 answering 503 to
+    everything (`block8188.mjs`; no controller config change), so the controller's `startComfy` spawn could not bind and exited. Automatic
+    Ash turn: `discover` 400, `comfy-discovery` lease 409, no render lease, 0 jobs, no picture. Error (also in
+    `storyOrchestratorImage.status().lastError`): "ComfyUI did not answer (ComfyUI /object_info answered 503.), and the GPU controller could
+    not start it (Owned ComfyUI process exited before becoming ready.). Start it from the tray or with node scripts/local/cli.mjs
+    start-comfy." No "fetch failed". The error reaches no toast (as before D10). Stub stopped, then `node scripts/local/cli.mjs
+    start-comfy`.
+  - Evidence: `C:\dev\so-lanes\reviews\d10-wake-2026-10-27\` (`d10\*.json` per check, `probe.log`, `net.jsonl` = every media/GPU plugin
+    request with status and lease key, `run-*.log`, `candidate.log`, `journey-prep.log`; the prep journey record dir; the probe, pack,
+    holder and stub scripts; lane `settings.pre-run.json`). Originals under `C:\dev\so-lanes\33\debug\{d10,p41\...d10prep-real-run1}`.
+  - Cleanup: `so-p41-journey cleanup` (errors 0, leaked 0) and `so-library.mts remove so-p41-post`. Residue moved to
+    `C:\dev\backups\story-orchestrator\d10-lane33-residue-20261027\`: 3 empty character folders, the pack image folder, 2 plates, the lane's
+    `story-orchestrator\visual-packs`, the probe group's image folder and orphan chat, and a post-run `settings.json`. Holder stopped,
+    `stop 33`, `no-model 33`, then the lane's `settings.json` restored to the pre-run copy (story-orchestrator block, tag map, active group;
+    compared equal). Landmarks stopped. ComfyUI left running and controller-managed.
