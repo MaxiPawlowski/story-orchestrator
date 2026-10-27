@@ -34,3 +34,14 @@ Method: production build with module concatenation off and full stats, each main
 - First extraction read, scene summary, short-term compaction and epistemic/ledger pass after a page load each fetch a chunk before the model call; check one real-LLM turn reads and writes as before.
 - Floating panels: open Help, guide (from a guide link), journal, stat sheet, a widget; mobile dock under 768px.
 - Wizard: apply a provisioning card (card, lorebook, grant, entry, group).
+
+## Live gate (2026-10-27, merge branch)
+
+- Branch `v3.0-merge-hs-bh` (worktree `C:\dev\so-mergehb`, HEAD `ed58d2aa` = these moves + the plan 19 hook swipe fix on master `722328c6`), served in candidate mode to model lane 34 (adolion-fresh, local controller Artemis 31B v1.1, `--allow-local`) and no-model lane 33; in-page `dist/index.js` sha256 `d2726c2ab427` (worktree manifest), 0 chunk 404s, nothing staged into ST, lane 0 untouched.
+- Passes after a page load (real model, no `debugResponse`): first page after reload ran the shared read, scene summary, epistemic and ledger passes, all `ok`; after a second reload one turn: resumed read and cadence read audited with prompt + raw answer, memory entries 8 -> 11; five more turns: short-term compaction landed (`shortTermSummaryEnd` -1 -> 13). Note: the chunk holding the read/memory pass prompts (`9198.index.js`) is fetched in the boot wave (about 65 chunks at load), not at first use, so main is smaller but those bytes still load at startup.
+- Floating panels (desktop 1898x926): Help and guide reader from Help's buttons (workspace closes first), journal, stat sheet and What could I do? from the wand, 5/5 open with a body, 0 page or console errors. At 390x844 (`ST_DEBUG_VIEWPORT`): 5/5 docked full width, bottom edge on `#form_sheld`'s top (748), only the last-opened panel shown.
+- Wizard provisioning (agent, review mode, draft titled `SO-MHB Wizard`, opencode `openai/gpt-6.1-sol`): `agent-apply` created a character card, a lorebook and a lorebook entry (3 provisioning cards), edit cards accepted, agent finished; ledger session `so-mhb-wizard` held both assets. `so-assets remove --marker SO-MHB` deleted the card and the book and dropped the session; `assert-clean` exit 0.
+- Harness note: `so-ui new-story-wizard` takes no title, so the Studio also kept a `draft-<id>` wizard session (applied 0) after the retitle; removed by hand, header diff then clean.
+- Cleanup: run header diffs differ only in owned chats and the page's open chat (declared). Lanes stopped.
+- Evidence: `C:/dev/so-lanes/34/debug/mergehb/` (`panels-*.log`, `wiz-*.log`, `assets-*.log`, `campaign/h-*`, `campaign/c*-turn.json`, `header-*`).
+- Verdict: **green on the three risks checked** (passes load and land, panels open and dock, provisioning applies and cleans).
