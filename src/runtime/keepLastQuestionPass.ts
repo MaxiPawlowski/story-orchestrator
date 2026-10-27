@@ -1,5 +1,6 @@
 import { keepLastQuestion, type KeepLastQuestionReason } from "@pacing/keepLastQuestion";
 import type { WriteResult } from "@utils/writeResult";
+import { visibleReplyText } from "./emptyReply";
 
 export interface AskingReply {
   mes: string;
@@ -26,7 +27,7 @@ const REASON_WORDS: Record<KeepLastQuestionReason, string> = {
 
 export const keepLastQuestionPass = (deps: KeepLastQuestionDeps) => (messageId: number): void => {
   const reply = deps.read(messageId);
-  if (!reply || reply.isUser || !reply.name || !deps.asking(reply.name) || !deps.enabled()) return;
+  if (!reply || reply.isUser || !reply.name || !visibleReplyText(reply.mes) || !deps.asking(reply.name) || !deps.enabled()) return;
   const result = keepLastQuestion(reply.mes);
   if (result.action === "rejected") {
     deps.journal(QUESTIONS_KEPT, `message ${messageId}: ${result.questions} questions; trimming would leave ${result.reasons.map((reason) => REASON_WORDS[reason]).join(" and ")}`);

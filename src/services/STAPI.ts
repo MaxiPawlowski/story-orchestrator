@@ -17,7 +17,7 @@ export type { PromptBudget, PromptBudgetRead } from "@services/stHost/contextBud
 export { readPromptBuckets } from "@services/stHost/promptBuckets";
 export type { PromptBucketsRead } from "@services/stHost/promptBucketsParse";
 export type { StoryOrchestratorHostContext } from "@services/stHost/context";
-export { subscribeToHostEvent, subscribeToHostEvents } from "@services/stHost/events";
+export { subscribeToHostEvent, subscribeToHostEventFirst, subscribeToHostEvents } from "@services/stHost/events";
 export { onLorebookListChanged } from "@services/stHost/worldInfoList";
 export { mountInlineHosts, INLINE_HOST_PREFIX, INLINE_HOST_CLASS } from "@services/stHost/inlineMount";
 export type { InlineHostSet } from "@services/stHost/inlineMount";

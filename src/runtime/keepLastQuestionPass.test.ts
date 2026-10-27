@@ -87,6 +87,29 @@ describe("keep-last question post-pass", () => {
     expect(journal).toEqual([[QUESTIONS_KEPT, "message 4: 2 questions; trimming would leave too few words"]]);
   });
 
+  it("a thought-only reply does not take the mark, so the repair swipe is trimmed", () => {
+    const pacing = pacingHarness();
+    pacing.armDirection("Mara", ASK_PLAYER_DIRECTION, "draft");
+    pacing.draftGuidance("mara");
+    let reply: AskingReply = { mes: "<think></think>", reasoning: "Ask the player.", isUser: false, name: "Mara" };
+    const writes: string[] = [];
+    const pass = keepLastQuestionPass({
+      enabled: () => true,
+      asking: (speaker) => pacing.takeAskingPlayer(speaker),
+      read: () => reply,
+      write: (_messageId, text) => { writes.push(text.mes); return { ok: true }; },
+      journal: () => undefined,
+    });
+    pass(1);
+    expect(writes).toEqual([]);
+    pacing.releaseDraftGuidance();
+    pacing.draftGuidance("mara");
+    reply = { mes: TWO_QUESTIONS, reasoning: "Ask the player.", isUser: false, name: "Mara" };
+    pass(1);
+    expect(writes).toEqual([TRIMMED]);
+    expect(pacing.takeAskingPlayer("Mara")).toBe(false);
+  });
+
   it("journals nothing when the host refuses the write", () => {
     const { pass, journal } = passHarness({ mes: TWO_QUESTIONS, reasoning: "", isUser: false, name: "Mara" }, { write: () => ({ ok: false, reason: "gone" }) });
     pass(4);

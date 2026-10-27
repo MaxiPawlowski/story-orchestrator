@@ -1,9 +1,9 @@
-import { getContext, readReplyText, rewriteReplyText, subscribeToHostEvents } from "@services/STAPI";
+import { getContext, readReplyText, rewriteReplyText } from "@services/STAPI";
 import type { GenerationLifecycle } from "./generationLifecycle";
 import { startReplyEffort } from "./replyEffortHost";
 import { runtimeManager } from "./runtimeManager";
 import { getGlobalSettings } from "./settingsStore";
-import { onReplyReceived } from "./replyReceived";
+import { replyRepairs } from "./replyRepairsLive";
 import { isReplyEffort } from "@utils/reasoningEffort";
 
 export const startLiveReplyEffort = (generation: GenerationLifecycle): (() => void) => startReplyEffort({
@@ -24,7 +24,7 @@ export const startLiveReplyEffort = (generation: GenerationLifecycle): (() => vo
   generation: () => generation.snapshot(),
   journal: (summary, note) => runtimeManager.noteRecap(summary, note),
   replies: {
-    observe: (handler) => subscribeToHostEvents([{ eventName: "MESSAGE_RECEIVED", handler: onReplyReceived(handler) }]),
+    observe: (handler) => replyRepairs.add("thought-leak", handler),
     read: (messageId) => readReplyText(messageId),
     write: (messageId, text) => rewriteReplyText(messageId, text),
   },
