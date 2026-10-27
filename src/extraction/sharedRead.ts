@@ -2,20 +2,21 @@ import { movesParty, readsWorldEvidence, TENSION_CURRENT_KEY, type EngineState, 
 import { fnv1a, stableStringify } from "@runtime/hash";
 import type { ExtractionReply, ModelAsk, ModelCall } from "./modelRoute";
 import { getCanonLite } from "./canonLite";
-import { hashContract, PLAYER_MARK, readContext, renderPlayerOnlyReask, renderSharedReadPrompt, runningTotals } from "./contract";
+import { hashContract, readContext, renderPlayerOnlyReask, renderSharedReadPrompt, runningTotals } from "./contract";
 import type { ParsedMemoryLine } from "@memory/index";
 import type { OpenPromiseRef } from "@memory/promises/types";
 import { onlyOutOfCharacter } from "./chatRows";
 import { detectDegenerate } from "./degenerate";
 import { evidenceSources } from "./evidence";
 import { parseSharedReadResponse } from "./parse";
-import { inputBudget, tailFit, type TokenCounter } from "./inputBudget";
+import { inputBudget, tailFit } from "./inputBudget";
 import { maxTokensCap } from "./callBudget";
+import { sharedReadWindow, transcriptPrefixCost } from "./sharedReadEntry";
 import { deriveScope } from "./scope";
 import type { ScopeSourceContext } from "./scopeSources";
 import type { RequestBudget } from "./tokenMeter";
 import type {
-  ChatMessageWindowEntry, ChatWindowReader, ExtraGateSource, JudgedTypedRead, ParsedDelta, ParsedFact, ParsedSharedRead, ReadBudgetRecord, ScopedQuality,
+  ChatWindowReader, ExtraGateSource, JudgedTypedRead, ParsedDelta, ParsedFact, ParsedSharedRead, ReadBudgetRecord, ScopedQuality,
   SharedReadAudit, SharedReadContract, SharedReadResult, SharedReadWindow, TypedJudge,
 } from "./types";
 
@@ -126,12 +127,6 @@ export interface RunSharedReadOptions {
 
 const createId = (parts: unknown) => fnv1a(stableStringify(parts));
 
-const noReader: ChatWindowReader = () => { throw new Error("a shared read needs a window or a chat reader"); };
-
-export function sharedReadWindow(options: Pick<RunSharedReadOptions, "state" | "priority" | "window" | "stabilityLag" | "readWindow">): SharedReadWindow {
-  const latestMessageId = options.state.lastMessageId - (options.priority === 1 ? Math.max(0, options.stabilityLag ?? 1) : 0);
-  return options.window ?? (options.readWindow ?? noReader)(Math.max(0, latestMessageId - 7), latestMessageId);
-}
 
 const scopeOf = (options: RunSharedReadOptions): ScopedQuality[] =>
   options.scope ?? deriveScope(options.story, options.state.activeCheckpointId, options.state.blackboard, options.extraGateSources ?? [], options.cardScope);
@@ -168,9 +163,6 @@ const castMemory = (line: ParsedMemoryLine, roster: NormalizedStory["roster"]): 
 
 export const sharedReadOverhead = (options: RunSharedReadOptions): string =>
   renderSharedReadPrompt(readContract(options, { from: 0, to: -1, messages: [] }, scopeOf(options)));
-
-export const transcriptPrefixCost = (messages: readonly ChatMessageWindowEntry[], count: TokenCounter): number =>
-  messages.reduce((top, message) => Math.max(top, count(`[${message.index}] ${message.speaker}${message.isUser ? PLAYER_MARK : ""}: \n`)), 0);
 
 interface FittedRead {
   window: SharedReadWindow;
@@ -324,3 +316,4 @@ export async function runSharedRead(options: RunSharedReadOptions): Promise<Shar
     ledger: parsed.ledger,
   };
 }
+export { sharedReadWindow, transcriptPrefixCost } from "./sharedReadEntry";

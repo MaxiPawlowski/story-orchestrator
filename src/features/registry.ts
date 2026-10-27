@@ -1,4 +1,5 @@
-import { JUDGE_ROUTE_KEYS, JUDGE_USE_COPY, JUDGE_USE_KEYS, JUDGE_USES_OFF_BY_DEFAULT, AUTHOR_JUDGE_USES, routedProvider, type JudgeUseKey } from "@judge/settings";
+import { JUDGE_ROUTE_KEYS, JUDGE_USE_KEYS, JUDGE_USES_OFF_BY_DEFAULT, AUTHOR_JUDGE_USES, routedProvider, type JudgeUseKey } from "@judge/settings";
+import { JUDGE_USE_COPY } from "@judge/useCopy";
 import type { GuideTopicId } from "@copilot/guideTopics";
 import type { GlobalSettings } from "@runtime/settingsModel";
 import { PRESENCE_FEATURES } from "./presenceFeatures";

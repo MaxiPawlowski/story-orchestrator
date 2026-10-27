@@ -1,6 +1,6 @@
 import { isRecord } from "@utils/guards";
 import { liveHeadRefs, type LiveHeadRef } from "./liveHeadRefs";
-import { visualSources, type VisualSources } from "./visualManifest";
+import { visualSources, type VisualSources } from "./visualSources";
 
 export type StageMode = "vn" | "always" | "off";
 export type RenderPreset = "standard" | "fast";

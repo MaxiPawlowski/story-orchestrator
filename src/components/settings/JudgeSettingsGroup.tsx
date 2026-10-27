@@ -1,10 +1,11 @@
 import { useState } from "react";
 import {
-  AUTHOR_JUDGE_USES, BUILT_JUDGE_USES, JUDGE_PROVIDER_IDS, JUDGE_PROVIDERS, JUDGE_USE_COPY, JUDGE_USE_DEPENDENCIES,
+  AUTHOR_JUDGE_USES, BUILT_JUDGE_USES, JUDGE_PROVIDER_IDS, JUDGE_PROVIDERS, JUDGE_USE_DEPENDENCIES,
   judgeProviderControlId, providerLeavesMachine, ridesWardenRoute, WARDEN_RIDERS, type JudgeMeterView, type JudgeProviderId,
   type JudgeProviderRoutes, type JudgeReadinessKey, type JudgeReadinessRow,
   type JudgeSettings, type JudgeUseKey, type JudgeUses,
 } from "@judge/index";
+import { JUDGE_USE_COPY } from "@judge/useCopy";
 import { judgeProvidersInUse, offeredJudgeUses } from "@judge/useRows";
 import { judgeReadiness, judgeReadinessConcerns } from "@judge/readinessRows";
 import type { JudgeSelfTestReport } from "@judge/selfTest";

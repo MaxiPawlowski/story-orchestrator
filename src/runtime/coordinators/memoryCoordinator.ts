@@ -4,11 +4,11 @@ import { maxTokensForInput } from "@extraction/callBudget";
 import { askText } from "@extraction/modelRoute";
 import { stripChannelNoise } from "@extraction/parse";
 import { deriveScope } from "@extraction/scope";
-import { runSharedRead } from "@extraction/sharedRead";
+import { runSharedRead } from "@extraction/sharedReadEntry";
 import type { ExtraGateSource, ModelCall, ParsedDelta, ParsedFact, SharedReadWindow } from "@extraction/index";
 import {
   activeEpistemic, addMemoryEntries, applyArcSignals, applyConsolidation, applyEpistemicSignals, applyLedgerSignals,
-  ARC_OPEN_INJECT_LIMIT, buildArcSummaryPrompt, buildBoundKeySet, capAllTiers, capKnowledge, capLedger,
+  ARC_OPEN_INJECT_LIMIT, buildBoundKeySet, loadMemoryContract, capAllTiers, capKnowledge, capLedger,
   highImportanceFacts, isLive, ledgerBindings, ledgerEntityList, storyEntities, disappearingEntries, recordDerived,
   reverseMemoryState, dropCommonKnowledge, capOpenArcs, capResolvedArcs, CONSOLIDATION_MIN_GROUP, consolidateTier,
   editEntryText, expireScoped, matchArcBridges, openArcTexts, withoutExcludedThreads, removeArc, removeEpistemic,
@@ -316,7 +316,7 @@ export class MemoryCoordinator {
     for (const id of arcIds) {
       const arc = this.state.arcs.find((candidate) => candidate.id === id);
       if (!arc || arc.status !== "resolved" || arc.summary) continue;
-      const prompt = buildArcSummaryPrompt(arc.text, sceneSummaries, memories);
+      const prompt = (await loadMemoryContract()).buildArcSummaryPrompt(arc.text, sceneSummaries, memories);
       const summary = await askText(this.deps.model, prompt, { role: "synthesis", pass: "arcSummary", maxTokens: maxTokensForInput("arcSummary", prompt), signal: run.signal, refuseIncomplete: true });
       if (!run.stillOwns()) break;
       const trimmed = stripChannelNoise(summary);

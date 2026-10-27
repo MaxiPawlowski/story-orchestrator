@@ -9,17 +9,18 @@ import { compactableEnd, readCoverageEnd } from "@extraction/readCursor";
 import { reconciliationKeySet, reconciliationTargets, type ReconciliationPlan } from "@extraction/reconcile";
 import { deriveScope } from "@extraction/scope";
 import type { ScopeSourceContext } from "@extraction/scopeSources";
-import { runSharedRead, sharedReadWindow } from "@extraction/sharedRead";
+import { runSharedRead, sharedReadWindow } from "@extraction/sharedReadEntry";
 import { createTokenMeter } from "@extraction/tokenMeter";
 import type {
   ExtraGateSource, ModelCall, ParsedDelta, ParsedFact, ReadOwnership, RequestBudget, PassRole, SchedulerJob,
   SharedReadAudit,
 } from "@extraction/index";
 import {
-  buildEpistemicPassPrompt, buildLedgerPassPrompt, buildShortTermSummaryPrompt, innerRender, loadInnerRender, detectSceneBreakHeuristic, fitShortTerm,
+  innerRender, loadInnerRender, detectSceneBreakHeuristic, fitShortTerm,
   generateMemoryId, parseEpistemicLine, parseEpistemicRetire, parseLedgerLine, provenance, summarizeScene, type ArcEntry,
   type MemoryEntry, type ParsedArcSignal, type ParsedEpistemicSignal, type ParsedLedgerSignal, type ParsedMemoryLine,
 } from "@memory/index";
+import { loadMemoryContract } from "@memory/contractKit";
 import { SHORT_TERM_COMPACTION_MESSAGES } from "@constants/defaults";
 import { activeSpeakerId, cardScopeOwners, enabledCharacterNames } from "../roster";
 import type { MemoryCoordinator } from "./memoryCoordinator";
@@ -433,6 +434,7 @@ export class ExtractionCoordinator {
     // This one REPLACES the rolling short-term entry, so a stale result does not merely add noise
     // — it overwrites the live summary with one describing another chat or an edited window.
     const run = beginRun(this.deps.ownership, { from: window.from, to: window.to });
+    const { buildShortTermSummaryPrompt } = await loadMemoryContract();
     const fit = await fitShortTerm(window.messages, previous?.text ?? null, this.budget("synthesis"));
     const key = compactionKey(window, previous?.id ?? null, fit.text);
     if (!run.stillOwns() || !this.compactions.admits(key)) return;
@@ -466,6 +468,7 @@ export class ExtractionCoordinator {
     // before the ledger prompt is even sent, so one check at the end would leave the first store
     // written in a chat that had already been replaced.
     const run = beginRun(this.deps.ownership, { from: audit.window.from, to: audit.window.to });
+    const { buildEpistemicPassPrompt, buildLedgerPassPrompt } = await loadMemoryContract();
     const inner = innerRender() ?? (await loadInnerRender());
     const existing = memory.activeEpistemic();
     const epistemicPrompt = buildEpistemicPassPrompt(sceneText, enabledCharacterNames(story, this.deps.hosts.roster),

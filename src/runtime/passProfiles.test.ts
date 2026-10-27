@@ -47,6 +47,7 @@ const CALL_SITE_ROLES: Record<string, string[]> = {
   "extraction/modelRoute.ts": [],
   "extraction/scheduler.ts": ["read"],
   "extraction/sharedRead.ts": [],
+  "extraction/sharedReadEntry.ts": [],
   "generation/critic.ts": [],
   "generation/encounters.ts": [],
   "generation/generate.ts": [],

@@ -35,6 +35,9 @@ const LAZY_DIET = ["src/runtime/storyUpdate.ts", "src/judge/director.ts", "src/w
 
 const LAZY_HEADROOM = ["src/runtime/slashCommands.ts", "src/runtime/curatorPassKit.ts", "src/judge/extraction.ts"];
 
+const LAZY_HEADROOM_V30 = ["src/memory/contract.ts", "src/extraction/contract.ts", "src/extraction/sharedRead.ts", "src/judge/useCopy.ts", "src/components/panels/PanelsHost.tsx",
+  "src/components/panels/PanelFrame.tsx", "src/runtime/panelGeometry.ts", "src/runtime/panelStore.ts", "src/sprites/visualManifest.ts", "src/runtime/copilotProvisioning.ts", "src/wizard/interview.ts"];
+
 const LAZY_DELIVERY = ["src/runtime/delivery/kit.ts", "src/runtime/delivery/render.ts", "src/runtime/delivery/mine.ts"];
 
 const LAZY_POLISH = ["src/polish/plan.ts", "src/polish/guards.ts", "src/polish/windows.ts", "src/polish/prompt.ts", "src/polish/projection.ts", "src/polish/ledger.ts",
@@ -225,6 +228,20 @@ import "./runtime/spikes/toolTurnSummary";
     expect(LAZY_HEADROOM.filter((path) => !present.has(path))).toEqual([]);
     expect(staticReach(files).filter((path) => LAZY_HEADROOM.includes(path))).toEqual([]);
     expect([...reachableFrom(buildGraph(files, { includeDynamic: true }), ENTRY)].map(rel)).toEqual(expect.arrayContaining(LAZY_HEADROOM));
+  });
+
+  it("v3.0 24: read and pass prompts, judge use copy, floating panel frame, visual manifest helpers and wizard provisioning load as their own chunks", () => {
+    const present = new Set(files.map(rel));
+    expect(LAZY_HEADROOM_V30.filter((path) => !present.has(path))).toEqual([]);
+    expect(staticReach(files).filter((path) => LAZY_HEADROOM_V30.includes(path))).toEqual([]);
+    expect([...reachableFrom(buildGraph(files, { includeDynamic: true }), ENTRY)].map(rel)).toEqual(expect.arrayContaining(LAZY_HEADROOM_V30));
+  });
+
+  it("control: a planted barrel re-export of the read prompt is reached", () => {
+    const barrel = join(SRC, "extraction", "index.ts");
+    const fs = require("fs") as typeof import("fs");
+    const read = (path: string) => (path === barrel ? `${fs.readFileSync(path, "utf8")}\nexport * from "./sharedRead";\n` : fs.readFileSync(path, "utf8"));
+    expect(staticReach(files, read)).toEqual(expect.arrayContaining(["src/extraction/sharedRead.ts", "src/extraction/contract.ts", "src/memory/contract.ts"]));
   });
 
   it("SP7.b: the seeded chance seam ships in the prod entry graph, and its spike module is gone", () => {
