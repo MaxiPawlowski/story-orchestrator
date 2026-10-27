@@ -139,7 +139,10 @@ export function createGateway({ arbiter, config, fetchImpl = fetch, allowOrigin 
                 if (park) await backendCall(park).catch((error) => { reuse.lastError = error.message; });
             };
             const state = backend.status();
-            if (COUNTING_ROUTES.includes(route) && state.pid && !state.loading && state.profile) { await forward(); return; }
+            if (COUNTING_ROUTES.includes(route) && (backend.tryDirect ? backend.tryDirect() : Boolean(state.pid && !state.loading && state.profile))) {
+                try { await forward(); } finally { backend.endDirect?.(); }
+                return;
+            }
             await arbiter.text(async () => {
                 try {
                     if (body && GENERATION_ROUTES.includes(route)) await backend.forRequest(body, abort.signal, slot);

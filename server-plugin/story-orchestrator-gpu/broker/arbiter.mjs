@@ -204,7 +204,7 @@ export function createArbiter(config, deps = {}) {
             if (deps.timers !== false) {
                 timer = setInterval(() => {
                     void scheduler.sampleLease();
-                    fast?.setGpuProcesses?.([backend.status().pid, comfyChild?.pid].filter(Boolean));
+                    fast?.setGpuProcesses?.([backend.status().pid ?? backend.status().sleeping?.pid, comfyChild?.pid].filter(Boolean));
                     void scheduler.restoreIfIdle();
                     if (!backend.crashed) void scheduler.keepResident();
                 }, 2500);

@@ -279,3 +279,24 @@ test('each streamed reply logs how long it waited before generation and whether 
         assert.equal(waits[1].cold, false);
     } finally { await gateway.close(); }
 });
+
+test('a token count goes straight to the server only through the backend direct gate, and queues while the server is going to sleep', async () => {
+    const state = { pid: 7, loading: false, profile: 'fast' };
+    const arbiter = fakeArbiter(state);
+    let open = true; let inFlight = 0; let ended = 0;
+    arbiter.backend.tryDirect = () => { if (!open) return false; inFlight += 1; return true; };
+    arbiter.backend.endDirect = () => { inFlight -= 1; ended += 1; };
+    const { gateway, url } = await serve(arbiter);
+    try {
+        const reply = await fetch(`${url}/tokenize`, { method: 'POST', body: JSON.stringify({ content: 'hi' }) });
+        assert.equal(reply.status, 200);
+        assert.equal(ended, 1); assert.equal(inFlight, 0);
+        open = false;
+        const pending = fetch(`${url}/tokenize`, { method: 'POST', body: JSON.stringify({ content: 'hi' }) });
+        for (let index = 0; index < 50 && !arbiter.queued.length; index += 1) await new Promise((resolve) => setTimeout(resolve, 10));
+        assert.equal(arbiter.queued.length, 1);
+        arbiter.queued.shift()();
+        assert.equal((await pending).status, 200);
+        assert.equal(ended, 1);
+    } finally { await gateway.close(); }
+});

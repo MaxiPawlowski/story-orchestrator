@@ -31,7 +31,28 @@ export class ResidencyScheduler {
         this.freeImages = async (options = {}) => {
             this.residentImages = null;
             this.imagesNeedRelease = true;
-            const result = await freeImages({ ...options, maxUsedGpuMiB: options.maxUsedGpuMiB ?? this.imageReleaseTargetMiB });
+            await this.checkSleepingText();
+            const release = () => freeImages({ ...options, maxUsedGpuMiB: options.maxUsedGpuMiB ?? this.imageReleaseTargetMiB, otherMiB: (snapshot) => this.textHeldMiB(snapshot) });
+            let result;
+            try {
+                try { result = await release(); }
+                catch (error) {
+                    if (RAM_REFUSAL.test(error.message) || !this.backend.status().sleeping || !this.backend.dropSleeping) throw error;
+                    this.log(`image release: GPU memory stayed above ComfyUI's release target while text slept, so the sleeping text server is stopped (member cache dropped) and the release retried: ${error.message}`);
+                    await this.backend.dropSleeping();
+                    result = await release();
+                }
+            } catch (error) {
+                this.releaseFailures = (this.releaseFailures ?? 0) + 1;
+                if (!RAM_REFUSAL.test(error.message) && this.imageReleaseTargetMiB !== null && this.releaseFailures >= (this.config.releaseGiveUpAfter ?? 3)) {
+                    this.lastReleaseGiveUp = { at: new Date().toISOString(), targetMiB: Math.round(this.imageReleaseTargetMiB), failures: this.releaseFailures, error: error.message };
+                    this.log(`image release: ${this.releaseFailures} releases in a row missed the ${Math.round(this.imageReleaseTargetMiB)} MiB target; the next one needs only ComfyUI's own release and the text load's admission`);
+                    this.imageReleaseTargetMiB = null;
+                    this.releaseFailures = 0;
+                }
+                throw error;
+            }
+            this.releaseFailures = 0;
             this.imagesNeedRelease = false;
             this.imageReleaseTargetMiB = null;
             this.lastCacheMode = result?.mode ?? null;
@@ -212,6 +233,18 @@ export class ResidencyScheduler {
         return this.servedText - queued.served >= (this.config.imageFairTextRequests ?? 3) || Date.now() - queued.at >= (this.config.imageFairWaitMs ?? 45000);
     }
 
+    textHeldMiB(snapshot) { return this.backend.heldMiB?.(snapshot) ?? 0; }
+
+    releaseTarget(lease) { return lease.before.gpus[0].usedMiB - (lease.textHeldMiB ?? 0) + 512; }
+
+    async checkSleepingText(reading = null) {
+        if (!this.backend.status().sleeping || !this.backend.checkSleeping) return null;
+        let stray = null;
+        try { stray = await this.backend.checkSleeping(reading); } catch (error) { this.lastError = error.message; }
+        if (stray) this.log(`text sleep: the sleeping text server (pid ${stray.pid}) holds ${stray.heldMiB} MiB of GPU memory, so it was woken outside the controller; stopped it, text reloads on the next request`);
+        return stray;
+    }
+
     async dropSleepingForRam(needRamMiB) {
         if (!this.backend.status().sleeping || !this.backend.dropSleeping) return 0;
         const floor = Math.max(needRamMiB + (this.config.reserves?.ramMiB ?? 0), this.config.keepCacheRamFloorMiB ?? 10240);
@@ -349,7 +382,7 @@ export class ResidencyScheduler {
             this.lease = { id: randomUUID(), at: Date.now(), touched: Date.now(), key: observedKey, workflowKey: key, identity, before: creditedSnapshot(snapshot, this.residentImages ? memory.credit : null),
                 peakGpu: snapshot.gpus[0].usedMiB, lowRam: snapshot.host.availableMiB, lowCommit: snapshot.host.commitFreeMiB,
                 lowGpu: snapshot.gpus[0].freeMiB, highCadence: snapshot.highCadence === true, seenJob: false, decision, needGpuMiB, needRamMiB,
-                trace: [] };
+                textHeldMiB: residentText.pid ? this.textHeldMiB(snapshot) : 0, trace: [] };
             return { lease: this.lease.id, brokered: true, decision };
         } catch (error) {
             this.lastError = error.message;
@@ -431,6 +464,7 @@ export class ResidencyScheduler {
             const [snapshot, queue] = await Promise.all([this.snapshot({ fresh: true }), this.queue()]);
             if (this.lease !== lease) return;
             this.observe(snapshot);
+            await this.checkSleepingText(snapshot);
             busy = Boolean(queue.queue_running?.length || queue.queue_pending?.length);
             lease.seenJob ||= busy;
         } catch (error) { this.lastError = error.message; }
@@ -507,11 +541,11 @@ export class ResidencyScheduler {
                 this.observe(snapshot);
                 this.residentImages = imageResidency(lease, snapshot, this.config.reserves);
                 this.imagesNeedRelease = true;
-                this.imageReleaseTargetMiB = lease.before.gpus[0].usedMiB + 512;
+                this.imageReleaseTargetMiB = this.releaseTarget(lease);
                 cache = { mode: 'gpu-warm' };
             } else try {
                 cache = await this.freeImages({ ramRequiredMiB: this.backend.status().pid ? 0 : profile?.estimatedRamMiB ?? 6500,
-                    maxUsedGpuMiB: lease.before.gpus[0].usedMiB + 512 });
+                    maxUsedGpuMiB: this.releaseTarget(lease) });
             } catch (error) { this.lastError = error.message; }
             if (!warm) try { this.observe(await this.snapshot({ fresh: true })); } catch (error) { this.lastError = error.message; }
             this.lastWorkflow = lease.workflowKey;
@@ -623,7 +657,7 @@ export class ResidencyScheduler {
             imageWaiting: Boolean(this.imageQueued), servedText: this.servedText, fairImages: true, ramShort: this.ramShort,
             text: this.backend.status(), objective: this.config.residencyObjective ?? 'total-wait', timings: this.timings, lastTextDecision: this.lastTextDecision,
             lastDecision: this.lastDecision, lastResidency: this.lastResidency, lastNeedGpuMiB: this.lastNeedGpuMiB, measurement: this.lastMeasurement ? { ...this.lastMeasurement, trace: undefined } : null,
-            imageResidency: { mode: this.residentImages ? 'gpu-warm' : this.lastCacheMode, awaitingReclaim: this.imagesNeedRelease },
+            imageResidency: { mode: this.residentImages ? 'gpu-warm' : this.lastCacheMode, awaitingReclaim: this.imagesNeedRelease, releaseTargetMiB: this.imageReleaseTargetMiB, releaseFailures: this.releaseFailures ?? 0, lastReleaseGiveUp: this.lastReleaseGiveUp ?? null },
             lastError: this.lastError };
     }
 }
