@@ -22,7 +22,7 @@ const LIFE_FIELDS = ["relationships", "mood", "agenda", "schedule", "commitments
 
 const listed = (value: unknown, key: string): boolean => Array.isArray(value) && value.some((entry) => isRecord(entry) && entry[key] !== undefined);
 
-const TALK_PACING_KEYS = ["profile", "budget", "lead_words", "spotlight", "address_player", "reaction"];
+const TALK_PACING_KEYS = ["profile", "budget", "lead_words", "lead_max_consecutive", "spotlight", "address_player", "reaction"];
 const REPLY_SCOPE_KEYS = ["id", "once_per", "cooldown_player_turns"];
 
 const pacedCheckpoint = (cp: unknown): boolean => isRecord(cp)

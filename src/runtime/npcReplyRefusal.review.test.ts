@@ -18,6 +18,12 @@ jest.mock("@services/STAPI", () => ({
   watchHostChatMove: () => () => undefined,
   guardHostStream: () => ({ halt: () => false, release: () => undefined }),
   groupMemberPosition: () => host.member,
+  isHostGenerating: () => false,
+  startGroupVoiceAt: async (position: number) => {
+    spoken.push(`voice ${position}`);
+    host.chat.push({ mes: "reply" });
+    return { ok: true };
+  },
   executeSlashCommands: async (command: string) => {
     if (!host.slashOk) return false;
     spoken.push(command);
@@ -59,7 +65,7 @@ describe("review 2026-10-16 #6: a refused NPC reply does not consume its trigger
     host.member = { ok: true, position: 2 };
     host.chat.push({ mes: "next player line" });
     expect(await h.applier.fireNpcReplies(checkpoint("generated"), h.extras as never, "afterSpeak")).toBe(1);
-    expect(spoken).toEqual(["/trigger await=true 2"]);
+    expect(spoken).toEqual(["voice 2"]);
     expect(h.extras.firedNpcReplies).toEqual({ "cp-1:afterSpeak:Dup:0": 1 });
     expect(h.extras.lastSelfInjectionMessageId).toBe(host.chat.length - 1);
   });

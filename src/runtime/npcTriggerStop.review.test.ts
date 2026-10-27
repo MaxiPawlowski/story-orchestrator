@@ -8,6 +8,7 @@ const host = {
   opened: 0,
   finish: null as (() => void) | null,
   onTrigger: null as (() => void) | null,
+  started: false,
 };
 
 jest.mock("@services/STAPI", () => ({
@@ -16,7 +17,7 @@ jest.mock("@services/STAPI", () => ({
   settingsReady: async () => {},
   getContext: () => ({ chat: [{ mes: "hello" }], chatId: "chat-a", extensionSettings: {}, chatMetadata: {} }),
   getActiveGroup: () => null,
-  isHostGenerating: () => host.generating,
+  isHostGenerating: () => host.generating && host.started,
   watchHostChatMove: () => () => undefined,
   guardHostStream: () => ({ halt: () => false, release: () => undefined }),
   stopHostGeneration: () => {
@@ -24,9 +25,10 @@ jest.mock("@services/STAPI", () => ({
     host.finish?.();
     return { ok: true, stopped: true };
   },
-  executeSlashCommands: (command: string) => new Promise((resolve) => {
-    if (!command.startsWith("/trigger")) { resolve({ pipe: "" }); return; }
-    host.finish = () => resolve({ pipe: "" });
+  executeSlashCommands: async () => ({ pipe: "" }),
+  startGroupVoiceAt: () => new Promise((resolve) => {
+    host.started = true;
+    host.finish = () => resolve({ ok: true });
     host.onTrigger?.();
   }),
 }));
@@ -62,6 +64,7 @@ beforeEach(() => {
   host.opened = 0;
   host.finish = null;
   host.onTrigger = null;
+  host.started = false;
   detach = generationWatch.attach(() => host.opened);
 });
 afterEach(() => detach());

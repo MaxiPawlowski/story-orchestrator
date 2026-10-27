@@ -141,17 +141,37 @@ export const speechLedgerMetrics = (rows: SpeechLedgerRow[]): SpeechLedgerMetric
   };
 };
 
-export const parseSpeechLedger = (text: string): SpeechLedgerRow[] => {
+const storyExtras = (text: string): Record<string, unknown> | null => {
   const first = text.split(/\r?\n/).find((line) => line.trim());
   try {
-    type Blob = { selectedStoryId?: string | null; stories?: Record<string, { extras?: { speech?: unknown } }> };
+    type Blob = { selectedStoryId?: string | null; stories?: Record<string, { extras?: Record<string, unknown> }> };
     const header = first ? JSON.parse(first) as { chat_metadata?: { story_orchestrator?: Blob } } : null;
     const blob = header?.chat_metadata?.story_orchestrator;
-    const speech = blob?.stories?.[blob.selectedStoryId ?? '']?.extras?.speech;
-    return Array.isArray(speech) ? speech.filter((row): row is SpeechLedgerRow => Boolean(row) && typeof row === 'object' && typeof (row as SpeechLedgerRow).origin === 'string') : [];
+    return blob?.stories?.[blob.selectedStoryId ?? '']?.extras ?? null;
   } catch {
-    return [];
+    return null;
   }
+};
+
+export const parseSpeechLedger = (text: string): SpeechLedgerRow[] => {
+  const speech = storyExtras(text)?.speech;
+  return Array.isArray(speech) ? speech.filter((row): row is SpeechLedgerRow => Boolean(row) && typeof row === 'object' && typeof (row as SpeechLedgerRow).origin === 'string') : [];
+};
+
+export interface ChainEndRow {
+  reason: string;
+  voices: number;
+}
+
+export const parseChainEnds = (text: string): ChainEndRow[] => {
+  const ends = storyExtras(text)?.chainEnds;
+  return Array.isArray(ends) ? ends.filter((row): row is ChainEndRow => Boolean(row) && typeof row === 'object' && typeof (row as ChainEndRow).reason === 'string') : [];
+};
+
+export const chainEndMetrics = (rows: ChainEndRow[]): { chains: number; byReason: Record<string, number>; meanVoices: number | null } => {
+  const byReason: Record<string, number> = {};
+  for (const row of rows) byReason[row.reason] = (byReason[row.reason] ?? 0) + 1;
+  return { chains: rows.length, byReason, meanVoices: rows.length ? rows.reduce((sum, row) => sum + (Number(row.voices) || 0), 0) / rows.length : null };
 };
 
 export const parseChatJsonl = (text: string): ChatRow[] => text.split(/\r?\n/).filter((line) => line.trim()).flatMap((line) => {

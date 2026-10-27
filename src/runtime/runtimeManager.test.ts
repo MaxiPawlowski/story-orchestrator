@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { PLAYER_ATTEMPTS_CLAUSE, objectiveClause } from "@engine/index";
 import type { SharedReadAudit } from "@extraction/index";
-import { executeSlashCommands, getActiveGroup } from "@services/STAPI";
+import { executeSlashCommands, getActiveGroup, startGroupVoiceAt } from "@services/STAPI";
 import { GUIDANCE_PREAMBLE } from "@pacing/guidance";
 import { RuntimeManager } from "./runtimeManager";
 import { BLOB_VERSION } from "./persistence";
@@ -75,6 +75,8 @@ jest.mock("@services/STAPI", () => {
     vectorPurge: jest.fn(async () => undefined),
     DEFAULT_VECTOR_SOURCE: "transformers",
     executeSlashCommands: jest.fn(async () => true),
+    startGroupVoiceAt: jest.fn(async () => ({ ok: true })),
+    isHostGenerating: () => false,
     setGroupMembersDisabled: jest.fn(async () => ({ ok: true, group: "g1" })),
     // v2.3 plan 06: the settings gate and the save evidence. The observation answers "a save went out
     // and was accepted" unless a test says otherwise, because that is the ordinary case every test
@@ -1485,9 +1487,12 @@ describe("RuntimeManager transition announcements and pending deltas", () => {
     await manager.importStory(JSON.stringify(replying));
     manager.setUiSettings({ announceTransitions: true });
     (executeSlashCommands as jest.Mock).mockClear();
+    const order: string[] = [];
+    (executeSlashCommands as jest.Mock).mockImplementation(async (command: string) => { if (command.startsWith("/comment")) order.push("/comment"); return true; });
+    (startGroupVoiceAt as jest.Mock).mockImplementation(async () => { order.push("voice"); return { ok: true }; });
     await manager.setQuality("has_key", "true");
-    const order = (executeSlashCommands as jest.Mock).mock.calls.map(([command]) => String(command)).filter((command) => command.startsWith("/comment") || command.startsWith("/trigger")).map((command) => command.split(" ")[0]);
-    expect(order).toEqual(["/comment", "/trigger"]);
+    (executeSlashCommands as jest.Mock).mockImplementation(async () => true);
+    expect(order).toEqual(["/comment", "voice"]);
   });
 
   it("stays silent when announcements are disabled", async () => {

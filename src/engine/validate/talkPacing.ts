@@ -1,5 +1,5 @@
 import {
-  NPC_REPLY_SCOPES, TALK_ATTEMPTS_CAP, TALK_BUDGET_CAP, TALK_LEAD_WORDS_MAX, TALK_LEAD_WORDS_MIN, TALK_PROFILES, TALK_TURNS_CAP,
+  NPC_REPLY_SCOPES, TALK_ATTEMPTS_CAP, TALK_BUDGET_CAP, TALK_LEAD_RUN_CAP, TALK_LEAD_WORDS_MAX, TALK_LEAD_WORDS_MIN, TALK_PROFILES, TALK_TURNS_CAP,
   type NpcReplyEffect, type StoryTalkDefaults, type TalkAddressPlayer, type TalkBudget, type TalkControl, type TalkReaction, type TalkSpotlight, type ValidationError,
 } from "../schema";
 import { isRecord } from "@utils/guards";
@@ -95,6 +95,8 @@ export const readTalkPacing = (value: Record<string, unknown>, path: string, err
   }
   const words = readWhole(value.lead_words, TALK_LEAD_WORDS_MIN, TALK_LEAD_WORDS_MAX, `${path}.lead_words`, errors);
   if (words !== undefined) control.lead_words = words;
+  const run = readWhole(value.lead_max_consecutive, 1, TALK_LEAD_RUN_CAP, `${path}.lead_max_consecutive`, errors);
+  if (run !== undefined) control.lead_max_consecutive = run;
   const spotlight = value.spotlight === undefined ? undefined : readSpotlight(value.spotlight, `${path}.spotlight`, errors);
   if (spotlight !== undefined) control.spotlight = spotlight;
   const address = value.address_player === undefined ? undefined : readAddress(value.address_player, `${path}.address_player`, errors);

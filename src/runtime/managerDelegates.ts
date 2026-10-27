@@ -24,6 +24,7 @@ import { getGlobalSettings, setGlobalSettings } from "./settingsStore";
 import type { ChanceDraw } from "./chance";
 import { createChance, recordChanceDraw } from "./rolls";
 import { cueForSwipe, recordCuedLine, type CuedLine } from "./npcReplyRewind";
+import { recordChainEnd, type ChainEnd } from "./chainEnds";
 
 type WiredCoordinators = ReturnType<typeof wireCoordinators>;
 
@@ -161,6 +162,11 @@ export abstract class CoordinatorDelegates {
   recordCue(line: CuedLine) {
     const extras = this.co.rollbackDeps.extras();
     extras.cuedLines = recordCuedLine(extras.cuedLines, line);
+  }
+  recordChainEnd(end: ChainEnd) {
+    const extras = this.co.rollbackDeps.extras();
+    extras.chainEnds = recordChainEnd(extras.chainEnds, end);
+    void this.co.rollbackDeps.persist();
   }
   cueSwipe(type: string, messageId: number) {
     const line = type === "swipe" ? cueForSwipe(this.co.rollbackDeps.extras().cuedLines, messageId) : null;

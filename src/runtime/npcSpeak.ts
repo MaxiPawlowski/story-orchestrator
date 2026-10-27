@@ -9,7 +9,7 @@ import type { WriteResult } from "@utils/writeResult";
 import { castFlag } from "./effectLedger";
 import { fireReply } from "./effectSteps";
 import { generationWatch } from "./generationWatch";
-import type { RunOwnership } from "./runToken";
+import { beginRun, type RunOwnership } from "./runToken";
 
 export interface SpeakDeps {
   direct?: (member: string, text: string, scope?: "call" | "draft") => (() => void) | null;
@@ -69,6 +69,7 @@ const armDirection = (reply: NpcReplyEffect, deps: SpeakDeps): { text: string; r
 export const speakGenerated = async (reply: NpcReplyEffect, ownership: RunOwnership, deps: SpeakDeps): Promise<WriteResult & { direction?: string }> => {
   const { text, release } = armDirection(reply, deps);
   const chatId = String(getContext().chatId ?? "");
+  const run = beginRun(ownership);
   const stream = guardHostStream(chatId);
   const lapse = ownership.signal?.();
   const before = generationWatch.openedCount();
@@ -82,7 +83,7 @@ export const speakGenerated = async (reply: NpcReplyEffect, ownership: RunOwners
   lapse?.addEventListener("abort", stopIfOurs, { once: true });
   const unwatch = watchHostChatMove(chatId, stopIfOurs);
   try {
-    const fired = await fireReply(reply);
+    const fired = await fireReply(reply, () => run.stillOwns() && String(getContext().chatId ?? "") === chatId);
     if (!fired.ok) deps.journal?.(`${reply.member}'s reply was not triggered`, fired.reason);
     return fired.ok && release ? { ...fired, direction: text } : fired;
   } finally {

@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { parseChatJsonl, parseSpeechLedger, speechLedgerMetrics, talkMetrics } from './talkMetrics.mts';
+import { chainEndMetrics, parseChainEnds, parseChatJsonl, parseSpeechLedger, speechLedgerMetrics, talkMetrics } from './talkMetrics.mts';
 
 const cast = ['Narrator', 'Mara', 'Finn'];
 
@@ -67,4 +67,16 @@ test('reads the speech ledger from the chat file header', () => {
   const ledger = parseSpeechLedger([JSON.stringify(header), '{"name":"Mara","mes":"Hi"}'].join('\n'));
   assert.deepEqual(speechLedgerMetrics(ledger), { events: 4, byOrigin: { chain: 2, npc: 1, entry: 1 }, failedAttempts: 1, maxVoicesPerSend: 2 });
   assert.deepEqual(parseSpeechLedger('{"name":"Mara","mes":"Hi"}'), []);
+});
+
+test('v3.0 19 stage 3: reads why each chain ended from the chat file header', () => {
+  const header = { chat_metadata: { story_orchestrator: { selectedStoryId: 's', stories: { s: { extras: { chainEnds: [
+    { messageId: 2, revision: null, checkpointId: 'cp', voices: 2, reason: 'cap' },
+    { messageId: 5, revision: null, checkpointId: 'cp', voices: 1, reason: 'yield' },
+    { messageId: 7, revision: null, checkpointId: 'cp', voices: 0, reason: 'judge' },
+    { messageId: 9, revision: null, checkpointId: 'cp', voices: 1, reason: 'yield' },
+  ] } } } } } };
+  const ends = parseChainEnds([JSON.stringify(header), '{"name":"Mara","mes":"Hi"}'].join('\n'));
+  assert.deepEqual(chainEndMetrics(ends), { chains: 4, byReason: { cap: 1, yield: 2, judge: 1 }, meanVoices: 1 });
+  assert.deepEqual(chainEndMetrics(parseChainEnds('{"name":"Mara","mes":"Hi"}')), { chains: 0, byReason: {}, meanVoices: null });
 });

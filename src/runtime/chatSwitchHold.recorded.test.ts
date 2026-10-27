@@ -24,6 +24,11 @@ jest.mock("@services/STAPI", () => ({
     host.calls.push(command);
     return { pipe: "" };
   },
+  startGroupVoiceAt: async (position: number) => {
+    host.speakingAtSlash.push(host.speaking());
+    host.calls.push(`voice ${position}`);
+    return { ok: true };
+  },
   getActiveGroup: () => host.group,
   resolveGroupMemberId: (name: string) => name,
   setGroupMembersDisabled: async (enable: string[], disable: string[]) => {
