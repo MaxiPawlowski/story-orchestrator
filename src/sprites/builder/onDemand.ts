@@ -1,4 +1,4 @@
-import { comfyDiscover, comfyFingerprint, spriteFileFingerprint, spriteManifest, spriteReferencePack } from "@services/stHost/media";
+import { comfyFingerprint, spriteFileFingerprint, spriteManifest, spriteReferencePack, type ComfyDiscovery, type SpriteReferencePack } from "@services/stHost/media";
 import { spriteList } from "@services/stHost/sprites";
 import { closeImageBurst, gpuBrokerStatus, openImageBurst } from "@services/stHost/gpuBroker";
 import { beginRun } from "@runtime/runToken";
@@ -8,10 +8,14 @@ import { contentHash, EDIT_RECIPE, recipeProblems } from "./recipes";
 import { publicLook } from "@engine/cardFields";
 import { log } from "@utils/log";
 import { hostGenerating, waitForTextPriority } from "./textPriority";
-import { completeLookFrames, LOOK_FRAME_KINDS, lookFrameRequest, lookKeyInput, lookStillRequest } from "./lookFrames";
+import { completeLookFrames, LOOK_FRAME_KINDS, lookFrameRequest, lookKeyInput, lookStillRequest, type LookBuild } from "./lookFrames";
 import { frameIndex, type AnimationFrames } from "../animation";
-import { publishedLook, visualRoot } from "../visualManifest";
-import { builderGap, recipeChecked, RECIPE_WAIT_MS, withDefaultBuilders } from "../defaultRecipe";
+import { publishedLook, visualRoot, type VisualManifest } from "../visualManifest";
+import { builderGap, defaultRecipe, recipeChecked, RECIPE_WAIT_MS, withDefaultBuilders } from "../defaultRecipe";
+import { retryDefaultRecipe } from "../defaultRecipeHost";
+import { discoverWaking } from "./comfyWake";
+import type { EditModels } from "./recipes";
+import type { SpriteSettings } from "../settings";
 import { verifyVisualSource, sourceStillCurrent, publishDerivedVisual } from "../visualHost";
 import { anySignal } from "@utils/signals";
 
@@ -20,6 +24,8 @@ export interface LookRequest {
   accepts(): boolean; apply(set: string, files: Array<{ label: string; path: string }>, frames?: AnimationFrames): void;
   failed?(reason: string): void;
 }
+
+interface LookRender { config: SpriteSettings["builders"][string]; models: EditModels; key: string; version: string; base: SpriteReferencePack }
 
 const LOOK_BURST_MS = 180_000;
 export const ON_DEMAND_OFF = "On-demand look edits are off for this install (sprites.onDemand).";
@@ -75,6 +81,37 @@ export class OnDemandLooks {
     }
   }
 
+  private async prepare(request: LookRequest, story: string, accepted: VisualManifest | undefined, signal: AbortSignal, guard: () => void): Promise<LookRender> {
+    if (!this.manager.getGlobalSettings().sprites.builders[request.folder]) await recipeChecked(RECIPE_WAIT_MS, signal);
+    guard();
+    let settings = withDefaultBuilders(this.manager.getGlobalSettings().sprites), discovery: ComfyDiscovery | null = null;
+    if (!settings.builders[request.folder] && settings.visualSources[request.folder] && defaultRecipe().status === "unreachable") {
+      discovery = await discoverWaking(signal);
+      guard();
+      await retryDefaultRecipe();
+      guard();
+      settings = withDefaultBuilders(this.manager.getGlobalSettings().sprites);
+    }
+    const config = settings.builders[request.folder];
+    if (!config) throw new Error(builderGap(settings, request.folder) ?? "No Qwen edit route is set for this character.");
+    discovery ??= await discoverWaking(signal);
+    guard();
+    const problems = recipeProblems(discovery, config.models);
+    if (problems.length) throw new Error(problems.join(" "));
+    const [diffusion, encoder, vae] = await Promise.all([
+      comfyFingerprint("diffusionModels", config.models.diffusion, signal),
+      comfyFingerprint("textEncoders", config.models.encoder, signal),
+      comfyFingerprint("vaes", config.models.vae, signal),
+    ]);
+    guard();
+    const base = await spriteReferencePack(request.folder, accepted?.baseSet ?? config.baseSet);
+    guard();
+    const version = base.sha256, models = { diffusion, encoder, vae };
+    const key = await contentHash(new TextEncoder().encode(lookKeyInput({ story, member: request.member, fields: request.fields, version, models,
+      recipe: EDIT_RECIPE, config, ...(accepted ? { visualRoot: visualRoot(accepted) } : {}) })));
+    return { config, models, key, version, base };
+  }
+
   private async edit(request: LookRequest): Promise<void> {
     const run = beginRun(this.manager.getOwnership());
     const builder = createSpriteBuilder(this.manager.getOwnership());
@@ -90,33 +127,19 @@ export class OnDemandLooks {
     };
     try {
       if (!this.manager.getGlobalSettings().sprites.onDemand) throw new Error(ON_DEMAND_OFF);
-      if (!this.manager.getGlobalSettings().sprites.builders[request.folder]) await recipeChecked(RECIPE_WAIT_MS, signal);
-      const settings = withDefaultBuilders(this.manager.getGlobalSettings().sprites);
-      const config = settings.builders[request.folder];
       guard();
       if (accepted) await verifyVisualSource(accepted, signal);
       guard();
-      if (!config) throw new Error(builderGap(settings, request.folder) ?? "No Qwen edit route is set for this character.");
       const story = this.manager.getCachedSnapshot().storyId;
       if (!story) return;
-      const discovery = await comfyDiscover(signal);
-      guard();
-      const problems = recipeProblems(discovery, config.models);
-      if (problems.length) throw new Error(problems.join(" "));
-      const [diffusion, encoder, vae] = await Promise.all([
-        comfyFingerprint("diffusionModels", config.models.diffusion, signal),
-        comfyFingerprint("textEncoders", config.models.encoder, signal),
-        comfyFingerprint("vaes", config.models.vae, signal),
-      ]);
-      guard();
-      const base = await spriteReferencePack(request.folder, accepted?.baseSet ?? config.baseSet);
-      const version = base.sha256;
-      const models = { diffusion, encoder, vae };
-      const key = await contentHash(new TextEncoder().encode(lookKeyInput({ story, member: request.member, fields: request.fields, version, models,
-        recipe: EDIT_RECIPE, config, ...(accepted ? { visualRoot: visualRoot(accepted) } : {}) })));
       const reused = accepted ? publishedLook(accepted, request.fields) : null;
-      const set = reused?.set ?? `look_${key.slice(0, 8)}`;
-      const build = { folder: request.folder, set, label: request.label, key, story, member: request.member, models, config };
+      let prepared: Promise<LookRender> | null = null;
+      const prepare = () => prepared ??= this.prepare(request, story, accepted, signal, guard);
+      const set = reused?.set ?? `look_${(await prepare()).key.slice(0, 8)}`;
+      const buildFor = async (): Promise<LookBuild> => {
+        const { key, models, config } = await prepare();
+        return { folder: request.folder, set, label: request.label, key, story, member: request.member, models, config };
+      };
       const existing = await spriteList(`${request.folder}/${set}`);
       const cached = await spriteManifest(request.folder, set);
       guard();
@@ -139,6 +162,8 @@ export class OnDemandLooks {
           return path;
         },
         render: async (kind) => {
+          const build = await buildFor();
+          guard();
           const candidate = await builder.build(lookFrameRequest(build, kind, { path, sha256: hash }));
           if (this.stopped || !run.stillOwns() || !request.accepts()) throw new Error("The look changed before this frame could be saved.");
           const saved = await builder.save(candidate);
@@ -161,6 +186,9 @@ export class OnDemandLooks {
           { path: file.path, sha256: file.sha256, key: cached.labels[request.label].key, recipe: cached.labels[request.label].recipe });
         request.apply(set, existing, frames); return;
       }
+      const { base, version, config } = await prepare();
+      const build = await buildFor();
+      guard();
       const reference = accepted ? { ...accepted.base, label: "neutral" } : base.files.find((file) => file.label === request.label) ?? base.files.find((file) => file.label === "neutral");
       if (!reference) throw new Error("The base pack has no reference for this expression.");
       await waitForTextPriority({ status: gpuBrokerStatus, loud: hostGenerating, current: () => !this.stopped && run.stillOwns() && request.accepts(),

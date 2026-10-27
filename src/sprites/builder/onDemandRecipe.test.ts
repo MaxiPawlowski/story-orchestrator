@@ -7,9 +7,12 @@ import { defaultSpriteSettings, type SpriteSettings } from "../settings";
 import { visualFixture } from "../visualFixtures";
 import { discoveryProblem, setDefaultRecipe } from "../defaultRecipe";
 
-jest.mock("@services/stHost/gpuBroker", () => ({ gpuBrokerStatus: jest.fn(), openImageBurst: jest.fn(), closeImageBurst: jest.fn() }));
+jest.mock("@services/stHost/gpuBroker", () => ({ gpuBrokerStatus: jest.fn(), openImageBurst: jest.fn(), closeImageBurst: jest.fn(),
+  reserveGpu: jest.fn(async () => ({ lease: null, brokered: false })), releaseGpu: jest.fn(async () => ({ ok: true, released: false })) }));
 jest.mock("@services/stHost/media", () => ({ comfyDiscover: jest.fn(), comfyFingerprint: jest.fn(), spriteFileFingerprint: jest.fn(), spriteManifest: jest.fn(), spriteReferencePack: jest.fn() }));
 jest.mock("@services/stHost/sprites", () => ({ spriteList: jest.fn() }));
+jest.mock("./textPriority", () => ({ hostGenerating: async () => false, waitForTextPriority: async () => undefined,
+  leaseOutsideTurns: async ({ acquire }: { acquire(): Promise<unknown> }) => acquire() }));
 jest.mock("./host", () => ({ createSpriteBuilder: () => ({ close: jest.fn(), cancel: jest.fn() }) }));
 jest.mock("../visualHost", () => ({ verifyVisualSource: jest.fn(), sourceStillCurrent: () => true, publishDerivedVisual: jest.fn() }));
 
@@ -38,8 +41,8 @@ test("a changed look asked before the install-wide Qwen route resolves waits for
   expect(comfyDiscover).not.toHaveBeenCalled();
   setDefaultRecipe({ status: "ready", source: "discovered", recipe: RECIPE, problem: null }, sprites);
   await tick();
-  expect(comfyDiscover).toHaveBeenCalledTimes(1);
-  expect(failed).toHaveBeenCalledWith("reached the Qwen route");
+  expect(comfyDiscover).toHaveBeenCalledTimes(2);
+  expect(failed).toHaveBeenCalledWith(expect.stringContaining("reached the Qwen route"));
 });
 
 test("a route that resolves missing names the real gap, and on-demand switched off says so instead of asking for a reference pack", async () => {

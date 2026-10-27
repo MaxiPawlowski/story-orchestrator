@@ -84,6 +84,8 @@
       "surface": "console", "rawError": true, "silentCatch": null, "verdict": "pass", "reason": "Owned temporary-reference cleanup returns a typed refusal logged by the builder host; no player copy." },
     { "site": "src/sprites/poses/bodyHost.ts#measure", "kind": 2, "template": "error instanceof Error ? error.message : String(error)",
       "surface": "console", "rawError": true, "silentCatch": null, "verdict": "pass", "reason": "The message is only tested against the no-person pattern to decide between a skipped edit and a cached fallback; it is never shown." },
+    { "site": "src/sprites/builder/comfyWake.ts#reason", "kind": 2, "template": "error instanceof Error ? error.message : String(error)",
+      "surface": "author", "rawError": true, "silentCatch": null, "verdict": "pass", "reason": "Wraps the ComfyUI discovery and wake errors into the author-only changed-look / pose-body status, naming how to start ComfyUI; no player toast." },
     { "site": "src/sprites/builder/onDemand.ts#OnDemandLooks.edit", "kind": 2, "template": "error instanceof Error ? error.message : String(error)",
       "surface": "author", "rawError": true, "silentCatch": null, "verdict": "pass", "reason": "Changed-look failure is kept in the author-only readiness finding; no player toast." },
     { "site": "src/studio/components/BaseSpriteBuilder.tsx#build>callback", "kind": 2, "template": "`Candidate ${at + 1}: ${String(error)}`",
