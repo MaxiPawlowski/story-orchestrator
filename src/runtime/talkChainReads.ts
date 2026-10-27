@@ -2,6 +2,7 @@ import type { RosterMember } from "@engine/index";
 import { asksPlayer, directlyAddressed, type DirectorWindowMessage, type TalkCandidate } from "@talk/index";
 import type { SourceRevision } from "@memory/audience";
 import type { ChainEnd, ChainEndReason } from "./chainEnds";
+import type { TalkDecisionAudit } from "./types";
 
 interface ChainReadHost {
   getRoster(): RosterMember[];
@@ -11,6 +12,8 @@ interface ChainReadHost {
   getLastMessageId(): number;
   getLastMessageRevision?(): SourceRevision | null;
   recordChainEnd?(end: ChainEnd): void;
+  recordDecision(audit: TalkDecisionAudit): void;
+  getCheckpointInfo(): { id: string } | null;
 }
 
 const others = (roster: RosterMember[], speaker: string) => roster.filter((member) => (member.name ?? member.id).trim().toLowerCase() !== speaker);
@@ -35,4 +38,15 @@ export const recordEnd = (host: ChainReadHost, chain: { chatId: string; checkpoi
   host.recordChainEnd?.({
     messageId: host.getLastMessageId(), revision: host.getLastMessageRevision?.() ?? null, checkpointId: chain.checkpointId, voices: chain.spokeCount, reason,
   });
+};
+
+export const recordYield = (host: ChainReadHost, chain: { checkpointId: string; spokeCount: number }): void => host.recordDecision({
+  at: new Date().toISOString(), messageId: host.getLastMessageId(), checkpointId: host.getCheckpointInfo()?.id ?? chain.checkpointId,
+  chosenRosterId: null, chosenName: null, source: "rules", latencyMs: 0, chainStep: chain.spokeCount, kind: "player", revision: host.getLastMessageRevision?.() ?? null,
+});
+
+export const voiceMessage = (chain: { expected: string | null; voice: { messageId: number; rosterId: string | null } | null }, lastSpeaker: string | null, lastId: number): number | null => {
+  if (!chain.expected) return null;
+  if (chain.voice) return chain.voice.rosterId === chain.expected ? chain.voice.messageId : null;
+  return lastSpeaker === chain.expected ? lastId : null;
 };

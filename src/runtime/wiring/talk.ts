@@ -1,5 +1,5 @@
 import { askText } from "@extraction/index";
-import { getActiveCharacterId, getActiveGroup, getCharacterNameById, getContext, getPlayerName, startGroupVoice } from "@services/STAPI";
+import { getActiveCharacterId, getActiveGroup, getCharacterNameById, getContext, getPlayerName, readReasoningTags, startGroupVoice } from "@services/STAPI";
 import { log } from "@utils/log";
 import { gatedInterceptor } from "../loudGenerationGate";
 import { CHAT_SETTLE_TIMEOUT_MS, chatSettle } from "../chatSettle";
@@ -15,6 +15,7 @@ import { messageRevision } from "../yourMove";
 import { speechRows } from "@talk/index";
 import { entryKey } from "../effectsApplierHost";
 import { consequenceSince } from "../speechConsequence";
+import { isThoughtOnlyReply, residueTags } from "../emptyReply";
 
 const talkHost = (live: LiveParts, judgeRuntime: JudgeRuntime, { chatLastId, recentTurns }: WindowAccess): TalkControlHost => ({
   isGroupChat: () => Boolean(getActiveGroup()),
@@ -39,6 +40,7 @@ const talkHost = (live: LiveParts, judgeRuntime: JudgeRuntime, { chatLastId, rec
   recordDecision: (audit) => runtimeManager.recordTalkDecision(audit),
   recordChainEnd: (end) => runtimeManager.recordChainEnd(end),
   getLastMessageRevision: () => messageRevision((getContext().chat ?? []).at(-1)),
+  replyEmpty: (messageId) => isThoughtOnlyReply((getContext().chat ?? [])[messageId], residueTags(readReasoningTags())),
   judgeDirector: (input) => judgeRuntime.director(input),
   getPlayerName,
   random: () => runtimeManager.chance.talkRandom(),
