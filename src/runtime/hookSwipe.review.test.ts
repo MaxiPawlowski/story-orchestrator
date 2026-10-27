@@ -154,3 +154,31 @@ describe("v3.0 19 live defect 1: a swiped story-posted line keeps its self-injec
     expect(lastReplyAsksPlayer(roster, null, [{ name: "Mira", mes: swipes[0], swipe_id: 0, swipes }], "You")).toBe(false);
   });
 });
+
+describe("v3.0 19 opening sceneBreak hold: no scripted line before the player's first send", () => {
+  test("a read of the earlier opening line flags a break and its summary lands after the hook: nothing posts", async () => {
+    const { applier, extras, hook } = await hooked();
+    expect(extras.lastSelfInjectionMessageId).toBe(hook);
+    const before = host.slash.length;
+    expect(await applier.fireActiveReplies(camp, extras, "sceneBreak", null, hook - 1)).toBe(0);
+    expect(host.slash.slice(before)).toEqual([]);
+  });
+
+  test("after the player sends, the same break posts its line as before", async () => {
+    const { applier, extras, hook } = await hooked();
+    host.chat.push({ name: "You", is_user: true, mes: "We go north." });
+    const before = host.slash.length;
+    expect(await applier.fireActiveReplies(camp, extras, "sceneBreak", null, hook - 1)).toBe(1);
+    expect(host.slash.slice(before).some((command) => command.includes("Night falls."))).toBe(true);
+  });
+
+  test("after the player sends, a break still posts while the newest message is a story line", async () => {
+    const { applier, extras, hook } = await hooked();
+    host.chat.push({ name: "You", is_user: true, mes: "We go north." }, { name: "Mira", mes: "North it is." });
+    await applier.fireActiveReplies(camp, extras, "afterSpeak", null);
+    expect(extras.lastSelfInjectionMessageId).toBe(host.chat.length - 1);
+    const before = host.slash.length;
+    await applier.fireActiveReplies(camp, extras, "sceneBreak", null, hook - 1);
+    expect(host.slash.slice(before).some((command) => command.includes("Night falls."))).toBe(true);
+  });
+});

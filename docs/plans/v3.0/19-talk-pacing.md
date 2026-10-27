@@ -389,3 +389,15 @@ Date 2026-10-27, branch `v3.0-hook-swipe` from master `727da9cc`.
 - Cleanup: `so-run-header diff --served-identity` on lane 34 differs only in the 4 owned chats and the page's open chat/group/story (declared); lane 33 only the page's open chat. Lanes stopped.
 - Evidence: `C:/dev/so-lanes/34/debug/mergehb/` (`campaign/*.json` per step, `reaction-*.log`, `header-*`), `C:/dev/so-lanes/33/debug/mergehb/` (`reply-scope-*.log`), run dirs `C:/dev/so-lanes/3{3,4}/debug/runs/2026-10-27T11-*`. Not archived to so-sessions.
 - Verdict: **hook swipe fix green live** (swipe 3/3, edit 1/1, fixtures 2/2 each); the opening sceneBreak guard gap above is open.
+
+### Gate record, opening sceneBreak hold
+
+Date 2026-10-27, branch `v3.0-scenebreak-hold` from `v3.0-d10-wake` `b71c5133`.
+
+- Fix (live gate defect above, 1 of 4 unswiped opens): `effectsApplier.ts` `openingAwaitsPlayer` holds sceneBreak lines while the newest chat message is the story's own self-injected line (`lastSelfInjectionMessageId === lastMessageId()`, the afterSpeak hold) and the player has never spoken in the chat (`playerHasSpoken`, the opening sequence's notion of an opening). A summary of a break at an earlier scripted message (read of message 0 landing after the hook) then posts nothing. Once the player has sent, the condition is false and sceneBreak keeps the old guard (`breakAt === lastSelfInjectionMessageId`) unchanged. Dropped, not deferred, as afterSpeak.
+- Not covered: an opening whose newest message is not self-injected (ST card greetings only), and a Restart inside a chat the player already spoke in; both keep the old behaviour.
+- New tests in `runtime/hookSwipe.review.test.ts` (3): break at the opening line with the hook newest posts nothing; after a player send the same break posts its line; after a player send a break still posts while the newest message is an afterSpeak line. Without the fix the first fails (stash of `effectsApplier.ts`), the other two pass both ways.
+- `npm run gates:quick`: green in 190.9 s (typecheck, typecheck:test, lint changed, jest related, replay --cached 32 of 32 killed).
+- `npm run gates` (no `--resume`, Storybook included): **all green in 395.9 s**: build, typecheck, typecheck:test, debug:typecheck, lint, test (921 suites, 10672 passed, 1 skipped), test:replay (32 of 32 killed), test:debug, test:plugin, test:release, test-storybook:ci (167 suites, 1009 tests).
+- Main bundle `dist/index.js` 1,254,349 B (budget 1,300,000 B).
+- **Live gate: NOT run** (no lanes/GPU for this task). Owed: campaign opens (4+, fresh chat, no swipe), wait for the opening re-read and scene summary (scheduler idle + 45 s quiet), 0 scripted lines before the first send, ideally one open where the read of message 0 flags a break; then first sends: a later scene break still posts its sceneBreak line by its roll and cooldown.
