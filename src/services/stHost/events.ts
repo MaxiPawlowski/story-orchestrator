@@ -101,7 +101,29 @@ export function subscribeToHostEvents(
   return subscribeToEvents(eventSource, entries.map((entry) => ({ ...entry, eventName: resolveEventName(entry.eventName) })));
 }
 
-type OrderedSource = EventSourceLike & { makeLast?: (event: string, listener: EventHandler) => void };
+type OrderedSource = EventSourceLike & {
+  makeLast?: (event: string, listener: EventHandler) => void;
+  makeFirst?: (event: string, listener: EventHandler) => void;
+};
+
+export function subscribeToHostEventFirst<K extends HostEventName>(eventName: K, handler: TypedHostEventHandler<K>): { off: () => void; place: () => void } {
+  const resolved = resolveEventName(eventName);
+  const source = getContext().eventSource as OrderedSource | undefined;
+  if (!resolved || !source) return { off: () => {}, place: () => {} };
+  if (typeof source.makeFirst !== "function") return { off: subscribeToHostEvent(eventName, handler), place: () => {} };
+  const listener = handler as EventHandler;
+  const place = () => source.makeFirst?.(resolved, listener);
+  place();
+  return {
+    off: () => {
+      try {
+        if (typeof source.off === "function") source.off(resolved, listener);
+        else source.removeListener?.(resolved, listener);
+      } catch (error) { log.warn("a first-placed host listener failed to detach", resolved, error); }
+    },
+    place,
+  };
+}
 
 export function subscribeToHostEventLast<K extends HostEventName>(eventName: K, handler: TypedHostEventHandler<K>): () => void {
   const resolved = resolveEventName(eventName);

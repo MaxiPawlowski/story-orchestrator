@@ -29,6 +29,7 @@ jest.mock("@services/STAPI", () => ({
   subscribeToHostEvents: () => { hostSubscriptions.open += 1; return () => { hostSubscriptions.open -= 1; }; },
   startSaveWatcherSurface: () => { surface.started += 1; return () => { surface.stopped += 1; }; },
   watchPendingWorldSaves: () => () => {},
+  installDraftGuard: () => () => {},
   judgeTransport: async () => ({ model: null, answers: null }),
   judgeStatus: async () => null,
   getPlayerName: () => "Max",
