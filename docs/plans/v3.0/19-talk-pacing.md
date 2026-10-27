@@ -95,12 +95,12 @@ Example, chapter-opening hook (any checkpoint):
 
 Built in stage 2 (below): the shared speech budget, stable reply ids and scopes, pacing profiles, spotlight substitution, address-the-player beats, reaction beats. Still open:
 
-- Route NPC `llm` replies through the guarded `startVoice` (they still use `/trigger`; the budget now bounds them, the busy/draft guard does not).
-- A hard narrator message cap separate from the budget (today: the budget caps every automatic voice, and `no_repeat` keeps the lead to one line per chain).
+- ~~Route NPC `llm` replies through the guarded `startVoice`~~ (stage 3).
+- ~~A hard narrator message cap separate from the budget~~ (stage 3, `lead_max_consecutive`).
 - Zero-cost idle nudge (UI offer only; generation on the player's request).
 - Narrowing the global closing-question clause by speaker (review P3, Opus P12): blind A/B first.
 - Judge `turn: player` signal (needs a calibration row).
-- Record every chain end reason (question, cap, script end, transition, cancel, budget).
+- ~~Record every chain end reason~~ (stage 3).
 
 ## Stage 2 (branch `v3.0-talk-pacing-s2`, worktree `C:\dev\so-talk2`, from master `5719c721`), not merged
 
@@ -416,3 +416,53 @@ Date 2026-10-27, branch `v3.0-scenebreak-hold` from `v3.0-d10-wake` `b71c5133`.
 - Cleanup: `so-run-header diff --served-identity` against the pre-run capture differs only in the 14 owned chats (`inventory.groupChats`) and the page's open chat/group/story (baseline had none open). Holder stopped, lane 34 stopped. Controller left running as found.
 - Evidence: `C:/dev/so-lanes/34/debug/sbhold/` (`campaign/o*-open.json`, `t*-turn.json`, `w*-{open,swipe,turn}.json`, `opens*.out`, `turns.out`, `swipes.out`, `counterfactual.js`, `instrument.js`, `probe.js`, `hold.log`, `header-*`), run dirs `C:/dev/so-lanes/34/debug/runs/2026-10-27T13-*`. Not archived to so-sessions.
 - Verdict: **opening sceneBreak hold green live** (0/12 opens posted, 6 trigger hits held, 3 of them would have posted under the old guard; later break posted; hook swipe 2/2).
+## Stage 3 (branch `v3.0-talk-s3`, worktree `C:\dev\so-talk3`, from master `2bb4bf8f`), not merged
+
+Three items from "Still open" above. Dev only: no GPU, lanes or staging.
+
+### What was built
+
+1. **NPC `llm` replies start through the guarded voice starter** (`runtime/npcVoice.ts` `startNpcVoice`, `runtime/effectSteps.ts` `fireReply`, `stHost/generation.ts` `startGroupVoiceAt`).
+   - Was a bare `/trigger await=true <position>`. ST's `/trigger` polls up to 10 s for `!is_send_press && !is_group_generating`, then clears the player's input box and calls `Generate` (`slash-commands.js:4987-5013`), so an `afterSpeak` reply that fired while a chain voice was rendering raced the chain's next `startVoice` into the same gap, and could wipe a draft the player was typing.
+   - Now: wait (poll 100 ms, up to `NPC_VOICE_WAIT_MS` 10 s, the same bound as `/trigger`) while the host is generating **or a talk chain is pending** (`voiceChainPending`, i.e. `TalkController.chainPending()`: a chain's next voice is being decided or written); then refuse if the chat moved (run lapsed or chat id changed), refuse if a player line arrived during the wait ("the player spoke first"); then `startVoice` (refuses while busy or while the input box holds a draft, locks send, confirms the wrapper opened) with `findGroupMemberId(String(position))`, so the exact-position lookup of K10 (a member named "2") is kept.
+   - A reply that does not start returns `couldNot`: the existing path journals "X's reply was not triggered", settles its reservation as unrendered and releases its fire count, so it can fire on a later turn. One-shot direction (armed before, released in `finally`), budget reservation, cued lines, stream guard and rollback are unchanged.
+   - Lead decision: the chain owns the floor. An `afterSpeak` reply that waits out a running multi-voice chain (more than 10 s on the local model) is refused and retried at a later `afterSpeak`, never squeezed between two chain voices. Its reservation still holds a budget slot while it waits, so the chain may stop on the budget first; that is the budget arbitrating between the two, as designed in stage 2.
+2. **Lead consecutive-message cap** `checkpoints[].talk_control.lead_max_consecutive` (1-8, `engine/talkSchema.ts` `TALK_LEAD_RUN_CAP`).
+   - Profile defaults (`talk/policy.ts` `TALK_PROFILE_SHAPES.leadMax`): opening 2, conversation 1, decision 2, action 3, aftermath 2. No profile and no field = no cap (today's behaviour).
+   - Counted from the chat at decision time (`runtime/talkPacing.ts` `leadRun`): the trailing run of the lead's character lines since the beat was entered; player and system lines are skipped, any other member's line ends the run; story-posted lead lines count. No stored counter, so a swipe, edit or delete changes the count exactly as replaying those messages would.
+   - Enforced by turn-taking only (`TalkPacing.capLead`, called from `TalkController.candidates` for the first decision, chain decisions and plan contexts): while capped the lead is not a candidate, so the judge, director, mention and rules all pick someone else and the judge's lead hint drops. Never cuts tokens. Not applied to a scripted chain, and never when the lead is the only candidate.
+   - Authoring: validation (`validate/talkPacing.ts`, game-layer key), diagnostics `talk-lead-cap-idle` (warning: no lead, or nobody but the lead; a profile cap on a beat with no lead stays quiet) and `talk-lead-cap-scripted` (info), Studio field "Lead lines in a row (at most)" (`TalkPacingFields`, placeholder from the profile), effective-policy line ("the lead speaks at most N times in a row"), Storybook `Studio/TalkControlEditor` CapsTheLeadsRun, wizard parser (`copilot/parseFields.ts` via `readTalkPacing`), guide `talk-pacing` (field, profile lines, If wrong) + compact twin, `npm run docs:guide`.
+3. **Every chain records why it ended** (`runtime/chainEnds.ts`, `extras.chainEnds`, cap 200).
+   - Row: message id and revision at the end, checkpoint, voices spoken, reason: `yield` (question to the player, address/reaction/`ask_player` hand-over), `judge` / `director` (hand-back, also at the first voice), `rules` (no fresh member), `cap`, `budget`, `transition`, `script`, `player`, `stopped`, `interrupted` (swipe/continue/quiet wrapper, or the run lapsed), `refused` (the next voice could not start), `off`.
+   - Recorded once per chain from `TalkController.endChain(reason)` (`runtime/talkChainReads.ts` `recordEnd`), only for the chat the chain started in. A first decision of silence/hand-back now ends its chain at once (was left open until the next send).
+   - Rollback: `rewindChainEnds` in `rollback.ts` quarantine (same rules as `rewindSpeech`: delete drops and shifts, swipe/edit keep the row on that message, an eventless change drops at/after). Sanitized on load; fresh on restart.
+   - `so-talk-metrics.mts` prints `chainEnds` per chat and overall (`chains`, `byReason`, `meanVoices`), read from the chat file header like the speech record.
+- Size: `talkControl.ts` 594 effective lines (file budget 600; the chain-read helpers moved to `talkChainReads.ts`); main bundle 1,297,686 B (budget 1,300,000 B; was 1,294,997 B).
+- Campaign: no change. The cap rides profiles, which the campaign has not adopted (stage 2 note); the NPC starter and chain-end record need no authoring.
+
+### Lead decisions (state them to the owner)
+
+- `lead_max_consecutive` counts across player turns (player lines do not break the run). Otherwise `no_repeat` already gives one lead line per chain and the cap would do nothing; the problem it answers is the narrator answering every player message.
+- A capped lead is not picked as the first voice even when the player names it (the run resets once another member speaks, so a chain voice after that may be the lead); the lead stays eligible only when nobody else can speak.
+- `decision` 2 and `action` 3 were not in the brief (brief: conversation 1, opening/aftermath 2); chosen so a lead-first beat still lets the lead resolve consecutive actions.
+
+### Live check owed (lane, real model)
+
+- Race: a beat with a director chain (max 3) and an `afterSpeak` `llm` line: across 10 player turns, no two generations overlap (one `GROUP_WRAPPER_STARTED` open at a time), the NPC line never lands between two chain voices, a refused start is journaled and fires on a later turn; type in the input box during a chain: the NPC line does not start and the draft survives.
+- Opening hook regression: hook order and one-shot direction (the hook now starts through `startVoice`; the player's input box must be empty, as it is on a fresh chat).
+- `conversation` beat, 10 player turns, 4-member toy group: no two consecutive lead lines (`so-talk-metrics` lead runs; chain-end distribution printed), budget still 100%, every member within 4 player turns; swipe and delete a party line between two lead lines and check the next pick matches.
+- `so-talk-metrics` on the stage 2 re-check chats: `chainEnds.byReason` matches the journal's hand-backs.
+
+### Gate record, stage 3
+
+Date 2026-10-27, branch `v3.0-talk-s3` from master `2bb4bf8f`.
+
+- `npm run gates:quick`: red first (lint max-len in `studio/talkDiagnostics.ts`; jest: nine suites still mocked `/trigger await=true` for NPC llm replies, the compact `talk-pacing` topic over 800 chars, `talkControl.ts` 618 effective lines over the 600 file budget, so the chain reads moved to `talkChainReads.ts`), then green twice (typecheck, typecheck:test, lint changed, jest related, defect replay `--cached`).
+- `npm run gates` run 1 (no `--resume`): RED, two code points: `ownership.guard` (`npcSpeak.ts#speakGenerated` now checks a token, so its census row is `checked`, not `local`) and Storybook `CapsTheLeadsRun` (the query `/in a row/` matched the field label). Both fixed.
+- `npm run gates` run 2 (no `--resume`): RED at `test:plugin` only: `server-plugin/story-orchestrator-gpu/broker/comfyReclaim.test.mjs` "a reserve miss first asks the idle owned ComfyUI…" (`freeMiB` 900 vs 1300). Untouched by this branch; 3 of 3 standalone reruns pass. Load flake.
+- `npm run gates` run 3 (no `--resume`, Storybook included): **all green in 275.1 s**. jest 914 suites passed (1 skipped), 10605 tests passed (1 skipped); test:replay ok; test:debug 1575/1575; test:plugin and test:release ok; test-storybook:ci 166 suites, 1007 tests. Main bundle 1,297,686 B (budget 1,300,000 B). Docs-only edits after the run (this record).
+- New tests, each failing without its change (checked by reverting the source change): `runtime/effectsApplier.test.ts` "stage 3" (waits for a pending chain, never a bare `/trigger`; a player line during the wait refuses and gives the allowance back: 2 fail on the old `effectSteps.ts`), `runtime/talkPacing.review.test.ts` "stage 3: the lead's consecutive-message cap" (3 of 5 fail with the cap forced off; the 2 that pass are the no-cap and scripted/alone controls) and "stage 3: every chain records why it ended" (2 fail without the record), plus `runtime/npcVoice.test.ts`, `runtime/chainEnds.test.ts`, `studio/talkDiagnostics.test.ts`, additions to `talk/policy.test.ts`, `engine/validate/talkPacing.test.ts`, `copilot/parseFieldsTalk.test.ts`, `studio/diagnostics.test.ts` (every code once), `scripts/debug/lib/talkMetrics.test.mts`. Test mocks moved from `/trigger` to `startGroupVoiceAt` in `npcRepliesOwnership`, `npcReplyRefusal`, `openingHook`, `npcTriggerStop`, `npcLateLanding`, `npcStreamLanding`, `effectsOwnership`, `chatSwitchHold.recorded`, `runtimeManager.test.ts`; two stage 2 spotlight controls pin `lead_max_consecutive: 8` (the conversation profile now caps the lead at 1).
+- Findings: `test/findings/ownership-sites.json` (`speakGenerated` -> `checked`).
+- Guide: `story-guide.md` (`lead_max_consecutive`, profile lines, two diagnostics, chain-end reasons, the NPC starter replacing the race limit), compact `guideTopicsTalk.ts`, `npm run docs:guide`. No settings changed, so no `docs:settings`.
+- **Live gate: NOT run** (dev only; lanes and GPU in use). Owed: "Live check owed" above. Not green until it runs.
+- Merge note: master moved to `21a037f9` (visual bridge, main bundle 1,298,651 B) after this branch was cut. This branch adds about 2.7 KB to the main bundle, so the merge would exceed 1,300,000 B; it needs a lazy split (the chain-end record and the NPC starter are the main-entry additions) before merging, never a budget raise.

@@ -47,6 +47,18 @@ const inList = (list: readonly string[] | null | undefined, candidate: TalkCandi
 
 const quiet = (candidate: TalkCandidate): QuietCandidate => ({ rosterId: candidate.rosterId, name: candidate.name, names: [candidate.name, candidate.rosterId, ...(candidate.aliases ?? [])] });
 
+export const leadRun = (rows: readonly SpeechRow[], names: readonly string[], from: number): number => {
+  const wanted = new Set(names.map((name) => name.trim().toLowerCase()));
+  let run = 0;
+  for (let index = rows.length - 1; index >= Math.max(0, from); index -= 1) {
+    const row = rows[index];
+    if (row.isSystem || row.isUser) continue;
+    if (!wanted.has(row.speaker.trim().toLowerCase())) break;
+    run += 1;
+  }
+  return run;
+};
+
 export class TalkPacing {
   constructor(private readonly host: TalkPacingHost) {}
 
@@ -62,6 +74,13 @@ export class TalkPacing {
     const lead = findCandidate(context.candidates, context.control.lead)?.rosterId;
     return context.candidates.filter((candidate) => candidate.rosterId !== lead && candidate.rosterId !== context.lastSpeaker
       && !context.spoken.includes(candidate.rosterId) && inList(list, candidate));
+  }
+
+  capLead(candidates: TalkCandidate[], control: TalkControl): TalkCandidate[] {
+    const cap = this.policy()?.leadMaxConsecutive;
+    const lead = findCandidate(candidates, control.lead);
+    if (!cap || !lead || candidates.length < 2 || leadRun(this.rows(), quiet(lead).names, this.entryStart()) < cap) return candidates;
+    return candidates.filter((candidate) => candidate.rosterId !== lead.rosterId);
   }
 
   plain(chosen: { rosterId: string; name: string }): VoicePlan {

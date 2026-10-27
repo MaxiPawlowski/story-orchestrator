@@ -1,13 +1,15 @@
 import { TALK_CHAIN_MAX_CAP, TALK_CHAIN_MAX_DEFAULT, type RosterMember, type TalkControl, type TalkControlChain } from "@engine/index";
 import type { JudgeDirectorDecision, JudgeDirectorInput } from "@judge/index";
 import {
-  addressedMembers, asksPlayer, buildCandidates, directlyAddressed, chooseByRules, directorEnabled, findCandidate, latestPlayerLine, narrowByMention,
+  addressedMembers, buildCandidates, directlyAddressed, chooseByRules, directorEnabled, findCandidate, latestPlayerLine, narrowByMention,
   withAddressed, type DirectorWindowMessage, type TalkCandidate, type TalkDecisionSource,
 } from "@talk/index";
 import { runDirectorDecision, runJudgeDecision, type Decision } from "./talkDirector";
 import type { PlanContext, TalkPacingHost, VoicePlan } from "./talkPacing";
 import { IDLE_PACING, type TalkPacingApi } from "./talkPacingIdle";
 import type { SpeechReservation } from "./speechLedger";
+import type { ChainEnd, ChainEndReason } from "./chainEnds";
+import { handedTo, recordEnd, voiceAsksPlayer } from "./talkChainReads";
 import { beginRun, type MessageWindow, type RunGuard, type RunOwnership } from "./runToken";
 import type { TalkDecisionAudit } from "./types";
 import type { TalkDecisionKind } from "./talkStagecraftTypes";
@@ -17,6 +19,8 @@ import { log } from "@utils/log";
 import type { WriteResult } from "@utils/writeResult";
 
 const revisionKey = (revision: SourceRevision | null): string => (revision ? `${revision.swipeId ?? ""}/${revision.hash}` : "");
+
+const endedBy = (source: TalkDecisionSource): ChainEndReason => (source === "judge" || source === "director" ? source : "rules");
 
 export { DIRECTOR_TIMEOUT_MS } from "./talkDirector";
 export const DIRECTOR_MAX_TOKENS = 96;
@@ -83,6 +87,7 @@ export interface TalkControlHost extends TalkPacingHost {
   getPlayerName?(): string;
   triggerMember(name: string): Promise<WriteResult | void>;
   recordDecision(audit: TalkDecisionAudit): void;
+  recordChainEnd?(end: ChainEnd): void;
   getLastMessageRevision?(): SourceRevision | null;
   random?(): (() => number) | null;
   /** Install-wide chain defaults, read at each turn. */
@@ -120,6 +125,7 @@ interface PendingDecision {
 // was parked so it is lifted exactly once.
 interface ChainState {
   key: string;
+  chatId: string;
   checkpointId: string;
   spokeCount: number;
   aborted: boolean;
@@ -132,6 +138,7 @@ interface ChainState {
   first: VoicePlan | null;
   release: (() => void) | null;
   endAfter: boolean;
+  why: ChainEndReason | null;
 }
 
 export class TalkController {
@@ -162,9 +169,9 @@ export class TalkController {
     const started = this.host.triggerMember(name).then((result) => {
       if (!result || result.ok) return;
       log.info(`speaker direction: ${name} was not started: ${result.reason}`);
-      if (chain && this.chain === chain) this.endChain();
+      if (chain && this.chain === chain) this.endChain("refused");
     }).catch((error: unknown) => {
-      if (chain && this.chain === chain) this.endChain();
+      if (chain && this.chain === chain) this.endChain("refused");
       throw error;
     });
     void this.track(started).catch((error) => log.warn("speaker direction: the chosen voice could not be triggered", error));
@@ -183,7 +190,7 @@ export class TalkController {
   private yieldToPlayer() {
     if (!this.chain) return;
     this.chain.aborted = true;
-    this.endChain();
+    this.endChain("player");
   }
 
   onGenerationEnded() {
@@ -196,13 +203,13 @@ export class TalkController {
     this.pass = { loud, forced: false, spoke: false, key: null };
     // A quiet/swipe/continue wrapper ends any chain: only a loud user turn opens one, and it does
     // so in `intercept` (a forced wrapper, i.e. a lone `/trigger`, must never start a chain).
-    if (!loud) this.endChain();
+    if (!loud) this.endChain("interrupted");
   }
 
   // The player pressed STOP: no further voice this turn.
   onGenerationStopped() {
     if (this.chain) this.chain.aborted = true;
-    this.endChain();
+    this.endChain("stopped");
   }
 
   async intercept(abort: (immediate: boolean) => void, type: string): Promise<void> {
@@ -214,8 +221,8 @@ export class TalkController {
     // The first intercept of a loud, non-forced group pass opens this turn's chain.
     if (!this.chain) {
       this.chain = {
-        key: this.passKey(), checkpointId: this.host.getCheckpointInfo()?.id ?? "", spokeCount: 0, aborted: false, hold: false, speakers: [], offScript: 0, expected: null,
-        reservation: null, plan: null, first: null, release: null, endAfter: false,
+        key: this.passKey(), chatId: this.host.getChatId() ?? "", checkpointId: this.host.getCheckpointInfo()?.id ?? "", spokeCount: 0, aborted: false, hold: false, speakers: [],
+        offScript: 0, expected: null, reservation: null, plan: null, first: null, release: null, endAfter: false, why: null,
       };
     }
     const chain = this.chain;
@@ -282,7 +289,10 @@ export class TalkController {
     // continues the chain (advanceChain counts voices, and the first was never a voice).
     const key = pass.key ?? this.decisionKey();
     const decision = await this.ensureDecision(control, key);
-    if (decision.kind !== "member") return;
+    if (decision.kind !== "member") {
+      if (decision.kind !== "pass" && this.chain?.spokeCount === 0) this.endChain(endedBy(decision.source));
+      return;
+    }
     if (this.reconciled?.key === key && this.reconciled.run?.stillOwns() !== false) return;
     this.reconciled = { key, run: this.cached?.key === key ? this.cached.run : null };
     const chain = this.chain;
@@ -291,19 +301,24 @@ export class TalkController {
     else this.trigger(decision.name);
   }
 
-  private endChain(): void {
+  private endChain(reason: ChainEndReason | null = null): void {
     const chain = this.chain;
     if (chain?.hold) this.host.setExtractionHold?.(false);
     if (chain) {
       this.pacing.settle(chain.reservation, null, null);
       chain.release?.();
+      if (reason) recordEnd(this.host, chain, reason);
     }
     this.chain = null;
   }
 
+  private candidates(control: TalkControl, addressed: TalkCandidate[]): TalkCandidate[] {
+    const all = withAddressed(buildCandidates(control, this.host.getRoster(), this.host.getEnabledRosterIds()), addressed);
+    return control.chain && control.chain.mode === "scripted" ? all : this.pacing.capLead(all, control);
+  }
+
   private planContext(control: TalkControl, chain: ChainState, lastSpeaker: string | null): PlanContext {
-    const candidates = withAddressed(buildCandidates(control, this.host.getRoster(), this.host.getEnabledRosterIds()), this.addressed(this.host.getWindow()).members);
-    return { control, candidates, spoken: chain.speakers, lastSpeaker };
+    return { control, candidates: this.candidates(control, this.addressed(this.host.getWindow()).members), spoken: chain.speakers, lastSpeaker };
   }
 
   private settleVoice(chain: ChainState, lastSpeaker: string | null) {
@@ -316,7 +331,7 @@ export class TalkController {
   private launch(plan: VoicePlan, chain: ChainState, config: TalkChainConfig) {
     if (plan.source) this.recordPlan(plan, chain);
     const { reservation, refused } = this.pacing.reserve(plan);
-    if (refused) { this.endChain(); return; }
+    if (refused) { this.endChain("budget"); return; }
     Object.assign(chain, { expected: plan.rosterId, reservation, plan, endAfter: plan.yieldAfter, release: this.pacing.arm(plan) });
     if (!chain.hold && config.holdExtraction) {
       chain.hold = true;
@@ -344,43 +359,26 @@ export class TalkController {
     const lastSpeaker = this.host.getLastSpeakerRosterId() ?? chain.expected;
     this.settleVoice(chain, lastSpeaker);
     const config = this.chainConfig(control);
-    if (!config || !config.enabled) { this.endChain(); return; }
+    if (!config || !config.enabled) { this.endChain("off"); return; }
     chain.spokeCount += 1;
     if (lastSpeaker) chain.speakers.push(lastSpeaker);
     chain.expected = null;
-    if (chain.endAfter || this.pacing.yielded() || (config.yieldOnQuestion && this.voiceAsksPlayer())) { this.recordYield(chain); this.endChain(); return; }
-    if (chain.spokeCount >= config.max) { this.endChain(); return; }
-    if (this.sceneMoves(chain, config)) { this.endChain(); return; }
+    if (chain.endAfter || this.pacing.yielded() || (config.yieldOnQuestion && voiceAsksPlayer(this.host))) { this.recordYield(chain); this.endChain("yield"); return; }
+    if (chain.spokeCount >= config.max) { this.endChain("cap"); return; }
+    if (this.sceneMoves(chain, config)) { this.endChain("transition"); return; }
     const run = beginRun(this.host.ownership, this.window());
     const context = this.planContext(control, chain, lastSpeaker);
     const reaction = config.mode === "director" ? this.pacing.reaction(context) : null;
     const scripted = config.mode === "scripted" ? this.scriptedSpeaker(config, chain.spokeCount - chain.offScript) : null;
     const next = reaction ?? (scripted ? { name: scripted, source: null } : config.mode === "scripted" ? null : await this.decideChainSpeaker(control, config, chain));
     if (this.chain !== chain || chain.aborted) return;
-    if (!next || !run.stillOwns() || this.sceneMoves(chain, config)) { this.endChain(); return; }
+    if (!run.stillOwns()) { this.endChain("interrupted"); return; }
+    if (!next) { this.endChain(config.mode === "scripted" ? "script" : chain.why ?? "rules"); return; }
+    if (this.sceneMoves(chain, config)) { this.endChain("transition"); return; }
     const candidate = findCandidate(context.candidates, next.name);
-    if (!candidate || (control.no_repeat !== false && chain.speakers.includes(candidate.rosterId))) { this.endChain(); return; }
+    if (!candidate || (control.no_repeat !== false && chain.speakers.includes(candidate.rosterId))) { this.endChain("rules"); return; }
     const voice = reaction ?? (config.mode === "director" ? this.pacing.spotlight(candidate, next.source, context) : this.pacing.plain(candidate));
     this.launch(this.pacing.address(voice, context), chain, config);
-  }
-
-  private handedTo(window: DirectorWindowMessage[], candidates: TalkCandidate[]): TalkCandidate | null {
-    const last = window.at(-1);
-    if (!last || last.isUser) return null;
-    const speaker = last.speaker.trim().toLowerCase();
-    const roster = this.host.getRoster().filter((member) => (member.name ?? member.id).trim().toLowerCase() !== speaker);
-    const id = directlyAddressed(roster, last.text);
-    return candidates.find((candidate) => candidate.rosterId === id) ?? null;
-  }
-
-  private voiceAsksPlayer(): boolean {
-    const last = this.host.getWindow().at(-1);
-    const player = this.host.getPlayerName?.()?.trim() ?? "";
-    const speaker = last?.speaker.trim().toLowerCase() ?? "";
-    if (!last || last.isUser || !player || speaker === player.toLowerCase()) return false;
-    const others = this.host.getRoster().filter((member) => (member.name ?? member.id).trim().toLowerCase() !== speaker)
-      .flatMap((member) => [member.name ?? member.id, ...(member.aliases ?? [])]);
-    return asksPlayer(last.text, { player: [player], others });
   }
 
   private recordYield(chain: ChainState): void {
@@ -408,14 +406,14 @@ export class TalkController {
     const window = this.host.getWindow();
     const { line, members } = this.addressed(window);
     const fresh = (candidate: TalkCandidate) => control.no_repeat === false || !chain.speakers.includes(candidate.rosterId);
-    const candidates = withAddressed(buildCandidates(control, this.host.getRoster(), this.host.getEnabledRosterIds()), members).filter(fresh);
+    const candidates = this.candidates(control, members).filter(fresh);
     if (!candidates.length) return null;
     const answered = new Set(window.slice(line + 1).map((message) => message.speaker.trim().toLowerCase()));
     const pending = members.filter((member) => fresh(member) && !answered.has(member.name.trim().toLowerCase()));
     const messageId = this.host.getLastMessageId();
     const checkpointId = this.host.getCheckpointInfo()?.id ?? chain.checkpointId;
     const revision = this.host.getLastMessageRevision?.() ?? null;
-    const handed = pending.length ? null : this.handedTo(window, candidates);
+    const handed = pending.length ? null : handedTo(this.host.getRoster(), window, candidates);
     if (pending.length === 1 || handed) {
       const next = handed ?? pending[0];
       this.host.recordDecision({
@@ -432,6 +430,7 @@ export class TalkController {
     const decision = await runJudgeDecision(this.host, ask) ?? (directorEnabled(control) ? await runDirectorDecision(this.host, ask) : null);
     if (!run.stillOwns() || this.chain !== chain || chain.aborted || !decision || decision.kind === "pass") return null;
     if (decision.kind !== "member") {
+      chain.why = endedBy(decision.source);
       this.host.recordDecision({
         at: new Date().toISOString(), messageId, checkpointId, chosenRosterId: null, chosenName: null,
         source: decision.source, latencyMs: Date.now() - startedAt, chainStep: chain.spokeCount,
@@ -511,7 +510,7 @@ export class TalkController {
     const window = this.host.getWindow();
     const { line, members } = this.addressed(window);
     const addressedNow = line === window.length - 1 ? members : [];
-    const candidates = withAddressed(buildCandidates(control, this.host.getRoster(), this.host.getEnabledRosterIds()), addressedNow);
+    const candidates = this.candidates(control, addressedNow);
     if (!candidates.length) return { kind: "pass" };
     // A scripted chain fixes the voice order: the first is the first line of the sequence.
     const scripted = control.chain && control.chain.mode === "scripted" ? findCandidate(candidates, control.chain.sequence?.[0]) : null;

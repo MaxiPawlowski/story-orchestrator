@@ -57,14 +57,19 @@ const inputBox = (): HTMLTextAreaElement | null => {
 
 export const readChatInput = (): string | null => inputBox()?.value ?? null;
 
-export const startGroupVoice = (name: string): Promise<WriteResult> => startVoice({
+const voiceDeps = (memberId: (member: string) => number | undefined) => ({
   generating: () => Boolean(scriptModule.isGenerating()),
   draft: readChatInput,
-  memberId: (member) => groupChatsModule.findGroupMemberId?.(member),
-  lockSend: (locked) => scriptModule.setSendButtonState(locked),
-  onWrapperStarted: (listener) => subscribeToHostEvent("GROUP_WRAPPER_STARTED", listener),
-  generate: (chid) => scriptModule.Generate("normal", { force_chid: chid }),
-}, name);
+  memberId,
+  lockSend: (locked: boolean) => scriptModule.setSendButtonState(locked),
+  onWrapperStarted: (listener: () => void) => subscribeToHostEvent("GROUP_WRAPPER_STARTED", listener),
+  generate: (chid: number) => scriptModule.Generate("normal", { force_chid: chid }),
+});
+
+export const startGroupVoice = (name: string): Promise<WriteResult> => startVoice(voiceDeps((member) => groupChatsModule.findGroupMemberId?.(member)), name);
+
+export const startGroupVoiceAt = (position: number, name: string): Promise<WriteResult> =>
+  startVoice(voiceDeps(() => groupChatsModule.findGroupMemberId?.(String(position))), name);
 
 export function fillChatInput(text: string, expected: string): WriteResult {
   const box = inputBox();

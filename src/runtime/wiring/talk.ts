@@ -37,6 +37,7 @@ const talkHost = (live: LiveParts, judgeRuntime: JudgeRuntime, { chatLastId, rec
   breakerOpen: () => live.scheduler?.breakerOpen(routedProfileId("director")) ?? false,
   triggerMember: startGroupVoice,
   recordDecision: (audit) => runtimeManager.recordTalkDecision(audit),
+  recordChainEnd: (end) => runtimeManager.recordChainEnd(end),
   getLastMessageRevision: () => messageRevision((getContext().chat ?? []).at(-1)),
   judgeDirector: (input) => judgeRuntime.director(input),
   getPlayerName,

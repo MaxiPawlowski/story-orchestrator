@@ -119,10 +119,10 @@ jest.mock("@services/STAPI", () => ({
     },
     settle: () => { st.settled += 1; },
   }),
-  executeSlashCommands: (command: string) => {
-    if (!command.startsWith("/trigger")) return Promise.resolve(true);
+  executeSlashCommands: () => Promise.resolve(true),
+  startGroupVoiceAt: () => {
     st.finished = streamReply();
-    return st.finished.then(() => true, () => false);
+    return st.finished.then(() => ({ ok: true }), () => ({ ok: false, reason: "failed" }));
   },
 }));
 

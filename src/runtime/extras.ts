@@ -24,6 +24,7 @@ import { trimLedger } from "./effectLedger";
 import { createSaveHealth } from "./saveHealth";
 import { sanitizeCuedLines, sanitizeOnEnterPosts } from "./npcReplyRewind";
 import { sanitizeSpeech } from "./speechLedger";
+import { sanitizeChainEnds } from "./chainEnds";
 import { sanitizeDeferredOpener } from "./openerDeferral";
 import { freshBriefing, sanitizeBriefingRecord } from "./briefing";
 import { freshPlayerSetup, sanitizePlayerSetup } from "./playerSetup";
@@ -484,6 +485,7 @@ export const hydrateExtras = (persisted: RuntimeExtras | undefined, read: () => 
   if (extras.onEnterPosts !== undefined) extras.onEnterPosts = sanitizeOnEnterPosts(extras.onEnterPosts);
   if (extras.cuedLines !== undefined) extras.cuedLines = sanitizeCuedLines(extras.cuedLines);
   if (extras.speech !== undefined) extras.speech = sanitizeSpeech(extras.speech);
+  if (extras.chainEnds !== undefined) extras.chainEnds = sanitizeChainEnds(extras.chainEnds);
   if (extras.deferredOpener !== undefined) {
     const deferred = sanitizeDeferredOpener(extras.deferredOpener);
     if (deferred) extras.deferredOpener = deferred;

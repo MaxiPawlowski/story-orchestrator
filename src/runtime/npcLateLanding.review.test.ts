@@ -112,10 +112,10 @@ jest.mock("@services/STAPI", () => ({
       return () => st.moves.delete(listener);
     },
   }, onMoved),
-  executeSlashCommands: (command: string) => {
-    if (!command.startsWith("/trigger")) return Promise.resolve(true);
+  executeSlashCommands: () => Promise.resolve(true),
+  startGroupVoiceAt: () => {
     st.finished = mode === "non-streaming" ? nonStreamingReply() : lateHeadersReply();
-    return st.finished.then(() => true, () => false);
+    return st.finished.then(() => ({ ok: true }), () => ({ ok: false, reason: "failed" }));
   },
 }));
 

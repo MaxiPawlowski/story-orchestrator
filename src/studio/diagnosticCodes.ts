@@ -52,6 +52,8 @@ export const DIAGNOSTIC_CODES = [
   "talk-budget-below-chain",
   "talk-pacing-no-room",
   "npc-reply-scope-unused",
+  "talk-lead-cap-idle",
+  "talk-lead-cap-scripted",
   "player-spoiler-risk",
   "agenda-pace-no-chapters",
   "faction-move-on-inaction",
