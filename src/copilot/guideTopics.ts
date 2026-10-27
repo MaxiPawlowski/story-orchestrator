@@ -211,7 +211,8 @@ export const GUIDE_TOPICS = {
     title: "NPC replies",
     fields: "effects.npc_replies[]",
     text: "Lines a character speaks on their own: trigger onEnter, afterSpeak or sceneBreak; the member speaks; after_member names the speaker it follows. kind scripted "
-      + "posts text verbatim; kind llm gets instruction privately for that one reply; ask_player (llm) asks {{user}} exactly one short question, never what they do. id names its counter. "
+      + "posts text verbatim; kind llm gets instruction privately for that one reply; ask_player (llm) asks {{user}} exactly one short question, never what they do; "
+      + "a reply asking more keeps only its last. id names its counter. "
       + "maxTriggers caps fires per once_per scope: story (default), entry (each visit) or player_turn; cooldown_player_turns spaces repeats (afterSpeak and sceneBreak "
       + "default 2). probability is a seeded chance, enabled: false parks one. afterSpeak and sceneBreak lines draw on the speech budget.",
   },

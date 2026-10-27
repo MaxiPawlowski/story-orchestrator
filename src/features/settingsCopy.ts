@@ -234,6 +234,11 @@ export const SETTING_COPY = {
     "In a group chat, more than one character can reply to a single message; the story picks each next speaker and stops when it is your turn. "
       + "Off: one voice per turn.",
   ),
+  "talk.keepLastQuestion": copy(
+    "Keep one question when a character asks you",
+    "When a character is told to turn to you with one question, such as the line right after a story's opening, and the reply asks several, "
+      + "only the last question is kept and the rest of the line stays as written. A reply the trim would break is left alone, and thinking is never changed.",
+  ),
   "talk.chain.max": copy(
     "Voices per turn at most",
     "The most characters that may answer one of your messages. Higher makes busier scenes and longer waits.",

@@ -9,7 +9,7 @@ import { routedProfileId } from "../requestBudget";
 import { runtimeManager } from "../runtimeManager";
 import { DIRECTOR_MAX_TOKENS, TalkController, type TalkControlHost } from "../talkControl";
 import { promptCost } from "../promptCost";
-import type { LiveParts, WindowAccess } from "./types";
+import type { Disposers, LiveParts, WindowAccess } from "./types";
 import { presentRosterIds } from "../whereabouts";
 import { messageRevision } from "../yourMove";
 import { speechRows } from "@talk/index";
@@ -69,6 +69,12 @@ const holdForLoad = async () => {
   log.warn("a reply started while this chat's story was still loading; it went ahead after the wait");
   const waited = `${CHAT_SETTLE_TIMEOUT_MS / 1000} s`;
   runtimeManager.noteRecap("a reply went ahead before this chat's story finished loading", `the load was still running after ${waited}, so cast and speaker direction may not have applied`);
+};
+
+export const startKeepLastQuestion = (disposers: Disposers) => {
+  const pass = { stop: null as (() => void) | null, disposed: false };
+  disposers.push(() => { pass.disposed = true; pass.stop?.(); });
+  void import("../keepLastQuestionLive").then(({ startLiveKeepLastQuestion }) => { if (!pass.disposed) pass.stop = startLiveKeepLastQuestion(); });
 };
 
 export const startTalk = (live: LiveParts, judgeRuntime: JudgeRuntime, window: WindowAccess, onLoreIntercept: (type: string, aborted: boolean) => Promise<void>) => {

@@ -107,7 +107,8 @@
       "chain": {
         "enabled": true,
         "max": 3
-      }
+      },
+      "keepLastQuestion": true
     },
     "stagecraft": {
       "curatorEnabled": true,

@@ -158,6 +158,7 @@ export abstract class CoordinatorDelegates {
   get speech() { return this.co.speech.speech; }
   talkPolicy() { return this.co.speech.policy(); }
   directDraft(member: string, text: string) { return this.co.pacing.armDirection(member, text, "draft"); }
+  takeAskingPlayer(speaker: string): boolean { return this.co.pacing.takeAskingPlayer(speaker); }
   recordCue(line: CuedLine) {
     const extras = this.co.rollbackDeps.extras();
     extras.cuedLines = recordCuedLine(extras.cuedLines, line);

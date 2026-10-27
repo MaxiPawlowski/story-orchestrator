@@ -26,6 +26,7 @@ jest.mock("@services/STAPI", () => ({
   getContext: () => ({ chat: [], chatId: "chat-a", extensionSettings: {}, chatMetadata: {}, characters: [], groups: [] }),
   registerHostMacro: (key: string) => { macros.set(key, (macros.get(key) ?? 0) + 1); },
   unregisterHostMacro: (key: string) => { macros.delete(key); },
+  subscribeToHostEventFirst: () => { hostSubscriptions.open += 1; return { off: () => { hostSubscriptions.open -= 1; }, place: () => {} }; },
   subscribeToHostEvents: () => { hostSubscriptions.open += 1; return () => { hostSubscriptions.open -= 1; }; },
   startSaveWatcherSurface: () => { surface.started += 1; return () => { surface.stopped += 1; }; },
   watchPendingWorldSaves: () => () => {},
