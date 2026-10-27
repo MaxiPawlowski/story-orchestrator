@@ -2,7 +2,8 @@ import { readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { FEATURES } from "./registry";
 import { SETTING_COPY } from "./settingsCopy";
-import { JUDGE_USE_COPY, JUDGE_USE_KEYS } from "@judge/settings";
+import { JUDGE_USE_KEYS } from "@judge/settings";
+import { JUDGE_USE_COPY } from "@judge/useCopy";
 import {
   FEATURE_TABLE_END, FEATURE_TABLE_START, formatDefault, JUDGE_TABLE_START, judgeMeasurement, localJudgeMeasurement, ownerOf, readmeFeatures, renderFeatureTable,
   renderJudgeUseTable, renderSettingsReference, settingRows, spliceFeatureTable, spliceJudgeTable,

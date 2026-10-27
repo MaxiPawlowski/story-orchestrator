@@ -1,7 +1,7 @@
 import type { PassRole } from "@extraction/passRole";
 import { DEFAULT_JUDGE_PROVIDER, JUDGE_PROVIDERS } from "@judge/providers";
 import { judgeProviderControlId, type JudgeCalibrationProblem, type JudgeReadinessKey } from "@judge/readiness";
-import { JUDGE_USE_COPY, ridesWardenRoute } from "@judge/settings";
+import { JUDGE_USE_LABELS, ridesWardenRoute } from "@judge/settings";
 import type { RuntimeSnapshot } from "./types";
 import type { Check, CheckFinding } from "./checks";
 import { hasUnsavedChanges, playerSaveNotice, SAVE_PLAYER_TEXT } from "./saveHealth";
@@ -237,7 +237,7 @@ const JUDGE_GAP_COPY: Record<JudgeCalibrationProblem, string> = {
   model: "measured on another model",
 };
 
-const judgeLabel = (key: JudgeReadinessKey): string => (key === "warden" ? "Continuity warden" : JUDGE_USE_COPY[key].label);
+const judgeLabel = (key: JudgeReadinessKey): string => (key === "warden" ? "Continuity warden" : JUDGE_USE_LABELS[key]);
 
 export const IMAGE_TARGET_ID = "so-image-settings";
 

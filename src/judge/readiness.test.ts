@@ -3,7 +3,8 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { fixtureStale, JUDGE_FIXTURE_REVISION, type JudgeReadinessKey } from "./readiness";
 import { judgeReadiness, judgeReadinessConcerns, JUDGE_READINESS, JUDGE_READINESS_BY_PROVIDER } from "./readinessRows";
-import { AUTHOR_JUDGE_USES, BUILT_JUDGE_USES, defaultJudgeSettings, JUDGE_USE_COPY, JUDGE_USE_DEPENDENCIES, JUDGE_USE_KEYS, type JudgeSettings } from "./settings";
+import { AUTHOR_JUDGE_USES, BUILT_JUDGE_USES, defaultJudgeSettings, JUDGE_USE_DEPENDENCIES, JUDGE_USE_KEYS, type JudgeSettings } from "./settings";
+import { JUDGE_USE_COPY } from "./useCopy";
 
 const REMEASURED = { fixtureRevisions: Object.fromEntries(Object.entries(JUDGE_READINESS_BY_PROVIDER.typesafe).flatMap(([key, fact]) => (fact?.fixtureRevision ? [[key, fact.fixtureRevision]] : []))) };
 const remeasured: typeof judgeReadiness = (settings, dependencies = {}, answered = null, extra = {}) => judgeReadiness(settings, dependencies, answered, { ...extra, ...REMEASURED });

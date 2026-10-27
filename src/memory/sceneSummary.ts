@@ -2,7 +2,7 @@ import { maxTokensCap, maxTokensFor } from "@extraction/callBudget";
 import { chunkMessages } from "@extraction/chunker";
 import { inputBudget, tailFit, type BudgetMessage, type FitOptions } from "@extraction/inputBudget";
 import type { RequestBudget } from "@extraction/tokenMeter";
-import { buildSceneReducePrompt, buildSceneSummaryPrompt, buildShortTermSummaryPrompt } from "./contract";
+import { loadMemoryContract } from "./contractKit";
 import type { DerivedRecord } from "./derived";
 
 export const REDUCE_DEPTH_LIMIT = 4;
@@ -48,6 +48,7 @@ export function sceneRangeFrom(derived: readonly DerivedRecord[], to: number, st
 // returned. A refused chunk yields no summary rather than one that silently skips part of the scene.
 export async function summarizeScene(run: SceneSummaryRun): Promise<SceneSummaryOutcome | null> {
   const { input } = inputBudget(run.budget.contextLimit, maxTokensCap("sceneSummary"));
+  const { buildSceneReducePrompt, buildSceneSummaryPrompt } = await loadMemoryContract();
   let parts = spoken(run.messages);
   let prompt = buildSceneSummaryPrompt;
   let requests = 0;
@@ -88,6 +89,7 @@ export interface ShortTermFit {
 export async function fitShortTerm(messages: readonly SpokenMessage[], previous: string | null, budget: RequestBudget): Promise<ShortTermFit> {
   const { input } = inputBudget(budget.contextLimit, maxTokensCap("shortTerm"));
   const parts = spoken(messages);
+  const { buildShortTermSummaryPrompt } = await loadMemoryContract();
   const options = await fitOptions(budget, input, buildShortTermSummaryPrompt(previous, ""), parts);
   const window = windowOf(parts);
   const fit = tailFit(window, options);

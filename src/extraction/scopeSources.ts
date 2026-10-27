@@ -1,7 +1,7 @@
 import { cardReadKeys } from "@engine/cardFields";
 import { activeQuestScopeKeys, moodKey, questScopeKeys, readsByStep, relationshipKey, valueReader, type BlackboardSnapshot, type NormalizedStory } from "@engine/index";
 import { gameLayer } from "@engine/validate/gameLayer";
-import { renderQuestion, STEP_READ_HEADER } from "./contract";
+import { renderQuestion, STEP_READ_HEADER } from "./question";
 import { fitScopeBudget, rotated, scopeSlots, type BudgetTier } from "./scopeBudget";
 import { STEP_READ_REMINDER } from "./stepRead";
 import type { ScopePull } from "./types";
