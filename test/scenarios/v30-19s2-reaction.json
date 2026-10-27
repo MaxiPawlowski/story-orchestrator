@@ -1,6 +1,6 @@
 {
   "model": "any",
-  "_note": "One reaction beat after a consequential event: at_gate is set by the author before the player's message, so the first voice's boundary fires camp -> gate (a consequential event). Both beats run a director chain with reaction on and stop_on_transition false; the next chain step is a reaction by a member who has not spoken in this answer, recorded as a talk decision with source reaction and a speech event with origin reaction and the event's cause, at most once for that cause. Written for v3.0 plan 19 stage 2, NOT YET RUN (the live gate is owed); schema-validated only. Model lane: send_generate drafts real voices; the assertions read code-made records only.",
+  "_note": "One reaction beat after a consequential event: at_gate is queued (not committed) before the player's message, so the first voice's boundary fires camp -> gate, a consequential event (/cp set commits its own boundary at once, before the player's line, which is not a consequence of this answer); yield_on_question is off so a first voice ending on a question to the player (the yield check runs before the reaction) cannot skip the reaction. Both beats run a director chain with reaction on and stop_on_transition false; the next chain step is a reaction by a member who has not spoken in this answer, recorded as a talk decision with source reaction and a speech event with origin reaction and the event's cause, at most once for that cause. Written for v3.0 plan 19 stage 2; live gate 2026-10-27 (see 19-talk-pacing.md). Model lane: send_generate drafts real voices; the assertions read code-made records only.",
   "requires": {
     "lane": "model",
     "group": "Group: Arin, DM Narrator",
@@ -47,7 +47,8 @@
               "director": true,
               "chain": {
                 "max": 3,
-                "stop_on_transition": false
+                "stop_on_transition": false,
+                "yield_on_question": false
               },
               "reaction": true
             }
@@ -69,7 +70,8 @@
               "director": true,
               "chain": {
                 "max": 3,
-                "stop_on_transition": false
+                "stop_on_transition": false,
+                "yield_on_question": false
               },
               "reaction": true
             }
@@ -101,7 +103,8 @@
       "log": true
     },
     {
-      "slash": "/cp set at_gate true"
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.engine.enqueue({ source: 'mechanical', blackboardVersionSum: 0, deltas: [{ q: 'at_gate', v: true, source: 'extractor', writer: 'manual' }] }); return { queued: true, active: rt.getSnapshot().activeCheckpointId };",
+      "log": true
     },
     {
       "send_generate": {
