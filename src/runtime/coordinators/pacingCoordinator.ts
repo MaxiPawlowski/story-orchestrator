@@ -198,7 +198,7 @@ export class PacingCoordinator {
 
   draftGuidance(rosterId: string | null) {
     this.drafted = rosterId;
-    this.asking = null;
+    if (this.asking?.rosterId !== rosterId) this.asking = null;
     this.updateSteering();
   }
 

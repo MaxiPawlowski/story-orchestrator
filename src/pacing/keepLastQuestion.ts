@@ -1,6 +1,6 @@
 const MIN_WORDS = 6;
 const FRAGMENT_WORDS = 4;
-const DIALOGUE_TAG = /^\s*\*\s*(?:she|he|they|i|[A-Z][a-z]+)\s+(?:asks|says|adds|murmurs|mutters|whispers|continues|presses|demands)\b[^*\n]*\*/i;
+const DIALOGUE_TAG = /^\s*(\*)?\s*(?:she|he|they|i|[A-Z][a-z]+)\s+(?:asks|says|adds|murmurs|mutters|whispers|continues|presses|demands)\b[^*"\n.!?]*([.!?]+\s*)?(\*)?/i;
 
 interface QuestionSpan {
   start: number;
@@ -8,6 +8,7 @@ interface QuestionSpan {
   whole: boolean;
   questionEnd: number;
   fragment?: boolean;
+  reopen?: boolean;
 }
 
 export type KeepLastQuestionReason = "empty" | "too-short" | "unbalanced" | "question-count";
@@ -27,6 +28,7 @@ const joinFragment = (sentence: string): string => sentence.replace(/\?\s+([A-Z]
 
 const tidy = (text: string, keepBlankLines: boolean): string => text
   .replace(/""/g, "")
+  .replace(/(\S) +"(?=\s|\*|$)/g, "$1\"")
   .replace(/[ \t]+\n/g, "\n")
   .replace(/\n[ \t]+/g, "\n")
   .replace(keepBlankLines ? /\n{3,}/g : /\n{2,}/g, keepBlankLines ? "\n\n" : "\n")
@@ -47,6 +49,16 @@ const mergeFragments = (text: string, spans: QuestionSpan[]): QuestionSpan[] => 
     merged.push({ ...span });
   }
   return merged;
+};
+
+const afterDroppedQuote = (text: string, end: number): { end: number; reopen: boolean } => {
+  const tag = DIALOGUE_TAG.exec(text.slice(end));
+  if (!tag) return { end, reopen: false };
+  const [whole, starred, ended, closed] = tag;
+  const rest = end + whole.length;
+  const reopen = Boolean(starred && !closed && ended && rest < text.length && text[rest] !== "\n");
+  const drops = starred ? Boolean(closed) || reopen : Boolean(ended && !closed);
+  return { end: drops ? rest : end, reopen };
 };
 
 const questionSpans = (text: string): QuestionSpan[] => {
@@ -70,12 +82,10 @@ const questionSpans = (text: string): QuestionSpan[] => {
     const wholeQuote = quoteOpen && opener === "\"" && text[after] === "\"";
     const wholeStar = starOpen && opener === "*" && text[after] === "*";
     if (wholeQuote || wholeStar) {
-      let end = after + 1;
-      const tag = wholeQuote ? DIALOGUE_TAG.exec(text.slice(end)) : null;
-      if (tag) end += tag[0].length;
-      spans.push({ start: start - 1, end, whole: true, questionEnd: end });
+      const { end, reopen } = wholeQuote ? afterDroppedQuote(text, after + 1) : { end: after + 1, reopen: false };
+      spans.push({ start: start - 1, end, whole: true, questionEnd: end, reopen });
       if (wholeQuote) quoteOpen = false;
-      else starOpen = false;
+      starOpen = wholeQuote ? reopen || starOpen : false;
       index = end - 1;
     } else {
       const closesNext = text[after] === "\"" || text[after] === "*" || text[after] === "\n" || after >= text.length;
@@ -101,7 +111,7 @@ export const keepLastQuestion = (text: string): KeepLastQuestionResult => {
   let kept = "";
   let at = 0;
   for (const span of spans.slice(0, -1)) {
-    kept += source.slice(at, span.start);
+    kept += source.slice(at, span.start) + (span.reopen ? "*" : "");
     at = span.end;
   }
   const last = spans[spans.length - 1];

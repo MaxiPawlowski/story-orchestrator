@@ -134,6 +134,17 @@ describe("the pacing coordinator marks the reply that was told to ask the player
     expect(pacing.takeAskingPlayer("Mara")).toBe(false);
   });
 
+  it("a re-draft of the same member before the reply lands keeps the mark (a swipe's reapply)", () => {
+    const pacing = pacingHarness();
+    pacing.draftGuidance("mara");
+    pacing.armDirection("Mara", ASK_PLAYER_DIRECTION, "draft");
+    pacing.releaseDraftGuidance();
+    pacing.draftGuidance("mara");
+    pacing.releaseDraftGuidance();
+    expect(pacing.takeAskingPlayer("Mara")).toBe(true);
+    expect(pacing.takeAskingPlayer("Mara")).toBe(false);
+  });
+
   it("a re-armed direction (a swiped cue) marks the new reply again", () => {
     const pacing = pacingHarness();
     pacing.armDirection("Mara", ASK_PLAYER_DIRECTION);

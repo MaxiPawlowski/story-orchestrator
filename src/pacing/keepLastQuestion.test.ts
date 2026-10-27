@@ -29,6 +29,18 @@ describe("keepLastQuestion", () => {
     expect(result.text).toBe("*The wind picks up over the field.* \"Where are you headed tonight?\"");
   });
 
+  it("drops only the tag sentence when its action span goes on", () => {
+    const result = keepLastQuestion("\"Is that your horse?\" *she asks, eyes narrowing. She steps closer to the fence.* \"Where are you headed tonight?\"");
+    expect(result.action).toBe("trimmed");
+    expect(result.text).toBe("*She steps closer to the fence.* \"Where are you headed tonight?\"");
+  });
+
+  it("drops a plain dialogue tag sentence after a dropped quote and closes the quote it trimmed", () => {
+    const result = keepLastQuestion("*The guide waits by the gate.*\n\"Are you the courier?\" she asks, voice low. \"You look tired. Long road? Rain?\" She points at the inn. \"Will you rest here tonight?\"");
+    expect(result.action).toBe("trimmed");
+    expect(result.text).toBe("*The guide waits by the gate.*\n\"You look tired.\" She points at the inn. \"Will you rest here tonight?\"");
+  });
+
   it("drops an action span left holding only a dropped question", () => {
     const result = keepLastQuestion("*Is this the right road?* The guide studies the old map for a long moment. \"Shall we take the left fork?\"");
     expect(result.action).toBe("trimmed");
