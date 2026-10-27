@@ -3,6 +3,7 @@ import { cardValues } from "@engine/cardFields";
 import type { SpriteLookIssue } from "@runtime/spriteLookHealth";
 import { cardSet, type SpriteSetRule } from "./profile";
 import type { SpriteSettings } from "./settings";
+import { builderGap } from "./defaultRecipe";
 
 export interface LookActor {
   name: string;
@@ -25,7 +26,7 @@ export function changedLookIssues(story: NormalizedStory | null, values: Record<
     if (actor?.generatedLook === JSON.stringify(fields)) return [];
     const reason = actor?.lookError ?? (!actor ? "No installed default expression pack."
       : !settings.onDemand ? "On-demand changed looks are off."
-        : !settings.builders[actor.profile.folder] ? "Choose a reference expression pack in Studio." : null);
+        : builderGap(settings, actor.profile.folder));
     return reason ? [{ name, reason }] : [];
   });
 }

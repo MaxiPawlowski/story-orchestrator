@@ -1,0 +1,57 @@
+{
+  "formatVersion": 1,
+  "id": "fixture-harbor",
+  "kind": "place",
+  "revision": 1,
+  "styleRef": {
+    "id": "fixture-ink-style",
+    "digest": "1759b230d9ed6fb12e76be51cd04c5301563e537ba16f41a758c4fb5d18e69be"
+  },
+  "qa": {
+    "status": "accepted",
+    "rubric": "fixture-rubric-1"
+  },
+  "provenance": {
+    "source": "invented test fixture",
+    "recipe": "none"
+  },
+  "assets": [
+    {
+      "path": "/backgrounds/fixture_harbor_day.png",
+      "sha256": "4548df1d2094e578661dd40b670680b7fdc08bdb15fbd82da02c35d0b58ba0df",
+      "bytes": 1024,
+      "media": "image/png",
+      "role": "plate",
+      "width": 1344,
+      "height": 768
+    },
+    {
+      "path": "/backgrounds/fixture_harbor_night.png",
+      "sha256": "a0adb7dd7b14dd9b840a6a839b5b13fdf1ff7caefab1321bf473836428effdad",
+      "bytes": 1024,
+      "media": "image/png",
+      "role": "plate:night",
+      "width": 1344,
+      "height": 768
+    }
+  ],
+  "placeId": "harbor",
+  "name": "Lantern harbor",
+  "description": "A small stone harbor with paper lanterns strung over the quay.",
+  "tags": [
+    "harbor",
+    "stone quay",
+    "paper lanterns",
+    "fishing boats"
+  ],
+  "plate": "plate",
+  "variants": {
+    "night": {
+      "when": {
+        "time_of_day": "night"
+      },
+      "plate": "plate:night"
+    }
+  },
+  "digest": "6a116d80c1470e6b7981bc3365669233ed64ea35a105910dfbb9ba116551b166"
+}

@@ -33,6 +33,7 @@ import type { ExtensionConflict } from "./extensionConflicts";
 import type { ImageHealthView } from "./imageHealth";
 import type { SpriteLookIssue } from "./spriteLookHealth";
 import type { SpriteStageHealth } from "./spriteStageHealth";
+import type { SpriteRecipeHealth } from "./spriteRecipeHealth";
 import type { NoGroupView } from "./noGroup";
 import type { LoreEvidenceView } from "./worldInfoEvidence";
 import type { SamplerOverlayView } from "./samplerOverlay";
@@ -433,6 +434,7 @@ export interface RuntimeSnapshot {
   judgeRouteGaps?: import("@judge/index").JudgeRouteGap[];
   spriteLookIssues?: SpriteLookIssue[];
   spriteStage?: SpriteStageHealth;
+  spriteRecipe?: SpriteRecipeHealth | null;
   activeCheckpointId: string | null;
   activeCheckpointName: string | null;
   activeObjective: string | null;

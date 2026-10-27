@@ -12,21 +12,28 @@ import { imageSize, resolutionProblem, resolveCheckpointFile, resolveUpscaler, t
 import { imageServiceReady } from "./service";
 import { buildGraph } from "./graph";
 import { renderFacts, renderKey } from "./renderFacts";
-import { imageMessages, parseImageReply, sceneForImage, assembleImagePrompt, templateImagePrompt, type ImageRequest, type ImageReply, type ImageScene } from "./prompt";
+import { imageMessages, parseImageReply, sceneForImage, assembleImagePrompt, directedTags, joinTags, templateImagePrompt, type ImageRequest, type ImageReply, type ImageScene } from "./prompt";
 import { renderStImage, stImageReadiness } from "@services/stHost/stImage";
 import { comfyDiscover, comfyRenderOwned, mediaStatus } from "@services/stHost/media";
 import { ImageQueue } from "./queue";
 import { pickImageCheckpoint, resolveImageRoute, withCheckpointFile, type ImageArgs, type Route } from "./routing";
-import { automationAllowsCues, messageAlreadyDrawn, sanitizeImageChatState, sanitizeImageOverride, type ImageOverride, type ImageSettings } from "./settings";
+import { automationAllowsCues, messageAlreadyDrawn, sanitizeImageChatState, sanitizeImageOverride, type AutomaticRoute, type ImageOverride, type ImageSettings } from "./settings";
+import { chooseRoute, qwenPrompt, refused, visibleNames, type QwenReadiness, type QwenReady, type RenderRoute, type RouteReason } from "./autoScene";
 import { setGlobalSettings } from "@runtime/settingsStore";
 import { worldInfoPlan } from "@runtime/worldInfoGates";
 import { firedLoreKeys, visualLore } from "./lore";
 import { log } from "@utils/log";
-import { authoredPlace, beatIllustrated, beatLabel, castForImage, cueText, lookFor, sceneCueLabel, stageAlreadySet } from "./cast";
+import { authoredPlace, backgroundPlace, beatIllustrated, beatLabel, castForImage, cueText, lookFor, sceneCueLabel, stageAlreadySet } from "./cast";
 import { fnv1a } from "@runtime/hash";
 import { beginRun, type RunGuard } from "@runtime/runToken";
 import { busyWork } from "@runtime/busy";
+import { bindsPacks, visualRecord, type VisualScene } from "../sprites/packs/scene";
+import { pinnedTags, visualMembers, withVisualScene } from "./visualPlan";
+import { brokerSettled, withDirectorRetry } from "./directorRetry";
 const workflowKit = () => import("./workflowRender");
+const qwenKit = () => import("./autoSceneHost");
+const visualBridge = () => import("../sprites/packs/bridgeHost").then((kit) => kit.visualBridge());
+const displayedPlace = () => import("@services/stHost/backgrounds").then((kit) => backgroundPlace(kit.getCurrentBackground().name), () => null);
 
 export interface ImagePlan {
   backend: ImageSettings["backend"];
@@ -44,8 +51,17 @@ export interface ImagePlan {
   promptSource: "directed" | "template" | "degraded";
   caption: string;
   workflow: string | null;
+  visual: VisualScene | null;
+  visualIssue: string | null;
+  directorIssue: string | null;
+  directorFrozen?: true;
+  renderRoute: RenderRoute;
+  routeReason: RouteReason;
+  routeSetting: AutomaticRoute | null;
+  qwen: { ready: QwenReady; prompt: string } | null;
 }
-export interface ImageCandidate { path: string; seed: number; width: number; height: number }
+export interface ImageCandidate { path: string; seed: number; width: number; height: number; waitedMs?: number; qwen?: Record<string, unknown> & { checkpoint: string } }
+interface Routing { setting: AutomaticRoute | null; blocked?: RouteReason; check: ((names: string[]) => QwenReadiness) | null }
 export interface ImageStatus { jobs: ReturnType<ImageQueue["snapshot"]>; lastError: string | null; lastPlan: ImagePlan | null; workflowNote: string | null }
 export type ImageReviewer = (plan: ImagePlan, candidates: ImageCandidate[], rerender: (index: number) => Promise<ImageCandidate>) => Promise<number | null>;
 
@@ -53,17 +69,52 @@ const current = (storyId?: string | null) => sanitizeImageChatState(imageChatSet
 
 const sourceOf = (reply: ImageReply | null, wanted: boolean): ImagePlan["promptSource"] => (reply ? "directed" : wanted ? "degraded" : "template");
 
-async function directorReply(profileId: string, messages: Array<{ role: string; content: string }>, maxTokens: number, route: Route): Promise<ImageReply | null> {
-  try {
+async function directorReply(profileId: string, messages: Array<{ role: string; content: string }>, maxTokens: number, route: Route): Promise<{ reply: ImageReply | null; issue: string | null }> {
+  const once = async () => {
     const raw = await imageModel(profileId, messages, maxTokens);
     try { return parseImageReply(raw, route); } catch {
       return parseImageReply(await imageModel(profileId, [...messages, { role: "assistant", content: raw },
         { role: "user", content: "The image JSON was invalid. Return one valid JSON object with the requested fields." }], maxTokens), route);
     }
-  } catch (error) {
-    log.warn("The image-prompt model gave no usable answer, so this picture used the template prompt.", error);
-    return null;
-  }
+  };
+  const result = await withDirectorRetry(once, () => brokerSettled(gpuBrokerStatus, () => new Promise((resolve) => setTimeout(resolve, 1_000)), Date.now));
+  if (result.issue) log.warn(result.issue, result.error);
+  return { reply: result.value, issue: result.issue };
+}
+
+async function directorAnswer(request: ImageRequest, frozenAnswer: string | undefined, settings: ImageSettings, messages: () => Array<{ role: string; content: string }>,
+  route: Route): Promise<{ reply: ImageReply | null; issue: string | null; frozen: boolean }> {
+  if (request.raw) return { reply: null, issue: null, frozen: false };
+  if (frozenAnswer !== undefined) return { reply: parseImageReply(frozenAnswer, route), issue: null, frozen: true };
+  const offered = settings.directorProfileId && listConnectionProfiles().some((profile) => profile.id === settings.directorProfileId);
+  return offered ? { ...await directorReply(settings.directorProfileId, messages(), settings.maxTokens, route), frozen: false } : { reply: null, issue: null, frozen: false };
+}
+
+function assemblePlan(backend: ImageSettings["backend"], request: ImageRequest, route: Route, reply: ImageReply | null, drawn: ImageScene, userName: string) {
+  const fallback = !request.raw && !reply ? templateImagePrompt(drawn, request.purpose, request.text) : request.text;
+  const pinned = request.purpose === "background" ? [] : pinnedTags(drawn, reply);
+  const angle = reply?.shot ?? route.shot;
+  const hygiene = { names: [...drawn.subjects.map((subject) => subject.name), userName], visible: request.purpose === "background" ? 0 : reply?.visible.length ?? 0,
+    keepAngle: angle === "from_below" || angle === "from_above" || /from[ _](below|above)/i.test(request.text) };
+  return backend === "st" ? {
+    positive: joinTags([...route.positive, ...directedTags(reply, fallback, pinned, hygiene)]),
+    negative: joinTags([...route.negative.filter((term) => !term.startsWith("embedding:")), reply?.negative]),
+  } : assembleImagePrompt(route, reply, fallback, pinned, hygiene);
+}
+
+const QWEN_NEGATIVE = "text, watermark, different character, deformed face";
+
+function pictureRecord(plan: ImagePlan, candidate: ImageCandidate): ImageMedia["image_director"] {
+  const qwen = candidate.qwen;
+  return {
+    purpose: plan.route.purpose, checkpoint: qwen?.checkpoint ?? plan.route.checkpoint.file, seed: candidate.seed,
+    size: { width: candidate.width, height: candidate.height }, positive: qwen ? plan.qwen?.prompt ?? "" : plan.positive,
+    negative: qwen ? QWEN_NEGATIVE : plan.negative, reason: plan.reply?.reason ?? "", prompt_source: plan.promptSource,
+    route: { name: plan.renderRoute, reason: plan.routeReason, ...(plan.routeSetting ? { setting: plan.routeSetting } : {}) },
+    ...(candidate.waitedMs !== undefined ? { idle_wait_ms: candidate.waitedMs } : {}), ...(qwen ? { qwen } : {}),
+    ...(plan.visual ? { visual: visualRecord(plan.visual) } : {}), ...(plan.visualIssue ? { visual_issue: plan.visualIssue } : {}),
+    ...(plan.directorIssue ? { director_issue: plan.directorIssue } : {}), ...(plan.directorFrozen ? { director: "frozen" } : {}),
+  };
 }
 
 export class StoryImageDirector {
@@ -130,9 +181,20 @@ export class StoryImageDirector {
     if (!saved.ok) throw new Error(saved.reason);
     this.notify();
   }
+  private storyPath(): string[] {
+    return [...(this.manager.getEngineState()?.visitedPath ?? []), this.manager.getSnapshot().activeCheckpointId ?? ""];
+  }
   private placeFor(story: ReturnType<RuntimeManager["getStory"]>): string | null {
-    const snapshot = this.manager.getSnapshot();
-    return snapshot.scene?.facts?.location ?? authoredPlace(story, [...(this.manager.getEngineState()?.visitedPath ?? []), snapshot.activeCheckpointId ?? ""]);
+    return this.manager.getSnapshot().scene?.facts?.location ?? authoredPlace(story, this.storyPath());
+  }
+  private async visualScene(story: ReturnType<RuntimeManager["getStory"]>, subjects: ImageScene["subjects"], family: string): Promise<{ visual: VisualScene | null; issue: string | null }> {
+    if (!story || !bindsPacks(story)) return { visual: null, issue: null };
+    try {
+      return { visual: await (await visualBridge()).scene({ story, members: visualMembers(subjects, story), values: this.manager.getSnapshot().blackboard,
+        path: this.storyPath(), family }, { fresh: true }), issue: null };
+    } catch (error) {
+      return { visual: null, issue: `The installed visual packs could not be read, so this picture used the text route: ${error instanceof Error ? error.message : String(error)}` };
+    }
   }
   status(): ImageStatus { return { jobs: this.queue.snapshot(), lastError: this.lastError, lastPlan: this.lastPlan, workflowNote: this.workflowNote }; }
   subscribe(listener: () => void): () => void { this.listeners.add(listener); return () => { this.listeners.delete(listener); }; }
@@ -158,7 +220,7 @@ export class StoryImageDirector {
     if (target) this.pendingTargets.add(target);
     try {
       const label = kind === "checkpoint" ? beatLabel(story?.checkpointById[name]) : sceneCueLabel(name, this.manager.getSnapshot().scene?.facts?.location);
-      await this.direct({ purpose: "scene", text: cueText(kind, label), messageId: at }, {}, key);
+      await this.direct({ purpose: "scene", text: cueText(kind, label), messageId: at, automatic: true }, {}, key);
     } catch (error) {
       this.lastError = error instanceof Error ? error.message : String(error);
       this.notify();
@@ -220,7 +282,7 @@ export class StoryImageDirector {
       this.pendingTargets.add(target);
       try {
         if (!run.stillOwns()) return;
-        await this.direct({ purpose: "scene", text: "", messageId });
+        await this.direct({ purpose: "scene", text: "", messageId, automatic: true });
         if (run.stillOwns()) this.pictureCounts.set(pictureKey, count);
       } catch { this.notify(); }
       finally { this.pendingTargets.delete(target); }
@@ -236,7 +298,7 @@ export class StoryImageDirector {
     const ownsStory = this.manager.ownsImageChat(chat.id) && snapshot.ready;
     const story = ownsStory ? this.manager.getStory() : null;
     const beat = story && snapshot.activeCheckpointId ? story.checkpointById[snapshot.activeCheckpointId] : null;
-    const place = ownsStory ? this.placeFor(story) : null;
+    const place = ownsStory ? this.placeFor(story) ?? await displayedPlace() : null;
     const scene = sceneForImage(chat, request, settings.contextMessages, ownsStory ? beatLabel(beat) : null, place);
     if (story) {
       const look = lookFor(story, snapshot.activeCheckpointId);
@@ -257,27 +319,41 @@ export class StoryImageDirector {
       route = withCheckpointFile(route, resolved.file);
       route = { ...route, allowed: [resolved.file] };
     }
-    const offered = !request.raw && settings.directorProfileId && listConnectionProfiles().some((profile) => profile.id === settings.directorProfileId);
-    const reply = offered ? await directorReply(settings.directorProfileId, imageMessages(request, scene, route), settings.maxTokens, route) : null;
+    const { visual, issue: visualIssue } = await this.visualScene(story, scene.subjects, route.family.id);
+    const drawn = visual ? withVisualScene(scene, visual) : scene;
+    const routing = await this.routing(request, args, story, drawn, visual);
+    const frozenVisible = args.director !== undefined && !request.raw ? parseImageReply(args.director, route).visible : undefined;
+    const early = routing.check?.(visibleNames(drawn.subjects, frozenVisible)) ?? null;
+    if (routing.setting === "qwen") chooseRoute({ ...routing, readiness: early });
+    const directed = await directorAnswer(request, args.director, settings, () => imageMessages(request, drawn, route, { instruction: Boolean(early?.ok) }), route);
+    const { reply, frozen } = directed;
+    const choice = chooseRoute({ ...routing, readiness: routing.check?.(visibleNames(drawn.subjects, reply?.visible)) ?? null });
     if (reply) route = pickImageCheckpoint(route, reply.checkpoint);
-    const promptSource = sourceOf(reply, Boolean(settings.directorProfileId && !request.raw));
+    const promptSource = sourceOf(reply, Boolean((settings.directorProfileId || frozen) && !request.raw));
     const aspect = route.aspect !== "auto" ? route.aspect : reply?.aspect ?? (request.purpose === "background" ? "wide" : "portrait");
-    const fallback = !request.raw && !reply ? templateImagePrompt(scene, request.purpose, request.text) : request.text;
-    const assembled = settings.backend === "st" ? {
-      positive: [...route.positive, reply?.prompt ?? fallback].filter(Boolean).join(", "),
-      negative: [...route.negative.filter((term) => !term.startsWith("embedding:")), reply?.negative].filter(Boolean).join(", "),
-    } : assembleImagePrompt(route, reply, fallback);
+    const assembled = assemblePlan(settings.backend, request, route, reply, drawn, chat.userName);
     if (!assembled.positive.trim()) throw new Error("There is nothing to draw.");
     const plan = {
       backend: settings.backend,
       request, chatId: chat.id, folder: chat.folder, target: scene.target, workflow: await this.storyWorkflow(settings.backend, story, request.purpose),
       targetText: scene.target === null ? null : chat.messages[scene.target]?.mes ?? null,
-      route, reply, scene, aspect, positive: assembled.positive, negative: assembled.negative, promptSource,
+      route, reply, scene: drawn, aspect, positive: assembled.positive, negative: assembled.negative, promptSource, visual, visualIssue, directorIssue: directed.issue,
+      ...(frozen ? { directorFrozen: true as const } : {}),
       caption: reply?.caption || request.text.slice(0, 120) || scene.checkpoint || "Story illustration",
+      renderRoute: choice.route, routeReason: choice.reason, routeSetting: choice.setting, qwen: choice.ready ? { ready: choice.ready, prompt: qwenPrompt(choice.ready, drawn, reply, request) } : null,
     };
     this.lastPlan = plan;
     this.notify();
     return plan;
+  }
+
+  private async routing(request: ImageRequest, args: ImageArgs, story: ReturnType<RuntimeManager["getStory"]>, drawn: ImageScene, visual: VisualScene | null): Promise<Routing> {
+    const setting = request.automatic || args.route ? args.route ?? this.settings().automaticRoute : null;
+    if (!setting || setting === "sdxl") return { setting, check: null };
+    if (request.purpose !== "scene" || request.raw) return { setting, blocked: request.purpose === "background" ? "background" : "not-automatic", check: null };
+    if (!story) return { setting, check: null };
+    if (!drawn.subjects.length) return { setting, check: () => refused("no-one-visible") };
+    return { setting, check: await (await qwenKit()).qwenCheck(story, visual, this.manager.getSnapshot().blackboard) };
   }
 
   private seed(plan: ImagePlan, index: number, override?: number): number {
@@ -350,14 +426,18 @@ export class StoryImageDirector {
     try {
       const plan = await this.plan(request, args);
       if (!run.stillOwns()) throw new Error("The story changed while the image was being planned.");
-      const count = cueKey ? 1 : plan.route.candidates;
+      const qwen = plan.renderRoute === "qwen";
+      const count = cueKey || qwen ? 1 : plan.route.candidates;
       const gpuFacts = renderFacts({ checkpoint: plan.route.checkpoint, loras: plan.route.loras, family: plan.route.family, aspect: plan.aspect, quality: plan.route.quality });
       const gpuRequest = { ...gpuFacts, workflowKey: renderKey(gpuFacts) };
-      const candidates = await this.queue.enqueue(`${plan.route.purpose} · ${plan.route.checkpoint.label}`, async (signal) => {
+      const candidates = await this.queue.enqueue(`${plan.route.purpose} · ${qwen ? "Qwen references" : plan.route.checkpoint.label}`, async (signal) => {
+        if (qwen) return [await (await qwenKit()).renderAutomaticQwen(this.manager, plan, signal, run, this.seed(plan, 0, args.seed))];
+        const started = Date.now();
         const reservation = await this.reserveOutsideTurns(gpuRequest, signal);
+        const waitedMs = Date.now() - started;
         try {
           const images: ImageCandidate[] = [];
-          for (let index = 0; index < count; index += 1) images.push(await this.render(plan, index, signal, run));
+          for (let index = 0; index < count; index += 1) images.push({ ...await this.render(plan, index, signal, run), waitedMs });
           return images;
         } finally {
           const release = await releaseGpu(reservation.lease);
@@ -387,14 +467,11 @@ export class StoryImageDirector {
         await imageDelete(candidate.path);
         return "";
       }
-      const media: ImageMedia = {
-        url: candidate.path, type: "image", title: plan.caption, source: "generated",
-        image_director: {
-          purpose: plan.route.purpose, checkpoint: plan.route.checkpoint.file, seed: candidate.seed,
-          size: { width: candidate.width, height: candidate.height }, positive: plan.positive,
-          negative: plan.negative, reason: plan.reply?.reason ?? "", prompt_source: plan.promptSource,
-        },
-      };
+      if (plan.visual && !(await (await visualBridge()).stillCurrent(plan.visual).catch(() => false))) {
+        await imageDelete(candidate.path);
+        throw new Error("A visual pack or one of its files changed while this picture was drawn, so it was discarded.");
+      }
+      const media: ImageMedia = { url: candidate.path, type: "image", title: plan.caption, source: "generated", image_director: pictureRecord(plan, candidate) };
       const placed = await imagePlace(plan.chatId, plan.target, plan.caption, media, plan.route.placement);
       if (!placed.ok) throw new Error(placed.reason);
       if (cueKey) {

@@ -25,10 +25,12 @@ export const stageAlreadySet = (story: NormalizedStory | null, checkpointId: str
   return Boolean(effects?.background?.name || effects?.stage);
 };
 
+export const backgroundPlace = (name: string | null | undefined): string | null => name?.replace(/\.[a-z0-9]+$/i, "").replace(/[_-]+/g, " ").trim() || null;
+
 export const authoredPlace = (story: NormalizedStory | null, path: readonly string[]): string | null => {
   for (const id of [...path].reverse()) {
     const name = story?.checkpointById[id]?.effects?.background?.name;
-    if (name) return name.replace(/\.[a-z0-9]+$/i, "").replace(/[_-]+/g, " ").trim() || null;
+    if (name) return backgroundPlace(name);
   }
   return null;
 };

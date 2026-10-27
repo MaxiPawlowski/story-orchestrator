@@ -1,4 +1,5 @@
 import { RECAP_GUIDE_TOPIC } from "./guideTopicsRecap";
+import { VISUAL_PACKS_TOPIC } from "./guideTopicsVisual";
 import { CODEX_GUIDE_TOPIC, OBSERVATION_DIAGNOSTIC_TOPICS } from "./guideTopicsCodex";
 import { DELIVERY_DIAGNOSTIC_TOPICS, DELIVERY_TOPICS } from "./guideTopicsDelivery";
 import { SHEET_GUIDE_TOPICS } from "./guideTopicsSheet";
@@ -309,6 +310,7 @@ export const GUIDE_TOPICS = {
       + "illustrations.workflows picks a ComfyUI workflow per picture type. "
       + "display.lore_names_public shows lore names in the timeline. display.<presence item> false hides it.",
   },
+  ...VISUAL_PACKS_TOPIC,
   quests: {
     title: "Quests and milestones",
     fields: "quests[], visible_when, offered_when, done_when, failed_when, steps[], requires, progress, labels, giver, reward, promise, milestones[]",

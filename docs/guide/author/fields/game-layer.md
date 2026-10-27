@@ -5,6 +5,7 @@
 Each section is one guide topic. The Studio's "How to write this" and the wizard's `readGuide` show the same text.
 
 - [Illustrations and display](#presentation)
+- [Visual packs](#visual-packs)
 - [Quests and milestones](#quests)
 - [Checks](#checks)
 - [Offers](#offers)
@@ -34,6 +35,19 @@ Fields: `illustrations` (`checkpoints`, `scenes`, `style`, `appearances`, `workf
 - **If wrong.** Public lore names spoil a story whose entry titles name the twist; leave `lore_names_public` off unless the titles are safe. A secret look in `Appearance:` still reaches the image prompt once its entry fires, so keep a form the player has not seen out of any entry that can fire before the reveal. A `set` or `face` in `effects.stage` that the character's installed sprites lack shows nothing new (diagnostic `stage-sprite-unknown`: "The stage cannot show this: the character has no installed sprite set or face by that name, so they keep the sprite they had."; checked against the packs the stage found for the open chat's cast).
 
 The story's game panels have their own switches: `display.journal`, `display.stat_sheet` and `display.widgets` (see the next three topics).
+
+<a id="visual-packs"></a>
+
+## Visual packs
+
+Topic `visual-packs`.
+
+Fields: `illustrations.packs` (`packs.style`, `packs.identities`, `packs.places`, each binding `{ id, digest }`) (`schema.ts` `StoryVisualPacks`, `VisualPackRef`; `validate/illustrations.ts`; `src/sprites/packs/`).
+
+- **What it does.** A visual pack is prepared art installed on this SillyTavern: an identity pack holds one character's accepted looks (a base image, an optional bust and expressions per look, the immutable visible traits and the image-model identity tags), a place pack holds one location's plate (with optional variants keyed by story state, such as `time_of_day: night`), and a style pack holds the shared visual target and per-model recipes. `illustrations.packs` binds them: `identities` maps a cast id to an identity pack, `places` maps a checkpoint id to a place pack (the last bound or backgrounded checkpoint on the chat's path wins, so a later beat with its own `effects.background` and no pack is an unbound place), and `style` names the style pack. Each binding names the pack `id` and its `digest` (the pack's sha256), so the chat plays exactly that revision: a newer install of the same pack is reported, never used, until the chat takes "Update to the latest" (the change is compatible, `visual-packs-changed`). Bindings are written by a pack export, not by hand; the Studio lists them and can remove one. One resolver reads them for every picture route: the sprite stage shows a bound look without any builder (a member with no sprite folder stands from the pack, and a look change switches to the pack's look when the pack has it), the prepared cast scene uses the bound look as its Qwen reference (with no builder it uses the install-wide scene recipe), and automatic pictures copy the identity tags verbatim and use the bound place's name and description; when every visible character (one or two) has a bound or accepted current look, an automatic scene picture is drawn from those reference images instead (setting `image.automaticRoute`, default auto), with the bound place's name, description and, where ComfyUI offers the input, its plate. Only the current look and the current place reach the image-prompt model, never another look, variant or place in the pack. Identity tags (`tagsByFamily`) and style recipes (`recipes`) are keyed by the image route's family id, `sdxl-illustrious` or `sdxl-noobai` (tags may add a `default` set); a short name such as `illustrious` or an unknown family refuses the whole pack with a problem naming the right id, so tags never fall back to `default` silently. Every pack file is checked against its sha256 before use; a missing pack, a changed file or a look the pack lacks falls back (the text route, the default look, or the authored background name) and the picture records which (`image_director.visual`).
+- **Good.** Packs exported from the same preparation run as the installed sprites; one place pack per recurring location bound at the checkpoint where the party arrives; a style pack shared by every identity and place.
+- **Bad.** A secret form in an identity pack's traits or tags (they reach every picture of that character); a hand-typed digest; binding a place pack to a checkpoint whose background shows somewhere else.
+- **If wrong.** An unknown cast id or checkpoint id is refused at import; a binding whose pack is not installed, or whose digest no longer matches the installed pack, draws on the text route and records `pack-missing`; a changed file records `asset-mismatch`. Pictures and the cast scene placed while a pack or file changed mid-render are discarded.
 
 <a id="quests"></a>
 

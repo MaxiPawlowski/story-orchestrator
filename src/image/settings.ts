@@ -16,6 +16,8 @@ export interface ImageRoute {
 export interface LoraUse { file: string; weight: number }
 export interface ImageOverride { checkpoint: string; quality: Quality | ""; extraPositive: string; loras: LoraUse[]; paused: boolean }
 export interface ImageChatState { override: ImageOverride; emitted: string[] }
+export const AUTOMATIC_ROUTES = ["auto", "sdxl", "qwen"] as const;
+export type AutomaticRoute = typeof AUTOMATIC_ROUTES[number];
 export interface ImageSettings {
   enabled: boolean;
   backend: "st" | "comfy";
@@ -26,6 +28,7 @@ export interface ImageSettings {
   useJsonSchema: boolean;
   defaults: { quality: Quality; seedPolicy: "random" | "lockPerMessage" | "fixed"; fixedSeed: number };
   automation: { mode: "manual" | "story" | "everyN" | "tool"; everyN: number };
+  automaticRoute: AutomaticRoute;
   safeMode: boolean;
   purposes: Record<Purpose, ImageRoute>;
   upscalers: Record<string, string>;
@@ -62,6 +65,7 @@ export const defaultImageSettings = (): ImageSettings => ({
   useJsonSchema: true,
   defaults: { quality: "base", seedPolicy: "random", fixedSeed: 1 },
   automation: { mode: "story", everyN: 5 },
+  automaticRoute: "auto",
   safeMode: false,
   purposes: {
     scene: row({ aspect: "auto", shot: "cowboy", directorMayOverride: true }),
@@ -161,6 +165,7 @@ export const sanitizeImageSettings = (value: unknown): ImageSettings => {
       mode: pick(["manual", "story", "everyN", "tool"] as const, originalAutomation.mode, defaults.automation.mode),
       everyN: Math.round(num(originalAutomation.everyN, defaults.automation.everyN, 1, 100)),
     },
+    automaticRoute: pick(AUTOMATIC_ROUTES, raw.automaticRoute, defaults.automaticRoute),
     safeMode: raw.safeMode === true, purposes: routes,
     upscalers: Object.fromEntries(Object.entries(record(raw.upscalers)).filter((entry): entry is [string, string] => typeof entry[1] === "string")),
     loras, retired: retired.slice(-20),

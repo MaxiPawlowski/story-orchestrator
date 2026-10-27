@@ -4,6 +4,7 @@ import { frameIndex, type AnimationFrames } from "./animation";
 import { readSpriteProfile, readSpriteSets, resolveSprite, spriteIndex, type SpriteFile, type SpriteProfile, type SpriteSetRule } from "./profile";
 import type { SpriteSettings } from "./settings";
 import type { VisualSources, VisualManifest } from "./visualManifest";
+import type { StageIdentity } from "./packs/stageLooks";
 import { log } from "@utils/log";
 
 export interface Actor {
@@ -27,6 +28,7 @@ export interface Actor {
   poseReads?: import("./poses/stageChoice").PoseRead[];
   bodies?: import("./poses/layers").CachedBody[];
   renderedStamp?: string;
+  identity?: { pack: string; looks: Record<string, { set: string }> };
 }
 
 export type MemberGap = { name: string; folder: string; muted: boolean; reason: "no-profile" | "no-default" | "no-face" | "stale-source"; face?: string };
@@ -70,6 +72,7 @@ export interface CastLoadDeps {
   storyId?: string;
   sources?: VisualSources;
   verifySource?(source: VisualManifest): Promise<void>;
+  identity?(member: SpriteCastMember): Promise<StageIdentity | null>;
 }
 
 async function loadMember(member: SpriteCastMember, deps: CastLoadDeps): Promise<Actor | MemberGap> {
@@ -78,7 +81,8 @@ async function loadMember(member: SpriteCastMember, deps: CastLoadDeps): Promise
     try { await deps.verifySource(accepted); }
     catch (error) { log.warn("prepared cast source is stale", error); return { name: member.name, folder: member.folder, muted: member.muted, reason: "stale-source" }; }
   }
-  const profile = readSpriteProfile(member.profile, member.folder) ?? (accepted ? {
+  const identity = deps.identity ? await deps.identity(member).catch((error: unknown) => { log.warn("visual pack for the stage is unavailable", error); return null; }) : null;
+  const profile = readSpriteProfile(member.profile, member.folder) ?? (accepted || identity ? {
     folder: member.folder, default: "neutral", labels: Object.fromEntries(["neutral", "happy", "angry", "worried"].map((label) =>
       [label, { what: label, notFor: "", examples: [], fallback: label === "neutral" ? [] : ["neutral"] }])), localMap: {},
   } : null);
@@ -98,6 +102,10 @@ async function loadMember(member: SpriteCastMember, deps: CastLoadDeps): Promise
   for (const entry of listed) {
     if (entry.pack.size) packs.set(entry.rule.id, entry.pack);
     frames.set(entry.rule.id, entry.frames);
+  }
+  if (identity) {
+    if (!packs.has("default") && identity.defaultFiles) packs.set("default", identity.defaultFiles);
+    for (const look of Object.values(identity.looks)) packs.set(look.set, look.files);
   }
   const defaults = packs.get("default");
   if (!defaults) return { name: member.name, folder: profile.folder, muted: member.muted, reason: "no-default" };
@@ -120,6 +128,7 @@ if (!body || body.story !== deps.storyId || !deps.keysFor(member.name).includes(
   return {
     name: member.name, avatar: member.avatar, keys: deps.keysFor(member.name), muted: member.muted, profile, rules: rules.filter((rule) => packs.has(rule.id)), packs, frames,
     set: "default", keyword: null, label: first.label, desiredLabel: first.label, path: first.path, bodies,
+    ...(identity ? { identity: { pack: identity.pack, looks: Object.fromEntries(Object.entries(identity.looks).map(([signature, look]) => [signature, { set: look.set }])) } } : {}),
   };
 }
 

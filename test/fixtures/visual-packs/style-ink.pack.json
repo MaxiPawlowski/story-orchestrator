@@ -1,0 +1,30 @@
+{
+  "formatVersion": 1,
+  "id": "fixture-ink-style",
+  "kind": "style",
+  "revision": 1,
+  "assets": [],
+  "qa": {
+    "status": "accepted",
+    "rubric": "fixture-rubric-1"
+  },
+  "provenance": {
+    "source": "invented test fixture",
+    "recipe": "none"
+  },
+  "target": "soft ink outlines with watercolor washes",
+  "recipes": {
+    "sdxl-illustrious": {
+      "positive": [
+        "ink outlines",
+        "watercolor"
+      ],
+      "negative": [
+        "photorealistic"
+      ],
+      "steps": 28,
+      "cfg": 6
+    }
+  },
+  "digest": "1759b230d9ed6fb12e76be51cd04c5301563e537ba16f41a758c4fb5d18e69be"
+}

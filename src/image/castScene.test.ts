@@ -1,5 +1,5 @@
 import type { CardBinding } from "@engine/schema";
-import { castSceneBuilder, castSceneIdentities, castSceneKey, castSceneGraph } from "./castScene";
+import { castSceneBuilder, castSceneIdentities, castSceneKey, castSceneGraph, discoveredSceneRecipe, sceneRecipe, SCENE_RECIPE_MISSING } from "./castScene";
 import { visualFixture } from "../sprites/visualFixtures";
 import { publishVisualLook, lookSignature, visualRoot } from "../sprites/visualManifest";
 const source = visualFixture();
@@ -14,6 +14,16 @@ test("scene refuses the original outfit when the current look is unprepared, the
   expect(identities[0].look.base.sha256).toBe("e".repeat(64));
   const original = castSceneIdentities([{ character: "Synthetic", fields: {}, source }]);
   expect(castSceneKey(identities, input)).not.toBe(castSceneKey(original, input));
+});
+
+test("a look published twice for the same outfit illustrates with the newest copy and records which, instead of reading pending", () => {
+  const fields = { outfit: "blue coat" }, signature = lookSignature(fields);
+  const once = publishVisualLook(source, visualRoot(source), "look_old", signature, { ...source.base, path: "/characters/Synthetic/look_old/neutral.png", sha256: "e".repeat(64) });
+  const twice = publishVisualLook(once, visualRoot(source), "look_new", signature, { ...source.base, path: "/characters/Synthetic/look_new/neutral.png", sha256: "f".repeat(64) });
+  const [identity] = castSceneIdentities([{ character: "Synthetic", fields, source: twice }]);
+  expect(identity.look.base.sha256).toBe("f".repeat(64));
+  expect(identity.set).toBe("look_new");
+  expect(castSceneIdentities([{ character: "Synthetic", fields, source: twice }])).toEqual([identity]);
 });
 
 test("missing, duplicate or unsupported cast sizes refuse without a fabricated default identity", () => {
@@ -52,4 +62,26 @@ test("a face or decal-only change reuses the current outfit derivative and recor
   expect(faceOnly[0].look.base.sha256).toBe(source.base.sha256);
   expect(() => castSceneIdentities([{ character: "Synthetic", fields: { outfit: "red coat", eyes: "tired" }, source: changed, card }])).toThrow("pending or stale");
   expect(() => castSceneIdentities([{ character: "Synthetic", fields: { unbound: "x", eyes: "tired" }, source, card }])).toThrow("pending or stale");
+});
+
+test("visual bridge: a character without a builder entry uses the install-wide recipe, else an unambiguous discovered Qwen 2.1 edit route, else a named refusal", () => {
+  const models = { diffusion: "qwen", encoder: "enc", vae: "vae" }, builders = { A: { models, steps: 30, resolution: 1280 } };
+  const install = { models, steps: 12 };
+  expect(sceneRecipe(["A"], builders, null, null)).toEqual({ models, steps: 30, resolution: 1280, source: "builders" });
+  expect(sceneRecipe(["A", "B"], builders, install, null)).toEqual({ models, steps: 30, resolution: 1280, source: "install" });
+  expect(sceneRecipe(["B"], {}, install, null)).toEqual({ models, steps: 12, resolution: 1024, source: "install" });
+  expect(() => sceneRecipe(["B"], {}, null, null)).toThrow(SCENE_RECIPE_MISSING);
+  const found = discoveredSceneRecipe({ diffusionModels: ["qwen_image_2.1_int8_convrot.safetensors", "qwen_image_2.1_turbo_int8.safetensors", "sdxl_unet.safetensors"],
+    textEncoders: ["qwen3vl_8b_int8.safetensors", "clip_l.safetensors"], vaes: ["qwen_image_2.1_vae.safetensors", "sdxl_vae.safetensors"] });
+  expect(found).toEqual({ models: { diffusion: "qwen_image_2.1_int8_convrot.safetensors", encoder: "qwen3vl_8b_int8.safetensors", vae: "qwen_image_2.1_vae.safetensors" }, steps: 25, resolution: 1024 });
+  expect(sceneRecipe(["B"], {}, null, found).source).toBe("discovered");
+  expect(discoveredSceneRecipe({ diffusionModels: ["qwen_image_2.1_a.safetensors", "qwen_image_2.1_b.safetensors"], textEncoders: ["qwen.safetensors"], vaes: ["qwen_vae.safetensors"] })).toBeNull();
+});
+
+test("visual bridge: a pack identity needs no accepted source, and a substituted pack look names the fields its reference predates", () => {
+  const base = { path: "/characters/Wanderer/pack/default_neutral.png", sha256: "a".repeat(64), key: "pack:p@d", recipe: { id: "visual-pack", version: 1 } };
+  const pack = { root: "pack:p@d", look: { root: "pack:p@d", signature: "[]", base }, substituted: true };
+  expect(castSceneIdentities([{ character: "Wanderer", fields: { outfit: "apron" }, pack }])).toEqual([
+    { character: "Wanderer", root: "pack:p@d", signature: lookSignature({ outfit: "apron" }), look: pack.look, layered: ["outfit"] }]);
+  expect(castSceneIdentities([{ character: "Wanderer", fields: {}, pack: { ...pack, substituted: false } }])[0].layered).toBeUndefined();
 });

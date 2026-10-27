@@ -1,0 +1,39 @@
+{
+  "formatVersion": 1,
+  "id": "fixture-observatory",
+  "kind": "place",
+  "revision": 1,
+  "styleRef": {
+    "id": "fixture-ink-style",
+    "digest": "1759b230d9ed6fb12e76be51cd04c5301563e537ba16f41a758c4fb5d18e69be"
+  },
+  "qa": {
+    "status": "accepted",
+    "rubric": "fixture-rubric-1"
+  },
+  "provenance": {
+    "source": "invented test fixture",
+    "recipe": "none"
+  },
+  "assets": [
+    {
+      "path": "/backgrounds/fixture_observatory.png",
+      "sha256": "8c90e430e2e1400a0937f429ef2d48ef5762dc964dc53daf9127452b9e47ec8c",
+      "bytes": 1024,
+      "media": "image/png",
+      "role": "plate",
+      "width": 1344,
+      "height": 768
+    }
+  ],
+  "placeId": "observatory",
+  "name": "Hilltop observatory",
+  "description": "A brass telescope dome open to a sky full of stars.",
+  "tags": [
+    "observatory",
+    "brass telescope",
+    "starry sky"
+  ],
+  "plate": "plate",
+  "digest": "aef3a4f85d5d98a3c803324391a762b919a63bc77f80f42caabc3c166a6ac88d"
+}

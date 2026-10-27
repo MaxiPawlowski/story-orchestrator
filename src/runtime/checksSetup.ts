@@ -310,6 +310,17 @@ export const INFO_SETUP_CHECKS: readonly Check[] = [
     },
   },
   {
+    id: "sprite-qwen-route-missing", area: "image", scope: "install", audience: "author", severity: "info", feature: "sprite-builder",
+    detect: (snapshot) => {
+      const recipe = snapshot.spriteRecipe;
+      return recipe?.status === "missing" && recipe.waiting.length ? {
+        consequence: "Characters with an accepted base but no Qwen route of their own get no on-demand looks, posed bodies or cast scenes; the stage keeps their prepared look.",
+        detail: `${recipe.problem ?? "No install-wide Qwen edit route."} Waiting: ${recipe.waiting.join(", ")}.`,
+        target: { kind: "setting", id: "so-sprite-on-demand" },
+      } : null;
+    },
+  },
+  {
     id: "gpu-broker-no-text-model", area: "image", scope: "install", audience: "author", severity: "info", feature: "images",
     detect: (snapshot) => (snapshot.imageHealth?.broker === "none" ? {
       consequence: "The GPU broker is installed but shares no text model, so image renders never pause a local model.",

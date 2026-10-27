@@ -104,6 +104,7 @@
     }
   ],
   "test/fixtures/v15-other.story.json#0": [],
+  "test/fixtures/visual-bridge.story.json#0": [],
   "test/scenarios/author-note-role.story.json#0": [
     {
       "index": 1,

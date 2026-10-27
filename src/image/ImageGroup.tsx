@@ -77,6 +77,14 @@ export default function ImageGroup({ manager }: { manager: RuntimeManager }) {
           })} />
         </div>}
         <div className="flex flex-col gap-1">
+          <FieldLabel htmlFor="so-image-automatic-route" setting="image.automaticRoute" />
+          <select id="so-image-automatic-route" className="text_pole" value={settings.automaticRoute}
+            onChange={(event) => change({ automaticRoute: event.target.value as ImageSettings["automaticRoute"] })}>
+            <option value="auto">Auto: references when every character is prepared</option><option value="sdxl">Always SDXL tags</option>
+            <option value="qwen">References only (skip otherwise)</option>
+          </select>
+        </div>
+        <div className="flex flex-col gap-1">
           <FieldLabel htmlFor="so-image-profile" setting="image.directorProfileId" />
           <select id="so-image-profile" className="text_pole" value={settings.directorProfileId} onChange={(event) => change({ directorProfileId: event.target.value })}>
             <option value="">Template prompt (no extra model)</option>

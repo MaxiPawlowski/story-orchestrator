@@ -16,6 +16,7 @@ import { indexCardFields, validateCardEffects } from "./cardFields";
 import { readPlayer } from "./validate/player";
 import { GAME_LAYER_LOADING, gameLayer, usesGameLayer, type GameLayer } from "./validate/gameLayer";
 import { checkRecapGates } from "./validate/recap";
+import { checkPackBindings } from "./validate/illustrations";
 
 export { readChapters };
 
@@ -161,6 +162,7 @@ export const parseStory = (json: unknown): NormalizedStory | ValidationError[] =
   const startCheckpointId = starts[0]?.id ?? checkpoints[0]?.id ?? "";
 
   checkReferences({ checkpoints, transitions, checkpointById, qualityByKey, arcBridges }, errors);
+  checkPackBindings(options.illustrations?.packs, new Set(roster.map((member) => member.id)), new Set(Object.keys(checkpointById)), errors);
   const normalizedTransitions = transitions.map((transition, declarationIndex) => ({ ...transition, declarationIndex }));
   const reachableByCheckpoint = buildReachability(checkpoints, normalizedTransitions);
   checkIntermediates(checkpoints, checkpointById, reachableByCheckpoint, errors);

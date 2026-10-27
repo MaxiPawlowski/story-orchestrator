@@ -21,7 +21,7 @@ export type StoryDiffCode =
   | "checkpoint-removed-visited" | "active-checkpoint-removed" | "start-changed" | "start-changed-unplayed"
   | "transition-added" | "transition-removed" | "gate-changed" | "gate-changed-frontier" | "gate-changed-latched"
   | "roster-member-removed" | "requirements-changed" | "stagecraft-changed" | "features-changed"
-  | "story-objective-block-changed" | "story-display-changed" | "story-presence-changed" | "story-kind-changed"
+  | "story-objective-block-changed" | "story-display-changed" | "story-presence-changed" | "story-kind-changed" | "visual-packs-changed"
   | "scene-read-changed" | "player-card-changed" | "player-profile-changed" | "lore-select-changed"
   | "house-rules-changed" | "talk-defaults-changed" | "arc-template-changed" | "arc-bridges-changed" | "chapters-changed" | "game-changed"
   | "quest-removed" | "quest-removed-closed" | "quest-reward-changed-earned" | "check-changed" | "codex-changed"
@@ -432,6 +432,9 @@ const diffStoryFields = (ctx: DiffContext) => {
   if (previous.display?.lore_names_public !== next.display?.lore_names_public) push("compatible", "story-display-changed", "display", "Whether players see World Info entry names changed.");
   if (STORY_DISPLAY_TOGGLES.some((key) => previous.display?.[key] !== next.display?.[key])) {
     push("compatible", "story-presence-changed", "display", "Which story panels and cards this story shows changed.");
+  }
+  if (!sameValue(previous.illustrations?.packs, next.illustrations?.packs)) {
+    push("compatible", "visual-packs-changed", "illustrations", "The visual packs this story draws its cast and places from changed.");
   }
   if ((previous.kind ?? "story") !== (next.kind ?? "story")) push("compatible", "story-kind-changed", "kind", "Whether the story shows as a saga or a single story changed.");
   if (previous.objective_block !== next.objective_block) push("compatible", "story-objective-block-changed", "objective_block", "Whether the objective line is added changed.");

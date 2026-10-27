@@ -1,6 +1,18 @@
 {
   "$comment": "v2.3 plan 03. Every place in src/runtime, src/wizard, src/extraction and src/generation (V3) that writes AFTER an await — methods, function declarations, and since V3 arrow functions (named by where they live) and property assignments, and what has been done about it. Generated set, hand-classified status. The guard in src/runtime/ownership.guard.test.ts fails when this file and the code disagree, in EITHER direction: a new site nobody classified, a row whose site is gone, a \"checked\" row with no token check in its body, or a \"todo\" row that has quietly acquired one (flip it to checked). Statuses: checked (verifies a RunToken before writing) | delegate (awaits a censused site that owns the check) | local (writes nothing that outlives the call) | todo (owed work). WHAT \"checked\" MEANS, PRECISELY: the body contains a token check -- NOT that every write is preceded by one. The detector is a body-level scan, so it cannot see the interleaving, and a body that gains a fifth host step can escape the checks that guard the other four (found 2026-09-22 in EffectsApplier.applyCheckpoint: the preset sat below the Author Note await and the background below applyCastChanges per-member awaits). Per-write checking is proven by TESTS in the case files (effectsOwnership.review.test.ts pins each check with a case that reaches it), which is also the file-level rule: a check without a case is a check a mutation can delete.",
   "rows": {
+    "src/sprites/defaultRecipeHost.ts#startDefaultRecipe.run": {
+      "status": "partial",
+      "note": "Visual bridge stage 1: after the awaited model discovery and fingerprints it publishes the install-wide default Qwen recipe only while the sprite stage that started it is still running (stop flag). No RunToken: the state is install-wide and chat-independent, and every render that uses it re-checks the models (recipeProblems + comfyFingerprint) and its own run. Tests: sprites/defaultRecipe.test.ts."
+    },
+    "src/sprites/packs/bridge.ts#verifying": {
+      "status": "local",
+      "note": "Fills a hash map allocated inside this invocation; nothing reaches a chat, a store or the host. Callers check their own run before writing (castSceneHost guard + packsCurrent, image runtime stillCurrent before placement). Tests: sprites/packs/packs.test.ts."
+    },
+    "src/sprites/packs/catalog.ts#packCatalog": {
+      "status": "local",
+      "note": "Builds a catalog map and refusal list allocated inside this call; pure apart from the injected hash. Tests: sprites/packs/packs.test.ts."
+    },
     "src/sprites/visualPreparation.ts#VisualPreparation.prepare": {
       "status": "checked",
       "note": "RunOwnership plus operation identity, cancellation, installed card and accepted revision checks precede candidate publication. visualPreparation.test.ts covers late crop/cancel; only transient review state changes."
