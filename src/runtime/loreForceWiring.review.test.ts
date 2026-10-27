@@ -28,7 +28,7 @@ jest.mock("@services/STAPI", () => ({
   settingsReady: async () => {},
   observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
   readServerBoundary: async () => null,
-  getContext: () => ({ groupId: "g-test", chat: [{}, {}, {}, {}], chatId: "chat-a", extensionSettings: {}, chatMetadata: {}, characters: [], groups: [] }),
+  getContext: () => ({ groupId: "g-test", chat: [{}, {}, {}, {}, {}, { is_user: true, mes: "Go." }], chatId: "chat-a", extensionSettings: {}, chatMetadata: {}, characters: [], groups: [] }),
   registerHostMacro: () => {},
   unregisterHostMacro: () => {},
   startSaveWatcherSurface: () => () => {},

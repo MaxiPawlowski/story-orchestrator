@@ -15,7 +15,8 @@ export const TALK_TOPICS = {
     fields: "talk_control.profile, budget, lead_words, spotlight, address_player, reaction, talk_defaults",
     text: "profile (opening, conversation, decision, action, aftermath) fills in policy; set fields win; never switches a feature off. budget {voices, attempts} per "
       + "player message, shared by chain voices and afterSpeak/sceneBreak lines (default chain max, +1 with such lines). lead_words: soft lead length, no token cap. "
-      + "spotlight {quiet_after, members}: a quiet member replaces the next voice. address_player {after_player_turns, by, cooldown_player_turns}: a planned "
+      + "spotlight {quiet_after, members}: a quiet member replaces the next voice, or the first one if quieter than the pick "
+      + "(not a named member, not a lead-first lead). address_player {after_player_turns, by, cooldown_player_turns}: a planned "
       + "non-lead voice asks the player one thing. reaction: one line after a transition, quest or check. talk_defaults: story default.",
   },
 } as const satisfies Record<string, GuideTopic>;

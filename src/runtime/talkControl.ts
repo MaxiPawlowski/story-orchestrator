@@ -129,6 +129,7 @@ interface ChainState {
   expected: string | null;
   reservation: SpeechReservation | null;
   plan: VoicePlan | null;
+  first: VoicePlan | null;
   release: (() => void) | null;
   endAfter: boolean;
 }
@@ -214,27 +215,52 @@ export class TalkController {
     if (!this.chain) {
       this.chain = {
         key: this.passKey(), checkpointId: this.host.getCheckpointInfo()?.id ?? "", spokeCount: 0, aborted: false, hold: false, speakers: [], offScript: 0, expected: null,
-        reservation: null, plan: null, release: null, endAfter: false,
+        reservation: null, plan: null, first: null, release: null, endAfter: false,
       };
     }
     const chain = this.chain;
     const decision = await this.ensureDecision(control, this.passKey());
     if (this.chain !== chain || chain.aborted) return;
     if (decision.kind === "pass") return;
-    if (decision.kind === "member" && this.chain.spokeCount === 0) {
-      this.chain.expected = decision.rosterId;
-      this.chain.offScript = control.chain && control.chain.mode === "scripted" && decision.source === "mention" ? 1 : 0;
-      if (this.host.getDraftedRosterId() === decision.rosterId && !this.chain.reservation) this.rideFirstVoice(control, this.chain, decision);
-    }
     if (decision.kind === "silence" || decision.kind === "player") {
       abort(false);
       return;
     }
-    if (this.host.getDraftedRosterId() === decision.rosterId) {
+    const target = chain.spokeCount === 0 ? this.firstVoice(control, chain, decision) : decision;
+    if (this.host.getDraftedRosterId() === target.rosterId) {
+      if (chain.spokeCount === 0 && !chain.plan) this.startFirst(chain);
       if (this.pass) this.pass.spoke = true;
       return;
     }
     abort(false);
+  }
+
+  private firstVoice(control: TalkControl, chain: ChainState, decision: Extract<Decision, { kind: "member" }>): VoicePlan {
+    if (chain.first) return chain.first;
+    chain.offScript = control.chain && control.chain.mode === "scripted" && decision.source === "mention" ? 1 : 0;
+    const context = this.planContext(control, chain, null);
+    const chosen = findCandidate(context.candidates, decision.name);
+    const scripted = control.chain && control.chain.mode === "scripted";
+    const voice = !chosen ? this.pacing.plain(decision) : scripted ? this.pacing.plain(chosen) : this.pacing.firstSpotlight(chosen, decision.source, context, this.playerNamed());
+    chain.first = this.pacing.address(voice, context);
+    chain.expected = chain.first.rosterId;
+    return chain.first;
+  }
+
+  private playerNamed(): boolean {
+    const window = this.host.getWindow();
+    const { line, members } = this.addressed(window);
+    return line >= 0 && (members.length > 0 || directlyAddressed(this.host.getRoster(), window[line].text) !== null);
+  }
+
+  private startFirst(chain: ChainState): VoicePlan | null {
+    const first = chain.first;
+    if (!first) return null;
+    if (first.source) this.recordPlan(first, chain);
+    const { reservation, refused } = this.pacing.reserve(first);
+    const voice = refused ? this.pacing.plain(first) : first;
+    Object.assign(chain, { reservation, plan: voice, expected: voice.rosterId, endAfter: voice.yieldAfter, release: this.pacing.arm(voice) });
+    return voice;
   }
 
   onWrapperFinished(): Promise<void> {
@@ -259,7 +285,10 @@ export class TalkController {
     if (decision.kind !== "member") return;
     if (this.reconciled?.key === key && this.reconciled.run?.stillOwns() !== false) return;
     this.reconciled = { key, run: this.cached?.key === key ? this.cached.run : null };
-    this.trigger(decision.name);
+    const chain = this.chain;
+    const first = chain && chain.spokeCount === 0 && !chain.plan && !chain.aborted ? this.startFirst(chain) : null;
+    if (first) this.trigger(first.name, chain);
+    else this.trigger(decision.name);
   }
 
   private endChain(): void {
@@ -275,14 +304,6 @@ export class TalkController {
   private planContext(control: TalkControl, chain: ChainState, lastSpeaker: string | null): PlanContext {
     const candidates = withAddressed(buildCandidates(control, this.host.getRoster(), this.host.getEnabledRosterIds()), this.addressed(this.host.getWindow()).members);
     return { control, candidates, spoken: chain.speakers, lastSpeaker };
-  }
-
-  private rideFirstVoice(control: TalkControl, chain: ChainState, decision: { rosterId: string; name: string }) {
-    const plan = this.pacing.address(this.pacing.plain(decision), this.planContext(control, chain, null));
-    if (plan.origin !== "address") return;
-    const { reservation } = this.pacing.reserve(plan);
-    if (!reservation) return;
-    Object.assign(chain, { reservation, plan, endAfter: true, release: this.pacing.arm(plan) });
   }
 
   private settleVoice(chain: ChainState, lastSpeaker: string | null) {

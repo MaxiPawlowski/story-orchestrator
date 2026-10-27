@@ -5,6 +5,7 @@ import { EffectsApplier, NO_OPEN_CHAT, NO_OPEN_GROUP, PENDING_NOT_SAVED } from "
 import { CAST_UNRESOLVED, CAST_UNRESOLVED_NOTE } from "./castEffect";
 import { rewindNpcReplies } from "./npcReplyRewind";
 import { castInPlay } from "./castInPlay";
+import { isPlayerSend } from "./playerSend";
 import { readGatingModeWith, setScanGatingActive, setScanGatingSettled } from "./worldInfoMode";
 import type { RuntimeExtras, RuntimeSnapshot } from "./types";
 import { testOwnership } from "../../test/findings/testOwnership";
@@ -788,6 +789,14 @@ describe("transition announcement leaves a trace when it is not posted (L2 J1.7)
     await new EffectsApplier(testOwnership(), { journal }).announceTransition(checkpoint, announcing());
     expect(executeSlashCommands).toHaveBeenCalledWith(expect.stringContaining("Accept the Mission"), { silent: true });
     expect(journal).not.toHaveBeenCalled();
+  });
+
+  it("v3.0 19 fix 2: the note is posted on our own posting path, so its MESSAGE_SENT is never a player send", async () => {
+    const seen: boolean[] = [];
+    (executeSlashCommands as jest.Mock).mockImplementationOnce(async () => { seen.push(isPlayerSend(0, [{ is_user: true, mes: "Onward." }])); return true; });
+    await new EffectsApplier(testOwnership(), {}).announceTransition(checkpoint, announcing());
+    expect(seen).toEqual([false]);
+    expect(isPlayerSend(0, [{ is_user: true, mes: "Onward." }])).toBe(true);
   });
 
   it("T0-1: a name the objective already starts with is not printed twice", async () => {

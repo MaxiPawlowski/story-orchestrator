@@ -2,7 +2,7 @@ import { parseStoryOrThrow, type EngineState, type NormalizedStory } from "@engi
 import { INJECTION_REGISTRY } from "@constants/injectionRegistry";
 import type { PromptHost } from "../hostPorts";
 import type { TensionRuntimeState } from "../types";
-import { ASK_PLAYER_DIRECTION, ASK_PLAYER_TAIL, ONE_SHOT_SCOPE, leadLengthLine, oneShotDirectionText } from "@pacing/guidance";
+import { ASK_PLAYER_DIRECTION, ASK_PLAYER_TAIL, ONE_QUESTION_CLOSE, ONE_SHOT_SCOPE, asksPlayerDirection, leadLengthLine, oneShotDirectionText } from "@pacing/guidance";
 import { NO_CLOSING_QUESTION_CLAUSE } from "@engine/agency";
 import { PacingCoordinator } from "./pacingCoordinator";
 
@@ -87,6 +87,27 @@ describe("v3.0 19 P1: an llm reply's instruction is a one-shot private direction
     expect(oneShotDirectionText({})).toBe("");
     expect(ONE_SHOT_SCOPE).toContain("never ask {{user}} what they do");
     expect(NO_CLOSING_QUESTION_CLAUSE).toBe("End on something that just happened or a character's move, not on scenery or mood, and never on a question asking {{user}} what they do.");
+  });
+});
+
+describe("v3.0 19 fix 6: a direction that asks the player closes the block with the one-question line", () => {
+  it("the asking member's draft ends with it; the other members' drafts and a plain direction do not carry it", () => {
+    const { pacing, block } = harness(story);
+    pacing.armDirection("Mara", `Mention the toll. ${ASK_PLAYER_TAIL}`);
+    pacing.draftGuidance("mara");
+    expect(block().split("\n").at(-1)).toBe(ONE_QUESTION_CLOSE);
+    pacing.draftGuidance("narrator");
+    expect(block()).not.toContain(ONE_QUESTION_CLOSE);
+    const plain = harness(story);
+    plain.pacing.armDirection("Mara", "Mention the toll.");
+    plain.pacing.draftGuidance("mara");
+    expect(plain.block()).not.toContain(ONE_QUESTION_CLOSE);
+  });
+
+  it("recognises every ask shape the runtime arms", () => {
+    expect(asksPlayerDirection(ASK_PLAYER_DIRECTION)).toBe(true);
+    expect(asksPlayerDirection(oneShotDirectionText({ instruction: "Mention the toll.", ask_player: true }))).toBe(true);
+    expect(asksPlayerDirection("Mention the toll.")).toBe(false);
   });
 });
 

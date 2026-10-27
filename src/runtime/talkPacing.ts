@@ -1,7 +1,7 @@
 import type { TalkControl } from "@engine/index";
 import { ASK_PLAYER_DIRECTION, ASK_PLAYER_TAIL, REACTION_DIRECTION, SPOTLIGHT_DIRECTION } from "@pacing/guidance";
 import {
-  asksPlayer, findCandidate, pickQuiet, playerTurnsAfter, turnsSince, type QuietCandidate, type SpeechRow, type TalkCandidate, type TalkDecisionSource, type TalkPolicy,
+  asksPlayer, findCandidate, pickQuiet, playerTurnsAfter, quietTurns, turnsSince, type QuietCandidate, type SpeechRow, type TalkCandidate, type TalkDecisionSource, type TalkPolicy,
 } from "@talk/index";
 import type { SourceRevision } from "@memory/audience";
 import type { SpeechOrigin, SpeechRequest, SpeechReservation } from "./speechLedger";
@@ -80,9 +80,22 @@ export class TalkPacing {
     const plan = this.plain(chosen);
     const spotlight = this.policy()?.spotlight;
     if (!spotlight || source === "mention") return plan;
-    const pool = this.pool(context, spotlight.members);
-    const picked = pickQuiet(this.rows(), pool.map(quiet), this.entryStart(), spotlight.quietAfter, this.host.random?.() ?? undefined);
+    const picked = pickQuiet(this.rows(), this.pool(context, spotlight.members).map(quiet), this.entryStart(), spotlight.quietAfter, this.host.random?.() ?? undefined);
+    return picked && picked.rosterId !== chosen.rosterId ? this.spotlit(picked) : plan;
+  }
+
+  firstSpotlight(chosen: TalkCandidate, source: TalkDecisionSource | null, context: PlanContext, named: boolean): VoicePlan {
+    const plan = this.plain(chosen);
+    const spotlight = this.policy()?.spotlight;
+    const lead = findCandidate(context.candidates, context.control.lead)?.rosterId;
+    if (!spotlight || named || source === "mention" || (chosen.rosterId === lead && this.leadPreferred())) return plan;
+    const rows = this.rows();
+    const picked = pickQuiet(rows, this.pool(context, spotlight.members).map(quiet), this.entryStart(), spotlight.quietAfter, this.host.random?.() ?? undefined);
     if (!picked || picked.rosterId === chosen.rosterId) return plan;
+    return quietTurns(rows, picked.names, this.entryStart()) > quietTurns(rows, quiet(chosen).names, this.entryStart()) ? this.spotlit(picked) : plan;
+  }
+
+  private spotlit(picked: QuietCandidate): VoicePlan {
     return { rosterId: picked.rosterId, name: picked.name, origin: "spotlight", direction: SPOTLIGHT_DIRECTION, yieldAfter: false, source: "spotlight" };
   }
 
