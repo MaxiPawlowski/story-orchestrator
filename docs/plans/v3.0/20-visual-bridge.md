@@ -723,3 +723,27 @@ Pilot harness (owner, 2026-10-26, after stage 2):
     `C:\dev\backups\story-orchestrator\d7-lane33-residue-20261027\`: 3 character folders, 2 group image folders, post-run `settings.json`.
     Lane `sprites` restored from ST's pre-run backup `settings_default-user_20261027-030300.json`. Lane stopped, no-model. Landmarks
     stopped. ComfyUI and the controller left running, controller-managed.
+- D9 fix 2026-10-27 (`578ad73f` on `v3.0-visual-bridge-s2`; unit level, no GPU, lanes or staging). The D7-live finding: a look that only
+  needed reuse failed `ComfyUI did not list its models: fetch failed` when the controller had stopped ComfyUI (the install-wide Qwen route
+  resolved `unreachable` at page load, so no derived builder config; `onDemand.ts` also discovered and fingerprinted before `publishedLook`).
+  - `onDemand.ts`: published look + cached still + cached frames apply with no route, discovery, fingerprint or lease; route, discovery,
+    fingerprints, base pack and look key are one lazy `prepare()` reached only by a render (frames or still) or a set named by the key.
+  - Wake = the existing one: an image lease (`reserveGpu`) makes the broker/controller run `startComfy`, as SDXL renders do (lease, then
+    discover). `builder/comfyWake.ts` `discoverWaking`: discovery fails -> a `comfy-discovery` lease -> discover again -> release; still down
+    is a precise status naming the tray / `cli.mjs start-comfy`. An `unreachable` route is re-resolved after the wake (`retryDefaultRecipe`).
+  - Pose bodies (`bodyHost.ts`) discover through `discoverWaking`. Their look-base reuse cannot skip ComfyUI: the body key carries the
+    discovered cutout / second-reference and the proportions read is a DWPose job, so they wake instead.
+  - Tests: `onDemandWake.test.ts` (reuse with ComfyUI down and route unreachable: no discovery, no lease, no build; frames needing a render
+    wake once, release, re-check the route, render only blink/talk; an unbrokered wake fails with the start hint). All 3 fail on `e3f19b55`.
+    `onDemandRecipe.test.ts` adapted (discovery error now wrapped). `errorCopy.json` +1 row (`comfyWake.ts#reason`).
+  - `npm run gates:quick` in `C:\dev\so-bridge2`: green (typecheck, typecheck:test, lint, jest 10528 passed / 1 skipped, replay --cached).
+  - Not live-checked (no GPU/lanes this task): the ComfyUI-stopped reuse and wake want one lane check.
+- Merge prep 2026-10-27: branch `v3.0-merge-bridge` (worktree `C:\dev\so-merge3`) = master `2bb4bf8f` + `--no-ff` merge of
+  `v3.0-visual-bridge-s2` `578ad73f` (merge `3cea7708`). One conflict, `src/guide/pages.generated.ts`, regenerated (`npm run docs:guide`,
+  `npm run docs:settings`: author guide 76 topics on 8 pages). Everything else auto-merged (guide, guideTopics, schema, storyDiff, validate,
+  StoryEditor, errorCopy / ownership-sites ledgers, arrival-findings golden). Campaign story index copied by `npm run worktree:setup`.
+  - Main bundle 1,298,651 B (budget 1,300,000; master 1,294,986). Budget unchanged.
+  - `npm run gates:quick` (base master): green (jest 10656 passed / 1 skipped).
+  - `npm run gates` (no `--resume`, Storybook included) on `3cea7708`: all green in 430.5 s, first run (typecheck, test:replay, typecheck:test,
+    build, debug:typecheck, lint, test, test:release, test:debug, test:plugin, test-storybook:ci 167 suites / 1009 tests).
+  - Not merged into master, not pushed. Live gate not rerun on the merge (journey regression and the D9 lane check still owed).
