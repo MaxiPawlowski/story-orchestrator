@@ -526,3 +526,122 @@ Pilot harness (owner, 2026-10-26, after stage 2):
   - The worktree's gitignored campaign story index matches this branch's pin (`abc94b5`); nothing copied.
   - Live gate and pilot: NOT run (no GPU, lanes or staging). Still owed: stage 1's live re-checks (D1-D4), the pilot (48 renders,
     12 director calls) and section 11 plus an automatic picture through each route.
+- Live re-check + stage-2 live + pilot 2026-10-27 (lane 33, 3090, ComfyUI 8188 via the controller, controller 18888 with the merged
+  wake-after-image fix, landmarks 8096 started for the run; owner away). Verdict: D1, D2 (author copy), D3, D4, stage-2 routing,
+  placement, idle wait and stale discard PASS live; journey NOT GREEN on the known gpu-idle miss only; two new routing defects found and
+  fixed on the branch (D6, D8), one open (D7); pilot rated by Sol, Opus rating owed.
+  - Builds served only through the candidate route (`installCandidateRoute`, this worktree's `dist/`), served manifest commit asserted on
+    every run; nothing staged into the owner's ST slot. `8fa73c4e` for the journey and the D1-D4 / stage-2 probes, `85065989` (D6) for the
+    stage-2 retries and the main pilot run, `b0cab8e7` (D8) for the pilot supplement. `so-image-pilot.mts` gained `--candidate` (same
+    route as the journey) and records the served commit in `run.json`.
+  - Lane 33: `st-lanes.mts restore-model 33`, `start 33 --headed`; at the end `so-p41-journey.mts cleanup`, `so-library.mts remove
+    so-p41-bridge`, `stop 33`, `no-model 33`. The lane server runs the owner's installed plugins (no `GET /packs`), so the probe answered
+    `/packs` in the page with this branch's `readInstalledPacks` (as in the 2026-10-26 gate).
+  - Probe: `vb2-probe.mts <phases>` (session scratchpad, archived), run as `st-lanes.mts run 33 -- <probe> <phases>`. Fixture packs rebuilt
+    with `sdxl-illustrious` keys (`mkpacks-live.mjs`); story `SO-P41 Bridge` = prepared Ash and Bram from the kept journey plus pack-bound
+    `SO-P41 Pim`; Bram carries `sprites: {pose: "no_such_pose", poses: []}` so the pose path declines him. Showcase POC cast only.
+  - Evidence: `C:\dev\so-lanes\reviews\visual-bridge-s2-2026-10-27\` (`vb2\` probe records + `probe.log`, `p41-vb2s2-run1\`, `pilot\`
+    (run, key, director answers, images, refs), `pilot-supp\`, `blind\`, `sol-*`, `unblind.mjs`, `sol-unblinded.json`, probe and pack
+    scripts). Originals under `C:\dev\so-lanes\33\debug\{vb2,p41\2026-10-27T00-15-16-273Z-vb2s2-real-run1,image-pilot\vb2-pilot*}`.
+  - D1 PASS. Real ComfyUI, empty `sprites.builders` (the journey's three SO-P41 entries removed), no `sprites.sceneRecipe`:
+    `spriteRecipe` `ready / discovered`, problem null, `sprite-qwen-route-missing` does not fire (`recipe.json`). Cast scene Ash on that
+    route: `recipe_source: discovered`, root = Ash's accepted source, 52 s (`cast.jsonl` `ash`). Every automatic Qwen picture and pilot
+    render records `qwen_image_2.1_int8_convrot` + `recipe_source: discovered`.
+  - D3 PASS (both paths recorded; `look-*.json`, `look-*-diag.jsonl`).
+    - Poses off, Ash `a yellow oilskin coat` asked 7.6 s after reload: route already `ready` (discovery answered first), look rendered,
+      no lookError, 113 s.
+    - To exercise the wait, `/discover` was delayed 25 s in the page (`--delay-discover 25000`): Ash `a green fishing smock` asked 6.6 s
+      after reload with `spriteRecipe` still unchecked, waited, rendered `look_1e63a1bf`, no lookError, 134 s.
+    - Poses on, member the pose path declines (Bram, no pose in his list): the on-demand expression look ran. First try ended in the
+      builder's QA lookError (seam 3 levels, "Render it again"); second try (`a brown leather vest`) rendered `look_5073b901`, 200 s,
+      no D3 error either time.
+    - Poses on, member without authored poses (Ash, shipped library, `stand_relaxed`): the posed body route ran on the derived builder
+      (published the look, then the body). Tries: one cut short by the probe switching poses off, one QA lookError ("no face"), third
+      (`a grey knitted sweater`) rendered body set `lp_5c8eaa80`, 120 s. No "Choose an expression reference pack" copy anywhere.
+  - D2: author copy PASS; player line not reachable. Tampered Pim pack: Pim leaves the stage; the cast scene alert in Author view names the
+    pack and its digest problem ("SO-P41 Pim's visual pack so-p41-pim@773a1c9c96bc is not installed, or the catalog refused it …"),
+    576 ms. The cast panel renders only in Author view (`src/runtime/chatPanels.ts:24` `castPanelShown = authorView`), so
+    `CastSceneControls`' player branch cannot be shown; noted, not changed. An automatic turn with the tampered pack went to SDXL with
+    reason `no-reference` (`tamper.json`). Pack restored afterwards.
+  - D4 PASS. `automaticRoute: sdxl`, Pim alone (`auto-d4-sdxl.json`): positive = quality block, `1girl, long silver hair, purple eyes,
+    purple witch hat, purple hooded coat` (the `sdxl-illustrious` pack tags), action, place, one shot tag. Director request holds the bound
+    place and the pack tags, 0 of 4 spoiler strings.
+  - Stage 2 live (`auto-s2-*.json`, everyN 1, group members switched with `/enable` / `/disable`, restored after):
+    - On `8fa73c4e`: Pim alone → `qwen / references-ready` (plate on, `aspect {requested: portrait, drawn: reference}`); Bram alone →
+      `qwen / references-ready` (twice); Ash and pairs → `sdxl / visible-not-in-cast` whenever the director wrote short names ("Ash",
+      "Bram") for cards named `SO-P41 Ash` (D6); Ash once `sdxl / look-pending` (current outfit set by quality while its look was
+      being rebuilt). D4 turn `sdxl / setting-sdxl`; tampered pack `sdxl / no-reference`.
+    - On `85065989` (D6 fixed): Ash alone (director listed Ash + Pim) → `qwen` with both identities; Ash with Bram enabled → `qwen`; the
+      all-three line, director "Ash" short name → `qwen`. All `recipe_source: discovered`, 832×1248.
+    - `too-many-visible` and `no-one-visible` were not produced live (the director never listed 3, or nobody); covered by tests only.
+    - Placement: every automatic picture placed on its plan's `target` (the cueing reply), 14 of 14.
+    - Idle wait recorded on every picture (`idle_wait_ms` 3,032–44,822; the high ones waited out a reply).
+    - Stale discard PASS: the cued reply's text was edited during a Qwen render → direct returned "The story or the reply changed while
+      this picture was drawn, so it was discarded.", nothing placed (`stale.json`).
+  - Controller: no 409 wedge. `/status` after the run: `phase text`, `imageResidency.releaseFailures 0`, `lastReleaseGiveUp null`,
+    `sleepStats {sleeps 50, wakes 34, wakeFailures 1, strayWakes 0, wakeReclaims 33}` (the one wake failure predates the probes). The page
+    logged 44–50 `POST /api/plugins/story-orchestrator-gpu/lease 409` per probe/pilot run: the broker refusing a second lease while an image
+    job held it (retried, every job finished); not the text-wake wedge.
+  - Journey on `8fa73c4e`: `node scripts/debug/st-lanes.mts run 33 -- scripts/debug/so-p41-journey.mts run 1 --candidate --keep --label vb2s2`
+    → NOT GREEN, 1 miss: gpu-idle 14–15 % > 10 % (the known lane-browser draw, same as vb20). All other 31 steps pass (look, look-rebuild,
+    illustration, background, swipe, delete, reload, chat-switch, stale). Against vb20: ComfyUI calls 48 vs 47 (floor ≤ 35, still a miss),
+    Artemis 80 vs 86, Sol 29 vs 35; 10 turns / 13 replies in play, 0 silent; 0 stale findings; 0 refusals. Record:
+    `p41-vb2s2-run1\record.json`.
+  - Pilot: `st-lanes.mts run 33 -- scripts/debug/so-image-pilot.mts run --group 1793060156284 --chat "2026-10-26@21h16m05s959ms" --candidate
+    --out <debug>\image-pilot\vb2-pilot`, then `pack`.
+    - First attempt stopped at c02: the harness threw when `resetQuality` of an already unset key returned false (harness defect, fixed:
+      only a refused set is an error). Rerun into the same `--out` (12 director answers frozen, then 48 renders).
+    - 42 of 48 rendered on the first full run. Missing: c04 and c12 qwen-refs (Ash's navy-coat look read as "pending or stale", D7) and
+      c11 qwen-refs (`too-many-visible` though the frozen answer listed Bram and Cleo only, D8).
+    - Supplement for those 6 renders after the D8 fix: `--only c04,c11,c12 --arms qwen-refs --out …\vb2-pilot-supp` with the same frozen
+      director files copied in; before it, the pilot-made duplicate navy look (`look_2e7b87a7`) was removed from Ash's source and
+      `sprites.onDemand` set off so the stage could not republish it (lane test data; documented deviation). All 6 rendered on the
+      journey's accepted look (`sha256 5c845924…`, the same file as ref-B). Rows merged into `run.jsonl` (`run.main.jsonl` kept).
+    - Timing: SDXL median 22 s (max 56), Qwen median 37 s (max 97). c12's frozen answer was taken while Ash's look was ambiguous
+      (`routeReason look-pending`), so it carries no Qwen `instruction`; its Qwen prompt fell back to the caption.
+    - Pack: 53 images (48 + 5 hidden duplicates), refs A Ash, B Ash navy coat, C Bram, D Cleo, 0 missing.
+  - Sol blind rating (`codex exec -m gpt-6.1-sol -s read-only -c model_reasoning_effort=high --skip-git-repo-check -i <4 refs + batch> -o …`,
+    ≤1024 px JPEG copies in a folder without the key, two batches of 27/26 images, no tool calls in either log). Unblinded with
+    `unblind.mjs key.json sol-ratings-1.md sol-ratings-2.md` (originals only, 24 per arm):
+    - qwen-refs: face 4.81, hair 5.00, body 4.97, outfit 4.88, same person 100 %, action 4.29, cast count 5.00, setting 4.63,
+      pose/composition 4.75, style 4.50, anatomy 4.67, worth interrupting 4.46; changed-look outfit (c04/c12) 5.0; pair swaps or merges 0 of 8.
+    - sdxl-directed: face 1.13, hair 1.22, body 2.53, outfit 1.13, same person 0 %, action 2.75, cast count 3.25, setting 4.21,
+      pose/composition 3.38, style 2.75, anatomy 4.54, worth interrupting 1.17; changed-look outfit 2.0; pair failures 6 of 8 (both
+      identities replaced in 3, one character absent in 2 c11 renders, one replaced pair).
+    - Duplicate agreement: 3 of 5 identical scores, the other two differ by 0.43 and 0.57 mean absolute per image dimension.
+    - Caveat that dominates the identity gap: the p41 harness gives each card the showcase avatar, which contradicts the card text
+      (`CARD_ART_DEVIATION`, review 18). The Qwen arm draws from the sprites, the SDXL arm from card text plus the director, so SDXL
+      identity scores measure that mismatch as much as the renderer. Review 18's arm B controlled for it; this pilot did not.
+    - Sol's own note: the strongest images keep sprite identity and stage the action; the main Qwen slip is wrong-hand/wrong-actor
+      detail in pairs (c10 pointing character) and daytime weather where night was asked.
+  - Opus blind rating: owed. Brief `C:\dev\so-lanes\reviews\visual-bridge-s2-2026-10-27\opus-rater-brief.md`, material in the key-free copy
+    `…\blind\`, output `ratings-opus.json`; unblind with `node unblind.mjs pilot\key.json ratings-opus.json`.
+  - Defects:
+    - D6 (fixed `85065989`): `src/image/autoSceneHost.ts:24` matched the director's visible names to the roster by exact card name only,
+      so a short name ("Ash" for `SO-P41 Ash`) sent the picture to SDXL as `visible-not-in-cast`. Now resolved through
+      `memory/nameFold` (`resolveName`: card name, id, aliases, one unique word of the card name). Test `autoSceneHost.test.ts` "a visible
+      name given as the roster id or one word of the card name resolves to that member" (fails without the change).
+    - D8 (fixed `b0cab8e7`): `src/image/runtime.ts:325` ran the references-only early refusal on every scene subject, ignoring a frozen
+      director answer's visible list, so a 3-member scene with a 2-person frozen answer was refused `too-many-visible`. The early check now
+      uses the frozen visible list when one is given. In `auto` the same early check only decides whether the director is asked for the
+      Qwen instruction, so a 3-present scene drawn as a pair still gets no instruction (not changed). Test `autoRoute.test.ts` "a forced
+      reference arm checks the frozen answer's visible pair, not every character in the scene".
+    - D7 (open): `src/sprites/visualManifest.ts:67-70` `currentVisual` returns null when two looks share a signature with different
+      hashes, and `src/sprites/builder/onDemand.ts:115` keys the look set by story + builder config, so the same outfit rendered again
+      under another story or another builder config (here the derived builder after the journey's explicit entry was removed) publishes
+      a second look for the same signature. From then on that look reads "pending or stale" for the cast scene and the Qwen route, and the
+      stage keeps rebuilding it (duplicates seen live for the smock, sweater and navy coat). Fix options: reuse a published look for the
+      signature before rendering, or let the newest accepted look win instead of refusing.
+    - Harness (fixed `b0cab8e7`): `so-image-pilot.mts` treated a reset of an unset quality as failure.
+    - Minor: cast-scene player copy unreachable (D2 above).
+  - Gates for the fixes: `npm run gates:quick` green after D6 (165 s) and after D8 (158 s); full `npm run gates`: see the next entry.
+  - Cleanup: `so-p41-journey cleanup` (cards, groups, sprites rows, journey story; leaked 0), `so-library remove so-p41-bridge`; no SO-P41
+    card, group or visual source left. Residue moved to `C:\dev\backups\story-orchestrator\vb2s2-lane33-residue-20261027\`: 3 character
+    folders, the pack image folder, 2 plates, the `visual-packs` folder, 2 group image folders, the orphan bridge chat, and a post-run
+    `settings.json`. Lane `sprites`, `display`, `image` restored from ST's pre-run backup `settings_default-user_20261026-232607.json`
+    (minus 3 stale SO-P41 visual-source rows it still held). Lane stopped and set to no-model. Landmarks stopped. ComfyUI and the
+    controller left as found (running, controller-managed).
+- `npm run gates` (full, Storybook included, no `--resume`) on `b0cab8e7`: all green in 278.5 s, first run. build, typecheck,
+  typecheck:test, debug:typecheck, lint, test:release, test:replay (32 of 32 killed): ok. jest 904 suites passed, 1 skipped; 10,519 tests
+  passed, 1 skipped. test:debug 1,573 + 408 pass / 0 fail; test:plugin 128 / 0; test-storybook:ci 166 suites, 1,005 tests. Main bundle
+  `dist/index.js` 1,273,156 B.
