@@ -30,6 +30,7 @@ import { INJECTION_REGISTRY, type InjectionCarry } from "@constants/injectionReg
 import { residueTags, settledOnReply } from "../emptyReply";
 import { observeRenderedReasoning } from "../reasoningRevision";
 import { hostMessageId } from "../turnBridge";
+import { isPlayerSend } from "../playerSend";
 import type { LoreWiring } from "./lore";
 import type { Disposers, LiveParts } from "./types";
 
@@ -144,7 +145,11 @@ export const subscribeGenerationEvents = (live: LiveParts, generation: Generatio
       },
     },
     { eventName: "GENERATION_STARTED", handler: onStarted },
-    { eventName: "MESSAGE_SENT", handler: () => { live.talk?.onPlayerMessage(); return lore.onMessageSent(); } },
+    { eventName: "MESSAGE_SENT", handler: (messageId) => {
+      if (!isPlayerSend(hostMessageId(messageId), getContext().chat as unknown[] | undefined)) return;
+      live.talk?.onPlayerMessage();
+      return lore.onMessageSent();
+    } },
     { eventName: "GENERATION_ENDED", handler: (...args: unknown[]) => { live.loudGate.release(); apply(generation.ended(args)); } },
     { eventName: "GENERATION_STOPPED", handler: (...args: unknown[]) => { live.loudGate.release(); live.talk?.onGenerationStopped(); apply(generation.stopped(args)); } },
     { eventName: "MESSAGE_RECEIVED", handler: (messageId, type) => { live.loudGate.release(); apply(generation.rendered(messageId, type)); } },

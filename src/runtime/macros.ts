@@ -13,6 +13,8 @@ const renderPastCheckpoints = (manager: RuntimeManager): string => {
   return names.length ? names.join("\n") : "(none)";
 };
 
+export const roleMacroName = (rosterId: string): string => `story_role_${rosterId.trim().replace(/[^A-Za-z0-9_-]+/g, "_")}`;
+
 let registeredRoleKeys: string[] = [];
 let lastRosterSignature = "";
 
@@ -22,11 +24,13 @@ const syncRoleMacros = (manager: RuntimeManager) => {
   if (signature === lastRosterSignature) return;
   lastRosterSignature = signature;
   for (const key of registeredRoleKeys) unregisterHostMacro(key);
-  registeredRoleKeys = roster.map((member) => {
-    const key = `story_role_${member.id}`;
+  registeredRoleKeys = [];
+  for (const member of roster) {
+    const key = roleMacroName(member.id);
+    if (registeredRoleKeys.includes(key)) continue;
     registerHostMacro(key, () => manager.getStory()?.roster.find((entry) => entry.id === member.id)?.name ?? member.name ?? member.id, `Story Orchestrator roster role: ${member.id}`);
-    return key;
-  });
+    registeredRoleKeys.push(key);
+  }
 };
 
 /**

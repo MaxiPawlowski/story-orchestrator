@@ -67,7 +67,13 @@ const replyText = (row: unknown): string | null => {
   return shaped.is_user !== true && typeof shaped.mes === "string" && shaped.mes.trim() ? shaped.mes : null;
 };
 
-export const restorePoint = (history: EngineHistory, messageId: number): EngineState | null => {
+export const showsStoredSwipe = (row: unknown): boolean => {
+  if (typeof row !== "object" || row === null) return false;
+  const shaped = row as { mes?: unknown; swipes?: unknown; swipe_id?: unknown };
+  return Array.isArray(shaped.swipes) && typeof shaped.swipe_id === "number" && typeof shaped.mes === "string" && shaped.swipes[shaped.swipe_id] === shaped.mes;
+};
+
+export const restorePoint =(history: EngineHistory, messageId: number): EngineState | null => {
   const first = history.log.find((entry) => entry.context.lastMessageId >= messageId);
   if (first) return first.before;
   return history.base.lastMessageId < messageId ? history.base : null;
@@ -95,7 +101,7 @@ export class SwipeBack {
   }
 
   seam(kind: MutationKind, messageId: number): (() => Promise<void>) | null {
-    if (kind !== "swipe" || !this.deps.enabled()) return null;
+    if (kind !== "swipe" || !this.deps.enabled() || !showsStoredSwipe(this.deps.chat().rows[messageId])) return null;
     const key = this.keyAt(messageId);
     if (!key) return null;
     const entry = this.cache.get(key);
@@ -133,6 +139,8 @@ export class SwipeBack {
     const committed = this.committed;
     if (!state || !committed) return;
     const chat = this.deps.chat();
+    const shown = chat.rows[state.lastMessageId] as { swipes?: unknown } | undefined;
+    if (Array.isArray(shown?.swipes) && !showsStoredSwipe(shown)) return;
     const key = this.keyAt(state.lastMessageId);
     if (!key || key.chat !== committed.chat || key.message !== committed.message || key.text !== committed.text) return;
     const record = this.deps.store.read();

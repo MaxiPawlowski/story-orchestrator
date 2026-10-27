@@ -27,6 +27,7 @@ import { chatSettle } from "./chatSettle";
 import { heldOpenerLine, holdOpener, openerRelease } from "./openerDeferral";
 import { OpeningSequence, type NewChatOpening } from "./openingSequence";
 import { busyWork } from "./busy";
+import { ownPost } from "./playerSend";
 
 // What a host effect changed, read back from the host as it is NOW. Every reader is a
 // QUESTION with an honest "cannot tell", so a reconcile never guesses: a target whose value cannot be
@@ -124,8 +125,13 @@ export class EffectsApplier {
     if (!extras.ui.announceTransitions) return;
     const unannounced = `${what} was not announced`;
     if (!ownsOpenChat) return this.deps.journal?.(unannounced, "the open chat is not the chat this boundary belongs to");
-    if (!(await executeSlashCommands(`/comment compact=true raw=false ${quoteSlashArg(raw.replace(/\s*\r?\n\s*/g, " ").trim())}`, { silent: true }))) {
-      this.deps.journal?.(unannounced, "the /comment that posts the note was refused");
+    const own = ownPost();
+    try {
+      if (!(await executeSlashCommands(`/comment compact=true raw=false ${quoteSlashArg(raw.replace(/\s*\r?\n\s*/g, " ").trim())}`, { silent: true }))) {
+        this.deps.journal?.(unannounced, "the /comment that posts the note was refused");
+      }
+    } finally {
+      own();
     }
   }
 

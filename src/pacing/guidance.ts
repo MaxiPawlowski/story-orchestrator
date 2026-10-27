@@ -23,7 +23,11 @@ export const ASK_PLAYER_DIRECTION = `Turn to ${PLAYER_REF} in your own voice and
 
 export const ASK_PLAYER_TAIL = `End by asking ${PLAYER_REF} exactly one short question in your own voice (a single question, one question mark), then stop and leave the answer to ${PLAYER_REF}.`;
 
-export const ONE_SHOT_SCOPE = "This direction is for this one reply and wins over the general pacing notes where they differ, "
+export const ONE_QUESTION_CLOSE = "End with exactly one question. Do not ask a second question.";
+
+export const asksPlayerDirection = (text: string): boolean => text.includes(ASK_PLAYER_DIRECTION) || text.trimEnd().endsWith(ASK_PLAYER_TAIL);
+
+export const ONE_SHOT_SCOPE ="This direction is for this one reply and wins over the general pacing notes where they differ, "
   + `but never narrate ${PLAYER_REF}'s acts, words or feelings, and never ask ${PLAYER_REF} what they do.`;
 
 export const oneShotDirectionText = (reply: { instruction?: string; ask_player?: boolean }): string => {
@@ -59,5 +63,6 @@ export const composeGuidanceBlock = (
   return [
     ...(directed.length ? [GUIDANCE_PREAMBLE, ...directed] : []),
     policy.player_attempts_only ? PLAYER_ATTEMPTS_CLAUSE : "",
+    oneShot && asksPlayerDirection(oneShot.text) ? ONE_QUESTION_CLOSE : "",
   ].filter(Boolean).join("\n");
 };

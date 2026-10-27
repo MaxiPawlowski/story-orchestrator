@@ -11,7 +11,7 @@ import { testOwnership } from "../../test/findings/testOwnership";
 const SYSTEM = { enabled: true, max: 3, stopOnTransition: true, holdExtraction: false };
 type Line = { speaker: string; text: string; isUser?: boolean };
 const ROSTER = [{ id: "guard", name: "Mara" }, { id: "sage", name: "Finn" }, { id: "dm", name: "Narrator" }];
-const BY_NAME: Record<string, string> = { Mara: "guard", Finn: "sage", Narrator: "dm" };
+const BY_NAME: Record<string, string> = { Mara: "guard", Finn: "sage", Narrator: "dm", Ivo: "scout" };
 
 interface Setup {
   control: TalkControl;
@@ -20,9 +20,11 @@ interface Setup {
   drafted?: string;
   consequence?: string | null;
   ledger?: SpeechEvent[];
+  roster?: Array<{ id: string; name: string }>;
+  judge?: (input: JudgeDirectorInput) => string | null;
 }
 
-const makeHost = ({ control, history = [], picks, drafted = "guard", consequence = null, ledger = [] }: Setup) => {
+const makeHost = ({ control, history = [], picks, drafted = "guard", consequence = null, ledger = [], roster = ROSTER, judge }: Setup) => {
   const calls = { triggered: [] as string[], decisions: [] as TalkDecisionAudit[], judged: [] as JudgeDirectorInput[], armed: [] as Array<[string, string]> };
   let window: Line[] = [...history, { speaker: "Rook", text: "We should find shelter.", isUser: true }];
   let events: SpeechEvent[] = ledger;
@@ -34,8 +36,8 @@ const makeHost = ({ control, history = [], picks, drafted = "guard", consequence
     isGroupChat: () => true,
     getChatId: () => "chat-1",
     getActiveTalkControl: () => control,
-    getRoster: () => ROSTER,
-    getEnabledRosterIds: () => ["guard", "sage", "dm"],
+    getRoster: () => roster,
+    getEnabledRosterIds: () => roster.map((member) => member.id),
     getLastSpeakerRosterId: () => null,
     getDraftedRosterId: () => drafted,
     getLastMessageId: () => window.length - 1,
@@ -45,7 +47,7 @@ const makeHost = ({ control, history = [], picks, drafted = "guard", consequence
     callDirector: async () => "SPEAKER: Finn",
     judgeDirector: async (input) => {
       calls.judged.push(input);
-      const name = picks[calls.judged.length - 1];
+      const name = judge ? judge(input) : picks[calls.judged.length - 1];
       return name ? { kind: "member", rosterId: BY_NAME[name], name, confidence: 0.9, via: "choice" } : { kind: "player", confidence: 0.9, via: "choice" };
     },
     triggerMember: async (name) => { calls.triggered.push(name); },
@@ -64,7 +66,8 @@ const makeHost = ({ control, history = [], picks, drafted = "guard", consequence
     lastAddressAt: () => budget.lastAddressAt(),
   };
   const speak = (speaker: string, text = `"${speaker} says something about the road."`) => { window = [...window, { speaker, text }]; };
-  return { host, calls, speak, events: () => events, budget };
+  const say = (text: string) => { window = [...window, { speaker: "Rook", text, isUser: true }]; };
+  return { host, calls, speak, say, events: () => events, budget, lines: () => window };
 };
 
 const run = async (setup: Setup, voices: Array<[string, string?]>) => {
@@ -86,7 +89,10 @@ describe("v3.0 19 stage 2: one speech budget per player message", () => {
   it("the chain stops when the budget has no voice left, before asking for a voice it could not afford to start", async () => {
     const { calls, events } = await run({ control: { director: true, budget: { voices: 2 } }, picks: ["Mara", "Finn", "Narrator"] }, [["Mara"], ["Finn"]]);
     expect(calls.triggered).toEqual(["Finn"]);
-    expect(events()).toEqual([expect.objectContaining({ origin: "chain", member: "Finn", messageId: 2, send: 0, generated: true })]);
+    expect(events()).toEqual([
+      expect.objectContaining({ origin: "chain", member: "Mara", messageId: 1, send: 0, generated: true }),
+      expect.objectContaining({ origin: "chain", member: "Finn", messageId: 2, send: 0, generated: true }),
+    ]);
   });
 
   it("control: without a budget field the default budget is the chain max, so three voices still answer", async () => {
@@ -131,7 +137,10 @@ describe("v3.0 19 stage 2: address-the-player rides a planned voice", () => {
     expect(calls.armed).toEqual([["Finn", ASK_PLAYER_DIRECTION]]);
     expect(calls.judged).toHaveLength(2);
     expect(calls.decisions.at(-1)).toMatchObject({ kind: "player", source: "rules" });
-    expect(events()).toEqual([expect.objectContaining({ origin: "address", recipient: "player", member: "Finn", instructed: true, yieldAfter: true })]);
+    expect(events()).toEqual([
+      expect.objectContaining({ origin: "chain", member: "Narrator", instructed: false }),
+      expect.objectContaining({ origin: "address", recipient: "player", member: "Finn", instructed: true, yieldAfter: true }),
+    ]);
   });
 
   it("the cooldown holds the next beat until enough player turns pass", async () => {
@@ -162,7 +171,8 @@ describe("v3.0 19 stage 2: one reaction beat after a consequential event", () =>
     expect(calls.judged).toHaveLength(1);
     expect(calls.armed).toEqual([["Finn", REACTION_DIRECTION]]);
     expect(calls.decisions.find((decision) => decision.source === "reaction")).toMatchObject({ chosenName: "Finn" });
-    expect(events()[0]).toMatchObject({ origin: "reaction", cause: "4@1" });
+    expect(events().map((event) => [event.origin, event.member])).toEqual([["chain", "Mara"], ["reaction", "Finn"]]);
+    expect(events()[1]).toMatchObject({ origin: "reaction", cause: "4@1" });
     expect(calls.decisions.at(-1)).toMatchObject({ kind: "player" });
   });
 
@@ -179,5 +189,103 @@ describe("v3.0 19 stage 2: profiles resolve lead preference", () => {
     const conversation = await run({ control: { director: true, lead: "Narrator", profile: "conversation" }, picks: ["Mara"], drafted: "guard" }, []);
     expect(plain.calls.judged[0].lead).toBe("Narrator");
     expect(conversation.calls.judged[0].lead).toBeUndefined();
+  });
+});
+
+describe("v3.0 19 fix 1: a directed first voice carries its beat whichever path starts it", () => {
+  const control: TalkControl = { director: true, lead: "Narrator", address_player: { after_player_turns: 1 } };
+
+  it("ST drafted another member: the director's member is triggered with the address beat, its reservation and its speech row", async () => {
+    const made = makeHost({ control, picks: ["Mara"], drafted: "dm" });
+    const controller = new TalkController(made.host);
+    await controller.ready;
+    controller.onWrapperStarted({ type: "normal" });
+    const aborted: boolean[] = [];
+    await controller.intercept((immediate) => { aborted.push(immediate); }, "normal");
+    await controller.onWrapperFinished();
+    expect(aborted).toEqual([false]);
+    expect(made.calls.triggered).toEqual(["Mara"]);
+    expect(made.calls.armed).toEqual([["Mara", ASK_PLAYER_DIRECTION]]);
+    controller.onWrapperStarted({ type: "normal" });
+    controller.onGenerationStarted({ force_chid: 1 }, "normal");
+    made.speak("Mara", '"Hm."');
+    await controller.onWrapperFinished();
+    expect(made.events()).toEqual([expect.objectContaining({ origin: "address", member: "Mara", messageId: 1, recipient: "player", yieldAfter: true })]);
+    expect(made.calls.decisions.at(-1)).toMatchObject({ kind: "player", source: "rules" });
+    expect(made.calls.triggered).toEqual(["Mara"]);
+  });
+
+  it("control: ST drafted the director's member, same beat and the same speech row", async () => {
+    const { calls, events } = await run({ control, picks: ["Mara"] }, [["Mara", '"Hm."']]);
+    expect(calls.armed).toEqual([["Mara", ASK_PLAYER_DIRECTION]]);
+    expect(events()).toEqual([expect.objectContaining({ origin: "address", member: "Mara", messageId: 1 })]);
+  });
+
+  it("a plain first voice reserves and records too, on either path", async () => {
+    const drafted = await run({ control: { director: true }, picks: ["Mara", null as unknown as string] }, [["Mara"]]);
+    expect(drafted.events()).toEqual([expect.objectContaining({ origin: "chain", member: "Mara", messageId: 1, instructed: false })]);
+    const made = makeHost({ control: { director: true }, picks: ["Mara", null as unknown as string], drafted: "dm" });
+    const controller = new TalkController(made.host);
+    await controller.ready;
+    controller.onWrapperStarted({ type: "normal" });
+    await controller.intercept(() => undefined, "normal");
+    await controller.onWrapperFinished();
+    controller.onWrapperStarted({ type: "normal" });
+    controller.onGenerationStarted({ force_chid: 1 }, "normal");
+    made.speak("Mara");
+    await controller.onWrapperFinished();
+    expect(made.events()).toEqual([expect.objectContaining({ origin: "chain", member: "Mara", messageId: 1 })]);
+  });
+});
+
+describe("v3.0 19 fix 5: spotlight may take the first voice", () => {
+  const ROSTER4 = [...ROSTER, { id: "scout", name: "Ivo" }];
+  const leadThenHandBack = (input: JudgeDirectorInput) => (input.allowHandBack ? null : "Narrator");
+
+  const play = async (control: TalkControl, sends: string[], judge = leadThenHandBack) => {
+    const made = makeHost({ control, picks: [], drafted: "dm", roster: ROSTER4, judge });
+    const controller = new TalkController(made.host);
+    await controller.ready;
+    const spoke: string[][] = [];
+    for (const [index, text] of sends.entries()) {
+      if (index > 0) made.say(text);
+      const before = made.lines().length;
+      controller.onWrapperStarted({ type: "normal" });
+      const pass = { aborted: false };
+      await controller.intercept(() => { pass.aborted = true; }, "normal");
+      if (!pass.aborted) made.speak("Narrator");
+      const triggered = made.calls.triggered.length;
+      await controller.onWrapperFinished();
+      for (const name of made.calls.triggered.slice(triggered)) {
+        controller.onWrapperStarted({ type: "normal" });
+        controller.onGenerationStarted({ force_chid: 1 }, "normal");
+        made.speak(name);
+        await controller.onWrapperFinished();
+        controller.onGenerationEnded();
+      }
+      spoke.push(made.lines().slice(before).filter((line) => !line.isUser).map((line) => line.speaker));
+    }
+    return { spoke, made };
+  };
+
+  const everyWindowHas = (spoke: string[][], name: string, size: number) =>
+    spoke.every((_, start) => start + size > spoke.length || spoke.slice(start, start + size).some((voices) => voices.includes(name)));
+
+  it("in a 4-member group over 10 player turns every member speaks within 4 player turns, one voice a turn", async () => {
+    const { spoke } = await play({ director: true, lead: "Narrator", profile: "conversation", address_player: false }, Array.from({ length: 10 }, (_, index) => `Turn ${index + 1}.`));
+    expect(spoke.map((voices) => voices.length)).toEqual(Array(10).fill(1));
+    expect(["Narrator", "Mara", "Finn", "Ivo"].map((name) => [name, everyWindowHas(spoke, name, 4)])).toEqual([["Narrator", true], ["Mara", true], ["Finn", true], ["Ivo", true]]);
+  });
+
+  it("control: without spotlight the lead takes every turn", async () => {
+    const { spoke } = await play({ director: true, lead: "Narrator", profile: "conversation", address_player: false, spotlight: false }, Array.from({ length: 6 }, (_, index) => `Turn ${index + 1}.`));
+    expect(spoke).toEqual(Array(6).fill(["Narrator"]));
+  });
+
+  it("never swaps out a member the player named, and never the lead in a lead-first profile", async () => {
+    const named = await play({ director: true, lead: "Narrator", profile: "conversation", address_player: false }, ["Turn 1.", "Turn 2.", "Narrator, what now?", "Turn 4."]);
+    expect(named.spoke[2]).toEqual(["Narrator"]);
+    const leadFirst = await play({ director: true, lead: "Narrator", profile: "action" }, ["Turn 1.", "Turn 2.", "Turn 3.", "Turn 4.", "Turn 5."]);
+    expect(leadFirst.spoke.map((voices) => voices[0])).toEqual(Array(5).fill("Narrator"));
   });
 });

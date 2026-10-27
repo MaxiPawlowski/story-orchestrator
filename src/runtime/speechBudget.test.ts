@@ -107,6 +107,18 @@ describe("v3.0 19 stage 2: the speech record rolls back with the chat", () => {
     expect(rewindSpeech(ledger, 4, { kind: "delete", removed: 1 })).toEqual([event(0, 1, 2), event(0, 2, 3)]);
   });
 
+  it("v3.0 19 fix 3: a swiped reaction keeps its cause handled and a swiped address keeps the cooldown; a delete reopens both", () => {
+    const reaction: SpeechEvent = { ...event(0, 1, 2), origin: "reaction", cause: "3@1", yieldAfter: true };
+    const address: SpeechEvent = { ...event(0, 2, 3), origin: "address", recipient: "player", yieldAfter: true };
+    const read = (rows: SpeechEvent[]) => {
+      const budget = new SpeechBudget({ chat: () => [], chatId: () => "chat-a", events: () => rows, setEvents: () => undefined, policy: () => null, persist: () => undefined });
+      return { handled: budget.causeHandled("3@1"), lastAddress: budget.lastAddressAt() };
+    };
+    expect(read(rewindSpeech([reaction, address], 2, { kind: "swipe" }))).toEqual({ handled: true, lastAddress: -1 });
+    expect(read(rewindSpeech([reaction, address], 3, { kind: "swipe" }))).toEqual({ handled: true, lastAddress: 3 });
+    expect(read(rewindSpeech([reaction, address], 2, { kind: "delete", removed: 2 }))).toEqual({ handled: false, lastAddress: -1 });
+  });
+
   it("caps and sanitizes", () => {
     let rows: SpeechEvent[] = [];
     for (let index = 0; index < 210; index += 1) rows = recordSpeechEvent(rows, event(0, index, index + 1));
