@@ -10,7 +10,7 @@ import { log } from "@utils/log";
 import { hostGenerating, waitForTextPriority } from "./textPriority";
 import { completeLookFrames, LOOK_FRAME_KINDS, lookFrameRequest, lookKeyInput, lookStillRequest } from "./lookFrames";
 import { frameIndex, type AnimationFrames } from "../animation";
-import { visualRoot } from "../visualManifest";
+import { publishedLook, visualRoot } from "../visualManifest";
 import { builderGap, recipeChecked, RECIPE_WAIT_MS, withDefaultBuilders } from "../defaultRecipe";
 import { verifyVisualSource, sourceStillCurrent, publishDerivedVisual } from "../visualHost";
 import { anySignal } from "@utils/signals";
@@ -114,7 +114,8 @@ export class OnDemandLooks {
       const models = { diffusion, encoder, vae };
       const key = await contentHash(new TextEncoder().encode(lookKeyInput({ story, member: request.member, fields: request.fields, version, models,
         recipe: EDIT_RECIPE, config, ...(accepted ? { visualRoot: visualRoot(accepted) } : {}) })));
-      const set = `look_${key.slice(0, 8)}`;
+      const reused = accepted ? publishedLook(accepted, request.fields) : null;
+      const set = reused?.set ?? `look_${key.slice(0, 8)}`;
       const build = { folder: request.folder, set, label: request.label, key, story, member: request.member, models, config };
       const existing = await spriteList(`${request.folder}/${set}`);
       const cached = await spriteManifest(request.folder, set);
@@ -153,9 +154,10 @@ export class OnDemandLooks {
         }
         const file = rendered.files.find((file) => file.label === request.label);
         if (!file) throw new Error("The cached look expression is missing.");
+        if (reused && request.label === "neutral" && file.sha256 !== reused.sha256) throw new Error("The published look changed outside Story Orchestrator. Prepare this look again.");
         const frames = await animate(file.path, file.sha256);
         guard();
-        if (accepted && request.label === "neutral") publishDerivedVisual(run, request.folder, visualRoot(accepted), set, request.fields,
+        if (accepted && request.label === "neutral" && !reused) publishDerivedVisual(run, request.folder, visualRoot(accepted), set, request.fields,
           { path: file.path, sha256: file.sha256, key: cached.labels[request.label].key, recipe: cached.labels[request.label].recipe });
         request.apply(set, existing, frames); return;
       }

@@ -16,6 +16,16 @@ test("scene refuses the original outfit when the current look is unprepared, the
   expect(castSceneKey(identities, input)).not.toBe(castSceneKey(original, input));
 });
 
+test("a look published twice for the same outfit illustrates with the newest copy and records which, instead of reading pending", () => {
+  const fields = { outfit: "blue coat" }, signature = lookSignature(fields);
+  const once = publishVisualLook(source, visualRoot(source), "look_old", signature, { ...source.base, path: "/characters/Synthetic/look_old/neutral.png", sha256: "e".repeat(64) });
+  const twice = publishVisualLook(once, visualRoot(source), "look_new", signature, { ...source.base, path: "/characters/Synthetic/look_new/neutral.png", sha256: "f".repeat(64) });
+  const [identity] = castSceneIdentities([{ character: "Synthetic", fields, source: twice }]);
+  expect(identity.look.base.sha256).toBe("f".repeat(64));
+  expect(identity.set).toBe("look_new");
+  expect(castSceneIdentities([{ character: "Synthetic", fields, source: twice }])).toEqual([identity]);
+});
+
 test("missing, duplicate or unsupported cast sizes refuse without a fabricated default identity", () => {
   const member = { character: "Synthetic", fields: {}, source };
   for (const members of [[], [member, member], [member, member, member], [{ character: "Synthetic", fields: {} }]]) expect(() => castSceneIdentities(members)).toThrow();

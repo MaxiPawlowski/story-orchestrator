@@ -9,7 +9,7 @@ import { importPoseImage } from "./importHost";
 import { hostGenerating, waitForTextPriority } from "../builder/textPriority";
 import { PoseBodies } from "./bodyRenderer";
 import { getGlobalSettings } from "@runtime/settingsStore";
-import { visualRoot } from "../visualManifest";
+import { publishedLook, visualRoot } from "../visualManifest";
 import { verifyVisualSource, sourceStillCurrent, publishDerivedVisual } from "../visualHost";
 
 export const createPoseBodies = (ownership: RunOwnership): PoseBodies => {
@@ -28,6 +28,10 @@ export const createPoseBodies = (ownership: RunOwnership): PoseBodies => {
     if (!source) return undefined;
     await verifyVisualSource(source, signal);
     return { root: visualRoot(source), baseSet: source.baseSet, current: () => sourceStillCurrent(source) };
+  },
+  published: (folder, root, fields) => {
+    const source = getGlobalSettings().sprites.visualSources[folder];
+    return source && visualRoot(source) === root ? publishedLook(source, fields) : null;
   },
   publishLook: publishDerivedVisual,
   models: async (config, signal) => {

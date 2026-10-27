@@ -174,7 +174,8 @@ export async function renderQwenJob(job: QwenJob, signal: AbortSignal): Promise<
 }
 
 export const identityRecord = (identities: CastSceneIdentity[]) => identities.map((identity) => ({ character: identity.character,
-  root: identity.root, signature: identity.signature, sha256: identity.look.base.sha256, ...(identity.layered ? { substituted: identity.layered } : {}) }));
+  root: identity.root, signature: identity.signature, sha256: identity.look.base.sha256, ...(identity.set ? { set: identity.set } : {}),
+  ...(identity.layered ? { substituted: identity.layered } : {}) }));
 
 export async function drawPreparedCast(manager: RuntimeManager, queue: ImageQueue, selected: string[], direction: string,
   options: { target?: number | null } = {}): Promise<string> {

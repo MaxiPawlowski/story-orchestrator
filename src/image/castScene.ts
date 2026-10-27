@@ -1,5 +1,5 @@
 import { stableStringify } from "@runtime/hash";
-import { currentVisual, lookSignature, visualRoot, type VisualManifest, type VisualLook } from "../sprites/visualManifest";
+import { lookSignature, visualChoice, visualRoot, type VisualManifest, type VisualLook } from "../sprites/visualManifest";
 import { editGraph, type EditModels } from "../sprites/builder/recipes";
 import { builderRender, type SpriteSettings } from "../sprites/settings";
 export { discoveredSceneRecipe } from "../sprites/defaultRecipe";
@@ -30,13 +30,13 @@ export function packGap(name: string, subject: SceneSubject | undefined, bound?:
 export class LookPending extends Error { override name = "LookPending"; }
 export interface CastScenePack { root: string; look: VisualLook; substituted: boolean }
 export interface CastSceneMember { character: string; fields: Record<string, string>; source?: VisualManifest; card?: CardBinding; pack?: CastScenePack }
-export interface CastSceneIdentity { character: string; root: string; signature: string; look: VisualLook; layered?: string[] }
-function layeredLook(member: CastSceneMember & { source: VisualManifest }): { signature: string; look: VisualLook; layered: string[] } | null {
+export interface CastSceneIdentity { character: string; root: string; signature: string; look: VisualLook; set?: string; layered?: string[] }
+function layeredLook(member: CastSceneMember & { source: VisualManifest }): { signature: string; look: VisualLook; set: string; layered: string[] } | null {
   if (!member.card) return null;
   const layers = lookLayers(member.card, member.fields), layered = [...Object.keys(layers.face), ...Object.keys(layers.decal)].sort();
   if (!layered.length || !Object.keys(member.fields).every((field) => field in layers.base || field in layers.face || field in layers.decal)) return null;
-  const signature = lookSignature(layers.base), look = currentVisual(member.source, signature);
-  return look ? { signature, look, layered } : null;
+  const signature = lookSignature(layers.base), choice = visualChoice(member.source, signature);
+  return choice ? { signature, look: choice.look, set: choice.set, layered } : null;
 }
 export function castSceneIdentities(members: CastSceneMember[]): CastSceneIdentity[] {
   if (!members.length || members.length > 2 || new Set(members.map((member) => member.character)).size !== members.length) {
@@ -46,8 +46,8 @@ export function castSceneIdentities(members: CastSceneMember[]): CastSceneIdenti
     if (member.pack) return { character: member.character, root: member.pack.root, signature: lookSignature(member.fields), look: member.pack.look,
       ...(member.pack.substituted && Object.keys(member.fields).length ? { layered: Object.keys(member.fields).sort() } : {}) };
     if (!member.source || member.source.character !== member.character) throw new Error("Prepare each selected character's base and bust first.");
-    const source = member.source, signature = lookSignature(member.fields), look = currentVisual(source, signature);
-    if (look) return { character: member.character, root: visualRoot(source), signature, look };
+    const source = member.source, signature = lookSignature(member.fields), choice = visualChoice(source, signature);
+    if (choice) return { character: member.character, root: visualRoot(source), signature, look: choice.look, set: choice.set };
     const layered = layeredLook({ ...member, source });
     if (layered) return { character: member.character, root: visualRoot(source), ...layered };
     throw new LookPending("A selected character's current look is pending or stale. Prepare that look before illustrating the cast.");

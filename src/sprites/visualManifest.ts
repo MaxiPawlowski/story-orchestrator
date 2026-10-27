@@ -64,17 +64,21 @@ export function visualSources(value: unknown): VisualSources {
   }));
 }
 
-export function currentVisual(source: VisualManifest, signature: string): VisualLook | null {
-  const matches = Object.values(source.looks).filter((look) => look.root === visualRoot(source) && look.signature === signature);
-  const hashes = new Set(matches.map((look) => look.base.sha256));
-  return matches.length && hashes.size === 1 ? matches.at(-1) ?? null : null;
+export interface VisualChoice { set: string; look: VisualLook; shadowed: string[] }
+
+export function visualChoice(source: VisualManifest, signature: string): VisualChoice | null {
+  const root = visualRoot(source);
+  const matches = Object.entries(source.looks).filter(([, look]) => look.root === root && look.signature === signature);
+  const chosen = matches.at(-1);
+  return chosen ? { set: chosen[0], look: chosen[1], shadowed: matches.slice(0, -1).map(([set]) => set) } : null;
 }
 
-export function publishedLook(source: VisualManifest, fields: Record<string, string>): { set: string; path: string } | null {
+export const currentVisual = (source: VisualManifest, signature: string): VisualLook | null => visualChoice(source, signature)?.look ?? null;
+
+export function publishedLook(source: VisualManifest, fields: Record<string, string>): { set: string; path: string; sha256: string } | null {
   if (!Object.keys(fields).length) return null;
-  const look = currentVisual(source, lookSignature(fields));
-  const set = look ? Object.entries(source.looks).find(([key, entry]) => entry === look && key !== "default")?.[0] : undefined;
-  return look && set ? { set, path: look.base.path } : null;
+  const choice = visualChoice(source, lookSignature(fields));
+  return choice && choice.set !== "default" ? { set: choice.set, path: choice.look.base.path, sha256: choice.look.base.sha256 } : null;
 }
 
 const LOOK_FILLER = new Set(["a", "an", "the", "and", "with", "over", "under", "of", "in", "on", "her", "his", "their"]);

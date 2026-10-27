@@ -44,6 +44,14 @@ describe("automatic picture route: Qwen readiness reasons", () => {
     expect(reason([{ name: "Synthetic", member: { character: "Synthetic", fields, source: changed } }])).toBe("ready");
   });
 
+  it("a current look published twice with different files is ready on the newest copy, not look-pending", () => {
+    const fields = { outfit: "navy coat" }, source = visualFixture(), signature = lookSignature(fields);
+    const once = publishVisualLook(source, visualRoot(source), "look_old", signature, { ...source.base, sha256: "e".repeat(64) });
+    const twice = publishVisualLook(once, visualRoot(source), "look_new", signature, { ...source.base, sha256: "f".repeat(64) });
+    const result = qwenReadiness({ subjects: [{ name: "Synthetic", member: { character: "Synthetic", fields, source: twice } }], discovery: discovery(), sprites, visual: null });
+    expect(result.ok && result.ready.identities.map((identity) => [identity.set, identity.look.base.sha256])).toEqual([["look_new", "f".repeat(64)]]);
+  });
+
   it("adds the place plate as the next image input only when this ComfyUI offers it", () => {
     const plate = { path: "/backgrounds/plate.png", sha256: "9".repeat(64) };
     const visual = { place: { source: "pack", plate, checkpoint: "quay", name: "Quay", tags: [] } } as unknown as VisualScene;

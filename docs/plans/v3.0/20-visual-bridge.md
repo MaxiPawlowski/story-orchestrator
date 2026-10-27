@@ -626,7 +626,7 @@ Pilot harness (owner, 2026-10-26, after stage 2):
       uses the frozen visible list when one is given. In `auto` the same early check only decides whether the director is asked for the
       Qwen instruction, so a 3-present scene drawn as a pair still gets no instruction (not changed). Test `autoRoute.test.ts` "a forced
       reference arm checks the frozen answer's visible pair, not every character in the scene".
-    - D7 (open): `src/sprites/visualManifest.ts:67-70` `currentVisual` returns null when two looks share a signature with different
+    - D7 (fixed after this entry, see the D7 entry below; was open): `src/sprites/visualManifest.ts:67-70` `currentVisual` returns null when two looks share a signature with different
       hashes, and `src/sprites/builder/onDemand.ts:115` keys the look set by story + builder config, so the same outfit rendered again
       under another story or another builder config (here the derived builder after the journey's explicit entry was removed) publishes
       a second look for the same signature. From then on that look reads "pending or stale" for the cast scene and the Qwen route, and the
@@ -645,3 +645,48 @@ Pilot harness (owner, 2026-10-26, after stage 2):
   typecheck:test, debug:typecheck, lint, test:release, test:replay (32 of 32 killed): ok. jest 904 suites passed, 1 skipped; 10,519 tests
   passed, 1 skipped. test:debug 1,573 + 408 pass / 0 fail; test:plugin 128 / 0; test-storybook:ci 166 suites, 1,005 tests. Main bundle
   `dist/index.js` 1,273,156 B.
+- D7 fix 2026-10-27 (unit level; no GPU, lanes or staging). Owner decision, both parts as recommended:
+  - Decision 1, reuse before render: a look is a property of the character's appearance, not of the story. Before an on-demand look
+    or a posed look base renders, an accepted, published look for the same visual root + look signature is reused whatever story or
+    builder config published it; only a genuine miss renders.
+    - `src/sprites/builder/onDemand.ts`: the set is `publishedLook(accepted, fields).set` when one exists, else the keyed `look_<key>`;
+      a cached hit on the reused set checks the neutral file against the published hash and does not publish again.
+    - `src/sprites/poses/bodyRenderer.ts` `lookBase` (new dep `published`, `bodyHost.ts` reads the accepted source): a published base
+      whose cached neutral file matches the published hash is the base; otherwise the base renders and publishes as before.
+  - Decision 2, newest wins: `visualManifest.ts` `visualChoice(source, signature)` returns `{set, look, shadowed}` = the newest (last
+    published) look of that root and signature; `currentVisual` and `publishedLook` are views of it, so existing duplicates heal with no
+    cleanup. A republish of an older set keeps its place, so the choice does not flip. The cast scene and the automatic Qwen route
+    (`castSceneIdentities`), the stage head (`liveHeadStage.actorLook`) and the posed stand-in (`stageBodies` → `publishedLook`) all read
+    `visualChoice`. The chosen set is recorded: `CastSceneIdentity.set`, written by `identityRecord` into the image record. Stale guards
+    stay keyed on the chosen look's hash (`castSceneKey`, `currentIdentities`, `verifyInputs`). Visual sources are install-wide settings,
+    not chat state, so rollback and replay read the same deterministic choice.
+  - Tests (each fails without its part; checked by reverting the part): `onDemandReuse.test.ts` "an outfit already published for this
+    visual root is reused under another story and another builder config, never rendered or published again" (+ a genuine miss still
+    renders); `bodyRenderer.test.ts` "a look base already published for the visual root is reused whatever story or builder rendered
+    it; a changed or missing copy renders"; `visualManifest.test.ts` "two published looks for one signature resolve to the newest, the
+    same choice for every reader, and a stale root never wins"; `castScene.test.ts` "a look published twice for the same outfit
+    illustrates with the newest copy and records which, instead of reading pending"; `autoScene.test.ts` "a current look published twice
+    with different files is ready on the newest copy, not look-pending".
+  - `PoseBodies.render` hit the S4 branch ratchet (42 > 40); the reuse moved into `lookBase` (render stays at 40 branches, 150 lines).
+  - Gates: `npm run gates:quick` green (after fixing the S4 ratchet and a typecheck:test tuple error). Full `npm run gates` run 1 (no
+    `--resume`): RED at test, 1 failure, `onDemandReuse.test.ts` timed out on a fixed 30 ms tick under full-suite load (the new test's
+    flake, not the product); the test now waits on apply/failed. Run 2 (full, no `--resume`, fixed tree): all green in 285.8 s. build,
+    typecheck, typecheck:test, debug:typecheck, lint, test:release, test:replay (32 of 32 killed): ok. jest 905 suites passed, 1 skipped;
+    10,525 tests passed, 1 skipped. test:debug 1,573 + 408 pass / 0 fail; test:plugin 128 / 0; test-storybook:ci 166 suites, 1,005
+    tests. Main bundle `dist/index.js` 1,273,207 B.
+  - Live: NOT run. Owed: a live re-check that rendering an outfit under a second story or builder config reuses the published look,
+    and that a lane with existing duplicates draws the cast scene / automatic Qwen picture on the newest.
+- Opus blind rating of the stage-2 pilot (2026-10-27, added after the D7 fix). Same brief, key-free `blind\` copy; unblinded by the lead
+  with `node unblind.mjs pilot\key.json ratings-opus.json` → `opus-unblinded.json` (notes in `ratings-opus.md`). Originals only, 24 per arm:
+  - qwen-refs: face 4.66, hair 5.00, body 4.72, outfit 4.97, same person 100 %, action 3.96, cast count 4.79, setting 3.58,
+    pose/composition 3.92, style 4.58, anatomy 3.96, worth interrupting 3.75; changed-look outfit 4.75; pair swaps or merges 1 of 8
+    (c12 s202, roles swapped).
+  - sdxl-directed: face 1.06, hair 1.28, body 1.88, outfit 1.19, same person 0 %, action 2.54, cast count 1.92, setting 3.42,
+    pose/composition 3.17, style 1.92, anatomy 3.29, worth interrupting 1.50; changed-look outfit 2.5; pair failures 8 of 8 (wrong or
+    missing cast in every pair).
+  - Hidden duplicates: 5 of 5 identical (mean absolute difference 0).
+  - Rater notes: one Qwen image is a six-panel comic grid (img-01), against the recipe's "never panels"; recurring role and expression
+    slips (Ash points instead of Bram at the window; Cleo gains glasses); settings often miss the asked storm.
+  - Both raters agree on direction and size of the gap (Qwen far ahead on identity, outfit and worth interrupting; SDXL ahead on
+    nothing). Opus is the lead's model family, so it is the less independent rating even though blind; Sol stays the independent one.
+    The showcase-avatar vs card-text confound (`CARD_ART_DEVIATION`) applies to both.
