@@ -63,6 +63,21 @@ describe("living checkpoints take their talk pacing from the beat they grew from
     expect(livingTalkControl(undefined, { profile: "opening" })).toEqual({ profile: LIVING_TALK_FALLBACK });
   });
 
+  it("a fully living story's opening takes the story's default profile, or opening, and the director cannot rewrite it", () => {
+    const premise = fixture("living-premise");
+    const story = parseStoryOrThrow(premise);
+    expect(story.checkpointById.liv_open.talk_control).toEqual({ profile: "opening" });
+    expect(resolveTalkPolicy({ control: story.checkpointById.liv_open.talk_control ?? null, defaults: undefined, chainMax: 3, activeReplies: false }))
+      .toMatchObject({ profile: "opening", budget: { voices: 2, attempts: 3 } });
+    expect(parseStoryOrThrow({ ...premise, talk_defaults: { profile: "aftermath" } }).checkpointById.liv_open.talk_control).toEqual({ profile: "aftermath" });
+    const hybrid = parseStoryOrThrow(withTalk(fixture("living-hybrid"), "ford", { profile: "decision" }));
+    expect(hybrid.checkpointById.liv_open).toBeUndefined();
+    const rewrite: LivingOpPayload[] = [{ kind: "add-checkpoint", checkpoint: { id: "liv_open", name: "Again", objective: "x", type: "anchor", talk_control: { budget: { voices: 8 } } } }];
+    const issues = checkDirectorOps({ raw: premise, story, frontierId: "liv_open", ops: rewrite, values: {}, latched: {} }).issues.join(" ");
+    expect(issues).toContain("'liv_open' already exists");
+    expect(issues).toContain("'liv_open' must take its talk control from 'liv_open'");
+  });
+
   it("a branch stub inherits the talk control of the checkpoint it branches from", () => {
     const raw = withTalk(fixture("living-hybrid"), "mill", { profile: "conversation", budget: { voices: 2 } });
     const story = parseStoryOrThrow(raw);

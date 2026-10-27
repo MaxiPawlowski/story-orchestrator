@@ -112,7 +112,7 @@ const checkTurnsKey = (qualityByKey: Record<string, Quality>, errors: Validation
 const readLivingParts = (layer: GameLayer | null, json: Record<string, unknown>, errors: ValidationError[]) => {
   const living = layer?.living.readLiving(json.living, errors);
   const authored = readList(json.checkpoints, "checkpoints", readCheckpoint, errors);
-  const checkpoints = living && layer?.living.needsLivingOpening(living, authored) ? [layer.living.livingOpening(living, json.chapters), ...authored] : authored;
+  const checkpoints = living && layer?.living.needsLivingOpening(living, authored) ? [layer.living.livingOpening(living, json.chapters, json.talk_defaults), ...authored] : authored;
   const qualities = readList(json.qualities, "qualities", readQuality, errors);
   return { living, checkpoints, baseQualities: layer ? layer.living.addLivingQualities(living, qualities) : qualities };
 };
