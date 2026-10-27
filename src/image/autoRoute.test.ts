@@ -9,8 +9,10 @@ const host = {
   readiness: (names: string[]): QwenReadiness => ({ ok: false, reason: "no-reference", detail: `No reference for ${names.join(", ")}.` }),
   messages: [{ name: "Player", mes: "Ash, show us the map.", is_user: true, is_system: false }, { name: "Ash", mes: "Ash spreads the map on the table.", is_user: false, is_system: false },
     { name: "Player", mes: "And then?", is_user: true, is_system: false }] as Array<{ name: string; mes: string; is_user: boolean; is_system: boolean }>,
+  characters: [{ key: "ash.png", name: "Ash", appearance: "", description: "Card text", enabled: true }],
 };
 
+const MESSAGES = host.messages;
 const renderStImage = jest.fn(async () => "/user/images/st.png");
 const reserveGpu = jest.fn(async () => ({ lease: null, brokered: false }));
 const imagePlace = jest.fn(async (..._args: unknown[]) => ({ ok: true as const, placed: true as const }));
@@ -21,7 +23,7 @@ const renderAutomaticQwen = jest.fn(async (_manager: unknown, _plan: unknown, _s
 jest.mock("@services/STAPI", () => ({ isHostGenerating: () => host.generating, listConnectionProfiles: () => host.profiles, getScannableEntries: async () => [] }));
 jest.mock("@services/stHost/image", () => ({
   imageChat: () => ({ id: "chat-1", groupId: "g1", folder: "g1", userName: "Player", messages: host.messages,
-    characters: [{ key: "ash.png", name: "Ash", appearance: "", description: "Card text", enabled: true }] }),
+    characters: host.characters }),
   imageModel: (...args: unknown[]) => host.director(...args), imageSave: async () => "/user/images/comfy.png", imageDelete: async () => ({ ok: true }),
   imagePlace: (...args: unknown[]) => imagePlace(...args), imageChatSettings: () => null, imageWriteChatSettings: async () => ({ ok: true, chatId: "chat-1" }),
 }));
@@ -62,6 +64,8 @@ beforeEach(() => {
   host.settings = { ...defaultImageSettings(), directorProfileId: "p1" };
   host.profiles = [{ id: "p1" }];
   host.generating = false;
+  host.messages = MESSAGES;
+  host.characters = [{ key: "ash.png", name: "Ash", appearance: "", description: "Card text", enabled: true }];
   host.director = jest.fn(async () => directorJson({ instruction: "Ash leans over the table and traces the route with one finger." }));
   host.readiness = (names) => ({ ok: false, reason: "no-reference", detail: `No reference for ${names.join(", ")}.` });
   jest.clearAllMocks();
@@ -121,6 +125,18 @@ describe("automatic scene pictures choose their route", () => {
     await harness().direct({ purpose: "scene", text: "A map", messageId: 1, automatic: true }, { route: "qwen", seed: 5 });
     expect(renderAutomaticQwen).toHaveBeenCalledTimes(1);
     expect(renderAutomaticQwen.mock.calls[0][4]).toBe(5);
+  });
+
+  it("a forced reference arm checks the frozen answer's visible pair, not every character in the scene", async () => {
+    host.characters = ["Ash", "Bram", "Cleo"].map((name) => ({ key: `${name.toLowerCase()}.png`, name, appearance: "", description: "Card text", enabled: true }));
+    host.messages = [{ name: "Player", mes: "Bram, ring the bell.", is_user: true, is_system: false }, { name: "Ash", mes: "Ash watches.", is_user: false, is_system: false },
+      { name: "Bram", mes: "Bram hauls the rope while Cleo covers her ears.", is_user: false, is_system: false }];
+    host.readiness = (names) => (names.length > 2 ? { ok: false, reason: "too-many-visible", detail: "at most two" } : ready(names));
+    const answer = directorJson({ visible: ["Bram", "Cleo"], instruction: "Bram hauls the bell rope while Cleo covers her ears." });
+    await harness().direct({ purpose: "scene", text: "", messageId: 2, automatic: true }, { route: "qwen", seed: 101, director: answer });
+    expect(host.director).not.toHaveBeenCalled();
+    expect(renderAutomaticQwen).toHaveBeenCalledTimes(1);
+    expect(placed()).toMatchObject({ route: { name: "qwen", reason: "references-ready" }, director: "frozen" });
   });
 
   it("a frozen director answer is reused for both arms without calling the director, and the picture says so", async () => {

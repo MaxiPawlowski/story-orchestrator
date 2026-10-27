@@ -322,7 +322,8 @@ export class StoryImageDirector {
     const { visual, issue: visualIssue } = await this.visualScene(story, scene.subjects, route.family.id);
     const drawn = visual ? withVisualScene(scene, visual) : scene;
     const routing = await this.routing(request, args, story, drawn, visual);
-    const early = routing.check?.(visibleNames(drawn.subjects, undefined)) ?? null;
+    const frozenVisible = args.director !== undefined && !request.raw ? parseImageReply(args.director, route).visible : undefined;
+    const early = routing.check?.(visibleNames(drawn.subjects, frozenVisible)) ?? null;
     if (routing.setting === "qwen") chooseRoute({ ...routing, readiness: early });
     const directed = await directorAnswer(request, args.director, settings, () => imageMessages(request, drawn, route, { instruction: Boolean(early?.ok) }), route);
     const { reply, frozen } = directed;

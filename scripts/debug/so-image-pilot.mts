@@ -103,7 +103,7 @@ async function appendCase(page: Page, row: PilotCase, marker: string, keys: stri
       const rt = (globalThis as any).storyOrchestratorRuntime;
       return value === undefined ? rt.resetQuality(key) : rt.setQuality(key, value);
     }, { key, value });
-    if (ok === false) throw new Error(`${row.id}: could not ${value === undefined ? 'reset' : 'set'} ${key}`);
+    if (ok === false && value !== undefined) throw new Error(`${row.id}: could not set ${key}`);
   }
   for (const [speaker, text] of row.lines) {
     await executeSlashCommand(page, speaker === 'player' ? `/send compact=true ${text}` : `/sendas name="${nameOf(marker, speaker)}" ${text}`);
