@@ -359,3 +359,20 @@ Date 2026-10-27, branch `v3.0-talk-s2-fixes` from master `c0b3c67c`.
   - Evidence: `C:/dev/so-lanes/34/debug/runs/2026-10-27-v3019s2r-live/` (`summary.json`, turns, swipes, payload tail, metrics, chat files, run headers), archived in so-sessions `evidence/phase-c/v3019s2r-live-2026-10-27/` (whole lane `server.log` files dropped, per-row slices kept).
   - Not run: blind pacing rating pair; single-question blind check; a `conversation` beat on the campaign.
   - Verdict: **fixes 1-5 green live** (address on both paths, transition note no longer breaks a directed voice, swipe keeps the row, role macro, party within 4 player turns with first-voice spotlight); fix 6 below target on first hooks (1/3); **NOT green overall**: defect 1 (hook swipe opens a scripted line before the player's turn), single-question target missed, blind checks owed.
+
+### Gate record, hook swipe fix
+
+Date 2026-10-27, branch `v3.0-hook-swipe` from master `727da9cc`.
+
+- Fix (live re-check defect 1): a swipe or edit of the self-injected message itself keeps `extras.lastSelfInjectionMessageId` (`runtime/rollback.ts` `keepsSelfInjection`): same message, new revision, as a replay would record it. The regenerated hook's boundary then meets the existing guards (`effectsApplier.ts` afterSpeak `=== lastMessageId()`, sceneBreak `=== breakAt`), so no scripted line before the player's first send, swiped or not. A delete, a rollback no event named (eventless hydrate) and a rollback from an earlier message still drop it, so a deleted hook reopens by the existing rules. Chain voices were already safe: a swipe wrapper ends any chain and only a loud user turn opens one (`talkControl.ts`).
+- `awaitsPlayer` (`talk/asksPlayer.ts` `lastReplyAsksPlayer`) already reads `mes`, which ST holds as the current swipe's text: no change, pinned by a test. The live afterSpeak miss was the heuristic not reading that swipe's question as one; the identity guard covers it either way.
+- Fire records unchanged: a swipe of the posted line itself still re-arms its `firedNpcRepliesAt` row (`lineGone`, T4-1). The opening hook cannot re-post (it needs the opening pass), so not changed here.
+- Defect 3 (thought-only replies): `runtime/emptyReply.ts` already swipes once and keeps the second empty reply, matching the live run (one retried, one kept). Nothing to change.
+- Fixtures: `v30-19s2-reply-scope.json` switches `living` and `branching` off for the sandbox chat after import (`settingsControl.feature`, as the live green copy); `v30-19s2-reaction.json` `send_generate` timeout 60 s -> 300 s (the common model-scenario value).
+- New test `runtime/hookSwipe.review.test.ts` (7): unswiped control; swipe and edit of the hook then a boundary with an afterSpeak and a sceneBreak line present posts nothing; rollback = replay (identity equals a fresh post at that message); delete drops it and the afterSpeak line fires; eventless and earlier rollbacks drop it; awaitsPlayer reads the current swipe. Without the fix 3 fail (swipe, edit, replay), checked by stashing `rollback.ts`.
+- `npm run gates:quick`: red once (max-len in `rollback.ts`, moved into a helper), then green.
+- `npm run gates` (no `--resume`, Storybook included):
+  - Run 1 RED at `test` (755.7 s): `passProfiles.test.ts` census listed `extraction/sharedReadEntry.ts` and `lorebookWriters.guard.test.ts` listed `runtime/copilotProvisioning.ts` / `copilotCoordinator.ts` rows, files in neither this tree nor master (another agent's tree seen through the junctioned toolchain; environment). Both suites pass alone on this tree. All other steps green.
+  - Run 2 **all green in 378.4 s**: build, typecheck, typecheck:test, debug:typecheck, lint, test (921 suites, 10663 passed, 1 skipped), test:replay (32 of 32 killed), test:debug, test:plugin, test:release (0 fail), test-storybook:ci (167 suites, 1009 tests).
+- Main bundle `dist/index.js` 1,298,676 B (budget 1,300,000 B; +25 B over master 1,298,651 B).
+- **Live gate: NOT run** (no GPU/lanes for this task). Owed: the campaign hook swipe re-check (3 stories, swipe then wait for the re-read, then the first send: 0 scripted lines before it), and the two fixtures on lanes.

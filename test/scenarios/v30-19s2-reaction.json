@@ -109,7 +109,7 @@
     {
       "send_generate": {
         "text": "We push on to the gate.",
-        "timeoutMs": 60000
+        "timeoutMs": 300000
       }
     },
     {
