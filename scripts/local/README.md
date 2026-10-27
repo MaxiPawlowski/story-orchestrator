@@ -111,6 +111,19 @@ Optional `config.json` keys, all read by `broker/backend.mjs` `nativeArgs` (plan
   text and never counts toward image fairness; any text request or image arriving aborts the running step at once (the
   server stops at its next batch) and counts an `idleYields`. The gateway cannot see the chat id, so keys are head hashes; the
   server only reuses state for an identical token prefix, so a shared head reuses only identical text.
+- `memberCache.keepAcrossImages: true` (plan v3.0 09 K; needs the so3 binary's `POST /sleep`) puts llama-server to
+  sleep for an image swap instead of stopping it: the weights and KV leave VRAM, the RAM prompt cache stays in the
+  process, and the next text request wakes it (`text.sleeping`, `text.sleepStats`). Any request that reaches a sleeping
+  llama-server other than `/health`, `/props`, `/metrics`, `/models` reloads the model on its own, so only the controller
+  may talk to it (plan v3.0 22): token counts go straight to the backend only through `NativeBackend.tryDirect`,
+  which refuses while a sleep is being entered or held, and a sleep waits for counts already in flight. A sleeping
+  process found holding more than `strayWakeMiB` (2048) of GPU memory (per-process counter, sampled in every image
+  lease, before an image release and before a wake; only readings taken `strayWakeSettleMs` (5000) after the sleep and
+  not contradicted by the GPU total count, since the counter lags the release) was woken outside the controller: it is stopped (member cache
+  dropped, `sleepStats.strayWakes`, `lastStrayWake`) and text starts clean. The image release target and its check
+  leave out the text process's own GPU memory, so a held text server is never read as unreleased ComfyUI memory; a
+  release that still fails while text sleeps stops the sleeping server and retries once. A wake short of the full
+  layout first asks for idle ComfyUI memory (same guards as the reload reclaim, `sleepStats.wakeReclaims`).
 
 `node scripts/local/stable-head.mjs plan|apply|revert --data <ST user data dir> --group <id>[,<id>] [--backup <dir>]`
 moves the system prompt's `{{char}}` sentences to its post-history instruction (a new `... (stable head)` system-prompt

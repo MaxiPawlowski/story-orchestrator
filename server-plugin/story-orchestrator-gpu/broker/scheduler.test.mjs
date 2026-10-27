@@ -896,3 +896,81 @@ test('a sleeping text server with its member cache is dropped first when an imag
     backend.status = () => ({ pid: 42, profile: 'fast', sleeping: null, fitTargetMiB: null });
     assert.equal(await scheduler.dropSleepingForRam(9000), 0);
 });
+
+test('after a warm image, a sleeping text server that holds GPU memory never wedges text: it is dropped, the release retried and the reply served', async () => {
+    let failures = 0;
+    const dropped = [];
+    let sleeping = null;
+    const { scheduler, backend, render } = warmImages({ freeImages: async () => {
+        if (sleeping) { failures += 1; throw new Error('ComfyUI accepted free but its model memory has not been released; text will not race the release.'); }
+        return { mode: 'evicted' };
+    } });
+    backend.status = () => ({ pid: sleeping ? null : backend.profile ? 42 : null, profile: sleeping ? null : backend.profile, sleeping, fitTargetMiB: null });
+    backend.dropSleeping = async () => { dropped.push('drop'); sleeping = null; return 4096; };
+    const { lease } = await scheduler.reserve({ workflowKey: 'face-edit', needGpuMiB: 18000 });
+    render(); await scheduler.release(lease);
+    sleeping = { profile: 'fast' };
+    let replied = false;
+    await scheduler.text(async () => { replied = true; });
+    assert.equal(replied, true);
+    assert.equal(failures, 1);
+    assert.deepEqual(dropped, ['drop']);
+    assert.equal(scheduler.imagesNeedRelease, false);
+});
+
+test('the image release target and its check exclude GPU memory the text process holds, and a stray wake seen in a lease sample is stopped', async () => {
+    const options = [];
+    const strays = [];
+    const { scheduler, backend, snapshot } = warmImages({ freeImages: async (value) => { options.push(value); return { mode: 'evicted' }; } });
+    let sleeping = { profile: 'fast' };
+    backend.heldMiB = (reading) => reading?.gpuProcesses?.[42]?.dedicatedMiB ?? null;
+    backend.status = () => ({ pid: sleeping ? null : 42, profile: sleeping ? null : 'fast', sleeping, fitTargetMiB: null });
+    backend.checkSleeping = async (reading) => {
+        const held = reading?.gpuProcesses?.[42]?.dedicatedMiB;
+        if (!(held > 2048)) return null;
+        strays.push(held); sleeping = null; return { pid: 42, heldMiB: held };
+    };
+    snapshot({ ...free(22000), gpuProcesses: { 42: { dedicatedMiB: 300 } } });
+    const { lease } = await scheduler.reserve({ workflowKey: 'face-edit', needGpuMiB: 18000 });
+    snapshot({ ...free(1000), host: { availableMiB: 14000, commitFreeMiB: 70000 }, gpuProcesses: { 42: { dedicatedMiB: 21000 } } });
+    await scheduler.sampleLease();
+    assert.deepEqual(strays, [21000]);
+    snapshot({ ...free(5000), host: { availableMiB: 14000, commitFreeMiB: 70000 }, gpuProcesses: { 42: { dedicatedMiB: 300 } } });
+    await scheduler.release(lease);
+    assert.equal(scheduler.imageReleaseTargetMiB, 24576 - 22000 + 512);
+    await scheduler.text(async () => {});
+    assert.equal(options.at(-1).maxUsedGpuMiB, 24576 - 22000 + 512);
+    assert.equal(options.at(-1).otherMiB({ gpuProcesses: { 42: { dedicatedMiB: 777 } } }), 777);
+});
+
+test('text kept loaded beside an image is left out of the image release target by its own GPU reading at lease start', async () => {
+    const options = [];
+    const { scheduler, backend, snapshot } = warmImages({ freeImages: async (value) => { options.push(value); return { mode: 'evicted' }; } });
+    backend.profile = 'fast';
+    backend.heldMiB = (reading) => reading?.gpuProcesses?.[42]?.dedicatedMiB ?? null;
+    snapshot({ ...free(22000), gpuProcesses: { 42: { dedicatedMiB: 4000 } } });
+    const { lease, decision } = await scheduler.reserve({ workflowKey: 'face-edit', needGpuMiB: 9000 });
+    assert.equal(decision, 'retain-text');
+    snapshot({ ...free(12000), host: { availableMiB: 14000, commitFreeMiB: 70000 }, gpuProcesses: { 42: { dedicatedMiB: 4000 } } });
+    await scheduler.release(lease);
+    await scheduler.text(async () => {});
+    assert.equal(options.at(-1).maxUsedGpuMiB, 24576 - 22000 - 4000 + 512);
+});
+
+test('an image release target missed three times in a row is dropped, so text recovers on ComfyUI\'s own release instead of wedging', async () => {
+    const targets = [];
+    const { scheduler, render } = warmImages({ freeImages: async (options) => {
+        targets.push(options.maxUsedGpuMiB);
+        if (options.maxUsedGpuMiB !== null && options.maxUsedGpuMiB !== undefined) throw new Error('ComfyUI accepted free but its model memory has not been released');
+        return { mode: 'evicted' };
+    } });
+    const { lease } = await scheduler.reserve({ workflowKey: 'face-edit', needGpuMiB: 18000 });
+    render(); await scheduler.release(lease);
+    for (let attempt = 0; attempt < 3; attempt += 1) await assert.rejects(scheduler.text(async () => {}), /has not been released/);
+    assert.equal(scheduler.status().imageResidency.lastReleaseGiveUp.failures, 3);
+    let replied = false;
+    await scheduler.text(async () => { replied = true; });
+    assert.equal(replied, true);
+    assert.deepEqual(targets, [3088, 3088, 3088, null]);
+    assert.equal(scheduler.status().imageResidency.releaseFailures, 0);
+});

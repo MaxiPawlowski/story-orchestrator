@@ -109,7 +109,9 @@ export class NativeBackend {
         this.slotBusy = new Set();
         this.onSlotErased = null;
         this.sleeping = null;
-        this.sleepStats = { sleeps: 0, wakes: 0, wakeFailures: 0, dropped: 0, lastWakeMs: null, lastSleepMs: null };
+        this.entering = false;
+        this.direct = 0;
+        this.sleepStats = { sleeps: 0, wakes: 0, wakeFailures: 0, dropped: 0, strayWakes: 0, wakeReclaims: 0, lastWakeMs: null, lastSleepMs: null, lastStrayWake: null };
     }
 
     async load(name = this.config.defaultProfile, options = {}) {
@@ -118,6 +120,7 @@ export class NativeBackend {
         if (this.child && this.profile === name && this.fitTarget === fitTarget) return;
         const profile = this.config.profiles[name];
         if (!profile || profile.disabled) throw new Error('That residency profile is unavailable.');
+        if (this.sleeping && this.child) await this.checkSleeping().catch((error) => { this.lastError = error.message; });
         if (this.sleeping && this.child) {
             if (this.sleeping.profile === name && fitTarget === null && this.sleeping.correction === (this.fitCorrections.get(name) ?? 0)) {
                 this.loading = this.wake(name, profile);
@@ -227,28 +230,69 @@ export class NativeBackend {
         await this.stopOwned();
     }
 
+    tryDirect() {
+        if (!this.child || this.sleeping || this.entering || this.loading || !this.profile) return false;
+        this.direct += 1;
+        return true;
+    }
+
+    endDirect() { this.direct = Math.max(0, this.direct - 1); }
+
     async sleep() {
         const began = Date.now();
-        const reply = await this.fetch(`${this.url}/sleep`, { method: 'POST', signal: AbortSignal.timeout(10000) });
-        if (!reply.ok) throw new Error(`/sleep answered ${reply.status}`);
         const deadline = Date.now() + (this.config.textSleepTimeoutMs ?? 60000);
-        while (true) {
-            const props = await (await this.fetch(`${this.url}/props`, { signal: AbortSignal.timeout(5000) })).json().catch(() => ({}));
-            if (props.is_sleeping === true) break;
-            if (Date.now() > deadline) throw new Error('llama-server did not reach its sleeping state in time.');
-            await new Promise((resolve) => setTimeout(resolve, 250));
-        }
-        this.sleeping = { profile: this.profile, correction: this.fitCorrections.get(this.profile) ?? 0, at: Date.now() };
-        this.profile = null;
-        this.slotTokens.clear();
-        this.slotBusy.clear();
-        this.sleepStats.sleeps += 1;
-        this.sleepStats.lastSleepMs = Date.now() - began;
+        this.entering = true;
+        try {
+            while (this.direct > 0) {
+                if (Date.now() > deadline) throw new Error('requests sent straight to the text server did not finish before it could sleep.');
+                await new Promise((resolve) => setTimeout(resolve, 25));
+            }
+            const reply = await this.fetch(`${this.url}/sleep`, { method: 'POST', signal: AbortSignal.timeout(10000) });
+            if (!reply.ok) throw new Error(`/sleep answered ${reply.status}`);
+            while (true) {
+                const props = await (await this.fetch(`${this.url}/props`, { signal: AbortSignal.timeout(5000) })).json().catch(() => ({}));
+                if (props.is_sleeping === true) break;
+                if (Date.now() > deadline) throw new Error('llama-server did not reach its sleeping state in time.');
+                await new Promise((resolve) => setTimeout(resolve, 250));
+            }
+            this.sleeping = { profile: this.profile, correction: this.fitCorrections.get(this.profile) ?? 0, at: Date.now() };
+            this.profile = null;
+            this.slotTokens.clear();
+            this.slotBusy.clear();
+            this.sleepStats.sleeps += 1;
+            this.sleepStats.lastSleepMs = Date.now() - began;
+        } finally { this.entering = false; }
+    }
+
+    heldMiB(snapshot) {
+        const pid = this.child?.pid;
+        const row = pid ? snapshot?.gpuProcesses?.[pid] : null;
+        return Number.isFinite(row?.dedicatedMiB) ? row.dedicatedMiB : null;
+    }
+
+    async checkSleeping(reading = null) {
+        if (!this.sleeping || !this.child || this.loading) return null;
+        const snapshot = reading ?? await this.snapshot();
+        const held = this.heldMiB(snapshot);
+        if (!(held > (this.config.strayWakeMiB ?? 2048))) return null;
+        if (!(snapshot.at >= this.sleeping.at + (this.config.strayWakeSettleMs ?? 5000)) || !(snapshot.gpus?.[0]?.usedMiB >= held)) return null;
+        const stray = { at: new Date().toISOString(), pid: this.child.pid, heldMiB: Math.round(held) };
+        this.sleepStats.strayWakes += 1;
+        this.sleepStats.lastStrayWake = stray;
+        await this.dropSleeping();
+        this.lastError = `The sleeping text server (pid ${stray.pid}) was woken outside the controller and held ${stray.heldMiB} MiB of GPU memory; it was stopped (member cache dropped) and text loads again on the next request.`;
+        return stray;
     }
 
     async wake(name, profile) {
         const began = Date.now();
-        const snapshot = await this.snapshot();
+        let snapshot = await this.snapshot();
+        const fullMiB = profileGpuMiB(this.config, profile) + this.config.reserves.gpuMiB;
+        if (snapshot.gpus[0].freeMiB < fullMiB && this.reclaimGpu) {
+            let freed = false;
+            try { freed = await this.reclaimGpu({ shortMiB: fullMiB - snapshot.gpus[0].freeMiB }); } catch (error) { this.lastError = error.message; }
+            if (freed) { this.sleepStats.wakeReclaims += 1; snapshot = await this.snapshot(); }
+        }
         const gpuBudget = snapshot.gpus[0].freeMiB - this.config.reserves.gpuMiB;
         const ramRequired = (profile.estimatedRamMiB ?? 6000) + Math.max(0, profileGpuMiB(this.config, profile) - gpuBudget);
         if (gpuBudget < 2048 || snapshot.host.availableMiB < ramRequired + this.config.reserves.ramMiB) {

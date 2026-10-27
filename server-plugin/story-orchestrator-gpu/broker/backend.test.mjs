@@ -385,3 +385,76 @@ test('with keepAcrossImages an image swap puts text to sleep and the next load w
     await backend.unload();
     assert.equal(backend.status().sleeping, null);
 });
+
+const sleepingBackend = (overrides = {}) => {
+    const keep = { ...config, reserves: { gpuMiB: 2048, ramMiB: 2048 }, strayWakeSettleMs: 0, memberCache: { enabled: true, store: 'ram', budgetMiB: 4096, serverKeys: true, keepAcrossImages: true }, ...overrides };
+    const backend = new Backend(keep);
+    const requests = [];
+    const state = { sleeping: false, held: 300, free: 23000, at: null };
+    backend.fetch = async (url, init = {}) => {
+        const route = url.slice(url.indexOf('/', 8));
+        requests.push(`${init.method ?? 'GET'} ${route}`);
+        if (route === '/sleep') { state.sleeping = true; return new Response('{}'); }
+        if (route === '/props') return Response.json({ is_sleeping: state.sleeping });
+        if (route === '/completion') { state.sleeping = false; return Response.json({ content: '' }); }
+        return new Response('{}');
+    };
+    backend.snapshot = async () => ({ at: state.at ?? Date.now(), gpus: [{ freeMiB: state.free, usedMiB: 24576 - state.free }], host: { availableMiB: 20000, commitFreeMiB: 60000 }, gpuProcesses: { 42: { dedicatedMiB: state.held, sharedMiB: 0 } } });
+    return { backend, requests, state };
+};
+
+test('a per-process reading taken before the sleep settled, or one the GPU total contradicts, is not a stray wake', async () => {
+    const { backend, state } = sleepingBackend({ strayWakeSettleMs: 5000 });
+    await backend.load('fast');
+    await backend.unload({ keepCache: true });
+    state.held = 21000;
+    assert.equal(await backend.checkSleeping(), null);
+    state.at = Date.now() + 6000; state.free = 22000;
+    assert.equal(await backend.checkSleeping(), null);
+    state.free = 1300;
+    assert.equal((await backend.checkSleeping()).heldMiB, 21000);
+    assert.equal(backend.status().sleeping, null);
+});
+
+test('a sleep waits for token counts already sent straight to the server and admits no new one until it is asleep', async () => {
+    const { backend, requests } = sleepingBackend();
+    await backend.load('fast');
+    assert.equal(backend.tryDirect(), true);
+    const sleeping = backend.unload({ keepCache: true });
+    await new Promise((resolve) => setTimeout(resolve, 60));
+    assert.deepEqual(requests, []);
+    assert.equal(backend.tryDirect(), false);
+    backend.endDirect();
+    await sleeping;
+    assert.deepEqual(requests, ['POST /sleep', 'GET /props']);
+    assert.equal(backend.tryDirect(), false);
+    assert.equal(backend.status().sleeping.profile, 'fast');
+});
+
+test('a sleeping server found holding GPU memory was woken outside the controller: it is stopped and started clean, never woken over the stale state', async () => {
+    const { backend, requests, state } = sleepingBackend();
+    await backend.load('fast');
+    await backend.unload({ keepCache: true });
+    state.held = 21000; state.free = 1300;
+    await backend.load('fast');
+    assert.deepEqual(backend.calls, [{ name: 'fast', fitTarget: null }, 'unload', { name: 'fast', fitTarget: null }]);
+    assert.equal(requests.includes('POST /completion'), false);
+    assert.equal(backend.status().sleepStats.strayWakes, 1);
+    assert.equal(backend.status().sleepStats.lastStrayWake.heldMiB, 21000);
+    assert.match(backend.status().lastError ?? backend.lastError, /woken outside the controller/);
+});
+
+test('a wake short of the full text layout first asks for idle image memory, then wakes the same process with its cache', async () => {
+    const { backend, state } = sleepingBackend();
+    const shorts = [];
+    backend.reclaimGpu = async ({ shortMiB }) => { shorts.push(shortMiB); state.free = 23000; return true; };
+    await backend.load('fast');
+    await backend.unload({ keepCache: true });
+    state.free = 6000;
+    await backend.load('fast');
+    assert.equal(shorts.length, 1);
+    assert.ok(shorts[0] > 0);
+    assert.equal(backend.status().sleepStats.wakes, 1);
+    assert.equal(backend.status().sleepStats.wakeReclaims, 1);
+    assert.deepEqual(backend.calls, [{ name: 'fast', fitTarget: null }]);
+});
