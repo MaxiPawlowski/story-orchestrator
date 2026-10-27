@@ -747,3 +747,50 @@ Pilot harness (owner, 2026-10-26, after stage 2):
   - `npm run gates` (no `--resume`, Storybook included) on `3cea7708`: all green in 430.5 s, first run (typecheck, test:replay, typecheck:test,
     build, debug:typecheck, lint, test, test:release, test:debug, test:plugin, test-storybook:ci 167 suites / 1009 tests).
   - Not merged into master, not pushed. Live gate not rerun on the merge (journey regression and the D9 lane check still owed).
+- Post-install live check 2026-10-27 (master `727da9cc` staged into ST's slot, media plugin with `GET /packs` installed; lane 33, 3090,
+  ComfyUI 8188 via the controller, landmarks 8096 for the run; owner away). No candidate route: the lane served the staged build (manifest
+  commit `727da9cc`, bundle `4b3cd2bd…`; `dirty: true` only from two untracked files in the repo root, `.claude/launch.json` and
+  `scripts/debug/so-cast-presentation.mts`). Verdict: checks 1, 2 and 4 PASS; journey NOT GREEN on the known gpu-idle miss only; one
+  pre-existing defect found (D10).
+  - Lane 33: `st-lanes.mts restore-model 33`, `start 33 --headed`. At the end: `so-p41-journey.mts cleanup`, `so-library.mts remove` for
+    `so-p41-post` and the two `so-p41-d7*` stories an earlier cleanup left, `stop 33`, `no-model 33`. Landmarks stopped.
+  - Probe `pi-probe.mts` (archived), run as `st-lanes.mts run 33 -- <probe> <phases>`. Fixture packs from `mkpacks-live.mjs` (as before).
+    Story `SO-P41 Post`: the journey's prepared Ash and Bram plus pack-bound `SO-P41 Pim`, the three explicit SO-P41 builder entries
+    removed (derived builder config), no `sprites.sceneRecipe`. Showcase POC cast only.
+  - Evidence: `C:\dev\so-lanes\reviews\visual-bridge-postinstall-2026-10-27\` (`pi\*.json|jsonl` + `probe.log`, `net.jsonl` = every
+    media/GPU plugin request with status, `p41-pi-run1\record.json`, `journey.log`, probe and pack scripts). Originals under
+    `C:\dev\so-lanes\33\debug\{pi,p41\2026-10-27T09-13-20-147Z-pi-real-run1}`.
+  - Check 2, `GET /packs` PASS. The installed media plugin answered `200` with the 4 fixture packs (style, identity, 2 places) and
+    `errors: []`, with no in-page route (`packs-route-initial.json`). Pim stood from the pack's base asset on the staged build
+    (`stage-initial.json`). A tampered Pim pack took her off the stage; after the restore and a reload she stood again (`stage-restored.json`).
+  - Check 1, D9 PASS (both halves). ComfyUI was already down when the probe began: the controller had reclaimed it after the journey.
+    - Render with ComfyUI down (`d9-wake.json`): page loaded with `spriteRecipe unreachable` ("ComfyUI did not list its models"). Ash
+      asked `a red rain cape` 16.7 s after reload: `discover` 400, then a `lease` (granted 44.5 s later while the controller started
+      ComfyUI), `discover` 200, `release`; ComfyUI up at 42.7 s, the route re-checked to `ready / discovered` at 47.3 s, then the still
+      and frames rendered (4 jobs). Look `look_a0b25136` + `anim-look_a0b25136` published, no lookError, 216 s.
+    - Reuse with ComfyUI down (`d9-reuse.json`): outfit cleared, ComfyUI killed (`taskkill` on the 8188 listener, controller showed
+      `evicted`), reload (route `unreachable` again), same outfit asked: stage on `look_a0b25136` after 2.2 s. During the 32.5 s run the
+      page made 0 `discover`, 0 `jobs`, 0 `lease` calls (only 3 sprite file reads and a reference-pack read through the media plugin).
+      ComfyUI stayed down, the route stayed `unreachable`, looks 3 -> 3, no new folder.
+  - Check 3, p41 journey on the staged master: `st-lanes.mts run 33 -- scripts/debug/so-p41-journey.mts run 1 --keep --label pi` ->
+    NOT GREEN, 1 miss: gpu-idle 13-14 % > 10 % (the known lane-browser draw; vb2s2 14-15 %, d7 21-34 %). All other steps pass
+    (wizard, base, prepare, expressions, frames, rig, poses, play, pose, look, look-rebuild, illustration, background, swipe, delete,
+    reload, chat-switch, stale). ComfyUI calls 43 (d7 44, vb2s2 48, floor 35), Artemis 64 (d7 71), Sol 26 (d7 29); 10 turns / 16 replies,
+    0 silent; 0 stale findings; 0 refusals. The preflight `POST /api/plugins/story-orchestrator-gpu/control/start-comfy` 404 and the
+    lease 409s while a job held the GPU appear in earlier runs too.
+  - Check 4, automatic pictures, `automaticRoute auto`, everyN 1: PASS with ComfyUI up.
+    - Ash alone (prepared): plan `qwen / references-ready`, picture `qwen`, recipe `qwen21-current-look-cast-scene`, `recipe_source:
+      discovered`, identity root = Ash's accepted source, idle wait 3,058 ms, placed on the cueing reply (`auto-ash.json`).
+    - SDXL fallback: Pim alone with her pack tampered after its digest: plan `sdxl / no-reference`, SDXL picture placed, `prompt_source:
+      directed` (`auto-pim-tampered.json`). Pack restored after.
+  - D10 (pre-existing, not changed; first run of check 4): with ComfyUI stopped by the controller, an automatic picture fails "fetch
+    failed" and wakes nothing. `src/image/runtime.ts:317` (`plan`, from `fa57a898`) resolves the checkpoint with `comfyDiscover()` before
+    any lease, so the plan throws before `render` would take one. Both the Ash and the tampered-Pim turns failed this way
+    (`directs: fetch failed`, discover 400 x3, no lease); they passed after `node scripts/local/cli.mjs start-comfy`. Manual pictures go
+    through the same `plan` (not run live). Fix candidate: discover through `discoverWaking` (as D9's look
+    path does), or take the image lease before the checkpoint check.
+  - Cleanup: `so-p41-journey cleanup` removed 4 cards, 2 groups, the SO-P41 visual sources and live-head rigs, and the journey story
+    (leaked 0). Residue moved to `C:\dev\backups\story-orchestrator\postinstall-lane33-residue-20261027\`: 3 empty character folders, the
+    pack image folder, 2 plates, the lane's `story-orchestrator\visual-packs` folder, 2 group image folders, the orphan probe group chat,
+    and a post-run `settings.json`. Lane `judge` and `sprites` settings restored from the pre-run copy taken at lane start. ComfyUI left
+    running and controller-managed (started with `cli.mjs start-comfy` for check 4).
