@@ -3,6 +3,7 @@ import { getChatWindow } from "@extraction/index";
 import { checkLibraryIndex } from "./libraryIndexPort";
 import {
   clearStoryExtensionPrompt, getContext, loadPersonasModule, loadPersonaWrites, noteHostSettingsLoaded, readPersonas,
+  getActiveGroup, installDraftGuard,
   isUserStoppedReply, onGroupEdited, onLorebookListChanged, setStoryExtensionPrompt, settingsReady, startSaveWatcherSurface, subscribeToHostEvents, watchPendingWorldSaves,
 } from "@services/STAPI";
 import { registerRuntimeMacros } from "./macros";
@@ -191,6 +192,7 @@ export function startRuntime() {
   const generation = new GenerationLifecycle(isTurnMessageType);
   const lore = startLore(runtimeDisposers, judgeRuntime, generation, access);
   startTalk(live, judgeRuntime, access, lore.onIntercept);
+  runtimeDisposers.push(installDraftGuard(() => Boolean(getActiveGroup())));
   startKeepLastQuestion(runtimeDisposers);
   globalThis.storyOrchestratorTalk = { chainPending: () => live.talk?.chainPending() ?? false };
   runtimeDisposers.push(watchVoiceChain(() => live.talk?.chainPending() ?? false));

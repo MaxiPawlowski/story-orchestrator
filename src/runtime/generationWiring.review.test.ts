@@ -35,6 +35,7 @@ jest.mock("@services/STAPI", () => ({
   unregisterHostMacro: () => {},
   startSaveWatcherSurface: () => () => {},
   watchPendingWorldSaves: () => () => {},
+  installDraftGuard: () => () => {},
   subscribeToHostEventFirst: () => ({ off: () => {}, place: () => {} }),
   subscribeToHostEvents: (entries: Array<{ eventName: string; handler: (...args: unknown[]) => unknown }>) => {
     if (!entries.some((entry) => entry.eventName === "GROUP_MEMBER_DRAFTED")) return () => {};
