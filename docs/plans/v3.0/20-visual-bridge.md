@@ -690,3 +690,36 @@ Pilot harness (owner, 2026-10-26, after stage 2):
   - Both raters agree on direction and size of the gap (Qwen far ahead on identity, outfit and worth interrupting; SDXL ahead on
     nothing). Opus is the lead's model family, so it is the less independent rating even though blind; Sol stays the independent one.
     The showcase-avatar vs card-text confound (`CARD_ART_DEVIATION`) applies to both.
+- D7 live check 2026-10-27 (lane 33, 3090, ComfyUI 8188 via the controller, landmarks 8096 for the run; owner away). Verdict: checks 1-3
+  PASS; journey regression NOT GREEN on the known gpu-idle miss only.
+  - Served `2ed29119` only through the candidate route (`installCandidateRoute`, `C:\dev\so-bridge2\dist`, served manifest commit asserted,
+    `dirty: false`). The "old way" duplicate was made with `9624c32c` (pre-D7, D6+D8) built in a throwaway detached worktree
+    `C:\dev\so-d7old`, served the same way, removed after. Nothing staged into the owner's ST.
+  - Setup = the journey, kept: `st-lanes.mts run 33 -- scripts/debug/so-p41-journey.mts run 1 --candidate --keep --label d7` (prepared Ash,
+    Bram, Cleo; Ash's published look `look_7962158d` = `{"outfit":"a long navy wool coat over the jacket"}`, sha `f97410991a01`).
+    Then probe `d7-probe.mts` (archived): story `SO-P41 D7` (id `so-p41-d7`) in a new group, the journey's three explicit SO-P41 builder
+    entries removed (derived builder config), so both story and builder config differ from the journey. Showcase POC cast only.
+  - Check 1 PASS (reuse). New build, Ash asked the journey's outfit: actor `default -> look_7962158d` (the journey's set), looks 2 -> 2,
+    no new `look_*` folder, no still render. 2 ComfyUI jobs, both the blink/talk frames of the reused set (`anim-look_7962158d` was new;
+    the journey had not rendered them). Contrast, old build, same request: still rendered ("Change only outfit"), published
+    `look_e12f2541` (sha `7e99631285b2`), looks 2 -> 3, 3 jobs (still + 2 frames): the defect reproduced and gave check 2 its duplicate.
+  - Check 2 PASS (newest wins). Lane state: two Ash looks for one signature (`look_7962158d`, then `look_e12f2541`). New build:
+    cast scene Ash 44 s, placed, no alert, `CastSceneIdentity.set look_e12f2541` sha `7e99631285b2`; automatic turn (Ash alone, everyN 1)
+    plan `qwen / references-ready`, picture `qwen` with identity set `look_e12f2541`. No look-pending, no rebuild (looks stayed 3).
+  - Check 3 PASS (posed base reuse across stories). Second story `SO-P41 D7 B` (id `so-p41-d7b`, new chat), poses on, Ash (shipped
+    `stand_relaxed`) asked the navy coat: body set `lp_2b06656c` drawn from `look_e12f2541/neutral.png` (the newest published base, published
+    under `so-p41-d7`), looks 3 -> 3, no new `look_*` folder, no base render. 3 ComfyUI jobs: 1 DWPose proportions read of the base, 2 frames.
+  - Finding (not D7, not changed): with ComfyUI stopped by the controller's reclaim after the journey, the on-demand look ended
+    `lookError "ComfyUI did not list its models: fetch failed"` before the reuse check: `onDemand.ts` runs `comfyDiscover` and the model
+    fingerprints (they key the set) before `publishedLook`, so even a pure reuse needs ComfyUI up and nothing woke it. Rerun after
+    `node scripts/local/cli.mjs start-comfy`. Candidate: check `publishedLook` before discovery, or let the look path wake ComfyUI.
+  - Journey regression on `2ed29119`: NOT GREEN, 1 miss: gpu-idle 21-34 % > 10 % (the known lane-browser draw; higher than vb2s2's
+    14-15 %). All other steps pass (wizard, base, prepare, expressions, frames, rig, poses, play, pose, look, look-rebuild, illustration,
+    background, swipe, delete, reload, chat-switch, stale). ComfyUI calls 44 (vb2s2 48, floor 35), Artemis 71, Sol 29; 10 turns / 18
+    replies, 0 silent; 0 stale findings; 0 refusals.
+  - Evidence: `C:\dev\so-lanes\reviews\visual-bridge-s2-2026-10-27\d7-live\` (`c1-reuse.json`, `c2-old-dupe.json`, `cast-c2-new.json`,
+    `auto-c2-new.json`, `c3-posed.json`, `looks-*.json`, `calls.jsonl`, `probe.log`, `d7-probe.mts`, `p41-d7-run1\`).
+  - Cleanup: `so-p41-journey cleanup` (cards, groups, sprites rows, the three stories; leaked 0). Residue moved to
+    `C:\dev\backups\story-orchestrator\d7-lane33-residue-20261027\`: 3 character folders, 2 group image folders, post-run `settings.json`.
+    Lane `sprites` restored from ST's pre-run backup `settings_default-user_20261027-030300.json`. Lane stopped, no-model. Landmarks
+    stopped. ComfyUI and the controller left running, controller-managed.
