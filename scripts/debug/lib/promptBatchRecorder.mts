@@ -3,9 +3,9 @@ import type { ReadRoute, RecordedCall } from './promptBatch.mts';
 
 export type ItemKind = 'witness' | 'fixture' | 'scenario';
 
-export interface RecorderRule { id: string; source: string; flags?: string; replies: string[] }
+export interface RecorderRule { id: string; source: string; flags?: string; replies: string[]; freeze?: boolean }
 
-export interface RecorderPlan { rules: RecorderRule[]; canned: string }
+export interface RecorderPlan { rules: RecorderRule[]; canned: string; probe?: string }
 
 export interface RuledCall extends RecordedCall { rule: string | null }
 
@@ -40,6 +40,9 @@ export async function installRecorder(page: Evaluator): Promise<{ installed: boo
           const prompt = (() => { try { const parsed = JSON.parse(body); return typeof parsed.prompt === 'string' ? parsed.prompt : JSON.stringify(parsed.messages ?? ''); } catch { return ''; } })();
           const rule = (live.rules ?? []).find((entry: any) => new RegExp(entry.source, entry.flags ?? '').test(prompt)) ?? null;
           live.calls.push({ url, body, rule: rule ? rule.id : null });
+          if (rule?.freeze) {
+            try { live.frozen = new Function(live.plan?.probe ?? 'return null')(); } catch (error: any) { live.frozen = { probeError: String(error?.message ?? error) }; }
+          }
           const used = rule ? (live.used[rule.id] = (live.used[rule.id] ?? 0) + 1) - 1 : 0;
           const reply = rule ? rule.replies[Math.min(used, rule.replies.length - 1)] : live.canned;
           return new Response(reply, { status: 200, headers: { 'Content-Type': 'application/json' } });
@@ -122,7 +125,7 @@ export async function readRoute(page: Evaluator): Promise<ReadRoute & { stUrl: s
   }) as Promise<ReadRoute & { stUrl: string; bundleSha256: string | null }>;
 }
 
-export const ARM_EVAL = "const s = globalThis.__soPromptBatch; if (!s?.wrapped || !s.plan) throw new Error('prompt-batch recorder is not installed or has no plan'); s.calls = []; s.refused = []; s.tokenizer = []; s.used = {}; s.rules = s.plan.rules; s.canned = s.plan.canned; s.armed = true; return { armed: true };";
+export const ARM_EVAL = "const s = globalThis.__soPromptBatch; if (!s?.wrapped || !s.plan) throw new Error('prompt-batch recorder is not installed or has no plan'); s.calls = []; s.refused = []; s.tokenizer = []; s.used = {}; s.frozen = null; s.rules = s.plan.rules; s.canned = s.plan.canned; s.armed = true; return { armed: true };";
 
 export const DISARM_EVAL = "const s = globalThis.__soPromptBatch; if (s) s.armed = false; return { disarmed: true, calls: s?.calls?.length ?? 0 };";
 
@@ -130,7 +133,7 @@ export async function setRecorderPlan(page: Evaluator, plan: RecorderPlan): Prom
   await page.evaluate((value: RecorderPlan) => {
     const state = (globalThis as any).__soPromptBatch;
     if (!state?.wrapped) throw new Error('prompt-batch recorder is not installed');
-    Object.assign(state, { plan: value, armed: false, calls: [], refused: [], tokenizer: [], used: {}, context: null });
+    Object.assign(state, { plan: value, armed: false, calls: [], refused: [], tokenizer: [], used: {}, context: null, frozen: null });
   }, plan);
 }
 
@@ -141,7 +144,7 @@ export async function drainRecorder(page: Evaluator): Promise<RecorderState> {
     const state = (globalThis as any).__soPromptBatch;
     if (!state) return { calls: [], refused: [], tokenizer: [], context: null };
     const out = { calls: [...state.calls], refused: [...state.refused], tokenizer: [...state.tokenizer], context: state.context ?? null };
-    Object.assign(state, { armed: false, plan: null, rules: [], context: null });
+    Object.assign(state, { armed: false, plan: null, rules: [], context: null, frozen: null });
     return out;
   }) as Promise<RecorderState>;
 }

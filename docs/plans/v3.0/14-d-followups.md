@@ -160,3 +160,22 @@ floors unchanged (v2.9 11 stop rules). No GPU, no model lane was used for this p
 - Still open: D6 P5 misses its 2 ms floor by 0.03-0.19 ms (recorded, not retuned); D8 finding (a quality used only as an
   observation's passive modifier is outside the runtime read scope, so the modifier reads its start value); D1 rerun
   (send + Sol rating), J6 x2 on a model lane, SP1 count after the owner's play.
+
+## D1 capture: s08/s12 self-check (2026-10-28, branch `v3.0-d1-capture`)
+
+- Cause (harness, not product): the lt06 capture rebuilt the prompt from a context read AFTER the ask. s08 and s12 are the two
+  situations with a resolved arc. Before the recorder is armed the seed's model calls hit the no-model lane's closed port; an
+  inner-voice transport failure opens the scheduler breaker, so the `arc-summary` job (priority 4, heavy queue) is held, and
+  `schedulerIdle` counts held jobs as idle. The ask's canned answer closes the breaker (`ExtractionScheduler.noteAnswered`,
+  `src/extraction/scheduler.ts:299`), the held summary and then the canon run inside the record step's settle pause (page model
+  calls: suggestions 08:03:29.140, arcSummary .334, canon .378), and the context gained "The story so far" that the sent prompt
+  never had. On 10-26 the held summary had not resumed inside that window (context arcs: resolved, no summary).
+- Fix: a recorder rule may `freeze`; when its call is sent the recorder runs the plan's `probe` and keeps the result. lt06's
+  `LT_PROBE` is the old context read minus the record; `LT_CONTEXT_EVAL` takes the frozen context and adds only the record.
+  Prompt bodies are unchanged (s08/s12 shas identical before and after the fix). Test: `promptBatchScenarios.test.mts`
+  "a freeze rule snapshots the probe when its call is sent ...".
+- Live, no-model lane 35, worktree `dist/` via route holder, no re-stage: `--only s01,s07,s08,s12` 8/8 ok (failing 4/4
+  before); full `capture --measurement lt06` 80/80 ok, 0 problems (`C:/dev/so-lanes/35/b2ext/d1cap-full`). Every sha differs
+  from the 10-26 lane 33 manifest (master prompts changed since), and an anchored row's anchor order can differ between two
+  runs (s01 anchored: ranking is seeded by the sandbox chat id), so step 2's "exactly 7 rows differ" check cannot hold as
+  written: compare prompt text, not shas. D1 rerun (send + Sol rating) is unblocked on the harness side.

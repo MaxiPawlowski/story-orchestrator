@@ -3,7 +3,7 @@ import { test } from 'node:test';
 import { ARM_EVAL, DISARM_EVAL, drainRecorder, installRecorder, setRecorderPlan } from './promptBatchRecorder.mts';
 import { captureVariant } from './promptBatchScenario.mts';
 import {
-  anchoredFirst, armOrder, DEFAULT_SAGA_REPLY, loadScenarioKit, ltCannedLines, ltDeclaration, ltStopItem, modelRefusals, splitNeedles, pairedBootstrap, sagaPlan, SAGA_RULES, SUGGESTION_RULE,
+  anchoredFirst, armOrder, DEFAULT_SAGA_REPLY, loadScenarioKit, LT_CONTEXT_EVAL, ltCannedLines, ltDeclaration, ltStopItem, modelRefusals, splitNeedles, pairedBootstrap, sagaPlan, SAGA_RULES, SUGGESTION_RULE,
 } from './promptBatchScenarios.mts';
 import {
   fillTemplate, hiddenFacts, opencodeText, readPassA, readPassB, refuseModel, renderPlayerView, renderSet,
@@ -59,6 +59,47 @@ test('the recorder answers text calls by rule in sequence, passes the lore plugi
   } finally {
     g.fetch = originalFetch;
     delete g.__soPromptBatch;
+  }
+});
+
+test('a freeze rule snapshots the probe when its call is sent, so background work landing after the ask stays out of the lt06 context', async () => {
+  const g = globalThis as any;
+  const originalFetch = g.fetch;
+  g.fetch = async () => new Response('{}', { status: 200 });
+  g.__soPromptBatch = undefined;
+  g.__probeValue = 'at ask';
+  g.__lt = { arm: 'current', id: 's08' };
+  const stored: Record<string, string> = { 'so-v29-06lt-current-s08': JSON.stringify({ lines: [{ text: 'a' }] }) };
+  const originalStorage = g.localStorage;
+  Object.defineProperty(g, 'localStorage', { configurable: true, value: { getItem: (key: string) => stored[key] ?? null } });
+  const page = { evaluate: (fn: (arg: unknown) => unknown, arg?: unknown) => Promise.resolve(fn(arg)) } as any;
+  const post = (prompt: string) => fetch('/api/backends/text-completions/generate', { method: 'POST', body: JSON.stringify({ prompt }) }).then((response) => response.text());
+  try {
+    await installRecorder(page);
+    await setRecorderPlan(page, { rules: [{ id: 'suggestions', source: SUGGESTION_RULE, replies: ['lines'], freeze: true }], canned: 'other', probe: 'return { state: globalThis.__probeValue, secrets: [] };' });
+    await run(ARM_EVAL);
+    assert.equal(g.__soPromptBatch.frozen, null);
+    await post('scene');
+    assert.equal(g.__soPromptBatch.frozen, null, 'a call without a freeze rule takes no snapshot');
+    assert.equal(await post('You help a player who is stuck in a roleplay story. Write'), 'lines');
+    g.__probeValue = 'canon landed after the ask';
+    await post('summarise');
+    assert.deepEqual(await run(LT_CONTEXT_EVAL), { context: true, frozenAtCall: true, secrets: 0, lines: 1 });
+    assert.deepEqual(g.__soPromptBatch.context, { state: 'at ask', secrets: [], record: { lines: [{ text: 'a' }] } });
+    assert.equal(g.__soPromptBatch.armed, false);
+    await setRecorderPlan(page, { rules: [{ id: 'suggestions', source: SUGGESTION_RULE, replies: ['lines'], freeze: true }], canned: 'other', probe: 'throw new Error("no seam")' });
+    await run(ARM_EVAL);
+    await post('You help a player who is stuck in a roleplay story.');
+    await assert.rejects(run(LT_CONTEXT_EVAL), /context probe failed at the suggestions call: no seam/);
+    await setRecorderPlan(page, { rules: [], canned: 'other', probe: 'return {}' });
+    await run(ARM_EVAL);
+    assert.deepEqual(await run(LT_CONTEXT_EVAL), { context: false, frozenAtCall: false, secrets: null, lines: null });
+  } finally {
+    g.fetch = originalFetch;
+    Object.defineProperty(g, 'localStorage', { configurable: true, value: originalStorage });
+    delete g.__soPromptBatch;
+    delete g.__probeValue;
+    delete g.__lt;
   }
 });
 
