@@ -366,7 +366,8 @@ export class TalkController {
     const chain = this.chain;
     if (!chain || chain.aborted) { this.endChain(); return; }
     const lastSpeaker = chain.voice?.rosterId ?? this.host.getLastSpeakerRosterId() ?? chain.expected;
-    const rendered = this.rendersReported && !chain.voice ? null : voiceMessage(chain, lastSpeaker, this.host.getLastMessageId());
+    const silent = !chain.voice && (this.rendersReported || this.host.getWindow().at(-1)?.isUser === true);
+    const rendered = silent ? null : voiceMessage(chain, lastSpeaker, this.host.getLastMessageId());
     const spokenAt = chain.voice?.messageId ?? this.host.getLastMessageId();
     this.settleVoice(chain, rendered);
     const config = this.chainConfig(control);

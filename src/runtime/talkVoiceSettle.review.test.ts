@@ -116,16 +116,16 @@ describe("v3.0 19 fix C3: a chain voice's speech row names the message that voic
     expect(rows(entered.events())).toEqual(["entry:Narrator:2", "chain:Mara:null"]);
   });
 
-  it("a voice whose generation failed names no message on a host that reports renders (a blind host keeps the old reading)", async () => {
-    const made = makeHost({ director: true }, ["Mara", null]);
-    made.controller.onReplyRendered(0, "first_message");
+  it("a voice whose generation failed names no message, with the player's line or an entry line last", async () => {
+    const made = makeHost({ director: true }, ["Mara", null], { renders: false });
     await made.open();
     await made.controller.onWrapperFinished();
     expect(rows(made.events())).toEqual(["chain:Mara:null"]);
-    const blind = makeHost({ director: true }, ["Mara", null], { renders: false });
-    await blind.open();
-    await blind.controller.onWrapperFinished();
-    expect(rows(blind.events())).toEqual(["chain:Mara:0"]);
+    const entered = makeHost({ director: true }, ["Mara", null]);
+    await entered.open();
+    entered.entry("Narrator");
+    await entered.controller.onWrapperFinished();
+    expect(rows(entered.events())).toEqual(["entry:Narrator:1", "chain:Mara:null"]);
   });
 });
 
