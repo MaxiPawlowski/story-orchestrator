@@ -68,6 +68,22 @@ Out: C4a (another agent, `v3.0-c4a-requeue`), C5-C7, C9, C8/Artemis v1.2 (disqua
   load ≥ default − 256 MiB; 0 failed loads in 10; greedy output (temp 0, 96 tokens, `cache_prompt: false`, 2 prompts)
   identical to the default arm.
 
+### C2b overlapped unbuffered reads (declared 2026-10-28 18:20Z, after the probe, before any run of the fix)
+
+- Probe outcome that motivates it: staging size changes nothing; a page-cached load reads 17.8 GB in ~6 s
+  (~3 GB/s), and the 21.7 s loads are the uncached case (host RAM available under the GGUF's 17.4 GiB, so the
+  standby list cannot hold it, which is the owner's play condition at 5-9 GiB available). One synchronous buffered
+  read at a time is the bottleneck on the NVMe.
+- Fix: `LLAMA_LOAD_OVERLAPPED=1` opens a second handle with `FILE_FLAG_NO_BUFFERING | FILE_FLAG_OVERLAPPED` and keeps
+  `LLAMA_LOAD_STAGING_N` reads of `LLAMA_LOAD_STAGING_MIB` in flight per tensor into the pinned staging buffers.
+  Arm **O** = overlapped, 8 x 8 MiB; arm **D** = default loader. Binary so5b.
+- Cold rows without admin: before each cold load, a helper allocates and touches host RAM up to available − 1.5 GiB
+  and exits, which repurposes the standby list (the GGUF's cached pages). Order D O D O D O, then 4 page-cached O
+  loads back to back after one D.
+- Floors: cold total load (spawn → `/health`) p50 O ≤ 60 % of D, p95 reported; page-cached O p50 ≤ 105 % of D; 0
+  failed loads in O's 7 loads plus 3 extra = 10; greedy output of O identical to D (2 prompts, temp 0, 96 tokens);
+  host RAM available minimum during an O load ≥ D's − 256 MiB.
+
 ### C1 light sleep
 
 - Feasibility first (one load): `POST /sleep {"level":"context"}` → NVML free and per-process dedicated MiB before and
