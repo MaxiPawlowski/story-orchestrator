@@ -2,7 +2,8 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { BACKUP_ROOT, preserve } from './backup.mjs';
 
-export const MODE_NAMES = Object.freeze(['max', 'balanced', 'safe']);
+export const MODE_NAMES = Object.freeze(['max', 'headroom', 'balanced', 'safe']);
+export const TOGGLE = Object.freeze({ max: 'headroom', headroom: 'max' });
 
 export const KNOBS = Object.freeze([
     { path: 'reserves.gpuMiB', type: 'int', min: 1024, max: 8192, step: 256, applies: 'live+text-load', label: 'GPU headroom kept free',
@@ -23,19 +24,23 @@ export const KNOBS = Object.freeze([
         about: 'warm keeps ComfyUI\'s cache in RAM (next image ~20 s); evict gives that RAM back to your apps (next image starts cold, ~30-40 s).' },
     { path: 'memberCache.budgetMiB', type: 'int', min: 1024, max: 16384, step: 512, applies: 'text-load', label: 'Speaker memory cache (MiB)',
         about: 'RAM llama-server keeps for each group member\'s prepared prompt (about 1.3 GiB a member). Bigger = a returning speaker starts sooner in big groups; smaller returns that RAM to your apps.' },
+    { path: 'memberCache.fitRam', type: 'bool', applies: 'live+text-load', label: 'Fit the speaker cache to free RAM',
+        about: 'Use the speaker cache size above as a ceiling and keep it where text, the cache and an image\'s RAM all fit (10 GiB kept for images and your apps). It shrinks when RAM gets short and grows back when RAM frees up.' },
 ]);
 
-const KNOB_DEFAULTS = Object.freeze({ keepTextResident: true, imageCacheMode: 'warm', fitMarginMiB: 0, idleRestoreMs: 0, 'streamImages.enabled': false, 'streamImages.minFreeGpuMiB': 2400, 'memberCache.budgetMiB': 6144 });
+const KNOB_DEFAULTS = Object.freeze({ keepTextResident: true, imageCacheMode: 'warm', fitMarginMiB: 0, idleRestoreMs: 0, 'streamImages.enabled': false, 'streamImages.minFreeGpuMiB': 2400, 'memberCache.budgetMiB': 6144, 'memberCache.fitRam': false });
 
 export const PRESET_NOTES = Object.freeze({
-    max: 'Only playing: VRAM and RAM used to the measured-safe limit (GPU headroom 1 GiB, spill guard backs off on a shared-memory spill), full speed back after 3 idle minutes.',
+    max: 'Only playing (default): VRAM to the measured-safe limit (GPU headroom 1 GiB, spill guard backs off on a shared-memory spill), the speaker cache grows into free RAM while 10 GiB stay free for images and your apps, full speed back after 3 idle minutes.',
+    headroom: 'Using the PC for other things: text reloads leaving 4 GiB of VRAM and the speaker cache drops to 2 GiB, images swap the text out and give their cache back. Text runs slower until you switch back to Max.',
     balanced: 'The values this install ran with before modes existed.',
     safe: 'Using the PC too: more VRAM and RAM left for your apps, images swap the text out, image cache returned after each render. Text may run slower.',
 });
 
 export const PRESETS = Object.freeze({
-    max: Object.freeze({ 'reserves.gpuMiB': 1024, 'reserves.ramMiB': 2048, 'streamImages.enabled': true, 'streamImages.minFreeGpuMiB': 2400, idleRestoreMs: 180000, keepTextResident: true, fitMarginMiB: 512, imageCacheMode: 'warm', 'memberCache.budgetMiB': 4096 }),
-    safe: Object.freeze({ 'reserves.gpuMiB': 3072, 'reserves.ramMiB': 6144, 'streamImages.enabled': false, 'streamImages.minFreeGpuMiB': 2400, idleRestoreMs: 600000, keepTextResident: true, fitMarginMiB: 512, imageCacheMode: 'evict', 'memberCache.budgetMiB': 2048 }),
+    max: Object.freeze({ 'reserves.gpuMiB': 1024, 'reserves.ramMiB': 2048, 'streamImages.enabled': true, 'streamImages.minFreeGpuMiB': 2400, idleRestoreMs: 180000, keepTextResident: true, fitMarginMiB: 512, imageCacheMode: 'warm', 'memberCache.budgetMiB': 12288, 'memberCache.fitRam': true }),
+    headroom: Object.freeze({ 'reserves.gpuMiB': 4096, 'reserves.ramMiB': 8192, 'streamImages.enabled': false, 'streamImages.minFreeGpuMiB': 2400, idleRestoreMs: 600000, keepTextResident: true, fitMarginMiB: 512, imageCacheMode: 'evict', 'memberCache.budgetMiB': 2048, 'memberCache.fitRam': true }),
+    safe: Object.freeze({ 'reserves.gpuMiB': 3072, 'reserves.ramMiB': 6144, 'streamImages.enabled': false, 'streamImages.minFreeGpuMiB': 2400, idleRestoreMs: 600000, keepTextResident: true, fitMarginMiB: 512, imageCacheMode: 'evict', 'memberCache.budgetMiB': 2048, 'memberCache.fitRam': false }),
 });
 
 const knob = (key) => KNOBS.find((row) => row.path === key);
@@ -91,17 +96,28 @@ export function validateValues(values) {
     return values;
 }
 
+const builtIn = (name) => ({ _note: PRESET_NOTES[name], ...nestPatch(PRESETS[name]) });
+
 export function defaultModes(config) {
     const current = knobValues(config);
-    return {
-        max: { _note: PRESET_NOTES.max, ...nestPatch(PRESETS.max) },
-        balanced: { _note: PRESET_NOTES.balanced, ...nestPatch(Object.fromEntries(Object.entries(current).filter(([key, value]) => !checkValue(key, value)))) },
-        safe: { _note: PRESET_NOTES.safe, ...nestPatch(PRESETS.safe) },
-    };
+    const balanced = { _note: PRESET_NOTES.balanced, ...nestPatch(Object.fromEntries(Object.entries(current).filter(([key, value]) => !checkValue(key, value)))) };
+    return Object.fromEntries(MODE_NAMES.map((name) => [name, name === 'balanced' ? balanced : builtIn(name)]));
 }
 
 export function modesOf(config) {
-    return config.modes && typeof config.modes === 'object' ? config.modes : defaultModes(config);
+    if (!config.modes || typeof config.modes !== 'object') return defaultModes(config);
+    const missing = MODE_NAMES.filter((name) => !Object.hasOwn(config.modes, name));
+    if (!missing.length) return config.modes;
+    const defaults = defaultModes(config);
+    return { ...config.modes, ...Object.fromEntries(missing.map((name) => [name, defaults[name]])) };
+}
+
+export function resetPresets(config, names) {
+    const unknown = names.filter((name) => !PRESETS[name]);
+    if (!names.length || unknown.length) throw new Error(`Only built-in presets can be reset: ${Object.keys(PRESETS).join(', ')}.`);
+    const next = structuredClone(config);
+    next.modes = { ...modesOf(config), ...Object.fromEntries(names.map((name) => [name, builtIn(name)])) };
+    return next;
 }
 
 export function presetValues(config, name) {
@@ -123,7 +139,8 @@ export function currentMode(config) {
 
 export function planChange(config, request) {
     const input = request && typeof request === 'object' && !Array.isArray(request) ? request : {};
-    const extra = Object.keys(input).filter((key) => !['mode', 'values'].includes(key));
+    const extra = Object.keys(input).filter((key) => !['mode', 'values', 'apply'].includes(key));
+    if (input.apply !== undefined && input.apply !== 'now') throw new Error("apply must be 'now' when given.");
     if (extra.length) throw new Error(`Unknown field ${extra.join(', ')}; send a mode or values.`);
     if ((input.mode === undefined) === (input.values === undefined)) throw new Error('Send either a mode or values, not both.');
     const before = knobValues(config);
@@ -142,7 +159,7 @@ export function planChange(config, request) {
     if (next.mode === 'custom') for (const name of Object.keys(next.modes)) if (currentMode({ ...next, mode: name }) === name) next.mode = name;
     const after = knobValues(next);
     const changed = KNOBS.filter((row) => before[row.path] !== after[row.path]).map((row) => row.path);
-    return { config: next, mode: next.mode, values: after, changed,
+    return { config: next, mode: next.mode, values: after, changed, applyNow: input.apply === 'now',
         live: changed.filter((key) => knob(key).applies.startsWith('live')), textLoad: changed.filter((key) => knob(key).applies.endsWith('text-load')) };
 }
 
@@ -178,7 +195,29 @@ export function applyValues(target, values) {
     }
 }
 
-export function createLiveSettings({ target, scheduler, backend, mode = 'balanced', intervalMs = 1000, timers = true }) {
+export function createSettingsReload({ backend, scheduler, snapshot, target }) {
+    const reading = async () => { try { const value = await snapshot(); return { gpuFreeMiB: value?.gpus?.[0]?.freeMiB ?? null, ramAvailableMiB: value?.host?.availableMiB ?? null }; } catch { return { gpuFreeMiB: null, ramAvailableMiB: null }; } };
+    return async function reload() {
+        const state = backend.status();
+        const before = await reading();
+        const began = Date.now();
+        let text = 'none';
+        if (state.sleeping && backend.dropSleeping) { await backend.dropSleeping(); text = 'dropped-sleeping'; }
+        let imagesFreed = false;
+        try { await scheduler().freeImages({ clear: target.imageCacheMode === 'evict' }); imagesFreed = true; } catch {}
+        if (state.pid && !state.loading && state.fitTargetMiB === null) {
+            const name = state.desiredProfile ?? state.profile;
+            await backend.unload();
+            await backend.load(name, { fitTarget: null });
+            text = 'reloaded';
+        }
+        const after = await reading();
+        const delta = (key) => (Number.isFinite(after[key]) && Number.isFinite(before[key]) ? Math.round(after[key] - before[key]) : null);
+        return { text, imagesFreed, ms: Date.now() - began, before, after, gpuFreedMiB: delta('gpuFreeMiB'), ramFreedMiB: delta('ramAvailableMiB') };
+    };
+}
+
+export function createLiveSettings({ target, scheduler, backend, mode = 'balanced', intervalMs = 1000, timers = true, reload = null, onApplied = null }) {
     let pending = null;
     let textLoad = null;
     let timer = null;
@@ -186,11 +225,13 @@ export function createLiveSettings({ target, scheduler, backend, mode = 'balance
     const tryApply = async () => {
         if (!pending) return true;
         const change = pending;
+        let reloaded = null;
         try {
             await scheduler().exclusive(async () => {
                 applyValues(target, change.values);
                 const spill = scheduler().spill;
                 if (spill && ('reserves.gpuMiB' in change.values || 'streamImages.minFreeGpuMiB' in change.values)) spill.backoffMiB = 0;
+                if (change.applyNow && reload) { try { reloaded = await reload(); } catch (error) { reloaded = { text: 'failed', error: error.message }; } }
             });
         } catch (error) {
             if (/Wait for the active work/.test(error.message)) return false;
@@ -199,7 +240,9 @@ export function createLiveSettings({ target, scheduler, backend, mode = 'balance
         if (pending === change) pending = null;
         state.applied = change.mode;
         state.appliedAt = new Date().toISOString();
-        if (change.textLoad.length) {
+        if (reloaded) state.lastApply = { mode: change.mode, at: state.appliedAt, ...reloaded };
+        if (onApplied) await Promise.resolve(onApplied(change)).catch((error) => { state.lastError = error.message; });
+        if (change.textLoad.length && !reloaded?.text?.startsWith('reloaded')) {
             const text = backend.status();
             textLoad = text.pid || text.loading ? { keys: change.textLoad, loads: text.loads } : null;
         }
@@ -214,7 +257,7 @@ export function createLiveSettings({ target, scheduler, backend, mode = 'balance
     };
     return {
         async request(plan) {
-            pending = { mode: plan.mode, values: plan.values, textLoad: plan.textLoad };
+            pending = { mode: plan.mode, values: plan.values, textLoad: plan.textLoad, applyNow: plan.applyNow === true };
             const done = await tryApply();
             if (!done) schedule();
             return done ? 'now' : 'after-current-work';
@@ -224,7 +267,7 @@ export function createLiveSettings({ target, scheduler, backend, mode = 'balance
             const text = backend.status();
             if (textLoad && text.loads !== textLoad.loads) textLoad = null;
             return { mode: state.applied, appliedAt: state.appliedAt ?? null, effective: knobValues(target), pending: pending ? { mode: pending.mode } : null,
-                atNextTextLoad: textLoad?.keys ?? [], lastError: state.lastError ?? null };
+                atNextTextLoad: textLoad?.keys ?? [], lastApply: state.lastApply ?? null, lastError: state.lastError ?? null };
         },
         stop() { if (timer) clearInterval(timer); timer = null; },
     };

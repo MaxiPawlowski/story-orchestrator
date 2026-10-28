@@ -54,10 +54,10 @@ test('the settings page is served same-origin with a locked-down policy and live
         assert.doesNotMatch(script, /https?:\/\//);
         const state = await (await fetch(`${app.url}/ui/api/state`)).json();
         assert.equal(state.configMode, 'balanced');
-        assert.deepEqual(state.modes.map((row) => row.name), ['max', 'balanced', 'safe']);
+        assert.deepEqual(state.modes.map((row) => row.name), ['max', 'headroom', 'balanced', 'safe']);
         assert.equal(state.gpuFreeMiB, 2700);
         assert.equal(state.ramAvailableMiB, 12000);
-        assert.equal(state.knobs.length, 9);
+        assert.equal(state.knobs.length, 10);
     } finally { await app.close(); }
 });
 

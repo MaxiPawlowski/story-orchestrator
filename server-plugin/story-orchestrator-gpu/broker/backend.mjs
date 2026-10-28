@@ -4,7 +4,7 @@ import path from 'node:path';
 import { memorySnapshot } from './telemetry.mjs';
 import { withinReserve } from './policy.mjs';
 import { CONTROLLER_DEFAULTS } from './controllerStatus.mjs';
-import { memberCacheOptions } from './memberCache.mjs';
+import { fitCacheMiB, memberCacheOptions } from './memberCache.mjs';
 
 export const SPECULATIVE_DEFAULTS = Object.freeze({ type: 'draft-mtp', nMax: 2, estimatedGpuMiB: 900 });
 
@@ -112,6 +112,22 @@ export class NativeBackend {
         this.entering = false;
         this.direct = 0;
         this.sleepStats = { sleeps: 0, wakes: 0, wakeFailures: 0, dropped: 0, strayWakes: 0, wakeReclaims: 0, lastWakeMs: null, lastSleepMs: null, lastStrayWake: null };
+        this.textRamMiB = new Map();
+        this.cacheBudget = null;
+    }
+
+    cacheRamFor(name, profile, snapshot, spillMiB) {
+        const members = memberCacheOptions(this.config);
+        if (members?.store !== 'ram') return 0;
+        const capMiB = members.budgetMiB;
+        if (members.fitRam !== true) { this.cacheBudget = { capMiB, effectiveMiB: capMiB, fit: false }; return capMiB; }
+        const learned = this.textRamMiB.get(name);
+        const textRamMiB = Number.isFinite(learned) ? learned : (profile.estimatedRamMiB ?? 6000) + spillMiB;
+        const floorMiB = this.config.keepCacheRamFloorMiB ?? 10240;
+        const availableMiB = snapshot.host.availableMiB;
+        const effectiveMiB = fitCacheMiB({ capMiB, availableMiB: availableMiB - textRamMiB, floorMiB });
+        this.cacheBudget = { capMiB, effectiveMiB, fit: true, availableMiB: Math.round(availableMiB), textRamMiB: Math.round(textRamMiB), textRamSource: Number.isFinite(learned) ? 'learned' : 'estimate', floorMiB, at: new Date().toISOString() };
+        return effectiveMiB;
     }
 
     async load(name = this.config.defaultProfile, options = {}) {
@@ -165,7 +181,7 @@ export class NativeBackend {
         const gpu = snapshot.gpus[0];
         const gpuBudget = gpu.freeMiB - Math.max(this.config.reserves.gpuMiB, fitTarget ?? 0);
         const spillMiB = Math.max(0, profileGpuMiB(this.config, profile) - gpuBudget);
-        const ramCache = memberCacheOptions(this.config)?.store === 'ram' ? memberCacheOptions(this.config).budgetMiB : 0;
+        const ramCache = this.cacheRamFor(name, profile, snapshot, spillMiB);
         const ramRequired = (profile.estimatedRamMiB ?? 6000) + spillMiB + ramCache;
         if (gpuBudget < 2048 || snapshot.host.availableMiB < ramRequired + this.config.reserves.ramMiB || snapshot.host.commitFreeMiB < ramRequired + this.config.reserves.ramMiB) {
             throw new Error('Not enough free GPU/physical RAM for this profile while preserving desktop headroom.');
@@ -174,7 +190,8 @@ export class NativeBackend {
         if (memberCacheOptions(this.config)) await fs.mkdir(memberCacheOptions(this.config).dir, { recursive: true });
         const log = await fs.open(path.join(this.config.stateDir, `native-${Date.now()}-${name}.log`), 'a');
         this.crashed = null;
-        const fitConfig = { ...this.config, fitMarginMiB: (this.config.fitMarginMiB ?? 0) + (this.fitCorrections.get(name) ?? 0) };
+        const fitConfig = { ...this.config, fitMarginMiB: (this.config.fitMarginMiB ?? 0) + (this.fitCorrections.get(name) ?? 0),
+            ...(ramCache > 0 ? { memberCache: { ...this.config.memberCache, budgetMiB: ramCache } } : {}) };
         const child = this.spawn(this.config.binary, nativeArgs(fitConfig, profile, fitTarget ?? this.config.reserves.gpuMiB), { windowsHide: true, stdio: ['ignore', log.fd, log.fd] });
         this.child = child;
         let spawnError;
@@ -196,6 +213,7 @@ export class NativeBackend {
                 if ((await this.fetch(`${this.url}/health`, { signal: AbortSignal.timeout(1000) })).ok) {
                     const after = await this.snapshot();
                     if (withinReserve(after, this.config.reserves)) {
+                        if (Number.isFinite(snapshot.host?.availableMiB) && Number.isFinite(after.host?.availableMiB)) this.textRamMiB.set(name, Math.max(512, Math.round(snapshot.host.availableMiB - after.host.availableMiB)));
                         this.profile = name;
                         this.fitTarget = fitTarget;
                         this.slotTokens.clear();
@@ -436,5 +454,5 @@ export class NativeBackend {
     }
 
     status() { return { profile: this.profile, desiredProfile: this.desiredProfile, fitTargetMiB: this.fitTarget, fitCorrectionMiB: this.fitCorrections.get(this.profile) ?? 0,
-        lastFitCorrection: this.lastFitCorrection, gpuReclaims: this.reclaims, speculative: speculativeTag(this.config), slots: slots(this.config) ? { ...slots(this.config), held: Object.fromEntries(this.slotTokens), requests: { ...this.slotStats.requests }, erased: this.slotStats.erased, waited: this.slotStats.waited, chatErasedBySide: this.slotStats.chatErasedBySide, busy: [...this.slotBusy] } : null, cacheRamMiB: memberCacheOptions(this.config)?.store === 'ram' ? memberCacheOptions(this.config).budgetMiB : this.config.cacheRamMiB ?? 512, pid: this.sleeping ? null : this.child?.pid ?? null, sleeping: this.sleeping ? { profile: this.sleeping.profile, pid: this.child?.pid ?? null, since: new Date(this.sleeping.at).toISOString() } : null, sleepStats: { ...this.sleepStats }, loading: Boolean(this.loading), loadMs: this.loadMs, loads: this.loads, lastError: this.lastError, crashed: this.crashed, servedContext: this.servedContext() }; }
+        lastFitCorrection: this.lastFitCorrection, gpuReclaims: this.reclaims, speculative: speculativeTag(this.config), slots: slots(this.config) ? { ...slots(this.config), held: Object.fromEntries(this.slotTokens), requests: { ...this.slotStats.requests }, erased: this.slotStats.erased, waited: this.slotStats.waited, chatErasedBySide: this.slotStats.chatErasedBySide, busy: [...this.slotBusy] } : null, cacheRamMiB: memberCacheOptions(this.config)?.store === 'ram' ? this.cacheBudget?.effectiveMiB ?? memberCacheOptions(this.config).budgetMiB : this.config.cacheRamMiB ?? 512, cacheBudget: this.cacheBudget, textRamMiB: Object.fromEntries(this.textRamMiB), pid: this.sleeping ? null : this.child?.pid ?? null, sleeping: this.sleeping ? { profile: this.sleeping.profile, pid: this.child?.pid ?? null, since: new Date(this.sleeping.at).toISOString() } : null, sleepStats: { ...this.sleepStats }, loading: Boolean(this.loading), loadMs: this.loadMs, loads: this.loads, lastError: this.lastError, crashed: this.crashed, servedContext: this.servedContext() }; }
 }

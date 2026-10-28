@@ -458,3 +458,37 @@ test('a wake short of the full text layout first asks for idle image memory, the
     assert.equal(backend.status().sleepStats.wakeReclaims, 1);
     assert.deepEqual(backend.calls, [{ name: 'fast', fitTarget: null }]);
 });
+
+test('fitRam sizes --cache-ram at each load from free RAM minus text and the image floor, and learns what text took', async () => {
+    const stateDir = await mkdtemp(path.join(tmpdir(), 'so-fit-'));
+    try {
+        const fit = { ...config, model: 'm', backendPort: 1, modelAlias: 'a', binary: 'llama-server', stateDir, keepCacheRamFloorMiB: 10240, admissionPollMs: 1,
+            reserves: { gpuMiB: 1024, ramMiB: 2048 }, profiles: { fast: { args: ['--ctx-size', '32768', '--n-gpu-layers', 'auto'], estimatedGpuMiB: 20500, estimatedRamMiB: 3000 } },
+            memberCache: { enabled: true, store: 'ram', budgetMiB: 12288, serverKeys: true, fitRam: true, dir: path.join(stateDir, 'm') } };
+        let available = 24000;
+        const spawned = [];
+        let alive = false;
+        const backend = new NativeBackend(fit, {
+            snapshot: async () => ({ gpus: [{ freeMiB: alive ? 2200 : 23000 }], host: { availableMiB: available, commitFreeMiB: 60000 } }),
+            spawn: (binary, args) => { spawned.push(args); const child = new EventEmitter(); child.pid = 42; child.exitCode = null; child.kill = () => { alive = false; child.emit('exit', 0); }; alive = true; available -= 5000; return child; },
+            fetch: async (url) => { if (url.endsWith('/health') && alive) return new Response('{}'); throw new Error('down'); },
+        });
+        await backend.load('fast');
+        const first = spawned[0];
+        assert.equal(first[first.indexOf('--cache-ram') + 1], '10752');
+        assert.deepEqual({ ...backend.status().cacheBudget, at: undefined }, { capMiB: 12288, effectiveMiB: 10752, fit: true, availableMiB: 24000, textRamMiB: 3000, textRamSource: 'estimate', floorMiB: 10240, at: undefined });
+        assert.equal(backend.status().cacheRamMiB, 10752);
+        assert.equal(backend.status().textRamMiB.fast, 5000);
+        await backend.stopOwned();
+        available = 24000;
+        await backend.load('fast');
+        assert.equal(spawned[1][spawned[1].indexOf('--cache-ram') + 1], '8704');
+        assert.equal(backend.status().cacheBudget.textRamSource, 'learned');
+        await backend.stopOwned();
+        fit.memberCache.fitRam = false;
+        available = 24000;
+        await backend.load('fast');
+        assert.equal(spawned[2][spawned[2].indexOf('--cache-ram') + 1], '12288');
+        await backend.stopOwned();
+    } finally { await rm(stateDir, { recursive: true, force: true }); }
+});

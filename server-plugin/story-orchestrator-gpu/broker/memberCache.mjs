@@ -3,13 +3,22 @@ import fsDefault from 'node:fs/promises';
 import path from 'node:path';
 
 export const MEMBER_CACHE_DEFAULTS = Object.freeze({ headChars: 2000, budgetMiB: 6144, minPromptChars: 16000, minCutChars: 8000, minTailChars: 1200,
-    cutMarker: '<|turn>system\n', rewind: true, ramHeadroomMiB: 0, ctxCheckpoints: 3, store: 'file', park: true, erase: true, serverKeys: false, idlePrefill: false, idleDelayMs: 3000, idleMembers: 4, pinSlots: false, checkpointAt: false, serverRewind: false, keepAcrossImages: false });
+    cutMarker: '<|turn>system\n', rewind: true, ramHeadroomMiB: 0, ctxCheckpoints: 3, store: 'file', park: true, erase: true, serverKeys: false, idlePrefill: false, idleDelayMs: 3000, idleMembers: 4, pinSlots: false, checkpointAt: false, serverRewind: false, keepAcrossImages: false, fitRam: false });
+
+export const CACHE_LIMIT_MIN_MIB = 1024;
+
+export function fitCacheMiB({ capMiB, availableMiB, occupancyMiB = 0, floorMiB, stepMiB = 256, minMiB = CACHE_LIMIT_MIN_MIB }) {
+    if (!Number.isFinite(availableMiB)) return capMiB;
+    const room = Math.floor((occupancyMiB + availableMiB - floorMiB) / stepMiB) * stepMiB;
+    return Math.max(Math.min(minMiB, capMiB), Math.min(capMiB, room));
+}
 
 export function memberCacheOptions(config = {}) {
     const raw = config.memberCache;
     if (!raw || raw.enabled !== true) return null;
     const merged = { ...MEMBER_CACHE_DEFAULTS, ...raw, dir: raw.dir ?? path.join(config.stateDir ?? '.', 'member-states') };
     if (!Number.isInteger(merged.budgetMiB) || merged.budgetMiB < 0 || merged.budgetMiB > 65536) throw new Error('memberCache.budgetMiB must be a whole number from 0 to 65536.');
+    if (typeof merged.fitRam !== 'boolean') throw new Error('memberCache.fitRam must be true or false.');
     if (!Number.isInteger(merged.headChars) || merged.headChars < 200 || merged.headChars > 20000) throw new Error('memberCache.headChars must be a whole number from 200 to 20000.');
     if (!Number.isInteger(merged.ctxCheckpoints) || merged.ctxCheckpoints < 3 || merged.ctxCheckpoints > 32) throw new Error('memberCache.ctxCheckpoints must be a whole number from 3 to 32.');
     if (typeof merged.cutMarker !== 'string' || !merged.cutMarker) throw new Error('memberCache.cutMarker must be a non-empty string.');
@@ -49,7 +58,7 @@ const MiB = 1048576;
 const FILE = /^m-[0-9a-f]{16}\.bin$/;
 
 export class MemberCache {
-    constructor(options, { fetch: fetchImpl = fetch, baseUrl, fs = fsDefault, snapshot = null, reserves = () => ({}), now = () => Date.now() } = {}) {
+    constructor(options, { fetch: fetchImpl = fetch, baseUrl, fs = fsDefault, snapshot = null, reserves = () => ({}), now = () => Date.now(), live = null, ramFloorMiB = () => 10240, sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms)) } = {}) {
         Object.assign(this, MEMBER_CACHE_DEFAULTS, options);
         this.fetch = fetchImpl;
         this.baseUrl = typeof baseUrl === 'function' ? baseUrl : () => baseUrl;
@@ -57,6 +66,13 @@ export class MemberCache {
         this.snapshot = snapshot;
         this.reserves = typeof reserves === 'function' ? reserves : () => reserves;
         this.now = now;
+        this.live = live;
+        this.ramFloorMiB = typeof ramFloorMiB === 'function' ? ramFloorMiB : () => ramFloorMiB;
+        this.sleep = sleep;
+        this.native = null;
+        this.nativeSupported = null;
+        this.lastRefit = null;
+        this.lastTrim = null;
         this.entries = new Map();
         this.owner = new Map();
         this.lastError = null;
@@ -65,7 +81,7 @@ export class MemberCache {
         this.heads = new Map();
         this.lastPrompt = null;
         this.idleDone = new Map();
-        Object.assign(this.stats, { idlePrefills: 0, idleYields: 0, idleRuns: 0 });
+        Object.assign(this.stats, { idlePrefills: 0, idleYields: 0, idleRuns: 0, refits: 0, trims: 0, trimFreedMiB: 0, limitFailures: 0, makeRoomUnsupported: 0 });
     }
 
     async init() {
@@ -87,7 +103,73 @@ export class MemberCache {
 
     noteOther(slot) { this.owner.set(slot, null); }
 
-    syncBackend(pid) { if (pid !== this.pid) { this.owner.clear(); this.pid = pid; } }
+    syncBackend(pid) { if (pid !== this.pid) { this.owner.clear(); this.pid = pid; this.nativeSupported = null; this.native = null; } }
+
+    current() { const live = this.live?.(); return { capMiB: live?.budgetMiB ?? this.budgetMiB, fitRam: (live?.fitRam ?? this.fitRam) === true }; }
+
+    async nativeState(signal = AbortSignal.timeout(2000)) {
+        if (this.store !== 'ram' || this.nativeSupported === false) return null;
+        let reply;
+        try { reply = await this.fetch(`${this.baseUrl()}/cache`, { signal }); } catch { return null; }
+        if (reply.status === 404) { this.nativeSupported = false; return null; }
+        if (!reply.ok) return null;
+        const data = await reply.json().catch(() => null);
+        if (!Number.isFinite(data?.size_mib) || !Number.isFinite(data?.limit_mib)) { this.nativeSupported = false; return null; }
+        this.nativeSupported = true;
+        this.native = { enabled: data.enabled !== false, prompts: data.prompts ?? null, keyed: data.keyed ?? null, sizeMiB: Math.round(data.size_mib), limitMiB: Math.round(data.limit_mib), sleeping: data.sleeping === true, at: new Date(this.now()).toISOString() };
+        return this.native;
+    }
+
+    async setLimit(mib, signal = AbortSignal.timeout(5000)) {
+        const reply = await this.post('/cache/limit', { mib }, signal).catch((error) => ({ ok: false, status: error.message }));
+        if (!reply.ok) { this.stats.limitFailures += 1; this.lastError = `cache limit answered ${reply.status}`; return false; }
+        return true;
+    }
+
+    async settle(maxMiB, waitMs = 3000) {
+        const deadline = this.now() + waitMs;
+        let state = await this.nativeState();
+        while (state && state.sizeMiB > maxMiB + 1 && this.now() < deadline) { await this.sleep(100); state = await this.nativeState(); }
+        return state;
+    }
+
+    async available() {
+        if (!this.snapshot) return null;
+        try { const value = (await this.snapshot())?.host?.availableMiB; return Number.isFinite(value) ? value : null; } catch (error) { this.lastError = error.message; return null; }
+    }
+
+    async refit(reason = 'refit') {
+        if (this.store !== 'ram') return null;
+        const state = await this.nativeState();
+        if (!state?.enabled) return null;
+        const { capMiB, fitRam } = this.current();
+        const availableMiB = fitRam ? await this.available() : null;
+        if (fitRam && availableMiB === null) return null;
+        const target = fitRam ? fitCacheMiB({ capMiB, availableMiB, occupancyMiB: state.sizeMiB, floorMiB: this.ramFloorMiB() }) : capMiB;
+        const lowering = target < state.limitMiB;
+        if (target === state.limitMiB || (!lowering && target - state.limitMiB < 512)) return { changed: false, limitMiB: state.limitMiB };
+        if (!(await this.setLimit(target))) return { changed: false, limitMiB: state.limitMiB };
+        this.stats.refits += 1;
+        this.lastRefit = { at: new Date(this.now()).toISOString(), reason, fromMiB: state.limitMiB, toMiB: target, occupancyMiB: state.sizeMiB, availableMiB: availableMiB === null ? null : Math.round(availableMiB), floorMiB: fitRam ? this.ramFloorMiB() : null };
+        return { changed: true, limitMiB: target };
+    }
+
+    async trimForImage({ needRamMiB = 0, availableMiB = null } = {}) {
+        const state = await this.nativeState();
+        if (!state) { if (this.nativeSupported === false) this.stats.makeRoomUnsupported += 1; return 0; }
+        if (!state.enabled || !Number.isFinite(availableMiB)) return 0;
+        const floor = needRamMiB + (this.reserves().ramMiB ?? 0);
+        const limit = Math.max(1, Math.min(state.limitMiB, Math.floor(state.sizeMiB + availableMiB - floor)));
+        if (limit >= state.limitMiB) return 0;
+        if (!(await this.setLimit(limit))) return 0;
+        const after = limit < state.sizeMiB ? await this.settle(limit) : state;
+        const freedMiB = Math.max(0, state.sizeMiB - (after?.sizeMiB ?? state.sizeMiB));
+        this.stats.trims += 1;
+        this.stats.trimFreedMiB += freedMiB;
+        if (freedMiB > 0) this.stats.evictedForImages += Math.max(1, (state.prompts ?? 0) - (after?.prompts ?? 0));
+        this.lastTrim = { at: new Date(this.now()).toISOString(), needRamMiB, availableMiB: Math.round(availableMiB), fromLimitMiB: state.limitMiB, toLimitMiB: limit, occupancyBeforeMiB: state.sizeMiB, occupancyAfterMiB: after?.sizeMiB ?? null, freedMiB };
+        return freedMiB * MiB;
+    }
 
     forget() { this.owner.clear(); }
 
@@ -207,7 +289,11 @@ export class MemberCache {
 
     async afterReply(plan, { idle = () => true, signal = AbortSignal.timeout(120000) } = {}) {
         if (!plan || this.owner.get(plan.slot) !== plan.key) return { saved: false, reason: 'not-owner' };
-        if (this.store === 'ram') return this.parkInRam(plan, idle, signal);
+        if (this.store === 'ram') {
+            const result = await this.parkInRam(plan, idle, signal);
+            if (idle()) await this.refit('reply').catch((error) => { this.lastError = error.message; });
+            return result;
+        }
         if (this.budgetMiB === 0) return { saved: false, reason: 'budget' };
         if (!idle()) { this.stats.skippedBusy += 1; return { saved: false, reason: 'busy' }; }
         const estimate = this.estimateMiB();
@@ -273,7 +359,8 @@ export class MemberCache {
     }
 
     async makeRoom({ needRamMiB = 0, availableMiB = null } = {}) {
-        if (this.store === 'ram' || !this.entries.size) return 0;
+        if (this.store === 'ram') return this.trimForImage({ needRamMiB, availableMiB });
+        if (!this.entries.size) return 0;
         const floor = needRamMiB + (this.reserves().ramMiB ?? 0);
         let available = Number.isFinite(availableMiB) ? availableMiB : -Infinity;
         let freed = 0;
@@ -287,7 +374,8 @@ export class MemberCache {
     }
 
     status() {
-        return { store: this.store, ...(this.store === 'ram' ? { nativeCacheMiB: this.budgetMiB, occupancy: 'held by llama-server, not reported', serverKeys: this.serverKeys, erase: this.erase } : {}), dir: this.dir, budgetMiB: this.budgetMiB, rewind: this.rewind, park: this.park, entries: this.entries.size, sizeMiB: Math.round(this.bytes() / MiB), ...this.stats, parkMsP50: median(this.times.parkMs),
+        const { capMiB, fitRam } = this.current();
+        return { store: this.store, ...(this.store === 'ram' ? { capMiB, fitRam, native: this.native, nativeReported: this.nativeSupported, occupancy: this.native ? `${this.native.sizeMiB} of ${this.native.limitMiB} MiB, ${this.native.prompts} entries` : this.nativeSupported === false ? 'not reported (llama-server without GET /cache)' : 'unknown', lastRefit: this.lastRefit, lastTrim: this.lastTrim, serverKeys: this.serverKeys, erase: this.erase } : {}), dir: this.dir, budgetMiB: capMiB, rewind: this.rewind, park: this.park, entries: this.entries.size, sizeMiB: Math.round(this.bytes() / MiB), ...this.stats, parkMsP50: median(this.times.parkMs),
             restoreMsP50: median(this.times.restoreMs), prefillMsP50: median(this.times.prefillMs), rewindMsP50: median(this.times.rewindMs), saveMsP50: median(this.times.saveMs),
             saveMsMax: this.times.saveMs.length ? Math.max(...this.times.saveMs) : null, idlePrefillMsP50: median(this.times.idlePrefillMs), idleMembersKnown: this.heads.size, lastError: this.lastError };
     }

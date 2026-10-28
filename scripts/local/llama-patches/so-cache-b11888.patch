@@ -1,7 +1,7 @@
 From 252ca4db6572943b8d0d0a7d808ec837c5e933c3 Mon Sep 17 00:00:00 2001
 From: MaxiPawlowski <maxipawlowski@gmail.com>
 Date: Mon, 26 Oct 2026 03:36:29 -0300
-Subject: [PATCH 1/2] server: prompt cache key, cache_ckpt_max, no zero-fill of
+Subject: [PATCH 1/6] server: prompt cache key, cache_ckpt_max, no zero-fill of
  cached state buffers
 
 ---
@@ -270,7 +270,7 @@ index d6b6f4b..9b679b3 100644
 From 8f17b1a416f28e24a64f2ac65d7fdfefb36140f1 Mon Sep 17 00:00:00 2001
 From: MaxiPawlowski <maxipawlowski@gmail.com>
 Date: Mon, 26 Oct 2026 04:52:59 -0300
-Subject: [PATCH 2/2] server: keys isolate cache entries both ways, unkeyed
+Subject: [PATCH 2/6] server: keys isolate cache entries both ways, unkeyed
  never evicts keyed, dedup per key, keyed tasks skip foreign slots, validate
  state write length
 
@@ -369,6 +369,627 @@ index dd83b39..c0f89b1 100644
              continue;
          }
  
+-- 
+2.55.0.windows.3
+
+
+From 603203f774353a2bafab7c2e7f3df20c189e6420 Mon Sep 17 00:00:00 2001
+From: MaxiPawlowski <maxipawlowski@gmail.com>
+Date: Mon, 26 Oct 2026 07:52:05 -0300
+Subject: [PATCH 3/6] server: checkpoint_at request positions, cache_rewind
+ saves the state rewound to the cut checkpoint
+
+---
+ tools/server/server-context.cpp | 58 +++++++++++++++++++++++++++++++--
+ tools/server/server-schema.cpp  | 18 ++++++++++
+ tools/server/server-task.h      |  2 ++
+ 3 files changed, 75 insertions(+), 3 deletions(-)
+
+diff --git a/tools/server/server-context.cpp b/tools/server/server-context.cpp
+index e51ebbc..5cb53e5 100644
+--- a/tools/server/server-context.cpp
++++ b/tools/server/server-context.cpp
+@@ -342,8 +342,50 @@ struct server_slot {
+     // prompt cache options of the task that produced the current prompt state
+     std::string cache_key;
+     int32_t     cache_ckpt_max = -1;
++    bool        cache_rewind   = false;
++
++    void prompt_rewind_to_cut() {
++        if (!cache_rewind || cache_ckpt_max <= 0) {
++            return;
++        }
++
++        int64_t n_keep = -1;
++        auto    it_cut = prompt.checkpoints.end();
++        for (auto it = prompt.checkpoints.begin(); it != prompt.checkpoints.end(); ++it) {
++            if (it->n_tokens > 0 && it->n_tokens <= cache_ckpt_max && it->n_tokens > n_keep) {
++                n_keep = it->n_tokens;
++                it_cut = it;
++            }
++        }
++
++        if (it_cut == prompt.checkpoints.end() || n_keep >= (int64_t) prompt.tokens.size()) {
++            return;
++        }
++
++        const auto & cut = *it_cut;
++        if (!cut.load_tgt(ctx_tgt, id, LLAMA_STATE_SEQ_FLAGS_PARTIAL_ONLY) || !cut.load_dft(ctx_dft, id, LLAMA_STATE_SEQ_FLAGS_PARTIAL_ONLY)) {
++            SLT_WRN(*this, "could not rewind to the context checkpoint at %" PRId64 " tokens, dropping the state\n", n_keep);
++            prompt_clear();
++            return;
++        }
++
++        prompt.tokens.keep_first(n_keep);
++        mem.seq_rm(id, prompt.tokens.pos_next(), -1);
++
++        for (auto it = prompt.checkpoints.begin(); it != prompt.checkpoints.end();) {
++            if (it->n_tokens > n_keep) {
++                it = prompt.checkpoints.erase(it);
++            } else {
++                ++it;
++            }
++        }
++
++        SLT_INF(*this, "rewound the cached state to the checkpoint at %" PRId64 " tokens\n", n_keep);
++    }
++
++    bool prompt_save(server_prompt_cache & prompt_cache) {
++        prompt_rewind_to_cut();
+ 
+-    bool prompt_save(server_prompt_cache & prompt_cache) const {
+         if (prompt.tokens.size() == 0) {
+             return false;
+         }
+@@ -2070,6 +2112,7 @@ private:
+ 
+         slot.cache_key      = task.params.cache_key;
+         slot.cache_ckpt_max = task.params.cache_ckpt_max;
++        slot.cache_rewind   = task.params.cache_rewind;
+ 
+         slot.task = std::make_unique<const server_task>(std::move(task));
+ 
+@@ -4364,6 +4407,10 @@ private:
+ 
+                     const auto & spans = slot.task->params.message_spans;
+                     const auto last_user_pos = spans.last_user_message_pos();
++                    const auto & checkpoint_at = slot.task->params.checkpoint_at;
++                    const auto is_requested = [&](int64_t pos) {
++                        return std::find(checkpoint_at.begin(), checkpoint_at.end(), (int32_t) pos) != checkpoint_at.end();
++                    };
+ 
+                     const int32_t n_decision_first = slot.task->type == SERVER_TASK_TYPE_DECISION ? slot.task->decision.pos_first() : -1;
+ 
+@@ -4407,6 +4454,10 @@ private:
+                         slot.prompt.tokens.push_back(cur_tok);
+ 
+                         // break at the last user message, or at user messages at least min step past the last checkpoint
++                        if (do_checkpoint && is_requested(slot.prompt.n_tokens())) {
++                            break;
++                        }
++
+                         if (do_checkpoint && spans.is_user_start(slot.prompt.n_tokens())) {
+                             const auto pos = slot.prompt.n_tokens();
+                             const auto & checkpoints = slot.prompt.checkpoints;
+@@ -4445,8 +4496,9 @@ private:
+ 
+                     const bool near_prompt_end = slot.task->n_tokens() < slot.prompt.n_tokens() + n_ubatch;
+ 
+-                    const bool is_user_start = spans.is_user_start(n_tokens_start);
+-                    const bool is_last_user_message = n_tokens_start == last_user_pos;
++                    const bool is_requested_start = is_requested(n_tokens_start);
++                    const bool is_user_start = spans.is_user_start(n_tokens_start) || is_requested_start;
++                    const bool is_last_user_message = n_tokens_start == last_user_pos || is_requested_start;
+ 
+                     // entire prompt has been processed
+                     if (slot.prompt.n_tokens() == slot.task->n_tokens()) {
+diff --git a/tools/server/server-schema.cpp b/tools/server/server-schema.cpp
+index 0e14d1e..0aae760 100644
+--- a/tools/server/server-schema.cpp
++++ b/tools/server/server-schema.cpp
+@@ -43,6 +43,24 @@ std::vector<std::unique_ptr<field>> make_llama_cmpl_schema(const common_params &
+         ->set_hard_limits(-1, INT32_MAX)
+         ->set_desc("When this request's state is saved to the prompt cache, keep only the newest context checkpoint at or before this many tokens (-1 keeps all)"));
+ 
++    add((new field_bool("cache_rewind", params.cache_rewind))
++        ->set_desc("With cache_ckpt_max: rewind the cached state to that checkpoint, so the entry holds only the prompt up to it"));
++
++    add((new field_json("checkpoint_at"))
++        ->set_desc("Prompt positions in tokens where a context checkpoint is created while the prompt is processed")
++        ->set_handler([&](field_eval_context & ctx, const json & data) {
++            const auto positions = data.at("checkpoint_at").get<std::vector<int32_t>>();
++            if (positions.size() > 8) {
++                throw std::invalid_argument("checkpoint_at holds at most 8 positions");
++            }
++            for (const auto pos : positions) {
++                if (pos <= 0) {
++                    throw std::invalid_argument("checkpoint_at positions must be positive");
++                }
++            }
++            ctx.params.checkpoint_at = positions;
++        }));
++
+     add((new field_bool("return_tokens", params.return_tokens))
+         ->set_desc("Return the raw generated token ids in the `tokens` field"));
+ 
+diff --git a/tools/server/server-task.h b/tools/server/server-task.h
+index 9b679b3..e65b094 100644
+--- a/tools/server/server-task.h
++++ b/tools/server/server-task.h
+@@ -66,6 +66,8 @@ struct task_params {
+ 
+     std::string cache_key;          // prompt cache: entries saved from this request's state carry the key; a keyed request loads only entries with its key
+     int32_t     cache_ckpt_max = -1; // prompt cache: keep only the newest context checkpoint at or before this many tokens when the state is cached (-1 = all)
++    bool        cache_rewind   = false; // prompt cache: rewind the saved state to that checkpoint, dropping every token after it
++    std::vector<int32_t> checkpoint_at; // prompt positions (in tokens) where a context checkpoint is created during prompt processing
+     bool return_tokens   = false;
+     bool return_progress = false;
+ 
+-- 
+2.55.0.windows.3
+
+
+From 8897e3b7a7efffd367d29437b0af45b388e3fd20 Mon Sep 17 00:00:00 2001
+From: MaxiPawlowski <maxipawlowski@gmail.com>
+Date: Mon, 26 Oct 2026 10:24:10 -0300
+Subject: [PATCH 4/6] server: cache_rewind drops the cut checkpoint it rewound
+ to (same state stored twice)
+
+---
+ tools/server/server-context.cpp | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/tools/server/server-context.cpp b/tools/server/server-context.cpp
+index 5cb53e5..6c200b7 100644
+--- a/tools/server/server-context.cpp
++++ b/tools/server/server-context.cpp
+@@ -372,8 +372,9 @@ struct server_slot {
+         prompt.tokens.keep_first(n_keep);
+         mem.seq_rm(id, prompt.tokens.pos_next(), -1);
+ 
++        // the rewound state is the cut checkpoint: keeping both stores the same state twice
+         for (auto it = prompt.checkpoints.begin(); it != prompt.checkpoints.end();) {
+-            if (it->n_tokens > n_keep) {
++            if (it->n_tokens >= n_keep) {
+                 it = prompt.checkpoints.erase(it);
+             } else {
+                 ++it;
+-- 
+2.55.0.windows.3
+
+
+From 72f8d7d8f0419bde3b5eca81a56b7403d5e8639f Mon Sep 17 00:00:00 2001
+From: MaxiPawlowski <maxipawlowski@gmail.com>
+Date: Mon, 26 Oct 2026 11:12:41 -0300
+Subject: [PATCH 5/6] server: POST /sleep enters the sleeping state at the next
+ idle point; slot states are saved to the prompt cache before sleeping and the
+ cache survives the reload
+
+---
+ tools/server/server-context.cpp | 20 +++++++++++++++++++-
+ tools/server/server-context.h   |  1 +
+ tools/server/server-queue.cpp   | 10 ++++++++++
+ tools/server/server-queue.h     |  4 ++++
+ tools/server/server.cpp         |  3 +++
+ 5 files changed, 37 insertions(+), 1 deletion(-)
+
+diff --git a/tools/server/server-context.cpp b/tools/server/server-context.cpp
+index 6c200b7..dd68fd2 100644
+--- a/tools/server/server-context.cpp
++++ b/tools/server/server-context.cpp
+@@ -1193,6 +1193,13 @@ private:
+                 // note: for sleeping == false, event is emitted by load_model()
+             }
+             SRV_INF("%s", "server is entering sleeping state\n");
++            if (prompt_cache) {
++                for (auto & slot : slots) {
++                    if (!slot.prompt.tokens.empty() && slot.prompt_save(*prompt_cache)) {
++                        prompt_cache->update();
++                    }
++                }
++            }
+             destroy();
+         } else {
+             SRV_INF("%s", "server is exiting sleeping state\n");
+@@ -1634,7 +1641,11 @@ private:
+             }
+             SRV_TRC("%s", "use `--cache-ram 0` to disable the prompt cache\n");
+ 
+-            prompt_cache = std::make_unique<server_prompt_cache>(params_base.cache_ram_mib, n_ctx);
++            if (!prompt_cache) {
++                prompt_cache = std::make_unique<server_prompt_cache>(params_base.cache_ram_mib, n_ctx);
++            } else {
++                SRV_INF("%s", "prompt cache kept across the sleeping state\n");
++            }
+         } else {
+             SRV_TRC("%s", "prompt cache is disabled - use `--cache-ram N` to enable it\n");
+         }
+@@ -5973,6 +5984,13 @@ void server_routes::init_routes() {
+         return handle_count_tokens(req, TASK_RESPONSE_TYPE_OAI_CHAT);
+     };
+ 
++    this->post_sleep = [this](const server_http_req &) {
++        auto res = create_response(true);
++        queue_tasks.request_sleep();
++        res->ok({{ "sleeping", "requested" }});
++        return res;
++    };
++
+     this->post_control = [this](const server_http_req & req) {
+         auto res = create_response();
+         const json body = json::parse(req.body);
+diff --git a/tools/server/server-context.h b/tools/server/server-context.h
+index 614ffad..ea5c619 100644
+--- a/tools/server/server-context.h
++++ b/tools/server/server-context.h
+@@ -119,6 +119,7 @@ struct server_routes {
+     server_http_context::handler_t post_chat_completions;
+     server_http_context::handler_t post_chat_completions_tok;
+     server_http_context::handler_t post_control;
++    server_http_context::handler_t post_sleep;
+     server_http_context::handler_t post_responses_oai;
+     server_http_context::handler_t post_responses_tok_oai;
+     server_http_context::handler_t post_transcriptions_oai;
+diff --git a/tools/server/server-queue.cpp b/tools/server/server-queue.cpp
+index c4ce907..9885e08 100644
+--- a/tools/server/server-queue.cpp
++++ b/tools/server/server-queue.cpp
+@@ -112,6 +112,12 @@ void server_queue::pop_deferred_task(int id_slot) {
+     condition_tasks.notify_one();
+ }
+ 
++void server_queue::request_sleep() {
++    std::unique_lock<std::mutex> lock(mutex_tasks);
++    req_sleep = true;
++    condition_tasks.notify_all();
++}
++
+ void server_queue::wait_until_no_sleep() {
+     std::unique_lock<std::mutex> lock(mutex_tasks);
+     if (!sleeping) {
+@@ -289,6 +295,9 @@ void server_queue::start_loop(int64_t idle_sleep_ms) {
+     constexpr auto max_wait_time = std::chrono::seconds(1);
+     auto should_sleep = [&]() -> bool {
+         // caller must hold mutex_tasks
++        if (req_sleep) {
++            return true;
++        }
+         if (idle_sleep_ms < 0) {
+             return false;
+         }
+@@ -326,6 +335,7 @@ void server_queue::start_loop(int64_t idle_sleep_ms) {
+             // no tasks, check for sleeping state
+             if (should_sleep()) {
+                 QUE_INF("%s", "entering sleeping state\n");
++                req_sleep = false;
+                 sleeping = true;
+                 // Call order cb0 -> cb1 -> cb{N}
+                 for (auto & cb : callback_sleeping_state) {
+diff --git a/tools/server/server-queue.h b/tools/server/server-queue.h
+index 692255e..5bd6d68 100644
+--- a/tools/server/server-queue.h
++++ b/tools/server/server-queue.h
+@@ -18,6 +18,7 @@ private:
+     bool running  = false;
+     bool sleeping = false;
+     bool req_stop_sleeping = false;
++    bool req_sleep = false;
+     int64_t time_last_task = 0;
+ 
+     // queues
+@@ -69,6 +70,9 @@ public:
+     // returns immediately if not sleeping
+     void wait_until_no_sleep();
+ 
++    // enter the sleeping state at the next idle point, whatever the idle timeout
++    void request_sleep();
++
+     bool is_sleeping() {
+         std::unique_lock<std::mutex> lock(mutex_tasks);
+         return sleeping;
+diff --git a/tools/server/server.cpp b/tools/server/server.cpp
+index b6ebf75..c8efacf 100644
+--- a/tools/server/server.cpp
++++ b/tools/server/server.cpp
+@@ -181,6 +181,9 @@ static void server_register_routes(server_http_context & ctx_http, server_routes
+     ctx_http.post("/chat/completions",         ex_wrapper(routes.post_chat_completions));
+     ctx_http.post("/v1/chat/completions",      ex_wrapper(routes.post_chat_completions));
+     ctx_http.post("/v1/chat/completions/control", ex_wrapper(routes.post_control));
++    if (routes.post_sleep) {
++        ctx_http.post("/sleep",                ex_wrapper(routes.post_sleep));
++    }
+     ctx_http.post("/v1/responses",             ex_wrapper(routes.post_responses_oai));
+     ctx_http.post("/responses",                ex_wrapper(routes.post_responses_oai));
+     ctx_http.post("/v1/audio/transcriptions",  ex_wrapper(routes.post_transcriptions_oai));
+-- 
+2.55.0.windows.3
+
+
+From 3bae32be635b0c78d694fbc59127c8ce60a7c362 Mon Sep 17 00:00:00 2001
+From: MaxiPawlowski <maxipawlowski@gmail.com>
+Date: Wed, 28 Oct 2026 03:37:01 -0300
+Subject: [PATCH 6/6] server: GET /cache reports prompt cache occupancy without
+ waking a sleeping server; POST /cache/limit sets the cache size limit
+ (applied at once while sleeping, else at the next idle point) and evicts down
+ to it
+
+---
+ tools/server/server-context.cpp | 55 +++++++++++++++++++++++++++++++++
+ tools/server/server-context.h   |  2 ++
+ tools/server/server-queue.cpp   | 21 ++++++++++++-
+ tools/server/server-queue.h     | 16 ++++++++++
+ tools/server/server-task.cpp    |  6 ++++
+ tools/server/server-task.h      |  2 ++
+ tools/server/server.cpp         |  4 +++
+ 7 files changed, 105 insertions(+), 1 deletion(-)
+
+diff --git a/tools/server/server-context.cpp b/tools/server/server-context.cpp
+index dd68fd2..67fe75a 100644
+--- a/tools/server/server-context.cpp
++++ b/tools/server/server-context.cpp
+@@ -1185,6 +1185,23 @@ private:
+         mctx = nullptr;
+     }
+ 
++    void publish_cache_state() {
++        if (!prompt_cache) {
++            queue_tasks.cache_prompts = -1;
++            return;
++        }
++        int64_t keyed = 0;
++        for (const auto & state : prompt_cache->states) {
++            if (!state.key.empty()) {
++                keyed++;
++            }
++        }
++        queue_tasks.cache_prompts     = (int64_t) prompt_cache->states.size();
++        queue_tasks.cache_keyed       = keyed;
++        queue_tasks.cache_bytes       = (int64_t) prompt_cache->size();
++        queue_tasks.cache_limit_bytes = (int64_t) prompt_cache->limit_size;
++    }
++
+     void handle_sleeping_state(bool new_state) {
+         GGML_ASSERT(sleeping != new_state);
+         if (new_state) {
+@@ -1197,6 +1214,7 @@ private:
+                 for (auto & slot : slots) {
+                     if (!slot.prompt.tokens.empty() && slot.prompt_save(*prompt_cache)) {
+                         prompt_cache->update();
++                publish_cache_state();
+                     }
+                 }
+             }
+@@ -1646,6 +1664,7 @@ private:
+             } else {
+                 SRV_INF("%s", "prompt cache kept across the sleeping state\n");
+             }
++            publish_cache_state();
+         } else {
+             SRV_TRC("%s", "prompt cache is disabled - use `--cache-ram N` to enable it\n");
+         }
+@@ -1703,6 +1722,12 @@ private:
+         queue_tasks.on_sleeping_state([this](bool sleeping) {
+             handle_sleeping_state(sleeping);
+         });
++        queue_tasks.on_cache_limit([this](int64_t mib) {
++            if (prompt_cache) {
++                prompt_cache->set_limit_mib(mib);
++            }
++            publish_cache_state();
++        });
+ 
+         metrics.init();
+ 
+@@ -1939,6 +1964,7 @@ private:
+                 }
+ 
+                 prompt_cache->update();
++                publish_cache_state();
+ 
+                 SRV_TRC("prompt cache update took %.2f ms\n", (ggml_time_us() - t_start) / 1000.0);
+             }
+@@ -2718,6 +2744,7 @@ private:
+             // keep the state that the child task is about to overwrite
+             if (prompt_cache && slot->prompt_save(*prompt_cache)) {
+                 prompt_cache->update();
++                publish_cache_state();
+             }
+ 
+             int id_child = parent_task.child_tasks[idx].id;
+@@ -3089,6 +3116,7 @@ private:
+                                 if (slot.prompt_save(*prompt_cache)) {
+                                     SLT_DBG(slot, "%s", "__TEST_TAG_CACHE_IDLE_SLOT__\n");
+                                     prompt_cache->update();
++                publish_cache_state();
+                                 }
+ 
+                                 if (params_base.kv_unified) {
+@@ -5984,6 +6012,33 @@ void server_routes::init_routes() {
+         return handle_count_tokens(req, TASK_RESPONSE_TYPE_OAI_CHAT);
+     };
+ 
++    this->get_cache = [this](const server_http_req &) {
++        auto res = create_response(true);
++        const int64_t prompts = queue_tasks.cache_prompts.load();
++        res->ok({
++            { "enabled",   prompts >= 0 },
++            { "prompts",   prompts < 0 ? 0 : prompts },
++            { "keyed",     queue_tasks.cache_keyed.load() },
++            { "size_mib",  queue_tasks.cache_bytes.load() / (1024.0 * 1024.0) },
++            { "limit_mib", queue_tasks.cache_limit_bytes.load() / (1024.0 * 1024.0) },
++            { "sleeping",  queue_tasks.is_sleeping() },
++        });
++        return res;
++    };
++
++    this->post_cache_limit = [this](const server_http_req & req) {
++        auto res = create_response(true);
++        const json body = json::parse(req.body);
++        const int64_t mib = json_value(body, "mib", (int64_t) -1);
++        if (mib < 1) {
++            res->error(format_error_response("mib must be a whole number of at least 1", ERROR_TYPE_INVALID_REQUEST));
++            return res;
++        }
++        queue_tasks.request_cache_limit(mib);
++        res->ok({{ "limit_mib", mib }, { "applied", "requested" }});
++        return res;
++    };
++
+     this->post_sleep = [this](const server_http_req &) {
+         auto res = create_response(true);
+         queue_tasks.request_sleep();
+diff --git a/tools/server/server-context.h b/tools/server/server-context.h
+index ea5c619..5db22c6 100644
+--- a/tools/server/server-context.h
++++ b/tools/server/server-context.h
+@@ -120,6 +120,8 @@ struct server_routes {
+     server_http_context::handler_t post_chat_completions_tok;
+     server_http_context::handler_t post_control;
+     server_http_context::handler_t post_sleep;
++    server_http_context::handler_t get_cache;
++    server_http_context::handler_t post_cache_limit;
+     server_http_context::handler_t post_responses_oai;
+     server_http_context::handler_t post_responses_tok_oai;
+     server_http_context::handler_t post_transcriptions_oai;
+diff --git a/tools/server/server-queue.cpp b/tools/server/server-queue.cpp
+index 9885e08..5eb727a 100644
+--- a/tools/server/server-queue.cpp
++++ b/tools/server/server-queue.cpp
+@@ -118,6 +118,17 @@ void server_queue::request_sleep() {
+     condition_tasks.notify_all();
+ }
+ 
++void server_queue::request_cache_limit(int64_t mib) {
++    std::unique_lock<std::mutex> lock(mutex_tasks);
++    if (sleeping && callback_cache_limit) {
++        // the loop thread is parked in the sleeping wait and cannot touch the cache while we hold the lock
++        callback_cache_limit(mib);
++        return;
++    }
++    req_cache_limit_mib = mib;
++    condition_tasks.notify_all();
++}
++
+ void server_queue::wait_until_no_sleep() {
+     std::unique_lock<std::mutex> lock(mutex_tasks);
+     if (!sleeping) {
+@@ -332,6 +343,14 @@ void server_queue::start_loop(int64_t idle_sleep_ms) {
+                 break; // go back to process new tasks or terminate
+             }
+ 
++            if (req_cache_limit_mib >= 0) {
++                const int64_t mib = req_cache_limit_mib;
++                req_cache_limit_mib = -1;
++                if (callback_cache_limit) {
++                    callback_cache_limit(mib);
++                }
++            }
++
+             // no tasks, check for sleeping state
+             if (should_sleep()) {
+                 QUE_INF("%s", "entering sleeping state\n");
+@@ -362,7 +381,7 @@ void server_queue::start_loop(int64_t idle_sleep_ms) {
+             } else {
+                 // wait for new tasks or timeout for checking sleeping condition
+                 bool res = condition_tasks.wait_for(lock, max_wait_time, [&]{
+-                    return (!queue_tasks.empty() || !running);
++                    return (!queue_tasks.empty() || !running || req_cache_limit_mib >= 0);
+                 });
+                 if (res) {
+                     break; // new task arrived or terminate
+diff --git a/tools/server/server-queue.h b/tools/server/server-queue.h
+index 5bd6d68..051fb67 100644
+--- a/tools/server/server-queue.h
++++ b/tools/server/server-queue.h
+@@ -2,6 +2,7 @@
+ 
+ #include "server-task.h"
+ 
++#include <atomic>
+ #include <condition_variable>
+ #include <deque>
+ #include <exception>
+@@ -19,6 +20,7 @@ private:
+     bool sleeping = false;
+     bool req_stop_sleeping = false;
+     bool req_sleep = false;
++    int64_t req_cache_limit_mib = -1;
+     int64_t time_last_task = 0;
+ 
+     // queues
+@@ -46,6 +48,7 @@ private:
+     std::function<bool(server_task &&, bool)> callback_new_task;
+     std::function<void(void)>                 callback_update_slots;
+     std::vector<std::function<void(bool)>>    callback_sleeping_state;
++    std::function<void(int64_t)>              callback_cache_limit;
+ 
+ public:
+     ~server_queue() { worker_stop(); }
+@@ -73,6 +76,19 @@ public:
+     // enter the sleeping state at the next idle point, whatever the idle timeout
+     void request_sleep();
+ 
++    // prompt cache occupancy, published by the main loop; read from any thread without waking the server
++    std::atomic<int64_t> cache_prompts{-1};
++    std::atomic<int64_t> cache_keyed{0};
++    std::atomic<int64_t> cache_bytes{0};
++    std::atomic<int64_t> cache_limit_bytes{0};
++
++    // set the prompt cache size limit: applied at once while sleeping, else at the next idle point
++    void request_cache_limit(int64_t mib);
++
++    void on_cache_limit(std::function<void(int64_t)> callback) {
++        callback_cache_limit = std::move(callback);
++    }
++
+     bool is_sleeping() {
+         std::unique_lock<std::mutex> lock(mutex_tasks);
+         return sleeping;
+diff --git a/tools/server/server-task.cpp b/tools/server/server-task.cpp
+index c0f89b1..e27c911 100644
+--- a/tools/server/server-task.cpp
++++ b/tools/server/server-task.cpp
+@@ -1950,6 +1950,12 @@ bool server_prompt_cache::load(server_prompt & prompt, const server_tokens & tok
+     return true;
+ }
+ 
++void server_prompt_cache::set_limit_mib(int64_t mib) {
++    limit_size = 1024ull*1024ull*(mib < 0 ? 0 : mib);
++    SRV_INF(" - cache size limit set to %.3f MiB\n", limit_size / (1024.0 * 1024.0));
++    update();
++}
++
+ void server_prompt_cache::update() {
+     if (limit_size > 0) {
+         while (!states.empty() && size() > limit_size) {
+diff --git a/tools/server/server-task.h b/tools/server/server-task.h
+index e65b094..9292835 100644
+--- a/tools/server/server-task.h
++++ b/tools/server/server-task.h
+@@ -738,6 +738,8 @@ struct server_prompt_cache {
+     void pop_oldest();
+ 
+     void update();
++
++    void set_limit_mib(int64_t mib);
+ };
+ 
+ // used exclusively by router mode
+diff --git a/tools/server/server.cpp b/tools/server/server.cpp
+index c8efacf..7fbf4e7 100644
+--- a/tools/server/server.cpp
++++ b/tools/server/server.cpp
+@@ -184,6 +184,10 @@ static void server_register_routes(server_http_context & ctx_http, server_routes
+     if (routes.post_sleep) {
+         ctx_http.post("/sleep",                ex_wrapper(routes.post_sleep));
+     }
++    if (routes.get_cache) {
++        ctx_http.get ("/cache",                ex_wrapper(routes.get_cache));
++        ctx_http.post("/cache/limit",          ex_wrapper(routes.post_cache_limit));
++    }
+     ctx_http.post("/v1/responses",             ex_wrapper(routes.post_responses_oai));
+     ctx_http.post("/responses",                ex_wrapper(routes.post_responses_oai));
+     ctx_http.post("/v1/audio/transcriptions",  ex_wrapper(routes.post_transcriptions_oai));
 -- 
 2.55.0.windows.3
 

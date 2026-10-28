@@ -4,7 +4,7 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { KNOBS, PRESETS, changeConfigFile, checkValue, createLiveSettings, currentMode, defaultModes, knobValues, planChange, serializeConfig } from './modes.mjs';
+import { KNOBS, PRESETS, TOGGLE, changeConfigFile, checkValue, createLiveSettings, createSettingsReload, currentMode, defaultModes, knobValues, modesOf, planChange, resetPresets, serializeConfig } from './modes.mjs';
 
 const install = () => ({
     backendPort: 18889, gatewayPort: 18888, stateDir: 'state', reserves: { gpuMiB: 2048, ramMiB: 4096 }, shedCeilingMiB: 13000, idleRestoreMs: 600000,
@@ -125,7 +125,7 @@ test('live settings apply at once when idle, and wait for running work otherwise
     assert.equal(target.idleRestoreMs, 180000);
     assert.equal(target.comfySupervise, true);
     assert.equal(target.streamImages.maxWeightMiB, 8192);
-    assert.deepEqual(live.status().atNextTextLoad.sort(), ['memberCache.budgetMiB', 'reserves.gpuMiB']);
+    assert.deepEqual(live.status().atNextTextLoad.sort(), ['memberCache.budgetMiB', 'memberCache.fitRam', 'reserves.gpuMiB']);
     text.loads = 4;
     assert.deepEqual(live.status().atNextTextLoad, []);
     scheduler.busy = true;
@@ -170,5 +170,123 @@ test('cli mode saves through the same backed-up path while the controller is dow
         assert.equal((await fs.readdir(backupRoot)).length, 1);
         assert.notEqual(run('mode', 'turbo').status, 0);
         assert.equal(JSON.parse(await fs.readFile(file, 'utf8')).mode, 'max');
+    } finally { await fs.rm(dir, { recursive: true, force: true }); }
+});
+
+test('max is the default ceiling and headroom its toggle partner: headroom frees VRAM and RAM, max fits the cache to free RAM', () => {
+    assert.deepEqual(TOGGLE, { max: 'headroom', headroom: 'max' });
+    assert.equal(PRESETS.max['memberCache.fitRam'], true);
+    assert.ok(PRESETS.max['memberCache.budgetMiB'] > 4096);
+    assert.ok(PRESETS.headroom['reserves.gpuMiB'] >= PRESETS.max['reserves.gpuMiB'] + 2048);
+    assert.ok(PRESETS.headroom['reserves.ramMiB'] > PRESETS.max['reserves.ramMiB']);
+    assert.ok(PRESETS.headroom['memberCache.budgetMiB'] <= 2048);
+    assert.equal(PRESETS.headroom['streamImages.enabled'], false);
+    assert.equal(PRESETS.headroom.imageCacheMode, 'evict');
+});
+
+test('an owner config written before headroom existed gets the built-in headroom preset, and reset rewrites only the named presets', () => {
+    const config = { ...install(), modes: { max: { reserves: { gpuMiB: 1024, ramMiB: 2048 }, memberCache: { budgetMiB: 4096 } }, balanced: {}, safe: {} } };
+    assert.deepEqual(Object.keys(modesOf(config)), ['max', 'balanced', 'safe', 'headroom']);
+    const plan = planChange(config, { mode: 'headroom' });
+    assert.equal(plan.config.reserves.gpuMiB, 4096);
+    assert.equal(plan.config.memberCache.budgetMiB, 2048);
+    assert.equal(plan.config.modes.max.memberCache.budgetMiB, 4096);
+    const reset = resetPresets(config, ['max']);
+    assert.equal(reset.modes.max.memberCache.budgetMiB, PRESETS.max['memberCache.budgetMiB']);
+    assert.equal(reset.modes.max.memberCache.fitRam, true);
+    assert.deepEqual(reset.modes.balanced, {});
+    assert.equal(config.modes.max.memberCache.budgetMiB, 4096);
+    assert.throws(() => resetPresets(config, ['balanced']), /built-in presets/);
+});
+
+test('apply now is the only extra field a change accepts', () => {
+    assert.equal(planChange(install(), { mode: 'headroom', apply: 'now' }).applyNow, true);
+    assert.equal(planChange(install(), { mode: 'headroom' }).applyNow, false);
+    assert.throws(() => planChange(install(), { mode: 'headroom', apply: 'later' }), /apply must be 'now'/);
+});
+
+test('apply now reloads inside the same exclusive turn as the values, and records what it freed', async () => {
+    const target = install();
+    const order = [];
+    const scheduler = { async exclusive(run) { order.push('exclusive'); return run(); }, spill: null };
+    const text = { pid: 9, loading: false, loads: 3 };
+    const reload = async () => { order.push(`reload:${target.reserves.gpuMiB}`); text.loads += 1; return { text: 'reloaded', ms: 21000, gpuFreedMiB: 3000, ramFreedMiB: 7000 }; };
+    const applied = [];
+    const live = createLiveSettings({ target, scheduler: () => scheduler, backend: { status: () => text }, timers: false, reload, onApplied: (change) => applied.push(change.mode) });
+    assert.equal(await live.request(planChange(install(), { mode: 'headroom', apply: 'now' })), 'now');
+    assert.deepEqual(order, ['exclusive', 'reload:4096']);
+    assert.equal(live.status().lastApply.gpuFreedMiB, 3000);
+    assert.deepEqual(live.status().atNextTextLoad, []);
+    assert.deepEqual(applied, ['headroom']);
+    await live.request(planChange(install(), { mode: 'max' }));
+    assert.deepEqual(order, ['exclusive', 'reload:4096', 'exclusive']);
+});
+
+test('a failed reload is recorded, and the values stay applied', async () => {
+    const target = install();
+    const scheduler = { async exclusive(run) { return run(); } };
+    const live = createLiveSettings({ target, scheduler: () => scheduler, backend: { status: () => ({ pid: 9, loading: false, loads: 1 }) }, timers: false,
+        reload: async () => { throw new Error('Not enough free GPU'); } });
+    assert.equal(await live.request(planChange(install(), { mode: 'headroom', apply: 'now' })), 'now');
+    assert.equal(target.reserves.gpuMiB, 4096);
+    assert.equal(live.status().lastApply.text, 'failed');
+    assert.match(live.status().lastApply.error, /Not enough free GPU/);
+    assert.equal(live.status().mode, 'headroom');
+});
+
+const fakeReloadDeps = (state) => {
+    const calls = [];
+    let free = { gpu: 2000, ram: 9000 };
+    const backend = {
+        status: () => state,
+        async dropSleeping() { calls.push('drop'); free = { gpu: free.gpu, ram: free.ram + 4000 }; return 4096; },
+        async unload() { calls.push('unload'); },
+        async load(name, options) { calls.push(`load:${name}:${options.fitTarget}`); free = { gpu: 4500, ram: 15000 }; },
+    };
+    const scheduler = { async freeImages(options) { calls.push(`free:${options.clear}`); } };
+    const snapshot = async () => ({ gpus: [{ freeMiB: free.gpu }], host: { availableMiB: free.ram } });
+    return { calls, backend, scheduler: () => scheduler, snapshot };
+};
+
+test('the settings reload restarts loaded text, drops a sleeping one, frees images, and reports the freed memory', async () => {
+    const awake = fakeReloadDeps({ pid: 9, loading: false, fitTargetMiB: null, profile: 'fast', desiredProfile: 'fast', sleeping: null });
+    const result = await createSettingsReload({ ...awake, target: { imageCacheMode: 'evict' } })();
+    assert.deepEqual(awake.calls, ['free:true', 'unload', 'load:fast:null']);
+    assert.equal(result.text, 'reloaded');
+    assert.equal(result.gpuFreedMiB, 2500);
+    assert.equal(result.ramFreedMiB, 6000);
+    const asleep = fakeReloadDeps({ pid: null, loading: false, fitTargetMiB: null, profile: null, sleeping: { profile: 'fast' } });
+    const slept = await createSettingsReload({ ...asleep, target: { imageCacheMode: 'warm' } })();
+    assert.deepEqual(asleep.calls, ['drop', 'free:false']);
+    assert.equal(slept.text, 'dropped-sleeping');
+    const none = fakeReloadDeps({ pid: null, loading: false, fitTargetMiB: null, sleeping: null });
+    assert.equal((await createSettingsReload({ ...none, target: {} })()).text, 'none');
+    const shed = fakeReloadDeps({ pid: 9, loading: false, fitTargetMiB: 12000, profile: 'fast', sleeping: null });
+    await createSettingsReload({ ...shed, target: {} })();
+    assert.deepEqual(shed.calls, ['free:false']);
+});
+
+test('cli toggle flips max and headroom (anything else goes to max), and mode-reset rewrites a stale preset with a backup', async () => {
+    const { spawnSync } = await import('node:child_process');
+    const net = await import('node:net');
+    const port = await new Promise((resolve) => { const server = net.createServer().listen(0, '127.0.0.1', () => { const { port: free } = server.address(); server.close(() => resolve(free)); }); });
+    const stale = { ...install(), gatewayPort: port, modes: { max: { reserves: { gpuMiB: 1024, ramMiB: 2048 }, memberCache: { budgetMiB: 4096 } } } };
+    const { dir, file, backupRoot } = await temp(stale);
+    const cli = fileURLToPath(new URL('./cli.mjs', import.meta.url));
+    const run = (...args) => spawnSync(process.execPath, [cli, ...args], { env: { ...process.env, SO_LOCAL_CONFIG: file, SO_LOCAL_BACKUP_ROOT: backupRoot }, encoding: 'utf8' });
+    const saved = async () => JSON.parse(await fs.readFile(file, 'utf8'));
+    try {
+        assert.equal(run('mode', 'toggle').status, 0);
+        assert.equal((await saved()).mode, 'max');
+        assert.equal((await saved()).memberCache.budgetMiB, 4096);
+        assert.equal(run('mode', 'toggle').status, 0);
+        assert.equal((await saved()).mode, 'headroom');
+        assert.equal((await saved()).reserves.gpuMiB, 4096);
+        const reset = run('mode-reset', 'max');
+        assert.equal(reset.status, 0, reset.stderr);
+        assert.deepEqual((await saved()).modes.max.memberCache, { budgetMiB: PRESETS.max['memberCache.budgetMiB'], fitRam: true });
+        assert.notEqual(run('mode-reset', 'balanced').status, 0);
+        assert.equal(run('mode', 'toggle').status, 0);
+        assert.equal((await saved()).memberCache.fitRam, true);
     } finally { await fs.rm(dir, { recursive: true, force: true }); }
 });
