@@ -232,6 +232,7 @@ State column below is current, the 2026-10-26 lines are history. 18-21 on master
 | 19 | Talk pacing: one-shot instruction, yield on question, opening hook | branch `v3.0-talk-pacing` | in build; campaign hooks (63, private plan) wait for its keys |
 | 20 | Visual bridge: identity/place packs, style recipe, resolver, default Qwen recipe, background renders | branch `v3.0-visual-bridge` | stage 1 in build |
 | 21 | Image fixes from playtest 1 | master | done (`2403c70f`, `f96dabda`, `d12deead`) |
+| 25 | Read facts tier below floor on Artemis (`25-read-facts-tier.md`) | master (record only) | 2026-10-28: cause = the model writes facts as MEMORY lines, never FACT; prompt candidate A not adopted (rating format -0.267, intents precision < 0.8 on live x2); 3 owner questions |
 
 Research for 18-21: `research/image-audit-2026-10-26.md`, `image-astra-2026-10-26.md`, `image-astra-prep-bridge-2026-10-26.md`,
 `talk-pacing-review-2026-10-26.md`, `talk-astra-2026-10-26.md`. Campaign hook placement: private, `adolion-campaign/docs/talk-hooks-plan-2026-10-26.md`.
