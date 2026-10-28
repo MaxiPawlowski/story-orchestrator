@@ -278,7 +278,31 @@ rows; mixed and span FI stay structural. Floors not retuned.
 4. **O4 only if chosen after O3 (GPU, ~15 min):** a per-message mixed/aside classifier over the 232 labelled messages, about
    3 s each on the 3090.
 
+## Gate record 2026-10-28, C1 pass 2 (branch `v3.0-c1-witness`, offline, no model, no GPU, no lanes)
+
+- Master `d2006d17` merged into the branch (clean). Declarations `79cea806` committed before any run; diagnosis, options,
+  scores `8e7ee711`; errorCopy row `4e145782`.
+- Built: `so-witness.mts diagnose` (`scripts/debug/lib/witnessDiagnose.mts`, test `scripts/debug/witnessDiagnose.test.mts`);
+  `realSet`/`labSet` exported from `witnessDerive.mts`. No product code changed in this pass beyond the errorCopy inventory row
+  for W2's existing `witnessContext` fallback (master's guard postdates the branch).
+- Runs (private tree, counts only above): `diagnose --out test/sessions/witness-real --freeze …/freeze-adjudicated.json`
+  exit 0 (`diagnose-2026-10-28.json`, `ce828959…`); `derive-score … --speaker-own` exit 0
+  (`derive-score-speaker-own-2026-10-28.json`, `6746b5ce…`); a re-run of the 2026-10-26 `derive-score` without
+  `--speaker-own` reproduced every row of that result. Totals cross-check: diagnosis FI + ambiguous equals the scorer's FI on
+  every design and set.
+- Gates: `npm run gates:quick` green in 147.2 s. `npm run gates` (no `--resume`) first run RED: `test` on `errorCopy.guard`
+  (W2's silent catch not inventoried, fixed), `test:debug` on 5 campaign-index tests (the worktree's gitignored
+  `test/sessions/adolion-stories.json` was a stale copy from 2026-10-26; refreshed from the main checkout, environment) and
+  `test-storybook:ci` (port 6006 held by another process, environment). Second run `npm run gates`: **all green in 358.4 s**
+  (jest 10,775 passed / 1 skipped; test:debug 1,583 passed; Storybook 167 suites, 1,010 stories; build, typecheck,
+  typecheck:test, lint, debug:typecheck, test:replay, test:plugin, test:release ok).
+- Not merged to master: the branch (W2, 2026-10-26) removes the witness section from the shared-read prompt, an
+  LLM-consuming path with no real-model gate yet (GPU step 1); the record itself stays unconsumed. Not staged, not installed.
+  The branch is already inside `v3.0-wave1-integration` (`667471ba`), at its 2026-10-26 head.
+
 ## Unresolved questions
 
 - Is message-level privacy a product goal now (v3.0 02 reopen condition), or only witness-filtered recall?
 - P1 calibration floors (pair accuracy ≥ 0.95, false-present ≤ 0.02) are proposed here; confirm before the first call.
+- Merge W2 before or after GPU step 1 (the prompt loses the witness section; master still sends it, at +150 in / +282 out tokens per read)?
+- O4 (per-message mixed/aside classifier) worth designing, or accept mixed and span FI as unmet and keep the record unconsumed?
