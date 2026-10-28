@@ -163,7 +163,7 @@ const windowAccess = (): WindowAccess => settledWindowAccess(
 export const RUNTIME_GLOBALS = [
   "storyOrchestratorScheduler", "storyOrchestratorLoreEvidence", "storyOrchestratorLore", "storyOrchestratorJudge",
   "storyOrchestratorLiveSuite", "storyOrchestratorScanGating", "storyOrchestratorStoryLore",
-  "storyOrchestratorSpikes", "storyOrchestratorTalk", "storyOrchestratorAgendaProposals",
+  "storyOrchestratorSpikes", "storyOrchestratorTalk", "storyOrchestratorAgendaProposals", "storyOrchestratorPrefixDrift",
 ] as const;
 
 export function startRuntime() {

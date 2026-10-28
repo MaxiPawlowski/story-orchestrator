@@ -117,13 +117,29 @@ export const branchKey = (branch: Pick<PatternBranch, "patternId" | "rev" | "ref
   return key;
 };
 
+const byKey = (left: PatternBranch, right: PatternBranch) => {
+  const one = branchKey(left);
+  const two = branchKey(right);
+  return one < two ? -1 : one > two ? 1 : 0;
+};
+
+const bindingKeys = new WeakMap<object, string>();
+
+const bindingKey = (bindings: Record<string, string>): string => {
+  const known = bindingKeys.get(bindings);
+  if (known !== undefined) return known;
+  const key = JSON.stringify(bindings);
+  bindingKeys.set(bindings, key);
+  return key;
+};
+
 const plain = ({ kind, id, boundary, index, messageId }: PatternRef): PatternRef => ({ kind, id, boundary, index, messageId });
 
 const sortBranches = (index: PatternIndex, branches: PatternBranch[]): PatternBranch[] => branches
-  .map((branch) => ({ branch, order: index.byId.get(branch.patternId)?.order ?? 0, key: branchKey(branch) }))
+  .map((branch) => ({ branch, order: index.byId.get(branch.patternId)?.order ?? 0 }))
   .sort((left, right) => left.order - right.order
     || compareCursor(left.branch.refs[0], right.branch.refs[0]) || compareCursor(left.branch.refs[left.branch.refs.length - 1], right.branch.refs[right.branch.refs.length - 1])
-    || left.branch.next - right.branch.next || (left.key < right.key ? -1 : left.key > right.key ? 1 : 0))
+    || left.branch.next - right.branch.next || byKey(left.branch, right.branch))
   .map((entry) => entry.branch);
 
 const occurrenceOf = (branch: PatternBranch) => `${branch.patternId}:${branch.rev}:${branch.refs.map((ref) => `${ref.kind}:${ref.id}:${ref.boundary}:${ref.index}`).join("|")}`;
@@ -144,20 +160,19 @@ const shares = (left: Pick<PatternBranch, "refs">, right: Pick<PatternBranch, "r
 const killedBy = (pattern: StoryPattern, branch: PatternBranch, ref: MatchRef) => (pattern.unless ?? []).some((entry) =>
   branch.next >= entry.between[0] && branch.next < entry.between[1] && matches(entry, ref, branch.bindings) !== null);
 
-const dominated = (candidate: PatternBranch, kept: PatternBranch) =>
-  compareCursor(candidate.refs[0], kept.refs[0]) <= 0 && compareCursor(candidate.refs[candidate.refs.length - 1], kept.refs[kept.refs.length - 1]) <= 0;
-
 const dedupe = (index: PatternIndex, branches: PatternBranch[], boundary: number, ref: PatternCursor): { branches: PatternBranch[]; kills: PatternKill[]; overflow: number } => {
   const sorted = sortBranches(index, branches);
-  const groups = new Map<string, PatternBranch[]>();
+  const latest = new Map<string, PatternCursor>();
+  const survivors = new Set<PatternBranch>();
   for (let at = sorted.length - 1; at >= 0; at -= 1) {
     const candidate = sorted[at];
-    const key = `${candidate.patternId}|${candidate.rev}|${candidate.next}|${JSON.stringify(candidate.bindings)}`;
-    const keep = groups.get(key);
-    if (!keep) groups.set(key, [candidate]);
-    else if (!keep.some((other) => dominated(candidate, other))) keep.push(candidate);
+    const key = `${candidate.patternId}|${candidate.rev}|${candidate.next}|${bindingKey(candidate.bindings)}`;
+    const last = candidate.refs[candidate.refs.length - 1];
+    const reach = latest.get(key);
+    if (reach && compareCursor(last, reach) <= 0) continue;
+    latest.set(key, last);
+    survivors.add(candidate);
   }
-  const survivors = new Set([...groups.values()].flat());
   const kept = sorted.filter((branch) => survivors.has(branch));
   const counts = new Map<string, number>();
   kept.forEach((branch) => counts.set(branch.patternId, (counts.get(branch.patternId) ?? 0) + 1));

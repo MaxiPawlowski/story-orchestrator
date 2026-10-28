@@ -56,6 +56,8 @@ describe("scene read questions (v2.2 plan 03)", () => {
     expect(facts).toEqual({ location: null, time: "evening", present: ["Arin"], headingTo: ["cp2"] });
     expect(sceneTrackerText(facts)).toBe("[Scene: evening. Present: Arin.]");
     expect(readScene(answers, input({ sceneBreak: true }))).toEqual({ sceneBreak: { p: 0.41, type: "time_skip" } });
+    const unknownType = { ...answers, scene_break_type: { type: "choice", choice: "teleport", confidence: 0.8, probabilities: {} } } as Record<string, JudgeAnswer>;
+    expect(readScene(unknownType, input({ sceneBreak: true }))).toEqual({ sceneBreak: { p: 0.41, type: null } });
   });
 
   it("never shows `elsewhere` or `unclear`, and writes no block when nothing qualifies", () => {

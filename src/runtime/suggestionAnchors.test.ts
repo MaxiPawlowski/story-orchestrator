@@ -10,7 +10,7 @@ import {
   ANCHOR_WEIGHTS, anchorCandidates, groundedIn, makeScreen, offerRows, rankAnchors, RESURFACE_BONUS, selectAnchors, stakesLines,
   type AnchorSources, type SuggestionAnchor,
 } from "./suggestionAnchors";
-import { buildSuggestionPrompt, parseSuggestionLines, ANCHOR_HEADING } from "./suggestions";
+import { buildSuggestionPrompt, parseSuggestionLines, ANCHOR_HEADING, EARLIER_MARK, EARLIER_RULE } from "./suggestions";
 import { runDiagnostics } from "../studio/diagnostics";
 import { checkToolCall } from "../copilot/agent/tools";
 import { applyGameOp, gameOpProblem } from "../copilot/agent/gameOps";
@@ -141,6 +141,19 @@ describe("v2.9 06 slice 1: anchors from what the player already sees", () => {
     expect(prompt).toContain(`${ANCHOR_HEADING}\n[1] ${anchors[0].text}`);
     expect(prompt).toContain("starting with its tag");
     expect(buildSuggestionPrompt(projection)).not.toContain(ANCHOR_HEADING);
+  });
+
+  it("marks a dormant thread as from earlier and asks for a line that carries its own context; other anchors stay unmarked", () => {
+    const anchors: SuggestionAnchor[] = [
+      { id: "objective:cp", kind: "objective", text: "Get the horses ready", weight: 3, evidence: [] },
+      { id: "dormant-thread:a1", kind: "dormant-thread", text: "The innkeeper asked about a lost cat", weight: 1, evidence: [] },
+    ];
+    const prompt = buildSuggestionPrompt(projection, anchors);
+    expect(prompt).toContain(`[1] Get the horses ready\n[2] The innkeeper asked about a lost cat ${EARLIER_MARK}`);
+    expect(prompt).toContain(EARLIER_RULE);
+    const plain = buildSuggestionPrompt(projection, anchors.slice(0, 1));
+    expect(plain).not.toContain(EARLIER_MARK);
+    expect(plain).not.toContain(EARLIER_RULE);
   });
 
   it("maps a tag back to its anchor only when the line shares a content word with it", () => {

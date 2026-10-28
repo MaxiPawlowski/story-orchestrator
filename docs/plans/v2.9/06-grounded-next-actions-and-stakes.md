@@ -1,6 +1,6 @@
 # Plan 06 — Grounded next actions and stakes
 
-**Status 2026-10-26: BUILT, on master since 2026-10-22 (wave 2); LT 2026-10-25 (40 situations x 2 arms, 3090): F1 40/40, F2 36/40, F3 0 leaks, F5 80/80 pass; F4 blind usefulness +0.0 (floor +0.5): MISS; help line on the player surface, greyed offers Author view only (owner 2026-10-25, built). Feature stays on. Left: F4 follow-up (v3.0). Records: §LT run 2026-10-25.**
+**Status 2026-10-26: BUILT, on master since 2026-10-22 (wave 2); LT 2026-10-25 (40 situations x 2 arms, 3090): F1 40/40, F2 36/40, F3 0 leaks, F5 80/80 pass; F4 blind usefulness +0.0 (floor +0.5): MISS; help line on the player surface, greyed offers Author view only (owner 2026-10-25, built). Feature stays on. Left: F4 follow-up (v3.0 14 §D1: dormant-thread prompt change built, rerun owed in the end batch). Records: §LT run 2026-10-25.**
 
 **Was 2026-10-21: written 2026-10-21 from the v2.9 triage (`01-triage-sol.md` §06); slices 1–4 built 2026-10-21 on branch `v2.9-06-next-actions` (Gate record below); LT acceptance not run (no GPU).** Implementation
 tier **D** (pure anchor ranking, schema, validation, Storybook, no-LLM scenarios). Acceptance **LT** (suggestions run on the
@@ -451,3 +451,10 @@ panel only (not on the widget check button).
 - F5 one call per ask: 80/80, pass.
 - Verdict: anchoring grounds and does not leak, but the blind rater does not prefer it over current suggestions. Feature stays on
   (owner rule); recorded as a miss.
+
+## F4 follow-up 2026-10-26 (v3.0 14 §D1)
+
+- Cause named from Sol's pass-A notes: 5 of 12 losses are tagged lines for a `dormant-thread` anchor that the visible scene does
+  not show, read as invented; 4 of 12 overlap inside the set. One prompt change: dormant anchors are marked from earlier and their
+  line must carry its own context. Ceiling: current arm 5/5 in 22 of 40, so the reachable mean delta is +0.625 at most (floor +0.5,
+  unchanged). Rerun commands and the expected reach: `docs/plans/v3.0/14-d-followups.md` §D1.

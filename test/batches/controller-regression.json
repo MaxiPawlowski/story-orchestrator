@@ -1,0 +1,108 @@
+{
+  "format": "so-batch-lists/1",
+  "title": "Controller regression (v3.0 F3)",
+  "source": "docs/plans/v3.0/research/feature-impact-controller.md §Cross-feature model-lane regression list",
+  "rules": [
+    "A row is one journey (its --model class filter), one scenario (its declared class) or one script.",
+    "model: judged = the verdict depends on what the model writes (GPU every run); any = plumbing around a real call; none = no model call (no-model lane).",
+    "controller: true = the row's verdict depends on the controller under test (server semantics, timing, VRAM). Such an any row runs live once per adopted change with st-lanes batch --record, and every repeat or rerun on the same controller rides --replay. controller: false any rows ride --replay from an existing recording.",
+    "gpu: true on a script row = it needs the GPU (or ComfyUI) whatever the class.",
+    "new: true = a check written for F3 (scripts/debug/so-controller-checks.mts or a v30-f3 scenario); missing: true = named by the audit, not written yet.",
+    "branch = the row's target lives on that branch until it merges.",
+    "Mocked (none) rows never reach the controller; they stay in a list as no-model sanity for the same feature, never as controller evidence."
+  ],
+  "lists": {
+    "base": {
+      "why": "every adopted controller change",
+      "rows": [
+        { "id": "gs1-judged", "kind": "journey", "target": "GS1", "model": "judged", "controller": true, "repeat": 2, "note": "first hour: chat, inner, read, talk director, scheduler idle" },
+        { "id": "gs1-plumbing", "kind": "journey", "target": "GS1", "model": "any", "controller": true, "repeat": 2 },
+        { "id": "j5-judged", "kind": "journey", "target": "J5", "model": "judged", "controller": true },
+        { "id": "j5-plumbing", "kind": "journey", "target": "J5", "model": "any", "controller": true, "note": "talk director on the reply's critical path" },
+        { "id": "turn-types-real", "kind": "scenario", "target": "test/scenarios/live-v4-turn-types-real.json", "model": "any", "controller": true },
+        { "id": "turn-types-check", "kind": "script", "target": "node scripts/debug/so-turn-types-check.mts --group 'Group: Arin, DM Narrator' --skip-image", "model": "any", "controller": true, "gpu": false },
+        { "id": "v24-02-branch-continue", "kind": "scenario", "target": "test/scenarios/v24-02-branch-continue.json", "model": "none", "controller": false },
+        { "id": "v24-02-checkpoint-continue", "kind": "scenario", "target": "test/scenarios/v24-02-checkpoint-continue.json", "model": "none", "controller": false },
+        { "id": "v24-02-swipe-delete-below", "kind": "scenario", "target": "test/scenarios/v24-02-swipe-delete-below.json", "model": "none", "controller": false },
+        { "id": "k8-swipe-append", "kind": "scenario", "target": "test/scenarios/v28-69-k8-swipe-append.json", "model": "none", "controller": false },
+        { "id": "j6-plumbing", "kind": "journey", "target": "J6", "model": "any", "controller": true, "note": "mutation storm on real replies: restores after swipe/edit/delete" },
+        { "id": "j6-none", "kind": "journey", "target": "J6", "model": "none", "controller": false },
+        { "id": "a02-stopped-reply", "kind": "scenario", "target": "test/scenarios/v29-a02-stopped-reply.json", "model": "any", "controller": true, "note": "abort forwarded through the gateway; partial state parked" },
+        { "id": "v24-01-stopped", "kind": "scenario", "target": "test/scenarios/v24-01-stopped.json", "model": "none", "controller": false },
+        { "id": "reply-effort", "kind": "scenario", "target": "test/scenarios/live-v28-24-reply-effort.json", "model": "any", "controller": true, "note": "thinking budget keys parsed by the server binary" },
+        { "id": "j13-judged", "kind": "journey", "target": "J13", "model": "judged", "controller": true },
+        { "id": "effects-preset", "kind": "scenario", "target": "test/scenarios/effects-preset.json", "model": "none", "controller": false },
+        { "id": "t8-read-quality", "kind": "script", "target": "node scripts/debug/so-prompt-batch.mts send --out <frozen t8 dir> --base-url http://127.0.0.1:18888 && node scripts/debug/so-prompt-batch.mts score --out <frozen t8 dir> --expect-count 4", "model": "judged", "controller": true, "gpu": true, "note": "class M, no browser; stop rules built in" },
+        { "id": "payload-goldens", "kind": "script", "target": "node scripts/debug/so-payload-golden.mts capture --label <change> --out <dir> && node scripts/debug/so-payload-golden.mts diff <baseline> <dir>", "model": "none", "controller": false, "gpu": false, "note": "prompts byte-identical: the controller cannot have altered layout" },
+        { "id": "full-length", "kind": "script", "target": "09/run-gpu-3.sh (bench-controller.mjs text on 09/corpus-rate.json, 1,024 tokens, thinking on) + Sol blind rating", "model": "judged", "controller": true, "gpu": true, "branch": "v3.0-09-controller-r3", "note": "25 prompts; rating needed only for output-changing changes (owner decision 4)" }
+      ]
+    },
+    "mtp": {
+      "why": "MTP / binary swap",
+      "rows": [
+        { "id": "gbnf-parity", "kind": "script", "target": "node scripts/debug/so-controller-checks.mts gbnf-parity capture --base-url <server A> --out a.json && ... --base-url <server B> --out b.json && node scripts/debug/so-controller-checks.mts gbnf-parity compare a.json b.json", "model": "judged", "controller": true, "gpu": true, "new": true, "note": "sprite expression and pose grammars, temp 0, b11888+MTP vs no-spec: every reply parses, outputs identical" },
+        { "id": "local-judge-uncalibrated", "kind": "scenario", "target": "test/scenarios/v28-40-local-judge-uncalibrated.json", "model": "none", "controller": false },
+        { "id": "thought-carry", "kind": "scenario", "target": "test/scenarios/v28-a13-thought-carry.json", "model": "none", "controller": false },
+        { "id": "llama-logprob-calibration", "kind": "script", "target": "llama-logprob calibration replay against its calibration row (provider x model x use)", "model": "judged", "controller": true, "gpu": true, "missing": true, "when": "only when SO_JUDGE_LLAMA_URL routes llama-logprob" }
+      ]
+    },
+    "reclaim": {
+      "why": "409 fix / ComfyUI reclaim",
+      "rows": [
+        { "id": "p41-image-journey", "kind": "script", "target": "node scripts/debug/st-lanes.mts run <n> -- scripts/debug/so-p41-journey.mts run <k>", "model": "judged", "controller": true, "gpu": true, "repeat": 2 },
+        { "id": "sprite-builder-interleaved", "kind": "script", "target": "node scripts/debug/so-sprite-builder.mts (batch with text replies interleaved; count ComfyUI cold starts in /status gpuReclaims)", "model": "judged", "controller": true, "gpu": true },
+        { "id": "saga-batch-priority", "kind": "script", "target": "node scripts/local/sagaBatchPriority.mjs --repo C:/dev/story-orchestrator --member <cast member> --lane <n>", "model": "judged", "controller": true, "gpu": true },
+        { "id": "retain-batch", "kind": "script", "target": "node scripts/local/retainBatchLi.mjs <local config.json> <out dir>", "model": "any", "controller": true, "gpu": true },
+        { "id": "director-render-reload", "kind": "script", "target": "node scripts/debug/so-controller-checks.mts render-survival run --via st-sd --during text-reload --out <file>", "model": "any", "controller": true, "gpu": true, "new": true, "note": "Image Director / ST /sd render posted during a text reload: completed, or failed within 60 s; never a 15-minute hang" },
+        { "id": "comfy-kill", "kind": "script", "target": "node scripts/debug/so-controller-checks.mts render-survival run --via media --during comfy-kill --out <file>", "model": "any", "controller": true, "gpu": true, "new": true, "note": "unit half already green: server-plugin/story-orchestrator-media/media.test.mjs (a render ComfyUI no longer knows fails after a minute)" }
+      ]
+    },
+    "timing": {
+      "why": "median restore timing",
+      "rows": [
+        { "id": "image-reply-cycle", "kind": "script", "target": "node scripts/local/render-benchmark.mjs <config.json> auto sprite (member cache on, then off; log restore decisions)", "model": "any", "controller": true, "gpu": true, "note": "no new swap-text per reply" }
+      ]
+    },
+    "cache": {
+      "why": "RAM member cache",
+      "rows": [
+        { "id": "gs6-judged", "kind": "journey", "target": "GS6", "model": "judged", "controller": true },
+        { "id": "gs6-plumbing", "kind": "journey", "target": "GS6", "model": "any", "controller": true },
+        { "id": "rollback-derived", "kind": "scenario", "target": "test/scenarios/live-rollback-derived.json", "model": "any", "controller": true, "note": "4-member group: restored states after a rollback still answer; hit counter from /status" },
+        { "id": "edit-rollback", "kind": "scenario", "target": "test/scenarios/plan03a-edit-rollback.json", "model": "none", "controller": false },
+        { "id": "impersonate-roundtrip", "kind": "script", "target": "cache hit counter around /impersonate", "model": "any", "controller": true, "gpu": true, "missing": true },
+        { "id": "ram-min-probe", "kind": "script", "target": "RAM-min probe during a streamed image with ComfyUI resident (>= 10,240 MiB)", "model": "any", "controller": true, "gpu": true, "missing": true }
+      ]
+    },
+    "max-profile": {
+      "why": "max-memory profile / headroom (plan 10), plus every reclaim row",
+      "rows": [
+        { "id": "reserve-live-head", "kind": "script", "target": "node scripts/debug/so-controller-checks.mts reserve sample --out <file> (live head open in the lane browser) && node scripts/debug/so-controller-checks.mts reserve score <file>", "model": "any", "controller": true, "gpu": true, "new": true, "note": "no 409, no --fit spill, fitCorrection 0" },
+        { "id": "reserve-judge-gpu", "kind": "script", "target": "same as reserve-live-head with SO_JUDGE_LOCAL_GPU_LAYERS set on the local judge", "model": "any", "controller": true, "gpu": true, "new": true },
+        { "id": "reserve-landmarks", "kind": "script", "target": "same as reserve-live-head with the landmark service running (node scripts/local/landmarks.mjs start)", "model": "any", "controller": true, "gpu": true, "new": true }
+      ]
+    },
+    "idle-prefill": {
+      "why": "idle / next-speaker prefill",
+      "rows": [
+        { "id": "send-latency", "kind": "scenario", "target": "test/scenarios/v30-f3-send-latency.json", "model": "any", "controller": true, "new": true, "note": "run with prefill off, then on; score: so-controller-checks.mts send-latency score <off record> <on record> --bound-ms <predeclared>" },
+        { "id": "anchored-suggestions", "kind": "scenario", "target": "test/scenarios/v29-06-anchored-suggestions.json", "model": "none", "controller": false, "note": "mocked: cannot see a prefill; the live half is send-latency" },
+        { "id": "chat-switch-mid-prefill", "kind": "script", "target": "chat switch mid-prefill: no stray state, RunOwnership census unchanged", "model": "any", "controller": true, "gpu": true, "missing": true }
+      ]
+    },
+    "parallel": {
+      "why": "concurrent side passes / --parallel 2",
+      "rows": [
+        { "id": "context-over-server", "kind": "scenario", "target": "test/scenarios/v28-40-context-over-server.json", "model": "none", "controller": false },
+        { "id": "inner-freshness", "kind": "scenario", "target": "test/scenarios/v30-f3-inner-freshness.json", "model": "any", "controller": true, "new": true, "note": "every drafted member's beat is fresh at its chat request (journal: used, never stale or none)" },
+        { "id": "long-chat-overflow", "kind": "script", "target": "long-chat overflow: a 400, never a silent chat-slot erase while a warm member state is held", "model": "any", "controller": true, "gpu": true, "missing": true }
+      ]
+    },
+    "request-checkpoints": {
+      "why": "request-supplied checkpoints",
+      "rows": [
+        { "id": "a1-a8-floors", "kind": "script", "target": "plan 09 A1-A8 floors (bench-controller.mjs text arms) + per-member cached state size from /slots", "model": "any", "controller": true, "gpu": true, "branch": "v3.0-09-controller-r3" }
+      ]
+    }
+  }
+}

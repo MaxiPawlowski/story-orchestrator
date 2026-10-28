@@ -8,6 +8,8 @@
       "surface": "console", "rawError": false, "silentCatch": null, "verdict": "pass", "reason": "v2.8 69 K3 library index: the reason reaches only the debug log (libraryIndexPort warns); the player sees only the library-lost check, which never carries it." },
     { "site": "src/services/stHost/provisioning.ts#askCard", "kind": 3, "template": "catch {} #1",
       "surface": "author", "rawError": false, "silentCatch": "probe", "verdict": "pass", "reason": "A card read-back request that cannot reach the server is the typed unconfirmed read-back: the card may exist, is never created again, and the author can check again." },
+    { "site": "src/extraction/sharedRead.ts#witnessContext", "kind": 3, "template": "catch {} #1",
+      "surface": "console", "rawError": false, "silentCatch": "probe", "verdict": "pass", "reason": "Earlier messages for the derived witness record are optional context: an unreadable window derives claims from the read window alone; the read and its deltas are unaffected." },
     { "site": "src/services/stHost/landmarkDetector.ts#detectFaceLandmarks", "kind": 3, "template": "catch {} #1",
       "surface": "author", "rawError": false, "silentCatch": "probe", "verdict": "pass", "reason": "Optional landmark detector unreachable: a typed unavailable answer; the rig review notes the cross-check was skipped." },
     { "site": "src/services/stHost/landmarkDetector.ts#detectFaceLandmarks", "kind": 3, "template": ".catch(() => null)",

@@ -2,6 +2,7 @@ import type { RosterMember, TalkControl } from "@engine/index";
 import { parseDirectorResponse } from "./parse";
 import { renderDirectorPrompt } from "./prompt";
 import { buildCandidates, chooseByRules, directorEnabled, directorInstruction, narrowByMention } from "./rules";
+import { likelyNextSpeakers } from "./nextSpeakers";
 import type { TalkCandidate } from "./types";
 
 const roster: RosterMember[] = [
@@ -235,5 +236,16 @@ describe("parseDirectorResponse", () => {
 
   it("skips channel noise wrappers", () => {
     expect(parseDirectorResponse("<|channel|>final<|message|>SPEAKER: Elder Finn<|end|>", candidates, false)).toEqual({ rosterId: "sage" });
+  });
+});
+
+describe("likelyNextSpeakers", () => {
+  const pool = [candidate("guard", "Captain Mara", 1), candidate("sage", "Elder Finn", 3), candidate("scout", "Ivy", 2)];
+
+  it("orders the others by weight, heaviest first, after the lead, without the last speaker", () => {
+    expect(likelyNextSpeakers({}, pool, null, 3).map((entry) => entry.rosterId)).toEqual(["sage", "scout", "guard"]);
+    expect(likelyNextSpeakers({ lead: "Captain Mara" }, pool, null, 2).map((entry) => entry.rosterId)).toEqual(["guard", "sage"]);
+    expect(likelyNextSpeakers({}, pool, "sage", 3).map((entry) => entry.rosterId)).toEqual(["scout", "guard"]);
+    expect(likelyNextSpeakers({}, pool, null, 0)).toEqual([]);
   });
 });
