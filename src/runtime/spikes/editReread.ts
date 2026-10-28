@@ -16,6 +16,7 @@ export interface EditRereadHost {
   onRollback(listener: (messageId: number) => void): () => void;
   rollbackFromMessage(messageId: number, decoded?: undefined, kind?: "edit"): Promise<unknown>;
   commitBoundary(at?: number): Promise<unknown>;
+  holdingRollbackNotice<T>(work: () => Promise<T>): Promise<T>;
   readonly writes: { requeue(entries: ApplyQueueEntry[]): void };
 }
 
@@ -203,7 +204,7 @@ export class EditReread {
     const rewritten = pending.rewritten;
     pending.rewritten = false;
     const run = beginRun(this.deps.host.getOwnership());
-    const cycle = this.chain.then(() => this.cycle(pending, run, rewritten));
+    const cycle = this.chain.then(() => this.deps.host.holdingRollbackNotice(() => this.cycle(pending, run, rewritten)));
     this.chain = cycle.catch((error: unknown) => log.warn("edit re-read: the cycle failed", error));
     void this.chain.finally(() => {
       pending.runs -= 1;

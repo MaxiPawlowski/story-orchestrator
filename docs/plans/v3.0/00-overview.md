@@ -371,6 +371,38 @@ Controller samples (`controller/status-samples*.jsonl`, every 15 s):
 - Owed elsewhere and still open: the owner playtest (v2.9 13 C1), GBNF parity and render-survival (integration branch),
   J13, the bench rows.
 
+### Gate record: end-batch fixes 2026-10-28 (branch `v3.0-endbatch-fixes`)
+
+- D-EB1 fixed. Cause: the edit re-read cycle rolls back (sets `notices.lastRollback`) then recommits and re-reads through
+  `commitBoundary`, whose first line clears the notice. Fix: `CoordinatorDelegates.holdingRollbackNotice(work)` keeps a hold
+  count; `commitBoundary` clears the notice only when no hold is open, and clears it on a fired transition (the re-read moved
+  the story on again, so "stepped back" would be false). `EditReread.fire` runs each cycle inside the hold. The next turn
+  still clears it. Census row `CoordinatorDelegates.holdingRollbackNotice` (local). Manager stays at 700/700.
+- Jest: `editReread.review.test.ts` "D-EB1: an edit that steps the story back keeps the rollback notice through its re-read,
+  and the next turn clears it" failed before the fix (notice `null`), passes after; "D-EB1: an edit whose re-read moves the
+  story on again drops the notice" pins the fired-transition clear.
+- D-EB2 fixed (fixture): `live-v28-24-reply-effort` classifies reply requests by `body.stream === true`, and fails any
+  streamed request sent outside the generating window; budget assertions unchanged and strict.
+- D-EB5 fixed (harness): `so-turn-types-check` solo leg removed (`d-reopen`, `d-swipe`, `--character`, `--skip-solo`);
+  group checks only.
+- `live-rollback-derived` (fixture): two flakes found on the way, neither product. A chained voice or the cp2 onEnter opener
+  can land after the gate message, so editing `engine` (last message) missed the gate (run 2/4 below). The fixture now edits
+  the gate message (`checkpointStartedMessageId`) after the turn settles, dates its two passes by it, and pins every other
+  read to `SCENE_NONE` so a background read cannot re-propose the delta. Records which path ran (`edit re-read` = D-EB1 path).
+- Live, lane 42 (model, `--allow-local`, local controller), candidate bundle `79c2575f52dc` served by a route holder on the
+  lane browser (staged master untouched), every script through `st-lanes run 42 --`:
+  - `live-rollback-derived`: run 1 green (old fixture, spike path, notice kind `edit`); run 2 red and run 4 red (old
+    edit target, see above); runs 5 and 6 green on the final fixture, both on the edit re-read path, notice
+    `{checkpointName, kind: "edit"}` present. Logs `C:\dev\so-lanes\42\debug\endfix\rollback-{1..6}.log`.
+  - `live-v28-24-reply-effort`: green x2 (`effort-1.log`, `effort-2.log`), all four levels.
+  - `so-turn-types-check --group "Group: Arin, DM Narrator" --image synthetic`: ok, 9/9 (setup, b-image, a-reply,
+    c-greetings, c-origin, e-*), cleanup clean (`turn-types.log`).
+- `npm run gates` (no `--resume`): all green in 411.3 s; jest 10745 passed / 1 skipped, Storybook 1010 passed, build,
+  typecheck, typecheck:test, debug:typecheck, lint, test:debug, test:replay, test:plugin, test:release ok.
+- `npm run gates:quick`: green (170.4 s) before the live runs.
+- After merging master (talk fixes C, `fe50b961`) into the branch: `npm run gates` (no `--resume`) all green in 305.0 s;
+  jest 10759 passed / 1 skipped, Storybook 1010 passed. Live rows not rerun on the merged tree (talk fixes touch no file here).
+
 ## Rules
 
 1. **Inherited.** v2.6, v2.7 (`v2.7/00-overview.md` §Rules) and v2.8 (`v2.8/00-overview.md` §Rules) rules and every
