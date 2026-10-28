@@ -1,0 +1,46 @@
+{
+  "model": "any",
+  "_note": "v3.0 F3 (controller audit risk 4: idle / next-speaker prefill blocks the critical path). Model lane through the local controller, streaming on: four player turns sent with ST's send button; each turn records the time from the click to the first streamed character of the first reply (firstTokenMs) and to ST idle (doneMs), plus reply count and length. The last step keeps {turns} in the run record. Run it twice on the same controller and build, once with idle prefill off and once on (controller setting, not changed here), then: node scripts/debug/so-controller-checks.mts send-latency score <off record.json> <on record.json> --bound-ms <predeclared bound>. The bound is plan 09's to declare before the run (TO DECIDE there); the scorer refuses to score without one. A turn with no reply fails the step (silent turn = vacuous). GPU: yes (live controller).",
+  "requires": {
+    "lane": "model",
+    "group": "Group: Arin, DM Narrator",
+    "members": ["Arin", "DM Narrator"],
+    "judge": "off",
+    "briefingDraft": "off",
+    "why": "the latency of a real streamed reply through the controller under test"
+  },
+  "steps": [
+    { "ext_setting": { "extension": "story-orchestrator", "key": ["settings", "image", "enabled"], "value": false } },
+    { "ext_setting": { "extension": "story-orchestrator", "key": ["settings", "sprites", "enabled"], "value": false } },
+    { "log": true, "eval": "for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; const ctx = SillyTavern.getContext(); for (let id = ctx.chat.length - 1; id >= 0; id -= 1) await ctx.deleteMessage(id, undefined, false); if (ctx.chat.length !== 0) throw new Error('the sandbox chat still holds ' + ctx.chat.length + ' message(s)'); const script = await import('/script.js'); const textgen = await import('/scripts/textgen-settings.js'); globalThis.__f3LatStream = { api: ctx.mainApi, was: textgen.textgenerationwebui_settings.streaming }; if (!script.isStreamingEnabled() && ctx.mainApi === 'textgenerationwebui') textgen.textgenerationwebui_settings.streaming = true; if (!script.isStreamingEnabled()) throw new Error('streaming is off for main API ' + ctx.mainApi + ': the first streamed token is the measurement'); return { api: ctx.mainApi, streaming: true };" },
+    {
+      "import_story": {
+        "id": "so-v30-f3-send-latency",
+        "title": "SO-V30-F3 Send latency",
+        "description": "Synthetic F3 fixture: a short exchange at a market stall, so each turn is one ordinary group reply.",
+        "qualities": [
+          { "key": "deal_struck", "type": "bool", "source": "extractor", "rubric": "Has the player agreed a price with Arin?" }
+        ],
+        "checkpoints": [
+          { "id": "stall", "name": "The stall", "player_name": "The stall", "player_text": "Haggle with Arin.", "type": "anchor", "start": true, "objective": "Arin sells lanterns and haggles in short replies." },
+          { "id": "sold", "name": "Sold", "player_name": "Sold", "type": "anchor", "objective": "Walk on." }
+        ],
+        "transitions": [{ "from": "stall", "to": "sold", "priority": 0, "gate": { "q": "deal_struck", "op": "==", "v": true } }],
+        "roster": [{ "id": "arin", "name": "Arin", "role": "a lantern seller", "drive": "sell a lantern for a fair price" }, { "id": "narrator", "name": "DM Narrator", "role": "narrator" }],
+        "requirements": { "members": ["Arin", "DM Narrator"] }
+      }
+    },
+    { "slash": "/sendas name=\"DM Narrator\" raw=false A lantern stall glows at the edge of the night market. Arin waves you over." },
+    { "log": true, "eval": "const rt = globalThis.storyOrchestratorRuntime; const script = await import('/script.js'); const ctx = () => SillyTavern.getContext(); const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms)); const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error('timed out after ' + ms + ' ms: ' + what); await pause(50); } }; const visible = (el) => Boolean(el) && getComputedStyle(el).display !== 'none'; const generating = () => visible(document.querySelector('#mes_stop')) || !visible(document.querySelector('#send_but')); const idle = async (ms) => { let since = 0; await until(() => { if (generating()) { since = 0; return false; } since = since || Date.now(); return Date.now() - since > 2000; }, ms, 'ST to go idle'); }; const readsIdle = (ms) => until(() => { const s = rt.getSnapshot().extraction?.scheduler; return s && s.queueDepth === 0 && !s.inFlight; }, ms, 'queued and running reads to finish'); const turn = async (text) => { await idle(120000); await readsIdle(300000); await pause(1500); const before = ctx().chat.length; const box = document.querySelector('#send_textarea'); box.value = text; box.dispatchEvent(new Event('input', { bubbles: true })); const t0 = performance.now(); document.querySelector('#send_but').click(); const first = await until(() => { const sp = script.streamingProcessor; return sp && sp.messageId >= before + 1 && String(ctx().chat[sp.messageId]?.mes ?? '').trim().length > 0 ? performance.now() : null; }, 300000, 'the first streamed character of a reply'); await idle(600000); const done = performance.now(); const replies = ctx().chat.slice(before + 1).filter((row) => !row.is_user && !row.is_system); if (!replies.length) throw new Error('vacuous: the turn produced no reply'); return { firstTokenMs: Math.round(first - t0), doneMs: Math.round(done - t0), replies: replies.length, chars: replies.reduce((sum, row) => sum + String(row.mes ?? '').length, 0) }; }; globalThis.__f3lat = { turn, rows: [] }; await idle(30000); await readsIdle(300000); return { ready: true, chat: ctx().chat.length };" },
+    { "log": true, "eval": "const a = globalThis.__f3lat; a.rows.push(await a.turn('How much for the blue lantern?')); return a.rows.at(-1);" },
+    { "log": true, "eval": "const a = globalThis.__f3lat; a.rows.push(await a.turn('That is steep. Would you take half?')); return a.rows.at(-1);" },
+    { "log": true, "eval": "const a = globalThis.__f3lat; a.rows.push(await a.turn('What makes this one special?')); return a.rows.at(-1);" },
+    { "log": true, "eval": "const a = globalThis.__f3lat; a.rows.push(await a.turn('All right, three silver and a story about it.')); return a.rows.at(-1);" },
+    { "keep": true, "log": true, "eval": "const rows = globalThis.__f3lat?.rows ?? []; if (rows.length !== 4) throw new Error('expected 4 measured turns, got ' + rows.length); return { turns: rows };" }
+  ],
+  "cleanup": {
+    "steps": [
+      { "eval": "const stream = globalThis.__f3LatStream; if (stream && stream.api === 'textgenerationwebui' && stream.was === false) { const textgen = await import('/scripts/textgen-settings.js'); textgen.textgenerationwebui_settings.streaming = false; } delete globalThis.__f3LatStream; delete globalThis.__f3lat; return { restored: Boolean(stream) };" }
+    ]
+  }
+}

@@ -42,6 +42,7 @@ export interface ModelCallDeps {
   planted?: boolean;
   observe?: (role: PassRole, call: RoleCallObservation) => void;
   record?: (record: ModelCallRecord) => void;
+  prompted?: (role: PassRole, prompt: string, chatId: string | null) => void;
   ownership?: RunOwnership;
   stamp?: () => { chatId: string | null; messageId: number };
   gate?: FailoverGate;
@@ -111,6 +112,7 @@ export const createModelCallVia = (reply: RouteReply, deps: ModelCallDeps): Mode
     const startedAt = Date.now();
     const busy = busyWork.begin("model", stamp?.chatId ?? null);
     try {
+      deps.prompted?.(ask.role, prompt, stamp?.chatId ?? null);
       const answer = await reply(prompt, used, options);
       if (used) recordCall(used, startedAt, diverted ? "fallback" : "ok", answer, from);
       if (observe) observe(Object.assign({ outcome: "answered" as const, meter: answer.meter ?? null }, seen));

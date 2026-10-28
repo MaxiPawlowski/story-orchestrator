@@ -147,7 +147,7 @@ S4 data, so the drop runs at the v3.0 freeze.)
 
 ## Gates
 
-- Counter: not built ((b) decided 2026-10-03).
+- Counter: offline script built 2026-10-26 (owner decision 12, v3.0 14 §SP1): `node scripts/debug/so-swipe-backs.mts <chat.jsonl> ...`, no runtime or player change.
 - Drop (at the v3.0 freeze, unless S4 data exists): `npm run gates`; `DROPPED_SPIKES` gains `swipeBack.ts`, `swipeCache.ts` with a planted-import control
   (`devOnly.guard.test.ts`); the seam stays for v2.8 01.
 - Build (only after reopening): runtime tier `npm run gates`, live S3 ×2, J6 ×2, ownership census row for `SwipeBack.restore`.

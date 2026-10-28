@@ -16,6 +16,10 @@ import { ramGateBytes, waitForFreeRam, type RamPause } from './lib/ramGate.mts';
 import { collectRowEvidence, fileSize, recordPathsIn, ROW_FILES, rowDirName, type RowLane } from './lib/rowEvidence.mts';
 import { guardChildren } from './lib/childTree.mts';
 import { parseModelFilter } from './lib/modelClass.mts';
+import { batchReplayPlan, LANE_REPLAY_FILE, readLaneReplay, replayProfiles, replayStorePath, replayUrlsIn, restoreProfiles, type BatchReplayPlan } from './lib/laneReplay.mts';
+import { beginSession, DEFAULT_REPLAY_URL, endSession, laneSession, replayEnv, replayRowVerdict, replayStatus } from './lib/replayClient.mts';
+import { REPLAY_PORT, type SessionStats } from './lib/replayStore.mts';
+import { listPlanLines, loadBatchLists, parseListSpec, selectList, type ListSelection } from './lib/batchLists.mts';
 
 const USAGE = `Usage: node scripts/debug/st-lanes.mts <command> [...]
 
@@ -46,6 +50,9 @@ is shared: llama-server serves LLM_PARALLEL requests at once and queues the rest
                                Its output, page capture, server log slice and (pod lanes) tunnel + pod windows land in
                                <lane>/debug/runs/<stamp>-<script>/; for a B1 model run, an integration play or with
                                --evidence a missing piece exits 3 (INCOMPLETE)
+  replay <n...> on|off         point stopped lane n's llama.cpp profiles (and ST's llama.cpp server URL) at the replay backend
+                               (so-replay.mts, 127.0.0.1:${REPLAY_PORT}/lane/<n>), recorded in <lane>/${LANE_REPLAY_FILE}; off puts the old URLs
+                               back. start then lets the lane's firewall reach the replay port
   no-model <n>                 make stopped lane n a no-model lane: api keys removed from its secrets.json
                                copy (backup kept), judge off; the no-LLM scenarios with requires.lane no-model
   restore-model <n>            put stopped lane n's secrets back from that backup and switch the judge on
@@ -54,7 +61,8 @@ is shared: llama-server serves LLM_PARALLEL requests at once and queues the rest
                                tunnel port 18080+k and record it in <lane>/pod.json; cloud points them at a
                                closed port (18079), so a cloud-only lane fails loudly on any pod call and
                                counts on no pod. The lane-load rule counts model lanes per pod
-  batch --lanes 1,2 [--repeat 2] [--strict] [--group <id>] [--wi-gating scan|file] [--model <classes>] [--fresh-page] [--allow-load] <item...>
+  batch --lanes 1,2 [--repeat 2] [--strict] [--group <id>] [--wi-gating scan|file] [--model <classes>] [--fresh-page] [--allow-load]
+        [--replay <store> [--live-misses] | --record <store> [--upstream http://127.0.0.1:18888]] [--list <file>[:list,...]] <item...>
                                run items across lanes, one at a time per lane; an item is a journey
                                id (J3) or a scenario file (test/scenarios/x.json). --repeat runs each
                                item that many times back to back on the SAME lane (--fresh-page also reloads
@@ -71,7 +79,21 @@ is shared: llama-server serves LLM_PARALLEL requests at once and queues the rest
                                window); evidence.json says what is missing. A row with missing evidence is
                                INCOMPLETE and never counts as green. With SO_MIN_FREE_RAM_GIB=<g> each row first
                                waits (polling every 60 s, each pause logged and kept in the row's result) until
-                               free physical RAM is at least g GiB`;
+                               free physical RAM is at least g GiB.
+                               --replay <store> (class R, v3.0 F1): every lane must be a replay lane (replay <n> on); the
+                               replay backend is started on the store unless one already serves it, and each row runs as
+                               its own replay session (lane-<n>, row <item>#<run>): replay.json in the row dir counts
+                               replayed, static, live, recorded and refused requests per step; a refused request (no
+                               recording, never invented) makes the row INCOMPLETE. --model defaults to any (a none
+                               row's no-model probe would reach the replay backend: run none rows on no-model lanes) and
+                               judged is refused (a replay repeats what a model wrote, it cannot judge it again); a judged
+                               check pulled in by dependsOn replays as plumbing. Replay lanes do not count toward the
+                               model-lane limit. --live-misses (mixed) sends unrecorded requests to the live model and
+                               records them; --record <store> forwards every request to --upstream and records it (both
+                               need model lanes and count toward the limit).
+                               --list <file>[:list,...] adds the journey and scenario rows of test/batches/<file>.json (all
+                               its lists, or the named ones) whose class --model selects; script rows are printed to run
+                               separately (st-lanes.mts run), missing or other-branch rows are named, never run`;
 
 const ST_ROOT = requireStRoot(process.env, PROJECT_ROOT);
 // Outside the ST tree on purpose: a lane's data root holds a copy of secrets.json, and everything under
@@ -228,7 +250,8 @@ async function start(n: number, headed: boolean, judgeLanes: number | null = nul
   const wasUp = held.up;
   const offline = existsSync(resolve(lane.root, OFFLINE_MARKER));
   const podLane = offline ? readLanePod(lane.root) : null;
-  const firewall = podLane ? { podPort: podLane.pod === null ? null : podLane.port, extraPorts: laneExtraPorts(podLane.pod, allowLocal) } : null;
+  const replayLane = readLaneReplay(lane.root);
+  const firewall = podLane ? { podPort: podLane.pod === null ? null : podLane.port, extraPorts: [...laneExtraPorts(podLane.pod, allowLocal), ...(replayLane ? [REPLAY_PORT] : [])] } : null;
   if (!wasUp && offline) {
     const problems = offlineProblems(JSON.parse(await readFile(resolve(lane.data, 'default-user', 'settings.json'), 'utf-8')), lane.port, firewall);
     if (problems.length) throw new Error(`lane ${n} is an offline lane but its settings.json no longer is (${problems.join('; ')}); re-seed it with ${OFFLINE_ENV}=1`);
@@ -292,11 +315,11 @@ async function status() {
     const pod = readLanePod(lane.root);
     const issue = lanePortIssue(n);
     const server = issue ? { up: false, heldBy: null } : await laneServer(n);
-    return { lane: n, seeded: existsSync(resolve(lane.data, 'default-user')), serverUp: server.up, ...(server.heldBy ? { portHeldBy: server.heldBy } : {}), ...(issue ? { refused: issue } : {}), noModel: existsSync(resolve(lane.data, 'default-user', NO_MODEL_BACKUP)), pod: pod ? pod.pod : 0, podId: pod?.podId ?? null, browser: existsSync(resolve(lane.debug, 'session.json')), url: laneEnv(n).ST_URL };
+    return { lane: n, seeded: existsSync(resolve(lane.data, 'default-user')), serverUp: server.up, ...(server.heldBy ? { portHeldBy: server.heldBy } : {}), ...(issue ? { refused: issue } : {}), noModel: existsSync(resolve(lane.data, 'default-user', NO_MODEL_BACKUP)), replay: Boolean(readLaneReplay(lane.root)), pod: pod ? pod.pod : 0, podId: pod?.podId ?? null, browser: existsSync(resolve(lane.debug, 'session.json')), url: laneEnv(n).ST_URL };
   }));
 }
 
-type BatchResult = { item: string; lane: number; run: number; code: number; status: RowStatus; automated: string | null; cleanup: string | null; record: string | null; notRunnable: string | null; failures: string[]; log: string; ms: number; ramPauses?: RamPause[]; ramPausedMs?: number; evidence: { dir: string; complete: boolean; problems: string[]; warnings: string[]; attention: string[] } };
+type BatchResult = { item: string; lane: number; run: number; code: number; status: RowStatus; replay?: ReturnType<typeof replaySummary>; automated: string | null; cleanup: string | null; record: string | null; notRunnable: string | null; failures: string[]; log: string; ms: number; ramPauses?: RamPause[]; ramPausedMs?: number; evidence: { dir: string; complete: boolean; problems: string[]; warnings: string[]; attention: string[] } };
 
 export type RowStatus = 'GREEN' | 'RED' | 'INCOMPLETE' | 'NOT-RUNNABLE';
 
@@ -339,6 +362,84 @@ async function setModelAccess(n: number, on: boolean) {
   return { lane: n, model: on ? 'restored' : 'removed', removedKeys: removed.length, secretsRestored: restored, judgeEnabled: judge };
 }
 
+async function setLaneReplay(n: number, on: boolean) {
+  const lane = lanePaths(n);
+  if ((await laneServer(n)).up) throw new Error(`lane ${n} is running: stop it first (st-lanes.mts stop ${n}), the server rewrites settings.json`);
+  const settingsPath = resolve(lane.data, 'default-user', 'settings.json');
+  if (!existsSync(settingsPath)) throw new Error(`lane ${n} is not seeded: ${settingsPath} is missing`);
+  const marker = resolve(lane.root, LANE_REPLAY_FILE);
+  const current = readLaneReplay(lane.root);
+  const settings = JSON.parse(await readFile(settingsPath, 'utf-8'));
+  if (on) {
+    if (current) return { lane: n, replay: 'already on', url: current.url };
+    const { next, replay, changed } = replayProfiles(settings, n);
+    if (!changed.length) throw new Error(`lane ${n} has no llama.cpp connection profile on a loopback URL to point at the replay backend`);
+    await writeFile(settingsPath, JSON.stringify(next, null, 4), 'utf-8');
+    const urls = replayUrlsIn(JSON.parse(await readFile(settingsPath, 'utf-8')));
+    if (urls.some((url) => url !== replay.url)) throw new Error(`lane ${n}: llama.cpp profiles read ${urls.join(', ')} after writing ${replay.url}`);
+    await writeFile(marker, JSON.stringify({ ...replay, at: new Date().toISOString() }, null, 2), 'utf-8');
+    return { lane: n, replay: 'on', url: replay.url, changed };
+  }
+  if (!current) return { lane: n, replay: 'already off' };
+  const { next, restored } = restoreProfiles(settings, current);
+  await writeFile(settingsPath, JSON.stringify(next, null, 4), 'utf-8');
+  await rm(marker, { force: true });
+  return { lane: n, replay: 'off', restored };
+}
+
+let replayChild: ChildProcess | null = null;
+
+async function ensureReplayBackend(plan: BatchReplayPlan): Promise<{ spawned: boolean; store: string; log: string | null }> {
+  const store = replayStorePath(plan.store);
+  const running = await replayStatus(DEFAULT_REPLAY_URL);
+  if (running) {
+    if (running.mode !== plan.mode || resolve(running.store) !== store) throw new Error(`batch refused: the replay backend on ${DEFAULT_REPLAY_URL} serves ${running.store} in ${running.mode} mode, this batch asked ${store} in ${plan.mode} mode; stop it first`);
+    return { spawned: false, store, log: null };
+  }
+  await mkdir(resolve(LANES_ROOT, 'replay'), { recursive: true });
+  const log = resolve(LANES_ROOT, 'replay', `serve-${new Date().toISOString().replace(/[:.]/g, '-')}.log`);
+  const out = await open(log, 'a');
+  childGuard ??= guardChildren(() => [...liveChildren], { watchParent: process.env.SO_DETACHED_RUN !== '1' });
+  const child = spawn(process.execPath, ['scripts/debug/so-replay.mts', 'serve', '--store', store, '--mode', plan.mode, ...(plan.upstream ? ['--upstream', plan.upstream] : [])], { cwd: PROJECT_ROOT, stdio: ['ignore', out.fd, out.fd], windowsHide: true });
+  replayChild = child;
+  liveChildren.add(child);
+  child.on('exit', () => { liveChildren.delete(child); });
+  const deadline = Date.now() + 30_000;
+  while (!(await replayStatus(DEFAULT_REPLAY_URL))) {
+    if (child.exitCode !== null || Date.now() > deadline) throw new Error(`batch refused: the replay backend did not start (log: ${log})`);
+    await sleep(500);
+  }
+  await out.close();
+  return { spawned: true, store, log };
+}
+
+async function stopReplayBackend(): Promise<void> {
+  const child = replayChild;
+  replayChild = null;
+  if (!child || child.exitCode !== null) return;
+  const exited = new Promise<void>((done) => child.once('exit', () => done()));
+  if (child.pid) await killTree(child.pid);
+  await Promise.race([exited, sleep(5000)]);
+}
+
+async function listItems(spec: string, model: string | null): Promise<ListSelection> {
+  const { file, names } = parseListSpec(spec);
+  return selectList(loadBatchLists(PROJECT_ROOT, file), spec, names, model);
+}
+
+const printListPlan = (selection: ListSelection) => { for (const line of listPlanLines(selection)) console.log(line); };
+
+const servedBundleSha = (): string | null => {
+  try {
+    const manifest = JSON.parse(readFileSync(resolve(SERVED_EXTENSION_DIR, 'dist', 'manifest.json'), 'utf-8'));
+    return typeof manifest?.bundle?.sha256 === 'string' ? manifest.bundle.sha256 : null;
+  } catch {
+    return null;
+  }
+};
+
+const replaySummary = (stats: SessionStats | null) => (stats ? { mode: stats.mode, store: stats.store, identity: stats.identity, row: stats.row, replayed: stats.replayed, static: stats.static, live: stats.live, recorded: stats.recorded, refused: stats.refused, misses: stats.misses } : null);
+
 async function assignPod(n: number, pod: number | null, podId: string | null) {
   const lane = lanePaths(n);
   if ((await laneServer(n)).up) throw new Error(`lane ${n} is running: stop it first (st-lanes.mts stop ${n}), the server rewrites settings.json`);
@@ -369,7 +470,18 @@ export const itemArgs = (item: string, strict: boolean, group: string | null, wi
 export const BETWEEN_RUNS_SETTLE_MS = 10_000;
 export const betweenRunsArgs = (run: number, freshPage = false): string[] | null => (run > 1 || freshPage ? ['scripts/debug/st-session.mts', 'reload'] : null);
 
-async function batch(lanes: number[], items: string[], repeat: number, strict: boolean, group: string | null, wiGating: string | null = null, model: string | null = null, freshPage = false) {
+async function batch(lanes: number[], items: string[], repeat: number, strict: boolean, group: string | null, wiGating: string | null = null, model: string | null = null, freshPage = false, replay: BatchReplayPlan | null = null) {
+  const backend = replay ? await ensureReplayBackend(replay) : null;
+  if (backend) console.log(`replay backend (${replay?.mode}) ${backend.spawned ? `started on ${backend.store} (log ${backend.log})` : `already serving ${backend.store}`}`);
+  const build = replay ? servedBundleSha() : null;
+  try {
+    return await batchRows(lanes, items, repeat, strict, group, wiGating, model, freshPage, replay, build);
+  } finally {
+    if (backend?.spawned) await stopReplayBackend();
+  }
+}
+
+async function batchRows(lanes: number[], items: string[], repeat: number, strict: boolean, group: string | null, wiGating: string | null, model: string | null, freshPage: boolean, replay: BatchReplayPlan | null, build: string | null) {
   const queue = [...items];
   const results: BatchResult[] = [];
   const stamp = new Date().toISOString().replace(/[:.]/g, '-');
@@ -387,14 +499,20 @@ async function batch(lanes: number[], items: string[], repeat: number, strict: b
         if (reload) await sleep(BETWEEN_RUNS_SETTLE_MS);
         const ram = await waitForFreeRam(ramGateBytes(process.env), { freemem, sleep, log: (line) => console.log(line), now: Date.now }, `lane ${n} ${item} run ${run}`);
         const serverOffset = fileSize(lanePaths(n).log);
+        const target = replay ? { url: DEFAULT_REPLAY_URL, session: laneSession(n) } : null;
+        if (target) await beginSession(target, `${item}#${run}`, build);
         const began = Date.now();
-        const { code, output } = await runNode(itemArgs(item, strict, group, wiGating, model), { ...laneEnv(n), [ROW_DIR_ENV]: rowDir }, { logPath: log });
+        const { code, output } = await runNode(itemArgs(item, strict, group, wiGating, model), { ...laneEnv(n), [ROW_DIR_ENV]: rowDir, ...(target ? replayEnv(target) : {}) }, { logPath: log });
         const ended = Date.now();
         const notRunnable = output.match(/^not-runnable: (.*)$/m)?.[1]?.trim() ?? null;
         const paths = recordPathsIn(output);
         const evidence = collectRowEvidence({ rowDir, lane: rowLane(n), start: began, end: ended, serverOffset, recordPath: paths.record, failurePath: paths.failure, notRunnable, expect: { record: true, page: true } });
+        const replayStats = target ? await endSession(target).catch(() => null) : null;
+        const replayVerdict = replay ? replayRowVerdict(replayStats, replay.mode) : null;
+        if (replay) await writeFile(resolve(rowDir, 'replay.json'), JSON.stringify(replayStats ?? { error: 'stats unreadable' }, null, 2), 'utf-8');
+        if (replayVerdict && !notRunnable && replayVerdict.problems.length) { evidence.problems.push(...replayVerdict.problems); evidence.complete = false; }
         const result: BatchResult = {
-          item, lane: n, run, code, log, ms: ended - began, ...(ram.pauses.length ? { ramPauses: ram.pauses, ramPausedMs: ram.pausedMs } : {}),
+          item, lane: n, run, code, log, ms: ended - began, ...(ram.pauses.length ? { ramPauses: ram.pauses, ramPausedMs: ram.pausedMs } : {}), ...(replay ? { replay: replaySummary(replayStats) } : {}),
           status: rowStatus(code, evidence.complete, notRunnable),
           evidence: { dir: rowDir, complete: evidence.complete, problems: evidence.problems, warnings: evidence.warnings, attention: evidence.attention },
           automated: output.match(/^automated: .*$/m)?.[0] ?? null,
@@ -405,6 +523,7 @@ async function batch(lanes: number[], items: string[], repeat: number, strict: b
         };
         results.push(result);
         console.log(`lane ${n} ${item} run ${run}: ${result.status} code ${code}${result.automated ? ` · ${result.automated}` : ''}${result.notRunnable ? ` · NOT RUNNABLE: ${result.notRunnable}` : ''} (${Math.round(result.ms / 1000)} s)`);
+        if (replayVerdict) console.log(`  ${replayVerdict.line}`);
         for (const problem of evidence.problems) console.log(`  INCOMPLETE: ${problem}`);
         for (const note of evidence.attention) console.log(`  ATTENTION: ${note}`);
       }
@@ -412,9 +531,10 @@ async function batch(lanes: number[], items: string[], repeat: number, strict: b
   }));
   const summary = resolve(LANES_ROOT, `batch-${stamp}.json`);
   const incomplete = results.filter((result) => result.status === 'INCOMPLETE').map((result) => `${result.item} run ${result.run} (lane ${result.lane})`);
-  await writeFile(summary, JSON.stringify({ lanes, items, repeat, strict, model, incomplete, results }, null, 2), 'utf-8');
+  const replayTotals = replay ? results.reduce((sum, row) => ({ replayed: sum.replayed + (row.replay?.replayed ?? 0), static: sum.static + (row.replay?.static ?? 0), live: sum.live + (row.replay?.live ?? 0), recorded: sum.recorded + (row.replay?.recorded ?? 0), refused: sum.refused + (row.replay?.refused ?? 0) }), { replayed: 0, static: 0, live: 0, recorded: 0, refused: 0 }) : null;
+  await writeFile(summary, JSON.stringify({ lanes, items, repeat, strict, model, ...(replay ? { replay: { ...replay, totals: replayTotals } } : {}), incomplete, results }, null, 2), 'utf-8');
   for (const n of lanes) await writeFile(resolve(lanePaths(n).debug, 'batch', stamp, 'batch.json'), JSON.stringify({ lanes, items, repeat, strict, incomplete, results: results.filter((result) => result.lane === n) }, null, 2), 'utf-8').catch(() => undefined);
-  return { summary, green: results.filter((result) => result.status === 'GREEN').length, runs: results.length, incomplete };
+  return { summary, green: results.filter((result) => result.status === 'GREEN').length, runs: results.length, incomplete, ...(replayTotals ? { replay: replayTotals } : {}) };
 }
 
 export function runEvidenceRequired(script: string[], flags: string[]): boolean {
@@ -457,6 +577,11 @@ async function main() {
   }
   else if (command === 'stop') out = await Promise.all(laneNumbers(rest).map(stop));
   else if (command === 'status') out = await status();
+  else if (command === 'replay') {
+    const mode = rest.find((arg) => arg === 'on' || arg === 'off');
+    if (!mode) { console.log(USAGE); process.exitCode = 2; return; }
+    out = await Promise.all(laneNumbers(rest).map((n) => setLaneReplay(n, mode === 'on')));
+  }
   else if (command === 'no-model') out = await Promise.all(laneNumbers(rest).map((n) => setModelAccess(n, false)));
   else if (command === 'restore-model') out = await Promise.all(laneNumbers(rest).map((n) => setModelAccess(n, true)));
   else if (command === 'pod') {
@@ -488,15 +613,23 @@ async function main() {
     return;
   } else if (command === 'batch') {
     const lanes = refuseReservedLanes(String(argValue('--lanes', '1')).split(',').map(Number).filter(Boolean));
-    const flags = new Set(['--lanes', '--repeat', '--group', '--wi-gating', '--model']);
-    const items = rest.filter((arg, index) => !arg.startsWith('--') && !flags.has(rest[index - 1] ?? ''));
+    const flags = new Set(['--lanes', '--repeat', '--group', '--wi-gating', '--model', '--replay', '--record', '--upstream', '--list']);
+    const named = rest.filter((arg, index) => !arg.startsWith('--') && !flags.has(rest[index - 1] ?? ''));
+    const lanesNow = await status();
+    const replay = batchReplayPlan({ replay: argValue('--replay'), record: argValue('--record'), liveMisses: rest.includes('--live-misses'), model: argValue('--model'), upstream: argValue('--upstream') },
+      lanes.map((n) => { const entry = lanesNow.find((row) => row.lane === n); return { lane: n, replay: Boolean(entry?.replay), noModel: Boolean(entry?.noModel) }; }));
+    const listed = argValue('--list') ? await listItems(argValue('--list') as string, replay?.model ?? argValue('--model')) : null;
+    const items = [...named, ...(listed?.items ?? [])];
+    if (listed) printListPlan(listed);
+    if (!items.length) throw new Error('batch: no item to run');
     const refused = lanePreflight();
     if (refused) throw new Error(`batch refused: ${refused}`);
-    const load = rest.includes('--allow-load') ? null : laneLoadProblem(await status(), Number(process.env.SO_MAX_LLM_LANES ?? DEFAULT_MAX_LLM_LANES));
+    const counted = lanesNow.map((entry) => (replay && !replay.usesModel && entry.replay ? { ...entry, noModel: true } : entry));
+    const load = rest.includes('--allow-load') ? null : laneLoadProblem(counted, Number(process.env.SO_MAX_LLM_LANES ?? DEFAULT_MAX_LLM_LANES));
     if (load) throw new Error(`batch refused: ${load}`);
-    const model = argValue('--model');
+    const model = replay?.model ?? argValue('--model');
     if (model) parseModelFilter(model);
-    const result = await batch(lanes, items, Number(argValue('--repeat', '1')), rest.includes('--strict'), argValue('--group'), argValue('--wi-gating'), model, rest.includes('--fresh-page'));
+    const result = await batch(lanes, items, Number(argValue('--repeat', '1')), rest.includes('--strict'), argValue('--group'), argValue('--wi-gating'), model, rest.includes('--fresh-page'), replay);
     process.exitCode = batchExitCode(result);
     out = result;
   } else { console.log(USAGE); process.exitCode = 2; return; }

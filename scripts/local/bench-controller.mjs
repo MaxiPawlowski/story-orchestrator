@@ -7,6 +7,7 @@ import path from 'node:path';
 import { nativeArgs, slots } from '../../server-plugin/story-orchestrator-gpu/broker/backend.mjs';
 import { PromptReuse, promptReuseOptions } from '../../server-plugin/story-orchestrator-gpu/broker/promptReuse.mjs';
 import { MemberCache, memberCacheOptions } from '../../server-plugin/story-orchestrator-gpu/broker/memberCache.mjs';
+import { imageCommands } from './imageMatrixRun.mjs';
 
 const argv = process.argv.slice(2);
 const command = argv[0] ?? 'help';
@@ -630,9 +631,9 @@ async function imageBench() {
     } finally { telemetry.stop(); killTree(child.pid); await sleep(3000); }
 }
 
-const commands = { corpus: buildCorpus, layout: layoutCorpus, text: textBench, endpoint: endpointBench, image: imageBench, all: async () => { await textBench(); await imageBench(); } };
+const commands = { corpus: buildCorpus, layout: layoutCorpus, text: textBench, endpoint: endpointBench, image: imageBench, ...imageCommands({ argv, option, flag, loadConfig, outRoot, comfyBenchPort, seed, RESERVED, listening, gpuQuery, gpuInfo, Telemetry, killTree, sleep, stamp }), all: async () => { await textBench(); await imageBench(); } };
 if (!commands[command]) {
-    console.log('Usage: node scripts/local/bench-controller.mjs corpus --from <payloads.jsonl> | text [--arms a,b+c] | endpoint (--url <openai base> | --llama-arm <arm>) --label <name> [--full] | image | all  [--out dir] [--port 18890] [--comfy-port 18288]');
+    console.log('Usage: node scripts/local/bench-controller.mjs corpus --from <payloads.jsonl> | text [--arms a,b+c] | endpoint (--url <openai base> | --llama-arm <arm>) --label <name> [--full] | image | image-matrix [--plan quick|full | --cells wf:arm,...] [--label before-unlock] [--gemm] [--reference png] [--dry-run] | image-compare <dirA> <dirB> | image-rating-pack <dir> | all  [--out dir] [--port 18890] [--comfy-port 18288]');
     console.log(`Arms: ${Object.keys(MODIFIERS).join(', ')} (combine with +). Default: ${DEFAULT_ARMS.join(',')}`);
     process.exit(command === 'help' ? 0 : 1);
 }

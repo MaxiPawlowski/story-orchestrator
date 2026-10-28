@@ -5,6 +5,7 @@ import type { PassRole } from "@extraction/passRole";
 import { harnessListed, listConnectionProfiles } from "@services/STAPI";
 import { createModelCallVia, type ModelCallDeps, type RoleCallObservation } from "./modelCallCore";
 import { modelCallLog, type ModelCallRecord } from "./modelCallLog";
+import { prefixDrift } from "./prefixDriftPort";
 import { roleHealth } from "./roleHealth";
 
 let liveGate: FailoverGate | null = null;
@@ -25,6 +26,7 @@ export const createModelCall = (deps: ModelCallDeps): ModelCall => createModelCa
   gate,
   observe: (role: PassRole, call: RoleCallObservation) => roleHealth.noteCall(role, call),
   record: (record: ModelCallRecord) => modelCallLog.note(record),
+  prompted: (role: PassRole, prompt: string, chatId: string | null) => { void prefixDrift.observe(`side:${chatId ?? "none"}:${role}`, "side", prompt); },
   listed: harnessListed,
   label: (profileId: string) => listConnectionProfiles().find((profile) => profile.id === profileId)?.name ?? profileId,
 }, deps));

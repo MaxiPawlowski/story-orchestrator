@@ -95,7 +95,7 @@ export const FEATURE_CONTROLS: Record<StoryFeatureId, FeatureControls> = {
     controls: [enabled("memory.promises")] },
   witness: { name: "Who heard what",
     area: "Characters",
-    description: "Each story read also notes which characters heard each message; nothing uses it until it is measured.",
+    description: "After each story read, notes in code which characters heard each message; nothing uses it until it is measured.",
     role: "read",
     controls: [enabled("memory.witness")] },
   rumors: { name: "Rumors and gossip",

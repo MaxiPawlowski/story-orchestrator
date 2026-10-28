@@ -84,6 +84,7 @@ copy, move or download weights.
 | `so-scenario.mts` | `run <file.json> [--sandbox] [--keep]` |
 | `so-journey.mts` | `--list`, `run <id\|file> [--strict] [--keep] [--only ids] [--no-config]`, `restore-config [--file p]` |
 | `so-journal.mts` | `export [--md\|--json] [--kind k,k] [--limit n]`, `show` |
+| `so-swipe-backs.mts` | `<chat.jsonl> [...] [--backups <dir> \| --no-backups]`: offline, read-only; natural swipe-backs per 100 player turns from ST chat files and their backups (v3.0 01 SP1 S4), counts only |
 | `so-talk-metrics.mts` | `--player <name> --lead <name> --cast <a,b,c> <chat.jsonl>...` (offline, reads ST chat files): opening hook, turns to first party address, yield after a question to the player, voices per send, party share, lead words p50/p90 (v3.0 19) |
 | `so-mutation-check.mts` | `[--keep]` |
 | `so-tour-check.mts` | `player`, `author`, `setup`, `help`, `quick-start`, `all` `[--label <name>]`: coach-mark tour plumbing (walks every stop with real clicks, records found/hidden/missing and card placement, Escape keeps the workspace open; Help opens the chooser and the setup path page; the quick start ticks from real state and its Show me starts a stop); record + screenshots in `<debug dir>/tour/`, viewport via `ST_DEBUG_VIEWPORT` |
@@ -126,6 +127,25 @@ an integration play; the offline `score` commands are exempt). Campaign lab data
 Pure scorers live in `lib/hookScore.mts`, `lib/questScope.mts`, `lib/lifeReads.mts`, `lib/combinedScope.mts`,
 `lib/meanwhileReplay.mts`, `lib/voiceScore.mts`, `lib/judgeCauses.mts`, with shared plumbing in `lib/b1Runs.mts` and the
 row → runner list in `lib/b1Registry.mts` (its test fails when a manifest row's prerequisites stop naming its runner).
+
+## Replay backend and controller checks (v3.0 F1/F3)
+
+- `so-replay.mts serve --store <name> --mode replay|record|mixed` — loopback model backend on 127.0.0.1:18078 (class R). Exact
+  key (method, path, JSON body with sorted keys minus `api_server`); the n-th occurrence of a generation key gets its n-th
+  recording; an unrecorded request is refused (503) and counted, never invented. `record` forwards to `--upstream` and stores
+  each answer with its row, step, sampler keys and SO build; a store holds one model and llama.cpp build. `import-batch` adds a
+  `so-prompt-batch` send (class M); `drift` lists the steps whose prompt moved since recording. Stores live under
+  `<so-lanes>/replay/` (chat text, never in the repo).
+- Lanes: `st-lanes.mts replay <n> on|off` points a stopped lane's llama.cpp profiles at `/lane/<n>`; `st-lanes.mts batch
+  --replay <store>` (default `--model any`: none rows run on no-model lanes; judged refused) or `--record <store>` runs each row as its own session and writes
+  `replay.json` (replayed, static, live, recorded, refused per step) next to the row; a refused request = INCOMPLETE.
+  so-scenario and so-journey mark every step on the session and put the stats in their record.
+- `st-lanes.mts batch --list controller-regression[:base,mtp,...]` expands `test/batches/controller-regression.json` (the
+  controller audit's per-change rows with `model` and `controller` per row); script rows are printed to run separately.
+- `so-controller-checks.mts` — the audit's missing checks: `gbnf-parity capture|compare` (sprite grammars, temp 0, two servers),
+  `render-survival run|score` (a render through a reload or a ComfyUI kill: completed or failed within 60 s), `reserve
+  sample|score` (`/status` while the live head / GPU judge / landmarks are up), `send-latency score` (two
+  `v30-f3-send-latency.json` records, predeclared `--bound-ms`). Capture/run/sample need the GPU; compare/score are offline.
 
 ## Scenario Format
 

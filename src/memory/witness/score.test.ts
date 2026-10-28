@@ -59,6 +59,19 @@ describe("plan 42 B: the witness scorer (W4, W4fi, W4fe, W4cov, W4u, W4m, W4a, W
     expect(none.floors.coverage).toBe(false);
   });
 
+  it("exempts the speaker of an unknown-labelled message only when the speakers option is given (declared 2026-10-26 for new runs)", () => {
+    const data = set();
+    const predict: WitnessPredict = (messageId, member, span) => (messageId === 39 ? yes(member === "a") : truth(data)(messageId, member, span));
+    const old = scoreWitness(data, predict);
+    expect(old.ambiguous).toEqual({ pairs: 3, predictedHeard: 1 });
+    expect(old.falseInclusion.hits).toBe(1);
+    const next = scoreWitness(data, predict, { speakers: new Map([[39, "a"]]) });
+    expect(next.ambiguous).toEqual({ pairs: 2, predictedHeard: 0 });
+    expect(next.falseInclusion).toEqual({ hits: 0, of: old.falseInclusion.of - 1, rate: 0 });
+    expect(scoreWitness(data, predict, { speakers: new Map([[39, "b"]]) }).ambiguous).toEqual({ pairs: 2, predictedHeard: 1 });
+    expect(scoreWitness(data, predict, { speakers: new Map([[5, "a"]]) })).toEqual(old);
+  });
+
   it("scores a heard span in a mixed message against its label span", () => {
     const leaky: WitnessPredict = (messageId, member, span) => (messageId === 38 && span ? yes(true, { mixed: true, insideHeardSpan: true }) : truth(set())(messageId, member, span));
     expect(scoreWitness(set(), leaky).spanFalseInclusion).toEqual({ hits: 2, of: 2, rate: 1 });

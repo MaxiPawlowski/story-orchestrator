@@ -74,6 +74,11 @@ test('modifiers do not count as verbs, and a step of modifiers alone is rejected
   assert.match(problem, /no verb/);
 });
 
+test('keep: true keeps a step output in the run record; any other value is rejected', () => {
+  assert.deepEqual(validateSteps([{ eval: 'return 1;', keep: true }]), []);
+  assert.match(validateSteps([{ eval: 'return 1;', keep: 'yes' }])[0], /keep: expected true/);
+});
+
 test('an unknown verb is rejected', () => {
   const [problem] = validateSteps([{ sned: 'hello' }]);
   assert.match(problem, /unknown step verb "sned"/);
