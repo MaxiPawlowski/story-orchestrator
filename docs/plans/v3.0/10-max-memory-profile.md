@@ -180,7 +180,7 @@ Steps:
 
 | Step | What | Minutes (est.) |
 |---|---|---|
-| pre | copy the so4 build to `C:\dev\tools\llama-b11888-so4-cu128` (no GPU) | 0 |
+| pre | done 2026-10-28: so4 build copied to `C:\dev\tools\llama-b11888-so4-cu128` (so3 DLL set + new server; `/cache/limit` present in `llama-server-impl.dll`) | 0 |
 | B0 | owner config backup to `C:\dev\backups\story-orchestrator\`, `/status` capture, stop the owner's controller | 2 |
 | B1 | parity so3/so4 × 2 repeats (P1) | 16 |
 | B2 | so4 endpoints: `GET /cache`, `POST /cache/limit` awake (evicts), refused `mib 0` | 4 |
@@ -241,5 +241,6 @@ Offline handover 2026-10-28 (worktree `C:\dev\so-a2`, no GPU used, live controll
 - `npm run test:debug`: 1585 of 1586; the one red is `so-run-header.test.mts` "the build half reads plan 08s nested
   manifest", which needs a built `dist/` (none in a fresh worktree); green on the master tree. `npm run gates` runs
   `build` before it.
-- so4 binary: built with `build-llama.bat` at idle CPU priority while the live controller served (no GPU).
+- so4 binary: built with `build-llama.bat` (368/368, no errors) at idle CPU priority while the live controller served (no GPU);
+  never started, so the routes are unexercised until B2.
 - Not run: `npm run gates` (owed at merge), the bench, the regression list.
