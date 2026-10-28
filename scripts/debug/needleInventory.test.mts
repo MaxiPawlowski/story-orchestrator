@@ -41,13 +41,24 @@ test('an unrecorded fixture is listed as unrecorded, and a declared prefix mode 
 });
 
 test('v2.8 35 G2: the re-score lists every verdict that changes between scorer v1 and v2', () => {
-  const changed = rescoreFixture(fixture({ facts: { mustContain: ['wound'] } }, live(['wounded'])));
-  assert.deepEqual(changed?.tiers.map((row) => [row.tier, row.v1, row.v2, row.changed]), [['facts', true, false, true]]);
-  const kept = rescoreFixture(fixture({ facts: { mustContain: ['wound'], modes: { wound: 'prefix' } } }, live(['wounded'])));
+  const changed = rescoreFixture(fixture({ facts: { mustContain: ['wound'] } }, live(['wounded'])), 1, 2);
+  assert.deepEqual(changed?.tiers.map((row) => [row.tier, row.before, row.after, row.changed]), [['facts', true, false, true]]);
+  const kept = rescoreFixture(fixture({ facts: { mustContain: ['wound'], modes: { wound: 'prefix' } } }, live(['wounded'])), 1, 2);
   assert.equal(kept?.changed, false);
-  const record = rescoreRecord([fixture({ facts: { mustContain: ['wound'] } }, live(['wounded']), 'a'), fixture({}, null, 'b')], 'test/goldens/live', '2026-10-16T00:00:00.000Z');
+  const record = rescoreRecord([fixture({ facts: { mustContain: ['wound'] } }, live(['wounded']), 'a'), fixture({}, null, 'b')], 'test/goldens/live', '2026-10-16T00:00:00.000Z', 1, 2);
   assert.equal(record.scorerVersion, 2);
   assert.equal(record.fromScorerVersion, 1);
-  assert.deepEqual(record.changed, [{ fixture: 'a', tier: 'facts', v1: true, v2: false }]);
+  assert.deepEqual(record.changed, [{ fixture: 'a', tier: 'facts', before: true, after: false }]);
+  assert.deepEqual(record.totals, { facts: { scored: 1, before: 1, after: 0 } });
   assert.deepEqual(record.unrecorded, ['b']);
+});
+
+test('v3.0 25: scorer v3 reads the product facts tier, v2 read FACT lines only', () => {
+  const recorded = { ...live(['Mara lost the key.']), factLines: [] };
+  const row = rescoreFixture(fixture({ facts: { minCount: 1, mustContain: ['key'] } }, recorded), 2, 3);
+  assert.deepEqual(row?.tiers.map((tier) => [tier.tier, tier.before, tier.after]), [['facts', false, true]]);
+  const old = rescoreFixture(fixture({ facts: { minCount: 1, mustContain: ['key'] } }, live(['Mara lost the key.'])), 2, 3);
+  assert.equal(old?.changed, false);
+  assert.equal(rescoreRecord([], 'x', 't').scorerVersion, 3);
+  assert.throws(() => rescoreFixture(fixture({ facts: { mustContain: ['key'] } }, recorded), 9, 3), /unknown scorer version 9/);
 });

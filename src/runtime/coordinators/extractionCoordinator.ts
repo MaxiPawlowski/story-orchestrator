@@ -252,8 +252,8 @@ export class ExtractionCoordinator {
     const memory = this.deps.memory;
     const newMemoryEntries: MemoryEntry[] = [
       ...facts.map((fact) => this.newEntry({ provenance: this.provenanceFor({ to: fact.messageId ?? audit.window.to }), tier: "facts",
-          text: fact.text, type: "fact", importance: fact.importance, expiration: "permanent", entities: [],
-          evidence: fact.evidence, messageId: fact.messageId ?? audit.window.to })),
+          text: fact.text, type: fact.type ?? "fact", importance: fact.importance, expiration: "permanent", entities: fact.entities ?? [],
+          evidence: fact.evidence, characterId: fact.characterId, messageId: fact.messageId ?? audit.window.to })),
       ...memoryLines.map((line) => this.newEntry({ provenance: this.provenanceFor({ to: line.messageId ?? audit.window.to }), tier: line.tier,
           text: line.text, type: line.type, importance: line.importance, expiration: line.expiration,
           entities: line.entities, evidence: line.evidence, characterId: line.characterId,

@@ -1,16 +1,17 @@
 import { qualityAccepts, readsByStep, resolveStep, stepWord, TENSION_CURRENT_KEY, type NormalizedStory, type PrimitiveValue, type Quality } from "@engine/index";
-import { parseArcLine, parseEpistemicLine, parseLedgerLine, parseMemoryLine, parseSceneBreakLine } from "@memory/parse";
+import { parseArcLine, parseEpistemicLine, parseFactFields, parseLedgerLine, parseMemoryLine, parseSceneBreakLine } from "@memory/parse";
 import { isTensionLevel, levelToNumeric } from "@pacing/index";
 import type { ParsedSharedRead } from "./types";
 
 const deltaPattern = /^DELTA\s+(?:q=)?([^\s=]+)\s+value=(.+?)\s+evidence="([\s\S]*)"\s*$/;
 const bareDeltaPattern = /^([A-Za-z0-9_]+)=(?:value=)?(.+?)\s+evidence="([\s\S]*)"\s*$/;
 const bareWordPattern = /^[A-Za-z][\w -]*$/;
-const factPattern = /^FACT\s+importance=([123])\s+text="([\s\S]+?)"\s+evidence="([\s\S]+)"\s*$/;
+const FACT_FIELDS = String.raw`^FACT\s+((?:(?!text=|evidence=)\w+=(?:"[^"]*"|[^\s"]+)\s+)+)text="([\s\S]+?)"\s+`;
+const factPattern = new RegExp(String.raw`${FACT_FIELDS}evidence="([\s\S]+)"\s*$`);
 const UNTERMINATED_EVIDENCE = String.raw`evidence=("[\s\S]*[^"\s])\s*$`;
 const openDeltaPattern = new RegExp(String.raw`^DELTA\s+(?:q=)?([^\s=]+)\s+value=(.+?)\s+${UNTERMINATED_EVIDENCE}`);
 const openBareDeltaPattern = new RegExp(String.raw`^([A-Za-z0-9_]+)=(?:value=)?(.+?)\s+${UNTERMINATED_EVIDENCE}`);
-const openFactPattern = new RegExp(String.raw`^FACT\s+importance=([123])\s+text="([\s\S]+?)"\s+${UNTERMINATED_EVIDENCE}`);
+const openFactPattern = new RegExp(String.raw`${FACT_FIELDS}${UNTERMINATED_EVIDENCE}`);
 const channelNoisePattern = /^(?:\[\d+\]|<[^<>\n]{0,32}>)+\s*/;
 const harmonyFinalPattern = /<\|channel\|>final<\|message\|>([\s\S]*?)(?:<\|(?:end|return|start)\|>|$)/i;
 const harmonyTokenPattern = /<\|[^|>]*\|>/g;
@@ -159,8 +160,9 @@ export function parseSharedReadResponse(raw: string, story: Pick<NormalizedStory
     }
 
     const fact = line.match(factPattern) ?? line.match(openFactPattern);
-    if (fact) {
-      result.facts.push({ importance: Number(fact[1]) as 1 | 2 | 3, text: fact[2], evidence: fact[3] });
+    const fields = fact ? parseFactFields(fact[1]) : null;
+    if (fact && fields) {
+      result.facts.push({ ...fields, text: fact[2], evidence: fact[3] });
       continue;
     }
 
