@@ -1,11 +1,11 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { existsSync, readFileSync, rmSync } from "node:fs";
 import { dirname, join, posix } from "node:path";
 import { buildSite, fileFor, homeLayout, navSections, relativeHref } from "./guide-site.mjs";
+import { testTempDirSync } from '../lib/testTemp.mjs';
 
-const out = mkdtempSync(join(tmpdir(), "guide-site-"));
+const out = testTempDirSync("guide-site-");
 const built = await buildSite({ out, homePage: "https://github.com/o/r" });
 const pageFiles = JSON.parse(readFileSync(join(out, "search-index.json"), "utf8")).map((entry) => entry.url);
 

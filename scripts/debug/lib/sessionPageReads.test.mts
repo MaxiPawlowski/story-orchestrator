@@ -1,11 +1,11 @@
 import { test, afterEach } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, mkdir, writeFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { contextOf, readChatInventory, readHostImageGeneration, readHostSwipes, readLivePresets, readObservation, readRuntimeBlob, readTranscript, readWizardDrafts } from './sessionPageReads.mts';
 import { fakeSt, install, uninstall } from './sessionFakes.mts';
 import { findCard, loadCards, parseLiveArgs, verifySession } from '../so-session.mts';
+import { testTempDir } from '../../lib/testTemp.mjs';
 
 afterEach(uninstall);
 
@@ -41,7 +41,7 @@ test('AS-28 live args: --arm tags a generated reply, never a flag or an edit', (
 test('AS-22/23 verify: tracked chats need their full persisted runtime and the card its artifacts', async () => {
   const doc = await loadCards();
   const card = findCard(doc, 'T0-1');
-  const dir = await mkdtemp(join(tmpdir(), 'so-verify-'));
+  const dir = await testTempDir('so-verify-');
   const session = { chats: [{ chatId: 'c1', group: 'G', primary: true }, { chatId: 'c2', group: 'G', how: 'switch-chat-mid-gen' }] };
   const empty = await verifySession(dir, session, doc, card);
   assert.ok(empty.invalid.includes('journal.jsonl is missing'));

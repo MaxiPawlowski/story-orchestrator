@@ -1,5 +1,5 @@
 import { createRequire } from 'node:module';
-import { mkdtemp, readdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdtemp, rm, readdir, readFile, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
@@ -36,7 +36,11 @@ export function loadReplay(): Promise<ReplayModule> {
     const dir = await mkdtemp(join(tmpdir(), 'so-j6d-replay-'));
     const file = join(dir, 'replay.mjs');
     await writeFile(file, built.outputFiles[0].text, 'utf-8');
-    return import(pathToFileURL(file).href) as Promise<ReplayModule>;
+    try {
+      return await import(pathToFileURL(file).href) as ReplayModule;
+    } finally {
+      await rm(dir, { recursive: true, force: true });
+    }
   })();
   return loaded;
 }

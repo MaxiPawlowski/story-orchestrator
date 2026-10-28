@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import fs from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { testTempDirSync } from '../../scripts/lib/testTemp.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const plugin = await import(pathToFileURL(path.join(here, 'index.mjs')).href);
@@ -22,7 +22,7 @@ const TOOLS = [
 const LOGIN = JSON.stringify({ claudeAiOauth: { accessToken: 'synthetic-canary', refreshToken: 'synthetic-canary', expiresAt: Date.now() + 10 * 3_600_000 } });
 
 function setup({ login = LOGIN, offer = true } = {}) {
-    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'so-claude-bridge-test-'));
+    const root = testTempDirSync('so-claude-bridge-test-');
     const bin = path.join(root, 'claude.exe');
     fs.writeFileSync(bin, '');
     if (login !== null) {
@@ -245,7 +245,7 @@ test('claude: the session deadline stops a hung process and removes the owned ho
 });
 
 test('HARNESS_LIVE=1: one real claude bridge session through the shim', { skip: process.env.HARNESS_LIVE !== '1' }, async () => {
-    const config = plugin.sanitizeConfig({ tmpRoot: fs.mkdtempSync(path.join(os.tmpdir(), 'so-claude-live-')), harnesses: { claude: { offer: true } } });
+    const config = plugin.sanitizeConfig({ tmpRoot: testTempDirSync('so-claude-live-'), harnesses: { claude: { offer: true } } });
     const service = plugin.createHarnessService({ config, log: () => undefined });
     const request = { ...openRequest([]), prompt: 'Call readStory once, then reply with exactly {"done":"read"}.', timeoutMs: 180_000 };
     const opened = await service.agent.open(bridge.validateOpen(request, config, plugin.LIMITS).value);

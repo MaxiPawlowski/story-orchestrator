@@ -12,10 +12,10 @@
 
 import { test, beforeEach, afterEach } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFile, rm, mkdtemp } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { readFile, rm } from 'node:fs/promises';
 import { join } from 'node:path';
 import { armPayloadCapture, persistPayloads, drainPayloads, drainResponses, watchPayloads } from './st-payload.mts';
+import { testTempDir } from '../lib/testTemp.mjs';
 
 const RING = 100;
 
@@ -90,7 +90,7 @@ test('AS-24: each capture records its chat, the newest message, the story bounda
 });
 
 test('AS-22: persist acknowledges readiness once it has drained the armed page, and a drain request still gets a final poll', async () => {
-  const dir = await mkdtemp(join(tmpdir(), 'so-payload-ack-'));
+  const dir = await testTempDir('so-payload-ack-');
   const out = join(dir, 'payloads.jsonl');
   const ready: any[] = [];
   let requested = false;
@@ -145,7 +145,7 @@ test('drain on an unarmed page says so instead of throwing', async () => {
 });
 
 test('persist writes each capture exactly once across polls', async () => {
-  const dir = await mkdtemp(join(tmpdir(), 'so-payload-'));
+  const dir = await testTempDir('so-payload-');
   const out = join(dir, 'nested', 'session.jsonl');
   await generate('a');
   let poll = 0;
@@ -169,7 +169,7 @@ test('persist writes each capture exactly once across polls', async () => {
 });
 
 test('persist re-arms after a reload and keeps the new page captures', async () => {
-  const dir = await mkdtemp(join(tmpdir(), 'so-payload-'));
+  const dir = await testTempDir('so-payload-');
   const out = join(dir, 'session.jsonl');
   await generate('before-reload');
   let poll = 0;
@@ -196,7 +196,7 @@ test('persist re-arms after a reload and keeps the new page captures', async () 
 });
 
 test('persist keeps the drafted member with the request', async () => {
-  const dir = await mkdtemp(join(tmpdir(), 'so-payload-'));
+  const dir = await testTempDir('so-payload-');
   const out = join(dir, 'session.jsonl');
   (globalThis as any).__soDebugPayloads.currentDraftMember = 'Belle';
   await generate('group-turn');
@@ -215,7 +215,7 @@ test('persist keeps the drafted member with the request', async () => {
 test('a re-arm by someone else (same page, new epoch) is detected, not treated as the same session', async () => {
   // The earlier reload test entered through `!frame.armed`, so deleting the epoch check alone
   // still passed. Here the page stays armed and only the epoch changes.
-  const dir = await mkdtemp(join(tmpdir(), 'so-payload-'));
+  const dir = await testTempDir('so-payload-');
   const out = join(dir, 'session.jsonl');
   await generate('first-session');
   let poll = 0;
@@ -247,7 +247,7 @@ test('a re-arm by someone else (same page, new epoch) is detected, not treated a
 test('a page restart makes the gap UNKNOWN, so the record is not called clean', async () => {
   // The count of captures that died with the old page is itself gone with the page. Reporting 0
   // would be a claim we cannot make; the run is marked not-ok and the restart is named.
-  const dir = await mkdtemp(join(tmpdir(), 'so-payload-'));
+  const dir = await testTempDir('so-payload-');
   const out = join(dir, 'session.jsonl');
   let poll = 0;
   try {
@@ -269,10 +269,10 @@ test('a page restart makes the gap UNKNOWN, so the record is not called clean', 
 });
 
 test('a write failure stops the run and is reported, never swallowed', async () => {
-  const dir = await mkdtemp(join(tmpdir(), 'so-payload-'));
+  const dir = await testTempDir('so-payload-');
   // Point --out at a directory: every append fails with EISDIR.
   const out = join(dir, 'a-directory');
-  await mkdtemp(join(tmpdir(), 'x-'));
+  await testTempDir('x-');
   const { mkdir } = await import('node:fs/promises');
   await mkdir(out, { recursive: true });
   await generate('a');
@@ -287,7 +287,7 @@ test('a write failure stops the run and is reported, never swallowed', async () 
 });
 
 test('a final drain runs after the stop, so Ctrl-C does not drop the last turn', async () => {
-  const dir = await mkdtemp(join(tmpdir(), 'so-payload-'));
+  const dir = await testTempDir('so-payload-');
   const out = join(dir, 'session.jsonl');
   let poll = 0;
   try {
@@ -369,7 +369,7 @@ test('persist writes response rows beside their requests, once each', async () =
   globalThis.fetch = (async () => ({ status: 200, ok: true, headers: { get: () => 'application/json' }, clone: () => ({ text: async () => '{"choices":[]}' }) })) as any;
   delete (globalThis as any).__soDebugPayloads;
   await armPayloadCapture(fakePage);
-  const dir = await mkdtemp(join(tmpdir(), 'so-payload-'));
+  const dir = await testTempDir('so-payload-');
   const out = join(dir, 'session.jsonl');
   await generate('a');
   let poll = 0;

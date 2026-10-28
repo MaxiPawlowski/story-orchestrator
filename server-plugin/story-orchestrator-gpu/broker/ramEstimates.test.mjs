@@ -1,12 +1,12 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
-import os from 'node:os';
 import path from 'node:path';
 import { MEASURED_RAM, measuredRamMiB, validateRamEstimates } from './ramEstimates.mjs';
 import { estimateRamMiB } from './models.mjs';
 import { admission } from './policy.mjs';
 import { ResidencyScheduler } from './scheduler.mjs';
+import { testTempDir } from '../../../scripts/lib/testTemp.mjs';
 
 const RESERVES = { gpuMiB: 2048, ramMiB: 4096 };
 const QWEN = [
@@ -64,7 +64,7 @@ test('validateRamEstimates refuses rows that cannot be matched safely', () => {
 });
 
 async function qwenDirs() {
-    const root = await fs.mkdtemp(path.join(os.tmpdir(), 'so-ram-'));
+    const root = await testTempDir('so-ram-');
     const modelDirs = {};
     for (const model of QWEN) {
         const dir = path.join(root, model.kind);

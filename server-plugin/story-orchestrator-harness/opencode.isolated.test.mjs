@@ -2,10 +2,10 @@ import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import fs from 'node:fs';
 import net from 'node:net';
-import os from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { testTempDirSync } from '../../scripts/lib/testTemp.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const plugin = await import(pathToFileURL(path.join(here, 'index.mjs')).href);
@@ -59,7 +59,7 @@ test('a private OpenCode server (no login, no owner data): the transport\'s real
     const binary = plugin.resolveBinary('opencode', { env: process.env });
     assert.ok(binary.path, binary.error);
     const { client, service } = await importClient();
-    const iso = fs.mkdtempSync(path.join(os.tmpdir(), 'so-opencode-iso-'));
+    const iso = testTempDirSync('so-opencode-iso-');
     const server = await startIsolatedServer(binary.path, iso);
     const endpoint = { url: server.url, auth: { type: 'basic', username: 'opencode', password: server.secret } };
     const libs = { OpenCode: client.OpenCode, Service: { discover: async () => endpoint, ensure: async () => endpoint, headers: service.Service.headers } };

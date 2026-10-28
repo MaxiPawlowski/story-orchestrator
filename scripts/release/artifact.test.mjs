@@ -1,19 +1,19 @@
 import { strict as assert } from "node:assert";
 import { createHash } from "node:crypto";
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 import { inflateRawSync } from "node:zlib";
 import { allowlistIssues, chunkIssues, loadAllowlist, neverIssues, readZipNames, stageList, stageTree, targetIssues, walk, writeZip } from "./artifact.mjs";
+import { testTempDirSync } from '../lib/testTemp.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const sha = (text) => createHash("sha256").update(text).digest("hex");
 const allowlist = loadAllowlist(root);
 
 function fixture() {
-  const dir = mkdtempSync(join(tmpdir(), "so-artifact-"));
+  const dir = testTempDirSync("so-artifact-");
   const put = (path, text) => { mkdirSync(dirname(join(dir, path)), { recursive: true }); writeFileSync(join(dir, path), text); };
   for (const path of allowlist.files.filter((file) => !file.startsWith("dist/"))) put(path, path);
   put("examples/README.md", "x");
@@ -69,7 +69,7 @@ test("R6: every chunk the bundle loads has a staged file; control: a dropped chu
 
 test("stageTree copies the list, and the zip holds the same names and bytes", () => {
   const dir = fixture();
-  const out = mkdtempSync(join(tmpdir(), "so-artifact-out-"));
+  const out = testTempDirSync("so-artifact-out-");
   try {
     const list = stageList(dir, allowlist, JSON.parse(readFileSync(join(dir, "dist", "manifest.json"), "utf8")));
     const staged = join(out, "story-orchestrator-0.0.0");
@@ -88,7 +88,7 @@ test("stageTree copies the list, and the zip holds the same names and bytes", ()
 });
 
 test("stage refuses a target that is not an ST extension slot or that holds the repo", () => {
-  const st = mkdtempSync(join(tmpdir(), "so-st-"));
+  const st = testTempDirSync("so-st-");
   try {
     const slot = join(st, "public", "scripts", "extensions", "third-party", "story-orchestrator");
     assert.match(targetIssues(st, root).join(), /src\/plugin-loader\.js/);

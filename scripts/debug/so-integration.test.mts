@@ -1,11 +1,11 @@
 import { test, afterEach } from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { captureReopenState, checkPreconditions, loadFrozen, playRun, type PlayDeps } from './so-integration.mts';
 import { runById, verifyRun, type RouteDoc, type RunsDoc, type RunSpec } from './lib/integrationRuns.mts';
 import { clearPage, EVENT_TYPES, fakeClock, fakePage, fakeSt, install, uninstall } from './lib/sessionFakes.mts';
+import { testTempDirSync } from '../lib/testTemp.mjs';
 
 afterEach(() => uninstall());
 
@@ -23,7 +23,7 @@ const tinyRoutes: Record<string, RouteDoc[]> = {
 };
 
 function stage(doc: RunsDoc, run: RunSpec, { groupId = 'g1', column = 'on' } = {}) {
-  const out = mkdtempSync(join(tmpdir(), 'so-integration-'));
+  const out = testTempDirSync('so-integration-');
   writeFileSync(join(out, 'chats.json'), JSON.stringify({ run: run.id, column, group: run.group, groupId, storyId: run.story, chats: [{ chatId: 'chat-a', primary: true }], touched: [] }), 'utf-8');
   writeFileSync(join(out, 'settings-readback.json'), JSON.stringify({ run: run.id, column, ok: true, problems: [], fallbacksUsed: ['reasoning-effort'] }), 'utf-8');
   return out;

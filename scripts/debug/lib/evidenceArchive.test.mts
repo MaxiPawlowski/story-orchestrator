@@ -1,11 +1,11 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { existsSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { copyArchive, destinationProblems, inside, planArchive, verifyArchive } from './evidenceArchive.mts';
 import { checkRows } from '../so-evidence.mts';
 import { ROW_FILES } from './rowEvidence.mts';
+import { testTempDirSync } from '../../lib/testTemp.mjs';
 
 function lanesFixture(root: string) {
   const put = (path: string, body = 'x') => { mkdirSync(join(root, path, '..'), { recursive: true }); writeFileSync(join(root, path), body); };
@@ -29,7 +29,7 @@ function lanesFixture(root: string) {
 }
 
 test('the archive plan takes run evidence and never data/, the browser profile, secrets or session.json', () => {
-  const root = mkdtempSync(join(tmpdir(), 'so-arch-'));
+  const root = testTempDirSync('so-arch-');
   try {
     lanesFixture(root);
     const plan = planArchive(root, { lanes: [3], pods: [1] });
@@ -54,7 +54,7 @@ test('the archive plan takes run evidence and never data/, the browser profile, 
 });
 
 test('the archive plan takes the image driver run folders (p41 journey, pose latency, showcase images)', () => {
-  const root = mkdtempSync(join(tmpdir(), 'so-arch-img-'));
+  const root = testTempDirSync('so-arch-img-');
   try {
     for (const path of ['33/debug/p41/r1/record.json', '33/debug/pose-latency/r1/turns.jsonl', '31/debug/showcase-images/s/results.jsonl', '33/debug/other/x.json']) {
       mkdirSync(join(root, path, '..'), { recursive: true }); writeFileSync(join(root, path), '{}');
@@ -65,7 +65,7 @@ test('the archive plan takes the image driver run folders (p41 journey, pose lat
 });
 
 test('copy writes ARCHIVE.json with sha256 per file; verify catches a file changed or lost afterwards', () => {
-  const root = mkdtempSync(join(tmpdir(), 'so-arch-copy-'));
+  const root = testTempDirSync('so-arch-copy-');
   try {
     lanesFixture(root);
     const dest = join(root, 'out');
@@ -94,7 +94,7 @@ test('the destination must be inside the private work tree and ignored by the pu
 });
 
 test('check: a finished batch row whose evidence is incomplete, or never checked, fails; a complete one passes', () => {
-  const root = mkdtempSync(join(tmpdir(), 'so-arch-check-'));
+  const root = testTempDirSync('so-arch-check-');
   try {
     const stamp = join(root, '2', 'debug', 'batch', 'S');
     const good = join(stamp, 'a-run1');

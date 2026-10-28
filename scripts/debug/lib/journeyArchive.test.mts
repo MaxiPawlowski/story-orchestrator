@@ -3,12 +3,12 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, readdir, writeFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { readdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { archiveJourneyRecord, archiveRefusal, dependencyProblems, unselectedDependencies, fixtureSha256 } from './journeyArchive.mts';
 import { readdirSync, readFileSync } from 'node:fs';
 import { runSteps } from '../so-scenario.mts';
+import { testTempDir } from '../../lib/testTemp.mjs';
 
 const full = { id: 'J3', partial: false, only: null, results: [{ id: 'J3.1', outcome: 'pass' }], runnerError: null };
 
@@ -21,7 +21,7 @@ test('a full record may be archived; a partial, runner-errored or foreign one ma
 });
 
 test('archiving copies the record and its matrix, and a refused record writes nothing', async () => {
-  const dir = await mkdtemp(join(tmpdir(), 'so-archive-'));
+  const dir = await testTempDir('so-archive-');
   await writeFile(join(dir, 'journey-J3.json'), JSON.stringify(full));
   await writeFile(join(dir, 'journey-J3.md'), '| J3.1 | PASS |');
   const gate = join(dir, 'gate');

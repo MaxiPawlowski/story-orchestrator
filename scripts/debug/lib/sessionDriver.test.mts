@@ -1,12 +1,12 @@
 import { test, afterEach } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, readFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { ensureChat, LIVE_VERBS, runLive, shotName } from './sessionDriver.mts';
 import type { LiveDeps } from './sessionLive.mts';
 import { clearPage, EVENT_TYPES, fakeClock, fakePage, fakeSt, install, uninstall } from './sessionFakes.mts';
 import { appendTurn, findCard, loadCards, loadIndex, liveTarget, markDeleted, nextSeq, parseLiveArgs, planStart, sessionChat, sessionChatsOf } from '../so-session.mts';
+import { testTempDir } from '../../lib/testTemp.mjs';
 
 afterEach(uninstall);
 
@@ -62,7 +62,7 @@ test('live adopt: records the open chat with its group and story', async () => {
 
 test('live shot: writes a numbered screenshot into the session dir', async () => {
   install(fakeSt({ chat: chat() }));
-  const dir = await mkdtemp(join(tmpdir(), 'so-shot-'));
+  const dir = await testTempDir('so-shot-');
   const taken: string[] = [];
   const page = fakePage({ screenshot: async ({ path }: { path: string }) => { taken.push(path); } });
   const record: any = await runLive(page, { verb: 'shot', dir, chat: { chatId: 'chat-a', group: null }, args: { label: 'HUD after transition!', seq: 7 } }, deps());
@@ -88,7 +88,7 @@ test('live age: backdates and reports whether the recap fired', async () => {
 });
 
 test('turns.jsonl: every record gets the next sequence number', async () => {
-  const dir = await mkdtemp(join(tmpdir(), 'so-turns-'));
+  const dir = await testTempDir('so-turns-');
   assert.equal(await nextSeq(dir), 1);
   await appendTurn(dir, { kind: 'turn', ok: true });
   const second = await appendTurn(dir, { kind: 'mutation', verb: 'regen', ok: true });

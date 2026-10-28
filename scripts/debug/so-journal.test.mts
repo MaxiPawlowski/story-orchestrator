@@ -4,10 +4,10 @@
 
 import { test, beforeEach, afterEach } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFile, rm, mkdtemp } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { readFile, rm } from 'node:fs/promises';
 import { join } from 'node:path';
 import { followSessionJournal, renderMarkdown } from './so-journal.mts';
+import { testTempDir } from '../lib/testTemp.mjs';
 
 // The page closure runs against `SillyTavern.getContext()` and `globalThis.storyOrchestratorRuntime`.
 // A fake page just calls it in this process, so the globals below are the whole ST surface it uses.
@@ -170,7 +170,7 @@ test('a destroyed execution context is survived, not fatal', async () => {
 });
 
 test('--out appends JSONL that parses back to what was printed', async () => {
-  const dir = await mkdtemp(join(tmpdir(), 'so-journal-'));
+  const dir = await testTempDir('so-journal-');
   const out = join(dir, 'nested', 'follow.jsonl');
   world.events = [event('2026-09-20T00:00:00Z', 'boundary', 'boundary 1')];
   try {
@@ -186,7 +186,7 @@ test('--out appends JSONL that parses back to what was printed', async () => {
 test('a closed stdout does not truncate the record (EPIPE, found live 2026-09-20)', async () => {
   // `follow | head -3` closed stdout mid-poll; the console.log threw and the tail died before it
   // reached the audit block, so the JSONL lost every audit of that poll without saying so.
-  const dir = await mkdtemp(join(tmpdir(), 'so-journal-epipe-'));
+  const dir = await testTempDir('so-journal-epipe-');
   const out = join(dir, 'follow.jsonl');
   world.events = [event('2026-09-20T00:00:00Z', 'boundary', 'boundary 1'), event('2026-09-20T00:00:01Z', 'delta', 'path = wendhope')];
   world.audits = [{ id: 'a1', createdAt: '2026-09-20T00:00:03Z', reason: 'cadence', window: { from: 0, to: 6 }, scope: [], acceptedDeltas: [], rejected: [] }];

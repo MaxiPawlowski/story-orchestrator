@@ -1,5 +1,5 @@
 import { existsSync } from 'node:fs';
-import { mkdir, mkdtemp, readdir } from 'node:fs/promises';
+import { mkdir, mkdtemp, readdir, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { askClaude, type ModelReply } from './e0LabelRun.mts';
@@ -93,7 +93,11 @@ export async function rateItems<I extends { id: string }, L>(options: RateOption
       }
     }
   };
-  await Promise.all(Array.from({ length: Math.max(1, width) }, worker));
+  try {
+    await Promise.all(Array.from({ length: Math.max(1, width) }, worker));
+  } finally {
+    if (work) await rm(work, { recursive: true, force: true });
+  }
   return { items: items.length, asked, failed, skipped: items.length - queue.length - asked - failed };
 }
 

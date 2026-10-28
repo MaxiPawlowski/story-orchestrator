@@ -1,10 +1,10 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, mkdir, writeFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { backupKey, backupsFor, countChat, parseChatJsonl, report, type ChatRow } from './swipeBacks.mts';
 import { countChats } from '../so-swipe-backs.mts';
+import { testTempDir } from '../../lib/testTemp.mjs';
 
 const player = (text: string): ChatRow => ({ name: 'Max', is_user: true, is_system: false, mes: text } as ChatRow);
 const reply = (date: string, swipes: number, at: number): ChatRow => ({
@@ -50,7 +50,7 @@ test('v3.0 14 SP1: the chat header line is skipped and backups match only this c
 });
 
 test('v3.0 14 SP1: the CLI reads the chat file after its backups and prints counts, never text', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'so-swipe-backs-'));
+  const root = await testTempDir('so-swipe-backs-');
   await mkdir(join(root, 'group chats'));
   await mkdir(join(root, 'backups'));
   const lines = (rows: ChatRow[]) => `${[{ chat_metadata: {} }, ...rows].map((row) => JSON.stringify(row)).join('\n')}\n`;

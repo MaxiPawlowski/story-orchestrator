@@ -1,12 +1,12 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, readFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { loadFrozen, OUTCOMES, readDrafts, replayAll, type Outcome } from './lib/sceneReplay.mts';
 import { blindLeaks, blindPrompt, buildRatePacks, parseRating, ratePacks, unblind, writeRatePacks, type KeyRow, type Rating } from './lib/sceneRate.mts';
 import { overallVerdict, scoreScene, scoreSceneRun } from './lib/sceneScore.mts';
 import { main } from './so-scene-test-replay.mts';
+import { testTempDir } from '../lib/testTemp.mjs';
 
 const readJson = async (file: string) => JSON.parse(await readFile(file, 'utf-8'));
 const quiet = async <T,>(run: () => Promise<T>): Promise<T> => {
@@ -22,7 +22,7 @@ const quiet = async <T,>(run: () => Promise<T>): Promise<T> => {
 let plumbed: Promise<string> | null = null;
 const plumbingOut = () => {
   plumbed ??= (async () => {
-    const out = await mkdtemp(join(tmpdir(), 'so-scene-rate-'));
+    const out = await testTempDir('so-scene-rate-');
     await replayAll({ out, run: 1, plumbing: true, log: () => {} });
     return out;
   })();
@@ -65,7 +65,7 @@ test('rating replies: booleans required, a bad reply stays unrated and is retrie
   assert.equal(parseRating('blind', 'x', { text: 'Sure: {"agency_flag": false, "surprising": true, "coherent": true}', model: 'm' }).ok, true);
   assert.match(parseRating('blind', 'x', { text: '{"agency_flag": "no"}', model: 'm' }).error ?? '', /agency_flag, surprising, coherent/);
   assert.match(parseRating('honour', 'x', { text: 'no json', model: 'm' }).error ?? '', /honours, world_side/);
-  const out = await mkdtemp(join(tmpdir(), 'so-scene-rate-'));
+  const out = await testTempDir('so-scene-rate-');
   await replayAll({ out, run: 1, plumbing: true, log: () => {} });
   await writeRatePacks({ out, run: 1 });
   let calls = 0;

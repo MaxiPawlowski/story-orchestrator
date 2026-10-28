@@ -1,12 +1,12 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, readdir, readFile, writeFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { readdir, readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { dumpEngineHistory, dumpTargets, engineHistoryFileName, historyOf, readChatBlobs, type ChatBlobRead } from './engineHistoryDump.mts';
 import { readCleanup } from './journeyTallies.mts';
 import { archiveJourneyRecord } from './journeyArchive.mts';
 import { engineHistoryOfCleanup, runCleanup } from '../so-journey.mts';
+import { testTempDir } from '../../lib/testTemp.mjs';
 
 const guard = (over: Record<string, unknown> = {}) => ({ groupId: 'g1', sandboxChatId: 'sandbox', owned: ['sandbox'], preexisting: [], current: 'sandbox', escaped: null, storyTitles: [] as string[], mirrorBooks: [] as Array<{ name: string; chatId: string }>, branchChats: [] as string[], ...over });
 
@@ -32,7 +32,7 @@ test('a persisted blob becomes engineState + engineHistory per story', () => {
 });
 
 test('H-k: the dump is written as engine-history-<journey>.json and reports what it holds', async () => {
-  const dir = await mkdtemp(join(tmpdir(), 'so-history-'));
+  const dir = await testTempDir('so-history-');
   const report = await dumpEngineHistory({} as never, guard(), { dir, label: 'J3', playedStory: true, read: reads([{ chatId: 'sandbox', kind: 'group', source: 'page', blob: blob('sandbox') }]) });
   assert.deepEqual(report, { file: 'engine-history-J3.json', path: join(dir, 'engine-history-J3.json'), chats: 1, stories: 1 });
   const written = JSON.parse(await readFile(join(dir, 'engine-history-J3.json'), 'utf-8'));
@@ -42,7 +42,7 @@ test('H-k: the dump is written as engine-history-<journey>.json and reports what
 });
 
 test('H-k negative controls: a missing dump is recorded as a failure, never skipped', async () => {
-  const dir = await mkdtemp(join(tmpdir(), 'so-history-'));
+  const dir = await testTempDir('so-history-');
   const empty = await dumpEngineHistory({} as never, guard(), { dir, label: 'J3', playedStory: true, read: reads([{ chatId: 'sandbox', kind: 'group', source: 'page', blob: null }]) });
   assert.match((empty as { error: string }).error, /imported a story and none of its 1 chat\(s\) holds engine state/);
   const noHistory = await dumpEngineHistory({} as never, guard(), { dir, label: 'J3', playedStory: true, read: reads([{ chatId: 'sandbox', kind: 'group', source: 'disk', blob: blob('sandbox', { s: { engineState: { boundary: 1 } } }) }]) });
@@ -92,7 +92,7 @@ const idlePage = (answer: (arg: unknown) => unknown) => ({
 });
 
 test('H-k so-journey: cleanup dumps the sandbox chat before deleting it, and the record names the file', async () => {
-  const dir = await mkdtemp(join(tmpdir(), 'so-history-'));
+  const dir = await testTempDir('so-history-');
   const order: string[] = [];
   const page = idlePage((arg) => {
     if (Array.isArray(arg) && (arg as Array<{ chatId?: string }>)[0]?.chatId === 'sandbox') { order.push('dump'); return [{ chatId: 'sandbox', kind: 'group', source: 'page', blob: blob('sandbox') }]; }
@@ -107,7 +107,7 @@ test('H-k so-journey: cleanup dumps the sandbox chat before deleting it, and the
 });
 
 test('H-k so-journey negative control: a run that played a story and left no engine state fails its cleanup gate', async () => {
-  const dir = await mkdtemp(join(tmpdir(), 'so-history-'));
+  const dir = await testTempDir('so-history-');
   const page = idlePage((arg) => (Array.isArray(arg) ? [{ chatId: 'sandbox', kind: 'group', source: 'page', blob: null }] : null));
   const report = await runCleanup(page, { id: 'J3', cleanup: {} }, { importedHashes: ['h1'], libraryBefore: null, configSnapshot: null, guard: guard(), keep: false, allowConfig: false, assetBaseline: null, activatedLorebooks: [], quiesce: { quietMs: 0, pollMs: 1 }, historyDir: dir }) as Record<string, any>;
   const gate = readCleanup(report);
@@ -118,7 +118,7 @@ test('H-k so-journey negative control: a run that played a story and left no eng
 });
 
 test('H-k archive: the dump travels with the record, and a record naming a missing dump is refused', async () => {
-  const dir = await mkdtemp(join(tmpdir(), 'so-history-'));
+  const dir = await testTempDir('so-history-');
   const record = { id: 'J3', partial: false, only: null, results: [{ id: 'J3.1', outcome: 'pass' }], runnerError: null, engineHistory: { file: 'engine-history-J3.json', chats: 1, stories: 1 } };
   await writeFile(join(dir, 'run_journey-J3.json'), JSON.stringify(record));
   const refused = await archiveJourneyRecord(join(dir, 'run_journey-J3.json'), join(dir, 'gate-a'));

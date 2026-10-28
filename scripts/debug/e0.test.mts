@@ -1,10 +1,11 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, readFile, writeFile } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { buildPool, checkFrozen, freeze, PRIVATE_DIR, refusePublicPrivate, REPO_ROOT, runE0 } from './lib/e0.mts';
 import { main } from './so-e0.mts';
+import { testTempDir } from '../lib/testTemp.mjs';
 
 const SYNTHETIC = join(process.cwd(), 'test/fixtures/e0/synthetic');
 const LABELS = join(SYNTHETIC, 'labels.json');
@@ -42,7 +43,7 @@ test('E0: the synthetic run replays to the golden', async () => {
 });
 
 test('E0 refusal: run without a freeze, or with a pool edited after the freeze', async () => {
-  const work = await mkdtemp(join(tmpdir(), 'so-e0-test-'));
+  const work = await testTempDir('so-e0-test-');
   const edited = join(work, 'pool.json');
   const pool = JSON.parse(await readFile(POOL, 'utf-8'));
   [pool.questions[0].candidates[0], pool.questions[0].candidates[1]] = [pool.questions[0].candidates[1], pool.questions[0].candidates[0]];
@@ -62,7 +63,7 @@ test('E0 refusal: private output inside the public repo, a provider name buildPo
 });
 
 test('E0 CLI: recorded Choice calls score arm d and count four calls per question', async () => {
-  const work = await mkdtemp(join(tmpdir(), 'so-e0-cli-'));
+  const work = await testTempDir('so-e0-cli-');
   const pool = JSON.parse(await readFile(POOL, 'utf-8')) as { questions: Array<{ id: string; gold: number[]; candidates: Array<{ messageId: number }> }> };
   const calls = Object.fromEntries(pool.questions.map((question) => {
     const gold = question.candidates.find((candidate) => question.gold.includes(candidate.messageId))?.messageId ?? null;

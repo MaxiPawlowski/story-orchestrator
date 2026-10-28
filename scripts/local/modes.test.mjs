@@ -1,10 +1,10 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
-import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { KNOBS, PRESETS, changeConfigFile, checkValue, createLiveSettings, currentMode, defaultModes, knobValues, planChange, serializeConfig } from './modes.mjs';
+import { testTempDir } from '../lib/testTemp.mjs';
 
 const install = () => ({
     backendPort: 18889, gatewayPort: 18888, stateDir: 'state', reserves: { gpuMiB: 2048, ramMiB: 4096 }, shedCeilingMiB: 13000, idleRestoreMs: 600000,
@@ -13,7 +13,7 @@ const install = () => ({
 });
 
 const temp = async (config) => {
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'so-modes-'));
+    const dir = await testTempDir('so-modes-');
     const file = path.join(dir, 'config.json');
     await fs.writeFile(file, serializeConfig(config));
     return { dir, file, backupRoot: path.join(dir, 'backups') };
