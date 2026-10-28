@@ -1,0 +1,1181 @@
+{
+  "id": "J5",
+  "title": "group-direction",
+  "file": "C:\\dev\\story-orchestrator\\test\\journeys\\j5-group-direction.journey.json",
+  "fileSha256": "154e4cc1c9e942aed523f92825474d84d58cd33d2307bf46ca352dbaf83ac726",
+  "ranAt": "2026-10-28T00:40:57.796Z",
+  "strict": true,
+  "partial": false,
+  "only": null,
+  "model": null,
+  "tally": {
+    "pass": 7,
+    "skipped": 1
+  },
+  "tallies": {
+    "automated": {
+      "pass": 7,
+      "fail": 0,
+      "blocked": 0,
+      "notRunnable": 0,
+      "skipped": 0
+    },
+    "human": {
+      "scored": 0,
+      "unscored": 1
+    },
+    "cleanup": {
+      "ok": true,
+      "failed": [],
+      "leaked": []
+    },
+    "firstAttempt": {
+      "pass": 6,
+      "retried": 1,
+      "retriedIds": [
+        "J5.4"
+      ]
+    }
+  },
+  "notGreen": [],
+  "humanRecord": null,
+  "runnerError": null,
+  "stopped": null,
+  "noStop": false,
+  "releasedRoutes": null,
+  "capabilities": {
+    "talk-control": true,
+    "epistemic-ledger": true
+  },
+  "results": [
+    {
+      "id": "J5.1",
+      "mode": "auto",
+      "model": "none",
+      "findings": [],
+      "goal": "a talk-control checkpoint loads with speaker direction enabled",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J5.2",
+      "mode": "auto",
+      "model": "none",
+      "findings": [],
+      "goal": "cast_changes applied the checkpoint's roster (Luke disabled at the briefing)",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J5.3",
+      "mode": "auto",
+      "model": "none",
+      "findings": [],
+      "goal": "the scripted npc_reply for entering the checkpoint is held, then fires once (T6-4 held scene openers (97156c2f, src/runtime/openerDeferral.ts + EffectsApplier.fireOnEnter/releaseOpener)): the import enters `brief` while Arin's greeting addresses the player, so the opener waits (no line, no npcFired); it stays held after the player line alone, and fires exactly once, after the player line, at the next rendered reply (a /sendas line: the same afterSpeak path a real group reply takes)",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J5.4",
+      "mode": "auto",
+      "model": "any",
+      "findings": [],
+      "goal": "a real group turn is routed by speaker direction and the decision is recorded",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "fail",
+      "retries": [
+        {
+          "index": 2,
+          "key": "eval",
+          "attempt": 1,
+          "of": 3,
+          "error": "Evaluation failed in SillyTavern page: the neutral turn did not exercise the LLM director: {\"at\":\"2026-10-28T00:37:34.203Z\",\"messageId\":5,\"checkpointId\":\"brief\",\"chosenRosterId\":null,\"chosenName\":null,\"source\":\"rules\",\"latencyMs\":0,\"chainStep\":1,\"kind\":\"player\",\"revision\":{\"swipeId\":0,\"hash\":\"2223dab5\"}}"
+        }
+      ]
+    },
+    {
+      "id": "J5.5",
+      "mode": "auto",
+      "model": "none",
+      "findings": [],
+      "goal": "the injected payload for that turn was captured",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J5.6",
+      "mode": "auto",
+      "model": "judged",
+      "findings": [
+        "U3"
+      ],
+      "goal": "private per-speaker injection: the drafted member sees their own epistemic block, not another's",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J5.8",
+      "mode": "auto",
+      "model": "any",
+      "findings": [
+        "U3"
+      ],
+      "goal": "final-payload privacy: with the party's private knowledge established first, the request ST actually sends for an enabled member's draft carries the knowledge that member held BEFORE the draft inside its private block, and never another member's The recorder reads GENERATE_AFTER_DATA (ST's main Generate() payload, dry runs skipped), not every /api/backends/ fetch: the fetch wrapper also caught our own memory-model calls made while a member was drafted, which carry no private block (L2 J5 run 1). A foreign entry whose text is identical to one of the member's own is set aside and recorded (sharedWithOwn): text alone cannot say whose it is (L2 J5 run 2).",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J5.7",
+      "mode": "human",
+      "model": "any",
+      "findings": [],
+      "goal": "",
+      "prompt": "Did the right characters speak at the right moments, and did silence read as a choice rather than a bug?",
+      "anchors": "1 = wrong speaker constantly · 3 = mostly right · 5 = felt directed by a GM",
+      "outcome": "skipped",
+      "detail": "human check — operator scores it"
+    }
+  ],
+  "engineHistory": {
+    "file": "engine-history-J5.json",
+    "chats": 1,
+    "stories": 1
+  },
+  "cleanup": {
+    "generation": {
+      "idle": true,
+      "wasGenerating": false,
+      "stops": 0,
+      "waitedMs": 1527,
+      "lastSeen": {
+        "generating": false,
+        "saving": false,
+        "chatId": "2026-10-27@21h36m55s858ms",
+        "signals": []
+      }
+    },
+    "engineHistory": {
+      "file": "engine-history-J5.json",
+      "path": "C:\\dev\\so-lanes\\45\\debug\\engine-history-J5.json",
+      "chats": 1,
+      "stories": 1
+    },
+    "judgeSettle": {
+      "settled": true,
+      "waitedMs": 775,
+      "inFlight": 0,
+      "seen": 44
+    },
+    "judgeCalls": {
+      "count": 34,
+      "events": [
+        {
+          "at": "2026-10-28T00:37:09.290Z",
+          "boundary": 1,
+          "messageId": 3,
+          "kind": "judge",
+          "summary": "judge scene in 191 ms",
+          "detail": {
+            "use": "scene",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 8,
+            "stateChars": 1097,
+            "latencyMs": 191,
+            "inputTokens": 1132,
+            "outputTokens": 233,
+            "p": {
+              "break": 0.21
+            }
+          }
+        },
+        {
+          "at": "2026-10-28T00:37:09.322Z",
+          "boundary": 2,
+          "messageId": 3,
+          "kind": "judge",
+          "summary": "judge divergence in 221 ms",
+          "detail": {
+            "use": "divergence",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 2,
+            "stateChars": 723,
+            "latencyMs": 221,
+            "inputTokens": 728,
+            "outputTokens": 51,
+            "p": {
+              "fit": 0.85,
+              "commits": 0.71
+            }
+          }
+        },
+        {
+          "at": "2026-10-28T00:37:09.423Z",
+          "boundary": 2,
+          "messageId": 3,
+          "kind": "judge",
+          "summary": "judge adversityTrend in 134 ms",
+          "detail": {
+            "use": "adversityTrend",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 53,
+            "latencyMs": 134,
+            "inputTokens": 410,
+            "outputTokens": 19,
+            "p": {
+              "adversity": 0
+            }
+          }
+        },
+        {
+          "at": "2026-10-28T00:37:09.461Z",
+          "boundary": 2,
+          "messageId": 3,
+          "kind": "judge",
+          "summary": "judge idleCheck in 139 ms",
+          "detail": {
+            "use": "idleCheck",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 2,
+            "stateChars": 27,
+            "latencyMs": 139,
+            "inputTokens": 450,
+            "outputTokens": 32,
+            "p": {
+              "change": 1.14,
+              "tension": 0.36
+            }
+          }
+        },
+        {
+          "at": "2026-10-28T00:37:09.557Z",
+          "boundary": 2,
+          "messageId": 3,
+          "kind": "judge",
+          "summary": "judge toneCheck in 135 ms",
+          "detail": {
+            "use": "toneCheck",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 185,
+            "latencyMs": 135,
+            "inputTokens": 388,
+            "outputTokens": 17,
+            "p": {
+              "tone": 3.17
+            }
+          }
+        },
+        {
+          "at": "2026-10-28T00:37:09.695Z",
+          "boundary": 2,
+          "messageId": 3,
+          "kind": "judge",
+          "summary": "judge warden (agency, attention) in 136 ms",
+          "detail": {
+            "use": "warden",
+            "families": [
+              "agency",
+              "attention"
+            ],
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 2,
+            "stateChars": 121,
+            "latencyMs": 136,
+            "inputTokens": 676,
+            "outputTokens": 30,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 0.22,
+              "attention": 0.93
+            }
+          }
+        },
+        {
+          "at": "2026-10-28T00:37:09.782Z",
+          "boundary": 2,
+          "messageId": 3,
+          "kind": "judge",
+          "summary": "judge divergence in 321 ms",
+          "detail": {
+            "use": "divergence",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 2,
+            "stateChars": 723,
+            "latencyMs": 321,
+            "inputTokens": 728,
+            "outputTokens": 51,
+            "p": {
+              "fit": 0.83,
+              "commits": 0.75
+            }
+          }
+        },
+        {
+          "at": "2026-10-28T00:37:14.833Z",
+          "boundary": 2,
+          "messageId": 4,
+          "kind": "judge",
+          "summary": "judge director fell back (no-roles) in 0 ms",
+          "detail": {
+            "use": "director",
+            "model": null,
+            "route": null,
+            "questions": 0,
+            "stateChars": 0,
+            "latencyMs": 0,
+            "fallback": "no-roles"
+          }
+        },
+        {
+          "at": "2026-10-28T00:37:18.473Z",
+          "boundary": 2,
+          "messageId": 4,
+          "kind": "judge",
+          "summary": "judge memoryVerify in 150 ms",
+          "detail": {
+            "use": "memoryVerify",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 786,
+            "latencyMs": 150,
+            "inputTokens": 675,
+            "outputTokens": 22,
+            "p": {
+              "line:0": 0.68
+            }
+          }
+        },
+        {
+          "at": "2026-10-28T00:37:34.606Z",
+          "boundary": 3,
+          "messageId": 5,
+          "kind": "judge",
+          "summary": "judge adversityTrend in 181 ms",
+          "detail": {
+            "use": "adversityTrend",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 1131,
+            "latencyMs": 181,
+            "inputTokens": 666,
+            "outputTokens": 19,
+            "p": {
+              "adversity": 0.81
+            }
+          }
+        },
+        {
+          "at": "2026-10-28T00:37:34.611Z",
+          "boundary": 3,
+          "messageId": 5,
+          "kind": "judge",
+          "summary": "judge scene in 189 ms",
+          "detail": {
+            "use": "scene",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 8,
+            "stateChars": 2334,
+            "latencyMs": 189,
+            "inputTokens": 1464,
+            "outputTokens": 233,
+            "p": {
+              "break": 0.06
+            }
+          }
+        },
+        {
+          "at": "2026-10-28T00:37:34.745Z",
+          "boundary": 3,
+          "messageId": 5,
+          "kind": "judge",
+          "summary": "judge toneCheck in 134 ms",
+          "detail": {
+            "use": "toneCheck",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 1263,
+            "latencyMs": 134,
+            "inputTokens": 644,
+            "outputTokens": 17,
+            "p": {
+              "tone": 3.96
+            }
+          }
+        },
+        {
+          "at": "2026-10-28T00:37:34.750Z",
+          "boundary": 3,
+          "messageId": 5,
+          "kind": "judge",
+          "summary": "judge idleCheck in 144 ms",
+          "detail": {
+            "use": "idleCheck",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 2,
+            "stateChars": 1105,
+            "latencyMs": 144,
+            "inputTokens": 706,
+            "outputTokens": 32,
+            "p": {
+              "change": 1.9,
+              "tension": 1.84
+            }
+          }
+        },
+        {
+          "at": "2026-10-28T00:37:34.884Z",
+          "boundary": 3,
+          "messageId": 5,
+          "kind": "judge",
+          "summary": "judge warden (agency, attention) in 132 ms",
+          "detail": {
+            "use": "warden",
+            "families": [
+              "agency",
+              "attention"
+            ],
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 2,
+            "stateChars": 1227,
+            "latencyMs": 132,
+            "inputTokens": 938,
+            "outputTokens": 30,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 0.06,
+              "attention": 1.21
+            }
+          }
+        },
+        {
+          "at": "2026-10-28T00:37:38.636Z",
+          "boundary": 3,
+          "messageId": 6,
+          "kind": "judge",
+          "summary": "judge director fell back (no-roles) in 0 ms",
+          "detail": {
+            "use": "director",
+            "model": null,
+            "route": null,
+            "questions": 0,
+            "stateChars": 0,
+            "latencyMs": 0,
+            "fallback": "no-roles"
+          }
+        },
+        {
+          "at": "2026-10-28T00:38:17.220Z",
+          "boundary": 4,
+          "messageId": 7,
+          "kind": "judge",
+          "summary": "judge director fell back (no-roles) in 0 ms",
+          "detail": {
+            "use": "director",
+            "model": null,
+            "route": null,
+            "questions": 0,
+            "stateChars": 0,
+            "latencyMs": 0,
+            "fallback": "no-roles"
+          }
+        },
+        {
+          "at": "2026-10-28T00:38:17.712Z",
+          "boundary": 4,
+          "messageId": 7,
+          "kind": "judge",
+          "summary": "judge scene in 186 ms",
+          "detail": {
+            "use": "scene",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 9,
+            "stateChars": 3173,
+            "latencyMs": 186,
+            "inputTokens": 1773,
+            "outputTokens": 254,
+            "p": {
+              "break": 0.05
+            }
+          }
+        },
+        {
+          "at": "2026-10-28T00:38:17.739Z",
+          "boundary": 4,
+          "messageId": 7,
+          "kind": "judge",
+          "summary": "judge adversityTrend in 210 ms",
+          "detail": {
+            "use": "adversityTrend",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 420,
+            "latencyMs": 210,
+            "inputTokens": 495,
+            "outputTokens": 19,
+            "p": {
+              "adversity": 0.64
+            }
+          }
+        },
+        {
+          "at": "2026-10-28T00:38:17.858Z",
+          "boundary": 4,
+          "messageId": 7,
+          "kind": "judge",
+          "summary": "judge idleCheck in 147 ms",
+          "detail": {
+            "use": "idleCheck",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 2,
+            "stateChars": 394,
+            "latencyMs": 147,
+            "inputTokens": 535,
+            "outputTokens": 32,
+            "p": {
+              "change": 0.49,
+              "tension": 0.98
+            }
+          }
+        },
+        {
+          "at": "2026-10-28T00:38:17.874Z",
+          "boundary": 4,
+          "messageId": 7,
+          "kind": "judge",
+          "summary": "judge toneCheck in 136 ms",
+          "detail": {
+            "use": "toneCheck",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 552,
+            "latencyMs": 136,
+            "inputTokens": 473,
+            "outputTokens": 17,
+            "p": {
+              "tone": 2.8
+            }
+          }
+        },
+        {
+          "at": "2026-10-28T00:38:18.030Z",
+          "boundary": 4,
+          "messageId": 7,
+          "kind": "judge",
+          "summary": "judge warden (agency, attention) in 154 ms",
+          "detail": {
+            "use": "warden",
+            "families": [
+              "agency",
+              "attention"
+            ],
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 2,
+            "stateChars": 511,
+            "latencyMs": 154,
+            "inputTokens": 765,
+            "outputTokens": 30,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 0.04,
+              "attention": 1.73
+            }
+          }
+        },
+        {
+          "at": "2026-10-28T00:38:33.730Z",
+          "boundary": 4,
+          "messageId": 8,
+          "kind": "judge",
+          "summary": "judge memoryVerify in 172 ms",
+          "detail": {
+            "use": "memoryVerify",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 6,
+            "stateChars": 1872,
+            "latencyMs": 172,
+            "inputTokens": 1508,
+            "outputTokens": 112,
+            "p": {
+              "line:0": 0.97,
+              "line:1": 0.97,
+              "line:2": 0.97,
+              "line:3": 0.98,
+              "line:4": 0.98,
+              "line:5": 0.97
+            }
+          }
+        },
+        {
+          "at": "2026-10-28T00:38:45.351Z",
+          "boundary": 4,
+          "messageId": 8,
+          "kind": "judge",
+          "summary": "judge critic in 161 ms",
+          "detail": {
+            "use": "critic",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 4,
+            "stateChars": 2021,
+            "latencyMs": 161,
+            "inputTokens": 1051,
+            "outputTokens": 70,
+            "p": {
+              "contradicts": 0.05,
+              "advances": 0.94,
+              "newCharacter": 0.1,
+              "shape": 0.7525
+            }
+          }
+        },
+        {
+          "at": "2026-10-28T00:39:29.243Z",
+          "boundary": 4,
+          "messageId": 9,
+          "kind": "judge",
+          "summary": "judge canonVerify in 194 ms",
+          "detail": {
+            "use": "canonVerify",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 8,
+            "stateChars": 947,
+            "latencyMs": 194,
+            "inputTokens": 1624,
+            "outputTokens": 148
+          }
+        },
+        {
+          "at": "2026-10-28T00:39:55.188Z",
+          "boundary": 5,
+          "messageId": 11,
+          "kind": "judge",
+          "summary": "judge adversityTrend in 162 ms",
+          "detail": {
+            "use": "adversityTrend",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 1203,
+            "latencyMs": 162,
+            "inputTokens": 675,
+            "outputTokens": 19,
+            "p": {
+              "adversity": 0.06
+            }
+          }
+        },
+        {
+          "at": "2026-10-28T00:39:55.197Z",
+          "boundary": 5,
+          "messageId": 11,
+          "kind": "judge",
+          "summary": "judge scene in 174 ms",
+          "detail": {
+            "use": "scene",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 7,
+            "stateChars": 3916,
+            "latencyMs": 174,
+            "inputTokens": 1797,
+            "outputTokens": 215,
+            "p": {
+              "break": 0.09
+            }
+          }
+        },
+        {
+          "at": "2026-10-28T00:39:55.332Z",
+          "boundary": 5,
+          "messageId": 11,
+          "kind": "judge",
+          "summary": "judge idleCheck in 144 ms",
+          "detail": {
+            "use": "idleCheck",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 2,
+            "stateChars": 1177,
+            "latencyMs": 144,
+            "inputTokens": 715,
+            "outputTokens": 32,
+            "p": {
+              "change": 1.44,
+              "tension": 1.24
+            }
+          }
+        },
+        {
+          "at": "2026-10-28T00:39:55.335Z",
+          "boundary": 5,
+          "messageId": 11,
+          "kind": "judge",
+          "summary": "judge toneCheck in 139 ms",
+          "detail": {
+            "use": "toneCheck",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 1318,
+            "latencyMs": 139,
+            "inputTokens": 645,
+            "outputTokens": 17,
+            "p": {
+              "tone": 3.62
+            }
+          }
+        },
+        {
+          "at": "2026-10-28T00:39:55.501Z",
+          "boundary": 5,
+          "messageId": 11,
+          "kind": "judge",
+          "summary": "judge warden (continuity, agency, attention) in 161 ms",
+          "detail": {
+            "use": "warden",
+            "families": [
+              "continuity",
+              "agency",
+              "attention"
+            ],
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 5,
+            "stateChars": 1895,
+            "latencyMs": 161,
+            "inputTokens": 1416,
+            "outputTokens": 84,
+            "p": {
+              "facts": 3,
+              "flagged": 0,
+              "agency": 0.08,
+              "attention": 0.49
+            }
+          }
+        },
+        {
+          "at": "2026-10-28T00:40:30.739Z",
+          "boundary": 6,
+          "messageId": 12,
+          "kind": "judge",
+          "summary": "judge adversityTrend in 184 ms",
+          "detail": {
+            "use": "adversityTrend",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 780,
+            "latencyMs": 184,
+            "inputTokens": 577,
+            "outputTokens": 19,
+            "p": {
+              "adversity": 1.01
+            }
+          }
+        },
+        {
+          "at": "2026-10-28T00:40:30.758Z",
+          "boundary": 6,
+          "messageId": 12,
+          "kind": "judge",
+          "summary": "judge scene in 206 ms",
+          "detail": {
+            "use": "scene",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 7,
+            "stateChars": 4603,
+            "latencyMs": 206,
+            "inputTokens": 1956,
+            "outputTokens": 215,
+            "p": {
+              "break": 0.06
+            }
+          }
+        },
+        {
+          "at": "2026-10-28T00:40:30.879Z",
+          "boundary": 6,
+          "messageId": 12,
+          "kind": "judge",
+          "summary": "judge idleCheck in 140 ms",
+          "detail": {
+            "use": "idleCheck",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 2,
+            "stateChars": 754,
+            "latencyMs": 140,
+            "inputTokens": 617,
+            "outputTokens": 32,
+            "p": {
+              "change": 1.77,
+              "tension": 1.01
+            }
+          }
+        },
+        {
+          "at": "2026-10-28T00:40:30.887Z",
+          "boundary": 6,
+          "messageId": 12,
+          "kind": "judge",
+          "summary": "judge toneCheck in 129 ms",
+          "detail": {
+            "use": "toneCheck",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 895,
+            "latencyMs": 129,
+            "inputTokens": 547,
+            "outputTokens": 17,
+            "p": {
+              "tone": 3.42
+            }
+          }
+        },
+        {
+          "at": "2026-10-28T00:40:31.034Z",
+          "boundary": 6,
+          "messageId": 12,
+          "kind": "judge",
+          "summary": "judge warden (continuity, agency, attention) in 143 ms",
+          "detail": {
+            "use": "warden",
+            "families": [
+              "continuity",
+              "agency",
+              "attention"
+            ],
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 5,
+            "stateChars": 1467,
+            "latencyMs": 143,
+            "inputTokens": 1316,
+            "outputTokens": 84,
+            "p": {
+              "facts": 3,
+              "flagged": 0,
+              "agency": 0.72,
+              "attention": 1.21
+            }
+          }
+        }
+      ]
+    },
+    "debugResponses": {
+      "cleared": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 2,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {
+          "read": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+          "synthesis": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+          "director": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+          "curator": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+        }
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {
+          "read": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+          "synthesis": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+          "director": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+          "curator": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+        }
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {
+          "read": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+          "synthesis": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+          "director": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+          "curator": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+        }
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    },
+    "extensionSettings": {
+      "restored": []
+    },
+    "config": {
+      "key": "story-orchestrator",
+      "cleared": false,
+      "keys": [
+        "v2Stories",
+        "settings",
+        "wizardSessions",
+        "schema",
+        "groupStories",
+        "playsBackfill",
+        "plays",
+        "panels",
+        "stories"
+      ],
+      "saved": {
+        "status": 200
+      },
+      "preservedStories": [
+        "journey-j5-group-direction"
+      ],
+      "preservedSessions": []
+    },
+    "briefing": {
+      "restored": false,
+      "unchanged": true,
+      "value": false
+    },
+    "playerSetup": {
+      "restored": false,
+      "unchanged": true,
+      "value": true
+    },
+    "importedStoryHashes": [
+      "story-276c61ab"
+    ],
+    "library": {
+      "changed": true,
+      "removed": [
+        "journey-j5-group-direction (story-276c61ab)"
+      ],
+      "restored": [],
+      "saved": {
+        "status": 200
+      },
+      "verified": true,
+      "index": {
+        "restored": true
+      }
+    },
+    "chat": {
+      "sandboxChatId": "2026-10-27@21h36m55s858ms",
+      "owned": [
+        "2026-10-27@21h36m55s858ms"
+      ],
+      "deleted": [
+        "2026-10-27@21h36m55s858ms"
+      ],
+      "notDeleted": [],
+      "resurrected": [],
+      "lateFileRepaired": [],
+      "saveSettleMs": 1578,
+      "skipped": [],
+      "currentChatAtCleanup": "2026-10-27@21h36m55s858ms",
+      "currentGroupAtCleanup": "1759606632088",
+      "chatAfterCleanup": "2026-09-20@07h06m38s396ms"
+    },
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "member:DM Narrator": {
+      "enabled": true
+    },
+    "member:Arin": {
+      "enabled": true
+    },
+    "member:Ponticius": {
+      "enabled": true
+    },
+    "member:Luke": {
+      "enabled": true
+    },
+    "disabledMembers": []
+  },
+  "page": {
+    "file": "C:\\dev\\so-lanes\\45\\debug\\batch\\2026-10-28T00-34-59-608Z\\J5-run1\\page.jsonl",
+    "rows": 48,
+    "consoleErrors": 0,
+    "consoleWarnings": 33,
+    "pageErrors": [],
+    "pageErrorCount": 0,
+    "failedRequests": [
+      {
+        "at": "2026-10-28T00:37:14.680Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/ping",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-10-28T00:37:14.690Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/ping",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-10-28T00:37:31.193Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/ping",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-10-28T00:37:38.491Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/ping",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-10-28T00:37:38.498Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/ping",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-10-28T00:37:58.880Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/backends/text-completions/generate",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-10-28T00:38:10.994Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/backends/text-completions/generate",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-10-28T00:38:14.998Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/ping",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-10-28T00:39:28.268Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/ping",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-10-28T00:39:28.349Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/ping",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-10-28T00:39:56.254Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/ping",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-10-28T00:39:56.264Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/ping",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-10-28T00:40:33.727Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/backends/text-completions/generate",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-10-28T00:40:46.555Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/backends/text-completions/generate",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-10-28T00:40:46.556Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/backends/text-completions/generate",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      }
+    ],
+    "failedRequestCount": 15,
+    "httpErrorCount": 0,
+    "abortedCount": 15,
+    "consoleErrorSamples": []
+  }
+}

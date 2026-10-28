@@ -33,16 +33,16 @@
       "model": "none",
       "mode": "auto",
       "findings": [],
-      "goal": "a chat played before the gap exists to return to",
+      "goal": "a chat played before the gap exists to return to (memory model chosen and reading on before the import: with reading off the memory-model check blocks, and the Before you start pane it opens after the import raced the settings click, 2026-10-27)",
       "steps": [
-        {
-          "import_story": {
-            "file": "../../examples/sun-ruins/quest-for-the-sun-ruins.json"
-          }
-        },
         {
           "ui": {
             "action": "select-profile"
+          }
+        },
+        {
+          "import_story": {
+            "file": "../../examples/sun-ruins/quest-for-the-sun-ruins.json"
           }
         },
         {
