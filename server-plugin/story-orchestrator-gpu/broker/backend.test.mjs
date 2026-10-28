@@ -18,7 +18,7 @@ class Backend extends NativeBackend {
         if (this.gate) await this.gate.promise;
         this.child = { pid: 42 }; this.profile = name; this.fitTarget = fitTarget;
     }
-    async stopOwned() { this.calls.push('unload'); this.child = null; this.profile = null; this.fitTarget = null; }
+    async stopOwned() { this.calls.push('unload'); this.child = null; this.profile = null; this.fitTarget = null; this.sleeping = null; }
 }
 
 test('auxiliary and extraction readiness preserves the resident fit target without reloading', async () => {
@@ -237,10 +237,14 @@ test('a pinned request that would overflow the shared context with the other slo
     const backend = new Backend(pinned);
     const erased = [];
     backend.fetch = async (url, init) => { erased.push([url, init.method]); return new Response('{}'); };
+    const gone = [];
+    backend.onSlotErased = (id) => gone.push(id);
     backend.tokens = 3000;
     await backend.forRequest({ prompt: 'side', n_predict: 100 }, undefined, 1);
+    backend.releaseSlot(1);
     backend.tokens = 20000;
     await backend.forRequest({ prompt: 'chat', n_predict: 1000 }, undefined, 0);
+    backend.releaseSlot(0);
     assert.deepEqual(erased, []);
     assert.deepEqual(backend.status().slots.held, { 0: 21000, 1: 3100 });
     backend.tokens = 29000;
@@ -248,6 +252,8 @@ test('a pinned request that would overflow the shared context with the other slo
     assert.deepEqual(erased, [['http://127.0.0.1:undefined/slots/1?action=erase', 'POST']]);
     assert.deepEqual(backend.status().slots.held, { 0: 30000 });
     assert.equal(backend.status().slots.erased, 1);
+    assert.deepEqual(gone, [1]);
+    backend.releaseSlot(0);
     assert.deepEqual(backend.status().slots.requests, { chat: 2, side: 1 });
     assert.equal(backend.status().slots.side, 1);
     backend.fetch = async () => new Response('{}', { status: 501 });
@@ -312,4 +318,143 @@ test('when nothing can be reclaimed the reserve miss falls back to the bounded r
     await backend.load('fast');
     assert.equal(calls.length, 2);
     assert.equal(backend.status().gpuReclaims, 0);
+});
+
+test('an overflowing request never erases a slot that is still generating: it waits for it, and a side pass erasing the chat slot is counted', async () => {
+    const pinned = { ...config, slots: { count: 2 } };
+    const backend = new Backend(pinned);
+    const order = [];
+    backend.fetch = async (url) => { order.push(`erase ${url.slice(url.indexOf('/slots/'), url.indexOf('?'))}`); return new Response('{}'); };
+    backend.tokens = 25000;
+    await backend.forRequest({ prompt: 'chat', n_predict: 1000 }, undefined, 0);
+    backend.tokens = 9000;
+    const side = backend.forRequest({ prompt: 'side', n_predict: 500 }, undefined, 1).then(() => order.push('side held'));
+    await new Promise((resolve) => setTimeout(resolve, 80));
+    assert.deepEqual(order, []);
+    assert.equal(backend.status().slots.waited, 1);
+    order.push('chat done');
+    backend.releaseSlot(0);
+    await side;
+    assert.deepEqual(order, ['chat done', 'erase /slots/0', 'side held']);
+    assert.equal(backend.status().slots.chatErasedBySide, 1);
+    assert.deepEqual(backend.status().slots.busy, [1]);
+    const stop = new AbortController();
+    backend.tokens = 30000;
+    const blocked = backend.forRequest({ prompt: 'chat', n_predict: 1000 }, stop.signal, 0);
+    stop.abort();
+    await assert.rejects(blocked, /cancelled/);
+});
+
+test('with keepAcrossImages an image swap puts text to sleep and the next load wakes the same process; a shed load or a RAM drop stops it', async () => {
+    const keep = { ...config, reserves: { gpuMiB: 2048, ramMiB: 2048 }, memberCache: { enabled: true, store: 'ram', budgetMiB: 4096, serverKeys: true, keepAcrossImages: true } };
+    assert.equal(nativeArgs(keep, keep.profiles.fast)[nativeArgs(keep, keep.profiles.fast).indexOf('--sleep-idle-seconds') + 1], '31536000');
+    assert.equal(nativeArgs(config, config.profiles.fast)[nativeArgs(config, config.profiles.fast).indexOf('--sleep-idle-seconds') + 1], '-1');
+    const backend = new Backend(keep);
+    const requests = [];
+    let sleeping = false;
+    backend.fetch = async (url, init = {}) => {
+        const route = url.slice(url.indexOf('/', 8));
+        requests.push(`${init.method ?? 'GET'} ${route}`);
+        if (route === '/sleep') { sleeping = true; return new Response('{}'); }
+        if (route === '/props') return Response.json({ is_sleeping: sleeping });
+        if (route === '/completion') { sleeping = false; return Response.json({ content: '' }); }
+        return new Response('{}');
+    };
+    backend.snapshot = async () => ({ gpus: [{ freeMiB: 23000 }], host: { availableMiB: 20000, commitFreeMiB: 60000 } });
+    await backend.load('fast');
+    await backend.unload({ keepCache: true });
+    assert.equal(backend.status().pid, null);
+    assert.equal(backend.status().sleeping.profile, 'fast');
+    assert.deepEqual(requests, ['POST /sleep', 'GET /props']);
+    await backend.load('fast');
+    assert.equal(backend.status().pid, 42);
+    assert.equal(backend.status().sleeping, null);
+    assert.equal(backend.status().sleepStats.wakes, 1);
+    assert.deepEqual(backend.calls, [{ name: 'fast', fitTarget: null }]);
+    await backend.unload({ keepCache: true });
+    await backend.load('fast', { fitTarget: 11048 });
+    assert.deepEqual(backend.calls, [{ name: 'fast', fitTarget: null }, 'unload', { name: 'fast', fitTarget: 11048 }]);
+    await backend.unload({ keepCache: true });
+    assert.equal(backend.status().sleeping, null);
+    await backend.load('fast');
+    await backend.unload({ keepCache: true });
+    assert.equal(await backend.dropSleeping(), 4096);
+    assert.equal(backend.status().sleepStats.dropped, 1);
+    assert.equal(backend.child, null);
+    await backend.load('fast');
+    await backend.unload();
+    assert.equal(backend.status().sleeping, null);
+});
+
+const sleepingBackend = (overrides = {}) => {
+    const keep = { ...config, reserves: { gpuMiB: 2048, ramMiB: 2048 }, strayWakeSettleMs: 0, memberCache: { enabled: true, store: 'ram', budgetMiB: 4096, serverKeys: true, keepAcrossImages: true }, ...overrides };
+    const backend = new Backend(keep);
+    const requests = [];
+    const state = { sleeping: false, held: 300, free: 23000, at: null };
+    backend.fetch = async (url, init = {}) => {
+        const route = url.slice(url.indexOf('/', 8));
+        requests.push(`${init.method ?? 'GET'} ${route}`);
+        if (route === '/sleep') { state.sleeping = true; return new Response('{}'); }
+        if (route === '/props') return Response.json({ is_sleeping: state.sleeping });
+        if (route === '/completion') { state.sleeping = false; return Response.json({ content: '' }); }
+        return new Response('{}');
+    };
+    backend.snapshot = async () => ({ at: state.at ?? Date.now(), gpus: [{ freeMiB: state.free, usedMiB: 24576 - state.free }], host: { availableMiB: 20000, commitFreeMiB: 60000 }, gpuProcesses: { 42: { dedicatedMiB: state.held, sharedMiB: 0 } } });
+    return { backend, requests, state };
+};
+
+test('a per-process reading taken before the sleep settled, or one the GPU total contradicts, is not a stray wake', async () => {
+    const { backend, state } = sleepingBackend({ strayWakeSettleMs: 5000 });
+    await backend.load('fast');
+    await backend.unload({ keepCache: true });
+    state.held = 21000;
+    assert.equal(await backend.checkSleeping(), null);
+    state.at = Date.now() + 6000; state.free = 22000;
+    assert.equal(await backend.checkSleeping(), null);
+    state.free = 1300;
+    assert.equal((await backend.checkSleeping()).heldMiB, 21000);
+    assert.equal(backend.status().sleeping, null);
+});
+
+test('a sleep waits for token counts already sent straight to the server and admits no new one until it is asleep', async () => {
+    const { backend, requests } = sleepingBackend();
+    await backend.load('fast');
+    assert.equal(backend.tryDirect(), true);
+    const sleeping = backend.unload({ keepCache: true });
+    await new Promise((resolve) => setTimeout(resolve, 60));
+    assert.deepEqual(requests, []);
+    assert.equal(backend.tryDirect(), false);
+    backend.endDirect();
+    await sleeping;
+    assert.deepEqual(requests, ['POST /sleep', 'GET /props']);
+    assert.equal(backend.tryDirect(), false);
+    assert.equal(backend.status().sleeping.profile, 'fast');
+});
+
+test('a sleeping server found holding GPU memory was woken outside the controller: it is stopped and started clean, never woken over the stale state', async () => {
+    const { backend, requests, state } = sleepingBackend();
+    await backend.load('fast');
+    await backend.unload({ keepCache: true });
+    state.held = 21000; state.free = 1300;
+    await backend.load('fast');
+    assert.deepEqual(backend.calls, [{ name: 'fast', fitTarget: null }, 'unload', { name: 'fast', fitTarget: null }]);
+    assert.equal(requests.includes('POST /completion'), false);
+    assert.equal(backend.status().sleepStats.strayWakes, 1);
+    assert.equal(backend.status().sleepStats.lastStrayWake.heldMiB, 21000);
+    assert.match(backend.status().lastError ?? backend.lastError, /woken outside the controller/);
+});
+
+test('a wake short of the full text layout first asks for idle image memory, then wakes the same process with its cache', async () => {
+    const { backend, state } = sleepingBackend();
+    const shorts = [];
+    backend.reclaimGpu = async ({ shortMiB }) => { shorts.push(shortMiB); state.free = 23000; return true; };
+    await backend.load('fast');
+    await backend.unload({ keepCache: true });
+    state.free = 6000;
+    await backend.load('fast');
+    assert.equal(shorts.length, 1);
+    assert.ok(shorts[0] > 0);
+    assert.equal(backend.status().sleepStats.wakes, 1);
+    assert.equal(backend.status().sleepStats.wakeReclaims, 1);
+    assert.deepEqual(backend.calls, [{ name: 'fast', fitTarget: null }]);
 });

@@ -1,4 +1,5 @@
 import { readStretch } from "@engine/validate/stretch";
+import { readReplyScope, readTalkPacing } from "@engine/validate/talkPacing";
 import {
   ARC_TEMPLATE_NAMES,
   EVIDENCE_FROM,
@@ -184,6 +185,20 @@ export const readQuality = (value: unknown, path: string, issues: string[]): Qua
   };
 };
 
+const scopeOf = (entry: Record<string, unknown>, path: string, issues: string[]) => {
+  const errors: Array<{ path: string; message: string }> = [];
+  const scope = readReplyScope(entry, path, errors);
+  issues.push(...errors.map((error) => `${error.path}: ${error.message}`));
+  return scope;
+};
+
+const talkPacingIssues = (value: unknown): string[] => {
+  if (!isRecord(value)) return [];
+  const errors: Array<{ path: string; message: string }> = [];
+  readTalkPacing(value, "talk_control", errors);
+  return errors.map((error) => `${error.path}: ${error.message}`);
+};
+
 const readNpcReplies = (value: unknown, path: string, issues: string[]): NpcReplyEffect[] | undefined => {
   if (!Array.isArray(value)) {
     issues.push(`${path}: npc_replies must be an array`);
@@ -208,6 +223,11 @@ const readNpcReplies = (value: unknown, path: string, issues: string[]): NpcRepl
       ...(typeof entry.instruction === "string" ? { instruction: entry.instruction } : {}),
       ...(typeof entry.maxTriggers === "number" ? { maxTriggers: entry.maxTriggers } : {}),
       ...(typeof entry.probability === "number" ? { probability: entry.probability } : {}),
+      ...(entry.new_chat_only === true ? { new_chat_only: true } : {}),
+      ...(entry.ask_player === true ? { ask_player: true } : {}),
+      ...(typeof entry.after_member === "string" ? { after_member: entry.after_member } : {}),
+      ...(typeof entry.enabled === "boolean" ? { enabled: entry.enabled } : {}),
+      ...scopeOf(entry, entryPath, issues),
     };
   }).filter((entry): entry is NpcReplyEffect => Boolean(entry));
 };
@@ -240,7 +260,7 @@ const readMotives = (value: unknown): Record<string, string> | undefined => {
 };
 
 const isTalkControl = (value: unknown): boolean => isRecord(value)
-  && (value.speakers === undefined || (Array.isArray(value.speakers) && value.speakers.every(isRecord)));
+  && (value.speakers === undefined || (Array.isArray(value.speakers) && value.speakers.every(isRecord))) && !talkPacingIssues(value).length;
 
 const CHECKPOINT_FIELD_TYPES: Array<[string, string, (value: unknown) => boolean]> = [
   ["name", "a string", (value) => typeof value === "string"],
@@ -251,7 +271,9 @@ const CHECKPOINT_FIELD_TYPES: Array<[string, string, (value: unknown) => boolean
   ["convergence_threshold", "a number", (value) => typeof value === "number"],
   ["tension_target", `one of ${TENSION_LEVELS.join(", ")}`, (value) => typeof value === "string" && (TENSION_LEVELS as readonly string[]).includes(value)],
   ["agency", "an object {protect_player_choice?, never_narrate_player_action?, objective_kind?, alternate?}", isRecord],
-  ["talk_control", "an object {speakers?: [{member, weight?}], lead?, director?, …}", (value) => isTalkControl(value)],
+  ["talk_control", "an object {speakers?: [{member, weight?}], lead?, director?, profile?, budget?: {voices, attempts}, lead_words?, lead_max_consecutive? (1-8), spotlight?, "
+    + "address_player?, reaction?, …}",
+    (value) => isTalkControl(value)],
 ];
 
 const checkpointFieldIssues = (value: Record<string, unknown>, path: string): string[] => CHECKPOINT_FIELD_TYPES
@@ -271,6 +293,7 @@ export const readCheckpointPatch = (value: Record<string, unknown>, path: string
   if (typeof value.tension_target === "string" && (TENSION_LEVELS as readonly string[]).includes(value.tension_target)) patch.tension_target = value.tension_target as TensionLevel;
   if (isRecord(value.agency)) patch.agency = value.agency as Checkpoint["agency"];
   if (isTalkControl(value.talk_control)) patch.talk_control = value.talk_control as Checkpoint["talk_control"];
+  else issues.push(...talkPacingIssues(value.talk_control).map((issue) => `${path}.${issue}`));
   if (value.state_snapshot !== undefined) patch.state_snapshot = readSnapshot(value.state_snapshot, `${path}.state_snapshot`, issues);
   if (value.effects !== undefined) patch.effects = readEffects(value.effects, `${path}.effects`, issues);
   const motives = readMotives(value.motives);

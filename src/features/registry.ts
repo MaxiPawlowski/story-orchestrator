@@ -1,4 +1,5 @@
-import { JUDGE_ROUTE_KEYS, JUDGE_USE_COPY, JUDGE_USE_KEYS, JUDGE_USES_OFF_BY_DEFAULT, AUTHOR_JUDGE_USES, routedProvider, type JudgeUseKey } from "@judge/settings";
+import { JUDGE_ROUTE_KEYS, JUDGE_USE_KEYS, JUDGE_USES_OFF_BY_DEFAULT, AUTHOR_JUDGE_USES, routedProvider, type JudgeUseKey } from "@judge/settings";
+import { JUDGE_USE_COPY } from "@judge/useCopy";
 import type { GuideTopicId } from "@copilot/guideTopics";
 import type { GlobalSettings } from "@runtime/settingsModel";
 import { PRESENCE_FEATURES } from "./presenceFeatures";
@@ -229,6 +230,14 @@ const CORE_FEATURES: readonly Feature[] = [
     what: "In a group chat, a single message can be answered by several characters in turn; the chain stops when it is your turn again or the scene changes.",
     where: settingsAt("#so-chain-enabled", "Characters › Speaker direction"),
     settings: ["talk.chain"], guideTopic: "talk-control", doc: "player/playing.md", status: "shipped", needs: ["group-chat"],
+  },
+  {
+    id: "keep-last-question", name: "One question when a character asks you", area: "characters", audience: "player",
+    oneLine: "A character told to ask you one thing keeps only the last of its questions.",
+    what: "When a story has a character turn to you with one question, such as the line right after the opening, and the reply asks several, "
+      + "the earlier questions are taken out and the rest of the line stays. A reply the trim would break is left as written.",
+    where: settingsAt("#so-keep-last-question", "Characters › Speaker direction"),
+    settings: ["talk.keepLastQuestion"], guideTopic: "npc-replies", doc: "player/playing.md", status: "shipped", needs: ["group-chat", "story"],
   },
   {
     id: "private-knowledge", name: "Private knowledge", area: "characters", audience: "author",

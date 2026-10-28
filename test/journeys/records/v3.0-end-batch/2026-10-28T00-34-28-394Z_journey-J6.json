@@ -1,0 +1,761 @@
+{
+  "id": "J6",
+  "title": "mutation-storm",
+  "file": "C:\\dev\\story-orchestrator\\test\\journeys\\j6-mutation-storm.journey.json",
+  "fileSha256": "ce1cac11f288314af027ed1d32e00610300cef29e0c7b9a429568c743b477c0c",
+  "ranAt": "2026-10-28T00:34:28.381Z",
+  "strict": true,
+  "partial": false,
+  "only": null,
+  "model": null,
+  "tally": {
+    "pass": 9,
+    "fail": 1,
+    "skipped": 1,
+    "blocked": 1
+  },
+  "tallies": {
+    "automated": {
+      "pass": 9,
+      "fail": 1,
+      "blocked": 1,
+      "notRunnable": 0,
+      "skipped": 0
+    },
+    "human": {
+      "scored": 0,
+      "unscored": 1
+    },
+    "cleanup": {
+      "ok": true,
+      "failed": [],
+      "leaked": []
+    },
+    "firstAttempt": {
+      "pass": 9,
+      "retried": 0,
+      "retriedIds": []
+    }
+  },
+  "notGreen": [
+    "runner error: stopped S5 at 12/12: J6.12: harness error after one retry: SillyTavern page navigated away during evaluation. page.evaluate: Execution context was destroyed, most likely because of a navigation.",
+    "1 automated check(s) failed",
+    "1 blocked (strict)"
+  ],
+  "humanRecord": null,
+  "runnerError": "stopped S5 at 12/12: J6.12: harness error after one retry: SillyTavern page navigated away during evaluation. page.evaluate: Execution context was destroyed, most likely because of a navigation.",
+  "stopped": {
+    "stopped": "S5",
+    "verdict": "not-a-measurement",
+    "at": "12/12",
+    "reason": "J6.12: harness error after one retry: SillyTavern page navigated away during evaluation. page.evaluate: Execution context was destroyed, most likely because of a navigation.",
+    "counts": {
+      "items": 12,
+      "planned": 12,
+      "outcomes": {
+        "pass": 9,
+        "fail": 1,
+        "skipped": 1
+      }
+    }
+  },
+  "noStop": false,
+  "releasedRoutes": null,
+  "capabilities": {
+    "rollback-notice": true
+  },
+  "results": [
+    {
+      "id": "J6.1",
+      "mode": "auto",
+      "model": "any",
+      "findings": [],
+      "goal": "a boundary is committed and a gate latches from a scripted turn",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J6.2",
+      "mode": "auto",
+      "model": "none",
+      "findings": [],
+      "goal": "editing the message that carried the delta rolls the story back The check first waits for the group round J6.1 started to finish: a send returns before every member has replied, and an edit made mid-round is rolled back and then followed by the remaining replies' boundaries, which is a different scenario (L2 2026-09-23: J6.2 timed out on a still-generating round and J6.4 lost its notice to those boundaries).",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J6.3",
+      "mode": "auto",
+      "model": "none",
+      "findings": [],
+      "goal": "deleting the last message leaves engine state consistent, not orphaned",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "fail",
+      "detail": "Evaluation failed in SillyTavern page: page.evaluate: Error: Message 1 not found.\n    at eval (eval at evaluate (:290:30), <anonymous>:6:81)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)",
+      "firstAttempt": "fail",
+      "retries": [],
+      "plumbingRetry": "SillyTavern page navigated away during evaluation. page.evaluate: Execution context was destroyed, most likely because of a navigation."
+    },
+    {
+      "id": "J6.4",
+      "mode": "auto",
+      "model": "none",
+      "findings": [
+        "U5"
+      ],
+      "goal": "the player is told the story stepped back after a mutation",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J6.5",
+      "mode": "human",
+      "model": "none",
+      "findings": [
+        "U5"
+      ],
+      "goal": "",
+      "prompt": "After you edited and deleted messages, was it clear what the story did in response?",
+      "anchors": "1 = no idea, felt broken · 3 = worked it out from the drawer · 5 = the system said what it did",
+      "outcome": "skipped",
+      "detail": "human check — operator scores it"
+    },
+    {
+      "id": "J6.6",
+      "mode": "auto",
+      "model": "any",
+      "findings": [
+        "R4"
+      ],
+      "goal": "a reloaded chat still recognises an edit to a message its run has passed",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J6.7",
+      "mode": "auto",
+      "model": "any",
+      "findings": [
+        "M3"
+      ],
+      "goal": "a ledger update is undone by an edit to the message its boundary acted on",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J6.8",
+      "mode": "auto",
+      "model": "any",
+      "findings": [
+        "M4"
+      ],
+      "goal": "a belief a reveal retired comes back when the reveal's message is edited The player line carries the evidence the scripted read cites: the evidence rule only accepts a quote from the read's window, and the old line relied on the model's reply happening to echo it (L2 2026-09-23: rejected once, story stayed at cp1).",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J6.9",
+      "mode": "auto",
+      "model": "none",
+      "findings": [
+        "E1"
+      ],
+      "goal": "an edit older than the retained history says so and offers both ways out it names: re-read from here, or restart the story (V11) (the notice and both buttons are on the Play page's player overview since 7724042c; the Overview drawer tab is author-only)",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J6.10",
+      "mode": "auto",
+      "model": "none",
+      "findings": [
+        "T3"
+      ],
+      "goal": "an edit that leaves a consumed reply's text unchanged rewinds nothing and keeps the run (v2.4 plan 02 §2)",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J6.11",
+      "mode": "auto",
+      "model": "none",
+      "findings": [
+        "D5"
+      ],
+      "goal": "hiding a consumed message is not a mutation: its facts stay live and the next read leaves it out (v2.4 plan 02 §4)",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J6.12",
+      "mode": "auto",
+      "model": "none",
+      "findings": [
+        "T3"
+      ],
+      "goal": "moving a message is read as a change from the earliest moved row, so the story steps back from there at once (v2.4 plan 02 §2, H6)",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "blocked",
+      "detail": "J6.12: harness error after one retry: SillyTavern page navigated away during evaluation. page.evaluate: Execution context was destroyed, most likely because of a navigation. (not a measurement)",
+      "plumbingRetry": "SillyTavern page navigated away during evaluation. page.evaluate: Execution context was destroyed, most likely because of a navigation.",
+      "retries": []
+    }
+  ],
+  "engineHistory": {
+    "file": "engine-history-J6.json",
+    "chats": 5,
+    "stories": 5
+  },
+  "cleanup": {
+    "generation": {
+      "idle": true,
+      "wasGenerating": false,
+      "stops": 0,
+      "waitedMs": 1664,
+      "lastSeen": {
+        "generating": false,
+        "saving": false,
+        "chatId": "2026-10-27@21h33m53s353ms",
+        "signals": []
+      }
+    },
+    "engineHistory": {
+      "file": "engine-history-J6.json",
+      "path": "C:\\dev\\so-lanes\\45\\debug\\engine-history-J6.json",
+      "chats": 5,
+      "stories": 5
+    },
+    "judgeSettle": {
+      "settled": true,
+      "waitedMs": 0,
+      "inFlight": 0,
+      "seen": 109
+    },
+    "judgeCalls": {
+      "count": 3,
+      "events": [
+        {
+          "at": "2026-10-28T00:34:01.270Z",
+          "boundary": 0,
+          "messageId": 0,
+          "kind": "judge",
+          "summary": "judge memoryVerify in 0 ms",
+          "detail": {
+            "use": "memoryVerify",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 154,
+            "latencyMs": 0,
+            "cached": true,
+            "p": {
+              "line:0": 0.8
+            }
+          }
+        },
+        {
+          "at": "2026-10-28T00:34:01.566Z",
+          "boundary": 1,
+          "messageId": 0,
+          "kind": "judge",
+          "summary": "judge scene in 0 ms",
+          "detail": {
+            "use": "scene",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 4,
+            "stateChars": 381,
+            "latencyMs": 0,
+            "cached": true,
+            "p": {
+              "break": 0.05
+            }
+          }
+        },
+        {
+          "at": "2026-10-28T00:34:01.635Z",
+          "boundary": 1,
+          "messageId": 0,
+          "kind": "judge",
+          "summary": "judge divergence in 0 ms",
+          "detail": {
+            "use": "divergence",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 2,
+            "stateChars": 126,
+            "latencyMs": 0,
+            "cached": true,
+            "p": {
+              "fit": 0.19,
+              "commits": 0.98
+            }
+          }
+        }
+      ]
+    },
+    "debugResponses": {
+      "cleared": [
+        "storyOrchestratorDebugEpistemicResponse",
+        "storyOrchestratorDebugLedgerResponse",
+        "storyOrchestratorDebugSceneSummaryResponse",
+        "storyOrchestratorDebugExtractionResponse"
+      ]
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {
+          "read": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+          "synthesis": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+          "director": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+          "curator": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+        }
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {
+          "read": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+          "synthesis": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+          "director": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+          "curator": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+        }
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {
+          "read": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+          "synthesis": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+          "director": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+          "curator": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+        }
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    },
+    "extensionSettings": {
+      "restored": []
+    },
+    "config": {
+      "key": "story-orchestrator",
+      "cleared": false,
+      "keys": [
+        "v2Stories",
+        "settings",
+        "wizardSessions",
+        "schema",
+        "groupStories",
+        "playsBackfill",
+        "plays",
+        "panels",
+        "stories"
+      ],
+      "saved": {
+        "status": 200
+      },
+      "preservedStories": [
+        "sun-ruins",
+        "v24-01-delete-decode"
+      ],
+      "preservedSessions": []
+    },
+    "briefing": {
+      "restored": false,
+      "unchanged": true,
+      "value": false
+    },
+    "playerSetup": {
+      "restored": false,
+      "unchanged": true,
+      "value": true
+    },
+    "importedStoryHashes": [
+      "story-e6d13b8c",
+      "story-9fc4d98c"
+    ],
+    "library": {
+      "changed": true,
+      "removed": [
+        "sun-ruins (story-e6d13b8c)",
+        "v24-01-delete-decode (story-9fc4d98c)"
+      ],
+      "restored": [],
+      "saved": {
+        "status": 200
+      },
+      "verified": true,
+      "index": {
+        "restored": true
+      }
+    },
+    "chat": {
+      "sandboxChatId": "2026-10-27@21h25m11s711ms",
+      "owned": [
+        "2026-10-27@21h25m11s711ms",
+        "2026-10-27@21h33m07s321ms",
+        "2026-10-27@21h33m25s696ms",
+        "2026-10-27@21h33m44s859ms",
+        "2026-10-27@21h33m53s353ms"
+      ],
+      "deleted": [
+        "2026-10-27@21h25m11s711ms",
+        "2026-10-27@21h33m07s321ms",
+        "2026-10-27@21h33m25s696ms",
+        "2026-10-27@21h33m44s859ms",
+        "2026-10-27@21h33m53s353ms"
+      ],
+      "notDeleted": [],
+      "resurrected": [],
+      "lateFileRepaired": [],
+      "saveSettleMs": 1555,
+      "skipped": [],
+      "currentChatAtCleanup": "2026-10-27@21h33m53s353ms",
+      "currentGroupAtCleanup": "1759606632088",
+      "chatAfterCleanup": "2026-09-20@07h06m38s396ms"
+    },
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "member:DM Narrator": {
+      "enabled": true
+    },
+    "member:Arin": {
+      "enabled": true
+    },
+    "member:Ponticius": {
+      "enabled": true
+    },
+    "member:Luke": {
+      "enabled": true
+    },
+    "disabledMembers": []
+  },
+  "page": {
+    "file": "C:\\dev\\so-lanes\\45\\debug\\batch\\2026-10-28T00-24-48-647Z\\J6-run1\\page.jsonl",
+    "rows": 378,
+    "consoleErrors": 0,
+    "consoleWarnings": 342,
+    "pageErrors": [],
+    "pageErrorCount": 0,
+    "failedRequests": [
+      {
+        "at": "2026-10-28T00:25:22.950Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/ping",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-10-28T00:25:22.983Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/ping",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-10-28T00:25:42.457Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/ping",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-10-28T00:25:42.466Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/ping",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-10-28T00:25:58.112Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/ping",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-10-28T00:26:32.647Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/ping",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-10-28T00:26:32.766Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/ping",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-10-28T00:27:31.676Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/backends/text-completions/generate",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-10-28T00:27:33.825Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/ping",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-10-28T00:27:33.856Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/ping",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-10-28T00:27:58.594Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/ping",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-10-28T00:27:58.604Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/ping",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-10-28T00:28:15.841Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/ping",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-10-28T00:28:15.880Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/ping",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-10-28T00:28:35.361Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/backends/text-completions/generate",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-10-28T00:28:52.249Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/backends/text-completions/generate",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-10-28T00:29:21.610Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/ping",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-10-28T00:29:21.618Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/ping",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-10-28T00:29:58.874Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/ping",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-10-28T00:29:58.875Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/backends/text-completions/generate",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-10-28T00:29:58.899Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/ping",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-10-28T00:30:16.233Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/backends/text-completions/generate",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-10-28T00:30:36.470Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/backends/text-completions/generate",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-10-28T00:30:38.191Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/ping",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-10-28T00:31:02.647Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/backends/text-completions/generate",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-10-28T00:31:15.451Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/ping",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-10-28T00:31:15.672Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/ping",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-10-28T00:31:15.918Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/backends/text-completions/generate",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-10-28T00:31:38.825Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/backends/text-completions/generate",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-10-28T00:31:52.661Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/backends/text-completions/generate",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-10-28T00:31:53.615Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/backends/text-completions/generate",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-10-28T00:33:05.414Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/backends/text-completions/generate",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-10-28T00:33:07.540Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/backends/text-completions/generate",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-10-28T00:33:25.858Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/plugins/story-orchestrator-harness/complete",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-10-28T00:33:53.563Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/plugins/story-orchestrator-harness/complete",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-10-28T00:33:53.564Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/plugins/story-orchestrator-harness/complete",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      }
+    ],
+    "failedRequestCount": 36,
+    "httpErrorCount": 0,
+    "abortedCount": 36,
+    "consoleErrorSamples": []
+  }
+}

@@ -9,6 +9,7 @@ import { readCheckpointChapter } from "./chapters";
 import { readGuidance } from "../checkpointGuidance";
 import { gameLayer } from "./gameLayer";
 import { readWorkflowMap } from "./illustrations";
+import { checkReplyIds } from "./replyIds";
 
 type Member = Story["roster"][number];
 
@@ -126,23 +127,30 @@ export const readCheckpointEffects = (value: unknown, path: string, errors: Vali
     if (!trigger) addError(errors, `${replyPath}.trigger`, "npc reply trigger is invalid");
     if (!member) addError(errors, `${replyPath}.member`, "npc reply member is required");
     if (!kind) addError(errors, `${replyPath}.kind`, "npc reply kind is invalid");
-    if (entry.new_chat_only !== undefined && (entry.new_chat_only !== true || trigger !== "onEnter" || kind !== "scripted")) {
-      addError(errors, `${replyPath}.new_chat_only`, "new_chat_only requires a scripted onEnter reply");
+    if (entry.new_chat_only !== undefined && (entry.new_chat_only !== true || trigger !== "onEnter")) {
+      addError(errors, `${replyPath}.new_chat_only`, "new_chat_only requires an onEnter reply");
     }
+    if (entry.ask_player !== undefined && (typeof entry.ask_player !== "boolean" || kind !== "llm")) {
+      addError(errors, `${replyPath}.ask_player`, "ask_player is true or false, on an llm reply only: a scripted line is posted as written");
+    }
+    const scope = gameLayer()?.talk.readReplyScope(entry, replyPath, errors) ?? {};
     if (!trigger || !member || !kind) return null;
     return {
+      ...scope,
       trigger,
       member,
       kind,
-      ...(entry.new_chat_only === true && trigger === "onEnter" && kind === "scripted" ? { new_chat_only: true } : {}),
+      ...(entry.new_chat_only === true && trigger === "onEnter" ? { new_chat_only: true } : {}),
       ...(typeof entry.text === "string" ? { text: entry.text } : {}),
       ...(typeof entry.instruction === "string" ? { instruction: entry.instruction } : {}),
+      ...(entry.ask_player === true && kind === "llm" ? { ask_player: true } : {}),
       ...(typeof entry.maxTriggers === "number" && Number.isFinite(entry.maxTriggers) ? { maxTriggers: entry.maxTriggers } : {}),
       ...(typeof entry.probability === "number" && Number.isFinite(entry.probability) ? { probability: entry.probability } : {}),
       ...(asString(entry.after_member) ? { after_member: entry.after_member as string } : {}),
       ...(typeof entry.enabled === "boolean" ? { enabled: entry.enabled } : {}),
     };
   }).filter((entry): entry is NonNullable<typeof entry> => entry !== null);
+  checkReplyIds(replies, `${path}.npc_replies`, errors);
   effects.npc_replies = replies;
   return effects;
 };
@@ -262,7 +270,7 @@ const readTalkControl = (value: unknown, path: string, errors: ValidationError[]
           chain.sequence = value.chain.sequence as string[];
         }
       }
-      for (const key of ["stop_on_transition", "hold_extraction", "stop_on_player"] as const) {
+      for (const key of ["stop_on_transition", "hold_extraction", "stop_on_player", "yield_on_question"] as const) {
         if (value.chain[key] === undefined) continue;
         if (typeof value.chain[key] !== "boolean") addError(errors, `${path}.chain.${key}`, `chain ${key} must be a boolean`);
         else chain[key] = value.chain[key] as boolean;
@@ -273,7 +281,7 @@ const readTalkControl = (value: unknown, path: string, errors: ValidationError[]
       addError(errors, `${path}.chain`, "chain must be an object or false");
     }
   }
-  return control;
+  return { ...control, ...gameLayer()?.talk.readTalkPacing(value, path, errors) };
 };
 
 export const readCheckpoint = (value: unknown, path: string, errors: ValidationError[]): Checkpoint | null => {

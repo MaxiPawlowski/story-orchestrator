@@ -2,9 +2,11 @@ import type { EngineState, NormalizedStory } from "@engine/index";
 import { ledgerKey, type LedgerView } from "@memory/index";
 import { spriteLookIssues } from "./spriteLookHealth";
 import { spriteStageHealth } from "./spriteStageHealth";
+import { spriteRecipeHealth } from "./spriteRecipeHealth";
 
 export const cardSurface = (story: NormalizedStory | null, state: EngineState | null, chatId: string | null, ledger: LedgerView[]) => ({
   ledger: cardLedgerView(story, state, ledger), spriteLookIssues: spriteLookIssues(chatId), spriteStage: spriteStageHealth(chatId),
+  spriteRecipe: spriteRecipeHealth(),
 });
 
 export function cardLedgerView(story: NormalizedStory | null, state: EngineState | null, rows: LedgerView[]): LedgerView[] {

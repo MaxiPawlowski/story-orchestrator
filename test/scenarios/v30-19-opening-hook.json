@@ -1,0 +1,32 @@
+{
+  "model": "any",
+  "_note": "v3.0 plan 19. Opening hook order on a fresh group chat: the scripted new_chat_only opener, then the start beat's scripted entering line, then the llm new_chat_only ask_player hook of Arin (after_member DM Narrator). Also checks the one-shot direction is gone from the guidance block once the hook has finished. Model lane since talk stage 3: the hook starts through the guarded voice starter (startGroupVoiceAt), which counts a reply only when ST's group wrapper opens; with no backend ST's generateGroupWrapper returns before GROUP_WRAPPER_STARTED (online_status no_connection), so the start is refused, journaled and its fire count released by design, and the hook's counter never reaches 1. The order without a model is covered in jest (runtime/openingHook.review.test.ts). The hook's wording needs the real-LLM journey listed in docs/plans/v3.0/19-talk-pacing.md.",
+  "requires": {"lane": "model", "group": "Group: Arin, DM Narrator", "members": ["Arin", "DM Narrator"], "judge": "off", "why": "the hook counts only once its voice starts, which needs a live backend"},
+  "steps": [
+    {"eval": "for (const name of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[name]; globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; const ctx = SillyTavern.getContext(); const greetings = ctx.chat.length; for (let id = ctx.chat.length - 1; id >= 0; id -= 1) await ctx.deleteMessage(id, undefined, false); if (ctx.chat.length !== 0) throw new Error(`the sandbox chat still holds ${ctx.chat.length} message(s), so the new_chat_only opener could never post`); return { greetingsCleared: greetings };", "log": true},
+    {
+      "import_story": {
+        "title": "SO-V3019 Opening Hook",
+        "description": "v3.0 plan 19 no-model fixture: opener, entering line, opening hook.",
+        "qualities": [
+          { "key": "at_gate", "type": "bool", "source": "extractor", "rubric": "Has the party reached the gate?" }
+        ],
+        "checkpoints": [
+          { "id": "road", "name": "The road", "objective": "Walk to the gate.", "type": "anchor", "start": true, "effects": { "npc_replies": [
+            { "trigger": "onEnter", "member": "DM Narrator", "kind": "scripted", "new_chat_only": true, "text": "SO-V3019-OPENER The road climbs toward the shut gate." },
+            { "trigger": "onEnter", "member": "Arin", "kind": "llm", "new_chat_only": true, "ask_player": true, "after_member": "DM Narrator", "instruction": "Arin wants to know whether the newcomer has walked this road before." },
+            { "trigger": "onEnter", "member": "DM Narrator", "kind": "scripted", "text": "SO-V3019-ENTER A cart rattles past." }
+          ] } },
+          { "id": "gate", "name": "The gate", "objective": "Open it.", "type": "anchor" }
+        ],
+        "transitions": [
+          { "from": "road", "to": "gate", "priority": 1, "gate": { "q": "at_gate", "op": "==", "v": true } }
+        ],
+        "roster": [{ "id": "DM Narrator", "name": "DM Narrator" }, { "id": "Arin", "name": "Arin" }]
+      },
+      "log": true
+    },
+    {"eval": "const rt = globalThis.storyOrchestratorRuntime; const sleep = (ms) => new Promise((r) => setTimeout(r, ms)); const until = Date.now() + 120000; while (Date.now() < until && !(rt.extras.firedNpcReplies?.['road:onEnter:Arin:1'] === 1 && !document.body.dataset.generating)) await sleep(250); await sleep(1500); const chat = SillyTavern.getContext().chat; const opener = chat.findIndex((m) => String(m?.mes ?? '').startsWith('SO-V3019-OPENER')); const enter = chat.findIndex((m) => String(m?.mes ?? '').startsWith('SO-V3019-ENTER')); const arin = chat.findIndex((m) => m?.name === 'Arin' && !m.is_user && !m.is_system); const fired = rt.extras.firedNpcReplies ?? {}; const guidance = String(SillyTavern.getContext().extensionPrompts?.story_orchestrator_guidance?.value ?? ''); const state = { opener, enter, arin, fired, rows: chat.length, guidanceHasOneShot: guidance.includes('this reply:') }; if (opener !== 0) throw new Error('the opener is not the first line: ' + JSON.stringify(state)); if (enter !== 1) throw new Error('the entering line did not follow the opener: ' + JSON.stringify(state)); if (fired['road:onEnter:DM Narrator:0'] !== 1 || fired['road:onEnter:DM Narrator:2'] !== 1 || fired['road:onEnter:Arin:1'] !== 1) throw new Error('the opener, entering line and hook did not each fire once: ' + JSON.stringify(state)); if (arin >= 0 && arin < enter) throw new Error('the hook landed before the entering line: ' + JSON.stringify(state)); if (state.guidanceHasOneShot) throw new Error('the one-shot direction outlived the hook: ' + JSON.stringify(state)); return state;", "log": true},
+    {"expect": {"npcFired": {"road:onEnter:Arin:1": 1}}}
+  ]
+}

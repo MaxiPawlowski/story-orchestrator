@@ -10,7 +10,10 @@ import type { DecodeJournal } from "./messageIdentity";
 
 export type { DecodeJournal };
 import { dropJudgeCallsAfter } from "@judge/settings";
-import { rewindNpcReplies, rewindOnEnterPosts } from "./npcReplyRewind";
+import { rewindCuedLines, rewindNpcReplies, rewindOnEnterPosts } from "./npcReplyRewind";
+import { rewindSpeech } from "./speechLedger";
+import { rewindChainEnds } from "./chainEnds";
+import { rewindDeferredOpener } from "./openerDeferral";
 import { rollbackLoreFired } from "./loreFired";
 import { rollbackChanceDraws } from "./rolls";
 import { rollbackChecks } from "./storyCheckDraws";
@@ -77,6 +80,9 @@ export const rollbackRecord = (previous: RollbackRecord | null | undefined, mess
 const historyNote = (messageId: number, oldest: { boundary: number }): string =>
   `message ${messageId} is older than what this chat can reconstruct (oldest boundary ${oldest.boundary}); the messages the edit invalidated were dropped and the story was not stepped back`;
 
+const keepsSelfInjection = (id: number | null, messageId: number, kind?: RollbackKind): boolean =>
+  typeof id !== "number" || id < messageId || (id === messageId && kind !== undefined && kind !== "delete");
+
 export async function runRollback(deps: RollbackDeps, messageId: number, decoded?: DecodeJournal, kind?: RollbackKind, removed?: number): Promise<RollbackOutcome> {
   const outcome = await rollbackOnce(deps, messageId, decoded, kind, removed);
   deps.notices.lastOutcome = rollbackRecord(deps.notices.lastOutcome, messageId, outcome, new Date().toISOString());
@@ -107,7 +113,12 @@ async function rollbackOnce(deps: RollbackDeps, messageId: number, decoded?: Dec
     const mutation = kind ? { kind, removed } : undefined;
     rewindNpcReplies(extras.firedNpcReplies, extras.firedNpcRepliesAt, messageId, mutation);
     if (extras.onEnterPosts) extras.onEnterPosts = rewindOnEnterPosts(extras.onEnterPosts, messageId, mutation);
-    if (typeof extras.lastSelfInjectionMessageId === "number" && extras.lastSelfInjectionMessageId >= messageId) extras.lastSelfInjectionMessageId = null;
+    if (extras.cuedLines) extras.cuedLines = rewindCuedLines(extras.cuedLines, messageId, mutation);
+    if (extras.speech) extras.speech = rewindSpeech(extras.speech, messageId, mutation);
+    if (extras.chainEnds) extras.chainEnds = rewindChainEnds(extras.chainEnds, messageId, mutation);
+    const deferred = rewindDeferredOpener(extras.deferredOpener, messageId, mutation);
+    if (deferred) extras.deferredOpener = deferred; else delete extras.deferredOpener;
+    if (!keepsSelfInjection(extras.lastSelfInjectionMessageId, messageId, kind)) extras.lastSelfInjectionMessageId = null;
     extras.extraction.audits = extras.extraction.audits.filter((audit) => audit.window.to < messageId);
     extras.lore = rollbackLoreFired(extras.lore, messageId);
     if (extras.chance) extras.chance = rollbackChanceDraws(extras.chance, messageId);

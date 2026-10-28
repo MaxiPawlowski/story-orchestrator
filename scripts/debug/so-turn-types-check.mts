@@ -2,11 +2,11 @@ import { fileURLToPath } from 'node:url';
 import { evaluateInST } from './lib/evaluate.mts';
 import { writeJSON } from './lib/output.mts';
 import { runCli, hasHelpFlag, stripCommonArgs } from './lib/cli.mts';
-import { adoptNewSandboxChat, assertInSandbox, beginSandboxSession, deleteSandboxChats, openChat, openCharacter, openGroup, readActiveChat, startNewChat, startNewGroupSession } from './st-navigation.mts';
-import { sendUserMessage, swipeMessage, waitForIdle } from './st-actions.mts';
+import { adoptNewSandboxChat, assertInSandbox, beginSandboxSession, deleteSandboxChats, openChat, openGroup, readActiveChat, startNewGroupSession } from './st-navigation.mts';
+import { sendUserMessage, waitForIdle } from './st-actions.mts';
 import { settleReapPrompts } from './lib/identityVerbs.mts';
 
-const USAGE = `Usage: node scripts/debug/so-turn-types-check.mts [--group <name>] [--character <name>] [--image sd|synthetic|auto] [--skip-reply] [--skip-image] [--skip-solo] [--keep]
+const USAGE = `Usage: node scripts/debug/so-turn-types-check.mts [--group <name>] [--image sd|synthetic|auto] [--skip-reply] [--skip-image] [--keep]
 
 Live gate for which rendered messages commit a story boundary (TurnBridge message types).
 In a sandbox chat of --group (default "AdolionGroup", whose members all greet) with a throwaway story:
@@ -15,13 +15,11 @@ In a sandbox chat of --group (default "AdolionGroup", whose members all greet) w
   c-greetings a new group chat, whose greetings arrive before CHAT_CHANGED, commits nothing and
               inherits no story state from the chat that was open
   c-origin    the chat that was open keeps its boundary
-  d-reopen    reopening a greeting-only solo chat that plays the story commits nothing
-  d-swipe     swiping that chat's greeting to an alternate greeting commits and rolls back nothing
   e-*         turn IDENTITY (R10/R11): duplicate events for one id are one turn; a late repeat of
               that id is still one turn; a swipe of the same id makes the re-render a new turn; two
               different ids inside the old 250ms window are two turns. Event-level, so no backend.
 --image auto (default) uses a real /sd and falls back to a synthetic post shaped like sd's sendMessage.
-Solo checks pick a character with alternate greetings, no embedded lorebook and a story-free last chat.
+Group chats only: one-on-one chats never run a story (soloRemoval.guard.test.ts), so there is no solo leg.
 Every chat the run creates is deleted by id afterwards; a story it imported is removed from the library.`;
 
 const STORY = {
@@ -201,48 +199,6 @@ async function postImage(page, mode) {
   return { via: 'synthetic', ...synthetic };
 }
 
-async function pickSoloCharacter(page, requested) {
-  return evaluateInST(page, async (wanted) => {
-    const ctx = SillyTavern.getContext();
-    const post = async (url, body) => {
-      const response = await fetch(url, { method: 'POST', headers: ctx.getRequestHeaders(), body: JSON.stringify(body) });
-      return response.ok ? response.json() : null;
-    };
-    const rejected = [];
-    for (const [index, character] of (ctx.characters ?? []).entries()) {
-      if (!character) continue;
-      if (wanted && character.name !== wanted && character.avatar !== wanted) continue;
-      const full = character.shallow ? await post('/api/characters/get', { avatar_url: character.avatar }) : character;
-      const alternates = full?.data?.alternate_greetings ?? [];
-      const reason = !String(full?.first_mes ?? '').trim() ? 'no greeting'
-        : !alternates.length ? 'no alternate greetings'
-          : full?.data?.character_book ? 'embedded lorebook (blocking import confirm)'
-            : null;
-      if (reason) { if (wanted) rejected.push({ name: character.name, reason }); continue; }
-      const lastChat = full.chat ? await post('/api/chats/get', { ch_name: full.name, file_name: full.chat, avatar_url: full.avatar }) : [];
-      const header = Array.isArray(lastChat) ? lastChat[0] : null;
-      if (header?.chat_metadata?.story_orchestrator) { rejected.push({ name: character.name, reason: 'last chat plays a story' }); continue; }
-      return { found: true, index, name: full.name, avatar: full.avatar, alternates: alternates.length, lastChat: full.chat ?? null };
-    }
-    return { found: false, rejected };
-  }, requested);
-}
-
-async function unloadSandboxStory(page, guard) {
-  await assertInSandbox(page, guard, 'before unloading the sandbox story');
-  return evaluateInST(page, async (sandboxChats) => {
-    const ctx = SillyTavern.getContext();
-    if (!sandboxChats.includes(ctx.chatId)) throw new Error(`refusing to clear story state outside the sandbox (${ctx.chatId})`);
-    const hadStory = Boolean(ctx.chatMetadata?.story_orchestrator);
-    if (hadStory) {
-      delete ctx.chatMetadata.story_orchestrator;
-      await ctx.saveMetadata();
-    }
-    await globalThis.storyOrchestratorRuntime.loadSelectedFromChat();
-    return { hadStory, storyId: globalThis.storyOrchestratorRuntime.getSnapshot().storyId ?? null };
-  }, [...guard.owned]);
-}
-
 async function deleteMirrorBooks(page, chatIds) {
   return evaluateInST(page, async ({ title, ids }) => {
     const wi = await import(/* webpackIgnore: true */ '/scripts/world-info.js' as string) as { updateWorldInfoList: () => Promise<void>; deleteWorldInfo: (name: string) => Promise<boolean> };
@@ -256,27 +212,12 @@ async function deleteMirrorBooks(page, chatIds) {
   }, { title: STORY.title, ids: chatIds });
 }
 
-async function deleteSoloChat(page, solo) {
-  return evaluateInST(page, async ({ index, avatar, chatId }) => {
-    const ctx = SillyTavern.getContext();
-    if (ctx.chatId === chatId) throw new Error(`solo chat ${chatId} is still open; not deleting it`);
-    if (ctx.characters?.[index]?.avatar !== avatar) throw new Error(`character index ${index} is no longer ${avatar}`);
-    const { deleteCharacterChatByName } = await import(/* webpackIgnore: true */ '/script.js' as string) as { deleteCharacterChatByName: (id: number | string, name: string) => Promise<void> };
-    await deleteCharacterChatByName(index, chatId);
-    const response = await fetch('/api/characters/chats', { method: 'POST', headers: ctx.getRequestHeaders(), body: JSON.stringify({ avatar_url: avatar }) });
-    const data = await response.json().catch(() => []);
-    const remaining = (Array.isArray(data) ? data : Object.values(data)).map((entry) => String((entry as { file_name?: string }).file_name ?? '').replace(/\.jsonl$/i, ''));
-    return { deleted: !remaining.includes(chatId), chatId };
-  }, solo);
-}
-
-export async function runTurnTypesCheck(page, { group = 'AdolionGroup', character = null, image = 'auto', skipReply = false, skipImage = false, skipSolo = false, keep = false } = {}) {
+export async function runTurnTypesCheck(page, { group = 'AdolionGroup', image = 'auto', skipReply = false, skipImage = false, keep = false } = {}) {
   const checks = [];
   const record = (id, ok, detail) => { checks.push({ id, ok: Boolean(ok), detail }); };
   const skipped: Array<{ id: string; why: string }> = [];
   const result: Record<string, unknown> = { ok: false, checks, skipped };
   let guard = null;
-  let solo = null;
   let importedStory = false;
   await page.waitForFunction(() => Boolean(globalThis.storyOrchestratorRuntime), null, { timeout: 15000 });
   await armTurnEvents(page);
@@ -405,38 +346,6 @@ export async function runTurnTypesCheck(page, { group = 'AdolionGroup', characte
     // and said nothing about identity (2026-09-20).
     record('e-distinct-rapid', rapid.afterSpeak.length === 2, { note: 'two different ids inside the old 250ms window are two accepted turns', afterSpeak: rapid.afterSpeak, commits: rapid.commits, ids: [rapidFirst, rapidSecond] });
 
-    if (!skipSolo) {
-      await openChat(page, adopted.adopted);
-      const unloaded = await unloadSandboxStory(page, guard);
-      if (unloaded.storyId !== null) throw new Error(`could not unload the story before leaving the sandbox: ${JSON.stringify(unloaded)}`);
-      const pick = await pickSoloCharacter(page, character);
-      if (!pick.found) {
-        record('d-solo', false, { reason: 'no usable solo character', pick });
-      } else {
-        await openCharacter(page, pick.avatar);
-        await settle(page, 1500);
-        const created = await startNewChat(page);
-        solo = { index: pick.index, avatar: pick.avatar, chatId: created.after.chatId };
-        await settle(page, 1500);
-        const soloState = await readState(page);
-        if (soloState.chatId !== solo.chatId || soloState.groupId) throw new Error(`solo chat escaped: ${JSON.stringify(soloState)}`);
-        if (!(await importCheckStory(page))) throw new Error('importStory failed in the solo chat');
-        const selected = await readState(page);
-        const reloadFrom = await mark(page);
-        await evaluateInST(page, async () => { await SillyTavern.getContext().reloadCurrentChat(); });
-        await settle(page, 2500);
-        const afterReload = await readState(page);
-        const reload = await since(page, reloadFrom);
-        const reloadGreetings = reload.events.filter((event) => event.event === 'message_received' && event.type === 'first_message' && event.chatId === solo.chatId);
-        record('d-reopen', afterReload.chatId === solo.chatId && reloadGreetings.length > 0 && reload.commits.length === 0 && reload.afterSpeak.length === 0 && afterReload.storyId === STORY.id && afterReload.boundary === selected.boundary, { character: pick.name, soloChatId: solo.chatId, boundaryBefore: selected.boundary, reloadGreetings, commits: reload.commits, afterSpeak: reload.afterSpeak, state: afterReload });
-        const swipeFrom = await mark(page);
-        const swiped = await swipeMessage(page, 0, 1);
-        await settle(page, 2500);
-        const afterSwipe = await readState(page);
-        const swipe = await since(page, swipeFrom);
-        record('d-swipe', afterSwipe.chatId === solo.chatId && swiped.swipeId === 1 && swipe.events.some((event) => event.event === 'message_swiped' && Number(event.messageId) === 0) && swipe.commits.length === 0 && swipe.afterSpeak.length === 0 && afterSwipe.boundary === afterReload.boundary && afterSwipe.lastRollback === null, { swiped, swipeEvents: swipe.events, commits: swipe.commits, afterSpeak: swipe.afterSpeak, boundaryBefore: afterReload.boundary, state: afterSwipe });
-      }
-    }
     result.ok = checks.every((check) => check.ok);
   } catch (error) {
     result.error = error instanceof Error ? error.message : String(error);
@@ -450,10 +359,9 @@ export async function runTurnTypesCheck(page, { group = 'AdolionGroup', characte
           const back = await readActiveChat(page);
           if (!guard.owned.includes(back.chatId)) await openChat(page, guard.owned[guard.owned.length - 1]);
           await assertInSandbox(page, guard, 'before cleanup');
-          if (solo) cleanup.solo = await deleteSoloChat(page, solo);
           cleanup.sandbox = await deleteSandboxChats(page, guard);
-          cleanup.mirrorBooks = await deleteMirrorBooks(page, [...guard.owned, ...(solo ? [solo.chatId] : [])]);
-          cleanup.reapPrompts = await settleReapPrompts(page, [...guard.owned, ...(solo ? [solo.chatId] : [])]);
+          cleanup.mirrorBooks = await deleteMirrorBooks(page, guard.owned);
+          cleanup.reapPrompts = await settleReapPrompts(page, guard.owned);
         } catch (error) {
           cleanup.error = error instanceof Error ? error.message : String(error);
         }
@@ -464,7 +372,7 @@ export async function runTurnTypesCheck(page, { group = 'AdolionGroup', characte
         cleanup.story = await evaluateInST(page, async (id) => globalThis.storyOrchestratorRuntime.removeStory(id), STORY.id).catch((error) => String(error));
       }
     } else {
-      cleanup.kept = { owned: guard?.owned ?? [], solo };
+      cleanup.kept = { owned: guard?.owned ?? [] };
     }
     await disarmTurnEvents(page).catch(() => undefined);
     result.cleanup = cleanup;
@@ -486,11 +394,9 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   runCli(async (page) => {
     const result = await runTurnTypesCheck(page, {
       group: readArg(args, '--group', 'AdolionGroup'),
-      character: readArg(args, '--character'),
       image,
       skipReply: args.includes('--skip-reply'),
       skipImage: args.includes('--skip-image'),
-      skipSolo: args.includes('--skip-solo'),
       keep: args.includes('--keep'),
     });
     const summary = { ok: result.ok, error: result.error ?? null, checks: (result.checks as Array<{ id: string; ok: boolean }>).map(({ id, ok }) => ({ id, ok })), cleanup: result.cleanup };

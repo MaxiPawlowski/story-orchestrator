@@ -227,6 +227,8 @@ const CheckpointBehaviour = ({ selected, draft, backgroundNames, patch }: { sele
         control={selected.talk_control}
         roster={draft.roster}
         onChange={(next: TalkControl | undefined) => patch({ talk_control: next })}
+        defaults={draft.talk_defaults}
+        activeReplies={(selected.effects?.npc_replies ?? []).some((reply) => reply.trigger !== "onEnter" && reply.enabled !== false)}
       />
     </div>
 

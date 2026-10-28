@@ -1,15 +1,26 @@
-import { type CheckpointEffects, type NormalizedStory, type NpcReplyEffect } from "@engine/index";
-import { applyCharacterAN, clearCharacterAN, executeSlashCommands, groupMemberPosition, lorebookExists, readSamplerPreset, setWIEntriesState } from "@services/STAPI";
+import { type Checkpoint, type CheckpointEffects, type NormalizedStory, type NpcReplyEffect } from "@engine/index";
+import {
+  applyCharacterAN, clearCharacterAN, executeSlashCommands, getContext, groupMemberPosition, isHostGenerating, lorebookExists, readSamplerPreset, setWIEntriesState, startGroupVoiceAt,
+} from "@services/STAPI";
 import { quoteSlashArg } from "@utils/string";
 import type { SamplerApi } from "@utils/samplerKeys";
 import { couldNot, wrote, type WriteResult } from "@utils/writeResult";
 import { isRecord } from "@utils/guards";
 import { renderBlackboardMemo } from "./blackboardMemo";
+import { startNpcVoice } from "./npcVoice";
+import { voiceChainPending } from "./voiceBusy";
 import { releasePlan, worldInfoPlan, type WorldInfoBookPlan } from "./worldInfoGates";
 import type { RunGuard } from "./runToken";
 import type { RuntimeSnapshot } from "./types";
 
 export const readNpcReplies = (effects: CheckpointEffects | undefined): NpcReplyEffect[] => (Array.isArray(effects?.npc_replies) ? effects.npc_replies : []);
+
+export const isOpeningHook = (reply: NpcReplyEffect): boolean => reply.new_chat_only === true && reply.kind !== "scripted";
+
+export const waitsForOpener = (checkpoint: Checkpoint, openerFired: boolean, chatLength: number): boolean => !openerFired && chatLength === 0
+  && readNpcReplies(checkpoint.effects).some((reply) => reply.new_chat_only === true && reply.kind === "scripted" && reply.enabled !== false);
+
+export const needsCast = (reply: NpcReplyEffect): boolean => reply.kind !== "scripted" && (reply.new_chat_only === true || reply.ask_player === true);
 
 // What the authored note resolves to, so the ledger can record it before the host is touched.
 export const authorNoteText = (value: unknown, snapshot: RuntimeSnapshot): string | null => {
@@ -63,12 +74,18 @@ export const replayWorldInfoFiles = async (library: unknown[], story: Normalized
   return [...released, ...(await applyWorldInfo(worldInfoPlan(story, path), run))];
 };
 
-export const fireReply = async (reply: NpcReplyEffect): Promise<WriteResult> => {
+const playerLines = (): number => (Array.isArray(getContext().chat) ? getContext().chat : [])
+  .filter((row: unknown) => isRecord(row) && row.is_user === true && row.is_system !== true).length;
+
+export const fireReply = async (reply: NpcReplyEffect, live: () => boolean = () => true): Promise<WriteResult> => {
   const text = reply.text ?? reply.instruction ?? "";
   if (reply.kind !== "scripted") {
     const member = groupMemberPosition(reply.member);
     if (!member.ok) return member;
-    if (!await executeSlashCommands(`/trigger await=true ${member.position}`, { silent: false })) return couldNot(`the /trigger for ${reply.member} was refused`);
+    return startNpcVoice({
+      busy: () => isHostGenerating() || voiceChainPending(), playerLines, live,
+      start: () => startGroupVoiceAt(member.position, reply.member), sleep: (ms) => new Promise((resolve) => setTimeout(resolve, ms)),
+    });
   } else if (text.trim() && !await executeSlashCommands(`/sendas name=${quoteSlashArg(reply.member)} raw=false ${quoteSlashArg(text)}`, { silent: false })) {
     return couldNot(`the /sendas for ${reply.member} was refused`);
   }

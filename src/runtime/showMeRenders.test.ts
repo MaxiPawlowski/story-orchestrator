@@ -16,7 +16,7 @@ const SHOW_ME_ALWAYS = [
   "#so-announce-transitions", "#so-briefing-draft", "#so-briefing-enabled", "#so-hud-enabled", "#so-inline-level", "#so-player-setup-enabled",
   "#so-presence-chapter-card", "#so-presence-continue-list", "#so-presence-group-card", "#so-presence-list-badges", "#so-presence-roll-chips",
   "#so-presence-wand", "#so-your-move-enabled", "#so-entry-repair", "#so-group-story-select", "#so-new-story-wizard", "#so-open-studio",
-  "#story-library-select",
+  "#story-library-select", "#so-keep-last-question",
   ...BUILT_JUDGE_USES.filter((use) => !AUTHOR_JUDGE_USES.includes(use)).map((use) => `#${judgeUseControlId(use)}`),
 ];
 

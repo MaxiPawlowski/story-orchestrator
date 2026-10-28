@@ -28,11 +28,13 @@ jest.mock("@services/STAPI", () => ({
   settingsReady: async () => {},
   observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
   readServerBoundary: async () => null,
-  getContext: () => ({ groupId: "g-test", chat: [{}, {}, {}, {}], chatId: "chat-a", extensionSettings: {}, chatMetadata: {}, characters: [], groups: [] }),
+  getContext: () => ({ groupId: "g-test", chat: [{}, {}, {}, {}, {}, { is_user: true, mes: "Go." }], chatId: "chat-a", extensionSettings: {}, chatMetadata: {}, characters: [], groups: [] }),
   registerHostMacro: () => {},
   unregisterHostMacro: () => {},
   startSaveWatcherSurface: () => () => {},
   watchPendingWorldSaves: () => () => {},
+  installDraftGuard: () => () => {},
+  subscribeToHostEventFirst: () => ({ off: () => {}, place: () => {} }),
   subscribeToHostEvents: (entries: Array<{ eventName: string; handler: (...args: unknown[]) => unknown }>) => {
     if (!entries.some((entry) => entry.eventName === "GROUP_MEMBER_DRAFTED")) return () => {};
     for (const entry of entries) mockWired.set(entry.eventName, entry.handler);

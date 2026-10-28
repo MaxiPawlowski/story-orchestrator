@@ -6,7 +6,7 @@ export interface TalkCandidate {
   aliases?: string[];
 }
 
-export type TalkDecisionSource = "judge" | "mention" | "director" | "rules" | "fallback";
+export type TalkDecisionSource = "judge" | "mention" | "director" | "rules" | "fallback" | "spotlight" | "reaction";
 
 export interface DirectorWindowMessage {
   speaker: string;

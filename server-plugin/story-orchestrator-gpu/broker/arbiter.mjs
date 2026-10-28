@@ -2,7 +2,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { spawn as spawnDefault } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { stopIdleComfy } from './comfyReclaim.mjs';
+import { freeIdleComfy, stopIdleComfy } from './comfyReclaim.mjs';
 import { NativeBackend } from './backend.mjs';
 import { ResidencyScheduler } from './scheduler.mjs';
 import { memorySnapshot as memorySnapshotDefault, probeReserves } from './telemetry.mjs';
@@ -133,25 +133,38 @@ export function createArbiter(config, deps = {}) {
         return child;
     };
     let lastReclaim = null;
+    const reclaimStats = { freed: 0, stopped: 0 };
     const reclaimComfy = async ({ shortMiB = 0 } = {}) => {
+        const imageBusy = () => Boolean(scheduler?.lease || scheduler?.imagePending || scheduler?.imageQueued || scheduler?.burstOpen?.());
+        let freeAttempt = null;
+        if (config.reclaimFreeFirst !== false) {
+            freeAttempt = await freeIdleComfy({ child: () => comfyChild, busy: imageBusy, queue: () => jsonFetch('/queue'),
+                free: () => jsonFetch('/free', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ unload_models: true, free_memory: true }) }),
+                emptyHostCache: () => releaseHostCache(), measure: () => snapshot({ fresh: true }), reserveMiB: config.reserves?.gpuMiB ?? 0, waitMs: config.reclaimFreeWaitMs ?? 5000,
+                log: deps.log ?? ((line) => console.log(`[story-orchestrator-gpu] ${line}`)) }, { shortMiB });
+            telemetryAt = 0;
+            if (freeAttempt.freed) { reclaimStats.freed += 1; lastReclaim = { at: new Date().toISOString(), shortMiB: Math.round(shortMiB), stopped: false, ...freeAttempt }; return true; }
+        }
         const recentImage = scheduler?.lastLeaseAt && Date.now() - scheduler.lastLeaseAt < (config.reclaimImageGraceMs ?? 180000);
-        if (recentImage) { lastReclaim = { at: new Date().toISOString(), shortMiB: Math.round(shortMiB), stopped: false, reason: 'recent-image' }; return false; }
-        const result = await stopIdleComfy({ child: () => comfyChild, busy: () => Boolean(scheduler?.lease || scheduler?.imagePending || scheduler?.imageQueued), queue: () => jsonFetch('/queue'), settleMs: config.reclaimSettleMs ?? 1500,
+        if (recentImage) { lastReclaim = { at: new Date().toISOString(), shortMiB: Math.round(shortMiB), stopped: false, reason: 'recent-image', freeAttempt }; return false; }
+        const result = await stopIdleComfy({ child: () => comfyChild, busy: imageBusy, queue: () => jsonFetch('/queue'), settleMs: config.reclaimSettleMs ?? 1500,
             kill: async (child) => { if (killTree && child.pid) await killTree(child.pid); else child.kill(); }, timeoutMs: config.comfyStopTimeoutMs ?? 15000,
             log: deps.log ?? ((line) => console.log(`[story-orchestrator-gpu] ${line}`)) }, { shortMiB });
         telemetryAt = 0;
-        lastReclaim = { at: new Date().toISOString(), shortMiB: Math.round(shortMiB), ...result };
+        lastReclaim = { at: new Date().toISOString(), shortMiB: Math.round(shortMiB), ...result, freeAttempt };
+        if (result.stopped) reclaimStats.stopped += 1;
         return result.stopped;
     };
     const backend = deps.backend ?? new NativeBackend(config, { snapshot: () => snapshot({ fresh: true }), spawn: ownedSpawn, killTree, fetch: fetchImpl, reclaimGpu: reclaimComfy });
-    const imageCache = deps.imageCache ?? new ImageCache({ config, jsonFetch, snapshot, emptyHostCache: async () => {
+    const releaseHostCache = async () => {
         const response = await fetchImpl(`${comfyUrl}/so-local/host-cache`, { method: 'POST', headers: { 'X-SO-Local': '1' }, signal: AbortSignal.timeout(15000) });
         if (response.status === 404 || response.status === 501) return false;
         if (!response.ok) throw new Error(`ComfyUI host-cache release refused ${response.status}`);
         const evidence = await response.json();
         imageCache.lastHostTrim = { at: new Date().toISOString(), ...evidence };
         return evidence.trimmed === true;
-    } });
+    };
+    const imageCache = deps.imageCache ?? new ImageCache({ config, jsonFetch, snapshot, emptyHostCache: releaseHostCache });
     const freeImages = async (options = {}) => {
         await startComfy();
         const result = await imageCache.free({ ...options, clear: options.clear ?? config.imageCacheMode === 'evict' });
@@ -186,11 +199,12 @@ export function createArbiter(config, deps = {}) {
                 queue: () => jsonFetch('/queue'), freeImages,
                 saveFootprints: (data) => fsImpl.writeFile(footprintsPath, JSON.stringify(data, null, 2)), footprints,
                 timings, saveTimings: (data) => fsImpl.writeFile(timingsPath, JSON.stringify({ identity, timings: data }, null, 2)), runtime,
-                log: deps.log ?? ((line) => console.log(`[story-orchestrator-gpu] ${line}`)) });
+                log: deps.log ?? ((line) => console.log(`[story-orchestrator-gpu] ${line}`)), comfyPid: () => comfyChild?.pid ?? null });
             if (fast) unsubscribe = fast.subscribe((sample) => scheduler.observe(sample));
             if (deps.timers !== false) {
                 timer = setInterval(() => {
                     void scheduler.sampleLease();
+                    fast?.setGpuProcesses?.([backend.status().pid ?? backend.status().sleeping?.pid, comfyChild?.pid].filter(Boolean));
                     void scheduler.restoreIfIdle();
                     if (!backend.crashed) void scheduler.keepResident();
                 }, 2500);
@@ -214,6 +228,10 @@ export function createArbiter(config, deps = {}) {
         },
         renew(lease) { return scheduler.renew(lease); },
         release(lease) { return scheduler.release(lease); },
+        burst(body = {}) {
+            if (body.close !== undefined) return { closed: scheduler.closeBurst(typeof body.close === 'string' ? body.close : null) };
+            return scheduler.openBurst({ count: body.count, ttlMs: body.ttlMs, kind: body.kind });
+        },
         text(run, signal, budget, lane) {
             if (backend.crashed) return Promise.reject(new Error(`The local text server exited (code ${backend.crashed.code ?? 'unknown'}). An admin can restart it with Load text.`));
             return scheduler.text(run, signal, budget, lane);
@@ -242,7 +260,7 @@ export function createArbiter(config, deps = {}) {
             return { ...sched, adapter: 'supervise', guarding: true, state, mayRetain, reserves: config.reserves ?? null, reservesFrom,
                 telemetry: reading, telemetryError, imageCache: imageCache.last, imageCacheFailure: imageCache.lastFailure, imageCacheHostTrim: imageCache.lastHostTrim ?? null,
                 imageCacheMode: config.imageCacheMode ?? 'warm', maxContext: config.maxContext, profiles: Object.keys(config.profiles ?? {}),
-                comfy: { supervised: config.comfySupervise === true, ownedPid: comfyChild?.pid ?? null, lastReclaim } };
+                comfy: { supervised: config.comfySupervise === true, ownedPid: comfyChild?.pid ?? null, lastReclaim, reclaims: { ...reclaimStats } } };
         },
         ownedChildren() { return [...owned]; },
         async stop() {

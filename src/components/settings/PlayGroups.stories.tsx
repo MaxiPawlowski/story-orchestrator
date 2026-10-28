@@ -24,6 +24,7 @@ const fakeManager = (): RuntimeManager =>
     setStagecraftSettings: fn(),
     setTalkChainSettings: fn(),
     setPacingSettings: fn(),
+    notify: fn(),
   }) as unknown as RuntimeManager;
 
 const Groups = ({ snapshot: current, manager }: { snapshot: RuntimeSnapshot; manager: RuntimeManager }) => (
@@ -50,6 +51,7 @@ export const AuthorView: Story = {
     const canvas = within(canvasElement);
     await userEvent.click(canvas.getByRole("checkbox", { name: /Several characters may answer/ }));
     await expect(args.manager.setTalkChainSettings).toHaveBeenCalled();
+    await expect(canvas.getByRole("checkbox", { name: /Keep one question when a character asks you/ })).toBeChecked();
     await expect(await canvas.findByLabelText("Notes under messages")).toBeInTheDocument();
     await expect(canvas.queryByRole("checkbox", { name: "Lorebook curator" })).toBeNull();
     await waitFor(() => expect(canvasElement.querySelector("#so-inner-voice-settings")).not.toBeNull());

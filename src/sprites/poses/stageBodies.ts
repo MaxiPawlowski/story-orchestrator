@@ -9,7 +9,7 @@ import { expressionDeps, type ExpressionCallTrace } from "../expressionCalls";
 import { memberPoses, poseLibrary } from "./library";
 import { replayPose, poseRead } from "./stageChoice";
 import { bodyStamp, fallbackBodies, lookLayers } from "./layers";
-import { nearestLook, publishedLook, visualRoot } from "../visualManifest";
+import { lookSignature, nearestLook, publishedLook, visualRoot } from "../visualManifest";
 import { memberDirection, type StageDirection } from "../direction";
 import { resolveSprite, spriteIndex } from "../profile";
 import type { Actor } from "../castLoad";
@@ -82,7 +82,9 @@ export class StagePoses {
     const available = (actor.bodies ?? []).filter((body) => body.visualRoot === root);
     const exact = available.find((body) => body.stamp === stamp && actor.packs.get(body.set)?.has(actor.desiredLabel));
     const wanted = exact ?? { set: "", pose: pose.id, tags: pose.tags, look: stableStringify(layers.base) };
-    const standIn = !exact && source ? publishedLook(source, layers.base) ?? nearestLook(source, layers.base) : null;
+    const packed = actor.identity?.looks[lookSignature(fields)]?.set;
+    const standIn = exact ? null : packed && actor.packs.has(packed) ? { set: packed, path: actor.packs.get(packed)?.get("neutral") ?? "" }
+      : source ? publishedLook(source, layers.base) ?? nearestLook(source, layers.base) : null;
     if (standIn && !actor.packs.has(standIn.set)) actor.packs.set(standIn.set, new Map([["neutral", standIn.path]]));
     const nearest = fallbackBodies(wanted, available, actor.set, standIn?.set).find((set) => actor.packs.has(set));
     const label = actor.desiredLabel;

@@ -3,7 +3,7 @@ import { join, resolve } from "node:path";
 import { defaultGlobalSettings, defaultExtractionSettings, defaultMemorySettings, sanitizeGlobalSettings, type GlobalSettings } from "@runtime/settingsModel";
 import type { ExtractionRuntimeSettings, MemoryRuntimeSettings } from "@runtime/types";
 import { DEFAULT_CHAPTER_SETTINGS } from "@runtime/chapters";
-import { JUDGE_USE_COPY } from "@judge/settings";
+import { JUDGE_USE_COPY } from "@judge/useCopy";
 import { JUDGE_READINESS_BY_PROVIDER } from "@judge/readinessRows";
 import { EDIT_CATCH_UP_TEXT, HUD_COPY, PIPELINE_ACTION_COPY, REPAIR_PLAYER_COPY, hudChipLabel } from "@runtime/pipeline";
 import { PLAYER_COPY } from "@runtime/narrative";

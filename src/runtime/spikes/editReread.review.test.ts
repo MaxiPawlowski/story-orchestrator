@@ -53,6 +53,7 @@ const withoutRequeue = (manager: RuntimeManager): EditRereadHost => ({
   onRollback: (listener) => manager.onRollback(listener),
   rollbackFromMessage: (messageId, decoded, kind) => manager.rollbackFromMessage(messageId, decoded, kind),
   commitBoundary: (at) => manager.commitBoundary(at),
+  holdingRollbackNotice: (work) => manager.holdingRollbackNotice(work),
   writes: { requeue: () => undefined },
 });
 
@@ -245,6 +246,32 @@ describe("v2.7 33 W1 V2: one cycle per settled burst", () => {
     expect(seen.length).toBeGreaterThan(0);
     expect(seen.every(Boolean)).toBe(true);
     expect(edit.ownsReread()).toBe(false);
+    world.close();
+  });
+
+  it("D-EB1: an edit that steps the story back keeps the rollback notice through its re-read, and the next turn clears it", async () => {
+    const { world, settleEdit } = await armed("reread");
+    await world.play([{ user: "rain", reply: "song" }, { user: "fire", reply: "bread" }]);
+    const newest = spikeContext.chat.length - 1;
+    await settleEdit(newest, ["go"]);
+    expect(world.manager.getEngineState()?.activeCheckpointId).toBe("road");
+    expect(world.manager.getSnapshot().lastRollback).toBeNull();
+    await settleEdit(newest, ["stone"]);
+    expect(world.manager.getEngineState()?.activeCheckpointId).toBe("start");
+    expect(world.manager.getSnapshot().lastRollback).toMatchObject({ checkpointName: "The Camp", kind: "edit" });
+    await world.turn({ user: "path", reply: "song" });
+    expect(world.manager.getSnapshot().lastRollback).toBeNull();
+    world.close();
+  });
+
+  it("D-EB1: an edit whose re-read moves the story on again drops the notice", async () => {
+    const { world, settleEdit } = await armed("reread");
+    await world.play([{ user: "rain", reply: "song" }, { user: "fire", reply: "bread" }]);
+    const newest = spikeContext.chat.length - 1;
+    await settleEdit(newest, ["go"]);
+    await settleEdit(newest, ["go stone"]);
+    expect(world.manager.getEngineState()?.activeCheckpointId).toBe("road");
+    expect(world.manager.getSnapshot().lastRollback).toBeNull();
     world.close();
   });
 

@@ -57,6 +57,7 @@ export function mergeExpansions(rawStory: unknown, entries: Record<string, Expan
         tension_target: beat.tension_target,
         ...(beat.state_snapshot ? { state_snapshot: beat.state_snapshot } : {}),
         ...(chapter ? { chapter } : {}),
+        ...(stub?.talk_control ? { talk_control: clone(stub.talk_control) } : {}),
         ...(index === 0 && stubWorldInfo ? { effects: { world_info: clone(stubWorldInfo) } } : {}),
       });
     });

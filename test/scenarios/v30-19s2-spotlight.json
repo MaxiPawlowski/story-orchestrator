@@ -1,0 +1,106 @@
+{
+  "model": "any",
+  "_note": "Spotlight never adds a voice: profile conversation turns spotlight on (quiet after 2 player turns) with a 3-voice budget; after a player message the speech record of that message holds no more voices than the budget and every spotlight event replaced a chain voice (no send has more automatic voices than its budget). This group has two members, so the substitution itself (a third, quiet member taking the judge's pick) is covered by src/runtime/talkPacing.review.test.ts and owed on the campaign live gate (5+ members). Written for v3.0 plan 19 stage 2, NOT YET RUN (the live gate is owed); schema-validated only. Model lane: send_generate drafts real voices; the assertions read code-made records only.",
+  "requires": {
+    "lane": "model",
+    "group": "Group: Arin, DM Narrator",
+    "members": [
+      "Arin",
+      "DM Narrator"
+    ],
+    "why": "policy and budget are code; the reply text is not asserted",
+    "judge": "off"
+  },
+  "steps": [
+    {
+      "eval": "for (const name of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[name]; globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; globalThis.storyOrchestratorDebugDirectorResponse = 'SPEAKER: Arin'; return { director: 'Arin' };",
+      "log": true
+    },
+    {
+      "import_story": {
+        "title": "SO-V3019S2 Spotlight",
+        "description": "v3.0 plan 19 stage 2 fixture.",
+        "qualities": [
+          {
+            "key": "at_gate",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Has the party reached the gate?"
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "camp",
+            "name": "Camp",
+            "objective": "Talk by the fire.",
+            "type": "anchor",
+            "start": true,
+            "talk_control": {
+              "lead": "DM Narrator",
+              "speakers": [
+                {
+                  "member": "DM Narrator"
+                },
+                {
+                  "member": "Arin"
+                }
+              ],
+              "director": true,
+              "profile": "conversation"
+            }
+          },
+          {
+            "id": "gate",
+            "name": "Gate",
+            "objective": "Open it.",
+            "type": "anchor"
+          }
+        ],
+        "transitions": [
+          {
+            "from": "camp",
+            "to": "gate",
+            "priority": 1,
+            "gate": {
+              "q": "at_gate",
+              "op": "==",
+              "v": true
+            }
+          }
+        ],
+        "roster": [
+          {
+            "id": "DM Narrator",
+            "name": "DM Narrator"
+          },
+          {
+            "id": "Arin",
+            "name": "Arin"
+          }
+        ]
+      },
+      "log": true
+    },
+    {
+      "eval": "const policy = globalThis.storyOrchestratorRuntime.talkPolicy(); if (policy.spotlight?.quietAfter !== 2 || policy.budget?.voices !== 3 || policy.leadPreferred !== false) throw new Error('conversation profile did not resolve: ' + JSON.stringify(policy)); return policy;",
+      "log": true
+    },
+    {
+      "send_generate": {
+        "text": "Tell me about the road.",
+        "timeoutMs": 90000
+      }
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 1500,
+        "timeoutMs": 30000
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const chat = SillyTavern.getContext().chat; const send = chat.map((m, i) => (m?.is_user && !m?.is_system ? i : -1)).filter((i) => i >= 0).at(-1); const voices = chat.slice(send + 1).filter((m) => m && !m.is_user && !m.is_system).length; const state = { voices, speech: rt.extras.speech ?? [] }; if (voices > 3) throw new Error('more voices than the budget: ' + JSON.stringify(state)); return state;",
+      "log": true
+    }
+  ]
+}

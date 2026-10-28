@@ -4,7 +4,9 @@ import {
   type Checkpoint, type EngineState, type NormalizedStory, type TensionLevel,
 } from "@engine/index";
 import type { ParsedDelta } from "@extraction/index";
-import { OPENING_LINE, composeGuidanceBlock, encounterOfferLine, getSteeringHint, pullLine, quietRead, tensionEvidenceFresh, updateEma, type EncounterOffer } from "@pacing/index";
+import {
+  OPENING_LINE, asksPlayerDirection, composeGuidanceBlock, encounterOfferLine, leadLengthLine, getSteeringHint, pullLine, quietRead, tensionEvidenceFresh, updateEma, type EncounterOffer,
+} from "@pacing/index";
 import { PACING_HINT_DEPTH, PACING_HINT_EXTENSION_KEY } from "@constants/defaults";
 import { INJECTION_REGISTRY } from "@constants/injectionRegistry";
 
@@ -18,6 +20,8 @@ import type { PacingSettings, TensionRuntimeState } from "../types";
 
 const TENSION_LEVEL_LIMIT = 50;
 
+interface OneShotDirection { rosterId: string; name: string; text: string; scope: "call" | "draft" }
+
 export interface PacingCoordinatorDeps {
   getStory: () => NormalizedStory | null;
   getState: () => EngineState | null;
@@ -30,6 +34,7 @@ export interface PacingCoordinatorDeps {
   hosts: { prompt: PromptHost; chat?: Pick<ChatHost, "chatRows"> };
   ended?: () => boolean;
   onHoldChange?: () => void;
+  leadLength?: () => { rosterId: string; name: string; words: number } | null;
 }
 
 // Tension is written twice: optimistically while extractor deltas are queued (so the smoothed
@@ -40,6 +45,9 @@ export class PacingCoordinator {
   private sampled: { to: number; before: number | null } | null = null;
   private drafted: string | null = null;
   private withheld = false;
+  private direction: OneShotDirection | null = null;
+  private asking: OneShotDirection | null = null;
+  private answered: OneShotDirection | null = null;
 
   constructor(private readonly deps: PacingCoordinatorDeps) {}
 
@@ -50,6 +58,8 @@ export class PacingCoordinator {
   reset() {
     this.pending = null;
     this.sampled = null;
+    this.direction = null;
+    this.asking = null;
   }
 
   applyExtractorTension(acceptedDeltas: ParsedDelta[], windowTo: number): { accepted: ParsedDelta[]; levels: TensionLevel[] } {
@@ -136,7 +146,11 @@ export class PacingCoordinator {
     const active = activeId ? story.checkpointById[activeId] : null;
     const rows = this.deps.hosts.chat?.chatRows() ?? [];
     const turns = active?.stretch ? playerTurnsInCheckpoint(this.deps.getState(), rows) : 0;
-    const guidance = composeGuidanceBlock(active, policy, objectiveLineApplies(story, active, turns), this.memberLine(story, active), this.stretchLine(story, active, rows, turns));
+    const oneShot = this.oneShotLine();
+    const direction = this.direction;
+    if (oneShot && direction && direction !== this.answered && asksPlayerDirection(oneShot.text)) this.asking = direction;
+    const guidance = composeGuidanceBlock(active, policy, objectiveLineApplies(story, active, turns), this.memberLine(story, active), this.stretchLine(story, active, rows, turns),
+      oneShot, this.lengthLine());
     if (guidance) prompt.setStoryExtensionPrompt(GUIDANCE.key, guidance, GUIDANCE.depth);
     else this.clearGuidance();
   }
@@ -158,15 +172,50 @@ export class PacingCoordinator {
     return { name: member?.name ?? id, text };
   }
 
+  private oneShotLine() {
+    const direction = this.direction;
+    return direction && !this.withheld && this.drafted === direction.rosterId ? { name: direction.name, text: direction.text } : null;
+  }
+
+  private lengthLine(): string | null {
+    const lead = this.withheld ? null : this.deps.leadLength?.() ?? null;
+    return lead && this.drafted === lead.rosterId ? leadLengthLine(lead.name, lead.words) : null;
+  }
+
+  armDirection(member: string, text: string, scope: "call" | "draft" = "call"): (() => void) | null {
+    const ref = member.trim().toLowerCase();
+    const entry = this.deps.getStory()?.roster.find((candidate) => [candidate.id, candidate.name ?? ""].some((name) => name.trim().toLowerCase() === ref));
+    if (!entry || !text.trim()) return null;
+    const direction = { rosterId: entry.id, name: entry.name ?? entry.id, text: text.trim(), scope };
+    this.direction = direction;
+    this.updateSteering();
+    return () => {
+      if (this.direction !== direction) return;
+      this.direction = null;
+      this.updateSteering();
+    };
+  }
+
   draftGuidance(rosterId: string | null) {
     this.drafted = rosterId;
+    if (this.asking?.rosterId !== rosterId) this.asking = null;
     this.updateSteering();
   }
 
   get holding(): boolean { return this.withheld; }
 
+  takeAskingPlayer(speaker: string): boolean {
+    const asking = this.asking;
+    const ref = speaker.trim().toLowerCase();
+    if (!asking || !ref || ![asking.rosterId, asking.name].some((name) => name.trim().toLowerCase() === ref)) return false;
+    this.asking = null;
+    this.answered = asking;
+    return true;
+  }
+
   releaseDraftGuidance() {
     this.drafted = null;
+    if (this.direction?.scope === "draft") this.direction = null;
     this.setHold(false);
     this.updateSteering();
   }

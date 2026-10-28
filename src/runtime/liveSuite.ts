@@ -1,4 +1,5 @@
-import { askText, parseSharedReadResponse, runSharedRead, type ExtractionReply, type ModelCall, type ModelPass, type PassRole } from "@extraction/index";
+import { runSharedRead } from "@extraction/sharedRead";
+import { askText, parseSharedReadResponse, type ExtractionReply, type ModelCall, type ModelPass, type PassRole } from "@extraction/index";
 import { windowOf } from "@extraction/chatRows";
 import { buildFixtureRun, type ExtractionFixtureSpec, type FixtureSourceRead } from "@extraction/fixtureRun";
 import { applyRatingGrounding } from "@extraction/ratingGuard";

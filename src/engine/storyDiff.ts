@@ -2,7 +2,7 @@ import { keptStagedFrom, type EngineHistory, type EngineState } from "./engine";
 import {
   CODEX_PAGES, observationIdentity, observationKey, observationMissedKey, codexArmedKey, codexEntryKey, codexFactKey, codexReturnKey, isCodexKey, isObservationKey,
   factionMoveKey, questClosedKey, questRewardKey, STORY_DISPLAY_TOGGLES,
-  type CodexEntry, type CodexPage, type NormalizedStory, type PrimitiveValue, type Transition,
+  type CodexEntry, type CodexPage, type NormalizedStory, type PrimitiveValue, type TalkControl, type Transition,
 } from "./schema";
 import { qualityAccepts } from "./blackboard";
 import { gateLeaves } from "./gates";
@@ -21,9 +21,9 @@ export type StoryDiffCode =
   | "checkpoint-removed-visited" | "active-checkpoint-removed" | "start-changed" | "start-changed-unplayed"
   | "transition-added" | "transition-removed" | "gate-changed" | "gate-changed-frontier" | "gate-changed-latched"
   | "roster-member-removed" | "requirements-changed" | "stagecraft-changed" | "features-changed"
-  | "story-objective-block-changed" | "story-display-changed" | "story-presence-changed" | "story-kind-changed"
+  | "story-objective-block-changed" | "story-display-changed" | "story-presence-changed" | "story-kind-changed" | "visual-packs-changed"
   | "scene-read-changed" | "player-card-changed" | "player-profile-changed" | "lore-select-changed"
-  | "house-rules-changed" | "arc-template-changed" | "arc-bridges-changed" | "chapters-changed" | "game-changed"
+  | "house-rules-changed" | "talk-defaults-changed" | "arc-template-changed" | "arc-bridges-changed" | "chapters-changed" | "game-changed"
   | "quest-removed" | "quest-removed-closed" | "quest-reward-changed-earned" | "check-changed" | "codex-changed"
   | "factions-changed" | "faction-move-changed-applied"
   | "codex-entry-removed" | "codex-entry-replaced" | "codex-fact-removed" | "codex-fact-replaced"
@@ -73,12 +73,19 @@ const changedFields = (before: object, after: object, skip: readonly string[]): 
 
 const QUALITY_DIFFED = ["key", "type", "values", "evidence_from", "latching", "source"] as const;
 
+const talkPacingMembers = (control: TalkControl | undefined): string[] => [
+  ...(control?.spotlight ? control.spotlight.members ?? [] : []),
+  ...(control?.reaction ? control.reaction.members ?? [] : []),
+  ...(control?.address_player && Array.isArray(control.address_player.by) ? control.address_player.by : []),
+];
+
 const rosterRefs = (story: NormalizedStory): Set<string> => {
   const refs = new Set<string>();
   const add = (value: unknown) => { if (typeof value === "string" && value.trim()) refs.add(value.trim().toLowerCase()); };
   story.checkpoints.forEach((checkpoint) => {
     (checkpoint.talk_control?.speakers ?? []).forEach((speaker) => add(speaker.member));
     add(checkpoint.talk_control?.lead);
+    talkPacingMembers(checkpoint.talk_control).forEach(add);
     (checkpoint.effects?.npc_replies ?? []).forEach((reply) => { add(reply.member); add(reply.after_member); });
     const cast = checkpoint.effects?.cast_changes as { enable?: unknown[]; disable?: unknown[] } | undefined;
     [...(cast?.enable ?? []), ...(cast?.disable ?? [])].forEach(add);
@@ -426,10 +433,14 @@ const diffStoryFields = (ctx: DiffContext) => {
   if (STORY_DISPLAY_TOGGLES.some((key) => previous.display?.[key] !== next.display?.[key])) {
     push("compatible", "story-presence-changed", "display", "Which story panels and cards this story shows changed.");
   }
+  if (!sameValue(previous.illustrations?.packs, next.illustrations?.packs)) {
+    push("compatible", "visual-packs-changed", "illustrations", "The visual packs this story draws its cast and places from changed.");
+  }
   if ((previous.kind ?? "story") !== (next.kind ?? "story")) push("compatible", "story-kind-changed", "kind", "Whether the story shows as a saga or a single story changed.");
   if (previous.objective_block !== next.objective_block) push("compatible", "story-objective-block-changed", "objective_block", "Whether the objective line is added changed.");
   if (!sameValue(previous.lore_select, next.lore_select)) push("compatible", "lore-select-changed", "lore_select", "What lore-select may judge, or whether it excludes unpicked entries, changed.");
   if (!sameValue(previous.house_rules, next.house_rules)) push("compatible", "house-rules-changed", "house_rules", "What the narrator is held to changed.");
+  if (!sameValue(previous.talk_defaults, next.talk_defaults)) push("compatible", "talk-defaults-changed", "talk_defaults", "The story's default pacing profile or speech budget changed.");
   if (!sameValue(previous.scene_read, next.scene_read)) push("compatible", "scene-read-changed", "scene_read", "The scene tracker's places or times changed.");
   if (!sameValue(previous.player?.card, next.player?.card)) push("compatible", "player-card-changed", "player", "The player’s public character fields changed.");
   if (!sameValue({ ...previous.player, card: undefined }, { ...next.player, card: undefined })) {

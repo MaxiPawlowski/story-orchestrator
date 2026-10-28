@@ -1,0 +1,120 @@
+{
+  "id": "visual-bridge-fixture",
+  "title": "Lantern harbor",
+  "description": "An invented fixture for the visual bridge.",
+  "qualities": [
+    {
+      "key": "wanderer_outfit",
+      "type": "string",
+      "source": "extractor",
+      "rubric": "What the wanderer wears."
+    },
+    {
+      "key": "time_of_day",
+      "type": "string",
+      "source": "extractor",
+      "rubric": "Day or night."
+    },
+    {
+      "key": "festival",
+      "type": "bool",
+      "source": "extractor",
+      "rubric": "Has the festival begun?"
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "quay",
+      "name": "On the quay",
+      "objective": "Meet the wanderer.",
+      "type": "anchor",
+      "start": true,
+      "effects": {
+        "background": "fixture_harbor_day.png"
+      }
+    },
+    {
+      "id": "market",
+      "name": "Market lane",
+      "objective": "Walk the market.",
+      "type": "anchor",
+      "effects": {
+        "background": "market_lane.png"
+      }
+    },
+    {
+      "id": "hilltop",
+      "name": "Hilltop",
+      "objective": "Watch the stars.",
+      "type": "anchor"
+    }
+  ],
+  "transitions": [
+    {
+      "from": "quay",
+      "to": "market",
+      "priority": 1,
+      "gate": {
+        "q": "festival",
+        "op": "==",
+        "v": true
+      }
+    },
+    {
+      "from": "market",
+      "to": "hilltop",
+      "priority": 1,
+      "gate": {
+        "q": "festival",
+        "op": "==",
+        "v": false
+      }
+    }
+  ],
+  "roster": [
+    {
+      "id": "keeper",
+      "name": "Keeper",
+      "role": "Narrator: describes places"
+    },
+    {
+      "id": "wanderer",
+      "name": "Wanderer",
+      "role": "A traveller who sells maps",
+      "card": {
+        "fields": {
+          "outfit": {
+            "quality": "wanderer_outfit",
+            "visual": true
+          }
+        }
+      }
+    }
+  ],
+  "illustrations": {
+    "checkpoints": true,
+    "style": "soft ink",
+    "packs": {
+      "style": {
+        "id": "fixture-ink-style",
+        "digest": "1759b230d9ed6fb12e76be51cd04c5301563e537ba16f41a758c4fb5d18e69be"
+      },
+      "identities": {
+        "wanderer": {
+          "id": "fixture-wanderer",
+          "digest": "2a61214960aff5bbb7059929ea18b9e4bbdf9378f6de26b4ff29dbd4a29828a7"
+        }
+      },
+      "places": {
+        "quay": {
+          "id": "fixture-harbor",
+          "digest": "6a116d80c1470e6b7981bc3365669233ed64ea35a105910dfbb9ba116551b166"
+        },
+        "hilltop": {
+          "id": "fixture-observatory",
+          "digest": "aef3a4f85d5d98a3c803324391a762b919a63bc77f80f42caabc3c166a6ac88d"
+        }
+      }
+    }
+  }
+}

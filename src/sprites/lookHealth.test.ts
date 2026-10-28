@@ -18,6 +18,6 @@ test("changed-look readiness reports missing references and backend failures, bu
   const matched = { ...actor, rules: [{ id: "red", places: [], checkpoints: [], keywords: [], card: { hair: ["red"] } }] };
   expect(changedLookIssues(story, { hair: "red" }, settings, true, [matched])).toEqual([]);
   const automatic = { ...settings, onDemand: true };
-  expect(changedLookIssues(story, { hair: "red" }, automatic, true, [actor])[0].reason).toContain("reference expression pack");
+  expect(changedLookIssues(story, { hair: "red" }, automatic, true, [actor])[0].reason).toContain("No accepted base and bust");
   expect(changedLookIssues(story, { hair: "red" }, automatic, true, [{ ...actor, lookError: "Edit model unavailable." }])[0].reason).toBe("Edit model unavailable.");
 });

@@ -51,6 +51,15 @@ Original images never become generated assets and cannot be removed through gene
 Changed looks reuse the matching expression's pose and identity, falling back to neutral when that expression is absent.
 A changed reference image makes a new cache key; an image changed during a render is refused rather than silently saved.
 
+## Visual packs from a campaign
+
+A story can bind prepared art by pack (`illustrations.packs`): an identity pack per character, a place pack per location and a style pack.
+The pack files live in `<SillyTavern data>/<user>/story-orchestrator/visual-packs/` (any folder depth up to three, one JSON file per pack revision),
+and their images are served from the character and background folders. The optional media plugin lists them; without it the story draws from text.
+Every image is checked against its sha256 before the stage, the cast scene or a picture uses it. A pack-bound character needs no builder:
+the stage shows its prepared looks, and the cast scene renders it with the install-wide scene recipe (`sprites.sceneRecipe`, or the one Qwen 2.1 edit model,
+text encoder and VAE ComfyUI offers when there is exactly one of each). Install a new revision beside the old one: a chat keeps the revision its story pinned.
+
 ## Make a base when the character has no sprites
 
 Discover the image-edit setup, then open **Build a base from character-card art**. Choose the installed background-removal

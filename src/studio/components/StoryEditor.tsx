@@ -1,7 +1,7 @@
 import React from "react";
 import {
-  ARC_TEMPLATE_NAMES, CHECKPOINT_REASONING, HOUSE_RULES_MAX, STAGECRAFT_CREATE_CAP_DEFAULT, STAGECRAFT_CREATE_CAP_MAX,
-  type ArcTemplateName, type StagecraftExclusion, type StoryRequirements,
+  ARC_TEMPLATE_NAMES, CHECKPOINT_REASONING, HOUSE_RULES_MAX, STAGECRAFT_CREATE_CAP_DEFAULT, STAGECRAFT_CREATE_CAP_MAX, TALK_BUDGET_CAP, TALK_PROFILES,
+  type ArcTemplateName, type StoryTalkDefaults, type StagecraftExclusion, type StoryRequirements,
 } from "@engine/index";
 import HelpTooltip from "@components/studio/HelpTooltip";
 import ChaptersEditor from "./ChaptersEditor";
@@ -13,6 +13,7 @@ import StoryDisplayEditor from "./StoryDisplayEditor";
 import ReplyPolishEditor from "./ReplyPolishEditor";
 import WorkflowMapEditor, { useWorkflowNames } from "./WorkflowMapEditor";
 import BundledWorkflowsPanel from "./BundledWorkflowsPanel";
+import VisualPacksPanel from "./VisualPacksPanel";
 import { bundleMapped, installBundled, mappedNames } from "../workflowBundle";
 import { comfyDiscover } from "@services/stHost/media";
 import { useDraftStore } from "../draft";
@@ -164,6 +165,34 @@ const StoryIdentitySection = ({ draft, mutate, idLocked }: { draft: Draft; mutat
         />
         Add the objective when a checkpoint has no author note
       </label>
+      <TalkDefaultsFields draft={draft} mutate={mutate} />
+    </div>
+  );
+};
+
+const TalkDefaultsFields = ({ draft, mutate }: { draft: Draft; mutate: Mutate }) => {
+  const defaults: StoryTalkDefaults = draft.talk_defaults ?? {};
+  const set = (patch: StoryTalkDefaults) => mutate((current) => {
+    const next = { ...current.talk_defaults, ...patch };
+    const kept = { ...(next.profile ? { profile: next.profile } : {}), ...(next.budget?.voices ? { budget: next.budget } : {}) };
+    return setStoryField(current, "talk_defaults", Object.keys(kept).length ? kept : undefined);
+  });
+  return (
+    <div className="flex flex-wrap items-center gap-3 text-sm">
+      <label className="flex items-center gap-2">
+        Default pacing profile
+        <select data-so="talk-defaults-profile" aria-label="Default pacing profile" className="text_pole st-input" value={defaults.profile ?? ""}
+          onChange={(event) => set({ profile: TALK_PROFILES.find((name) => name === event.target.value) })}>
+          <option value="">none</option>
+          {TALK_PROFILES.map((name) => <option key={name} value={name}>{name}</option>)}
+        </select>
+      </label>
+      <label className="flex items-center gap-2">
+        Default voices per player message
+        <input data-so="talk-defaults-voices" type="number" min={1} max={TALK_BUDGET_CAP} className="text_pole st-input w-20" aria-label="Default voices per player message"
+          value={defaults.budget?.voices ?? ""}
+          onChange={(event) => set({ budget: event.target.value ? { voices: Math.min(TALK_BUDGET_CAP, Math.max(1, Math.round(Number(event.target.value)))) } : undefined })} />
+      </label>
     </div>
   );
 };
@@ -302,6 +331,9 @@ const IllustrationsSection = ({ draft, mutate }: { draft: Draft; mutate: Mutate 
         const { [name]: _dropped, ...rest } = art?.bundle ?? {};
         update({ bundle: Object.keys(rest).length ? rest : undefined });
       }} />
+    <VisualPacksPanel packs={art?.packs} memberNames={Object.fromEntries(draft.roster.map((member) => [member.id, member.name ?? member.id]))}
+      checkpointNames={Object.fromEntries(draft.checkpoints.map((checkpoint) => [checkpoint.id, checkpoint.name]))}
+      onChange={(packs) => mutate((current) => setStoryField(current, "illustrations", { ...current.illustrations, packs }))} />
     {draft.roster.map((member) => <Field key={member.id} label={`${member.name ?? member.id} — appearance`} hint="Appearance the image-prompt model should preserve for this story's cast member.">
       <input className="text_pole st-input" aria-label={`${member.name ?? member.id} appearance`} value={art?.appearances?.[member.id] ?? ""}
         onChange={(event) => update({ appearances: { ...art?.appearances, [member.id]: event.target.value } })} />

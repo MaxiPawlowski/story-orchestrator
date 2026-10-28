@@ -16,7 +16,7 @@ const quiet = (overrides: Record<string, unknown> = {}): RuntimeSnapshot => ({
   ...overrides,
 }) as unknown as RuntimeSnapshot;
 
-const IMAGE_HEALTH = { enabled: true, backend: "comfy", automation: "story", service: "absent", detail: "ComfyUI did not answer.", source: null, missingModels: ["missing.safetensors"], broker: "none",
+const IMAGE_HEALTH = { enabled: true, backend: "comfy", automation: "story", service: "absent", detail: "ComfyUI did not answer.", source: null, missingModels: ["missing.safetensors"], broker: "none", promptProfileMissing: true,
   storyWorkflows: { wanted: ["SO-Portrait.json"], missing: ["SO-Portrait.json"], missingNodes: ["FaceDetailer"], comfySource: true } };
 
 const everything = (overrides: Record<string, unknown> = {}): RuntimeSnapshot => quiet({
@@ -43,6 +43,7 @@ const everything = (overrides: Record<string, unknown> = {}): RuntimeSnapshot =>
   imageHealth: IMAGE_HEALTH,
   imageRetired: [{ where: "background", was: "flux1-dev-fp8.safetensors" }],
   spriteLookIssues: [{ name: "Arin", reason: "Choose a reference expression pack in Studio." }],
+  spriteRecipe: { status: "missing", problem: "ComfyUI offers no Qwen Image 2.1 edit diffusion model.", source: null, waiting: ["Arin"] },
   spriteStage: { builtInExpressions: true, packIssues: [{ name: "Belle", reason: "no sprite pack on the card (so_sprites)" }], inventory: {} },
   gameAuthor: { quests: [], scopeOverflow: ["met_cartographer"], widgets: [], discoveryOverflow: ["heard_debt"] },
   sameCharacter: ["the captain"],
@@ -74,7 +75,7 @@ const REPAIR_ORDER = [
   "memory-model", "model-role", "story-needs-group",
   "cast-absent", "cast-unbound", "cast-muted", "lore-absent", "lore-unscanned", "lore-hidden", "persona-absent", "persona-unselected", "memory-slot-taken", "save-unconfirmed", "persona-fit", "persona-lock",
   "model-role-outage", "context-over-server", "transcript-copiers", "model-not-thinking", "tunnelvision-story-lore", "stepped-thinking-separated", "presence-hides-chat", "prompt-inspector-on", "two-polishers", "persona-switch", "persona-fit-cast", "library-lost-to-tab", "state-size-large", "chapter-unsummarized", "wi-gating-drift", "story-lore-global", "orphaned-lorebooks", "judge-route-uncalibrated", "styles-missing",
-  "images-on-no-service", "image-model-missing", "image-model-retired", "story-workflow-missing", "stage-pack-missing", "quest-scope-overflow", "relationship-scope-overflow",
+  "images-on-no-service", "image-model-missing", "image-model-retired", "image-prompt-profile-missing", "story-workflow-missing", "stage-pack-missing", "quest-scope-overflow", "relationship-scope-overflow",
   "discovery-scope-overflow", "patterns-unavailable",
 ];
 
@@ -161,7 +162,7 @@ describe("v2.7 plan 04 B: Repair is the registry's ordering (F33)", () => {
 
   it("with no story only install checks and the engine-free one run, and an ordinary chat is quiet", () => {
     expect(repairSteps(everything({ storyId: null })).map((step) => step.check))
-      .toEqual(["story-needs-group", "context-over-server", "library-lost-to-tab", "state-size-large", "wi-gating-drift", "story-lore-global", "orphaned-lorebooks", "judge-route-uncalibrated", "styles-missing", "images-on-no-service", "image-model-missing", "image-model-retired"]);
+      .toEqual(["story-needs-group", "context-over-server", "library-lost-to-tab", "state-size-large", "wi-gating-drift", "story-lore-global", "orphaned-lorebooks", "judge-route-uncalibrated", "styles-missing", "images-on-no-service", "image-model-missing", "image-model-retired", "image-prompt-profile-missing"]);
     expect(repairSteps(quiet({ storyId: null }))).toEqual([]);
   });
 
@@ -201,8 +202,8 @@ describe("v2.7 plan 04 C: dismissal (decision 4, F34)", () => {
 describe("v2.7 plan 04 C: one surface", () => {
   it("the HUD counts by severity, leaving the save row to its own line", () => {
     const counts = setupCounts(everything({ ui: { authorView: true } }));
-    expect(counts).toEqual({ blocks: 14, degrades: 26 });
-    expect(hudSetupText(counts)).toBe("fix setup (40)");
+    expect(counts).toEqual({ blocks: 14, degrades: 27 });
+    expect(hudSetupText(counts)).toBe("fix setup (41)");
     expect(hudSetupText({ blocks: 0, degrades: 2 })).toBe("check setup (2)");
     expect(hudSetupTitle({ blocks: 1, degrades: 2 })).toBe("1 thing stops the story. 2 things weaken it.");
   });
@@ -216,7 +217,7 @@ describe("v2.7 plan 04 C: one surface", () => {
 
   it("Getting started reads the install checks", () => {
     expect(installFindings(everything({ ui: { authorView: true } })).map((step) => step.check))
-      .toEqual(["context-over-server", "library-lost-to-tab", "state-size-large", "wi-gating-drift", "story-lore-global", "orphaned-lorebooks", "judge-route-uncalibrated", "styles-missing", "images-on-no-service", "image-model-missing", "image-model-retired", "gpu-broker-no-text-model", "sprites-builtin-expressions"]);
+      .toEqual(["context-over-server", "library-lost-to-tab", "state-size-large", "wi-gating-drift", "story-lore-global", "orphaned-lorebooks", "judge-route-uncalibrated", "styles-missing", "images-on-no-service", "image-model-missing", "image-model-retired", "image-prompt-profile-missing", "sprite-qwen-route-missing", "gpu-broker-no-text-model", "sprites-builtin-expressions"]);
     expect(installFindings(everything()).map((step) => step.check)).toEqual(["context-over-server", "library-lost-to-tab", "state-size-large", "styles-missing", "sprites-builtin-expressions"]);
   });
 

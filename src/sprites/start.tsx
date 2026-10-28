@@ -4,6 +4,7 @@ import { createRoot } from "react-dom/client";
 import type { RuntimeManager } from "@runtime/runtimeManager";
 import { spriteStripHost, spriteStripRemove } from "@services/stHost/sprites";
 import { SpriteStage } from "./stage";
+import { startDefaultRecipe } from "./defaultRecipeHost";
 import { VnStage } from "./VnStage";
 import { ROOT_OPTIONS } from "@utils/mountRegistry";
 import { log } from "@utils/log";
@@ -25,7 +26,9 @@ export function startSprites(manager: RuntimeManager): SpriteStage {
     beginBuildBatch: async () => (await import("./builder/batchHost")).beginSpriteBatch(manager.getOwnership()),
     endBuildBatch: async () => (await import("./builder/batchHost")).endSpriteBatch(),
   });
-  const stop = current.start();
+  const stopStage = current.start();
+  const stopRecipe = startDefaultRecipe(() => manager.getGlobalSettings().sprites, () => { void current.reload(); });
+  const stop = () => { stopRecipe(); stopStage(); };
   const host = document.createElement("div");
   host.id = "so-vn-root";
   document.body.appendChild(host);

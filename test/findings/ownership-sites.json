@@ -1,6 +1,18 @@
 {
   "$comment": "v2.3 plan 03. Every place in src/runtime, src/wizard, src/extraction and src/generation (V3) that writes AFTER an await — methods, function declarations, and since V3 arrow functions (named by where they live) and property assignments, and what has been done about it. Generated set, hand-classified status. The guard in src/runtime/ownership.guard.test.ts fails when this file and the code disagree, in EITHER direction: a new site nobody classified, a row whose site is gone, a \"checked\" row with no token check in its body, or a \"todo\" row that has quietly acquired one (flip it to checked). Statuses: checked (verifies a RunToken before writing) | delegate (awaits a censused site that owns the check) | local (writes nothing that outlives the call) | todo (owed work). WHAT \"checked\" MEANS, PRECISELY: the body contains a token check -- NOT that every write is preceded by one. The detector is a body-level scan, so it cannot see the interleaving, and a body that gains a fifth host step can escape the checks that guard the other four (found 2026-09-22 in EffectsApplier.applyCheckpoint: the preset sat below the Author Note await and the background below applyCastChanges per-member awaits). Per-write checking is proven by TESTS in the case files (effectsOwnership.review.test.ts pins each check with a case that reaches it), which is also the file-level rule: a check without a case is a check a mutation can delete.",
   "rows": {
+    "src/sprites/defaultRecipeHost.ts#startDefaultRecipe.run": {
+      "status": "partial",
+      "note": "Visual bridge stage 1: after the awaited model discovery and fingerprints it publishes the install-wide default Qwen recipe only while the sprite stage that started it is still running (stop flag). No RunToken: the state is install-wide and chat-independent, and every render that uses it re-checks the models (recipeProblems + comfyFingerprint) and its own run. Tests: sprites/defaultRecipe.test.ts."
+    },
+    "src/sprites/packs/bridge.ts#verifying": {
+      "status": "local",
+      "note": "Fills a hash map allocated inside this invocation; nothing reaches a chat, a store or the host. Callers check their own run before writing (castSceneHost guard + packsCurrent, image runtime stillCurrent before placement). Tests: sprites/packs/packs.test.ts."
+    },
+    "src/sprites/packs/catalog.ts#packCatalog": {
+      "status": "local",
+      "note": "Builds a catalog map and refusal list allocated inside this call; pure apart from the injected hash. Tests: sprites/packs/packs.test.ts."
+    },
     "src/sprites/visualPreparation.ts#VisualPreparation.prepare": {
       "status": "checked",
       "note": "RunOwnership plus operation identity, cancellation, installed card and accepted revision checks precede candidate publication. visualPreparation.test.ts covers late crop/cancel; only transient review state changes."
@@ -177,13 +189,13 @@
       "status": "local",
       "note": "v2.3 replan V3 (2026-09-23): writes only the pass-local `decisions` map; judge.ask records its own ring entry under its own check (JudgeRuntime.ask is checked)."
     },
-    "src/runtime/coordinators/copilotCoordinator.ts#CopilotCoordinator.recheckCreatedCard": {
+    "src/runtime/copilotProvisioning.ts#recheckCreatedCard": {
       "status": "local",
-      "note": "v2.8 09 harvest: after the read-back await it writes only the wizard session's created-card ledger (install-wide settings, keyed by avatar); no host write, so a stale run can at worst record a fresher read-back state."
+      "note": "v2.8 09 harvest: after the read-back await it writes only the wizard session's created-card ledger (install-wide settings, keyed by avatar); no host write, so a stale run can at worst record a fresher read-back state. v3.0 24 (2026-10-27): moved unchanged out of CopilotCoordinator into the lazy copilotProvisioning chunk; the coordinator method is a one-line delegate."
     },
-    "src/runtime/coordinators/copilotCoordinator.ts#CopilotCoordinator.applyProvisioning": {
+    "src/runtime/copilotProvisioning.ts#applyProvisioning": {
       "status": "checked",
-      "note": "v2.3 plan 03: checks ownership before every host write, including between lorebook activation and the entry upsert. Host writes already in flight remain non-atomic by plan design. Review 2026-10-16 #2 (v2.8 69 K12): the run is also handed to the stHost lorebook writer, which re-checks it after each of its own awaits (load, preflight server read, pending-edit flush) and immediately before the save and each debounce-rescue save; a lapse inside the writer writes nothing (stHost/worldInfoConflict.review.test.ts, runtime/wiWriterRun.review.test.ts)."
+      "note": "v2.3 plan 03: checks ownership before every host write, including between lorebook activation and the entry upsert. Host writes already in flight remain non-atomic by plan design. Review 2026-10-16 #2 (v2.8 69 K12): the run is also handed to the stHost lorebook writer, which re-checks it after each of its own awaits (load, preflight server read, pending-edit flush) and immediately before the save and each debounce-rescue save; a lapse inside the writer writes nothing (stHost/worldInfoConflict.review.test.ts, runtime/wiWriterRun.review.test.ts). v3.0 24 (2026-10-27): moved unchanged out of CopilotCoordinator into the lazy copilotProvisioning chunk; the coordinator method is a one-line delegate that writes nothing."
     },
     "src/runtime/coordinators/expansionCoordinator.ts#ExpansionCoordinator.commitValidated": {
       "status": "delegate",
@@ -501,9 +513,9 @@
       "status": "checked",
       "note": "v2.3 plan 03: the only effect that SPEAKS — fireReply posts a message into whatever chat is open, so a late fire is visible in the transcript. One await per reply, so the check is inside the loop. Limit: beginRun mints at entry, so it detects the world moving DURING the sequence, not before; the caller owns that decision. Live-proven 2026-09-20: plan02-runtime scenario green twice against a group with the required cast, npcFired=1 — the guard does not suppress a real scripted reply. The trigger (generating) branch is still unproven live. v2.4 follow-up (2026-09-25): the row said checked while the write after the LAST reply's await (`extras.lastSelfInjectionMessageId = lastMessageId()`, the open chat's id into the entry chat's extras) had no check after it, because the loop-top check guards only the NEXT reply; a check now sits between the await and that write (npcRepliesOwnership.review.test.ts, generating-reply case + control). v2.5 plan 02 C1 step 2 (2026-09-25): an llm reply now goes through EffectsApplier.speak, which stops the in-flight /trigger generation when the world moves while it streams, only when it is provably the trigger's own (see that row). Built ahead of its live step 0; the generating branch is still unproven live."
     },
-    "src/runtime/effectsApplier.ts#EffectsApplier.speak": {
-      "status": "local",
-      "note": "v2.5 plan 02 C1 step 2: one NPC reply, awaited. `fireReply` is the reply itself (its caller, fireNpcReplies, checks the run before it and after it); after the await it removes its own abort listener and releases its stream guard. v2.5 C1 fix (D1): an llm reply arms guardHostStream(openChatId()) (stHost/streamGuard.ts), which wraps the streaming processor's onProgressStreaming, the one write path for every tick and for the finish (script.js:3886-3896, :3756, :3808-3815), and refuses any write whose open chat id or chat[messageId] object is not the one the stream started in: it marks the stream stopped+finished and aborts its fetch, so onFinishStreaming never runs and nothing is saved (npcStreamLanding.review.test.ts). release() then gives the send button back (activateSendButtons) only when it halted a stream, because the halted Generate never unblocks by itself; that host call after the await is deliberate, the halted stream belongs to no chat. On lapse, halt() stops the live stream through the guard; only when no streaming processor exists (non-streaming, or before the request) does the old stop run, and only if exactly one outermost generation opened since the trigger and ST still generates (npcTriggerStop.review.test.ts). v2.6 plan 04 C1r: the same stop (once, via a `stopped` flag) also runs from watchHostChatMove the moment the open chat id stops matching the reply's, before CHAT_CHANGED, so a non-streaming reply or late headers cannot land in the loaded next chat (npcLateLanding.review.test.ts); unwatch runs in the finally with the other releases."
+    "src/runtime/npcSpeak.ts#speakGenerated": {
+      "status": "checked",
+      "note": "v2.5 plan 02 C1 step 2: one NPC reply, awaited. `fireReply` is the reply itself (its caller, fireNpcReplies, checks the run before it and after it); after the await it removes its own abort listener and releases its stream guard. v2.5 C1 fix (D1): an llm reply arms guardHostStream(openChatId()) (stHost/streamGuard.ts), which wraps the streaming processor's onProgressStreaming, the one write path for every tick and for the finish (script.js:3886-3896, :3756, :3808-3815), and refuses any write whose open chat id or chat[messageId] object is not the one the stream started in: it marks the stream stopped+finished and aborts its fetch, so onFinishStreaming never runs and nothing is saved (npcStreamLanding.review.test.ts). release() then gives the send button back (activateSendButtons) only when it halted a stream, because the halted Generate never unblocks by itself; that host call after the await is deliberate, the halted stream belongs to no chat. On lapse, halt() stops the live stream through the guard; only when no streaming processor exists (non-streaming, or before the request) does the old stop run, and only if exactly one outermost generation opened since the trigger and ST still generates (npcTriggerStop.review.test.ts). v2.6 plan 04 C1r: the same stop (once, via a `stopped` flag) also runs from watchHostChatMove the moment the open chat id stops matching the reply's, before CHAT_CHANGED, so a non-streaming reply or late headers cannot land in the loaded next chat (npcLateLanding.review.test.ts); unwatch runs in the finally with the other releases. v3.0 19 (2026-10-26): moved to npcSpeak.ts speakGenerated (the file budget); it also arms the reply's one-shot direction before the /trigger and releases it in the same finally (pacing state, nothing that outlives the call). v3.0 19 stage 3: the /trigger is now the guarded voice starter (npcVoice.ts startNpcVoice -> startVoice); a run token minted at the top is checked (with the open chat id) after every wait poll and before the start, so a reply whose chat moved while it waited for the floor never starts (effectsApplier.test.ts stage 3, npcVoice.test.ts)."
     },
     "src/runtime/effectsApplier.ts#EffectsApplier.releaseWorldInfo": {
       "status": "delegate",
@@ -620,6 +632,10 @@
     "src/runtime/chatSave.ts#ChatSave.persist": {
       "status": "checked",
       "note": "v2.3 plan 03, moved out of ChatSave.persist by V26 (the manager keeps a one-line delegate): the chokepoint. A runtime hydrated for another chat declines to write, so every coordinator save() is covered by one check. Reproduction in persistOwnership.review.test.ts."
+    },
+    "src/runtime/managerDelegates.ts#CoordinatorDelegates.holdingRollbackNotice": {
+      "status": "local",
+      "note": "Restores an in-memory hold counter in finally; the counter only stops commitBoundary clearing the rollback notice while the edit re-read spike recommits and re-reads the edited message. No host, chat or story-state write. Tests: spikes/editReread.review.test.ts D-EB1."
     },
     "src/runtime/managerDelegates.ts#CoordinatorDelegates.removeArc": {
       "status": "delegate",
@@ -761,10 +777,6 @@
       "status": "checked",
       "note": "v2.3 plan 03 (moved out of onRenderedReply in the T0 fixes, 2026-10-01): captures ownership at event acceptance, queues its own pending entry (V4: no longer replaces a shared slot), and refuses a late afterSpeak continuation after its world lapses by removing its entry. The flush retains the same captured guard rather than minting in the landing world. A swipe back to a stored version enqueues with afterSpeak off (turnBridgeSwipeBack.test.ts)."
     },
-    "src/runtime/effectsApplier.ts#EffectsApplier.openNewChat": {
-      "status": "checked",
-      "note": "2026-10-18 saga new chat: the authored new-chat opening, fired once per apply (the fired flag is set synchronously before the await) from the top of applyCheckpointNow and from a hydrate that joins a running apply after the identity step settled. Checks the apply's RunGuard before it asks; fireNpcReplies checks before and after each reply (effectsApplier.test.ts \"an identity settled while the activate apply still writes the cast\")."
-    },
     "src/runtime/effectsApplier.ts#EffectsApplier.fireOnEnter": {
       "status": "checked",
       "note": "v2.6 plan 04 C12: fires the non-opening onEnter replies of a transition (fireNpcReplies checks before and after each reply) and then records the messages they posted as the transition's own (`extras.onEnterPosts`), only while the run minted at entry still owns the world, so a reply that outlived its chat never files a post into another chat's extras (onEnterRollback.review.test.ts)."
@@ -843,7 +855,7 @@
     },
     "src/copilot/agent/drive.ts#confirmProvisioning": {
       "status": "checked",
-      "note": "v2.6 plan 04 agent bridge (2026-09-30): the author's confirmation of a provisioning step. The asset is created through the install's own write path (applyProvisioning, censused as CopilotCoordinator.applyProvisioning); the draft follow-ups (requirements, roster) are applied only when the draft run minted before that await still holds (drive.test.ts \"a provisioning confirmed after the draft was replaced leaves the draft alone\")."
+      "note": "v2.6 plan 04 agent bridge (2026-09-30): the author's confirmation of a provisioning step. The asset is created through the install's own write path (applyProvisioning, censused as applyProvisioning in runtime/copilotProvisioning.ts); the draft follow-ups (requirements, roster) are applied only when the draft run minted before that await still holds (drive.test.ts \"a provisioning confirmed after the draft was replaced leaves the draft alone\")."
     },
     "src/copilot/agent/loop.ts#advanceAgent": {
       "status": "local",
@@ -1220,6 +1232,14 @@
     "src/runtime/polish/standIn.ts#createStandIn.settle": {
       "status": "checked",
       "note": "v2.9 03 S0 spike, debug seam only: after the delay the consumption ledger is ticked, writeMismatch (same row object, chat, swipe, fingerprint, deadline, abandon) and run.stillOwns() precede the one host write; stats are local counters. polishStandIn.review.test.ts reaches every abandon branch."
+    },
+    "src/runtime/openingSequence.ts#OpeningSequence.after": {
+      "status": "checked",
+      "note": "v3.0 19: the start beat's entering lines held while the identity step was pending, then the opening hook. Checks the apply's RunGuard before it fires the held lines and again in hook() after the cast writes settle; fireOnEnter and fireNpcReplies check before and after each reply (openingHook.review.test.ts)."
+    },
+    "src/runtime/openingSequence.ts#OpeningSequence.post": {
+      "status": "delegate",
+      "note": "v3.0 19 (replaces EffectsApplier.openNewChat): posts the chat's opening lines. `posting` is in-memory state of this object, reset in the finally; it awaits EffectsApplier.fireNpcReplies, which checks the run before and after each reply."
     }
   }
 }

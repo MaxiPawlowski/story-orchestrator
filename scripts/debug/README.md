@@ -56,6 +56,13 @@ file or profile name:
    W7/S32-2 looks ×3, card overlay per member). Raw evidence goes to `test/sessions/evidence/measurements-v2.7/`
    (private so-sessions), never `test/measurements/`.
 
+`so-image-pilot.mts plan | run | pack` is plan 20's stage-2 route pilot: 12 frozen cases (`test/fixtures/image-pilot/cases.json`)
+x 2 seeds x 2 arms (directed SDXL, Qwen references; composite later) through the real automatic-picture path with the route forced
+per arm and one frozen director answer per case (stored in `<runDir>/director/<case>.json`, shared by both arms and seeds), on a lane
+holding the kept p41 cast and chat (`run --group <g> --chat <id>`, lane cleared for ComfyUI),
+then `pack <runDir>` writes a blind folder (shuffled `img-NN.png`, `ref-X.png`, `items.txt`, `brief.md`, about 10% hidden
+duplicates) with `key.json` beside it, outside the blind folder.
+
 `so-sprite-builder.mts setup --story <file>` imports a story into the explicitly opened group, disables extraction on
 the isolated lane, selects Author view and opens Studio › Sprites. Never run setup against a user's playing chat.
 
@@ -77,9 +84,10 @@ copy, move or download weights.
 | `so-scenario.mts` | `run <file.json> [--sandbox] [--keep]` |
 | `so-journey.mts` | `--list`, `run <id\|file> [--strict] [--keep] [--only ids] [--no-config]`, `restore-config [--file p]` |
 | `so-journal.mts` | `export [--md\|--json] [--kind k,k] [--limit n]`, `show` |
+| `so-talk-metrics.mts` | `--player <name> --lead <name> --cast <a,b,c> <chat.jsonl>...` (offline, reads ST chat files): opening hook, turns to first party address, yield after a question to the player, voices per send, party share, lead words p50/p90 (v3.0 19) |
 | `so-mutation-check.mts` | `[--keep]` |
 | `so-tour-check.mts` | `player`, `author`, `setup`, `help`, `quick-start`, `all` `[--label <name>]`: coach-mark tour plumbing (walks every stop with real clicks, records found/hidden/missing and card placement, Escape keeps the workspace open; Help opens the chooser and the setup path page; the quick start ticks from real state and its Show me starts a stop); record + screenshots in `<debug dir>/tour/`, viewport via `ST_DEBUG_VIEWPORT` |
-| `so-turn-types-check.mts` | `[--group <name>] [--character <name>] [--image sd\|synthetic\|auto] [--skip-reply] [--skip-image] [--skip-solo] [--keep]` |
+| `so-turn-types-check.mts` | `[--group <name>] [--image sd\|synthetic\|auto] [--skip-reply] [--skip-image] [--keep]` |
 | `so-state.mts` | `current [--full] [--expect path=value]`, `all` |
 | `st-actions.mts` | `send`, `send-compact`, `trigger <member>`, `slash`, `checkpoint`, `swipe`, `edit`, `delete`, `wi-status`, `wait-idle` |
 | `st-payload.mts` | `arm`, `last [n] [--member <name>]`, `watch [n]` |

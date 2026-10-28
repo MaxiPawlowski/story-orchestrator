@@ -1,8 +1,12 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { webcrypto } from "node:crypto";
-import { drawPreparedCast, settledLooks } from "./castSceneHost";
-import { CAST_TWO_REFERENCE_MISSING, LookPending } from "./castScene";
+import { createHash, webcrypto } from "node:crypto";
+import { drawPreparedCast, PACK_CHANGED, settledLooks } from "./castSceneHost";
+import { CAST_TWO_REFERENCE_MISSING, LookPending, SCENE_RECIPE_MISSING } from "./castScene";
+import { PLAYER_COPY } from "@runtime/narrative";
+import { parseStoryOrThrow } from "@engine/index";
+import { createVisualBridge } from "../sprites/packs/bridge";
+import { visualBridge } from "../sprites/packs/bridgeHost";
 import { lookSignature, publishVisualLook, visualRoot } from "../sprites/visualManifest";
 import { ImageQueue } from "./queue";
 import type { RuntimeManager } from "@runtime/runtimeManager";
@@ -25,7 +29,8 @@ jest.mock("@services/stHost/gpuBroker", () => ({ reserveGpu: jest.fn(), releaseG
 jest.mock("@runtime/settingsStore", () => ({ getGlobalSettings: jest.fn() }));
 jest.mock("../sprites/builder/images", () => ({ decodeImage: jest.fn(), encodeImage: () => "encoded-reference-bytes" }));
 jest.mock("../sprites/visualHost", () => ({ verifyVisualSource: jest.fn(), sourceStillCurrent: jest.fn() }));
-jest.mock("../sprites/builder/textPriority", () => ({ waitForTextPriority: jest.fn(), hostGenerating: jest.fn() }));
+jest.mock("../sprites/builder/textPriority", () => ({ ...jest.requireActual("../sprites/builder/textPriority"), waitForTextPriority: jest.fn(), hostGenerating: jest.fn() }));
+jest.mock("../sprites/packs/bridgeHost", () => ({ visualBridge: jest.fn() }));
 Object.defineProperty(globalThis, "crypto", { value: webcrypto, configurable: true });
 
 const setup = () => {
@@ -88,6 +93,13 @@ test("cast pipeline uploads image bytes, places accepted-lineage metadata and re
   expect(releaseGpu).toHaveBeenCalledWith("owned-lease"); expect(comfyReleaseReference).toHaveBeenCalledWith("owned-ref.png");
 });
 
+test("D10: a cast scene wakes a stopped ComfyUI with a discovery lease before it reads the recipe", async () => {
+  const f = setup(); jest.mocked(comfyDiscover).mockRejectedValueOnce(new Error("fetch failed"));
+  await expect(drawPreparedCast(f.manager, f.queue, ["Synthetic"], "A fountain")).resolves.toBe("/images/synthetic.png");
+  expect(jest.mocked(reserveGpu).mock.calls.map(([request]) => request?.workflowKey)[0]).toBe("comfy-discovery");
+  expect(reserveGpu).toHaveBeenCalledTimes(2); expect(comfyRenderOwned).toHaveBeenCalledTimes(1);
+});
+
 test.each(["chat", "source", "cancel"])("%s during render discards the result before saving or placement and releases resources", async (event) => {
   const f = setup(); jest.mocked(comfyRenderOwned).mockImplementation(async () => {
     if (event === "chat") f.lapse(); if (event === "source") jest.mocked(sourceStillCurrent).mockReturnValue(false); if (event === "cancel") f.queue.cancelAll();
@@ -96,6 +108,18 @@ test.each(["chat", "source", "cancel"])("%s during render discards the result be
   await expect(drawPreparedCast(f.manager, f.queue, ["Synthetic"], "")).rejects.toThrow();
   expect(imageSave).not.toHaveBeenCalled(); expect(imagePlace).not.toHaveBeenCalled(); expect(releaseGpu).toHaveBeenCalledWith("owned-lease");
   expect(comfyReleaseReference).toHaveBeenCalledWith("owned-ref.png");
+});
+
+test("the cast scene lands on the reply it illustrates, never on whatever message is last, and an explicit target wins", async () => {
+  const f = setup();
+  jest.mocked(imageChat).mockReturnValue({ id: "chat", folder: "Synthetic", groupId: "group", userName: "Player", characters: [], messages: [
+    { name: "Player", mes: "Look", is_user: true, is_system: false }, { name: "Synthetic", mes: "A reply", is_user: false, is_system: false },
+    { name: "Player", mes: "Next line", is_user: true, is_system: false }, { name: "Image Director", mes: "Earlier picture", is_user: false, is_system: true }] });
+  await drawPreparedCast(f.manager, f.queue, ["Synthetic"], "");
+  expect(jest.mocked(imagePlace).mock.calls[0][1]).toBe(1);
+  await drawPreparedCast(f.manager, f.queue, ["Synthetic"], "", { target: 0 });
+  expect(jest.mocked(imagePlace).mock.calls[1][1]).toBe(0);
+  expect((jest.mocked(imagePlace).mock.calls[1][3] as { image_director: Record<string, unknown> }).image_director.idle_wait_ms).toEqual(expect.any(Number));
 });
 
 test("a reference release that throws still releases the GPU lease", async () => {
@@ -135,4 +159,88 @@ test("a cast scene waits for a look still being prepared, and refuses once the w
   await expect(settledLooks(() => [{ character: "Synthetic", fields, source }], { stillOwns: () => owns }, 60_000, async () => { owns = false; }, () => 0))
     .rejects.toThrow("Request the cast scene again");
   await expect(settledLooks(() => [], { stillOwns: () => true })).rejects.toThrow("Choose one or two");
+});
+
+describe("visual bridge: prepared cast from packs", () => {
+  const ROOT = join(__dirname, "../..");
+  const pack = (name: string) => JSON.parse(readFileSync(join(ROOT, `test/fixtures/visual-packs/${name}.pack.json`), "utf8")) as { assets: Array<{ path: string; sha256: string }> };
+  const NAMES = ["style-ink", "identity-wanderer", "identity-wanderer-r2", "place-harbor", "place-observatory"];
+  const textHash = async (text: string) => createHash("sha256").update(text).digest("hex");
+  const packSetup = () => {
+    const f = setup(), defaults = defaultGlobalSettings();
+    const story = parseStoryOrThrow(JSON.parse(readFileSync(join(ROOT, "test/fixtures/visual-bridge.story.json"), "utf8")));
+    const files = new Map(NAMES.flatMap((name) => pack(name).assets.map((asset) => [asset.path, asset.sha256] as const)));
+    let names = NAMES;
+    jest.mocked(visualBridge).mockReturnValue(createVisualBridge({ textHash, list: async () => names.map((name) => ({ file: name, pack: pack(name) })),
+      fileHash: async (path) => files.get(path) ?? Promise.reject(new Error("404")) }));
+    jest.mocked(getGlobalSettings).mockReturnValue({ ...defaults, sprites: { ...defaults.sprites, visualSources: {}, builders: {}, sceneRecipe: null } });
+    jest.mocked(spriteCast).mockReturnValue({ chatId: "chat", groupId: "group", members: [{ name: "Wanderer", folder: "Wanderer", avatar: "Wanderer.png", profile: {}, muted: false }] });
+    jest.mocked(comfyDiscover).mockResolvedValue({ nodes: Object.fromEntries(EDIT_NODES.map((node) => [node, {}])), checkpoints: [], embeddings: [], loras: [], upscalers: [],
+      diffusionModels: ["qwen_image_2.1_int8_convrot.safetensors", "qwen_image_2.1_turbo_int8.safetensors", "other_unet.safetensors"],
+      textEncoders: ["qwen3vl_8b_int8.safetensors", "clip_l.safetensors"], vaes: ["qwen_image_2.1_vae.safetensors", "sdxl_vae.safetensors"] });
+    const base = pack("identity-wanderer").assets[0];
+    jest.mocked(decodeImage).mockResolvedValue({ width: 64, height: 64, data: new Uint8ClampedArray(64 * 64 * 4), sha256: base.sha256 });
+    const manager = { ...f.manager, getStory: () => story, getCachedSnapshot: () => ({ blackboard: {}, activeCheckpointId: "quay" }),
+      getEngineState: () => ({ visitedPath: [] }) } as unknown as RuntimeManager;
+    return { ...f, manager, files, replace: (next: string[]) => { names = next; } };
+  };
+
+  test("missing builders with valid packs: the pack look is the reference and the discovered Qwen route renders it, both recorded", async () => {
+    const f = packSetup();
+    await expect(drawPreparedCast(f.manager, f.queue, ["Wanderer"], "At the quay")).resolves.toBe("/images/synthetic.png");
+    const graph = jest.mocked(comfyRenderOwned).mock.calls[0][0] as Record<string, { class_type: string; inputs: Record<string, unknown> }>;
+    expect(Object.values(graph).find((node) => node.class_type === "UNETLoader")?.inputs.unet_name).toBe("qwen_image_2.1_int8_convrot.safetensors");
+    expect(decodeImage).toHaveBeenCalledWith("/characters/Wanderer/pack/default_neutral.png");
+    expect(spriteFileFingerprint).not.toHaveBeenCalled();
+    const media = jest.mocked(imagePlace).mock.calls[0][3] as { image_director: Record<string, unknown> };
+    expect(media.image_director).toMatchObject({ recipe_source: "discovered", identities: [expect.objectContaining({ root: expect.stringMatching(/^pack:fixture-wanderer@/) })],
+      visual: expect.objectContaining({ subjects: [expect.objectContaining({ member: "wanderer", source: "pack", look: "default", substituted: false })] }) });
+  });
+
+  test("an install-wide scene recipe wins over discovery, and no recipe at all is refused by name before any lease", async () => {
+    const f = packSetup(), defaults = defaultGlobalSettings();
+    const install = { models: { diffusion: "qwen", encoder: "encoder", vae: "vae" }, steps: 12 };
+    jest.mocked(getGlobalSettings).mockReturnValue({ ...defaults, sprites: { ...defaults.sprites, visualSources: {}, builders: {}, sceneRecipe: install } });
+    jest.mocked(comfyDiscover).mockResolvedValue({ nodes: Object.fromEntries(EDIT_NODES.map((node) => [node, {}])), checkpoints: [], embeddings: [], loras: [], upscalers: [],
+      diffusionModels: ["qwen"], textEncoders: ["encoder"], vaes: ["vae"] });
+    await drawPreparedCast(f.manager, f.queue, ["Wanderer"], "");
+    expect((jest.mocked(imagePlace).mock.calls[0][3] as { image_director: Record<string, unknown> }).image_director.recipe_source).toBe("install");
+    jest.clearAllMocks();
+    const g = packSetup();
+    jest.mocked(comfyDiscover).mockResolvedValue({ nodes: Object.fromEntries(EDIT_NODES.map((node) => [node, {}])), checkpoints: [], embeddings: [], loras: [], upscalers: [],
+      diffusionModels: ["qwen"], textEncoders: ["encoder"], vaes: ["vae"] });
+    await expect(drawPreparedCast(g.manager, g.queue, ["Wanderer"], "")).rejects.toThrow(SCENE_RECIPE_MISSING);
+    await expect(drawPreparedCast(g.manager, g.queue, ["Wanderer"], "")).rejects.toMatchObject({ name: "CastSetupGap", player: PLAYER_COPY.castSetup });
+    expect(reserveGpu).not.toHaveBeenCalled();
+  });
+
+  test("a refused or missing pack with no prepared source is refused by its precise reason, with specific player copy, before any lease", async () => {
+    const f = packSetup();
+    f.files.set("/characters/Wanderer/pack/default_neutral.png", "9".repeat(64));
+    const changed = drawPreparedCast(f.manager, f.queue, ["Wanderer"], "");
+    await expect(changed).rejects.toThrow(/^Wanderer's visual pack fixture-wanderer@[0-9a-f]{12} was refused: its look images no longer match the hashes it records\./);
+    await expect(changed).rejects.toMatchObject({ name: "CastSetupGap", player: PLAYER_COPY.castArtChanged });
+    jest.clearAllMocks();
+    const g = packSetup();
+    g.replace(["style-ink", "place-harbor", "place-observatory"]);
+    const missing = drawPreparedCast(g.manager, g.queue, ["Wanderer"], "");
+    await expect(missing).rejects.toThrow(/^Wanderer's visual pack fixture-wanderer@[0-9a-f]{12} is not installed, or the catalog refused it/);
+    await expect(missing).rejects.toMatchObject({ name: "CastSetupGap", player: PLAYER_COPY.castArtMissing });
+    expect(reserveGpu).not.toHaveBeenCalled();
+  });
+
+  test("a pack replaced mid-render, or its file changed under the same name, discards the picture before saving or placement", async () => {
+    for (const change of ["catalog", "file"] as const) {
+      jest.clearAllMocks();
+      const f = packSetup();
+      jest.mocked(comfyRenderOwned).mockImplementation(async () => {
+        if (change === "catalog") f.replace(["style-ink", "identity-wanderer-r2", "place-harbor", "place-observatory"]);
+        else f.files.set("/characters/Wanderer/pack/default_neutral.png", "9".repeat(64));
+        return { data: "late", format: "png" };
+      });
+      await expect(drawPreparedCast(f.manager, f.queue, ["Wanderer"], "")).rejects.toMatchObject({ name: "CastSetupGap", message: PACK_CHANGED, player: PLAYER_COPY.castRetry });
+      expect(imageSave).not.toHaveBeenCalled(); expect(imagePlace).not.toHaveBeenCalled();
+      expect(releaseGpu).toHaveBeenCalledWith("owned-lease"); expect(comfyReleaseReference).toHaveBeenCalledWith("owned-ref.png");
+    }
+  });
 });

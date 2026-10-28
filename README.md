@@ -167,6 +167,7 @@ Generated from the feature registry. "Experimental" means not yet measured; it i
 | Memory | Who heard what | After each story read, notes in code which characters heard each message. |  |
 | Characters | Speaker direction | In a group, the story picks who should speak next. |  |
 | Characters | Several voices per turn | More than one character can answer one of your messages. |  |
+| Characters | One question when a character asks you | A character told to ask you one thing keeps only the last of its questions. |  |
 | Characters | Private knowledge | Tracks who knows what, so characters do not know things they never saw. |  |
 | Characters | Inner voice | Characters prepare a private intent before they speak. |  |
 | Characters | Character life | Feelings that move, a mood per scene, plans that go on off stage and places to be, for the characters a story declares. | Experimental |

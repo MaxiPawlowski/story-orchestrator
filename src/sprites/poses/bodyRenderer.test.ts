@@ -57,6 +57,23 @@ test("face and decal changes reuse the body; a rebase uses card art", async () =
   renderer.close();
 });
 
+test("a look base already published for the visual root is reused whatever story or builder rendered it; a changed or missing copy renders", async () => {
+  const { deps, request, calls, cache } = setup(), publishLook = jest.fn();
+  cache.set("look_pub", new Map([["neutral", { path: "look_pub/neutral", sha256: fingerprint.sha256 }]]));
+  let published = { set: "look_pub", sha256: fingerprint.sha256 };
+  const renderer = new PoseBodies({ ...deps, lineage: async () => ({ root: "root", baseSet: "base", current: () => true }), published: () => published, publishLook });
+  const navy = { ...request, layers: { ...request.layers, base: { outfit: "navy coat" } } };
+  await renderer.render(navy);
+  await renderer.render({ ...navy, story: "other", config: { ...navy.config, steps: 40 } });
+  expect(calls.filter((call) => call.kind === "base")).toEqual([]);
+  expect(publishLook).not.toHaveBeenCalled();
+  published = { ...published, sha256: "e".repeat(64) };
+  await renderer.render(navy);
+  expect(calls.filter((call) => call.kind === "base")).toHaveLength(1);
+  expect(publishLook).toHaveBeenCalledTimes(1);
+  renderer.close();
+});
+
 test("a rebase from SillyTavern's default card picture is refused before any render", async () => {
   const { deps, request, calls } = setup();
   deps.decode = async () => ({ width: 8, height: 8, data: new Uint8ClampedArray(256).fill(200) });

@@ -225,3 +225,78 @@ test('after a cached chat reply the gateway runs the idle prefill through the te
     } finally { await gateway.close(); }
 });
 
+test('a request arriving during the idle prefill aborts it at once without recording an error', async () => {
+    const arbiter = fakeArbiter({ pid: 7, loading: false, profile: 'fast' });
+    const listeners = new Set();
+    arbiter.scheduler.pending = [];
+    arbiter.scheduler.onArrival = (listener) => { listeners.add(listener); return () => listeners.delete(listener); };
+    const seen = [];
+    let started;
+    const running = new Promise((resolve) => { started = resolve; });
+    const members = { store: 'ram', idlePrefill: true, idleDelayMs: 10, lastError: null, syncBackend: () => {}, before: async (body, slot) => ({ key: 'k', slot }), afterReply: async () => {},
+        noteOther: () => {}, afterOther: async () => {}, status: () => ({}),
+        runIdlePrefill: ({ idle, signal }) => new Promise((resolve) => { started(); signal.addEventListener('abort', () => { seen.push(`aborted idle=${idle()}`); resolve({ prefilled: 0 }); }, { once: true }); }) };
+    const fetchImpl = async () => new Response(JSON.stringify({ content: 'ok' }), { headers: { 'content-type': 'application/json' } });
+    const gateway = createGateway({ arbiter, config: { modelAlias: 'm', defaultProfile: 'fast' }, fetchImpl, memberCache: members });
+    const { port } = await gateway.listen(0);
+    try {
+        const pending = fetch(`http://127.0.0.1:${port}/completion`, { method: 'POST', body: JSON.stringify({ prompt: 'chat', n_predict: 4, stream: true }) });
+        while (!arbiter.queued.length) await new Promise((resolve) => setTimeout(resolve, 5));
+        arbiter.queued.shift()();
+        assert.equal((await pending).status, 200);
+        while (!arbiter.queued.length) await new Promise((resolve) => setTimeout(resolve, 5));
+        const idleRun = arbiter.queued.shift()();
+        await running;
+        assert.equal(listeners.size, 1);
+        for (const listener of [...listeners]) listener();
+        await idleRun;
+        await new Promise((resolve) => setTimeout(resolve, 5));
+        assert.deepEqual(seen, ['aborted idle=false']);
+        assert.equal(members.lastError, null);
+        assert.equal(listeners.size, 0);
+    } finally { await gateway.close(); }
+});
+
+test('each streamed reply logs how long it waited before generation and whether text was unloaded when it arrived', async () => {
+    const state = { pid: null, loading: false, profile: 'fast' };
+    const arbiter = fakeArbiter(state);
+    const waits = [];
+    arbiter.scheduler.noteReplyWait = (wait) => waits.push(wait);
+    arbiter.backend.forRequest = async () => { await new Promise((resolve) => setTimeout(resolve, 30)); state.pid = 7; };
+    const fetchImpl = async () => new Response(JSON.stringify({ content: 'ok' }), { headers: { 'content-type': 'application/json' } });
+    const gateway = createGateway({ arbiter, config: { modelAlias: 'm', defaultProfile: 'fast' }, fetchImpl, memberCache: null });
+    const { port } = await gateway.listen(0);
+    try {
+        for (const stream of [true, true, false]) {
+            const pending = fetch(`http://127.0.0.1:${port}/completion`, { method: 'POST', body: JSON.stringify({ prompt: 'chat', n_predict: 4, stream }) });
+            while (!arbiter.queued.length) await new Promise((resolve) => setTimeout(resolve, 5));
+            arbiter.queued.shift()();
+            assert.equal((await pending).status, 200);
+        }
+        assert.equal(waits.length, 2);
+        assert.equal(waits[0].cold, true);
+        assert.ok(waits[0].waitedMs >= 25);
+        assert.equal(waits[1].cold, false);
+    } finally { await gateway.close(); }
+});
+
+test('a token count goes straight to the server only through the backend direct gate, and queues while the server is going to sleep', async () => {
+    const state = { pid: 7, loading: false, profile: 'fast' };
+    const arbiter = fakeArbiter(state);
+    let open = true; let inFlight = 0; let ended = 0;
+    arbiter.backend.tryDirect = () => { if (!open) return false; inFlight += 1; return true; };
+    arbiter.backend.endDirect = () => { inFlight -= 1; ended += 1; };
+    const { gateway, url } = await serve(arbiter);
+    try {
+        const reply = await fetch(`${url}/tokenize`, { method: 'POST', body: JSON.stringify({ content: 'hi' }) });
+        assert.equal(reply.status, 200);
+        assert.equal(ended, 1); assert.equal(inFlight, 0);
+        open = false;
+        const pending = fetch(`${url}/tokenize`, { method: 'POST', body: JSON.stringify({ content: 'hi' }) });
+        for (let index = 0; index < 50 && !arbiter.queued.length; index += 1) await new Promise((resolve) => setTimeout(resolve, 10));
+        assert.equal(arbiter.queued.length, 1);
+        arbiter.queued.shift()();
+        assert.equal((await pending).status, 200);
+        assert.equal(ended, 1);
+    } finally { await gateway.close(); }
+});

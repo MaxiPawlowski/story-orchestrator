@@ -342,6 +342,7 @@ real-model carrier, or why none is needed.
 | continuity-warden | RP + CL | PC-agency-notes | GS4.2, GS2.7 |
 | speaker-direction | RP + CL | talk jest | GS3.1, GS2.7 |
 | talk-chain | RP | voiceStart, talkChainYield | GS1.2, GS3.1 |
+| keep-last-question | RP | keepLastQuestion, keepLastQuestionPass | live hook check deferred to v3.0 19 (fresh opening hooks, real model) |
 | private-knowledge | RP + CL | PC-privacy, secret reviews | GS1.5; S-07/08/11/12/13 (CL) |
 | inner-voice | RP | inner jest | GS1.2, GS1.5 |
 | thought-carry | D + CL + RP | thoughtCarry review test, v28-a13-thought-carry (no-model, live run owed) | GS1.5 player-clean with the spike on (L5-RP3 half); L5-RP1 coverage read owed (informational) |

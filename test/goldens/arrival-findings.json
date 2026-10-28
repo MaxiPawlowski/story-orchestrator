@@ -104,6 +104,7 @@
     }
   ],
   "test/fixtures/v15-other.story.json#0": [],
+  "test/fixtures/visual-bridge.story.json#0": [],
   "test/scenarios/author-note-role.story.json#0": [
     {
       "index": 1,
@@ -337,6 +338,13 @@
   "test/scenarios/v29-07-echoes.json#0": [],
   "test/scenarios/v29-08-observations.json#0": [],
   "test/scenarios/v29-a02-stopped-reply.json#0": [],
+  "test/scenarios/v30-19-opening-hook.json#0": [],
+  "test/scenarios/v30-19s2-address-player.json#0": [],
+  "test/scenarios/v30-19s2-profile.json#0": [],
+  "test/scenarios/v30-19s2-reaction.json#0": [],
+  "test/scenarios/v30-19s2-reply-scope.json#0": [],
+  "test/scenarios/v30-19s2-speech-budget.json#0": [],
+  "test/scenarios/v30-19s2-spotlight.json#0": [],
   "test/journeys/j11-expand.story.json#0": [],
   "test/journeys/j11-judge.story.json#0": [],
   "test/journeys/j11-lore.story.json#0": [],

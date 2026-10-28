@@ -21,7 +21,8 @@ export default function CastSceneControls({ manager, snapshot, queue, members, r
     }
     catch (reason) {
       log.warn("prepared cast illustration refused", reason);
-      setError(reason instanceof Error && reason.name === "CastSetupGap" && snapshot.ui?.authorView ? reason.message : PLAYER_COPY.imageError);
+      const gap = reason instanceof Error && reason.name === "CastSetupGap" ? reason as Error & { player?: string } : null;
+      setError(gap ? (snapshot.ui?.authorView ? gap.message : gap.player ?? PLAYER_COPY.castSetup) : PLAYER_COPY.imageError);
     }
     finally { setBusy(false); }
   };

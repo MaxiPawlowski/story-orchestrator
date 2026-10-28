@@ -1,7 +1,8 @@
 import { runsAsCommand } from "@utils/string";
 import { couldNot, wrote, type WriteResult } from "@utils/writeResult";
 import { getContext } from "./context";
-import { subscribeToHostEvent } from "./events";
+import { subscribeToHostEvent, subscribeToHostEventFirst, subscribeToHostEvents } from "./events";
+import { draftHold, NO_BOX_READ_TYPES } from "./draftHold";
 import { groupChatsModule, scriptModule } from "./modules";
 import { startVoice } from "./voiceStart";
 import { guardStreamToChat, userStoppedStream, watchChatMove, type GuardedStream, type StreamGuard } from "./streamGuard";
@@ -57,14 +58,36 @@ const inputBox = (): HTMLTextAreaElement | null => {
 
 export const readChatInput = (): string | null => inputBox()?.value ?? null;
 
-export const startGroupVoice = (name: string): Promise<WriteResult> => startVoice({
+const voiceDeps = (memberId: (member: string) => number | undefined) => ({
   generating: () => Boolean(scriptModule.isGenerating()),
   draft: readChatInput,
-  memberId: (member) => groupChatsModule.findGroupMemberId?.(member),
-  lockSend: (locked) => scriptModule.setSendButtonState(locked),
-  onWrapperStarted: (listener) => subscribeToHostEvent("GROUP_WRAPPER_STARTED", listener),
-  generate: (chid) => scriptModule.Generate("normal", { force_chid: chid }),
-}, name);
+  memberId,
+  lockSend: (locked: boolean) => scriptModule.setSendButtonState(locked),
+  onWrapperStarted: (listener: () => void) => subscribeToHostEvent("GROUP_WRAPPER_STARTED", listener),
+  generate: (chid: number) => scriptModule.Generate("normal", { force_chid: chid }),
+});
+
+export const startGroupVoice = (name: string): Promise<WriteResult> => startVoice(voiceDeps((member) => groupChatsModule.findGroupMemberId?.(member)), name);
+
+export const startGroupVoiceAt = (position: number, name: string): Promise<WriteResult> =>
+  startVoice(voiceDeps(() => groupChatsModule.findGroupMemberId?.(String(position))), name);
+
+export function installDraftGuard(active: () => boolean): () => void {
+  const guard = draftHold({ box: inputBox, active });
+  const first = subscribeToHostEventFirst("GENERATION_STARTED", (type, params, dryRun) => guard.generationStarted(type, params, dryRun));
+  const off = subscribeToHostEvents([
+    { eventName: "GROUP_WRAPPER_STARTED", handler: () => { first.place(); guard.wrapperStarted(); } },
+    { eventName: "GROUP_MEMBER_DRAFTED", handler: () => guard.memberDrafted() },
+    { eventName: "GROUP_WRAPPER_FINISHED", handler: () => guard.wrapperFinished() },
+    { eventName: "GENERATION_STOPPED", handler: () => guard.interrupted() },
+    { eventName: "CHAT_CHANGED", handler: () => guard.interrupted() },
+  ]);
+  return () => {
+    off();
+    first.off();
+    guard.wrapperFinished();
+  };
+}
 
 export function fillChatInput(text: string, expected: string): WriteResult {
   const box = inputBox();
@@ -78,7 +101,6 @@ export function fillChatInput(text: string, expected: string): WriteResult {
 }
 
 const NO_ATTACH_TYPES = ["regenerate", "swipe", "impersonate", "quiet", "continue"];
-const NO_TEXTAREA_TYPES = ["regenerate", "swipe", "quiet", "impersonate"];
 
 // Will this Generate() add a player message before its World Info scan? Mirrors
 // script.js:4399-4401 (which types read #send_textarea), :4448 (text or a pending attachment, not
@@ -87,7 +109,7 @@ const NO_TEXTAREA_TYPES = ["regenerate", "swipe", "quiet", "impersonate"];
 // message (sent as a system message) are not visible here; both answer false.
 export function willAddUserMessage(type: string | undefined, params: Record<string, unknown> | undefined, dryRun: boolean | undefined): boolean {
   if (dryRun || params?.automatic_trigger || type === "quiet") return false;
-  const box = NO_TEXTAREA_TYPES.includes(type ?? "") ? null : document.getElementById("send_textarea");
+  const box = NO_BOX_READ_TYPES.includes(type ?? "") ? null : document.getElementById("send_textarea");
   const text = box instanceof HTMLTextAreaElement ? box.value : "";
   const files = document.getElementById("file_form_input");
   const attachment = files instanceof HTMLInputElement && (files.files?.length ?? 0) > 0 && !NO_ATTACH_TYPES.includes(type ?? "");

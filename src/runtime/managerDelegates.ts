@@ -23,6 +23,8 @@ import { withDismissal } from "./checks";
 import { getGlobalSettings, setGlobalSettings } from "./settingsStore";
 import type { ChanceDraw } from "./chance";
 import { createChance, recordChanceDraw } from "./rolls";
+import { cueForSwipe, recordCuedLine, type CuedLine } from "./npcReplyRewind";
+import { recordChainEnd, type ChainEnd } from "./chainEnds";
 
 type WiredCoordinators = ReturnType<typeof wireCoordinators>;
 
@@ -41,6 +43,11 @@ export abstract class CoordinatorDelegates {
   get cues() { return this.co.cues; }
   get echoes() { return this.co.echoes; }
   get carry() { return this.co.carry; }
+  protected noticeHolds = 0;
+  async holdingRollbackNotice<T>(work: () => Promise<T>): Promise<T> {
+    this.noticeHolds += 1;
+    try { return await work(); } finally { this.noticeHolds -= 1; }
+  }
   protected generationOpen = false;
   setGenerationOpen(open: boolean) {
     if (open) this.co.narrator.requested();
@@ -152,6 +159,23 @@ export abstract class CoordinatorDelegates {
     this.co.memory.onMemberDrafted(chId);
     this.co.cues.staged();
     this.co.pacing.draftGuidance(id);
+  }
+  get speech() { return this.co.speech.speech; }
+  talkPolicy() { return this.co.speech.policy(); }
+  directDraft(member: string, text: string) { return this.co.pacing.armDirection(member, text, "draft"); }
+  takeAskingPlayer(speaker: string): boolean { return this.co.pacing.takeAskingPlayer(speaker); }
+  recordCue(line: CuedLine) {
+    const extras = this.co.rollbackDeps.extras();
+    extras.cuedLines = recordCuedLine(extras.cuedLines, line);
+  }
+  recordChainEnd(end: ChainEnd) {
+    const extras = this.co.rollbackDeps.extras();
+    extras.chainEnds = recordChainEnd(extras.chainEnds, end);
+    void this.co.rollbackDeps.persist();
+  }
+  cueSwipe(type: string, messageId: number) {
+    const line = type === "swipe" ? cueForSwipe(this.co.rollbackDeps.extras().cuedLines, messageId) : null;
+    if (line) this.co.pacing.armDirection(line.member, line.text, "draft");
   }
   async prepareDraftedBeat(chId: number | [number]) { const id = this.co.memory.draftedRosterId(chId); return id ? this.co.inner.prepare(id) : false; }
   innerBeatDue(): boolean { return this.co.inner.due(); }

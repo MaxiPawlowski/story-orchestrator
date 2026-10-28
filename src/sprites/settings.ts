@@ -1,6 +1,6 @@
 import { isRecord } from "@utils/guards";
 import { liveHeadRefs, type LiveHeadRef } from "./liveHeadRefs";
-import { visualSources, type VisualSources } from "./visualManifest";
+import { visualSources, type VisualSources } from "./visualSources";
 
 export type StageMode = "vn" | "always" | "off";
 export type RenderPreset = "standard" | "fast";
@@ -39,7 +39,9 @@ export interface SpriteSettings {
   renderPreset: RenderPreset;
   builders: Record<string, { baseSet: string; box: { x: number; y: number; width: number; height: number };
     models: { diffusion: string; encoder: string; vae: string }; steps: number; resolution?: number }>;
+  sceneRecipe: SceneRecipeSetting | null;
 }
+export interface SceneRecipeSetting { models: { diffusion: string; encoder: string; vae: string }; steps: number; resolution?: number }
 
 export type SpriteActivation = "user-on" | "user-off" | "story" | "off";
 
@@ -64,10 +66,19 @@ export const defaultSpriteSettings = (): SpriteSettings => ({
   customPoses: [],
   renderPreset: "standard",
   builders: {},
+  sceneRecipe: null,
 });
 
 const within = (value: unknown, min: number, max: number, fallback: number) =>
   typeof value === "number" && Number.isFinite(value) && value >= min && value <= max ? Math.round(value) : fallback;
+
+const sceneRecipe = (value: unknown): SceneRecipeSetting | null => {
+  if (!isRecord(value) || !isRecord(value.models)) return null;
+  const models = value.models;
+  if (![models.diffusion, models.encoder, models.vae].every((name) => typeof name === "string" && name.length > 0 && name.length <= 260)) return null;
+  return { models: { diffusion: String(models.diffusion), encoder: String(models.encoder), vae: String(models.vae) }, steps: within(value.steps, 1, 100, RENDER_PRESETS.standard.steps),
+    ...(validResolution(value.resolution) ? { resolution: value.resolution } : {}) };
+};
 
 export function sanitizeSpriteSettings(value: unknown): SpriteSettings {
   const d = defaultSpriteSettings();
@@ -102,5 +113,6 @@ export function sanitizeSpriteSettings(value: unknown): SpriteSettings {
         models: models as SpriteSettings["builders"][string]["models"], steps: within(entry.steps, 1, 100, RENDER_PRESETS.standard.steps),
         ...(validResolution(entry.resolution) ? { resolution: entry.resolution } : {}) }]];
     })),
+    sceneRecipe: sceneRecipe(value.sceneRecipe),
   };
 }

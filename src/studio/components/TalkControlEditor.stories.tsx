@@ -63,6 +63,17 @@ export const Populated: Story = {
   },
 };
 
+export const ChainYieldsOnQuestion: Story = {
+  args: { initial: { speakers: [{ member: "The Guide" }] } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const yieldBox = canvas.getByLabelText("End the chain when a voice asks the player something");
+    await expect(yieldBox).toBeChecked();
+    await userEvent.click(yieldBox);
+    await expect(canvas.getByLabelText("End the chain when a voice asks the player something")).not.toBeChecked();
+  },
+};
+
 export const RemoveSpeaker: Story = {
   args: { initial: { speakers: [{ member: "The Guide" }] } },
   play: async ({ canvasElement }) => {
@@ -70,5 +81,35 @@ export const RemoveSpeaker: Story = {
     await userEvent.click(canvas.getByRole("button", { name: "Remove speaker 1" }));
     await expect(canvas.queryByLabelText("Speaker 1")).not.toBeInTheDocument();
     await expect(canvas.getByText(/empty = whole roster/)).toBeInTheDocument();
+  },
+};
+
+export const PicksPacingProfile: Story = {
+  args: { initial: { speakers: [{ member: "The Guide" }, { member: "The Warden" }], lead: "The Guide" } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText(/Effective: 3 voices and 4 generations at most per player message; the lead answers first/)).toBeInTheDocument();
+    await userEvent.selectOptions(canvasElement.querySelector('[data-so="talk-profile"]') as HTMLSelectElement, "conversation");
+    await expect(canvas.getByText(/Effective: 3 voices .*the lead does not get the first word; lead replies near 120 words/)).toBeInTheDocument();
+    await expect(canvasElement.querySelector('[data-so="talk-spotlight"]')).toBeChecked();
+    await userEvent.click(canvasElement.querySelector('[data-so="talk-spotlight"]') as HTMLElement);
+    await expect(canvasElement.querySelector('[data-so="talk-spotlight"]')).not.toBeChecked();
+    await userEvent.type(canvasElement.querySelector('[data-so="talk-budget-voices"]') as HTMLInputElement, "2");
+    await expect(canvas.getByText(/Effective: 2 voices and 3 generations/)).toBeInTheDocument();
+  },
+};
+
+export const CapsTheLeadsRun: Story = {
+  args: { initial: { speakers: [{ member: "The Guide" }, { member: "The Warden" }], lead: "The Guide" } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const field = canvasElement.querySelector('[data-so="talk-lead-run"]') as HTMLInputElement;
+    await expect(field).toHaveAttribute("placeholder", "off");
+    await expect(canvas.queryByText(/speaks at most/)).not.toBeInTheDocument();
+    await userEvent.selectOptions(canvasElement.querySelector('[data-so="talk-profile"]') as HTMLSelectElement, "conversation");
+    await expect(field).toHaveAttribute("placeholder", "1");
+    await expect(canvas.getByText(/the lead speaks at most 1 time in a row/)).toBeInTheDocument();
+    await userEvent.type(field, "2");
+    await expect(canvas.getByText(/the lead speaks at most 2 times in a row/)).toBeInTheDocument();
   },
 };

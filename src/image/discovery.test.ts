@@ -84,7 +84,8 @@ describe("plan 32 W2 payload invariance: the image director prompt", () => {
   const messages = (settings: ImageSettings, purpose: typeof purposes[number]) => imageMessages(
     { purpose, text: purpose === "background" ? "a ruined temple" : "", messageId: 1 }, scene,
     resolveImageRoute(settings, purpose, {}, sanitizeImageOverride(null)));
-  const declared = (content: string) => content
+  const tagSkill = (content: string) => content.replace(/^Write 25–45 comma-separated visual tags for SDXL\..*$/m, "<TAG SKILL, changed by review 18>");
+  const declared = (content: string) => tagSkill(content)
     .replace(/^The checkpoint must be one of: .*$/m, "<MODEL CHOICE>")
     .replace(/AVAILABLE IMAGE MODELS:\n[\s\S]*?\n\n/, "<MODEL MENU>\n\n");
 
@@ -108,9 +109,10 @@ describe("plan 32 W2 payload invariance: the image director prompt", () => {
       scene: { ...defaults.purposes.scene, checkpoint: WAI },
       portrait: { ...defaults.purposes.portrait, checkpoint: JANKU, family: "sdxl-noobai" },
       background: { ...defaults.purposes.background, checkpoint: WAI } } };
-    expect(messages(mapped, "portrait")[0].content).toBe(golden.portrait[0].content);
-    expect(messages(mapped, "background")[0].content).toBe(golden.background[0].content);
-    expect(messages(mapped, "scene")[0].content).toBe(golden.scene[0].content);
+    expect(tagSkill(messages(mapped, "portrait")[0].content)).toBe(tagSkill(golden.portrait[0].content));
+    expect(tagSkill(messages(mapped, "background")[0].content)).toBe(tagSkill(golden.background[0].content));
+    expect(tagSkill(messages(mapped, "scene")[0].content)).toBe(tagSkill(golden.scene[0].content));
+    expect(messages(mapped, "scene")[0].content).toContain("Start with count tags (1girl, 1boy, 2girls, solo) that match the visible list exactly.");
     expect(messages(mapped, "scene")[1].content).toContain(`${JANKU} (JANKUTrainedChenkinNoobai_v777; Detailed portraits and faces.)`);
   });
 });
