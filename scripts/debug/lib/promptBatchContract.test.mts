@@ -1,12 +1,12 @@
 import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
-import { cp, mkdtemp } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { cp } from 'node:fs/promises';
 import { join } from 'node:path';
 import { test } from 'node:test';
 import { REPO_ROOT } from './bundleEntry.mts';
 import { readBody, readManifest, readResponses, sendBatch, sha256 } from './promptBatch.mts';
 import { cannedBackendJson, loadBatchKit, t8 } from './promptBatchMeasures.mts';
+import { testTempDir } from '../../lib/testTemp.mjs';
 
 const GOLDEN = join(REPO_ROOT, 'test/measurements/v2.9/11-b2/t8-golden');
 const RECAPTURE = 'recapture on a no-model lane: node scripts/debug/st-lanes.mts run <n> -- scripts/debug/so-prompt-batch.mts capture --measurement t8 --out <dir> --verify test/measurements/v2.9/11-b2/t8-golden, then copy <dir> over the golden';
@@ -39,7 +39,7 @@ test('t8 golden: offline reply processing and parse of each canned answer equal 
 });
 
 test('t8 golden: send delivers the frozen bytes unchanged and score reproduces the live-suite verdict on the canned answers', async () => {
-  const dir = await mkdtemp(join(tmpdir(), 'so-prompt-batch-golden-'));
+  const dir = await testTempDir('so-prompt-batch-golden-');
   await cp(GOLDEN, dir, { recursive: true });
   const manifest = await readManifest(dir);
   const planned = new Map((await t8.plan({})).map((item) => [item.id, item]));

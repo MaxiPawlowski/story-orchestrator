@@ -1,12 +1,12 @@
 import { strict as assert } from "node:assert";
 import { execFileSync, spawnSync } from "node:child_process";
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { existsSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 import { changelogTopVersion, releaseMode, tagIssues, versionIssues } from "./buildChecks.mjs";
 import { gitBashCandidates, resolveGitBash } from "./gitBash.mjs";
+import { testTempDirSync } from '../lib/testTemp.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const readJson = (path) => JSON.parse(readFileSync(join(root, path), "utf8"));
@@ -56,7 +56,7 @@ const bash = resolveGitBash();
 
 test("UP: clean-host.sh keeps a pre-release suffix in the version it files its record under", { skip: !bash && "no bash" }, () => {
   const line = cleanHost("clean-host.sh").split(/\r?\n/).find((text) => text.startsWith("VERSION="));
-  const dir = mkdtempSync(join(tmpdir(), "so-clean-host-"));
+  const dir = testTempDirSync("so-clean-host-");
   try {
     const parse = (version) => {
       writeFileSync(join(dir, "package.json"), `{\n  "name": "x",\n  "version": "${version}",\n  "private": true\n}\n`);

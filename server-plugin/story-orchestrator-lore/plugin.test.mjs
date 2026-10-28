@@ -1,14 +1,14 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { testTempDirSync } from '../../scripts/lib/testTemp.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const plugin = await import(pathToFileURL(path.join(here, 'index.mjs')).href);
 
-const worldsDir = () => fs.mkdtempSync(path.join(os.tmpdir(), 'so-lore-'));
+const worldsDir = () => testTempDirSync('so-lore-');
 const book = (content) => ({ entries: { 3: { uid: 3, comment: 'Gate', content, disable: false }, 5: { uid: 5, comment: 'Ferry', content: 'The ferry.', disable: false } } });
 const put = (worlds, name, data) => fs.writeFileSync(path.join(worlds, `${name}.json`), JSON.stringify(data, null, 4));
 const read = (worlds, name) => JSON.parse(fs.readFileSync(path.join(worlds, `${name}.json`), 'utf8'));

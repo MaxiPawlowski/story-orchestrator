@@ -8,8 +8,9 @@ import { validateConfig } from './config.mjs';
 import { start, exit, init } from './index.mjs';
 import { createArbiter, controlRequest, leaseRequest, brokerState } from './broker/arbiter.mjs';
 import { parseMeminfo, parseNvidiaSmi, probeReserves } from './broker/telemetry.mjs';
+import { testTempDir } from '../../scripts/lib/testTemp.mjs';
 
-const tmp = () => fs.mkdtemp(path.join(os.tmpdir(), 'so-gpu-'));
+const tmp = () => testTempDir('so-gpu-');
 const abs = (name) => path.join(os.tmpdir(), name);
 
 const reading = (freeMiB = 20000, availableMiB = 30000) => ({ at: 'now', highCadence: false,

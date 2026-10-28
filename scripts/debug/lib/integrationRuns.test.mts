@@ -1,13 +1,13 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import {
   activeOutages, columnSettings, diffReopen, freezeCheck, outageMatcher, outagePreflight, parseRouteBlobs, profileSignature, readbackProblems, renderPlan, routeSlice,
   runById, sha256, splitBulkyEvidence, stepReached, validateRuns, verifyArtifacts, verifyRun, type RouteDoc, type RunsDoc, type StoryIndexLike,
 } from './integrationRuns.mts';
+import { testTempDirSync } from '../../lib/testTemp.mjs';
 
 const ROOT = resolve(import.meta.dirname, '..', '..', '..');
 const loadDoc = (): RunsDoc => JSON.parse(readFileSync(join(ROOT, 'test', 'measurements', 'v2.6-09', 'runs.json'), 'utf-8'));
@@ -215,7 +215,7 @@ test('route slice: an out-of-range slice is refused', () => {
 });
 
 function completeDir(doc: RunsDoc, runId: string, mutate: (dir: string) => void = () => undefined) {
-  const dir = mkdtempSync(join(tmpdir(), 'so-int-'));
+  const dir = testTempDirSync('so-int-');
   const run = runById(doc, runId)!;
   const w = (name: string, text: string) => writeFileSync(join(dir, name), text, 'utf-8');
   w('chats.json', JSON.stringify({ run: run.id, column: 'on', chats: [{ chatId: 'c1', primary: true }], touched: ['c1'] }));
@@ -285,7 +285,7 @@ test('negative control: I4 verify names a mutation that was never performed and 
 
 test('I6 verify reads the reopen rows of I1-I3 and fails on a missing host or a non-empty diff', () => {
   const doc = loadDoc();
-  const root = mkdtempSync(join(tmpdir(), 'so-int-i6-'));
+  const root = testTempDirSync('so-int-i6-');
   const write = (host: string, rows: object[]) => {
     const dir = join(root, `${host}-on-r1`);
     mkdirSync(dir, { recursive: true });

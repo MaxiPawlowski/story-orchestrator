@@ -1,13 +1,13 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { buildPool, loadE0 } from './lib/e0.mts';
 import { createStVectorsProvider, embeddingModelOf, insertSummary, type VectorPost } from './lib/e0StVectors.mts';
 import { ChoiceRunRefused, choiceSummary, recordChoices, type ChoiceKit, type JudgeAnswer } from './lib/e0Choices.mts';
 import { askClaude, askSol, opencodeText, type Exec } from './lib/e0LabelRun.mts';
 import { checkLabels, mergeLabels, selectSessions, writeLabels } from './lib/e0Label.mts';
+import { testTempDir } from '../lib/testTemp.mjs';
 
 const fakeVectors = () => {
   const stores = new Map<string, Array<{ hash: number; text: string }>>();
@@ -56,7 +56,7 @@ test('st-vectors provider: an HTTP failure stops the pool instead of scoring a h
 });
 
 test('st-vectors pool: buildPool takes the provider and records latencies the stub never has', async () => {
-  const work = await mkdtemp(join(tmpdir(), 'so-e0-stv-'));
+  const work = await testTempDir('so-e0-stv-');
   await mkdir(join(work, 's1'));
   await writeFile(join(work, 's1', 'chat-1.json'), JSON.stringify(Array.from({ length: 30 }, (_, id) => ({ id, name: id % 2 ? 'A' : 'B', isUser: id % 2 === 0, text: `message ${id}` }))));
   await writeFile(join(work, 'labels.json'), JSON.stringify({ format: 'so-e0-labels/1', source: 'synthetic', questions: [{ id: 'q1', session: 's1', askMessageId: 20, asker: 'B', text: 'what did A say', gold: [3], review: null }] }));
@@ -68,7 +68,7 @@ test('st-vectors pool: buildPool takes the provider and records latencies the st
 });
 
 test('embedding model is read from the ST copy config, unknown when absent', async () => {
-  const work = await mkdtemp(join(tmpdir(), 'so-e0-cfg-'));
+  const work = await testTempDir('so-e0-cfg-');
   await writeFile(join(work, 'config.yaml'), 'extensions:\n  models:\n    embedding: Xenova/all-mpnet-base-v2\n');
   assert.equal(embeddingModelOf(work), 'Xenova/all-mpnet-base-v2');
   assert.equal(embeddingModelOf(join(work, 'missing')), 'unknown');
@@ -119,7 +119,7 @@ const fakeExec = (stdout: string, code = 0) => {
 };
 
 test('label writers: Sol through opencode with tools off, Claude through claude -p with tools off; -fast and DeepSeek refused', async () => {
-  const work = await mkdtemp(join(tmpdir(), 'so-e0-run-'));
+  const work = await testTempDir('so-e0-run-');
   const sol = fakeExec(`${JSON.stringify({ type: 'text', part: { text: '{"questions":[]}' } })}\n`);
   assert.deepEqual(await askSol('p', work, sol.exec), { text: '{"questions":[]}', model: 'openai/gpt-6.1-sol' });
   assert.deepEqual(sol.runs[0].args.slice(0, 2), ['run', '--standalone']);
@@ -134,7 +134,7 @@ test('label writers: Sol through opencode with tools off, Claude through claude 
 });
 
 test('labels end to end: write, blind check, merge into a private set the review rule reads; reruns skip finished sessions', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'so-e0-labels-'));
+  const root = await testTempDir('so-e0-labels-');
   const out = join(root, 'out');
   const rows = Array.from({ length: 50 }, (_, id) => ({ id, name: id % 3 === 0 ? 'Wren' : 'Tobin', isUser: id % 3 === 0, text: `tier line ${id} on the rope bridge ${id * 7}` }));
   await mkdir(join(root, 'T1', 'T1-1-1'), { recursive: true });
@@ -162,7 +162,7 @@ test('labels end to end: write, blind check, merge into a private set the review
 });
 
 test('E0 CLI golden: a frozen run becomes a public replay with no text that jest can replay to the same result', async () => {
-  const work = await mkdtemp(join(tmpdir(), 'so-e0-golden-'));
+  const work = await testTempDir('so-e0-golden-');
   const root = process.cwd();
   const labelsFile = join(root, 'test/fixtures/e0/synthetic/labels.json');
   const poolFile = join(root, 'test/measurements/v2.8/21-e0/synthetic.pool.json');

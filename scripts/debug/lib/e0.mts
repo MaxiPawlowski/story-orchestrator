@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto';
 import { createRequire } from 'node:module';
 import { existsSync } from 'node:fs';
-import { mkdtemp, readdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdtemp, rm, readdir, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, relative, resolve, sep } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -43,7 +43,11 @@ export function loadE0(): Promise<E0Module> {
     const dir = await mkdtemp(join(tmpdir(), 'so-e0-'));
     const file = join(dir, 'e0.mjs');
     await writeFile(file, built.outputFiles[0].text, 'utf-8');
-    return import(pathToFileURL(file).href) as Promise<E0Module>;
+    try {
+      return await import(pathToFileURL(file).href) as E0Module;
+    } finally {
+      await rm(dir, { recursive: true, force: true });
+    }
   })();
   return loaded;
 }

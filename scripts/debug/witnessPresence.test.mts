@@ -1,10 +1,10 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, readFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { planPresence, presentAtFrom, recordPresence, scorePresence, omniscientNames, type PresenceRow } from './lib/witnessPresence.mts';
 import type { PlannedSet } from './lib/witnessRecord.mts';
+import { testTempDir } from '../lib/testTemp.mjs';
 
 const review = { writer: 'a', checker: 'b', agreed: true };
 const set: PlannedSet = {
@@ -38,7 +38,7 @@ test('witness presence: one tracker scene read per kept label, window of 8 endin
   assert.deepEqual(first.input.cast.find((member) => member.rosterId === 'mara'), { rosterId: 'mara', name: 'Mara', role: 'smith' });
   assert.deepEqual(first.names, { narr: 'Narrator', mara: 'mara', ben: 'Ben' });
   assert.deepEqual(omniscientNames(set), ['Narrator']);
-  const dir = await mkdtemp(join(tmpdir(), 'presence-'));
+  const dir = await testTempDir('presence-');
   const file = join(dir, 'presence-reads.json');
   const answers = [{ narr: 0.9, mara: 0.95, ben: 0.5, extra: 0.99 }, { narr: 0.2, mara: 0.8, ben: 0.75 }];
   let call = 0;

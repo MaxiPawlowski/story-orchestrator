@@ -1,11 +1,11 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { configuredStRoot, lanesRootFor, requireStRoot, stRootIssue } from "./stRoot.mjs";
+import { testTempDirSync } from './testTemp.mjs';
 
-const repo = () => mkdtempSync(join(tmpdir(), "so-stroot-"));
+const repo = () => testTempDirSync("so-stroot-");
 
 test("ST_ROOT wins over .st-root", () => {
   const dir = repo();

@@ -1,12 +1,12 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { gunzipSync } from "node:zlib";
 import { randomBytes } from "node:crypto";
 import { archiveSessions, changedFiles, SESSIONS_GIT_DIR } from "./sessionsArchive.mjs";
+import { testTempDirSync } from './testTemp.mjs';
 
 function run(gitDir, workTree, args) {
   const out = spawnSync("git", [`--git-dir=${gitDir}`, `--work-tree=${workTree}`, ...args], { cwd: workTree, encoding: "utf8" });
@@ -15,7 +15,7 @@ function run(gitDir, workTree, args) {
 }
 
 function sandbox() {
-  const root = mkdtempSync(join(tmpdir(), "so-sessions-archive-"));
+  const root = testTempDirSync("so-sessions-archive-");
   const gitDir = join(root, "repo.git");
   const workTree = join(root, "sessions");
   mkdirSync(workTree);

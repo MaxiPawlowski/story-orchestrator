@@ -1,16 +1,16 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import os from 'node:os';
 import path from 'node:path';
 import fs from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { allowedHost, checkFormat, createDownloads, readRef, resolveModel, safeFileName, testKey } from './downloads.mjs';
 import { mountDownloadRoutes } from './downloadRoutes.mjs';
+import { testTempDir } from '../../scripts/lib/testTemp.mjs';
 
 const KEY = 'sk-PLANTED-0123456789abcdef';
 const bytes = Buffer.from('safetensors-bytes-'.repeat(4096));
 const sha = createHash('sha256').update(bytes).digest('hex');
-const tmp = () => fs.mkdtemp(path.join(os.tmpdir(), 'so-dl-'));
+const tmp = () => testTempDir('so-dl-');
 
 const civitaiVersion = (overrides = {}) => ({
     id: 4242, modelId: 77, name: 'v1', baseModel: 'Illustrious',

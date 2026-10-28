@@ -1,11 +1,11 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { CLOUD_SINK_PORT, judgeShareEnv, laneHeaderField, parsePodArg, podLoadProblem, podPortOf, podPortsIn, podTunnelPort, readLanePod, retargetPodUrls, retargetProfiles } from './lanePods.mts';
 import { offlineProblems } from './laneModel.mts';
 import { laneLoadProblem } from '../st-lanes.mts';
+import { testTempDirSync } from '../../lib/testTemp.mjs';
 
 const settings = (urls: Array<string | undefined>) => ({
   main_api: 'textgenerationwebui',
@@ -81,7 +81,7 @@ test('lane load control: without pod records every lane is pod 0, as before mult
 });
 
 test('the pod record reads back; a missing or malformed one is null; the run-header field says which pod a lane used', () => {
-  const root = mkdtempSync(join(tmpdir(), 'so-lane-pod-'));
+  const root = testTempDirSync('so-lane-pod-');
   try {
     assert.equal(readLanePod(root), null);
     assert.deepEqual(laneHeaderField('3', root), { n: 3, pod: 0, port: null, podId: null });

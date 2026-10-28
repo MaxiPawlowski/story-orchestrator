@@ -1,7 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, writeFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { validateFixture } from './lib/scenarioSchema.mts';
 import { castOf, readJson, type ScenarioRunner } from './lib/replyCapture.mts';
@@ -9,6 +8,7 @@ import { checkG14, extrasOf, g14Job, g14Problems, readStateFile, type G14Fixture
 import { fixtureHashOf, VOICING_FREEZE, VOICING_G14 } from './lib/rumorVoicing.mts';
 import { loadFixtureKit, simulateG14 } from './lib/fixtureSim.mts';
 import { main } from './so-rumor-voicing.mts';
+import { testTempDir } from '../lib/testTemp.mjs';
 
 const cast = castOf();
 const fixture = await readJson<G14Fixture>(VOICING_G14);
@@ -118,7 +118,7 @@ test('checker: a run that did not exercise the surfaces is INCOMPLETE, never a p
 });
 
 test('checker reads a run record, a chat .jsonl and raw extras', async () => {
-  const dir = await mkdtemp(join(tmpdir(), 'so-g14-'));
+  const dir = await testTempDir('so-g14-');
   const record = join(dir, 'g14.json');
   await writeFile(record, JSON.stringify({ key: 'g14', capture: { blob: blob(base()), plumbing: false } }));
   const chat = join(dir, 'chat.jsonl');
@@ -136,7 +136,7 @@ test('checker reads a run record, a chat .jsonl and raw extras', async () => {
 });
 
 test('g14-record writes the stashed blob through the scenario runner', async () => {
-  const out = await mkdtemp(join(tmpdir(), 'so-g14-rec-'));
+  const out = await testTempDir('so-g14-rec-');
   const runner = (fn: (run: ScenarioRunner) => Promise<unknown>) => fn(async () => ({ ok: true, capture: { requests: [], reply: '', replyName: null, error: null, blocks: {}, plumbing: true, blob: blob(base()) } }));
   assert.equal(await main(['g14-record', '--out', out, '--plumbing'], { runner, log: () => {} }), 0);
   const lines: string[] = [];

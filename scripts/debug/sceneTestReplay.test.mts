@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, readFile, writeFile } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
@@ -8,6 +8,7 @@ import {
   prepareFrontier, readDrafts, replayAll, replayOne, type Asker, type Frontier,
 } from './lib/sceneReplay.mts';
 import { main } from './so-scene-test-replay.mts';
+import { testTempDir } from '../lib/testTemp.mjs';
 
 const readJson = async (file: string) => JSON.parse(await readFile(file, 'utf-8'));
 const quiet = async <T,>(run: () => Promise<T>): Promise<T> => {
@@ -39,7 +40,7 @@ test('a drifted frontier set is refused by the hash, the count and every command
   assert.match(frozenRefusal(edited, lock) ?? '', /changed since it was frozen/);
   assert.match(frozenRefusal(set, { ...lock, frontiers: 19 }) ?? '', /20 frontiers, frozen 19/);
   assert.match(frozenRefusal(set, null) ?? '', /no so-scene-frontiers-lock/);
-  const dir = await mkdtemp(join(tmpdir(), 'so-scene-'));
+  const dir = await testTempDir('so-scene-');
   const file = join(dir, 'frontiers.json');
   await writeFile(file, JSON.stringify(edited), 'utf-8');
   await assert.rejects(replayAll({ out: dir, run: 1, plumbing: true, frontiersFile: file, lockFile: LOCK_FILE, log: () => {} }), /changed since it was frozen/);
@@ -164,7 +165,7 @@ test('refusals are counted per attempt with their stage: parse, scene ops, guard
 });
 
 test('plumbing replay writes 60 resumable drafts per run, never mixes with a real run and is marked', async () => {
-  const out = await mkdtemp(join(tmpdir(), 'so-scene-'));
+  const out = await testTempDir('so-scene-');
   const first = await replayAll({ out, run: 1, plumbing: true, log: () => {} });
   assert.deepEqual([first.written, first.kept, first.failed], [60, 0, 0]);
   const again = await replayAll({ out, run: 1, plumbing: true, log: () => {} });

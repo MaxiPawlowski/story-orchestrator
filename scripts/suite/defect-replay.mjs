@@ -16,7 +16,7 @@ import { dirname, join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { applyMutant, classifyJest, specProblems } from '../lib/suiteMutants.mjs';
-import { failingTitles, runJest, runJestAsync, stageCopies, stageCopy, trackedFiles, withMutated, withMutatedAsync } from '../lib/suiteStage.mjs';
+import { failingTitles, jestCacheDir, removeStage, runJest, runJestAsync, stageCopies, stageCopy, trackedFiles, withMutated, withMutatedAsync } from '../lib/suiteStage.mjs';
 import { chunked, fileHashes, longestFirst, nextCache, readsTree, relatedQuery, reusableRows } from '../lib/suiteReplayCache.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
@@ -98,13 +98,32 @@ async function main() {
     console.error(invalid.join('\n'));
     return 2;
   }
+  process.env.SO_JEST_CACHE ??= jestCacheDir(ROOT);
   const files = trackedFiles(ROOT);
-  if (process.argv.includes('--discover')) return discover(stageCopy(ROOT, 'defect-replay', files), specs);
+  if (process.argv.includes('--discover')) return withStages([stageCopy(ROOT, 'defect-replay', files)], ([dir]) => discover(dir, specs));
   const full = process.argv.includes('--full');
   const cached = process.argv.includes('--cached') && !full;
   const hashes = fileHashes(ROOT, files);
   const workers = Math.max(1, Math.min(specs.length, (Number(arg('--workers') ?? process.env.SO_REPLAY_WORKERS) || defaultWorkers())));
   const dirs = (await stageCopies(ROOT, Array.from({ length: workers }, (_, index) => `defect-replay-w${index}`), files)).map((staged) => staged.dir);
+  return withStages(dirs, () => replay({ started, specs, full, cached, hashes, workers, dirs, only }));
+}
+
+export async function withStages(dirs, body) {
+  let code = 1;
+  try {
+    code = await body(dirs);
+  } finally {
+    const left = dirs.filter((dir) => !removeStage(dir));
+    if (left.length) {
+      console.error(`staged copies not removed: ${left.join(', ')}`);
+      code = 1;
+    }
+  }
+  return code;
+}
+
+async function replay({ started, specs, full, cached, hashes, workers, dirs, only }) {
   const cache = readCache();
   let reused = new Map();
   if (cached) {

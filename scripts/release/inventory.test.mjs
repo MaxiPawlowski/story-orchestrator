@@ -1,12 +1,12 @@
 import { strict as assert } from "node:assert";
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { test } from "node:test";
 import { firstLine, inventory } from "./inventory.mjs";
+import { testTempDirSync } from '../lib/testTemp.mjs';
 
 function fixture() {
-  const root = mkdtempSync(join(tmpdir(), "so-inventory-"));
+  const root = testTempDirSync("so-inventory-");
   const data = join(root, "data", "default-user");
   const put = (path, value) => { mkdirSync(dirname(join(data, path)), { recursive: true }); writeFileSync(join(data, path), typeof value === "string" ? value : JSON.stringify(value)); };
   put("worlds/Story Orchestrator - Sun Ruins - chat-1.json", { entries: { 0: { comment: "so-owner", content: "{}" }, 1: { comment: "fact" } } });
@@ -45,7 +45,7 @@ test("UN: the inventory lists exactly what we own, and never a foreign book, cha
 });
 
 test("UN control: an install that never ran the extension inventories as empty", () => {
-  const root = mkdtempSync(join(tmpdir(), "so-inventory-empty-"));
+  const root = testTempDirSync("so-inventory-empty-");
   try {
     mkdirSync(join(root, "worlds"), { recursive: true });
     writeFileSync(join(root, "settings.json"), JSON.stringify({ extension_settings: {} }));
@@ -56,7 +56,7 @@ test("UN control: an install that never ran the extension inventories as empty",
 });
 
 test("firstLine reads a header longer than one buffer and stops at the newline", () => {
-  const root = mkdtempSync(join(tmpdir(), "so-inventory-line-"));
+  const root = testTempDirSync("so-inventory-line-");
   try {
     const line = JSON.stringify({ chat_metadata: { pad: "x".repeat(300_000) } });
     writeFileSync(join(root, "c.jsonl"), `${line}\n{"mes":"after"}\n`);

@@ -1,11 +1,11 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
-import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { archiveLane, continuationsOf, dependencyRefusal, dependentsOf, executionOrder, lanePinVerdict, leaseFor, leaseRefusal, outstandingDependents, planDrift, planLanes, readLease, readSeedRecords, reseedRefusal, restoreLane, seedRecordOf, writeLease, judgeRateAction, judgeRatePlan, laneJudgeRate, loadedJudgeRate, runningLanes, JUDGE_ACCOUNT_RATE_PER_MIN } from './sessionLanes.mts';
 import { findCard, LANE_PLAN_PATH, loadCards } from '../so-session.mts';
+import { testTempDir } from '../../lib/testTemp.mjs';
 
 test('AS-29 schedule: cards run tier by tier, and a cross-tier continuation keeps its lane reserved until its tier', async () => {
   const doc = await loadCards();
@@ -55,7 +55,7 @@ test('AS-29 lease: a continuation waits for the session it continues to be stopp
 });
 
 test('AS-29 archive: a lane is archived and restored completely, lease included', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'so-lane-'));
+  const root = await testTempDir('so-lane-');
   const lane = join(root, '3');
   await mkdir(join(lane, 'data', 'default-user', 'chats', 'g'), { recursive: true });
   await writeFile(join(lane, 'data', 'default-user', 'chats', 'g', 'chat-a.jsonl'), 'one\ntwo\n');
@@ -170,7 +170,7 @@ test('pin bump: a continuation of the leased chat runs at the lane\'s own pin, r
 });
 
 test('pin bump: seed records are read from the lane\'s adolion-fresh dir, a broken report reads as no record', async () => {
-  const dir = await mkdtemp(join(tmpdir(), 'so-lane-seeds-'));
+  const dir = await testTempDir('so-lane-seeds-');
   await writeFile(join(dir, 'report-2026-10-01T11-00-00-000Z.json'), JSON.stringify({ commit: 'old', file: 'x.json', problems: [] }), 'utf-8');
   await writeFile(join(dir, 'report-2026-10-01T12-00-00-000Z.json'), '{broken', 'utf-8');
   await writeFile(join(dir, 'inventory-latest.json'), '{}', 'utf-8');
@@ -191,7 +191,7 @@ test('T1 judge rate: the account rate (TypeSafe\'s documented 1,200/min, 2026-10
   const log = '[story-orchestrator-judge] loaded; key from dotenv\n[story-orchestrator-judge] loaded; key from dotenv; per user 15/min, 2 in flight (SO_JUDGE_RATE_PER_MIN, SO_JUDGE_MAX_IN_FLIGHT)\nnoise\n[story-orchestrator-judge] loaded; key from dotenv; per user 30/min, 2 in flight (SO_JUDGE_RATE_PER_MIN, SO_JUDGE_MAX_IN_FLIGHT)\n';
   assert.equal(loadedJudgeRate(log), 30, 'the last load wins');
   assert.equal(loadedJudgeRate('[story-orchestrator-judge] loaded; key from dotenv\n'), null, 'a plugin that does not log its limit is unknown, not 60');
-  const root = await mkdtemp(join(tmpdir(), 'so-lanes-rate-'));
+  const root = await testTempDir('so-lanes-rate-');
   for (const [lane, pid] of [['0', '11'], ['1', '12'], ['3', '13'], ['4', 'gone'], ['archive', '14']]) {
     await mkdir(join(root, lane), { recursive: true });
     await writeFile(join(root, lane, 'server.pid'), pid, 'utf-8');

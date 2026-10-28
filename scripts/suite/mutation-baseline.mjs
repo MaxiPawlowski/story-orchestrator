@@ -14,7 +14,8 @@ import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import { classifyRun, importsModule, mutationScore, noKillTests, relativeTest, stratifiedSample, testAttribution } from '../lib/suiteMutants.mjs';
 import { applyAt, mutantsOf } from '../lib/suiteMutantGen.mjs';
-import { runJestAsync, stageCopy } from '../lib/suiteStage.mjs';
+import { jestCacheDir, runJestAsync, stageCopy } from '../lib/suiteStage.mjs';
+import { withStages } from './defect-replay.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 export const PURE_TIER = ['engine', 'memory', 'extraction', 'judge', 'talk', 'pacing'];
@@ -70,7 +71,12 @@ async function main() {
   if (process.argv.includes('--count')) return 0;
   const picked = stratifiedSample(all, byDir, sample, seed);
   console.log(`sampled ${picked.length} (seed ${seed}); staging ${workers} copies`);
+  process.env.SO_JEST_CACHE ??= jestCacheDir(ROOT);
   const copies = Array.from({ length: workers }, (_, index) => stageCopy(ROOT, `mutation-${index}`));
+  return withStages(copies, () => mutate({ copies, picked, attribute, timeoutMs, dirs, counts, all, files, seed, sample }));
+}
+
+async function mutate({ copies, picked, attribute, timeoutMs, dirs, counts, all, files, seed, sample }) {
   const outcomes = [];
   let next = 0;
   const started = Date.now();
