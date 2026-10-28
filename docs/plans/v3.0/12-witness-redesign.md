@@ -321,6 +321,50 @@ measured; P1 floors accepted as predeclared, informational, never retuned.
   floors and the presence null control (144/171). Expected before the run: mixed stays at most 6/11, so O3 cannot pass W4
   whole. No threshold, window or rule changes after the run.
 
+## C1 pass 3: P1 and O3 results (2026-10-28, lane 38, TypeSafe judge, no GPU)
+
+- **Run.** Lane 38 (no-model, ST server plugins on; offline lanes 30-32 carry no judge plugin), started for this run and stopped
+  after. Build served by a CDP route holder from `C:\dev\so-c1\dist` (in-page `dist/index.js` sha256 `29cc7b3df1ed` = worktree
+  manifest, 0 chunk 404s); nothing staged, owner ST and lane 0 untouched. Judge plugin status `configured: true` (key never read).
+  `so-witness.mts presence-read` through `st-lanes run 38`: 232 calls (192 real + 40 lab), 232 answered, 0 fallbacks, model
+  `jev-1.13.0`, latency 140-357 ms (median 169). Private files `test/sessions/witness-real/presence-reads.json` (`13a7ce3e…`),
+  `presence-score-2026-10-28.json` (`46d63c97…`), `derive-score-o3-2026-10-28.json` (`5a57bbf5…`).
+
+**P1 presence against its floors (p >= 0.7):**
+
+| Row (floor) | Real (192 msgs, 1104 pairs) | Lab (40 msgs, 600 pairs) | Real, without narrator | Lab, without narrator |
+|---|---|---|---|---|
+| pair accuracy (>= 0.95) | 902/1104 = 0.817 FAIL | 486/600 = 0.810 FAIL | 746/948 = 0.787 | 486/560 = 0.868 |
+| false-present (<= 0.02) | 5/514 = 0.010 pass | 15/362 = 0.041 FAIL | 5/358 = 0.014 | 15/362 = 0.041 |
+| false-absent (reported) | 195/590 = 0.331 | 99/238 = 0.416 | 195/590 | 59/198 |
+| 0.3-0.7 band (reported) | 177 pairs | 31 pairs | | |
+
+P1 **fails** its floors on both sets. The judge is conservative: it rarely calls an absent member present (real 1 %) but misses a
+third of the members who are there, and 177 real pairs sit in the uncertain band.
+
+**O3 = W2 + P1 as rule 6 (`--speaker-own`, decision 1 floors):**
+
+| Row (floor) | O3 real | W2 real | O3 lab | W2 lab |
+|---|---|---|---|---|
+| exact-set (>= 0.9) | 60/158 = 0.380 FAIL | 99/152 = 0.651 | 19/37 = 0.514 FAIL | 6/37 |
+| FI incl. ambiguous (<= 0.02) | 9/465 = 0.019 **pass** | 94/465 = 0.202 | 6/426 = 0.014 **pass** | 38/426 |
+| FE (<= 0.10) | 179/574 = 0.312 FAIL | 5/574 | 44/143 = 0.308 FAIL | 34/143 |
+| coverage (>= 0.85) | 172/192 = 0.896 pass | 162/192 | 38/40 pass | 38/40 |
+| mixed (>= 0.8) | 5/11 FAIL | 5/11 | 0/2 FAIL | 0/2 |
+| span FI (<= 0.02) | 5/79 = 0.063 FAIL | 16/79 | 0/50 pass | 0/50 |
+| aside exact (>= 0.8) | no denominator | | 19/32 = 0.594 FAIL | 6/32 |
+| beat presence on W4a by >= 0.3 | | | 0.594 vs 0/32: **pass** (+0.59) | +0.19 |
+
+Readings:
+- O3 trades exclusion for inclusion: false inclusion drops from 0.20 to 0.019 and passes on both sets, the first design to do
+  so, and the lab aside row now beats the presence control by 0.59. False exclusion rises from 0.01 to 0.31, which takes
+  exact-set down to 0.38. W4 fails as declared (mixed 5/11).
+- For the rule that matters to consumers that ADD text (fail closed: a member gets text only on a positive claim), FI is the
+  binding row and it now holds; FE is lost recall, not a leak. For a REMOVING filter (v2.8 42 C) FE would hide what a member saw.
+- The miss is P1's false-absent (0.33), not the rules: the labelled-presence ceiling stays 153/155 with FE 5/574.
+- Not done (no retuning, declared): no threshold change, no band abstention, no window change. O4 stays undesigned
+  (coordinator); the O3 numbers above are what the O4 decision reads.
+
 ## Unresolved questions
 
 - Is message-level privacy a product goal now (v3.0 02 reopen condition), or only witness-filtered recall?

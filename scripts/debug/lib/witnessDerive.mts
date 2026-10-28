@@ -82,6 +82,15 @@ export const VARIANTS: Array<{ id: string; options: Partial<DeriveOptions>; cont
   { id: 'diagnostic:labelled-presence+asides', options: {}, context: 'window', oracle: true },
 ];
 
+export const O3_VARIANT: (typeof VARIANTS)[number] = { id: 'o3:w2+p1-presence', options: {}, context: 24 };
+
+async function p1Source(file: string) {
+  const { presentAtFrom, loadSceneKit } = await import('./witnessPresence.mts');
+  const rows = (await readJson<{ rows: Parameters<typeof presentAtFrom>[0] }>(file)).rows;
+  const threshold = (await loadSceneKit()).PRESENT_P;
+  return (set: string) => presentAtFrom(rows, set, threshold);
+}
+
 export const labelledPresence = (labels: Labels): Map<number, string[]> =>
   new Map((labels.labels as Array<{ messageId: number; present: string[] }>).map((label) => [label.messageId, label.present]));
 
@@ -109,8 +118,9 @@ export async function labSet(readsFile: string, labStory?: string): Promise<Deri
 export const speakersOf = (set: DeriveSet, labels: Labels): Map<number, string> =>
   new Map(set.reads.messages.filter((message) => labels.members.includes(message.speaker)).map((message) => [message.messageId, message.speaker]));
 
-export async function deriveScoreAll(out: string, root: string, labStory?: string, speakerOwn = false) {
+export async function deriveScoreAll(out: string, root: string, labStory?: string, speakerOwn = false, presence?: string) {
   const kit = await loadDeriveKit();
+  const p1 = presence ? await p1Source(presence) : null;
   const dir = join(out, 'reads', 'files');
   const labelDir = join(out, 'adjudicated', 'labels');
   const files = (await readdir(dir)).filter((name) => name.endsWith('.json')).sort();
@@ -126,10 +136,10 @@ export async function deriveScoreAll(out: string, root: string, labStory?: strin
   }
   const rule = (labels: Labels, set: DeriveSet) => (speakerOwn ? { speakers: speakersOf(set, labels) } : {});
   const variants = [];
-  for (const variant of VARIANTS) {
+  for (const variant of [...VARIANTS, ...(p1 ? [O3_VARIANT] : [])]) {
     for (const omniscient of ['speaker-only', 'always'] as const) {
       const options = { ...kit.DERIVE_DEFAULTS, ...variant.options, omniscient };
-      const withOracle = (labels: Labels, set: DeriveSet): DeriveSet => (variant.oracle ? { ...set, presentAt: labelledPresence(labels) } : set);
+      const withOracle = (labels: Labels, set: DeriveSet): DeriveSet => (variant.oracle ? { ...set, presentAt: labelledPresence(labels) } : variant.id === O3_VARIANT.id && p1 ? { ...set, presentAt: p1(set.reads.set) } : set);
       const realScore = kit.combineWitnessScores('real-sessions', real.map(({ labels, set }) => kit.scoreWitness(labels, derivedPredict(kit, withOracle(labels, set), options, variant.context), rule(labels, set))));
       const labScore = lab ? kit.scoreWitness(lab.labels, derivedPredict(kit, withOracle(lab.labels, lab.set), options, variant.context), rule(lab.labels, lab.set)) : null;
       variants.push({ id: variant.id, omniscient, context: variant.context, options, real: { verdict: realScore.verdict, ...counts(realScore) }, lab: labScore ? { verdict: labScore.verdict, ...counts(labScore) } : null });
@@ -138,7 +148,7 @@ export async function deriveScoreAll(out: string, root: string, labStory?: strin
   const control = kit.combineWitnessScores('real-sessions-presence', real.map(({ labels, set }) => kit.scoreWitness(labels, kit.presencePredict(labels), rule(labels, set))));
   const labControl = lab ? kit.scoreWitness(lab.labels, kit.presencePredict(lab.labels), rule(lab.labels, lab.set)) : null;
   return {
-    format: 'so-witness-derive-score/1', speakerOwnHeard: speakerOwn, sets: { real: real.length, lab: Boolean(lab) }, variants,
+    format: 'so-witness-derive-score/1', speakerOwnHeard: speakerOwn, ...(presence ? { presence } : {}), sets: { real: real.length, lab: Boolean(lab) }, variants,
     presence: { real: counts(control), lab: labControl ? counts(labControl) : null },
   };
 }
