@@ -371,8 +371,8 @@ Controller samples (`controller/status-samples*.jsonl`, every 15 s):
 
 ### Blocks freezing v3.0
 
-- `suite:nomodel` needs a second consecutive green run on one build.
-- J6 is not green x2 under the batch runner (D-EB3); D-EB1 is a player-visible defect.
+- ~~`suite:nomodel` needs a second consecutive green run on one build.~~ Met 2026-10-28 (§End batch 2).
+- ~~J6 is not green x2 under the batch runner (D-EB3)~~ (met 2026-10-28, §End batch 2); D-EB1 fixed (§Gate record: end-batch fixes).
 - The image journey misses gpu-idle every run; a clean GPU window (no other model lane) is needed to separate the
   floor from contention and to read the RAM floor.
 - Owed elsewhere and still open: the owner playtest (v2.9 13 C1), GBNF parity and render-survival (on master since 2026-10-28),
@@ -409,6 +409,50 @@ Controller samples (`controller/status-samples*.jsonl`, every 15 s):
 - `npm run gates:quick`: green (170.4 s) before the live runs.
 - After merging master (talk fixes C, `fe50b961`) into the branch: `npm run gates` (no `--resume`) all green in 305.0 s;
   jest 10759 passed / 1 skipped, Storybook 1010 passed. Live rows not rerun on the merged tree (talk fixes touch no file here).
+
+### End batch 2 2026-10-28 (staged `982f945d`, bundle `9aec23d35ee4`, not restaged during the runs)
+
+suite:nomodel (v2.9 13 C8 x2): lanes 30,31 offline, `npm run suite:nomodel` (prepare + `st-lanes batch --strict --model none --fresh-page`):
+
+- Run A 11:38Z: GREEN 189, RED 0, INCOMPLETE 2, NOT-RUNNABLE 0 (`C:\dev\so-lanes\batch-2026-10-28T11-38-06-242Z.json`).
+  Both INCOMPLETE rows (`v24-01-transition-note-speaker`, `v27-37-agenda-effect-file`) lost the `--fresh-page` reload
+  (`st-session reload`: `page.waitForFunction: Timeout 30000ms`, so the row never started). The J6 diagnosis below was
+  writing a 2.5 GB Playwright protocol log on the same machine at the time. Environment, not counted.
+- Run B 13:14Z: **GREEN 191, RED 0, INCOMPLETE 0, NOT-RUNNABLE 0** (`batch-2026-10-28T13-14-21-843Z.json`): 181 scenarios
+  + 10 journeys (48 none checks).
+- Run C: **GREEN 191, RED 0, INCOMPLETE 0, NOT-RUNNABLE 0** (`batch-2026-10-28T14-41-03-123Z.json`), started right after B on the same build. B and C are the two consecutive greens on one build that v2.9 13 C8 asks for.
+
+J6 under `st-lanes batch --lanes 45 --repeat 2 --strict --fresh-page J6` (lane 45 model, `--allow-local`, local controller Artemis):
+
+- D-EB3 cause: not a navigation. The Playwright CDP log (`DEBUG=pw:protocol`, one file per process) shows that the failing
+  `Runtime.callFunctionOn` (`awaitPromise`) was answered with `{"code":-32000,"message":"Promise was collected"}`. Playwright
+  1.58 `crExecutionContext.rewriteError` turns every non-script protocol error into "Execution context was destroyed, most
+  likely because of a navigation". Evidence: a second CDP client saw no `frameNavigated` or `executionContextsCleared`, the
+  page's `performance.now()` ran on across the failure, and an in-page probe holding the promises of
+  `runExtractionNow` and `eventSource.emit` saw each one settle (slowest 20 s) while the harness still got
+  "Promise was collected". Seen on `extract` (J6.11, J6.12) and `delete` (J6.3), each right after a group chat save. The
+  first attempt's work had landed, so the S5 retry of J6.3 failed on "Message 1 not found". Not reproduced with plain
+  timer/emit/fetch promises under forced GC. The V8-side trigger is not pinned. Excerpt:
+  `C:\dev\so-lanes\45\debug\d-eb3-promise-collected.txt`.
+- Old harness, 4 batches: `11-38-32-144Z` run 1 GREEN, run 2 BLOCKED J6.11; `12-15-28-304Z` run 1 RED (J6.3 + J6.11),
+  run 2 GREEN after a J6.12 S5 retry; `12-41-49-596Z` (probe on) RED x2 (J6.3, J6.11); `12-02-46-719Z` discarded (the
+  protocol log overflowed the batch parent's stderr buffer).
+- Fix (harness, `scripts/debug/lib/evaluate.mts`): `evaluateInST` runs an async function as a page-side job. One
+  synchronous call starts it and holds its promise on the page (`__soEvalJobs`), and synchronous polls every 100 ms read the
+  outcome. A script error keeps its message, and a job the page no longer holds (a reload) reads as a navigation.
+  Sync functions and fake pages keep the plain `page.evaluate`. Tests: `evaluate.test.mts` (5).
+- Fixed harness, 3 batches, 0 navigation or harness errors in 6 runs:
+  - `13-11-18-931Z`: run 1 GREEN; run 2 RED on J6.7. A background epistemic pass took the scripted debug response first,
+    so the tracked belief was stamped message 12 instead of the scripted window end 11, and the edit at 12 correctly
+    dropped it. Fixture race, open.
+  - `13-38-44-358Z`: RED x2 on J6.8, caused by a fixture edit that selected the belief by message id. That was wrong: J6.8
+    reuses J6.7's chat and the content dedups onto the earlier row. Reverted, not counted.
+  - `14-01-33-428Z`: **GREEN x2** (11/11 automated each, 1 human row unscored). Records
+    `test/journeys/records/v3.0-end-batch-2/2026-10-28T14-12-15-893Z_journey-J6.json`, `…14-25-21-760Z_journey-J6.json`.
+- Open: the J6.7 race (1 of 6 runs) and the "Promise was collected" trigger itself.
+- Gates (branch `v3.0-eb2-evaljob`, worktree `C:\dev\so-eb2-evaljob`): `npm run gates:quick` green (149.7 s); `npm run gates`
+  (no `--resume`) all green in 395.9 s: jest 10799 passed / 1 skipped, test:debug 1640/1640, Storybook 1010 passed, build,
+  typecheck, typecheck:test, debug:typecheck, lint, test:replay, test:plugin, test:release ok. Record lines added after the run (docs only).
 
 ## Rules
 
