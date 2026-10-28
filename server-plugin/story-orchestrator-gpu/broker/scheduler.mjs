@@ -309,6 +309,7 @@ export class ResidencyScheduler {
                 catch (error) { this.lastError = error.message; }
             }
             let decision;
+            let lightStreaming = false;
             if (memory.credit && (benchmarkMode === 'swap' || !admission(creditedSnapshot(snapshot, memory.credit), { gpuMiB: needGpuMiB, ramMiB: needRamMiB }, this.config.reserves).allowed)) {
                 await this.freeImages();
                 memory.credit = null;
@@ -337,12 +338,18 @@ export class ResidencyScheduler {
             } else if (benchmarkMode !== 'swap' && this.streams({ snapshot, runtime, models, needRamMiB })) {
                 decision = 'stream-image';
                 reason = `${choice.reason} Streaming the image beside text instead.`;
-            } else if (benchmarkMode !== 'swap' && textResident && sleepsLight(this.config) && this.lightSleepFits(snapshot, needGpuMiB, memory.credit)) {
+            } else if (benchmarkMode !== 'swap' && textResident && sleepsLight(this.config)
+                && (this.lightSleepFits(snapshot, needGpuMiB, memory.credit) || this.streams({ snapshot, runtime, models, needRamMiB, extraFreeMiB: this.lightSleepFreesMiB() }))) {
                 await this.backend.unload({ keepCache: true, light: true });
                 snapshot = await this.snapshot({ fresh: true });
-                if (this.backend.status().sleeping?.light && fits().allowed) {
+                const asleep = this.backend.status().sleeping?.light === true;
+                if (asleep && fits().allowed) {
                     decision = 'sleep-context';
                     reason = `${choice.reason} Text contexts freed, weights kept on the GPU.`;
+                } else if (asleep && this.streams({ snapshot, runtime, models, needRamMiB, allowLightSleep: true })) {
+                    decision = 'sleep-context';
+                    lightStreaming = true;
+                    reason = `${choice.reason} Text contexts freed, weights kept on the GPU; the image streams beside them.`;
                 } else {
                     if (this.backend.status().sleeping) await this.backend.dropSleeping();
                     await this.dropSleepingForRam(needRamMiB);
@@ -377,7 +384,8 @@ export class ResidencyScheduler {
                 if (benchmarkMode === 'swap') reason = 'Benchmark forced a swap.';
             }
             if (decision === 'swap-text' && textResident && benchmarkMode !== 'swap') reason = `Swapped text out. ${choice.reason}`;
-            const admitted = decision === 'stream-image' ? { allowed: this.streams({ snapshot, runtime, models, needRamMiB }), reason: 'Streaming headroom changed.' } : fits();
+            const admitted = decision === 'stream-image' ? { allowed: this.streams({ snapshot, runtime, models, needRamMiB }), reason: 'Streaming headroom changed.' }
+                : lightStreaming ? { allowed: this.streams({ snapshot, runtime, models, needRamMiB, allowLightSleep: true }), reason: 'Streaming headroom changed after the light sleep.' } : fits();
             const admittedReadings = { gpuFreeMiB: snapshot?.gpus?.[0]?.freeMiB ?? null, ramAvailableMiB: snapshot?.host?.availableMiB ?? null };
             if (!admitted.allowed && RAM_REFUSAL.test(admitted.reason)) throw await this.noteRamShort(ramBefore, `${admitted.reason} RAM available ${Math.round(admittedReadings.ramAvailableMiB ?? -1)} MiB; workload ${needRamMiB} + reserve ${this.config.reserves.ramMiB} MiB.`);
             if (!admitted.allowed) {
@@ -429,8 +437,7 @@ export class ResidencyScheduler {
 
     lightSleepFits(snapshot, needGpuMiB, credit) {
         const free = creditedSnapshot(snapshot, credit)?.gpus?.[0]?.freeMiB;
-        const frees = memberCacheOptions(this.config)?.lightSleepFreesMiB ?? 2900;
-        return Number.isFinite(free) && free + frees >= needGpuMiB + this.config.reserves.gpuMiB;
+        return Number.isFinite(free) && free + this.lightSleepFreesMiB() >= needGpuMiB + this.config.reserves.gpuMiB;
     }
 
     recordResidency({ decision, reason, admittedReadings }) {
@@ -440,13 +447,18 @@ export class ResidencyScheduler {
         this.log(`lease ${decision}: ${reason} (GPU free ${mib(row.readings?.gpuFreeMiB)} MiB, need ${row.needGpuMiB} + reserve ${row.reserves?.gpuMiB}; RAM available ${mib(row.readings?.ramAvailableMiB)} MiB, need ${row.needRamMiB} [${row.ramSource}] + reserve ${row.reserves?.ramMiB})`);
     }
 
-    streams({ snapshot, runtime, models, needRamMiB }) {
+    streams({ snapshot, runtime, models, needRamMiB, extraFreeMiB = 0, allowLightSleep = false }) {
         const policy = this.config.streamImages;
-        if (!policy?.enabled || !runtime?.streaming || !this.backend.status().pid || this.backend.status().fitTargetMiB != null) return false;
+        const text = this.backend.status();
+        const resident = Boolean(text.pid) || (allowLightSleep && text.sleeping?.light === true);
+        if (!policy?.enabled || !runtime?.streaming || !resident || text.fitTargetMiB != null) return false;
         if (!models.length || models.some((row) => !(policy.kinds ?? ['checkpoints']).includes(row.kind))) return false;
         if (models.reduce((sum, row) => sum + row.weightsMiB, 0) > (policy.maxWeightMiB ?? 8192)) return false;
-        return admission(snapshot, { gpuMiB: policy.minFreeGpuMiB ?? 2400, ramMiB: needRamMiB }, this.config.reserves).allowed;
+        const reading = extraFreeMiB > 0 && snapshot?.gpus?.[0] ? { ...snapshot, gpus: [{ ...snapshot.gpus[0], freeMiB: snapshot.gpus[0].freeMiB + extraFreeMiB }, ...snapshot.gpus.slice(1)] } : snapshot;
+        return admission(reading, { gpuMiB: policy.minFreeGpuMiB ?? 2400, ramMiB: needRamMiB }, this.config.reserves).allowed;
     }
+
+    lightSleepFreesMiB() { return memberCacheOptions(this.config)?.lightSleepFreesMiB ?? 2900; }
 
     renew(id) { if (this.lease?.id !== id) return false; this.lease.touched = Date.now(); return true; }
 
