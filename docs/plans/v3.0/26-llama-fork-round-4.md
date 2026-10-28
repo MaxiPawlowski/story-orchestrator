@@ -368,3 +368,22 @@ Recipe, part B (freshness and exactly-once on the page, real model):
 - `git merge-tree v3.0-c4a-requeue v3.0-a2-maxmem`: clean, no conflict.
 - Not run: no GPU, no controller restart, no lane, no real-LLM gate (owner instruction: a2 benchmark running). Live
   check owed per §C4a live check; the real-LLM gate for the page change (read marker) is part B. NOT merged.
+
+## Gate record (r4 merge, 2026-10-28)
+
+- Branches: `v3.0-llama-r4` (test branch: r4 + master + the C4a merge, used for every GPU run) and
+  `v3.0-llama-r4-merge` (r4 + master, no C4a code; this plan's records), merged to master.
+- Fork: `C:\dev\tools\src\llama.cpp-b11888-so5` branch `so-r4` (`58785ca` light sleep / load timing / draft cap,
+  `8b83266` overlapped reader) on `3bae32b`; repo copy `scripts/local/llama-patches/so-cache-b11888.patch` (8 commits).
+- `npm run gates:quick` on the test branch: green (225 s).
+- `npm run gates` (no `--resume`) on `v3.0-llama-r4-merge`: all green in 403.4 s (typecheck, build, test:debug,
+  typecheck:test, debug:typecheck, test, test:release, test:replay, test:plugin, lint, test-storybook:ci).
+- Unit tests added: `backend.test.mjs` (light sleep request, freed memory, wake against the freed amount, stray check
+  above held weights, light wake falling back to a clean start, option validation, draft caps), `scheduler.test.mjs`
+  (`sleep-context` whole and streamed, fallback to swap, image too large for a light sleep), `gateway.test.mjs`
+  (per-request `speculative.n_max`).
+- GPU window 17:37Z-22:27Z (about 290 min, over the 120 min budget: C2b, the extra L and S384 runs, the R2 A rerun and
+  the C4a Parts A and B were added during the window).
+- Live: the C1 arms, L-LH row and regression rows above through the controller on lane 42; the C4a Part B ran with
+  the test branch staged into ST (every new key off), master restaged after this merge.
+- Not changed: the owner's controller config, binary and tray.
