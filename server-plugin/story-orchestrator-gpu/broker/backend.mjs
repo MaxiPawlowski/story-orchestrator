@@ -6,7 +6,8 @@ import { withinReserve } from './policy.mjs';
 import { CONTROLLER_DEFAULTS } from './controllerStatus.mjs';
 import { memberCacheOptions } from './memberCache.mjs';
 
-export const SPECULATIVE_DEFAULTS = Object.freeze({ type: 'draft-mtp', nMax: 2, estimatedGpuMiB: 900 });
+export const SPECULATIVE_DEFAULTS = Object.freeze({ type: 'draft-mtp', nMax: 2, estimatedGpuMiB: 900, extraTypes: [], chatNMax: null, sideNMax: null });
+export const LOCAL_DRAFT_TYPES = Object.freeze(['ngram-simple']);
 
 export function speculative(config) {
     const spec = config.speculative;
@@ -14,15 +15,23 @@ export function speculative(config) {
     if (typeof spec.model !== 'string' || !spec.model) throw new Error('speculative.model must name the draft model file.');
     const merged = { ...SPECULATIVE_DEFAULTS, ...spec };
     if (!Number.isInteger(merged.nMax) || merged.nMax < 1 || merged.nMax > 8) throw new Error('speculative.nMax must be a whole number from 1 to 8.');
+    if (!Array.isArray(merged.extraTypes) || merged.extraTypes.some((type) => !LOCAL_DRAFT_TYPES.includes(type))) throw new Error(`speculative.extraTypes may only list request-local drafters: ${LOCAL_DRAFT_TYPES.join(', ')}.`);
+    for (const key of ['chatNMax', 'sideNMax']) if (merged[key] !== null && !(Number.isInteger(merged[key]) && merged[key] >= 1 && merged[key] <= merged.nMax)) throw new Error(`speculative.${key} must be null or a whole number from 1 to speculative.nMax.`);
     return merged;
 }
 
 export function speculativeArgs(config) {
     const spec = speculative(config);
-    return spec ? ['--model-draft', spec.model, '--spec-type', spec.type, '--spec-draft-n-max', String(spec.nMax)] : [];
+    return spec ? ['--model-draft', spec.model, '--spec-type', [spec.type, ...spec.extraTypes].join(','), '--spec-draft-n-max', String(spec.nMax)] : [];
 }
 
-export const speculativeTag = (config) => { const spec = speculative(config); return spec ? `${spec.type}${spec.nMax}` : null; };
+export function draftCap(config, chat) {
+    const spec = speculative(config);
+    if (!spec) return null;
+    return chat ? spec.chatNMax : spec.sideNMax;
+}
+
+export const speculativeTag = (config) => { const spec = speculative(config); return spec ? `${[spec.type, ...spec.extraTypes].join('+')}${spec.nMax}` : null; };
 
 export const SLOT_DEFAULTS = Object.freeze({ count: 1, chat: 0, side: 1, estimatedGpuMiB: 400 });
 
@@ -80,6 +89,7 @@ export class MemoryReserveError extends Error {
 }
 
 export const keepsCacheAcrossImages = (config) => memberCacheOptions(config)?.keepAcrossImages === true;
+export const sleepsLight = (config) => keepsCacheAcrossImages(config) && memberCacheOptions(config)?.lightSleep === true;
 
 export class NativeBackend {
     constructor(config, { snapshot = memorySnapshot, spawn = spawnDefault, killTree = null, fetch: fetchImpl = fetch, reclaimGpu = null } = {}) {
@@ -111,7 +121,8 @@ export class NativeBackend {
         this.sleeping = null;
         this.entering = false;
         this.direct = 0;
-        this.sleepStats = { sleeps: 0, wakes: 0, wakeFailures: 0, dropped: 0, strayWakes: 0, wakeReclaims: 0, lastWakeMs: null, lastSleepMs: null, lastStrayWake: null };
+        this.sleepStats = { sleeps: 0, wakes: 0, wakeFailures: 0, dropped: 0, strayWakes: 0, wakeReclaims: 0, lastWakeMs: null, lastSleepMs: null, lastStrayWake: null,
+            lightSleeps: 0, lightWakes: 0, lastLightWakeMs: null, lastLightFreedMiB: null };
     }
 
     async load(name = this.config.defaultProfile, options = {}) {
@@ -221,10 +232,10 @@ export class NativeBackend {
         throw new Error('Native backend load timed out.');
     }
 
-    async unload({ keepCache = false } = {}) {
+    async unload({ keepCache = false, light = false } = {}) {
         while (this.loading) await this.loading.catch(() => {});
         if (keepCache && keepsCacheAcrossImages(this.config) && this.child && !this.sleeping && this.profile && this.fitTarget === null) {
-            try { await this.sleep(); return; }
+            try { await this.sleep({ light: light && sleepsLight(this.config) }); return; }
             catch (error) { this.lastError = `text could not sleep, stopped instead: ${error.message}`; }
         }
         await this.stopOwned();
@@ -238,7 +249,7 @@ export class NativeBackend {
 
     endDirect() { this.direct = Math.max(0, this.direct - 1); }
 
-    async sleep() {
+    async sleep({ light = false } = {}) {
         const began = Date.now();
         const deadline = Date.now() + (this.config.textSleepTimeoutMs ?? 60000);
         this.entering = true;
@@ -247,7 +258,10 @@ export class NativeBackend {
                 if (Date.now() > deadline) throw new Error('requests sent straight to the text server did not finish before it could sleep.');
                 await new Promise((resolve) => setTimeout(resolve, 25));
             }
-            const reply = await this.fetch(`${this.url}/sleep`, { method: 'POST', signal: AbortSignal.timeout(10000) });
+            const heldBefore = light ? this.heldMiB(await this.snapshot()) : null;
+            const request = light ? { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ level: 'context' }), signal: AbortSignal.timeout(10000) }
+                : { method: 'POST', signal: AbortSignal.timeout(10000) };
+            const reply = await this.fetch(`${this.url}/sleep`, request);
             if (!reply.ok) throw new Error(`/sleep answered ${reply.status}`);
             while (true) {
                 const props = await (await this.fetch(`${this.url}/props`, { signal: AbortSignal.timeout(5000) })).json().catch(() => ({}));
@@ -256,6 +270,13 @@ export class NativeBackend {
                 await new Promise((resolve) => setTimeout(resolve, 250));
             }
             this.sleeping = { profile: this.profile, correction: this.fitCorrections.get(this.profile) ?? 0, at: Date.now() };
+            if (light) {
+                const heldAfter = this.heldMiB(await this.snapshot());
+                const freedMiB = Number.isFinite(heldBefore) && Number.isFinite(heldAfter) ? Math.max(0, heldBefore - heldAfter) : null;
+                Object.assign(this.sleeping, { light: true, heldMiB: heldAfter, freedMiB });
+                this.sleepStats.lightSleeps += 1;
+                this.sleepStats.lastLightFreedMiB = freedMiB === null ? null : Math.round(freedMiB);
+            }
             this.profile = null;
             this.slotTokens.clear();
             this.slotBusy.clear();
@@ -274,7 +295,8 @@ export class NativeBackend {
         if (!this.sleeping || !this.child || this.loading) return null;
         const snapshot = reading ?? await this.snapshot();
         const held = this.heldMiB(snapshot);
-        if (!(held > (this.config.strayWakeMiB ?? 2048))) return null;
+        const base = this.sleeping.light && Number.isFinite(this.sleeping.heldMiB) ? this.sleeping.heldMiB : 0;
+        if (!(held > base + (this.config.strayWakeMiB ?? 2048))) return null;
         if (!(snapshot.at >= this.sleeping.at + (this.config.strayWakeSettleMs ?? 5000)) || !(snapshot.gpus?.[0]?.usedMiB >= held)) return null;
         const stray = { at: new Date().toISOString(), pid: this.child.pid, heldMiB: Math.round(held) };
         this.sleepStats.strayWakes += 1;
@@ -285,6 +307,7 @@ export class NativeBackend {
     }
 
     async wake(name, profile) {
+        if (this.sleeping?.light) return this.wakeLight(name);
         const began = Date.now();
         let snapshot = await this.snapshot();
         const fullMiB = profileGpuMiB(this.config, profile) + this.config.reserves.gpuMiB;
@@ -312,6 +335,35 @@ export class NativeBackend {
         this.loads += 1;
         this.sleepStats.wakes += 1;
         this.sleepStats.lastWakeMs = this.loadMs;
+    }
+
+    async wakeLight(name) {
+        const began = Date.now();
+        const contextMiB = this.sleeping.freedMiB ?? memberCacheOptions(this.config)?.lightSleepFreesMiB ?? 2900;
+        let snapshot = await this.snapshot();
+        const needMiB = contextMiB + this.config.reserves.gpuMiB;
+        if (snapshot.gpus[0].freeMiB < needMiB && this.reclaimGpu) {
+            let freed = false;
+            try { freed = await this.reclaimGpu({ shortMiB: needMiB - snapshot.gpus[0].freeMiB }); } catch (error) { this.lastError = error.message; }
+            if (freed) { this.sleepStats.wakeReclaims += 1; snapshot = await this.snapshot(); }
+        }
+        if (snapshot.gpus[0].freeMiB < needMiB) throw new Error(`Not enough free GPU memory to recreate the text contexts after a light sleep (${Math.round(snapshot.gpus[0].freeMiB)} MiB free, ${Math.round(needMiB)} MiB needed).`);
+        const reply = await this.fetch(`${this.url}/completion`, { method: 'POST', headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ prompt: '\n', n_predict: 0, cache_prompt: false, stream: false }), signal: AbortSignal.timeout(240000) });
+        if (!reply.ok) throw new Error(`waking request answered ${reply.status}`);
+        const after = await this.snapshot();
+        if (!withinReserve(after, this.config.reserves)) throw new MemoryReserveError(after, this.config.reserves, 0);
+        this.sleeping = null;
+        this.profile = name;
+        this.fitTarget = null;
+        this.desiredProfile = name;
+        this.lastError = null;
+        this.loadMs = Date.now() - began;
+        this.loads += 1;
+        this.sleepStats.wakes += 1;
+        this.sleepStats.lightWakes += 1;
+        this.sleepStats.lastWakeMs = this.loadMs;
+        this.sleepStats.lastLightWakeMs = this.loadMs;
     }
 
     async dropSleeping() {
@@ -436,5 +488,5 @@ export class NativeBackend {
     }
 
     status() { return { profile: this.profile, desiredProfile: this.desiredProfile, fitTargetMiB: this.fitTarget, fitCorrectionMiB: this.fitCorrections.get(this.profile) ?? 0,
-        lastFitCorrection: this.lastFitCorrection, gpuReclaims: this.reclaims, speculative: speculativeTag(this.config), slots: slots(this.config) ? { ...slots(this.config), held: Object.fromEntries(this.slotTokens), requests: { ...this.slotStats.requests }, erased: this.slotStats.erased, waited: this.slotStats.waited, chatErasedBySide: this.slotStats.chatErasedBySide, busy: [...this.slotBusy] } : null, cacheRamMiB: memberCacheOptions(this.config)?.store === 'ram' ? memberCacheOptions(this.config).budgetMiB : this.config.cacheRamMiB ?? 512, pid: this.sleeping ? null : this.child?.pid ?? null, sleeping: this.sleeping ? { profile: this.sleeping.profile, pid: this.child?.pid ?? null, since: new Date(this.sleeping.at).toISOString() } : null, sleepStats: { ...this.sleepStats }, loading: Boolean(this.loading), loadMs: this.loadMs, loads: this.loads, lastError: this.lastError, crashed: this.crashed, servedContext: this.servedContext() }; }
+        lastFitCorrection: this.lastFitCorrection, gpuReclaims: this.reclaims, speculative: speculativeTag(this.config), slots: slots(this.config) ? { ...slots(this.config), held: Object.fromEntries(this.slotTokens), requests: { ...this.slotStats.requests }, erased: this.slotStats.erased, waited: this.slotStats.waited, chatErasedBySide: this.slotStats.chatErasedBySide, busy: [...this.slotBusy] } : null, cacheRamMiB: memberCacheOptions(this.config)?.store === 'ram' ? memberCacheOptions(this.config).budgetMiB : this.config.cacheRamMiB ?? 512, pid: this.sleeping ? null : this.child?.pid ?? null, sleeping: this.sleeping ? { profile: this.sleeping.profile, pid: this.child?.pid ?? null, since: new Date(this.sleeping.at).toISOString(), light: this.sleeping.light === true, freedMiB: this.sleeping.freedMiB ?? null } : null, sleepStats: { ...this.sleepStats }, loading: Boolean(this.loading), loadMs: this.loadMs, loads: this.loads, lastError: this.lastError, crashed: this.crashed, servedContext: this.servedContext() }; }
 }

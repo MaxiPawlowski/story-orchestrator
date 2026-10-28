@@ -302,3 +302,21 @@ test('a token count goes straight to the server only through the backend direct 
         assert.equal(ended, 1);
     } finally { await gateway.close(); }
 });
+
+test('per-request draft caps: a streamed chat gets speculative.chatNMax, a side pass sideNMax, and a caller value is never overwritten', async () => {
+    const arbiter = fakeArbiter({ pid: 7, loading: false, profile: 'fast' });
+    const seen = [];
+    const fetchImpl = async (url, init = {}) => { if (url.endsWith('/completion')) seen.push(JSON.parse(init.body)); return new Response('{}', { headers: { 'content-type': 'application/json' } }); };
+    const gateway = createGateway({ arbiter, config: { modelAlias: 'm', defaultProfile: 'fast', speculative: { model: 'mtp.gguf', nMax: 3, chatNMax: 2, sideNMax: 3 } }, fetchImpl });
+    const { port } = await gateway.listen(0);
+    const url = `http://127.0.0.1:${port}`;
+    try {
+        for (const body of [{ prompt: 'c', n_predict: 8, stream: true }, { prompt: 's', n_predict: 8 }, { prompt: 'o', n_predict: 8, 'speculative.n_max': 1 }]) {
+            const pending = fetch(`${url}/completion`, { method: 'POST', body: JSON.stringify(body) });
+            while (!arbiter.queued.length) await new Promise((resolve) => setTimeout(resolve, 5));
+            arbiter.queued.shift()();
+            await (await pending).text();
+        }
+        assert.deepEqual(seen.map((body) => body['speculative.n_max']), [2, 3, 1]);
+    } finally { await gateway.close(); }
+});
