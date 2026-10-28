@@ -88,17 +88,20 @@ test('a stock server cannot be trimmed: makeRoom returns 0 and counts it', async
     assert.equal(cache.stats.makeRoomUnsupported, 1);
 });
 
-test('refit with fitRam follows free RAM down at once and up only by 512 MiB or more; without fitRam it holds the ceiling', async () => {
+test('refit with fitRam follows free RAM down at once (keeping room for one more entry) and up only by 1 GiB or more; without fitRam it holds the ceiling', async () => {
     let available = 10000;
     const server = nativeServer({ entries: [1300, 1300], limitMiB: 4096 });
     const { cache, live } = cacheOn(server, { available: () => available, budgetMiB: 12288, fitRam: true });
-    assert.deepEqual(await cache.refit('reply'), { changed: true, limitMiB: 2304 });
-    assert.equal(server.entries.length, 1);
+    assert.deepEqual(await cache.refit('reply'), { changed: true, limitMiB: 1024 });
+    assert.equal(server.entries.length, 0);
     assert.equal(cache.lastRefit.fromMiB, 4096);
-    available = 11700;
+    assert.equal(cache.lastRefit.entryMiB, 1300);
+    available = 11000;
     assert.equal((await cache.refit('reply')).changed, false);
     available = 16000;
-    assert.deepEqual(await cache.refit('reply'), { changed: true, limitMiB: 6912 });
+    assert.deepEqual(await cache.refit('reply'), { changed: true, limitMiB: 4096 });
+    available = 16500;
+    assert.equal((await cache.refit('reply')).changed, false);
     live.fitRam = false;
     live.budgetMiB = 2048;
     assert.deepEqual(await cache.refit('settings'), { changed: true, limitMiB: 2048 });
@@ -106,13 +109,27 @@ test('refit with fitRam follows free RAM down at once and up only by 512 MiB or 
     assert.equal(cache.stats.refits, 3);
 });
 
-test('after a reply in RAM mode the cache refits only when nothing waits', async () => {
+test('with fitRam a chat request refits before it runs, and after the reply the cache refits only when nothing waits', async () => {
+    let available = 30000;
     const server = nativeServer({ entries: [1300], limitMiB: 4096 });
-    const { cache } = cacheOn(server, { available: 30000, budgetMiB: 8192, fitRam: true });
-    const prompt = `<|turn>system\nYou are Ana.${'h'.repeat(9000)}<turn|>\n<|turn>user\n${'m'.repeat(8000)}<turn|>\n<|turn>system\nnote ${'x'.repeat(1500)}<turn|>\n<|turn>model\n`;
+    const { cache } = cacheOn(server, { available: () => available, budgetMiB: 8192, fitRam: true });
+    const prompt = `<|turn>system
+You are Ana.${'h'.repeat(9000)}<turn|>
+<|turn>user
+${'m'.repeat(8000)}<turn|>
+<|turn>system
+note ${'x'.repeat(1500)}<turn|>
+<|turn>model
+`;
+    const limits = () => server.calls.filter((call) => call.route === '/cache/limit').length;
     const plan = await cache.before({ prompt, stream: true }, 0);
-    await cache.afterReply(plan, { idle: () => false });
-    assert.equal(server.calls.filter((call) => call.route === '/cache/limit').length, 0);
-    await cache.afterReply(plan, { idle: () => true });
     assert.equal(server.limitMiB, 8192);
+    assert.equal(cache.lastRefit.reason, 'chat');
+    const sent = limits();
+    available = 12000;
+    await cache.afterReply(plan, { idle: () => false });
+    assert.equal(limits(), sent);
+    await cache.afterReply(plan, { idle: () => true });
+    assert.equal(limits(), sent + 1);
+    assert.equal(server.limitMiB, 1536);
 });

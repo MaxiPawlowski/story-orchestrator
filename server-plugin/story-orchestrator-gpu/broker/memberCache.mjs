@@ -123,6 +123,9 @@ export class MemberCache {
     async setLimit(mib, signal = AbortSignal.timeout(5000)) {
         const reply = await this.post('/cache/limit', { mib }, signal).catch((error) => ({ ok: false, status: error.message }));
         if (!reply.ok) { this.stats.limitFailures += 1; this.lastError = `cache limit answered ${reply.status}`; return false; }
+        const deadline = this.now() + 1500;
+        let state = await this.nativeState();
+        while (state && state.limitMiB !== mib && this.now() < deadline) { await this.sleep(25); state = await this.nativeState(); }
         return true;
     }
 
@@ -145,12 +148,13 @@ export class MemberCache {
         const { capMiB, fitRam } = this.current();
         const availableMiB = fitRam ? await this.available() : null;
         if (fitRam && availableMiB === null) return null;
-        const target = fitRam ? fitCacheMiB({ capMiB, availableMiB, occupancyMiB: state.sizeMiB, floorMiB: this.ramFloorMiB() }) : capMiB;
+        const entryMiB = state.prompts > 0 ? Math.max(1024, Math.ceil(state.sizeMiB / state.prompts)) : 1536;
+        const target = fitRam ? fitCacheMiB({ capMiB, availableMiB, occupancyMiB: state.sizeMiB, floorMiB: this.ramFloorMiB() + entryMiB }) : capMiB;
         const lowering = target < state.limitMiB;
-        if (target === state.limitMiB || (!lowering && target - state.limitMiB < 512)) return { changed: false, limitMiB: state.limitMiB };
+        if (target === state.limitMiB || (!lowering && target - state.limitMiB < 1024)) return { changed: false, limitMiB: state.limitMiB };
         if (!(await this.setLimit(target))) return { changed: false, limitMiB: state.limitMiB };
         this.stats.refits += 1;
-        this.lastRefit = { at: new Date(this.now()).toISOString(), reason, fromMiB: state.limitMiB, toMiB: target, occupancyMiB: state.sizeMiB, availableMiB: availableMiB === null ? null : Math.round(availableMiB), floorMiB: fitRam ? this.ramFloorMiB() : null };
+        this.lastRefit = { at: new Date(this.now()).toISOString(), reason, fromMiB: state.limitMiB, toMiB: target, occupancyMiB: state.sizeMiB, availableMiB: availableMiB === null ? null : Math.round(availableMiB), floorMiB: fitRam ? this.ramFloorMiB() : null, entryMiB: fitRam ? entryMiB : null };
         return { changed: true, limitMiB: target };
     }
 
@@ -189,6 +193,7 @@ export class MemberCache {
         this.stats.planned += 1;
         const timing = { restoreMs: null, prefillMs: null, restored: false, resident: false };
         const ram = this.store === 'ram';
+        if (ram && this.nativeSupported !== false && this.current().fitRam) await this.refit('chat').catch((error) => { this.lastError = error.message; });
         if (this.owner.get(slot) === plan.key) { this.stats.resident += 1; timing.resident = true; }
         else if (ram) this.owner.set(slot, null);
         else {
