@@ -174,6 +174,26 @@ at every boundary (`judge/scene.ts:98`, TypeSafe, off the reply path, `PRESENT_P
 - Deviations: live gate not run (no lanes this pass), so the ST-facing change (prompt loses the witness section) is NOT green
   live.
 
+## C1 pass 2: declarations (2026-10-28, written and committed before any run in this pass)
+
+Coordinator task 2026-10-28 (track C1, offline only). Branch `v3.0-c1-witness`, master merged in first. No GPU, no lanes, no
+model call.
+
+- **Diagnosis** (`so-witness.mts diagnose`, new, counts only, no floors): every scored (message, member) pair of the W4 model
+  read (2026-10-25 recorded responses replayed), W2 as shipped, and the presence null control is put in one failure class:
+  false inclusion = member disabled at read time | omniscient member (not the speaker) | enabled but off stage (not in the
+  labelled `present`) | on stage but kept out (aside); false exclusion = the speaker | a present member; no answer = by
+  witness state; `unknown` labels = speaker vs others predicted heard; mixed labels = flagged or not, span false inclusions by
+  the same classes. Scored under the rule each result was recorded with (decision 2: old results without `--speaker-own`).
+- **New scores in this pass**: W2 as shipped and the labelled-presence ceiling, both under `--speaker-own` (decision 2: every
+  new run passes it). Floors = decision 1, unchanged: exact-set >= 0.9, FI <= 0.02, FE <= 0.10, coverage >= 0.85, mixed >= 0.8,
+  span FI <= 0.02, aside exact >= 0.8, beat presence on W4a by >= 0.3. Expected before the run: neither passes (mixed is
+  capped at 6/11 by cue-less mixed messages). No rule, cue list or context length changes in this pass: no tuning on the
+  frozen set.
+- **No model replay**: Sol (the only allowed offline model) wrote the labels, so Sol as the classifier is not an independent
+  measurement; the product read runs on Artemis (GPU, out of bounds), and the presence source P1 is the TypeSafe scene read,
+  which needs a lane page. A model pass is therefore not needed and not run.
+
 ## Unresolved questions
 
 - Is message-level privacy a product goal now (v3.0 02 reopen condition), or only witness-filtered recall?
