@@ -3,7 +3,10 @@
 **Status: DESIGNED + BUILT OFFLINE 2026-10-26 (branch `v3.0-c1-witness`, owner decision 8: offline now, GPU later).
 Design W2 (derived witness) is on master's switch `memory.witness` once merged, still unconsumed. It does NOT clear the W4
 floors on its own; with a presence source as good as the labels it clears exact-set and FE and misses FI by the ambiguous
-stratum only. Floors kept as written (owner 2026-10-26).** **C1 pass 2 (2026-10-28): W4 failure diagnosed by class (78 % of the read's false inclusions are disabled members and the narrator, code facts; the rest is presence); recommendation O3 = W2 + presence source P1; speaker-own scores: W2 fails, presence-oracle ceiling passes exact-set/FI/FE/coverage, mixed and span FI stay structural. Not merged: the prompt change needs a real-model gate (GPU step 1).** **C1 pass 3 (2026-10-28): P1 presence measured on lane 38 (TypeSafe, 232 calls): pair accuracy 0.817 real / 0.810 lab vs 0.95 FAIL, false-present 0.010 real pass / 0.041 lab FAIL. O3 (W2 + P1): FI 9/465 pass, FE 0.31 and exact-set 0.38 FAIL; W2 merges only after GPU step 1.** Follows v2.8 42 (`docs/plans/v2.8/42-witness-filter-v2.md`, W4 FAIL).
+stratum only. Floors kept as written (owner 2026-10-26).** **C1 pass 2 (2026-10-28): W4 failure diagnosed by class (78 % of the read's false inclusions are disabled members and the narrator, code facts; the rest is presence); recommendation O3 = W2 + presence source P1; speaker-own scores: W2 fails, presence-oracle ceiling passes exact-set/FI/FE/coverage, mixed and span FI stay structural. Not merged: the prompt change needs a real-model gate (GPU step 1).** **C1 pass 3 (2026-10-28): P1 presence measured on lane 38 (TypeSafe, 232 calls): pair accuracy 0.817 real / 0.810 lab vs 0.95 FAIL, false-present 0.010 real pass / 0.041 lab FAIL. O3 (W2 + P1): FI 9/465 pass, FE 0.31 and exact-set 0.38 FAIL; W2 merges only after GPU step 1.** **GPU step 1 (2026-10-28): live suite ×2 on Artemis (lane 41, C1 build) NOT green against
+its floors (facts 8/20, epistemic 2/3, intents playerAttributed 1), identical on a pre-W2 control build (same prompt
+fingerprint, 0 regressed); the fixture prompt never carries the witness section, so the suite cannot see W2. Merged (branch
+adds no `src/` over master, which has carried W2 since `49fa0fa5`).** Follows v2.8 42 (`docs/plans/v2.8/42-witness-filter-v2.md`, W4 FAIL).
 
 ## Goal
 
@@ -378,9 +381,51 @@ Readings:
 - Master re-checked after gates: still `d2006d17` (local and origin), already merged into the branch; the wave1-integration merge
   had not landed. Branch left unmerged (coordinator: W2 merges only after GPU step 1).
 
+## Gate record 2026-10-28, GPU step 1 and merge (branch `v3.0-c1-witness`, one model lane)
+
+- Master `982f945d` merged into the branch (`7ef986c2`, no conflicts). Master already carries W2 (`49fa0fa5`), so the branch
+  over master is debug tools (`so-witness diagnose`, `presence-read`, `presence-score`, `derive-score --presence`), this doc
+  and nothing in `src/`. The merge auto-kept both copies of the `sharedRead.ts#witnessContext` errorCopy row; the duplicate is
+  dropped in `2917ee91` (caught by `errorCopy.guard`).
+- `npm run gates:quick` green in 114.3 s after the merge.
+- Live (GPU step 1): lane 41 (model lane, `st-lanes start 41 --allow-local --headed`), local controller (Artemis 31B v1.1,
+  read profile "Story Orchestrator Memory RunPod" pointed at the controller), images and sprites off, `memory.witness` on.
+  C1 build (`7ef986c2`) served by the CDP route holder (`candidate-hold.mjs`) from `C:\dev\so-c1\dist`: in-page
+  `dist/index.js` sha256 `9df33a4c3770` = worktree manifest, 0 chunk 404s; nothing staged, owner ST and lane 0 untouched.
+  The controller was shared with another agent's lane throughout.
+- Command, each run: `node scripts/debug/st-lanes.mts run 41 -- scripts/debug/so-live-suite.mts run --min 0.9 --expect-count 43
+  --min-tier facts=0.68,rejected=0.9,epistemic=0.8,ledger=0.8,arcs=0.8 --arm <arm> --no-stop` (floors: v2.5 F2 / v2.6 13, facts
+  0.68 per X15, intents default 0.8 + playerAttributed 0; not retuned).
+- Run 1 (`c1-w2-r1`) and run 2 (`c1-w2-r2`), identical, both exit 1:
+  - deltas 43/43 (`plotDeltaAccuracy` 1.0, last green 1.0), rejected 35/36 ok, arcs 2/2 ok, ledger 2/2 ok;
+  - facts 8/20 = 0.40 FAIL (floor 0.68; 12 fixtures emit no fact line at all);
+  - epistemic 2/3 FAIL (floor 0.8);
+  - intents precision 0.917 / recall 0.917 but playerAttributed 1 FAIL (floor 0).
+- Control (not asked; run to attribute the misses): pre-W2 master `d2006d17` built in a detached worktree `C:\dev\so-c1-ctl`,
+  served the same way (`3b6cf17a1349`), one run `c1-ctl-d2006d17-r1`: the same rows, the same 12 facts fixtures, epistemic 2/3,
+  intents playerAttributed 1 (recall 0.833). Fingerprints equal on all three runs (prompt `5f7a458a0811d117`, scorer 2, config
+  `273f74f81de26548`). `so-live-suite compare ctl ctl w2-r1 w2-r2`: comparable, 0 regressed, 1 improved, 162 unchanged.
+- Reading: the fixture runner (`runtime/liveSuite.ts` `runFixture` → `extraction/fixtureRun.ts` `buildFixtureRun`) renders the
+  read prompt without any witness section in either build, so this suite cannot measure W2's prompt removal; the shipped path
+  (`runSharedRead`) is reached only by `runWitnessRead`. The facts, epistemic and intents misses are pre-existing on this
+  model/controller, not W2. Recorded, floors not retuned. W2's own real-model proof on the shipped read path stays open.
+- Merge decision: the live suite is not green, but it is unchanged against the pre-W2 control and the branch changes no product
+  code over master, so it merges.
+- Run header: `so-run-header diff` (post vs pre, through `st-lanes run 41`) differs only in the served bundle (the declared
+  candidate → control swap); no settings, library or lorebook drift. Holder and lane 41 stopped after.
+- `npm run gates` (no `--resume`) in `C:\dev\so-c1`: first run RED (`test`: errorCopy duplicate row, fixed in `2917ee91`;
+  `test:plugin`: `comfyReclaim.test.mjs` timing test under load, 418/418 alone, no branch change there). Second run on
+  `2917ee91`: **all green in 386.6 s** (jest 10,799 passed / 1 skipped; test:debug 1,635; test:plugin 418; Storybook 167 suites /
+  1,010 stories; build, typecheck, typecheck:test, lint, debug:typecheck, test:replay, test:release ok).
+- Evidence (counts only): `C:/dev/so-lanes/41/debug/c1live/` (`r1.log`, `r2.log`, `ctl-r1.log`, the three reports `09be4f72…`,
+  `b4e373a7…`, `d60d01b2…`, `compare.json`, `run-header-c1-live-{pre,post}.json`, `run-header-diff-end.json`, `hold*.log`), run
+  dirs `C:/dev/so-lanes/41/debug/runs/2026-10-28T1[12]-*`; gate logs `C:/dev/so-lanes/reviews/gates-c1-w2-merge{,-2}.log`.
+
 ## Unresolved questions
 
 - Is message-level privacy a product goal now (v3.0 02 reopen condition), or only witness-filtered recall?
 - P1 calibration floors (pair accuracy ≥ 0.95, false-present ≤ 0.02) are proposed here; confirm before the first call.
-- Merge W2 before or after GPU step 1 (the prompt loses the witness section; master still sends it, at +150 in / +282 out tokens per read)?
+- W2 reached master in `49fa0fa5` before GPU step 1; the live suite cannot see it. Is a real-model check on the shipped read
+  path (`runWitnessRead`, delta recall with vs without the witness section) owed, or does the unchanged fixture suite suffice?
+- Live suite misses on Artemis (facts 0.40, epistemic 2/3, intents playerAttributed 1) are pre-existing: whose track owns them?
 - O4 (per-message mixed/aside classifier) worth designing, or accept mixed and span FI as unmet and keep the record unconsumed?
