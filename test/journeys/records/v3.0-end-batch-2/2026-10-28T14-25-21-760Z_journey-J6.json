@@ -1,0 +1,758 @@
+{
+  "id": "J6",
+  "title": "mutation-storm",
+  "file": "C:\\dev\\so-eb2-evaljob\\test\\journeys\\j6-mutation-storm.journey.json",
+  "fileSha256": "28ad9223c27d39c7316520e37278b6c0fbe545c0f7e5e72a72737c8e74bd2d76",
+  "ranAt": "2026-10-28T14:25:21.746Z",
+  "strict": true,
+  "partial": false,
+  "only": null,
+  "model": null,
+  "tally": {
+    "pass": 11,
+    "skipped": 1
+  },
+  "tallies": {
+    "automated": {
+      "pass": 11,
+      "fail": 0,
+      "blocked": 0,
+      "notRunnable": 0,
+      "skipped": 0
+    },
+    "human": {
+      "scored": 0,
+      "unscored": 1
+    },
+    "cleanup": {
+      "ok": true,
+      "failed": [],
+      "leaked": []
+    },
+    "firstAttempt": {
+      "pass": 11,
+      "retried": 0,
+      "retriedIds": []
+    }
+  },
+  "notGreen": [],
+  "humanRecord": null,
+  "runnerError": null,
+  "stopped": null,
+  "noStop": false,
+  "releasedRoutes": null,
+  "capabilities": {
+    "rollback-notice": true
+  },
+  "results": [
+    {
+      "id": "J6.1",
+      "mode": "auto",
+      "model": "any",
+      "findings": [],
+      "goal": "a boundary is committed and a gate latches from a scripted turn",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J6.2",
+      "mode": "auto",
+      "model": "none",
+      "findings": [],
+      "goal": "editing the message that carried the delta rolls the story back The check first waits for the group round J6.1 started to finish: a send returns before every member has replied, and an edit made mid-round is rolled back and then followed by the remaining replies' boundaries, which is a different scenario (L2 2026-09-23: J6.2 timed out on a still-generating round and J6.4 lost its notice to those boundaries).",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J6.3",
+      "mode": "auto",
+      "model": "none",
+      "findings": [],
+      "goal": "deleting the last message leaves engine state consistent, not orphaned",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J6.4",
+      "mode": "auto",
+      "model": "none",
+      "findings": [
+        "U5"
+      ],
+      "goal": "the player is told the story stepped back after a mutation",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J6.5",
+      "mode": "human",
+      "model": "none",
+      "findings": [
+        "U5"
+      ],
+      "goal": "",
+      "prompt": "After you edited and deleted messages, was it clear what the story did in response?",
+      "anchors": "1 = no idea, felt broken · 3 = worked it out from the drawer · 5 = the system said what it did",
+      "outcome": "skipped",
+      "detail": "human check — operator scores it"
+    },
+    {
+      "id": "J6.6",
+      "mode": "auto",
+      "model": "any",
+      "findings": [
+        "R4"
+      ],
+      "goal": "a reloaded chat still recognises an edit to a message its run has passed",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J6.7",
+      "mode": "auto",
+      "model": "any",
+      "findings": [
+        "M3"
+      ],
+      "goal": "a ledger update is undone by an edit to the message its boundary acted on",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J6.8",
+      "mode": "auto",
+      "model": "any",
+      "findings": [
+        "M4"
+      ],
+      "goal": "a belief a reveal retired comes back when the reveal's message is edited The player line carries the evidence the scripted read cites: the evidence rule only accepts a quote from the read's window, and the old line relied on the model's reply happening to echo it (L2 2026-09-23: rejected once, story stayed at cp1). It waits for the read to land, not for a checkpoint: a living-director branch can hold the story off the authored route (v3.0 14 D5).",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J6.9",
+      "mode": "auto",
+      "model": "none",
+      "findings": [
+        "E1"
+      ],
+      "goal": "an edit older than the retained history says so and offers both ways out it names: re-read from here, or restart the story (V11) (the notice and both buttons are on the Play page's player overview since 7724042c; the Overview drawer tab is author-only)",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J6.10",
+      "mode": "auto",
+      "model": "none",
+      "findings": [
+        "T3"
+      ],
+      "goal": "an edit that leaves a consumed reply's text unchanged rewinds nothing and keeps the run (v2.4 plan 02 §2)",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J6.11",
+      "mode": "auto",
+      "model": "none",
+      "findings": [
+        "D5"
+      ],
+      "goal": "hiding a consumed message is not a mutation: its facts stay live and the next read leaves it out (v2.4 plan 02 §4)",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J6.12",
+      "mode": "auto",
+      "model": "none",
+      "findings": [
+        "T3"
+      ],
+      "goal": "moving a message is read as a change from the earliest moved row, so the story steps back from there at once (v2.4 plan 02 §2, H6)",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    }
+  ],
+  "engineHistory": {
+    "file": "engine-history-J6.json",
+    "chats": 4,
+    "stories": 4
+  },
+  "cleanup": {
+    "generation": {
+      "idle": true,
+      "wasGenerating": false,
+      "stops": 0,
+      "waitedMs": 1683,
+      "lastSeen": {
+        "generating": false,
+        "saving": false,
+        "chatId": "2026-10-28@11h24m38s926ms",
+        "signals": []
+      }
+    },
+    "engineHistory": {
+      "file": "engine-history-J6.json",
+      "path": "C:\\dev\\so-lanes\\45\\debug\\engine-history-J6.json",
+      "chats": 4,
+      "stories": 4
+    },
+    "judgeSettle": {
+      "settled": true,
+      "waitedMs": 0,
+      "inFlight": 0,
+      "seen": 113
+    },
+    "judgeCalls": {
+      "count": 4,
+      "events": [
+        {
+          "at": "2026-10-28T14:24:46.196Z",
+          "boundary": 0,
+          "messageId": 0,
+          "kind": "judge",
+          "summary": "judge memoryVerify in 0 ms",
+          "detail": {
+            "use": "memoryVerify",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 154,
+            "latencyMs": 0,
+            "cached": true,
+            "p": {
+              "line:0": 0.8
+            }
+          }
+        },
+        {
+          "at": "2026-10-28T14:24:46.510Z",
+          "boundary": 1,
+          "messageId": 0,
+          "kind": "judge",
+          "summary": "judge scene in 0 ms",
+          "detail": {
+            "use": "scene",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 4,
+            "stateChars": 381,
+            "latencyMs": 0,
+            "cached": true,
+            "p": {
+              "break": 0.05
+            }
+          }
+        },
+        {
+          "at": "2026-10-28T14:24:46.547Z",
+          "boundary": 1,
+          "messageId": 0,
+          "kind": "judge",
+          "summary": "judge divergence in 0 ms",
+          "detail": {
+            "use": "divergence",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 2,
+            "stateChars": 126,
+            "latencyMs": 0,
+            "cached": true,
+            "p": {
+              "fit": 0.21,
+              "commits": 0.98
+            }
+          }
+        },
+        {
+          "at": "2026-10-28T14:24:55.773Z",
+          "boundary": 2,
+          "messageId": 2,
+          "kind": "judge",
+          "summary": "judge scene in 230 ms",
+          "detail": {
+            "use": "scene",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 4,
+            "stateChars": 548,
+            "latencyMs": 230,
+            "inputTokens": 837,
+            "outputTokens": 155,
+            "p": {
+              "break": 0.05
+            }
+          }
+        }
+      ]
+    },
+    "debugResponses": {
+      "cleared": [
+        "storyOrchestratorDebugEpistemicResponse",
+        "storyOrchestratorDebugLedgerResponse",
+        "storyOrchestratorDebugSceneSummaryResponse",
+        "storyOrchestratorDebugExtractionResponse"
+      ]
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {
+          "read": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+          "synthesis": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+          "director": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+          "curator": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+        }
+      }
+    },
+    "extensionSettings": {
+      "restored": []
+    },
+    "config": {
+      "key": "story-orchestrator",
+      "cleared": false,
+      "keys": [
+        "v2Stories",
+        "settings",
+        "wizardSessions",
+        "schema",
+        "groupStories",
+        "playsBackfill",
+        "plays",
+        "panels",
+        "stories"
+      ],
+      "saved": {
+        "status": 200
+      },
+      "preservedStories": [
+        "v24-01-delete-decode"
+      ],
+      "preservedSessions": []
+    },
+    "briefing": {
+      "restored": false,
+      "unchanged": true,
+      "value": false
+    },
+    "playerSetup": {
+      "restored": false,
+      "unchanged": true,
+      "value": false
+    },
+    "importedStoryHashes": [
+      "story-e6d13b8c",
+      "story-9fc4d98c"
+    ],
+    "library": {
+      "changed": true,
+      "removed": [
+        "v24-01-delete-decode (story-9fc4d98c)"
+      ],
+      "restored": [],
+      "saved": {
+        "status": 200
+      },
+      "verified": true,
+      "index": {
+        "restored": true
+      }
+    },
+    "chat": {
+      "sandboxChatId": "2026-10-28@11h12m36s349ms",
+      "owned": [
+        "2026-10-28@11h12m36s349ms",
+        "2026-10-28@11h23m59s621ms",
+        "2026-10-28@11h24m19s070ms",
+        "2026-10-28@11h24m38s926ms"
+      ],
+      "deleted": [
+        "2026-10-28@11h12m36s349ms",
+        "2026-10-28@11h23m59s621ms",
+        "2026-10-28@11h24m19s070ms",
+        "2026-10-28@11h24m38s926ms"
+      ],
+      "notDeleted": [],
+      "resurrected": [],
+      "lateFileRepaired": [],
+      "saveSettleMs": 1537,
+      "skipped": [],
+      "currentChatAtCleanup": "2026-10-28@11h24m38s926ms",
+      "currentGroupAtCleanup": "1759606632088",
+      "chatAfterCleanup": "2026-10-28@09h03m23s678ms"
+    },
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "member:DM Narrator": {
+      "enabled": true
+    },
+    "member:Arin": {
+      "enabled": true
+    },
+    "member:Ponticius": {
+      "enabled": true
+    },
+    "member:Luke": {
+      "enabled": true
+    },
+    "disabledMembers": []
+  },
+  "page": {
+    "file": "C:\\dev\\so-lanes\\45\\debug\\batch\\2026-10-28T14-01-33-428Z\\J6-run2\\page.jsonl",
+    "rows": 497,
+    "consoleErrors": 2,
+    "consoleWarnings": 456,
+    "pageErrors": [],
+    "pageErrorCount": 0,
+    "failedRequests": [
+      {
+        "at": "2026-10-28T14:12:44.022Z",
+        "method": "GET",
+        "url": "http://127.0.0.1:8145/api/plugins/story-orchestrator-media/discover",
+        "status": 400
+      },
+      {
+        "at": "2026-10-28T14:12:47.466Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/ping",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-10-28T14:12:47.499Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/ping",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-10-28T14:13:09.155Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/ping",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-10-28T14:13:09.168Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/ping",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-10-28T14:13:42.866Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/backends/text-completions/generate",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-10-28T14:13:45.310Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/backends/text-completions/generate",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-10-28T14:13:56.579Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/ping",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-10-28T14:13:56.587Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/ping",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-10-28T14:14:08.002Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/backends/text-completions/generate",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-10-28T14:14:22.459Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/ping",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-10-28T14:14:33.312Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/backends/text-completions/generate",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-10-28T14:14:40.082Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/ping",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-10-28T14:14:40.307Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/ping",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-10-28T14:14:43.185Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/backends/text-completions/generate",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-10-28T14:14:59.669Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/backends/text-completions/generate",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-10-28T14:17:05.287Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/backends/text-completions/generate",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-10-28T14:17:09.216Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/ping",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-10-28T14:17:09.226Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/ping",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-10-28T14:17:34.111Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/ping",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-10-28T14:17:34.134Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/ping",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-10-28T14:17:54.820Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/ping",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-10-28T14:17:54.825Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/ping",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-10-28T14:18:22.320Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/ping",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-10-28T14:18:31.513Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/backends/text-completions/generate",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-10-28T14:18:53.473Z",
+        "method": "GET",
+        "url": "http://127.0.0.1:8145/api/plugins/story-orchestrator-media/discover",
+        "status": 400
+      },
+      {
+        "at": "2026-10-28T14:19:04.578Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/ping",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-10-28T14:19:04.587Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/ping",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-10-28T14:19:42.678Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/backends/text-completions/generate",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-10-28T14:20:07.770Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/ping",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-10-28T14:20:07.778Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/ping",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-10-28T14:20:45.916Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/backends/text-completions/generate",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-10-28T14:20:46.559Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/ping",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-10-28T14:21:06.665Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/backends/text-completions/generate",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-10-28T14:22:18.107Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/backends/text-completions/generate",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-10-28T14:23:57.571Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/backends/text-completions/generate",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-10-28T14:23:59.819Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/backends/text-completions/generate",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-10-28T14:24:19.306Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/plugins/story-orchestrator-harness/complete",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-10-28T14:24:39.125Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8145/api/plugins/story-orchestrator-harness/complete",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      }
+    ],
+    "failedRequestCount": 39,
+    "httpErrorCount": 2,
+    "abortedCount": 37,
+    "consoleErrorSamples": [
+      {
+        "at": "2026-10-28T14:12:44.022Z",
+        "text": "Failed to load resource: the server responded with a status of 400 (Bad Request)"
+      },
+      {
+        "at": "2026-10-28T14:18:53.474Z",
+        "text": "Failed to load resource: the server responded with a status of 400 (Bad Request)"
+      }
+    ]
+  },
+  "replay": null
+}
