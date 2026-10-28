@@ -28,6 +28,7 @@ export interface LiveFixtureResult {
   rawResponse: string;
   deltas: Array<{ q: string; v: unknown; evidence: string; judge?: number }>;
   facts: Array<{ text: string; importance: number }>;
+  factLines: Array<{ text: string; importance: number }>;
   rejected: Array<{ line: string; reason: string }>;
   // The same read already parses these tiers, and the suite scored only plot
   // deltas while reporting the number as live extraction accuracy. They are handed back so a

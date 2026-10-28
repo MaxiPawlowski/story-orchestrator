@@ -21,6 +21,30 @@ const parseFields = (rest: string): Map<string, string> => {
   return tokens;
 };
 
+const splitEntities = (raw: string | undefined): string[] => (raw ? raw.split(",").map((entity) => entity.trim()).filter(Boolean) : []);
+
+export interface FactFields {
+  importance: 1 | 2 | 3;
+  type?: MemoryEntryType;
+  entities?: string[];
+  characterId?: string;
+}
+
+export function parseFactFields(rest: string): FactFields | null {
+  const tokens = parseFields(rest);
+  const importance = tokens.get("importance");
+  if (!importance || !/^[123]$/.test(importance)) return null;
+  const type = tokens.get("type");
+  const entities = splitEntities(tokens.get("entity"));
+  const characterId = tokens.get("character")?.trim();
+  return {
+    importance: Number(importance) as 1 | 2 | 3,
+    ...(type && isMemoryEntryType(type) && TIER_FOR_ENTRY_TYPE[type] === "facts" ? { type } : {}),
+    ...(entities.length ? { entities } : {}),
+    ...(characterId ? { characterId } : {}),
+  };
+}
+
 export interface MemoryLineParseResult {
   entry?: ParsedMemoryLine;
   reason?: string;
@@ -50,8 +74,7 @@ export function parseMemoryLine(line: string): MemoryLineParseResult {
   const minLength = tier === "facts" ? 5 : 3;
   if (text.length <= minLength) return { reason: "content too short" };
 
-  const entitiesRaw = tokens.get("entity");
-  const entities = entitiesRaw ? entitiesRaw.split(",").map((entity) => entity.trim()).filter(Boolean) : [];
+  const entities = splitEntities(tokens.get("entity"));
   const characterId = tokens.get("character")?.trim() || undefined;
 
   return {

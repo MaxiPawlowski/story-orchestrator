@@ -30,3 +30,21 @@ describe("the live-suite handle hands the scorer every field the read parsed (v2
     tiers.ledger.forEach((row, index) => expect(Object.keys(row).sort()).toEqual(Object.keys(parsed.ledger[index]).sort()));
   });
 });
+
+describe("v3.0 25: the live suite's facts tier is the product's facts tier", () => {
+  const parsed = parseSharedReadResponse([
+    'FACT importance=3 text="The bridge is down." evidence="The bridge falls."',
+    'MEMORY type=event importance=2 expiration=permanent text="Mara lost the key." evidence="The key slips away."',
+    'MEMORY type=detail importance=1 expiration=scene text="Rain on the yard." evidence="Rain falls."',
+  ].join("\n"), { qualityByKey: {} } as never);
+  const tiers = liveReadTiers(parsed);
+
+  it("reads FACT lines plus MEMORY lines of facts-tier types, as applyAudit stores them", () => {
+    expect(tiers.facts).toEqual([{ text: "The bridge is down.", importance: 3 }, { text: "Mara lost the key.", importance: 2 }]);
+    expect(tiers.factLines).toEqual([{ text: "The bridge is down.", importance: 3 }]);
+  });
+
+  it("control: a session-tier MEMORY line stays out of the facts tier and in the memory tier", () => {
+    expect(tiers.memory.map((row) => row.tier)).toEqual(["facts", "session_details"]);
+  });
+});

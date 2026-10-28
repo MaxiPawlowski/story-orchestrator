@@ -21,6 +21,7 @@ export interface NeedleRow {
 
 export interface LiveTiers {
   facts: unknown[];
+  factLines?: unknown[];
   rejected: Array<{ reason?: string }>;
   memory: unknown[];
   arcs: unknown[];
@@ -110,26 +111,48 @@ export function summarizeInventory(fixtures: RecordedFixture[], rows: NeedleRow[
   };
 }
 
-export interface RescoreTier { tier: TierName; v1: boolean; v2: boolean; changed: boolean; v1Detail: string; v2Detail: string }
+export interface RescoreTier { tier: TierName; before: boolean; after: boolean; changed: boolean; beforeDetail: string; afterDetail: string }
 export interface RescoreFixture { name: string; tiers: RescoreTier[]; changed: boolean }
 
-const scoreWith = (fixture: RecordedFixture, live: LiveTiers, match: NeedleMatch): TierOutcome[] => [
-  ...CONTAINS_TIERS.map((tier) => scoreContains(tier, fixture.expected[tier] as ContainsSpec | undefined, live[tier] ?? [], match)),
-  scoreRejected(fixture.expected.rejected as Array<{ reason?: string; scope?: string; mode?: TermMode }> | undefined, live.rejected ?? [], match),
-  scoreIntents(fixture.expected.intents as IntentsSpec | undefined, live.epistemic ?? [], fixture.players, match),
-].filter((row) => row.scored);
+interface ScorerSpec { match: NeedleMatch; facts: (live: LiveTiers) => unknown[] }
 
-export function rescoreFixture(fixture: RecordedFixture): RescoreFixture | null {
+const factLinesOf = (live: LiveTiers): unknown[] => live.factLines ?? live.facts ?? [];
+
+export const SCORERS: Readonly<Record<number, ScorerSpec>> = {
+  1: { match: matchV1, facts: factLinesOf },
+  2: { match: matchV2, facts: factLinesOf },
+  3: { match: matchV2, facts: (live) => live.facts ?? [] },
+};
+
+const scorerOf = (version: number): ScorerSpec => {
+  const spec = SCORERS[version];
+  if (!spec) throw new Error(`unknown scorer version ${version} (known: ${Object.keys(SCORERS).join(', ')})`);
+  return spec;
+};
+
+const scoreWith = (fixture: RecordedFixture, live: LiveTiers, version: number): TierOutcome[] => {
+  const { match, facts } = scorerOf(version);
+  const tiers: LiveTiers = { ...live, facts: facts(live) };
+  return [
+    ...CONTAINS_TIERS.map((tier) => scoreContains(tier, fixture.expected[tier] as ContainsSpec | undefined, tiers[tier] ?? [], match)),
+    scoreRejected(fixture.expected.rejected as Array<{ reason?: string; scope?: string; mode?: TermMode }> | undefined, live.rejected ?? [], match),
+    scoreIntents(fixture.expected.intents as IntentsSpec | undefined, live.epistemic ?? [], fixture.players, match),
+  ].filter((row) => row.scored);
+};
+
+export function rescoreFixture(fixture: RecordedFixture, from = 1, to = SCORER_VERSION): RescoreFixture | null {
   if (!fixture.live) return null;
-  const before = scoreWith(fixture, fixture.live, matchV1);
-  const after = scoreWith(fixture, fixture.live, matchV2);
+  const before = scoreWith(fixture, fixture.live, from);
+  const after = scoreWith(fixture, fixture.live, to);
   const tiers = after.map((row) => {
     const old = before.find((entry) => entry.tier === row.tier);
-    const v1 = old?.pass ?? false;
-    return { tier: row.tier, v1, v2: row.pass, changed: v1 !== row.pass, v1Detail: old?.detail ?? '', v2Detail: row.detail };
+    const was = old?.pass ?? false;
+    return { tier: row.tier, before: was, after: row.pass, changed: was !== row.pass, beforeDetail: old?.detail ?? '', afterDetail: row.detail };
   });
   return { name: fixture.name, tiers, changed: tiers.some((row) => row.changed) };
 }
+
+export interface RescoreTotal { scored: number; before: number; after: number }
 
 export interface RescoreRecord {
   kind: 'live-suite-rescore';
@@ -137,21 +160,34 @@ export interface RescoreRecord {
   fromScorerVersion: number;
   source: string;
   recordedAt: string;
+  totals: Partial<Record<TierName, RescoreTotal>>;
   fixtures: RescoreFixture[];
-  changed: Array<{ fixture: string; tier: TierName; v1: boolean; v2: boolean }>;
+  changed: Array<{ fixture: string; tier: TierName; before: boolean; after: boolean }>;
   unrecorded: string[];
 }
 
-export function rescoreRecord(fixtures: RecordedFixture[], source: string, recordedAt: string): RescoreRecord {
-  const scored = fixtures.map(rescoreFixture).filter((row): row is RescoreFixture => row !== null);
+const rescoreTotals = (scored: RescoreFixture[]): Partial<Record<TierName, RescoreTotal>> => {
+  const totals: Partial<Record<TierName, RescoreTotal>> = {};
+  for (const row of scored.flatMap((fixture) => fixture.tiers)) {
+    const total = (totals[row.tier] ??= { scored: 0, before: 0, after: 0 });
+    total.scored += 1;
+    total.before += row.before ? 1 : 0;
+    total.after += row.after ? 1 : 0;
+  }
+  return totals;
+};
+
+export function rescoreRecord(fixtures: RecordedFixture[], source: string, recordedAt: string, from = 1, to = SCORER_VERSION): RescoreRecord {
+  const scored = fixtures.map((fixture) => rescoreFixture(fixture, from, to)).filter((row): row is RescoreFixture => row !== null);
   return {
     kind: 'live-suite-rescore',
-    scorerVersion: SCORER_VERSION,
-    fromScorerVersion: 1,
+    scorerVersion: to,
+    fromScorerVersion: from,
     source,
     recordedAt,
+    totals: rescoreTotals(scored),
     fixtures: scored,
-    changed: scored.flatMap((fixture) => fixture.tiers.filter((row) => row.changed).map((row) => ({ fixture: fixture.name, tier: row.tier, v1: row.v1, v2: row.v2 }))),
+    changed: scored.flatMap((fixture) => fixture.tiers.filter((row) => row.changed).map((row) => ({ fixture: fixture.name, tier: row.tier, before: row.before, after: row.after }))),
     unrecorded: fixtures.filter((fixture) => !fixture.live).map((fixture) => fixture.name),
   };
 }
