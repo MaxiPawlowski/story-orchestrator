@@ -1,9 +1,9 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { classify, measure, namesInLine } from "./phaseA.mjs";
+import { testTempDirSync } from '../../lib/testTemp.mjs';
 
 const roster = [
   { id: "dm", name: "DM Narrator" },
@@ -44,7 +44,7 @@ test("each store's key is read the way the product parser reads it", () => {
 });
 
 const journal = (events) => {
-  const dir = mkdtempSync(join(tmpdir(), "sp3-"));
+  const dir = testTempDirSync("sp3-");
   const file = join(dir, "journal-follow.jsonl");
   writeFileSync(file, events.map((event) => JSON.stringify(event)).join("\n"));
   return file;

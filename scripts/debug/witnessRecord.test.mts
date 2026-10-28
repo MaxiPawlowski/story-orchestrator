@@ -1,9 +1,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { membersFor, plumbingReply, readsFile, recordSet, stateAt, stChat, wcFrom, writeReadsFiles, type PlannedSet, type ReadRecord, type RecordResult } from './lib/witnessRecord.mts';
+import { testTempDir } from '../lib/testTemp.mjs';
 
 const story = { roster: [{ id: 'mara', name: 'Mara', aliases: ['The Smith'] }, { id: 'ben', name: 'Ben' }] };
 const set: PlannedSet = {
@@ -36,7 +35,7 @@ const result = (finish: string, input: number, output: number, ms: number): Reco
 });
 
 test('record resumes, sends witness present only on the on arm, and plumbing marks records that are never scored or measured', async () => {
-  const out = await mkdtemp(join(tmpdir(), 'so-witrec-'));
+  const out = await testTempDir('so-witrec-');
   const seen: unknown[] = [];
   const run = async (spec: unknown) => { seen.push(spec); return result('stop', 100, 20, 50); };
   await recordSet(set, 'off', run, out, () => {});
@@ -48,7 +47,7 @@ test('record resumes, sends witness present only on the on arm, and plumbing mar
   const file = readsFile(set, [{ readId: 'r', arm: 'on', from: 0, to: 2, present: ['Mara'], status: 'accepted', inputTokens: 1, outputTokens: 1, calls: [], response: 'x', scope: 1, rejected: 0 }]);
   assert.equal(file.format, 'so-witness-reads/1');
   assert.equal('plumbing' in file, false);
-  const planted = await mkdtemp(join(tmpdir(), 'so-witrec-'));
+  const planted = await testTempDir('so-witrec-');
   await recordSet(set, 'on', run, planted, () => {}, plumbingReply);
   await assert.rejects(writeReadsFiles([set], planted), /plumbing/);
   assert.equal(plumbingReply(set.reads[0]).split('\n').length, 4);

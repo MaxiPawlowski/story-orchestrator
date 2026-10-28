@@ -4,6 +4,7 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { estimateNeedMiB, weightsMiB, modelIdentities } from './models.mjs';
+import { testTempDir } from '../../../scripts/lib/testTemp.mjs';
 
 const frame = (header) => {
     const json = Buffer.from(JSON.stringify(header), 'utf8');
@@ -38,7 +39,7 @@ test('an unknown model or kind is refused, never silently estimated', async () =
 });
 
 test('DWPose ONNX files use their file size without parsing a safetensors header', async () => {
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'so-onnx-'));
+    const dir = await testTempDir('so-onnx-');
     try {
         await fs.writeFile(path.join(dir, 'pose.onnx'), Buffer.alloc(1024 * 1024, 8));
         const files = [{ kind: 'poseModels', name: 'pose.onnx' }];

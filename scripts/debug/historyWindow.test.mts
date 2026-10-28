@@ -1,13 +1,13 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { coveredToOf, cutFor, prefixMass, stepTurns } from './lib/historyWindow.mts';
 import { belowCut, h6Verdict, installWindow, removeWindow, validateRecallSet, type RecallRating, type RecallSet } from './lib/historyRecall.mts';
 import { overheadFrom, rowsOf, scoreTrim, speakerFor, trimmedTurns, type TrimTurn } from './lib/trimArms.mts';
 import { positionals, readTurns } from './so-trim-arms.mts';
 import { planFrom } from './so-history-recall.mts';
+import { testTempDirSync } from '../lib/testTemp.mjs';
 
 const rng = (seed: number) => () => {
   seed = (seed * 1664525 + 1013904223) % 4294967296;
@@ -92,7 +92,7 @@ test('63 H1 score: reuse, prefill and first-token medians per arm and pattern, w
   assert.equal(speakerFor('same', ['A', 'B', 'C'], 4), 'A');
   assert.equal(speakerFor('alternating', ['A', 'B', 'C'], 4), 'B');
   assert.deepEqual(positionals(['score', 'a', '--out', 'x.json', 'b', '--overhead', '9'], ['--out', '--overhead']), ['a', 'b']);
-  const dir = mkdtempSync(join(tmpdir(), 'trim-'));
+  const dir = testTempDirSync('trim-');
   writeFileSync(join(dir, 'r.jsonl'), `${JSON.stringify(turns[0])}\n${JSON.stringify(turns[1])}\n`);
   assert.equal(readTurns([join(dir, 'r.jsonl')]).length, 2);
 });
@@ -168,7 +168,7 @@ test('63 H6 plan: budget = max_context - response - overhead, coverage from the 
 
 test('63 seed-saga: the chat lands in the group, the cast ledger sets disabled members, the story is bound and side calls are off', async () => {
   const { seedSaga } = await import('./so-trim-arms.mts');
-  const user = mkdtempSync(join(tmpdir(), 'saga-'));
+  const user = testTempDirSync('saga-');
   const { mkdirSync, readFileSync } = await import('node:fs');
   mkdirSync(join(user, 'groups'));
   writeFileSync(join(user, 'groups', '1.json'), JSON.stringify({ id: 'g1', name: 'Lab Group', members: ['a.png', 'b.png', 'c.png'], disabled_members: ['c.png'], chats: ['old'], chat_id: 'old' }));

@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
-import { copyFile, lstat, mkdir, mkdtemp, readFile, readdir, readlink, rename, writeFile } from 'node:fs/promises';
+import { copyFile, lstat, mkdir, mkdtemp, readFile, readdir, readlink, rename, rm, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { basename, dirname, join, parse, relative, resolve } from 'node:path';
@@ -224,18 +224,22 @@ export async function restoreCheck(dest: string, tempRoot = tmpdir()) {
   const temp = await mkdtemp(join(tempRoot, `${TOOL}-restore-`));
   const mismatched: string[] = [];
   let matched = 0;
-  for (const entry of manifest.files) {
-    const copy = join(temp, basename(entry.dst));
-    try {
-      await copyFile(entry.dst, copy);
-      const bytes = await readFile(copy);
-      if (bytes.length === entry.bytes && sha256(bytes) === entry.sha256) matched += 1;
-      else mismatched.push(basename(entry.dst));
-    } catch (error) {
-      mismatched.push(`${basename(entry.dst)} (${error instanceof Error ? error.message : error})`);
+  try {
+    for (const entry of manifest.files) {
+      const copy = join(temp, basename(entry.dst));
+      try {
+        await copyFile(entry.dst, copy);
+        const bytes = await readFile(copy);
+        if (bytes.length === entry.bytes && sha256(bytes) === entry.sha256) matched += 1;
+        else mismatched.push(basename(entry.dst));
+      } catch (error) {
+        mismatched.push(`${basename(entry.dst)} (${error instanceof Error ? error.message : error})`);
+      }
     }
+  } finally {
+    await rm(temp, { recursive: true, force: true });
   }
-  return { ok: mismatched.length === 0 && matched === manifest.files.length, matched, total: manifest.files.length, mismatched, temp };
+  return { ok: mismatched.length === 0 && matched === manifest.files.length, matched, total: manifest.files.length, mismatched };
 }
 
 export async function treeHash(dir: string): Promise<{ sha256: string; files: number; bytes: number }> {

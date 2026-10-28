@@ -1,10 +1,10 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, mkdirSync, readFileSync, writeFileSync, rmSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { mkdirSync, readFileSync, writeFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { OUT, ROOT, SOURCE, TOPIC_GROUPS, fieldsFile, groupTopics, parseGuide, renderPages, staleIssues, writePages } from "./split-guide.mjs";
 import { headingsOf } from "./guide-bundle.mjs";
+import { testTempDirSync } from '../lib/testTemp.mjs';
 
 const guide = readFileSync(join(ROOT, SOURCE), "utf8");
 
@@ -23,7 +23,7 @@ test("every topic marker in the source becomes one section of its group page, an
 });
 
 test("control: an edited source, an edited page and a leftover page are each reported", () => {
-  const root = mkdtempSync(join(tmpdir(), "split-guide-"));
+  const root = testTempDirSync("split-guide-");
   try {
     mkdirSync(join(root, "docs/authoring"), { recursive: true });
     writeFileSync(join(root, SOURCE), guide);

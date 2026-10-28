@@ -1,7 +1,11 @@
 # v3.0 25: read facts tier below floor on Artemis
 
 **Status 2026-10-28: cause found; prompt fix candidate A built and measured, NOT adopted (owner decision 4 bar missed on
-format, intents precision fell below its floor on the live suite x2). Nothing in `src/` merged. Three owner questions below.**
+format, intents precision fell below its floor on the live suite x2). Three owner questions below.**
+
+**Update 2026-10-28 (owner decisions on Q1 and Q3, branch `v3.0-facts-count`): live-suite facts tier = the product's
+facts tier (scorer v3); parser accepts FACT lines with MEMORY-style fields. Offline rescore facts 8/20 -> 14/20 (0.70 vs
+floor 0.68, floors unchanged). Live suite x2 owed. See §Owner decisions.**
 
 Branch `v3.0-facts-fix` (this record), worktree `C:\dev\so-facts`. Candidate A parked on local branch
 `v3.0-facts-candidate-a` (`4adf3112`, not merged, full gates not run on it).
@@ -107,3 +111,60 @@ Branch `v3.0-facts-fix` (this record), worktree `C:\dev\so-facts`. Candidate A p
   `facts-rate-noise/`, `facts-tools/` (probe, arm, select, send, pack, rate, unseal, tier scripts); reports
   `so-live-suite-facts-cand-r{1,2}-report.json` in the lane debug dir. Archived: private so-sessions `evidence/phase-c/facts-2026-10-28/` (`so-evidence archive`, 92 MB, plus
   `lane-41/facts/` with the dirs above and the plan 12 before-runs as `c1live-before/`), commit `8aed0933`.
+
+## Owner decisions 2026-10-28 (Q1 scorer, Q3 parser)
+
+Branch `v3.0-facts-count`, worktree `C:\dev\so-factscount`. Q2 (candidate A / one format per tier) stays open.
+
+- **Q1, scorer v3: the live suite's facts tier reads what the product stores in the facts tier.**
+  - `src/extraction/liveTiers.ts`: `facts` = FACT lines plus MEMORY lines whose parsed `tier` is `facts`. The tier comes
+    from `memory/parse.ts` `parseMemoryLine` (`TIER_FOR_ENTRY_TYPE`: fact, relationship, preference, event), the same field
+    `extractionCoordinator.applyAudit` stores by (`tier: line.tier`); no second type list. `factLines` keeps FACT lines
+    only (diagnostic; the claims/quoted rows read it so a facts-type MEMORY row is not counted twice).
+  - `scripts/debug/lib/liveSuiteScore.mts` `SCORER_VERSION` 2 -> 3; the measurement fingerprint `scorer` now carries it, so
+    a v3 report is labelled not comparable with a v2 one.
+  - `so-live-rescore` (`so-live-suite.mts rescore`): `--from`/`--to` scorer versions (v1 word-start, v2 whole term + FACT
+    only, v3 whole term + product facts tier), per-tier `totals` in the record; `RescoreTier` fields are `before`/`after`.
+  - Floors unchanged: facts 0.68 (plan 12 command), others as before. Not retuned.
+- **Q3, parser: a FACT line carrying MEMORY-style fields is a fact.**
+  - `src/extraction/parse.ts` accepts any `key=value` fields before `text=`, read by `memory/parse.ts` `parseFactFields`;
+    `importance` (1-3) still required, otherwise the line stays `unrecognized line`.
+  - Meaning, by how facts are stored: a FACT always lands in the facts tier as `expiration: "permanent"` (the contract's
+    FACT has no expiration), so `expiration=` is ignored. `type=` is kept only when it is a facts-tier type (the stored
+    entry gets that type, as a `MEMORY type=event` line would); a session-tier or unknown type is ignored (the FACT keyword
+    sets the tier). `entity=` and `character=` mean what they mean on a MEMORY line (entities list; `characterId`, which only
+    narrows who sees the fact). Canonical FACT lines parse to the same object as before.
+  - **This changes stored output: a bug fix, not a prompt change.** Hybrid FACT lines used to be dropped (and counted as
+    rejections); now they are stored as facts-tier entries. Prompt and thinking unchanged.
+- Tests: `src/extraction/hybridFact.test.ts` (6), `src/runtime/coordinators/hybridFact.review.test.ts` (2, stored entry:
+  tier, type, permanent, entities; canonical control), `src/runtime/liveSuiteTiers.test.ts` (+2), `scripts/debug/needleInventory.test.mts`
+  (v2 -> v3 rescore, unknown version throws), `scripts/debug/liveSuiteScore.test.mts` (version 3, claims counts a row once).
+
+### Offline rescore (no GPU, no model lane)
+
+Recorded answers: lane 41 probes of the shipped prompt (`C:/dev/so-lanes/41/debug/facts-probe/base-all`, the plan 25 probe,
+and `arm-base`, the screen baseline; both 43 fixtures, same build and lane as the c1live runs, which recorded no raw answers).
+Records: `test/goldens/live/rescore/scorer-v3-lane41-base-all.json`, `scorer-v3-lane41-arm-base.json`
+(`node scripts/debug/so-live-suite.mts rescore <dir> --from 2 --to 3 --out <record>`).
+
+- base-all, v2 -> v3 (both on the new parser): facts 8/20 -> **14/20 = 0.70** (floor 0.68); rejected 36/36, intents 11/14,
+  epistemic 2/3, ledger 2/2, arcs 2/2 unchanged. Changed: extractor4, 12, 15, 19, 21, 22 facts fail -> pass. Still failing
+  (needle only in a session-tier detail/scene row): extractor, 2, 3, 5, 17, 18.
+- arm-base, v2 -> v3: facts 8/20 -> **14/20**; rejected 36/36, intents 12/14, epistemic 2/3, ledger 2/2, arcs 2/2 unchanged; same 6 changes.
+- Parser effect alone (v2 scorer, master parser vs this branch, base-all): rejected 35/36 -> 36/36 (extractor28: the two
+  hybrid FACT lines were its only rejections, the same miss as every c1live run); every other tier unchanged.
+- FACT lines parsed, master -> branch (all probe arms): base-all 3 -> 5, arm-base 6 -> 8, arm-B 54 -> 62, arm-C 35 -> 40,
+  arm-D 32 -> 42, arm-A/A-rep2/base unchanged; FACT lines left unrecognized now 0 in every arm. Canonical lines unchanged.
+- Expected on the next live suite (not measured): facts about 0.70, rejected 36/36 when extractor28 repeats its hybrid lines.
+- **Owed: live suite x2 on lane 41 after the controller benchmark finishes** (GPU busy with a timing-sensitive run; no model
+  lane used here), same command as plan 12, to confirm the v3 facts number and the parser on live answers.
+
+### Gate record (2026-10-28, `v3.0-facts-count`)
+
+- `npm run gates:quick`: RED first (`codeHealth.guard.test.ts` S8: an unused export `LIVE_TIERS_VERSION` in `liveTiers.ts`,
+  removed), then green (typecheck, typecheck:test, lint, jest related, replay --cached).
+- `npm run gates` (no `--resume`): **all green in 411.4 s**, 11 steps (typecheck, test:replay, typecheck:test, build,
+  debug:typecheck, lint, test:release, test:debug, test, test:plugin, test-storybook:ci 167 suites / 1010 tests). This
+  record's gate lines were written after the run (docs only).
+- Live: none. No GPU, no model lane, no browser (controller benchmark running). Nothing built into, staged or installed in
+  owner ST. Live suite x2 on lane 41 owed after the benchmark; until then the 14/20 is an offline rescore of recorded answers.

@@ -1,0 +1,953 @@
+{
+  "kind": "live-suite-rescore",
+  "scorerVersion": 3,
+  "fromScorerVersion": 2,
+  "source": "../so-lanes/41/debug/facts-probe/arm-base",
+  "recordedAt": "2026-10-28T16:49:04.409Z",
+  "totals": {
+    "facts": {
+      "scored": 20,
+      "before": 8,
+      "after": 14
+    },
+    "rejected": {
+      "scored": 36,
+      "before": 36,
+      "after": 36
+    },
+    "intents": {
+      "scored": 14,
+      "before": 12,
+      "after": 12
+    },
+    "epistemic": {
+      "scored": 3,
+      "before": 2,
+      "after": 2
+    },
+    "ledger": {
+      "scored": 2,
+      "before": 2,
+      "after": 2
+    },
+    "arcs": {
+      "scored": 2,
+      "before": 2,
+      "after": 2
+    }
+  },
+  "fixtures": [
+    {
+      "name": "extractor",
+      "tiers": [
+        {
+          "tier": "facts",
+          "before": false,
+          "after": false,
+          "changed": false,
+          "beforeDetail": "expected at least 1 line(s), got 0; missing \"brass key\"",
+          "afterDetail": "expected at least 1 line(s), got 0; missing \"brass key\""
+        }
+      ],
+      "changed": false
+    },
+    {
+      "name": "extractor-intents01",
+      "tiers": [
+        {
+          "tier": "rejected",
+          "before": true,
+          "after": true,
+          "changed": false,
+          "beforeDetail": "nothing was rejected, as expected",
+          "afterDetail": "nothing was rejected, as expected"
+        },
+        {
+          "tier": "intents",
+          "before": true,
+          "after": true,
+          "changed": false,
+          "beforeDetail": "1 of 1 intent(s) matched, nothing spurious",
+          "afterDetail": "1 of 1 intent(s) matched, nothing spurious"
+        }
+      ],
+      "changed": false
+    },
+    {
+      "name": "extractor-intents02",
+      "tiers": [
+        {
+          "tier": "rejected",
+          "before": true,
+          "after": true,
+          "changed": false,
+          "beforeDetail": "nothing was rejected, as expected",
+          "afterDetail": "nothing was rejected, as expected"
+        },
+        {
+          "tier": "intents",
+          "before": true,
+          "after": true,
+          "changed": false,
+          "beforeDetail": "2 of 2 intent(s) matched, nothing spurious",
+          "afterDetail": "2 of 2 intent(s) matched, nothing spurious"
+        }
+      ],
+      "changed": false
+    },
+    {
+      "name": "extractor-intents03",
+      "tiers": [
+        {
+          "tier": "rejected",
+          "before": true,
+          "after": true,
+          "changed": false,
+          "beforeDetail": "nothing was rejected, as expected",
+          "afterDetail": "nothing was rejected, as expected"
+        },
+        {
+          "tier": "intents",
+          "before": true,
+          "after": true,
+          "changed": false,
+          "beforeDetail": "1 of 1 intent(s) matched, nothing spurious",
+          "afterDetail": "1 of 1 intent(s) matched, nothing spurious"
+        }
+      ],
+      "changed": false
+    },
+    {
+      "name": "extractor-intents04",
+      "tiers": [
+        {
+          "tier": "rejected",
+          "before": true,
+          "after": true,
+          "changed": false,
+          "beforeDetail": "nothing was rejected, as expected",
+          "afterDetail": "nothing was rejected, as expected"
+        },
+        {
+          "tier": "intents",
+          "before": false,
+          "after": false,
+          "changed": false,
+          "beforeDetail": "player-attributed intent: Max | rob the Merchant Bank on market day",
+          "afterDetail": "player-attributed intent: Max | rob the Merchant Bank on market day"
+        }
+      ],
+      "changed": false
+    },
+    {
+      "name": "extractor-intents05",
+      "tiers": [
+        {
+          "tier": "rejected",
+          "before": true,
+          "after": true,
+          "changed": false,
+          "beforeDetail": "nothing was rejected, as expected",
+          "afterDetail": "nothing was rejected, as expected"
+        },
+        {
+          "tier": "intents",
+          "before": true,
+          "after": true,
+          "changed": false,
+          "beforeDetail": "1 of 1 intent(s) matched, nothing spurious",
+          "afterDetail": "1 of 1 intent(s) matched, nothing spurious"
+        }
+      ],
+      "changed": false
+    },
+    {
+      "name": "extractor-intents06",
+      "tiers": [
+        {
+          "tier": "rejected",
+          "before": true,
+          "after": true,
+          "changed": false,
+          "beforeDetail": "nothing was rejected, as expected",
+          "afterDetail": "nothing was rejected, as expected"
+        },
+        {
+          "tier": "intents",
+          "before": true,
+          "after": true,
+          "changed": false,
+          "beforeDetail": "1 of 1 intent(s) matched, nothing spurious",
+          "afterDetail": "1 of 1 intent(s) matched, nothing spurious"
+        }
+      ],
+      "changed": false
+    },
+    {
+      "name": "extractor-intents07",
+      "tiers": [
+        {
+          "tier": "rejected",
+          "before": true,
+          "after": true,
+          "changed": false,
+          "beforeDetail": "nothing was rejected, as expected",
+          "afterDetail": "nothing was rejected, as expected"
+        },
+        {
+          "tier": "intents",
+          "before": true,
+          "after": true,
+          "changed": false,
+          "beforeDetail": "1 of 1 intent(s) matched, nothing spurious",
+          "afterDetail": "1 of 1 intent(s) matched, nothing spurious"
+        }
+      ],
+      "changed": false
+    },
+    {
+      "name": "extractor-intents08",
+      "tiers": [
+        {
+          "tier": "rejected",
+          "before": true,
+          "after": true,
+          "changed": false,
+          "beforeDetail": "nothing was rejected, as expected",
+          "afterDetail": "nothing was rejected, as expected"
+        },
+        {
+          "tier": "intents",
+          "before": true,
+          "after": true,
+          "changed": false,
+          "beforeDetail": "1 of 1 intent(s) matched, nothing spurious",
+          "afterDetail": "1 of 1 intent(s) matched, nothing spurious"
+        }
+      ],
+      "changed": false
+    },
+    {
+      "name": "extractor-intents09",
+      "tiers": [
+        {
+          "tier": "rejected",
+          "before": true,
+          "after": true,
+          "changed": false,
+          "beforeDetail": "nothing was rejected, as expected",
+          "afterDetail": "nothing was rejected, as expected"
+        },
+        {
+          "tier": "intents",
+          "before": true,
+          "after": true,
+          "changed": false,
+          "beforeDetail": "0 of 0 intent(s) matched, nothing spurious",
+          "afterDetail": "0 of 0 intent(s) matched, nothing spurious"
+        }
+      ],
+      "changed": false
+    },
+    {
+      "name": "extractor-intents10",
+      "tiers": [
+        {
+          "tier": "rejected",
+          "before": true,
+          "after": true,
+          "changed": false,
+          "beforeDetail": "nothing was rejected, as expected",
+          "afterDetail": "nothing was rejected, as expected"
+        },
+        {
+          "tier": "intents",
+          "before": true,
+          "after": true,
+          "changed": false,
+          "beforeDetail": "0 of 0 intent(s) matched, nothing spurious",
+          "afterDetail": "0 of 0 intent(s) matched, nothing spurious"
+        }
+      ],
+      "changed": false
+    },
+    {
+      "name": "extractor-intents11",
+      "tiers": [
+        {
+          "tier": "rejected",
+          "before": true,
+          "after": true,
+          "changed": false,
+          "beforeDetail": "nothing was rejected, as expected",
+          "afterDetail": "nothing was rejected, as expected"
+        },
+        {
+          "tier": "intents",
+          "before": true,
+          "after": true,
+          "changed": false,
+          "beforeDetail": "1 of 1 intent(s) matched, nothing spurious",
+          "afterDetail": "1 of 1 intent(s) matched, nothing spurious"
+        }
+      ],
+      "changed": false
+    },
+    {
+      "name": "extractor-intents12",
+      "tiers": [
+        {
+          "tier": "rejected",
+          "before": true,
+          "after": true,
+          "changed": false,
+          "beforeDetail": "nothing was rejected, as expected",
+          "afterDetail": "nothing was rejected, as expected"
+        },
+        {
+          "tier": "intents",
+          "before": true,
+          "after": true,
+          "changed": false,
+          "beforeDetail": "1 of 1 intent(s) matched, nothing spurious",
+          "afterDetail": "1 of 1 intent(s) matched, nothing spurious"
+        }
+      ],
+      "changed": false
+    },
+    {
+      "name": "extractor-intents13",
+      "tiers": [
+        {
+          "tier": "rejected",
+          "before": true,
+          "after": true,
+          "changed": false,
+          "beforeDetail": "nothing was rejected, as expected",
+          "afterDetail": "nothing was rejected, as expected"
+        },
+        {
+          "tier": "intents",
+          "before": true,
+          "after": true,
+          "changed": false,
+          "beforeDetail": "0 of 0 intent(s) matched, nothing spurious",
+          "afterDetail": "0 of 0 intent(s) matched, nothing spurious"
+        }
+      ],
+      "changed": false
+    },
+    {
+      "name": "extractor-intents14",
+      "tiers": [
+        {
+          "tier": "rejected",
+          "before": true,
+          "after": true,
+          "changed": false,
+          "beforeDetail": "nothing was rejected, as expected",
+          "afterDetail": "nothing was rejected, as expected"
+        },
+        {
+          "tier": "intents",
+          "before": false,
+          "after": false,
+          "changed": false,
+          "beforeDetail": "missing intent for Petra (paid | pay | coin | money)",
+          "afterDetail": "missing intent for Petra (paid | pay | coin | money)"
+        }
+      ],
+      "changed": false
+    },
+    {
+      "name": "extractor2",
+      "tiers": [
+        {
+          "tier": "facts",
+          "before": false,
+          "after": false,
+          "changed": false,
+          "beforeDetail": "expected at least 1 line(s), got 0; missing \"docks\"",
+          "afterDetail": "expected at least 1 line(s), got 0; missing \"docks\""
+        }
+      ],
+      "changed": false
+    },
+    {
+      "name": "extractor3",
+      "tiers": [
+        {
+          "tier": "facts",
+          "before": false,
+          "after": false,
+          "changed": false,
+          "beforeDetail": "expected at least 1 line(s), got 0; missing \"torch\"",
+          "afterDetail": "expected at least 1 line(s), got 0; missing \"torch\""
+        }
+      ],
+      "changed": false
+    },
+    {
+      "name": "extractor4",
+      "tiers": [
+        {
+          "tier": "facts",
+          "before": false,
+          "after": true,
+          "changed": true,
+          "beforeDetail": "expected at least 1 line(s), got 0; missing \"beacon\"",
+          "afterDetail": "1 line(s) matched the fixture"
+        }
+      ],
+      "changed": true
+    },
+    {
+      "name": "extractor5",
+      "tiers": [
+        {
+          "tier": "facts",
+          "before": false,
+          "after": false,
+          "changed": false,
+          "beforeDetail": "expected at least 1 line(s), got 0; missing \"torch\"",
+          "afterDetail": "expected at least 1 line(s), got 0; missing \"torch\""
+        },
+        {
+          "tier": "rejected",
+          "before": true,
+          "after": true,
+          "changed": false,
+          "beforeDetail": "nothing was rejected, as expected",
+          "afterDetail": "nothing was rejected, as expected"
+        }
+      ],
+      "changed": false
+    },
+    {
+      "name": "extractor6",
+      "tiers": [
+        {
+          "tier": "rejected",
+          "before": true,
+          "after": true,
+          "changed": false,
+          "beforeDetail": "nothing was rejected, as expected",
+          "afterDetail": "nothing was rejected, as expected"
+        }
+      ],
+      "changed": false
+    },
+    {
+      "name": "extractor7",
+      "tiers": [
+        {
+          "tier": "rejected",
+          "before": true,
+          "after": true,
+          "changed": false,
+          "beforeDetail": "nothing was rejected, as expected",
+          "afterDetail": "nothing was rejected, as expected"
+        }
+      ],
+      "changed": false
+    },
+    {
+      "name": "extractor8",
+      "tiers": [
+        {
+          "tier": "rejected",
+          "before": true,
+          "after": true,
+          "changed": false,
+          "beforeDetail": "nothing was rejected, as expected",
+          "afterDetail": "nothing was rejected, as expected"
+        }
+      ],
+      "changed": false
+    },
+    {
+      "name": "extractor9",
+      "tiers": [
+        {
+          "tier": "rejected",
+          "before": true,
+          "after": true,
+          "changed": false,
+          "beforeDetail": "nothing was rejected, as expected",
+          "afterDetail": "nothing was rejected, as expected"
+        }
+      ],
+      "changed": false
+    },
+    {
+      "name": "extractor10",
+      "tiers": [
+        {
+          "tier": "rejected",
+          "before": true,
+          "after": true,
+          "changed": false,
+          "beforeDetail": "nothing was rejected, as expected",
+          "afterDetail": "nothing was rejected, as expected"
+        }
+      ],
+      "changed": false
+    },
+    {
+      "name": "extractor11",
+      "tiers": [],
+      "changed": false
+    },
+    {
+      "name": "extractor12",
+      "tiers": [
+        {
+          "tier": "facts",
+          "before": false,
+          "after": true,
+          "changed": true,
+          "beforeDetail": "expected at least 1 line(s), got 0; missing \"pact\"",
+          "afterDetail": "1 line(s) matched the fixture"
+        }
+      ],
+      "changed": true
+    },
+    {
+      "name": "extractor13",
+      "tiers": [
+        {
+          "tier": "facts",
+          "before": true,
+          "after": true,
+          "changed": false,
+          "beforeDetail": "0 line(s) matched the fixture",
+          "afterDetail": "0 line(s) matched the fixture"
+        },
+        {
+          "tier": "rejected",
+          "before": true,
+          "after": true,
+          "changed": false,
+          "beforeDetail": "nothing was rejected, as expected",
+          "afterDetail": "nothing was rejected, as expected"
+        }
+      ],
+      "changed": false
+    },
+    {
+      "name": "extractor14",
+      "tiers": [
+        {
+          "tier": "rejected",
+          "before": true,
+          "after": true,
+          "changed": false,
+          "beforeDetail": "nothing was rejected, as expected",
+          "afterDetail": "nothing was rejected, as expected"
+        }
+      ],
+      "changed": false
+    },
+    {
+      "name": "extractor15",
+      "tiers": [
+        {
+          "tier": "facts",
+          "before": false,
+          "after": true,
+          "changed": true,
+          "beforeDetail": "expected at least 1 line(s), got 0; missing \"gate\"",
+          "afterDetail": "1 line(s) matched the fixture"
+        }
+      ],
+      "changed": true
+    },
+    {
+      "name": "extractor16",
+      "tiers": [
+        {
+          "tier": "rejected",
+          "before": true,
+          "after": true,
+          "changed": false,
+          "beforeDetail": "nothing was rejected, as expected",
+          "afterDetail": "nothing was rejected, as expected"
+        }
+      ],
+      "changed": false
+    },
+    {
+      "name": "extractor17",
+      "tiers": [
+        {
+          "tier": "facts",
+          "before": false,
+          "after": false,
+          "changed": false,
+          "beforeDetail": "expected at least 1 line(s), got 0; missing \"nightingale\"",
+          "afterDetail": "expected at least 1 line(s), got 0; missing \"nightingale\""
+        },
+        {
+          "tier": "rejected",
+          "before": true,
+          "after": true,
+          "changed": false,
+          "beforeDetail": "nothing was rejected, as expected",
+          "afterDetail": "nothing was rejected, as expected"
+        }
+      ],
+      "changed": false
+    },
+    {
+      "name": "extractor18",
+      "tiers": [
+        {
+          "tier": "facts",
+          "before": false,
+          "after": false,
+          "changed": false,
+          "beforeDetail": "expected at least 1 line(s), got 0; missing \"toma\"",
+          "afterDetail": "expected at least 1 line(s), got 0; missing \"toma\""
+        },
+        {
+          "tier": "rejected",
+          "before": true,
+          "after": true,
+          "changed": false,
+          "beforeDetail": "nothing was rejected, as expected",
+          "afterDetail": "nothing was rejected, as expected"
+        }
+      ],
+      "changed": false
+    },
+    {
+      "name": "extractor19",
+      "tiers": [
+        {
+          "tier": "facts",
+          "before": false,
+          "after": true,
+          "changed": true,
+          "beforeDetail": "expected at least 1 line(s), got 0; missing \"official\"",
+          "afterDetail": "1 line(s) matched the fixture"
+        },
+        {
+          "tier": "rejected",
+          "before": true,
+          "after": true,
+          "changed": false,
+          "beforeDetail": "nothing was rejected, as expected",
+          "afterDetail": "nothing was rejected, as expected"
+        }
+      ],
+      "changed": true
+    },
+    {
+      "name": "extractor20",
+      "tiers": [
+        {
+          "tier": "rejected",
+          "before": true,
+          "after": true,
+          "changed": false,
+          "beforeDetail": "nothing was rejected, as expected",
+          "afterDetail": "nothing was rejected, as expected"
+        }
+      ],
+      "changed": false
+    },
+    {
+      "name": "extractor21",
+      "tiers": [
+        {
+          "tier": "facts",
+          "before": false,
+          "after": true,
+          "changed": true,
+          "beforeDetail": "missing \"gate\"",
+          "afterDetail": "1 line(s) matched the fixture"
+        },
+        {
+          "tier": "rejected",
+          "before": true,
+          "after": true,
+          "changed": false,
+          "beforeDetail": "nothing was rejected, as expected",
+          "afterDetail": "nothing was rejected, as expected"
+        }
+      ],
+      "changed": true
+    },
+    {
+      "name": "extractor22",
+      "tiers": [
+        {
+          "tier": "facts",
+          "before": false,
+          "after": true,
+          "changed": true,
+          "beforeDetail": "missing \"seal\"",
+          "afterDetail": "1 line(s) matched the fixture"
+        },
+        {
+          "tier": "rejected",
+          "before": true,
+          "after": true,
+          "changed": false,
+          "beforeDetail": "nothing was rejected, as expected",
+          "afterDetail": "nothing was rejected, as expected"
+        }
+      ],
+      "changed": true
+    },
+    {
+      "name": "extractor23",
+      "tiers": [
+        {
+          "tier": "facts",
+          "before": true,
+          "after": true,
+          "changed": false,
+          "beforeDetail": "0 line(s) matched the fixture",
+          "afterDetail": "0 line(s) matched the fixture"
+        },
+        {
+          "tier": "epistemic",
+          "before": true,
+          "after": true,
+          "changed": false,
+          "beforeDetail": "4 line(s) matched the fixture",
+          "afterDetail": "4 line(s) matched the fixture"
+        },
+        {
+          "tier": "rejected",
+          "before": true,
+          "after": true,
+          "changed": false,
+          "beforeDetail": "nothing was rejected, as expected",
+          "afterDetail": "nothing was rejected, as expected"
+        }
+      ],
+      "changed": false
+    },
+    {
+      "name": "extractor24",
+      "tiers": [
+        {
+          "tier": "facts",
+          "before": true,
+          "after": true,
+          "changed": false,
+          "beforeDetail": "1 line(s) matched the fixture",
+          "afterDetail": "1 line(s) matched the fixture"
+        },
+        {
+          "tier": "epistemic",
+          "before": false,
+          "after": false,
+          "changed": false,
+          "beforeDetail": "missing \"poison\"",
+          "afterDetail": "missing \"poison\""
+        },
+        {
+          "tier": "rejected",
+          "before": true,
+          "after": true,
+          "changed": false,
+          "beforeDetail": "nothing was rejected, as expected",
+          "afterDetail": "nothing was rejected, as expected"
+        }
+      ],
+      "changed": false
+    },
+    {
+      "name": "extractor25",
+      "tiers": [
+        {
+          "tier": "facts",
+          "before": true,
+          "after": true,
+          "changed": false,
+          "beforeDetail": "1 line(s) matched the fixture",
+          "afterDetail": "1 line(s) matched the fixture"
+        },
+        {
+          "tier": "epistemic",
+          "before": true,
+          "after": true,
+          "changed": false,
+          "beforeDetail": "5 line(s) matched the fixture",
+          "afterDetail": "5 line(s) matched the fixture"
+        },
+        {
+          "tier": "rejected",
+          "before": true,
+          "after": true,
+          "changed": false,
+          "beforeDetail": "nothing was rejected, as expected",
+          "afterDetail": "nothing was rejected, as expected"
+        }
+      ],
+      "changed": false
+    },
+    {
+      "name": "extractor26",
+      "tiers": [
+        {
+          "tier": "facts",
+          "before": true,
+          "after": true,
+          "changed": false,
+          "beforeDetail": "0 line(s) matched the fixture",
+          "afterDetail": "0 line(s) matched the fixture"
+        },
+        {
+          "tier": "ledger",
+          "before": true,
+          "after": true,
+          "changed": false,
+          "beforeDetail": "5 line(s) matched the fixture",
+          "afterDetail": "5 line(s) matched the fixture"
+        },
+        {
+          "tier": "rejected",
+          "before": true,
+          "after": true,
+          "changed": false,
+          "beforeDetail": "nothing was rejected, as expected",
+          "afterDetail": "nothing was rejected, as expected"
+        }
+      ],
+      "changed": false
+    },
+    {
+      "name": "extractor27",
+      "tiers": [
+        {
+          "tier": "facts",
+          "before": true,
+          "after": true,
+          "changed": false,
+          "beforeDetail": "0 line(s) matched the fixture",
+          "afterDetail": "1 line(s) matched the fixture"
+        },
+        {
+          "tier": "ledger",
+          "before": true,
+          "after": true,
+          "changed": false,
+          "beforeDetail": "3 line(s) matched the fixture",
+          "afterDetail": "3 line(s) matched the fixture"
+        },
+        {
+          "tier": "rejected",
+          "before": true,
+          "after": true,
+          "changed": false,
+          "beforeDetail": "nothing was rejected, as expected",
+          "afterDetail": "nothing was rejected, as expected"
+        }
+      ],
+      "changed": false
+    },
+    {
+      "name": "extractor28",
+      "tiers": [
+        {
+          "tier": "facts",
+          "before": true,
+          "after": true,
+          "changed": false,
+          "beforeDetail": "2 line(s) matched the fixture",
+          "afterDetail": "2 line(s) matched the fixture"
+        },
+        {
+          "tier": "arcs",
+          "before": true,
+          "after": true,
+          "changed": false,
+          "beforeDetail": "1 line(s) matched the fixture",
+          "afterDetail": "1 line(s) matched the fixture"
+        },
+        {
+          "tier": "rejected",
+          "before": true,
+          "after": true,
+          "changed": false,
+          "beforeDetail": "nothing was rejected, as expected",
+          "afterDetail": "nothing was rejected, as expected"
+        }
+      ],
+      "changed": false
+    },
+    {
+      "name": "extractor29",
+      "tiers": [
+        {
+          "tier": "facts",
+          "before": true,
+          "after": true,
+          "changed": false,
+          "beforeDetail": "0 line(s) matched the fixture",
+          "afterDetail": "1 line(s) matched the fixture"
+        },
+        {
+          "tier": "arcs",
+          "before": true,
+          "after": true,
+          "changed": false,
+          "beforeDetail": "1 line(s) matched the fixture",
+          "afterDetail": "1 line(s) matched the fixture"
+        },
+        {
+          "tier": "rejected",
+          "before": true,
+          "after": true,
+          "changed": false,
+          "beforeDetail": "nothing was rejected, as expected",
+          "afterDetail": "nothing was rejected, as expected"
+        }
+      ],
+      "changed": false
+    }
+  ],
+  "changed": [
+    {
+      "fixture": "extractor4",
+      "tier": "facts",
+      "before": false,
+      "after": true
+    },
+    {
+      "fixture": "extractor12",
+      "tier": "facts",
+      "before": false,
+      "after": true
+    },
+    {
+      "fixture": "extractor15",
+      "tier": "facts",
+      "before": false,
+      "after": true
+    },
+    {
+      "fixture": "extractor19",
+      "tier": "facts",
+      "before": false,
+      "after": true
+    },
+    {
+      "fixture": "extractor21",
+      "tier": "facts",
+      "before": false,
+      "after": true
+    },
+    {
+      "fixture": "extractor22",
+      "tier": "facts",
+      "before": false,
+      "after": true
+    }
+  ],
+  "unrecorded": []
+}

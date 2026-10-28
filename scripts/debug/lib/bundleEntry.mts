@@ -1,5 +1,5 @@
 import { createRequire } from 'node:module';
-import { mkdtemp, writeFile } from 'node:fs/promises';
+import { mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, relative, resolve, sep } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -20,7 +20,11 @@ export function loadEntry<T>(entry: string): Promise<T> {
       const dir = await mkdtemp(join(tmpdir(), 'so-entry-'));
       const file = join(dir, 'entry.mjs');
       await writeFile(file, built.outputFiles[0].text, 'utf-8');
-      return import(pathToFileURL(file).href);
+      try {
+      return await import(pathToFileURL(file).href);
+    } finally {
+      await rm(dir, { recursive: true, force: true });
+    }
     })());
   }
   return loaded.get(entry) as Promise<T>;

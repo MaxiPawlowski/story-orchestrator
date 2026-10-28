@@ -1,7 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { cp, mkdtemp, readFile, writeFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { cp, readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import {
   checkFreeze, loadPromiseKit, p1Reply, p2Reply, offlineSeed, P47_DIR, P47_FILES, paraphraseOf, readJson, replayP1, replayP2, type Story,
@@ -12,6 +11,7 @@ import {
 } from './lib/promiseScore.mts';
 import { directorInput, directorRate, directorRun, directorScore, guardFields, parseRater, proposalFields, type P6Set } from './lib/promiseDirector.mts';
 import { main } from './so-promises.mts';
+import { testTempDir } from '../lib/testTemp.mjs';
 
 const story = await readJson<Story>(join(P47_DIR, 'story.json'));
 const p1 = await readJson<P1Set>(join(P47_DIR, 'p1-cases.json'));
@@ -60,7 +60,7 @@ test('p47 sets: frozen, every category of the floor present, counts at or above 
 });
 
 test('p47 freeze: an edited set file is refused', async () => {
-  const dir = await mkdtemp(join(tmpdir(), 'p47-freeze-'));
+  const dir = await testTempDir('p47-freeze-');
   for (const file of [...P47_FILES, 'freeze.json']) await cp(join(P47_DIR, file), join(dir, file));
   assert.deepEqual(await checkFreeze(dir), []);
   const text = await readFile(join(dir, 'p1-cases.json'), 'utf-8');
@@ -209,7 +209,7 @@ test('p47 P6: director input carries the promise hook, the guard flags a planted
 
 test('p47 P6 run, rate and score with fake models (planted narrating proposal fails the floor)', async () => {
   const kit = await loadPromiseKit();
-  const out = await mkdtemp(join(tmpdir(), 'p47-p6-'));
+  const out = await testTempDir('p47-p6-');
   const set: P6Set = { ...p6, cases: p6.cases.slice(0, 2) };
   const proposals = ['{"name":"Ferry Toll","objective":"The ferryman demands a toll."}', '{"name":"Night Watch","objective":"Rowan breaks the promise and leaves town."}'];
   let call = 0;

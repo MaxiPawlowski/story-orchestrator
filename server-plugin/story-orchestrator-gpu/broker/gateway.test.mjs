@@ -2,6 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createGateway } from './gateway.mjs';
 import { ContextRefusal } from './backend.mjs';
+import { testTempDir } from '../../../scripts/lib/testTemp.mjs';
 
 const fakeArbiter = (state, refuse = null) => {
     const queued = [];
@@ -181,7 +182,8 @@ test('the member cache is off by default and gives up image RAM through the sche
     const off = createGateway({ arbiter: fakeArbiter({ pid: 7 }), config: { modelAlias: 'm' }, fetchImpl: backendFetch });
     assert.equal(off.memberCache, null);
     const arbiter = fakeArbiter({ pid: 7 });
-    const on = createGateway({ arbiter, config: { modelAlias: 'm', stateDir: (await import('node:os')).tmpdir(), memberCache: { enabled: true, dir: `${(await import('node:os')).tmpdir()}/so-gw-member-test` } }, fetchImpl: backendFetch });
+    const stateDir = await testTempDir('so-gw-member-');
+    const on = createGateway({ arbiter, config: { modelAlias: 'm', stateDir, memberCache: { enabled: true, dir: `${stateDir}/members` } }, fetchImpl: backendFetch });
     assert.equal(typeof arbiter.scheduler.onImageRam, 'function');
     assert.equal(await arbiter.scheduler.onImageRam({ needRamMiB: 8000, availableMiB: 1000 }), 0);
     assert.equal(on.memberCache.status().entries, 0);

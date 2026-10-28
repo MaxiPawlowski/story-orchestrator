@@ -3,8 +3,8 @@ import assert from 'node:assert/strict';
 import { ResidencyScheduler } from './scheduler.mjs';
 import { footprintKey, FOOTPRINT_REVISION } from './footprints.mjs';
 import fs from 'node:fs/promises';
-import os from 'node:os';
 import path from 'node:path';
+import { testTempDir } from '../../../scripts/lib/testTemp.mjs';
 
 const deferred = () => { let resolve; const promise = new Promise((done) => { resolve = done; }); return { promise, resolve }; };
 const tick = () => new Promise((resolve) => setTimeout(resolve, 0));
@@ -549,7 +549,7 @@ test('an abandoned lease is freed after it goes unrenewed, and a renewed one aft
 });
 
 const fakeCheckpoint = async (mib) => {
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'so-stream-'));
+    const dir = await testTempDir('so-stream-');
     const header = Buffer.from(JSON.stringify({ w: { dtype: 'F16', shape: [1], data_offsets: [0, mib * 1048576] } }));
     const prefix = Buffer.alloc(8); prefix.writeBigUInt64LE(BigInt(header.length));
     await fs.writeFile(path.join(dir, 'sdxl.safetensors'), Buffer.concat([prefix, header]));

@@ -55,8 +55,8 @@ export const containsWordStart = (haystack: string, needle: string): boolean =>
 export type NeedleScope = 'contains' | 'rejected' | 'intents';
 export type NeedleMatch = (haystack: string, needle: string, mode: TermMode, scope: NeedleScope) => boolean;
 
-/** v2.8 35 G2: the scorer version stamped on every re-scored record. v1 = word start for free text, substring for reasons and intents. */
-export const SCORER_VERSION = TERM_SCORER_VERSION;
+/** v2.8 35 G2: the scorer version stamped on every re-scored record. v1 = word start for free text, substring for reasons and intents; v2 = whole term; v3 (v3.0 25) = the facts tier reads the product's facts tier (FACT lines plus facts-type MEMORY lines). */
+export const SCORER_VERSION = TERM_SCORER_VERSION + 1;
 export const matchV1: NeedleMatch = (haystack, needle, _mode, scope) => (scope === 'contains' ? containsWordStart(haystack, needle) : haystack.toLowerCase().includes(needle.toLowerCase()));
 export const matchV2: NeedleMatch = (haystack, needle, mode) => termPresent(haystack, needle, mode);
 
@@ -352,13 +352,13 @@ export function scorePlotDeltas(expectedDeltas: LiveDelta[], liveDeltas: LiveDel
   };
 }
 
-export interface LiveFixtureOutput { deltas?: LiveDelta[]; facts?: unknown[]; rejected?: Array<{ reason?: string }>; memory?: unknown[]; arcs?: unknown[]; epistemic?: LiveEpistemicRow[]; ledger?: unknown[] }
+export interface LiveFixtureOutput { deltas?: LiveDelta[]; facts?: unknown[]; factLines?: unknown[]; rejected?: Array<{ reason?: string }>; memory?: unknown[]; arcs?: unknown[]; epistemic?: LiveEpistemicRow[]; ledger?: unknown[] }
 
 export interface LiveFixtureInput { expected: Record<string, any>; transcript: Array<{ speaker: string; is_user?: boolean }> }
 
 export function scoreLiveFixture(fixture: LiveFixtureInput, live: LiveFixtureOutput): { pass: boolean; expectedNorm: string[]; liveNorm: string[]; tiers: TierOutcome[] } {
   const { pass, expectedNorm, liveNorm } = scorePlotDeltas(fixture.expected.deltas ?? [], live.deltas ?? []);
-  const rows = [...(live.facts ?? []), ...(live.memory ?? []), ...(live.arcs ?? []), ...(live.epistemic ?? []), ...(live.ledger ?? [])];
+  const rows = [...(live.factLines ?? live.facts ?? []), ...(live.memory ?? []), ...(live.arcs ?? []), ...(live.epistemic ?? []), ...(live.ledger ?? [])];
   const tiers = [
     { tier: 'deltas' as const, scored: true, pass, detail: `expected=[${expectedNorm.join(', ')}] live=[${liveNorm.join(', ')}]` },
     scoreContains('facts', fixture.expected.facts, live.facts ?? []),

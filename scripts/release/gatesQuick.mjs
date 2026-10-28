@@ -75,8 +75,8 @@ async function main(argv) {
   const steps = [run("typecheck", ...node("node_modules/typescript/bin/tsc", ["--noEmit"]))];
   if (plan.typecheckTest) steps.push(run("typecheck:test", ...node("node_modules/typescript/bin/tsc", ["-p", "tsconfig.test.json"])));
   if (plan.lint.length) steps.push(run("lint (changed)", ...node("node_modules/eslint/bin/eslint.js", ["--ext", ".ts,.tsx", ...plan.lint])));
-  if (plan.jest === "all") steps.push(run("jest", ...node("node_modules/jest/bin/jest.js", ["--ci", "--silent"])));
-  else if (plan.jest.length) steps.push(run("jest (related)", ...node("node_modules/jest/bin/jest.js", ["--ci", "--silent", "--passWithNoTests", "--findRelatedTests", ...plan.jest])));
+  if (plan.jest === "all") steps.push(run("jest", ...node("scripts/release/tmpGuard.mjs", ["node_modules/jest/bin/jest.js", "--ci", "--silent"])));
+  else if (plan.jest.length) steps.push(run("jest (related)", ...node("scripts/release/tmpGuard.mjs", ["node_modules/jest/bin/jest.js", "--ci", "--silent", "--passWithNoTests", "--findRelatedTests", ...plan.jest])));
   if (!argv.includes("--no-replay")) steps.push(run("defect replay (--cached)", ...node("scripts/suite/defect-replay.mjs", ["--cached", "--workers", "4"])));
   const results = await Promise.all(steps);
   if (plan.stories.length) console.log(`\ngates:quick: stories beside the change (not run here): ${plan.stories.join(", ")}`);

@@ -10,7 +10,7 @@
 // switches off. It demands that nobody ADD a site without classifying it, that no row rot, and
 // that a row claiming a check actually has one.
 
-import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { censusSites } from "../../test/findings/ownershipCensus";
@@ -150,6 +150,7 @@ describe("V3: the census sees what it used to miss", () => {
     "function commands() { register({ name: \"cp\", callback: async () => { await work(); apply(); } }); }",
   ].join("\n");
   const dir = mkdtempSync(join(tmpdir(), "census-"));
+  afterAll(() => rmSync(dir, { recursive: true, force: true }));
   writeFileSync(join(dir, "fixture.ts"), fixture);
   const found = new Map(censusSites([dir.split("\\").join("/")]).map((site) => [site.name, site]));
 

@@ -1,11 +1,11 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync } from 'node:fs';
-import { mkdtemp, readFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { loadWitness } from './lib/witness.mts';
 import { recordAll, scoreOneRead, stopFile, witnessDeclaration, type PlannedSet, type ReadRecord, type RecordResult, type RecordSpec, type WitnessScoreKit } from './lib/witnessRecord.mts';
+import { testTempDir } from '../lib/testTemp.mjs';
 
 const planned = (reads: number): PlannedSet => ({
   key: 'S/S-1', story: { roster: [] }, chat: [], members: [{ id: 'Mara', name: 'Mara', aliases: [] }], messages: [],
@@ -17,7 +17,7 @@ const reply: RecordResult = { prompt: 'p', rawResponse: 'NO_DELTA', inputTokens:
 const quiet = () => {};
 
 test('record interleaves arms per read and a stop leaves balanced pairs written to stop.json; a stopped run is never resumed', async () => {
-  const out = await mkdtemp(join(tmpdir(), 'so-witstop-'));
+  const out = await testTempDir('so-witstop-');
   const order: string[] = [];
   const run = async (spec: RecordSpec) => { order.push(spec.present ? 'on' : 'off'); return reply; };
   const score = async () => ({ exactSet: { hits: 0, of: 4 }, asideKeptOut: 0 });
@@ -32,13 +32,13 @@ test('record interleaves arms per read and a stop leaves balanced pairs written 
 });
 
 test('--no-stop runs every read; a zero-floor leak stops at once; W4 declares every pair needed', async () => {
-  const out = await mkdtemp(join(tmpdir(), 'so-witstop-'));
+  const out = await testTempDir('so-witstop-');
   const run = async () => reply;
   const full = await recordAll([planned(12)], ['on', 'off'], run, out, { log: quiet, noStop: true, score: async () => ({ exactSet: { hits: 0, of: 4 } }) });
   assert.equal(full.stopped, null);
   assert.deepEqual(full.records, { on: 12, off: 12 });
   assert.equal(existsSync(stopFile(out)), false);
-  const leak = await recordAll([planned(12)], ['on'], run, await mkdtemp(join(tmpdir(), 'so-witstop-')), { log: quiet, score: async (_set, record: ReadRecord) => ({ asideKeptOut: record.readId.endsWith('#r3') ? 1 : 0 }) });
+  const leak = await recordAll([planned(12)], ['on'], run, await testTempDir('so-witstop-'), { log: quiet, score: async (_set, record: ReadRecord) => ({ asideKeptOut: record.readId.endsWith('#r3') ? 1 : 0 }) });
   assert.equal(leak.stopped?.stopped, 'S3');
   assert.equal(leak.stopped?.at, '3/12');
   assert.equal(witnessDeclaration(37).needsAll, true);
@@ -47,7 +47,7 @@ test('--no-stop runs every read; a zero-floor leak stops at once; W4 declares ev
 test('a read that throws twice stops the run as S5, not a measurement, even under --no-stop', async () => {
   let calls = 0;
   const run = async () => { calls += 1; if (calls >= 3) throw new Error('connect ECONNREFUSED 127.0.0.1:18888'); return reply; };
-  const result = await recordAll([planned(10)], ['on', 'off'], run, await mkdtemp(join(tmpdir(), 'so-witstop-')), { log: quiet, noStop: true });
+  const result = await recordAll([planned(10)], ['on', 'off'], run, await testTempDir('so-witstop-'), { log: quiet, noStop: true });
   assert.equal(result.stopped?.stopped, 'S5');
   assert.equal(result.stopped?.verdict, 'not-a-measurement');
   assert.equal(result.stopped?.at, '2/10');

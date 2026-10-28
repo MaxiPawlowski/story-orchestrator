@@ -1,10 +1,10 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, readFileSync, writeFileSync, appendFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { readFileSync, writeFileSync, appendFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { cardArtPlan, cardArtProblems, laneServerLog, leakNames, markServerLog, takeServerLog, SHOWCASE_AVATARS } from './pocCardArt.mts';
 import { journeyCast, poseCast } from './pocDrivers.mts';
+import { testTempDirSync } from '../../lib/testTemp.mjs';
 
 test('cardArtPlan gives each member one showcase avatar in cast order and refuses a fourth member', () => {
   const plan = cardArtPlan(journeyCast(), 'C:/art');
@@ -33,7 +33,7 @@ test('leakNames lists each leaked asset by kind and name', () => {
 });
 
 test('server log slice: only on a lane, and only the bytes written during the run', () => {
-  const root = mkdtempSync(join(tmpdir(), 'so-cardart-'));
+  const root = testTempDirSync('so-cardart-');
   const debug = join(root, 'debug');
   assert.equal(laneServerLog({}, debug), null);
   assert.equal(laneServerLog({ SO_LANE: '33' }, debug), resolve(root, 'server.log'));
@@ -41,7 +41,7 @@ test('server log slice: only on a lane, and only the bytes written during the ru
   writeFileSync(join(root, 'server.log'), 'before\n');
   const mark = markServerLog({ SO_LANE: '33' }, debug);
   appendFileSync(join(root, 'server.log'), 'during: API request failed\n');
-  const out = mkdtempSync(join(tmpdir(), 'so-cardart-out-'));
+  const out = testTempDirSync('so-cardart-out-');
   const slice = takeServerLog(mark, out);
   assert.equal(slice.taken, true);
   assert.equal(readFileSync(join(out, 'server.log'), 'utf8'), 'during: API request failed\n');

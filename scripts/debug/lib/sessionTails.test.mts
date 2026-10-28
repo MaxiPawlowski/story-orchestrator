@@ -1,9 +1,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, writeFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { ackPaths, drainGate, readTailAcks, tailProblems, waitFor, writeAck } from './sessionTails.mts';
+import { testTempDir } from '../../lib/testTemp.mjs';
 
 test('AS-22 tails: a drain request lets one full poll run before the tail stops', () => {
   let requested = false;
@@ -15,7 +15,7 @@ test('AS-22 tails: a drain request lets one full poll run before the tail stops'
 });
 
 test('AS-22 tails: start needs a ready acknowledgement from every tail, stop also needs a clean drain', async () => {
-  const dir = await mkdtemp(resolve(tmpdir(), 'so-tails-'));
+  const dir = await testTempDir('so-tails-');
   assert.equal(tailProblems(await readTailAcks(dir), 'start').length, 3);
   for (const name of ['journal.jsonl', 'payloads.jsonl', 'console.jsonl']) await writeAck(ackPaths(resolve(dir, name)).ready, { tail: name });
   assert.deepEqual(tailProblems(await readTailAcks(dir), 'start'), []);

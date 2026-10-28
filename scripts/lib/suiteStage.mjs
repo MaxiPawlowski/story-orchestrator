@@ -1,7 +1,8 @@
 // v2.6 plan 13 R2: a throwaway copy of the working tree to mutate, so a crashed run can never leave
 // a mutant in the real checkout. The path is fixed per purpose and checkout, which keeps jest's transform cache warm
 // and keeps parallel worktrees from deleting each other's copy. Re-staging copies only files whose size or mtime
-// differ and deletes what the tree no longer holds (v2.8 plan 26), so a leftover mutant is always replaced.
+// differ and deletes what the tree no longer holds (v2.8 plan 26), so a leftover mutant is always replaced. Every run
+// removes its copies when it ends (v3.0: thousands of leftover copies filled C:); the fixed path keeps jest's cache keys.
 import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
@@ -32,6 +33,14 @@ export function stagedFiles(dir) {
 }
 
 const sameFile = (from, to) => from.size === to.size && Math.abs(from.mtimeMs - to.mtimeMs) < 2;
+
+export const jestCacheDir = (root) => join(resolve(root), '.build', 'jest-cache');
+
+export function removeStage(dir) {
+  rmSync(join(dir, 'node_modules'), { force: true });
+  rmSync(dir, { recursive: true, force: true, maxRetries: 10, retryDelay: 200 });
+  return !existsSync(dir);
+}
 
 export function stageDir(root, purpose) {
   return join(tmpdir(), `so-${purpose}-${createHash('sha256').update(resolve(root)).digest('hex').slice(0, 8)}`);

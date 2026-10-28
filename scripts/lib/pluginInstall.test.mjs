@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { applyInstall, dependencyPlan, npmInstall, planInstall, pluginVersions, selectedPlugins, SERVER_PLUGINS, shippedFiles } from './pluginInstall.mjs';
+import { testTempDirSync } from './testTemp.mjs';
 
 const PLUGINS = ['story-orchestrator-judge', 'story-orchestrator-harness'];
 
@@ -14,7 +14,7 @@ const write = (file, body) => {
 };
 
 const fixture = () => {
-    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'so-plugin-install-'));
+    const root = testTempDirSync('so-plugin-install-');
     const extensionRoot = path.join(root, 'ext');
     const stRoot = path.join(root, 'st');
     for (const [name, version] of [['story-orchestrator-judge', '1.4.0'], ['story-orchestrator-harness', '1.1.0']]) {

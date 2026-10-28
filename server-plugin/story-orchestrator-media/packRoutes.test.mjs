@@ -1,11 +1,11 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import fs from 'node:fs/promises';
-import os from 'node:os';
 import path from 'node:path';
 import { mountPackRoutes, readInstalledPacks, PACK_DIR, MAX_PACK_BYTES } from './packRoutes.mjs';
+import { testTempDir } from '../../scripts/lib/testTemp.mjs';
 
-const tempRoot = async () => fs.mkdtemp(path.join(os.tmpdir(), 'so-packs-'));
+const tempRoot = async () => testTempDir('so-packs-');
 
 test('visual bridge: installed packs are listed from the user folder, nested, with unreadable files named', async () => {
     const root = await tempRoot();

@@ -1,9 +1,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { readFileSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { attachPageCapture, captureFileFor, captureWanted, pageErrorLines, pathOnly, writeSummaryNextTo } from './pageCapture.mts';
+import { testTempDirSync } from '../../lib/testTemp.mjs';
 
 function fakePage() {
   const handlers = new Map<string, Array<(...args: any[]) => void>>();
@@ -20,7 +20,7 @@ const request = (method: string, url: string, errorText: string) => ({ method: (
 const response = (status: number, url: string, method = 'POST') => ({ status: () => status, url: () => url, request: () => ({ method: () => method }) });
 
 test('console errors and warnings, page errors, failed requests and /api 4xx-5xx are captured; logs and other urls are not', () => {
-  const dir = mkdtempSync(join(tmpdir(), 'so-page-'));
+  const dir = testTempDirSync('so-page-');
   try {
     const page = fakePage();
     const file = join(dir, 'page.jsonl');
@@ -82,7 +82,7 @@ test('capture is opt-in for ordinary scripts and always on inside a batch row; o
 });
 
 test('the summary lands in the row dir so the batch can read it', () => {
-  const dir = mkdtempSync(join(tmpdir(), 'so-page-row-'));
+  const dir = testTempDirSync('so-page-row-');
   try {
     const capture = attachPageCapture(fakePage(), { file: join(dir, 'page.jsonl') });
     assert.equal(writeSummaryNextTo(capture, {}), null);

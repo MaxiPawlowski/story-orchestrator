@@ -1,11 +1,12 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, readFile, writeFile } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { PRIVATE_DIR, REPO_ROOT, refusePrivateOutput } from './lib/bundleEntry.mts';
 import { checkReads, scoreReads } from './lib/witness.mts';
 import { main } from './so-witness.mts';
+import { testTempDir } from '../lib/testTemp.mjs';
 
 const SYNTHETIC = join(process.cwd(), 'test/fixtures/witness/synthetic');
 const LABELS = join(SYNTHETIC, 'labels.json');
@@ -59,14 +60,14 @@ test('witness refusal: private output inside the public repo outside test/sessio
   assert.doesNotThrow(() => refusePrivateOutput(false, join(PRIVATE_DIR, 'witness', 'x.json'), 'witness'));
   assert.doesNotThrow(() => refusePrivateOutput(false, join(tmpdir(), 'x.json'), 'witness'));
   assert.doesNotThrow(() => refusePrivateOutput(true, join(REPO_ROOT, 'test/goldens/witness/x.json'), 'witness'));
-  const work = await mkdtemp(join(tmpdir(), 'so-witness-private-'));
+  const work = await testTempDir('so-witness-private-');
   const labels = JSON.parse(await readFile(LABELS, 'utf-8'));
   await writeFile(join(work, 'labels.json'), JSON.stringify({ ...labels, synthetic: false }));
   await assert.rejects(() => main(['score', '--labels', join(work, 'labels.json'), '--reads', GOOD, '--out', join(REPO_ROOT, 'test/goldens/witness/private.json')]), /private witness output/);
 });
 
 test('witness review rule: private labels without two different agreeing reviewers are dropped; too few kept is insufficient (exit 2)', async () => {
-  const work = await mkdtemp(join(tmpdir(), 'so-witness-review-'));
+  const work = await testTempDir('so-witness-review-');
   const labels = JSON.parse(await readFile(LABELS, 'utf-8'));
   const reviewed = labels.labels.map((label: Record<string, unknown>, index: number) => ({
     ...label,

@@ -1,7 +1,6 @@
 import assert from 'node:assert/strict';
 import { createServer, type Server } from 'node:http';
-import { appendFile, mkdtemp } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { appendFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { test } from 'node:test';
 import { BATCH_FORMAT, FILES as BATCH_FILES, sha256 as batchSha, writeManifest, type BatchManifest } from './promptBatch.mts';
@@ -9,9 +8,10 @@ import { beginSession, endSession, laneReplayUrl, markStep, replayRowVerdict, re
 import { importBatch } from './replayImport.mts';
 import { ReplayServer, routePath } from './replayServer.mts';
 import { canonicalBody, changedKeys, driftReport, firstDiff, lookup, ReplaySession, ReplayStore, requestKey, requestKind, type ReplayIdentity } from './replayStore.mts';
+import { testTempDir } from '../../lib/testTemp.mjs';
 
 const IDENTITY: ReplayIdentity = { model: 'artemis-31b', build: 'b11888-patched', ctx: 32768, upstream: 'http://127.0.0.1:1', origin: 'lane' };
-const tempDir = () => mkdtemp(join(tmpdir(), 'so-replay-'));
+const tempDir = () => testTempDir('so-replay-');
 const body = (prompt: string, extra: Record<string, unknown> = {}) => JSON.stringify({ prompt, api_type: 'llamacpp', api_server: 'http://127.0.0.1:18078/lane/41', n_predict: 64, temperature: 0.8, ...extra });
 
 test('the key is exact over the body, ignores key order and the routing-only api_server, and moves with any model input', () => {

@@ -1,20 +1,20 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync } from 'node:fs';
-import { mkdir, mkdtemp, readFile, readdir, writeFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import {
   declaredMismatch, moveBooks, moveDir, planCandidates, readDeclared, readManifest, restoreCheck, sha256, treeHash, verifyMove,
   DEFAULT_DECLARED, type Declared,
 } from './so-legacy-books.mts';
+import { testTempDir } from '../lib/testTemp.mjs';
 
 const NEVER: () => Promise<boolean> = async () => false;
 const book = (entries: Record<string, { comment: string }> = {}) => JSON.stringify({ entries });
 const chatLine = (version: number | null) => JSON.stringify({ chat_metadata: version == null ? {} : { story_orchestrator: { version } } }) + '\n{"mes":"hi"}\n';
 
 async function fixture() {
-  const base = await mkdtemp(join(tmpdir(), 'so-books-test-'));
+  const base = await testTempDir('so-books-test-');
   const root = join(base, 'data');
   await mkdir(join(root, 'worlds'), { recursive: true });
   await mkdir(join(root, 'chats', 'Arin'), { recursive: true });
@@ -168,7 +168,7 @@ test('restore-check catches a tampered backup file', async () => {
 });
 
 test('D2 move-dir: the tree hash matches before and after, and a changed tree hashes differently', async () => {
-  const base = await mkdtemp(join(tmpdir(), 'so-dir-test-'));
+  const base = await testTempDir('so-dir-test-');
   const src = join(base, 'lanes-src', '1', 'data');
   await mkdir(join(src, 'default-user', 'worlds'), { recursive: true });
   await writeFile(join(src, 'default-user', 'settings.json'), '{"a":1}');
@@ -187,7 +187,7 @@ test('D2 move-dir: the tree hash matches before and after, and a changed tree ha
 });
 
 test('D2 move-dir refuses an existing destination and a live port', async () => {
-  const base = await mkdtemp(join(tmpdir(), 'so-dir-test-'));
+  const base = await testTempDir('so-dir-test-');
   const src = join(base, 'src');
   const dst = join(base, 'dst');
   await mkdir(src);

@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { BUDGET_START, estimateTokens, isOrchestratorRequest, meterSession, renderBudgetTable, updateBudgetDocument } from './sessionSpend.mts';
+import { testTempDir } from '../../lib/testTemp.mjs';
 
 const row = (line: number, value: Record<string, unknown>) => ({ line, value });
 const deepseekBody = (content: string) => JSON.stringify({ chat_completion_source: 'deepseek', model: 'deepseek-chat', messages: [{ role: 'user', content }] });
@@ -87,11 +88,11 @@ test('budget: the generated table is replaced in place and the lead\'s pod-hours
 });
 
 test('stop metering: reads payloads.jsonl and every chat\'s evidence file, matching orchestrator routes from the pin', async () => {
-  const { mkdtemp, writeFile } = await import('node:fs/promises');
+  const { writeFile } = await import('node:fs/promises');
   const { tmpdir } = await import('node:os');
   const { join } = await import('node:path');
   const { meterDir, readEvidenceFiles } = await import('../so-session.mts');
-  const dir = await mkdtemp(join(tmpdir(), 'so-meter-'));
+  const dir = await testTempDir('so-meter-');
   await writeFile(join(dir, 'payloads.jsonl'), payloads.map((entry) => JSON.stringify(entry.value)).join('\n'), 'utf-8');
   await writeFile(join(dir, 'evidence-c1.json'), JSON.stringify({ slices: { modelCalls: [{ at: '2026-10-01T10:01:00Z', route: 'ds', usage: { costUsd: 0.004 } }], judgeCalls: [{ at: '2026-10-01T10:01:00Z', inputTokens: 10, outputTokens: 1, cost: 0.00001 }] } }), 'utf-8');
   await writeFile(join(dir, 'evidence-c2.json'), JSON.stringify({ slices: { modelCalls: [], judgeCalls: [{ at: '2026-10-01T10:02:00Z', inputTokens: 20, outputTokens: 2 }] } }), 'utf-8');

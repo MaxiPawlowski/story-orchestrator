@@ -6,14 +6,14 @@
 import { strict as assert } from "node:assert";
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { existsSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join, posix, resolve } from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 import { acceptanceMode, ACCEPTANCE_ENV, candidateProblems, driftProblems, missingAttestationProblems, SOURCE_PATHS } from "./acceptanceChecks.mjs";
 import { attestedJourneyIds, catalogProblems, citedRecords, journeyCatalog, recordsRootOf } from "./attestationChecks.mjs";
 import { citedPathProblem, engineHistoryCitation, greenTwiceEverywhere, journeyVerdicts, resolveCited, runLines, statusProblems } from "./attestationRules.mjs";
+import { testTempDirSync } from '../lib/testTemp.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const version = JSON.parse(readFileSync(join(root, "package.json"), "utf8")).version;
@@ -120,7 +120,7 @@ test("every run of every journey is reported, not only the first two", { skip: s
 });
 
 test("the journey set is derived: a catalog journey the attestation omits is named, and so is one with no file", () => {
-  const dir = mkdtempSync(join(tmpdir(), "so-attest-"));
+  const dir = testTempDirSync("so-attest-");
   try {
     for (const id of ["J0", "J2", "J13"]) writeFileSync(join(dir, `${id.toLowerCase()}.journey.json`), JSON.stringify({ id }));
     writeFileSync(join(dir, "notes.json"), "{}");

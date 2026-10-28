@@ -1,13 +1,13 @@
 import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
-import { cp, mkdtemp, readdir, readFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { cp, readdir, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { test } from 'node:test';
 import { REPO_ROOT } from './bundleEntry.mts';
 import { readBody, readManifest, readResponses, sendBatch } from './promptBatch.mts';
 import { loadBatchKit } from './promptBatchMeasures.mts';
 import { DEFAULT_SAGA_REPLY, loadScenarioKit, saga } from './promptBatchScenarios.mts';
+import { testTempDir } from '../../lib/testTemp.mjs';
 
 const GOLDEN = join(REPO_ROOT, 'test/measurements/v2.9/11-b2/saga-golden');
 const RECAPTURE = 'recapture on a no-model lane: node scripts/debug/st-lanes.mts run <n> -- scripts/debug/so-prompt-batch.mts capture --measurement saga --profile <memory profile> --out <dir>, then copy manifest.json, bodies/ and contexts/ over the golden';
@@ -30,7 +30,7 @@ test('saga golden: both epilogue bodies carry the shipped saga prompt rebuilt to
 });
 
 test('saga golden: send + score report verifySaga per response and replay saga()\'s two attempts with the larger-token retry', async () => {
-  const dir = await mkdtemp(join(tmpdir(), 'so-saga-golden-'));
+  const dir = await testTempDir('so-saga-golden-');
   await cp(GOLDEN, dir, { recursive: true });
   const manifest = await readManifest(dir);
   const answers = [

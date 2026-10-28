@@ -4,6 +4,7 @@ import { resolve } from 'node:path';
 import { REPO_ROOT } from '../../lib/stRoot.mjs';
 import { ANOMALY_KINDS, digestSession, registerRows, renderFindings, judgeHealth, renderJudgeHealth, withoutForeignRows } from './sessionDigest.mts';
 import { loadIndex, loadSessionFiles } from '../so-session.mts';
+import { testTempDir } from '../../lib/testTemp.mjs';
 
 const fixture = (name: string) => resolve(REPO_ROOT, 'scripts', 'debug', 'fixtures', 'session', name);
 
@@ -136,9 +137,9 @@ test('AS-22 digest: a missing capture file makes the session invalid instead of 
 });
 
 test('AS-22 digest: loading a session dir without its captures reports them missing', async () => {
-  const { mkdtemp, writeFile, copyFile } = await import('node:fs/promises');
+  const { writeFile, copyFile } = await import('node:fs/promises');
   const { tmpdir } = await import('node:os');
-  const dir = await mkdtemp(resolve(tmpdir(), 'so-digest-'));
+  const dir = await testTempDir('so-digest-');
   await copyFile(resolve(fixture('clean'), 'session.json'), resolve(dir, 'session.json'));
   await writeFile(resolve(dir, 'console.jsonl'), '', 'utf-8');
   const { files } = await loadSessionFiles(dir, await loadIndex());

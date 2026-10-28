@@ -1,11 +1,10 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { QUIESCE_READ, QUIESCE_STOP, quiesceGeneration, type GenerationProbe, type GenerationReading } from './generationQuiesce.mts';
 import { cleanupScenario } from '../so-scenario.mts';
 import { runCleanup } from '../so-journey.mts';
+import { testTempDir } from '../../lib/testTemp.mjs';
 
 const reading = (generating: boolean, saving = false): GenerationReading => ({ generating, saving, chatId: 'sandbox', signals: generating ? ['body-generating'] : [] });
 
@@ -138,14 +137,14 @@ const journeyCleanup = async (page: unknown, historyDir: string) => runCleanup(p
 
 test('H-a so-journey: journey cleanup stops and awaits a running generation before any chat switch', async () => {
   const { page, events } = generatingPage({ readsAfterStop: 1 });
-  const report = await journeyCleanup(page, await mkdtemp(join(tmpdir(), 'so-quiesce-')));
+  const report = await journeyCleanup(page, await testTempDir('so-quiesce-'));
   assert.equal(report.generation.idle, true);
   assertStoppedBeforeSwitch(events);
 });
 
 test('H-a so-journey negative control: a generation that will not stop deletes nothing and is a leak', async () => {
   const { page, events } = generatingPage({ neverStops: true });
-  const report = await journeyCleanup(page, await mkdtemp(join(tmpdir(), 'so-quiesce-')));
+  const report = await journeyCleanup(page, await testTempDir('so-quiesce-'));
   assert.equal(report.generation.idle, false);
   assert.deepEqual(report.chat.notDeleted, ['sandbox']);
   assert.ok(!events.includes('switch'), `a chat was switched while the generation ran: ${events.join(' ')}`);

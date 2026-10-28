@@ -1,11 +1,11 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, utimesSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { mkdirSync, readFileSync, rmSync, utimesSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { changedFiles, chunked, longestFirst, nextCache, readsTree, REPLAY_CACHE_VERSION, relatedQuery, reusableRows, specHash } from './suiteReplayCache.mjs';
 import { stageCopies, stageCopy, stageDir, stagedFiles } from './suiteStage.mjs';
 import { defaultWorkers, replayVerdict } from '../suite/defect-replay.mjs';
+import { testTempDirSync } from './testTemp.mjs';
 
 const spec = (id, extra = {}) => ({ id, source: `${id}.json`, file: `src/${id}.ts`, find: 'a', replace: 'b', tests: [`src/${id}.test.ts`], ...extra });
 const cacheOf = (specs, files, rows = specs.map((s) => ({ id: s.id, verdict: 'killed', killedBy: ['t'], killedCount: 1 }))) => nextCache({ hashes: files, specs, rows });
@@ -61,7 +61,7 @@ test('plan 26: the slowest known rows start first, unknown ones before them, and
 });
 
 test('plan 26: re-staging copies only what changed and removes what the tree dropped, including a leftover mutant', async () => {
-  const root = mkdtempSync(join(tmpdir(), 'so-stage-root-'));
+  const root = testTempDirSync('so-stage-root-');
   try {
     mkdirSync(join(root, 'src'), { recursive: true });
     mkdirSync(join(root, 'node_modules'), { recursive: true });

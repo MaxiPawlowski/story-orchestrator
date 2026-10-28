@@ -1,7 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, readFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { validateFixture } from './lib/scenarioSchema.mts';
 import { castOf, readJson, type ScenarioRunner } from './lib/replyCapture.mts';
@@ -12,6 +11,7 @@ import {
 import { loadFixtureKit, simulateS8 } from './lib/fixtureSim.mts';
 import { main } from './so-q7-failure.mts';
 import type { BlindKey, StoredLabel } from './lib/blindRater.mts';
+import { testTempDir } from '../lib/testTemp.mjs';
 
 const cast = castOf();
 const fixture = await readJson<S8Fixture>(S8_CASES);
@@ -132,7 +132,7 @@ test('S8 labels parse strictly', () => {
 });
 
 test('CLI plumbing end to end with a fake lane: record, pack, rate, score says PLUMBING', async () => {
-  const out = await mkdtemp(join(tmpdir(), 'so-s8-cli-'));
+  const out = await testTempDir('so-s8-cli-');
   const seen: string[] = [];
   const runner = (fn: (run: ScenarioRunner) => Promise<unknown>) => fn(async (file) => {
     const doc = JSON.parse(await readFile(file, 'utf-8'));

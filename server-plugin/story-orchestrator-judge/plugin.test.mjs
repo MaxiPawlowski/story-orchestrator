@@ -1,12 +1,12 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
 import { EventEmitter } from 'node:events';
 import { Readable } from 'node:stream';
 import { test } from 'node:test';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { testTempDirSync } from '../../scripts/lib/testTemp.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const pluginUrl = pathToFileURL(path.join(here, 'index.mjs')).href;
@@ -144,7 +144,7 @@ test('systemone retries once on 429/529 and reports a timeout as 504', async () 
 });
 
 test('with no key anywhere, status says so and systemone answers 409', () => {
-    const empty = fs.mkdtempSync(path.join(os.tmpdir(), 'so-judge-nokey-'));
+    const empty = testTempDirSync('so-judge-nokey-');
     const script = `
       const plugin = await import(${JSON.stringify(pluginUrl)});
       const out = [];

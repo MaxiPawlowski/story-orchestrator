@@ -3,6 +3,7 @@ import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 
 import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { inventoryFixture, rescoreRecord, summarizeInventory, type LiveTiers, type RecordedFixture } from './lib/needleInventory.mts';
+import { SCORER_VERSION } from './lib/liveSuiteScore.mts';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const FIX_DIR = join(ROOT, 'test/fixtures');
@@ -14,8 +15,9 @@ const USAGE = `Usage: node --experimental-transform-types scripts/debug/so-live-
   inventory   every live-suite needle against the recorded live answer in [dir] (default test/goldens/live):
               term | prefix | substring-only | absent | unrecorded, with its declared mode. --check exits 1
               when a prefix-dependent needle is not declared prefix in its fixture.
-  rescore     re-scores every recorded golden under scorer v1 and the current version; writes a NEW record
-              (default test/goldens/live/rescore/scorer-v<version>.json) and refuses to overwrite one.
+  rescore     re-scores every recorded golden under scorer --from (default 1) and --to (default the current
+              version); writes a NEW record with per-tier totals (default
+              test/goldens/live/rescore/scorer-v<to>.json) and refuses to overwrite one.
   Offline: no ST, no model.`;
 
 const readJson = (path: string) => JSON.parse(readFileSync(path, 'utf-8'));
@@ -78,11 +80,14 @@ async function main() {
     if (process.argv.includes('--check') && summary.undeclaredPrefix.length) process.exit(1);
     return;
   }
-  const record = rescoreRecord(fixtures, relative(ROOT, dir).split('\\').join('/'), new Date().toISOString());
+  const from = Number(argValue('--from') ?? 1);
+  const to = Number(argValue('--to') ?? SCORER_VERSION);
+  const record = rescoreRecord(fixtures, relative(ROOT, dir).split('\\').join('/'), new Date().toISOString(), from, to);
   const out = resolve(ROOT, argValue('--out') ?? join(OUT_DIR, `scorer-v${record.scorerVersion}.json`));
   writeNew(out, record);
   console.log(`rescored ${record.fixtures.length} recorded fixture(s) under scorer v${record.fromScorerVersion} -> v${record.scorerVersion}; ${record.changed.length} changed verdict(s); unrecorded: ${record.unrecorded.length}`);
-  for (const row of record.changed) console.log(`changed ${row.fixture}.${row.tier}: v1 ${row.v1 ? 'pass' : 'fail'} -> v${record.scorerVersion} ${row.v2 ? 'pass' : 'fail'}`);
+  for (const [tier, total] of Object.entries(record.totals)) console.log(`${tier}: v${record.fromScorerVersion} ${total.before}/${total.scored} -> v${record.scorerVersion} ${total.after}/${total.scored}`);
+  for (const row of record.changed) console.log(`changed ${row.fixture}.${row.tier}: v${record.fromScorerVersion} ${row.before ? 'pass' : 'fail'} -> v${record.scorerVersion} ${row.after ? 'pass' : 'fail'}`);
   console.log(`record: ${relative(ROOT, out)}`);
 }
 

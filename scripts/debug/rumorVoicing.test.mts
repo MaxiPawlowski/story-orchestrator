@@ -1,7 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, readFile, readdir } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { readFile, readdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { validateFixture } from './lib/scenarioSchema.mts';
 import { rateItems, jsonObject } from './lib/blindRater.mts';
@@ -13,6 +12,7 @@ import {
 import { loadFixtureKit, simulateVoicing } from './lib/fixtureSim.mts';
 import { main } from './so-rumor-voicing.mts';
 import type { BlindKey, StoredLabel } from './lib/blindRater.mts';
+import { testTempDir } from '../lib/testTemp.mjs';
 
 const cast = castOf();
 const fixture = await readJson<VoicingFixture>(VOICING_CASES);
@@ -175,7 +175,7 @@ test('labels parse strictly; a JSON object is found inside prose', () => {
 });
 
 test('rateItems asks once per item, resumes, and records failures', async () => {
-  const dir = await mkdtemp(join(tmpdir(), 'so-v44-rate-'));
+  const dir = await testTempDir('so-v44-rate-');
   const { pack } = voicingPack(fixture, records().slice(0, 4), 'r');
   const prompts: string[] = [];
   let calls = 0;
@@ -207,7 +207,7 @@ const fakeRunner = (seen: string[]): ((fn: (run: ScenarioRunner) => Promise<unkn
 });
 
 test('CLI plumbing end to end with a fake lane: record, pack, rate, score says PLUMBING', async () => {
-  const out = await mkdtemp(join(tmpdir(), 'so-v44-cli-'));
+  const out = await testTempDir('so-v44-cli-');
   const seen: string[] = [];
   const lines: string[] = [];
   const log = (line: string) => lines.push(line);

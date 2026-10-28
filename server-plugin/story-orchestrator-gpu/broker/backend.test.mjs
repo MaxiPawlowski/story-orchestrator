@@ -3,9 +3,9 @@ import assert from 'node:assert/strict';
 import { ContextRefusal, NativeBackend, nativeArgs, profileContext, profileGpuMiB, slotFor, slots } from './backend.mjs';
 import { withControllerDefaults } from './controllerStatus.mjs';
 import { EventEmitter } from 'node:events';
-import { mkdtemp, rm } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { rm } from 'node:fs/promises';
 import path from 'node:path';
+import { testTempDir } from '../../../scripts/lib/testTemp.mjs';
 
 const deferred = () => { let resolve; const promise = new Promise((done) => { resolve = done; }); return { promise, resolve }; };
 const config = { defaultProfile: 'fast', maxContext: 98304, profiles: { fast: { args: ['--ctx-size', '32768', '--load-mode', 'none'] }, normal: { args: ['--ctx-size', '98304'] } }, reserves: { gpuMiB: 2048 } };
@@ -133,7 +133,7 @@ test('the fit margin is added to the fit target llama-server plans for, never to
 });
 
 async function fittedBackend(t, { gpu = 1700, ram = 12000, layers = 'auto', alwaysShort = false } = {}) {
-    const stateDir = await mkdtemp(path.join(tmpdir(), 'so-fit-'));
+    const stateDir = await testTempDir('so-fit-');
     let child = null;
     const calls = [];
     const backend = new NativeBackend({ ...config, stateDir, backendPort: 18889, model: 'fixture', modelAlias: 'fixture',
@@ -284,7 +284,7 @@ test('memberCache store ram sizes --cache-ram from its budget and keeps the slot
 });
 
 test('a GPU reserve miss after load first asks to reclaim idle image memory and keeps the loaded text when that frees enough', async (t) => {
-    const stateDir = await mkdtemp(path.join(tmpdir(), 'so-reclaim-'));
+    const stateDir = await testTempDir('so-reclaim-');
     let child = null;
     let freed = false;
     const calls = [];

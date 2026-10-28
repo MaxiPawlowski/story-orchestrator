@@ -1,11 +1,11 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { readFile, rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { armFirstFor, packPaths, packRun, runDirFor, runSpike, scoreRun } from './so-r4-spike.mts';
 import { freezeTurns, type R4Key, type R4Pack, type R4TurnsFile } from './lib/r4Pack.mts';
 import { r4Fake, type R4FakeOptions } from './lib/r4Fakes.mts';
+import { testTempDir } from '../lib/testTemp.mjs';
 
 const turnsFile = (): R4TurnsFile => ({
   plan: 'p',
@@ -40,7 +40,7 @@ async function playRun(root: string, turnsPath: string, runId: string, options: 
 }
 
 async function setup() {
-  const root = await mkdtemp(join(tmpdir(), 'so-r4-'));
+  const root = await testTempDir('so-r4-');
   const turnsPath = join(root, 'r4-turns.json');
   await writeFile(turnsPath, JSON.stringify(freezeTurns(turnsFile()), null, 2));
   return { root, turnsPath };
