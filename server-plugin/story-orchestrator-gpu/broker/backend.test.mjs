@@ -458,3 +458,56 @@ test('a wake short of the full text layout first asks for idle image memory, the
     assert.equal(backend.status().sleepStats.wakeReclaims, 1);
     assert.deepEqual(backend.calls, [{ name: 'fast', fitTarget: null }]);
 });
+
+test('a light sleep asks for level context, records what the contexts held, wakes against that amount only and keeps the weights baseline out of the stray check', async () => {
+    const { backend, requests, state } = sleepingBackend({ memberCache: { enabled: true, store: 'ram', budgetMiB: 4096, serverKeys: true, keepAcrossImages: true, lightSleep: true } });
+    const bodies = [];
+    const inner = backend.fetch;
+    backend.fetch = async (url, init = {}) => {
+        if (url.endsWith('/sleep')) { bodies.push(init.body ?? null); state.held = 18000; state.free = 5200; }
+        return inner(url, init);
+    };
+    state.held = 21300; state.free = 1900;
+    await backend.load('fast');
+    await backend.unload({ keepCache: true, light: true });
+    assert.deepEqual(bodies, [JSON.stringify({ level: 'context' })]);
+    assert.equal(backend.status().sleeping.light, true);
+    assert.equal(backend.status().sleeping.freedMiB, 3300);
+    assert.equal(backend.status().sleepStats.lightSleeps, 1);
+    assert.equal(await backend.checkSleeping(), null);
+    state.free = 5600;
+    await backend.load('fast');
+    assert.equal(backend.status().sleeping, null);
+    assert.equal(backend.status().sleepStats.lightWakes, 1);
+    assert.deepEqual(backend.calls, [{ name: 'fast', fitTarget: null }]);
+    assert.ok(requests.includes('POST /completion'));
+    await backend.unload({ keepCache: true });
+    assert.deepEqual(bodies, [JSON.stringify({ level: 'context' }), null]);
+    assert.equal(backend.status().sleeping.light, false);
+});
+
+test('a light wake short of the context memory asks for idle image memory, and without it falls back to a clean start', async () => {
+    const { backend, state } = sleepingBackend({ memberCache: { enabled: true, store: 'ram', budgetMiB: 4096, serverKeys: true, keepAcrossImages: true, lightSleep: true } });
+    const inner = backend.fetch;
+    backend.fetch = async (url, init = {}) => { if (url.endsWith('/sleep')) { state.held = 18000; state.free = 5200; } return inner(url, init); };
+    state.held = 21300; state.free = 1900;
+    await backend.load('fast');
+    await backend.unload({ keepCache: true, light: true });
+    state.free = 1500;
+    await backend.load('fast');
+    assert.deepEqual(backend.calls, [{ name: 'fast', fitTarget: null }, 'unload', { name: 'fast', fitTarget: null }]);
+    assert.equal(backend.status().sleepStats.wakeFailures, 1);
+});
+
+test('light sleep needs keepAcrossImages; extra drafters are request-local only; per-request draft caps stay within nMax', async () => {
+    const { memberCacheOptions } = await import('./memberCache.mjs');
+    const { speculative, speculativeArgs, draftCap } = await import('./backend.mjs');
+    assert.throws(() => memberCacheOptions({ memberCache: { enabled: true, store: 'ram', budgetMiB: 4096, serverKeys: true, lightSleep: true } }), /needs keepAcrossImages/);
+    const spec = { speculative: { model: 'mtp.gguf', nMax: 3, extraTypes: ['ngram-simple'], chatNMax: 2, sideNMax: 3 } };
+    assert.deepEqual(speculativeArgs(spec), ['--model-draft', 'mtp.gguf', '--spec-type', 'draft-mtp,ngram-simple', '--spec-draft-n-max', '3']);
+    assert.equal(draftCap(spec, true), 2);
+    assert.equal(draftCap(spec, false), 3);
+    assert.equal(draftCap({ speculative: { model: 'mtp.gguf' } }, true), null);
+    assert.throws(() => speculative({ speculative: { model: 'm', extraTypes: ['ngram-mod'] } }), /request-local/);
+    assert.throws(() => speculative({ speculative: { model: 'm', nMax: 2, chatNMax: 3 } }), /chatNMax/);
+});

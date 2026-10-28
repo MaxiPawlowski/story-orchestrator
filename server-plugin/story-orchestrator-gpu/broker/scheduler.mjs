@@ -2,7 +2,8 @@ import { SpillGuard, spillGuardOptions } from './spillGuard.mjs';
 import { randomUUID } from 'node:crypto';
 import { admission, residencyChoice, textLatencyDecision } from './policy.mjs';
 import { measuredRamMiB } from './ramEstimates.mjs';
-import { speculativeTag } from './backend.mjs';
+import { speculativeTag, sleepsLight } from './backend.mjs';
+import { memberCacheOptions } from './memberCache.mjs';
 import { estimateNeedMiB, modelIdentities, estimateRamMiB } from './models.mjs';
 import { footprintKey, observedFootprint, FOOTPRINT_REVISION } from './footprints.mjs';
 import { creditedSnapshot, imageResidency, residentCredit, IMAGE_IDLE_GRACE_MS } from './imageResidency.mjs';
@@ -336,6 +337,20 @@ export class ResidencyScheduler {
             } else if (benchmarkMode !== 'swap' && this.streams({ snapshot, runtime, models, needRamMiB })) {
                 decision = 'stream-image';
                 reason = `${choice.reason} Streaming the image beside text instead.`;
+            } else if (benchmarkMode !== 'swap' && textResident && sleepsLight(this.config) && this.lightSleepFits(snapshot, needGpuMiB, memory.credit)) {
+                await this.backend.unload({ keepCache: true, light: true });
+                snapshot = await this.snapshot({ fresh: true });
+                if (this.backend.status().sleeping?.light && fits().allowed) {
+                    decision = 'sleep-context';
+                    reason = `${choice.reason} Text contexts freed, weights kept on the GPU.`;
+                } else {
+                    if (this.backend.status().sleeping) await this.backend.dropSleeping();
+                    await this.dropSleepingForRam(needRamMiB);
+                    await freeFor(needRamMiB);
+                    snapshot = await this.snapshot({ fresh: true });
+                    decision = 'swap-text';
+                    reason = `${choice.reason} A light sleep did not free enough; text was stopped.`;
+                }
             } else if (ramMemory && textResident && Number.isFinite(ramBefore) && ramBefore + ramMemory.freedMiB < needRamMiB + this.config.reserves.ramMiB) {
                 const detail = `Insufficient physical RAM headroom. RAM available ${Math.round(ramBefore)} MiB, about ${Math.round(ramMemory.freedMiB)} MiB more after unloading text; workload ${needRamMiB} + reserve ${this.config.reserves.ramMiB} MiB.`;
                 this.recordResidency({ decision: 'ram-short', reason: `Host RAM is short; text kept loaded: ${detail}`, admittedReadings: { gpuFreeMiB: snapshot?.gpus?.[0]?.freeMiB ?? null, ramAvailableMiB: ramBefore } });
@@ -410,6 +425,12 @@ export class ResidencyScheduler {
         const estimate = measured ?? retained ?? table ?? (models.length ? { ramMiB: estimateRamMiB({ weightMiB: models.reduce((sum, row) => sum + row.weightsMiB, 0),
             width: body.width, height: body.height, hires: body.hires, streaming: runtime?.streaming }), source: 'loader-estimate' } : { ramMiB: this.config.defaultImageRamMiB ?? 8192, source: 'default' });
         return requested > estimate.ramMiB ? { needRamMiB: Math.ceil(requested), ramSource: 'request' } : { needRamMiB: Math.ceil(estimate.ramMiB), ramSource: estimate.source };
+    }
+
+    lightSleepFits(snapshot, needGpuMiB, credit) {
+        const free = creditedSnapshot(snapshot, credit)?.gpus?.[0]?.freeMiB;
+        const frees = memberCacheOptions(this.config)?.lightSleepFreesMiB ?? 2900;
+        return Number.isFinite(free) && free + frees >= needGpuMiB + this.config.reserves.gpuMiB;
     }
 
     recordResidency({ decision, reason, admittedReadings }) {

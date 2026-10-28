@@ -63,6 +63,13 @@ const MODIFIERS = {
     idle: (a) => a,
     ckat: (a) => a,
     rewind: (a) => a,
+    ngs: (a) => { const at = a.indexOf('--spec-type'); if (at < 0) throw new Error('ngs needs an mtp arm part before it'); a[at + 1] = `${a[at + 1]},ngram-simple`; return a; },
+};
+let draftCaps = { chat: null, side: null };
+const capsOf = (arm) => {
+    const caps = { chat: null, side: null };
+    for (const part of arm.split('+')) { const m = part.match(/^cap([cs])(\d)$/); if (m) caps[m[1] === 'c' ? 'chat' : 'side'] = Number(m[2]); }
+    return caps;
 };
 const DEFAULT_ARMS = ['base', 'cram6144', 'par2pin', 'par2', 'mtp3', 'mtp2', 'mtp4', 'cms2048', 'cram4096', 'kvq4v', 'base'];
 
@@ -75,6 +82,7 @@ const armArgs = (config, arm) => {
     for (const part of arm.split('+')) {
         const cram = part.match(/^cram(\d+)$/);
         if (cram && !MODIFIERS[part]) { args = setFlag([...args], '--cache-ram', Number(cram[1])); continue; }
+        if (/^cap[cs]\d$/.test(part)) continue;
         if (!MODIFIERS[part]) throw new Error(`Unknown arm part ${part}; known: ${Object.keys(MODIFIERS).join(', ')}`);
         args = MODIFIERS[part]([...args]);
     }
@@ -150,7 +158,8 @@ const REQUEST_KEYS = ['prompt', 'temperature', 'min_p', 'top_p', 'top_k', 'typic
     'stop', 'ignore_eos', 'n_probs', 'min_keep', 'adaptive_target', 'adaptive_decay', 'mirostat', 'mirostat_tau', 'mirostat_eta', 'grammar', 'json_schema'];
 const requestBody = (item, budget, slot) => {
     const body = Object.fromEntries(REQUEST_KEYS.filter((key) => item.body[key] !== undefined && item.body[key] !== '').map((key) => [key, item.body[key]]));
-    return { ...body, n_predict: Math.min(item.body.n_predict ?? budget, budget), seed, stream: true, cache_prompt: true, ...(slot === null ? {} : { id_slot: slot }) };
+    const cap = item.kind === 'chat' || item.kind === 'swipe' || item.kind === 'long' ? draftCaps.chat : draftCaps.side;
+    return { ...body, n_predict: Math.min(item.body.n_predict ?? budget, budget), seed, stream: true, cache_prompt: true, ...(slot === null ? {} : { id_slot: slot }), ...(cap === null ? {} : { 'speculative.n_max': cap }) };
 };
 
 async function complete(body) {
@@ -262,6 +271,7 @@ function serverCounts(log) {
 }
 
 async function runArm(config, corpus, arm, dir, telemetry) {
+    draftCaps = capsOf(arm);
     const baseline = gpuQuery('memory.free')[0];
     if (arm.split('+').some((part) => part.startsWith('member') || part === 'memcache' || part === 'ramcut')) { await fs.rm(memberDir, { recursive: true, force: true }); await fs.mkdir(memberDir, { recursive: true }); }
     const server = await startServer(config, arm, dir);
