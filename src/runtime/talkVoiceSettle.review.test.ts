@@ -115,6 +115,18 @@ describe("v3.0 19 fix C3: a chain voice's speech row names the message that voic
     await entered.controller.onWrapperFinished();
     expect(rows(entered.events())).toEqual(["entry:Narrator:2", "chain:Mara:null"]);
   });
+
+  it("a voice whose generation failed names no message on a host that reports renders (a blind host keeps the old reading)", async () => {
+    const made = makeHost({ director: true }, ["Mara", null]);
+    made.controller.onReplyRendered(0, "first_message");
+    await made.open();
+    await made.controller.onWrapperFinished();
+    expect(rows(made.events())).toEqual(["chain:Mara:null"]);
+    const blind = makeHost({ director: true }, ["Mara", null], { renders: false });
+    await blind.open();
+    await blind.controller.onWrapperFinished();
+    expect(rows(blind.events())).toEqual(["chain:Mara:0"]);
+  });
 });
 
 describe("v3.0 19 fix C2: a thought-only chain voice ends the chain so the one retry can reach it", () => {

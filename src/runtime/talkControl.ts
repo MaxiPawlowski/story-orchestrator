@@ -153,6 +153,7 @@ export class TalkController {
   private inFlight = 0;
   private pacing: TalkPacingApi = IDLE_PACING;
   readonly ready: Promise<void>;
+  private rendersReported = false;
 
   constructor(private readonly host: TalkControlHost, importer: () => Promise<typeof import("./talkPacing")> = () => import("./talkPacing")) {
     this.ready = importer().then(({ TalkPacing }) => { this.pacing = new TalkPacing(host); }, (error: unknown) => log.warn("talk pacing could not load", error));
@@ -200,6 +201,7 @@ export class TalkController {
   }
 
   onReplyRendered(messageId: number | null, type: unknown) {
+    if (messageId !== null) this.rendersReported = true;
     if (this.chain && messageId !== null && type === LOUD_INTERCEPT_TYPE && (this.host.getChatId() ?? "") === this.chain.chatId) {
       this.chain.voice = { messageId, rosterId: this.host.getLastSpeakerRosterId() };
     }
@@ -364,7 +366,7 @@ export class TalkController {
     const chain = this.chain;
     if (!chain || chain.aborted) { this.endChain(); return; }
     const lastSpeaker = chain.voice?.rosterId ?? this.host.getLastSpeakerRosterId() ?? chain.expected;
-    const rendered = voiceMessage(chain, lastSpeaker, this.host.getLastMessageId());
+    const rendered = this.rendersReported && !chain.voice ? null : voiceMessage(chain, lastSpeaker, this.host.getLastMessageId());
     const spokenAt = chain.voice?.messageId ?? this.host.getLastMessageId();
     this.settleVoice(chain, rendered);
     const config = this.chainConfig(control);
