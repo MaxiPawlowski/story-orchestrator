@@ -7,6 +7,7 @@ import { livingChapterSize } from "@engine/validate/living";
 import { foldOps } from "./fold";
 import { sceneAnswerIssues, type SceneAnswer, type SceneSignal } from "./sceneTest";
 import { livingChapters } from "./frontier";
+import { inheritsTalk, livingTalkControl } from "./talk";
 import {
   LIVING_CHAPTER_CAP_WITHOUT_SEALS, LIVING_CHAPTER_PREFIX, LIVING_MAX_NEW_QUALITIES, LIVING_PACE_TURNS, LIVING_STUB_SUFFIX, LIVING_STUB_TURNS,
   type DirectorDraft, type LivingOpPayload,
@@ -105,6 +106,7 @@ export function buildDirectorOps(story: NormalizedStory, frontierId: string, dra
   };
   const snapshot: Record<string, PrimitiveValue> = Object.fromEntries(Object.entries(draft.anchor.snapshot).map(([key, value]) => [rename.get(key) ?? key, value]));
   const chapter = plan.chapterId ? { chapter: plan.chapterId } : {};
+  const talk = livingTalkControl(story.checkpointById[frontierId], story.talk_defaults);
   const anchor: Checkpoint = {
     id: anchorId,
     name: draft.anchor.name,
@@ -113,8 +115,12 @@ export function buildDirectorOps(story: NormalizedStory, frontierId: string, dra
     tension_target: draft.anchor.tension,
     ...(Object.keys(snapshot).length ? { state_snapshot: snapshot } : {}),
     ...chapter,
+    talk_control: talk,
   };
-  const stub: Checkpoint = { id: stubId, name: `Toward ${draft.anchor.name}`, objective: draft.anchor.objective, type: "intermediate", ...chapter };
+  const stub: Checkpoint = {
+    id: stubId, name: `Toward ${draft.anchor.name}`, objective: draft.anchor.objective, type: "intermediate", ...chapter,
+    talk_control: livingTalkControl(story.checkpointById[frontierId], story.talk_defaults),
+  };
   const gate = renameGate(openingGate);
   const paced = countsPlayerTurns(story);
   const wayIn: GateNode = paced ? { any: [gate, playerTurnsGate(LIVING_PACE_TURNS)] } : gate;
@@ -164,6 +170,7 @@ export function checkDirectorOps(input: DirectorCheckInput): { story: Normalized
   const existing = new Set([...input.story.checkpoints.map((checkpoint) => checkpoint.id), ...(input.story.chapters ?? []).map((chapter) => chapter.id)]);
   const keys = new Set(input.story.qualities.map((quality) => quality.key));
   const added = new Set<string>();
+  const talk = livingTalkControl(input.story.checkpointById[input.frontierId], input.story.talk_defaults);
   let qualities = 0;
   input.ops.forEach((op) => {
     if (op.kind === "add-checkpoint" || op.kind === "add-stub" || op.kind === "add-chapter") {
@@ -171,6 +178,7 @@ export function checkDirectorOps(input: DirectorCheckInput): { story: Normalized
       if (!isLivingId(id)) issues.push(`'${id}' is not a generated id (it must start with liv_)`);
       if (existing.has(id) || added.has(id)) issues.push(`'${id}' already exists`);
       if (op.kind === "add-checkpoint" && op.checkpoint.start) issues.push(`'${id}' cannot be a start`);
+      if (op.kind !== "add-chapter" && !inheritsTalk(op.checkpoint, talk)) issues.push(`'${id}' must take its talk control from '${input.frontierId}'`);
       added.add(id);
     } else if (op.kind === "add-quality") {
       qualities += 1;
@@ -228,7 +236,10 @@ export function buildBranchOps(story: NormalizedStory, sourceId: string, targetI
   const threshold = target?.convergence_threshold ?? 1;
   const ops: LivingOpPayload[] = [
     { kind: "add-quality", quality: { key, type: "bool", source: "extractor", latching: true, rubric } },
-    { kind: "add-stub", checkpoint: { id: stubId, name: draft.anchor.name, objective: draft.anchor.objective, type: "intermediate", ...(chapter ? { chapter } : {}) } },
+    { kind: "add-stub", checkpoint: {
+      id: stubId, name: draft.anchor.name, objective: draft.anchor.objective, type: "intermediate", ...(chapter ? { chapter } : {}),
+      talk_control: livingTalkControl(story.checkpointById[sourceId], story.talk_defaults),
+    } },
     { kind: "add-transition", transition: { from: sourceId, to: stubId, priority, gate: { q: key, op: "==", v: true } } },
     { kind: "add-transition", transition: { from: stubId, to: targetId, priority: 1, gate: { q: progressQualityForAnchor(targetId), op: ">=", v: threshold } } },
   ];

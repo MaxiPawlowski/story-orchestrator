@@ -9,7 +9,7 @@ import type { PlanContext, TalkPacingHost, VoicePlan } from "./talkPacing";
 import { IDLE_PACING, type TalkPacingApi } from "./talkPacingIdle";
 import type { SpeechReservation } from "./speechLedger";
 import type { ChainEnd, ChainEndReason } from "./chainEnds";
-import { handedTo, recordEnd, voiceAsksPlayer } from "./talkChainReads";
+import { handedTo, recordEnd, recordYield, voiceAsksPlayer, voiceMessage } from "./talkChainReads";
 import { beginRun, type MessageWindow, type RunGuard, type RunOwnership } from "./runToken";
 import type { TalkDecisionAudit } from "./types";
 import type { TalkDecisionKind } from "./talkStagecraftTypes";
@@ -89,6 +89,7 @@ export interface TalkControlHost extends TalkPacingHost {
   recordDecision(audit: TalkDecisionAudit): void;
   recordChainEnd?(end: ChainEnd): void;
   getLastMessageRevision?(): SourceRevision | null;
+  replyEmpty?(messageId: number): boolean;
   random?(): (() => number) | null;
   /** Install-wide chain defaults, read at each turn. */
   getChainConfig?(): { enabled: boolean; max: number; stopOnTransition: boolean; holdExtraction: boolean };
@@ -139,6 +140,7 @@ interface ChainState {
   release: (() => void) | null;
   endAfter: boolean;
   why: ChainEndReason | null;
+  voice: { messageId: number; rosterId: string | null } | null;
 }
 
 export class TalkController {
@@ -151,6 +153,7 @@ export class TalkController {
   private inFlight = 0;
   private pacing: TalkPacingApi = IDLE_PACING;
   readonly ready: Promise<void>;
+  private rendersReported = false;
 
   constructor(private readonly host: TalkControlHost, importer: () => Promise<typeof import("./talkPacing")> = () => import("./talkPacing")) {
     this.ready = importer().then(({ TalkPacing }) => { this.pacing = new TalkPacing(host); }, (error: unknown) => log.warn("talk pacing could not load", error));
@@ -197,6 +200,13 @@ export class TalkController {
     this.forcedChid = null;
   }
 
+  onReplyRendered(messageId: number | null, type: unknown) {
+    if (messageId !== null) this.rendersReported = true;
+    if (this.chain && messageId !== null && type === LOUD_INTERCEPT_TYPE && (this.host.getChatId() ?? "") === this.chain.chatId) {
+      this.chain.voice = { messageId, rosterId: this.host.getLastSpeakerRosterId() };
+    }
+  }
+
   onWrapperStarted(payload: Record<string, unknown> | undefined) {
     const type = typeof payload?.type === "string" ? payload.type : "";
     const loud = !QUIET_WRAPPER_TYPES.has(type);
@@ -222,7 +232,7 @@ export class TalkController {
     if (!this.chain) {
       this.chain = {
         key: this.passKey(), chatId: this.host.getChatId() ?? "", checkpointId: this.host.getCheckpointInfo()?.id ?? "", spokeCount: 0, aborted: false, hold: false, speakers: [],
-        offScript: 0, expected: null, reservation: null, plan: null, first: null, release: null, endAfter: false, why: null,
+        offScript: 0, expected: null, reservation: null, plan: null, first: null, release: null, endAfter: false, why: null, voice: null,
       };
     }
     const chain = this.chain;
@@ -321,11 +331,10 @@ export class TalkController {
     return { control, candidates: this.candidates(control, this.addressed(this.host.getWindow()).members), spoken: chain.speakers, lastSpeaker };
   }
 
-  private settleVoice(chain: ChainState, lastSpeaker: string | null) {
-    const rendered = chain.expected && lastSpeaker === chain.expected ? this.host.getLastMessageId() : null;
+  private settleVoice(chain: ChainState, rendered: number | null) {
     this.pacing.settle(chain.reservation, rendered, chain.plan);
     chain.release?.();
-    Object.assign(chain, { reservation: null, plan: null, release: null });
+    Object.assign(chain, { reservation: null, plan: null, release: null, voice: null });
   }
 
   private launch(plan: VoicePlan, chain: ChainState, config: TalkChainConfig) {
@@ -356,14 +365,18 @@ export class TalkController {
   private async advanceChain(control: TalkControl): Promise<void> {
     const chain = this.chain;
     if (!chain || chain.aborted) { this.endChain(); return; }
-    const lastSpeaker = this.host.getLastSpeakerRosterId() ?? chain.expected;
-    this.settleVoice(chain, lastSpeaker);
+    const lastSpeaker = chain.voice?.rosterId ?? this.host.getLastSpeakerRosterId() ?? chain.expected;
+    const silent = !chain.voice && (this.rendersReported || this.host.getWindow().at(-1)?.isUser === true);
+    const rendered = silent ? null : voiceMessage(chain, lastSpeaker, this.host.getLastMessageId());
+    const spokenAt = chain.voice?.messageId ?? this.host.getLastMessageId();
+    this.settleVoice(chain, rendered);
     const config = this.chainConfig(control);
     if (!config || !config.enabled) { this.endChain("off"); return; }
     chain.spokeCount += 1;
     if (lastSpeaker) chain.speakers.push(lastSpeaker);
     chain.expected = null;
-    if (chain.endAfter || this.pacing.yielded() || (config.yieldOnQuestion && voiceAsksPlayer(this.host))) { this.recordYield(chain); this.endChain("yield"); return; }
+    if (this.host.replyEmpty?.(spokenAt)) { this.endChain("empty"); return; }
+    if (chain.endAfter || this.pacing.yielded() || (config.yieldOnQuestion && voiceAsksPlayer(this.host))) { recordYield(this.host, chain); this.endChain("yield"); return; }
     if (chain.spokeCount >= config.max) { this.endChain("cap"); return; }
     if (this.sceneMoves(chain, config)) { this.endChain("transition"); return; }
     const run = beginRun(this.host.ownership, this.window());
@@ -379,13 +392,6 @@ export class TalkController {
     if (!candidate || (control.no_repeat !== false && chain.speakers.includes(candidate.rosterId))) { this.endChain("rules"); return; }
     const voice = reaction ?? (config.mode === "director" ? this.pacing.spotlight(candidate, next.source, context) : this.pacing.plain(candidate));
     this.launch(this.pacing.address(voice, context), chain, config);
-  }
-
-  private recordYield(chain: ChainState): void {
-    this.host.recordDecision({
-      at: new Date().toISOString(), messageId: this.host.getLastMessageId(), checkpointId: this.host.getCheckpointInfo()?.id ?? chain.checkpointId,
-      chosenRosterId: null, chosenName: null, source: "rules", latencyMs: 0, chainStep: chain.spokeCount, ...this.stamp("player"),
-    });
   }
 
   private sceneMoves(chain: ChainState, config: TalkChainConfig): boolean {
