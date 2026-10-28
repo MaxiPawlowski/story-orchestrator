@@ -300,6 +300,27 @@ rows; mixed and span FI stay structural. Floors not retuned.
   LLM-consuming path with no real-model gate yet (GPU step 1); the record itself stays unconsumed. Not staged, not installed.
   The branch is already inside `v3.0-wave1-integration` (`667471ba`), at its 2026-10-26 head.
 
+## C1 pass 3: presence source P1 measurement, declarations (2026-10-28, committed before any judge call)
+
+Coordinator 2026-10-28: W2 merges only after GPU step 1 (live suite green twice on an Artemis lane); O4 not designed until O3 is
+measured; P1 floors accepted as predeclared, informational, never retuned.
+
+- **Recorder** `so-witness.mts presence-read` (no GPU, TypeSafe judge through the lane page's `storyOrchestratorJudge.probe`, the
+  key stays in the lane's ST secrets): one shipped scene read (`buildSceneReadRequest`, families = tracker only, as the
+  coordinator asks `present:<rosterId>` at a boundary) per labelled message, window = the chat's last
+  `DIRECTOR_WINDOW_MESSAGES` (8) message ids ending at that message (system rows dropped), story/checkpoint from the session's
+  pinned story and boundary-log state (lab: the scene's checkpoint), cast = the story roster. Saves per member p to
+  `test/sessions/witness-real/presence-reads.json` (private). 192 real + 40 lab calls. One no-model lane (30), build served by
+  a CDP route holder from the worktree `dist/`, nothing staged.
+- **P1 floors (primary, as accepted):** per (message, member) pair over every kept adjudicated label and every label member,
+  predicted present = p >= `PRESENT_P` (0.7): pair accuracy >= 0.95 **and** false-present <= 0.02 of labelled-absent pairs.
+  Scored on the real set and the lab set apart. A call with no answer counts its pairs as wrong (accuracy) and as not present.
+- **Reported, not floors:** the same rows without the omniscient members (W2 rule 2 never consults presence for them);
+  the 0.3-0.7 band count (abstention slack); false-absent.
+- **O3 score:** `derive-score --presence <file> --speaker-own`, W2 rules with P1 as rule 6, scored against decision 1's W4
+  floors and the presence null control (144/171). Expected before the run: mixed stays at most 6/11, so O3 cannot pass W4
+  whole. No threshold, window or rule changes after the run.
+
 ## Unresolved questions
 
 - Is message-level privacy a product goal now (v3.0 02 reopen condition), or only witness-filtered recall?
