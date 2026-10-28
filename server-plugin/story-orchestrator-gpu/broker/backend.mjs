@@ -54,7 +54,7 @@ export function nativeArgs(config, profile, fitTargetMiB = config.reserves.gpuMi
     return ['--model', config.model, '--host', '127.0.0.1', '--port', String(config.backendPort), '--alias', config.modelAlias,
         '--offline', '--no-mmproj', '--no-webui', '--threads', '8', '--threads-batch', '8', '--parallel', String(slots(config)?.count ?? 1), '--kv-unified',
         '--flash-attn', 'on', '--cache-type-k', 'q8_0', '--cache-type-v', 'q8_0', '--cache-ram', String(members?.store === 'ram' ? members.budgetMiB : config.cacheRamMiB ?? 512), ...checkpoints, ...slotActions,
-        ...(slots(config)?.cacheIdle === false ? ['--no-cache-idle-slots'] : []), '--sleep-idle-seconds', '-1', ...speculativeArgs(config),
+        ...(slots(config)?.cacheIdle === false ? ['--no-cache-idle-slots'] : []), '--sleep-idle-seconds', keepsCacheAcrossImages(config) ? '31536000' : '-1', ...speculativeArgs(config),
         '--fit', 'on', '--fit-target', String(fitTargetMiB + (config.fitMarginMiB ?? 0) + (speculative(config)?.estimatedGpuMiB ?? 0)), ...args];
 }
 
@@ -78,6 +78,8 @@ export class MemoryReserveError extends Error {
         this.hostFits = snapshot.host.availableMiB >= reserves.ramMiB && snapshot.host.commitFreeMiB >= reserves.ramMiB;
     }
 }
+
+export const keepsCacheAcrossImages = (config) => memberCacheOptions(config)?.keepAcrossImages === true;
 
 export class NativeBackend {
     constructor(config, { snapshot = memorySnapshot, spawn = spawnDefault, killTree = null, fetch: fetchImpl = fetch, reclaimGpu = null } = {}) {
@@ -103,7 +105,13 @@ export class NativeBackend {
         this.fitCorrections = new Map();
         this.lastFitCorrection = null;
         this.slotTokens = new Map();
-        this.slotStats = { requests: { chat: 0, side: 0 }, erased: 0 };
+        this.slotStats = { requests: { chat: 0, side: 0 }, erased: 0, waited: 0, chatErasedBySide: 0 };
+        this.slotBusy = new Set();
+        this.onSlotErased = null;
+        this.sleeping = null;
+        this.entering = false;
+        this.direct = 0;
+        this.sleepStats = { sleeps: 0, wakes: 0, wakeFailures: 0, dropped: 0, strayWakes: 0, wakeReclaims: 0, lastWakeMs: null, lastSleepMs: null, lastStrayWake: null };
     }
 
     async load(name = this.config.defaultProfile, options = {}) {
@@ -112,6 +120,15 @@ export class NativeBackend {
         if (this.child && this.profile === name && this.fitTarget === fitTarget) return;
         const profile = this.config.profiles[name];
         if (!profile || profile.disabled) throw new Error('That residency profile is unavailable.');
+        if (this.sleeping && this.child) await this.checkSleeping().catch((error) => { this.lastError = error.message; });
+        if (this.sleeping && this.child) {
+            if (this.sleeping.profile === name && fitTarget === null && this.sleeping.correction === (this.fitCorrections.get(name) ?? 0)) {
+                this.loading = this.wake(name, profile);
+                try { await this.loading; return; }
+                catch (error) { this.lastError = error.message; this.sleepStats.wakeFailures += 1; await this.stopOwned(); }
+                finally { this.loading = null; }
+            } else await this.stopOwned();
+        }
         this.loading = this.startWithFit(name, profile, fitTarget);
         try { await this.loading; }
         catch (error) { this.lastError = error.message; await this.stopOwned(); throw error; }
@@ -165,7 +182,7 @@ export class NativeBackend {
         child.on('exit', (code) => {
             void log.close();
             if (this.child !== child) return;
-            this.child = null; this.profile = null;
+            this.child = null; this.profile = null; this.sleeping = null;
             if (this.stopping !== child && this.loading === null) this.crashed = { code: code ?? null, at: new Date().toISOString() };
         });
         const deadline = Date.now() + 240000;
@@ -182,6 +199,7 @@ export class NativeBackend {
                         this.profile = name;
                         this.fitTarget = fitTarget;
                         this.slotTokens.clear();
+                        this.slotBusy.clear();
                         if (fitTarget === null || this.desiredProfile === null) this.desiredProfile = name;
                         this.lastError = null;
                         this.loadMs = Date.now() - began;
@@ -203,13 +221,109 @@ export class NativeBackend {
         throw new Error('Native backend load timed out.');
     }
 
-    async unload() {
+    async unload({ keepCache = false } = {}) {
         while (this.loading) await this.loading.catch(() => {});
+        if (keepCache && keepsCacheAcrossImages(this.config) && this.child && !this.sleeping && this.profile && this.fitTarget === null) {
+            try { await this.sleep(); return; }
+            catch (error) { this.lastError = `text could not sleep, stopped instead: ${error.message}`; }
+        }
         await this.stopOwned();
+    }
+
+    tryDirect() {
+        if (!this.child || this.sleeping || this.entering || this.loading || !this.profile) return false;
+        this.direct += 1;
+        return true;
+    }
+
+    endDirect() { this.direct = Math.max(0, this.direct - 1); }
+
+    async sleep() {
+        const began = Date.now();
+        const deadline = Date.now() + (this.config.textSleepTimeoutMs ?? 60000);
+        this.entering = true;
+        try {
+            while (this.direct > 0) {
+                if (Date.now() > deadline) throw new Error('requests sent straight to the text server did not finish before it could sleep.');
+                await new Promise((resolve) => setTimeout(resolve, 25));
+            }
+            const reply = await this.fetch(`${this.url}/sleep`, { method: 'POST', signal: AbortSignal.timeout(10000) });
+            if (!reply.ok) throw new Error(`/sleep answered ${reply.status}`);
+            while (true) {
+                const props = await (await this.fetch(`${this.url}/props`, { signal: AbortSignal.timeout(5000) })).json().catch(() => ({}));
+                if (props.is_sleeping === true) break;
+                if (Date.now() > deadline) throw new Error('llama-server did not reach its sleeping state in time.');
+                await new Promise((resolve) => setTimeout(resolve, 250));
+            }
+            this.sleeping = { profile: this.profile, correction: this.fitCorrections.get(this.profile) ?? 0, at: Date.now() };
+            this.profile = null;
+            this.slotTokens.clear();
+            this.slotBusy.clear();
+            this.sleepStats.sleeps += 1;
+            this.sleepStats.lastSleepMs = Date.now() - began;
+        } finally { this.entering = false; }
+    }
+
+    heldMiB(snapshot) {
+        const pid = this.child?.pid;
+        const row = pid ? snapshot?.gpuProcesses?.[pid] : null;
+        return Number.isFinite(row?.dedicatedMiB) ? row.dedicatedMiB : null;
+    }
+
+    async checkSleeping(reading = null) {
+        if (!this.sleeping || !this.child || this.loading) return null;
+        const snapshot = reading ?? await this.snapshot();
+        const held = this.heldMiB(snapshot);
+        if (!(held > (this.config.strayWakeMiB ?? 2048))) return null;
+        if (!(snapshot.at >= this.sleeping.at + (this.config.strayWakeSettleMs ?? 5000)) || !(snapshot.gpus?.[0]?.usedMiB >= held)) return null;
+        const stray = { at: new Date().toISOString(), pid: this.child.pid, heldMiB: Math.round(held) };
+        this.sleepStats.strayWakes += 1;
+        this.sleepStats.lastStrayWake = stray;
+        await this.dropSleeping();
+        this.lastError = `The sleeping text server (pid ${stray.pid}) was woken outside the controller and held ${stray.heldMiB} MiB of GPU memory; it was stopped (member cache dropped) and text loads again on the next request.`;
+        return stray;
+    }
+
+    async wake(name, profile) {
+        const began = Date.now();
+        let snapshot = await this.snapshot();
+        const fullMiB = profileGpuMiB(this.config, profile) + this.config.reserves.gpuMiB;
+        if (snapshot.gpus[0].freeMiB < fullMiB && this.reclaimGpu) {
+            let freed = false;
+            try { freed = await this.reclaimGpu({ shortMiB: fullMiB - snapshot.gpus[0].freeMiB }); } catch (error) { this.lastError = error.message; }
+            if (freed) { this.sleepStats.wakeReclaims += 1; snapshot = await this.snapshot(); }
+        }
+        const gpuBudget = snapshot.gpus[0].freeMiB - this.config.reserves.gpuMiB;
+        const ramRequired = (profile.estimatedRamMiB ?? 6000) + Math.max(0, profileGpuMiB(this.config, profile) - gpuBudget);
+        if (gpuBudget < 2048 || snapshot.host.availableMiB < ramRequired + this.config.reserves.ramMiB) {
+            throw new Error('Not enough free GPU/physical RAM to wake the sleeping text server while preserving desktop headroom.');
+        }
+        const reply = await this.fetch(`${this.url}/completion`, { method: 'POST', headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ prompt: '\n', n_predict: 0, cache_prompt: false, stream: false }), signal: AbortSignal.timeout(240000) });
+        if (!reply.ok) throw new Error(`waking request answered ${reply.status}`);
+        const after = await this.snapshot();
+        if (!withinReserve(after, this.config.reserves)) throw new MemoryReserveError(after, this.config.reserves, 0);
+        this.sleeping = null;
+        this.profile = name;
+        this.fitTarget = null;
+        this.desiredProfile = name;
+        this.lastError = null;
+        this.loadMs = Date.now() - began;
+        this.loads += 1;
+        this.sleepStats.wakes += 1;
+        this.sleepStats.lastWakeMs = this.loadMs;
+    }
+
+    async dropSleeping() {
+        if (!this.sleeping) return 0;
+        await this.stopOwned();
+        this.sleepStats.dropped += 1;
+        return memberCacheOptions(this.config)?.budgetMiB ?? 0;
     }
 
     async stopOwned() {
         this.fitTarget = null;
+        this.sleeping = null;
         const child = this.child;
         if (!child) return;
         const ended = new Promise((resolve) => child.once('exit', resolve));
@@ -240,14 +354,30 @@ export class NativeBackend {
         let others = 0;
         for (const [id, tokens] of this.slotTokens) if (id !== slot) others += tokens;
         if (required + others + 1 > context) {
-            for (const id of [...this.slotTokens.keys()].filter((id) => id !== slot)) {
+            const victims = [...this.slotTokens.keys()].filter((id) => id !== slot);
+            if (victims.some((id) => this.slotBusy.has(id))) { this.slotStats.waited += 1; await this.slotsIdle(victims, signal); }
+            for (const id of victims) {
                 const reply = await this.fetch(`${this.url}/slots/${id}?action=erase`, { method: 'POST', signal });
                 if (!reply.ok) throw new Error(`Could not free slot ${id} for a ${required}-token request (${reply.status}); the shared context would overflow.`);
                 this.slotTokens.delete(id);
                 this.slotStats.erased += 1;
+                if (pin && id === pin.chat && slot !== pin.chat) this.slotStats.chatErasedBySide += 1;
+                this.onSlotErased?.(id);
             }
         }
         this.slotTokens.set(slot, required);
+        this.slotBusy.add(slot);
+    }
+
+    releaseSlot(slot) { this.slotBusy.delete(slot); }
+
+    async slotsIdle(ids, signal) {
+        const deadline = Date.now() + (this.config.queueTimeoutMs ?? 600000);
+        while (ids.some((id) => this.slotBusy.has(id))) {
+            if (signal?.aborted) throw new Error('Request cancelled.');
+            if (Date.now() > deadline) throw new Error('The other slot did not finish before the shared context could be freed.');
+            await new Promise((resolve) => setTimeout(resolve, 25));
+        }
     }
 
     async promptTokens(body, signal) {
@@ -306,5 +436,5 @@ export class NativeBackend {
     }
 
     status() { return { profile: this.profile, desiredProfile: this.desiredProfile, fitTargetMiB: this.fitTarget, fitCorrectionMiB: this.fitCorrections.get(this.profile) ?? 0,
-        lastFitCorrection: this.lastFitCorrection, gpuReclaims: this.reclaims, speculative: speculativeTag(this.config), slots: slots(this.config) ? { ...slots(this.config), held: Object.fromEntries(this.slotTokens), requests: { ...this.slotStats.requests }, erased: this.slotStats.erased } : null, cacheRamMiB: memberCacheOptions(this.config)?.store === 'ram' ? memberCacheOptions(this.config).budgetMiB : this.config.cacheRamMiB ?? 512, pid: this.child?.pid ?? null, loading: Boolean(this.loading), loadMs: this.loadMs, loads: this.loads, lastError: this.lastError, crashed: this.crashed, servedContext: this.servedContext() }; }
+        lastFitCorrection: this.lastFitCorrection, gpuReclaims: this.reclaims, speculative: speculativeTag(this.config), slots: slots(this.config) ? { ...slots(this.config), held: Object.fromEntries(this.slotTokens), requests: { ...this.slotStats.requests }, erased: this.slotStats.erased, waited: this.slotStats.waited, chatErasedBySide: this.slotStats.chatErasedBySide, busy: [...this.slotBusy] } : null, cacheRamMiB: memberCacheOptions(this.config)?.store === 'ram' ? memberCacheOptions(this.config).budgetMiB : this.config.cacheRamMiB ?? 512, pid: this.sleeping ? null : this.child?.pid ?? null, sleeping: this.sleeping ? { profile: this.sleeping.profile, pid: this.child?.pid ?? null, since: new Date(this.sleeping.at).toISOString() } : null, sleepStats: { ...this.sleepStats }, loading: Boolean(this.loading), loadMs: this.loadMs, loads: this.loads, lastError: this.lastError, crashed: this.crashed, servedContext: this.servedContext() }; }
 }

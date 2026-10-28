@@ -157,8 +157,6 @@ export const CHECKPOINT_REASONING = ["off", "low", "medium", "high"] as const;
 
 export type CheckpointReasoning = (typeof CHECKPOINT_REASONING)[number];
 
-// Deterministic stagecraft (spec addendum §Stagecraft): the checkpoint names a background and the
-// boundary switches to it. A bare string authored form normalizes into this shape at parse time.
 export interface BackgroundEffect {
   name: string;
 }
@@ -170,45 +168,23 @@ export interface NpcReplyEffect {
   new_chat_only?: boolean;
   text?: string;
   instruction?: string;
+  ask_player?: boolean;
   maxTriggers?: number;
   probability?: number;
   after_member?: string;
   enabled?: boolean;
+  id?: string;
+  once_per?: NpcReplyScope;
+  cooldown_player_turns?: number;
 }
 
-export interface TalkControlSpeaker {
-  member: string;
-  weight?: number;
-}
-
-export interface TalkControlDirector {
-  instruction?: string;
-}
-
-// How a scene answers a single player message with more than one voice. `director` asks the judge
-// for each next speaker and stops when it hands back to the player; `scripted` walks `sequence` in
-// order. Absent means the system defaults apply (chaining on, max 3), so a declared talk_control
-// opts in unless it turns this off.
-export const TALK_CHAIN_MAX_DEFAULT = 3;
-export const TALK_CHAIN_MAX_CAP = 8;
-
-export interface TalkControlChain {
-  mode?: "director" | "scripted";
-  max?: number;
-  sequence?: string[];
-  stop_on_transition?: boolean;
-  hold_extraction?: boolean;
-  stop_on_player?: boolean;
-}
-
-export interface TalkControl {
-  speakers?: TalkControlSpeaker[];
-  lead?: string;
-  no_repeat?: boolean;
-  allow_silence?: boolean;
-  director?: boolean | TalkControlDirector;
-  chain?: TalkControlChain | false;
-}
+export {
+  TALK_CHAIN_MAX_CAP, TALK_CHAIN_MAX_DEFAULT, TALK_PROFILES, TALK_BUDGET_CAP, TALK_ATTEMPTS_CAP, TALK_TURNS_CAP, TALK_LEAD_WORDS_MIN, TALK_LEAD_WORDS_MAX, TALK_LEAD_RUN_CAP, NPC_REPLY_SCOPES,
+} from "./talkSchema";
+export type {
+  TalkControl, TalkControlChain, TalkControlDirector, TalkControlSpeaker, TalkProfileName, TalkBudget, TalkSpotlight, TalkAddressPlayer, TalkReaction, StoryTalkDefaults, NpcReplyScope,
+} from "./talkSchema";
+import type { NpcReplyScope, StoryTalkDefaults, TalkControl } from "./talkSchema";
 
 // Which objectives are the world pressing on the player and which need the
 // player's own act, and whether narration may write the player's decisions. Optional per checkpoint;
@@ -389,9 +365,6 @@ export interface StoryRequirements {
   lorebooks?: string[];
 }
 
-// The explicit allowlist a background curator may write into (user decision). No
-// inference from requirements or effects: an absent or empty list means the curator has nothing to
-// write, full stop.
 export const STAGECRAFT_CREATE_CAP_DEFAULT = 5;
 export const STAGECRAFT_CREATE_CAP_MAX = 20;
 
@@ -411,11 +384,14 @@ export interface IllustrationLook {
   appearances?: Record<string, string>;
 }
 
+export type { VisualPackRef, StoryVisualPacks } from "./visualPackSchema";
+import type { StoryVisualPacks } from "./visualPackSchema";
 export interface StoryIllustrations extends IllustrationLook {
   checkpoints?: boolean;
   scenes?: boolean;
   workflows?: WorkflowMap;
   bundle?: Record<string, BundledWorkflow>;
+  packs?: StoryVisualPacks;
 }
 
 // The scene read's vocabulary. The judge can only select, so a location is asked only
@@ -500,6 +476,7 @@ export interface Story {
   codex?: import("./codexSchema").StoryCodex; observations?: import("./observationSchema").Observation[];
   clock?: StoryClock; calendar?: import("./lifeSchema").CalendarInput;
   living?: StoryLiving; factions?: import("./factionSchema").Faction[]; norms?: import("./cueSchema").StoryNorm[];
+  talk_defaults?: StoryTalkDefaults;
 }
 
 export const LIVING_PREFIX = "liv_";

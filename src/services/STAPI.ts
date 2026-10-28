@@ -17,7 +17,7 @@ export type { PromptBudget, PromptBudgetRead } from "@services/stHost/contextBud
 export { readPromptBuckets } from "@services/stHost/promptBuckets";
 export type { PromptBucketsRead } from "@services/stHost/promptBucketsParse";
 export type { StoryOrchestratorHostContext } from "@services/stHost/context";
-export { subscribeToHostEvent, subscribeToHostEvents } from "@services/stHost/events";
+export { subscribeToHostEvent, subscribeToHostEventFirst, subscribeToHostEvents } from "@services/stHost/events";
 export { onLorebookListChanged } from "@services/stHost/worldInfoList";
 export { mountInlineHosts, INLINE_HOST_PREFIX, INLINE_HOST_CLASS } from "@services/stHost/inlineMount";
 export type { InlineHostSet } from "@services/stHost/inlineMount";
@@ -84,7 +84,7 @@ export {
   addGroupMembers, getActiveGroup, groupMemberPosition, openGroupById, resolveGroupMemberId, setGroupMembersDisabled, setGroupMemberDisabled, setGroupMemberFlags, readGroupMemberDisabled,
 } from "@services/stHost/groups";
 export { fillChatInput, guardHostStream, readChatInput, watchHostChatMove, hostSystemUserName, isHostGenerating, stopHostGeneration, willAddUserMessage } from "@services/stHost/generation";
-export { isUserStoppedReply, startGroupVoice } from "@services/stHost/generation";
+export { installDraftGuard, isUserStoppedReply, startGroupVoice, startGroupVoiceAt } from "@services/stHost/generation";
 export { draftedCardName, draftedLoreMember, forceActivateEntries, getScannableEntries, readScanBuffer, type HostScanBuffer, type HostScannableEntry } from "@services/stHost/worldInfoActivate";
 export { readLorebookEntries, setLorebookEntriesDisabled } from "@services/stHost/worldInfoFiles";
 export { observeWorldInfoScans, loadedEntries, type HostEntriesLoaded, type WorldInfoScanObservation } from "@services/stHost/worldInfoEvidence";

@@ -1,0 +1,158 @@
+{
+  "model": "none",
+  "_note": "Shared speech budget: an afterSpeak line draws on the same per-player-message budget as the chain. In 'tight' (budget voices 1) the narrator's line after the player's already used the one voice, so Arin's scripted afterSpeak line is held and the journal says so; in 'roomy' (voices 2) the same line posts and the speech record holds one npc event with its message id. Written for v3.0 plan 19 stage 2, NOT YET RUN (the live gate is owed); schema-validated only.",
+  "requires": {
+    "lane": "no-model",
+    "group": "Group: Arin, DM Narrator",
+    "members": [
+      "Arin",
+      "DM Narrator"
+    ],
+    "why": "scripted lines only (/send, /sendas, a scripted afterSpeak line); the budget is code",
+    "judge": "off"
+  },
+  "steps": [
+    {
+      "eval": "for (const name of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[name]; globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; return { cleared: true };",
+      "log": true
+    },
+    {
+      "import_story": {
+        "title": "SO-V3019S2 Speech Budget",
+        "description": "v3.0 plan 19 stage 2 no-model fixture.",
+        "qualities": [
+          {
+            "key": "at_gate",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Has the party reached the gate?"
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "tight",
+            "name": "Tight",
+            "objective": "Make camp.",
+            "type": "anchor",
+            "start": true,
+            "talk_control": {
+              "lead": "DM Narrator",
+              "chain": false,
+              "budget": {
+                "voices": 1
+              }
+            },
+            "effects": {
+              "npc_replies": [
+                {
+                  "trigger": "afterSpeak",
+                  "member": "Arin",
+                  "kind": "scripted",
+                  "id": "arin-aside",
+                  "after_member": "DM Narrator",
+                  "maxTriggers": 3,
+                  "cooldown_player_turns": 0,
+                  "text": "SO-V3019S2-ARIN Arin shrugs at the fire."
+                }
+              ]
+            }
+          },
+          {
+            "id": "roomy",
+            "name": "Roomy",
+            "objective": "Rest.",
+            "type": "anchor",
+            "talk_control": {
+              "lead": "DM Narrator",
+              "chain": false,
+              "budget": {
+                "voices": 2
+              }
+            },
+            "effects": {
+              "npc_replies": [
+                {
+                  "trigger": "afterSpeak",
+                  "member": "Arin",
+                  "kind": "scripted",
+                  "id": "arin-aside",
+                  "after_member": "DM Narrator",
+                  "maxTriggers": 3,
+                  "cooldown_player_turns": 0,
+                  "text": "SO-V3019S2-ARIN Arin shrugs at the fire."
+                }
+              ]
+            }
+          }
+        ],
+        "transitions": [
+          {
+            "from": "tight",
+            "to": "roomy",
+            "priority": 1,
+            "gate": {
+              "q": "at_gate",
+              "op": "==",
+              "v": true
+            }
+          }
+        ],
+        "roster": [
+          {
+            "id": "DM Narrator",
+            "name": "DM Narrator"
+          },
+          {
+            "id": "Arin",
+            "name": "Arin"
+          }
+        ]
+      },
+      "log": true
+    },
+    {
+      "slash": "/send compact=true We make camp by the road."
+    },
+    {
+      "slash": "/sendas name=\"DM Narrator\" SO-V3019S2-NARR The fire catches."
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 1500,
+        "timeoutMs": 30000
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const chat = SillyTavern.getContext().chat; const arin = chat.filter((m) => String(m?.mes ?? '').startsWith('SO-V3019S2-ARIN')).length; const held = JSON.stringify(rt.extras.journal ?? []).includes('held by the speech budget'); const state = { arin, held, speech: rt.extras.speech ?? [] }; if (arin !== 0) throw new Error('the budget of one voice was already spent by the narrator, so Arin must be held: ' + JSON.stringify(state)); if (!held) throw new Error('the journal does not say the line was held: ' + JSON.stringify(state)); return state;",
+      "log": true
+    },
+    {
+      "slash": "/cp activate roomy"
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 1500,
+        "timeoutMs": 30000
+      }
+    },
+    {
+      "slash": "/send compact=true We settle in."
+    },
+    {
+      "slash": "/sendas name=\"DM Narrator\" SO-V3019S2-NARR2 The stars come out."
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 1500,
+        "timeoutMs": 30000
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const chat = SillyTavern.getContext().chat; const at = chat.findIndex((m) => String(m?.mes ?? '').startsWith('SO-V3019S2-ARIN')); const npc = (rt.extras.speech ?? []).filter((e) => e.origin === 'npc' && e.member === 'Arin'); const state = { at, npc }; if (at < 0) throw new Error('with two voices Arin must speak after the narrator: ' + JSON.stringify(state)); if (npc.length !== 1 || npc[0].messageId !== at || npc[0].generated !== false) throw new Error('the speech record must hold one scripted npc event at the posted message: ' + JSON.stringify(state)); return state;",
+      "log": true
+    }
+  ]
+}

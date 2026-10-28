@@ -42,9 +42,9 @@ export const ChangesInstallSettings: Story = {
     await expect(getGlobalSettings().image.enabled).toBe(false);
     const mode = canvas.getByLabelText("When pictures are drawn");
     await expect(mode).toHaveValue("manual");
-    await expect(canvas.queryByRole("spinbutton", { name: "Every N replies" })).toBeNull();
+    await expect(canvas.queryByRole("spinbutton", { name: "Every N turns" })).toBeNull();
     await userEvent.selectOptions(mode, "everyN");
-    await expect(await canvas.findByRole("spinbutton", { name: "Every N replies" })).toHaveValue(5);
+    await expect(await canvas.findByRole("spinbutton", { name: "Every N turns" })).toHaveValue(5);
     await expect(getGlobalSettings().image.automation.mode).toBe("everyN");
   },
 };

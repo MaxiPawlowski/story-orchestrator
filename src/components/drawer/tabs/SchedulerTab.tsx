@@ -13,6 +13,8 @@ const TALK_SOURCE_LABELS: Record<string, string> = {
   director: "LLM director",
   rules: "weighted rules",
   fallback: "rules fallback",
+  spotlight: "spotlight (a quiet member took the voice)",
+  reaction: "reaction beat",
 };
 
 const TalkDecisionsPanel = ({ snapshot }: { snapshot: RuntimeSnapshot }) => {

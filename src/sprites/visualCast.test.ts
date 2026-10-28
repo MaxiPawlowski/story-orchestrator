@@ -56,3 +56,21 @@ test("a posed body of a changed look resolves the live head of that look's publi
   actor.set = "lp_33333333";
   expect(actorHeadRef(actor, roster, refs, { Synthetic: source })).toBeUndefined();
 });
+
+test("visual bridge: a pack-bound member with no installed sprites and no builder stands on stage from the pack, with its looks as sets", async () => {
+  const files = { defaultFiles: new Map([["neutral", "/characters/Wanderer/pack/default_neutral.png"]]),
+    looks: { [lookSignature({ outfit: "grey rain cloak" })]: { set: "pk_rain_cloak", files: new Map([["neutral", "/characters/Wanderer/pack/rain_cloak_neutral.png"]]) } } };
+  const member = { name: "Wanderer", avatar: "Wanderer.png", folder: "Wanderer", muted: false, profile: null };
+  const without = await loadCast([member], { builders: {}, keysFor: () => ["wanderer"], list: async () => [] });
+  expect(without.gaps[0].reason).toBe("no-profile");
+  const cast = await loadCast([member], { builders: {}, keysFor: () => ["wanderer"], list: async () => [], identity: async () => ({ pack: "fixture-wanderer@d", ...files }) });
+  expect(cast.gaps).toEqual([]);
+  expect(cast.actors[0].path).toBe("/characters/Wanderer/pack/default_neutral.png");
+  expect(cast.actors[0].packs.get("pk_rain_cloak")?.get("neutral")).toBe("/characters/Wanderer/pack/rain_cloak_neutral.png");
+  expect(cast.actors[0].identity).toEqual({ pack: "fixture-wanderer@d", looks: { [lookSignature({ outfit: "grey rain cloak" })]: { set: "pk_rain_cloak" } } });
+  const installed = await loadCast([member], { builders: {}, keysFor: () => ["wanderer"], identity: async () => ({ pack: "p", ...files }),
+    list: async (folder) => folder === "Wanderer" ? [{ label: "neutral", path: "/characters/Wanderer/neutral.png" }] : [] });
+  expect(installed.actors[0].path).toBe("/characters/Wanderer/neutral.png");
+  const failing = await loadCast([member], { builders: {}, keysFor: () => ["wanderer"], list: async () => [], identity: async () => { throw new Error("plugin down"); } });
+  expect(failing.gaps[0].reason).toBe("no-profile");
+});

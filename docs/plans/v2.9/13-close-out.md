@@ -248,3 +248,18 @@ About 2 h of model time plus the playtest.
   flaky); J6.11 BLOCKED by a page navigation mid-evaluate (harness, passed in run 1). Every J6 check passed at least once; not green x2.
 - Image journey p41 (lane 46, 2026-10-26): 31/32; frames[Cleo] refused 2/2: cause = stale head box from the previous member (race in
   `SpriteBuilder.tsx`), fix on `v2.9-frames-mask` (`b12f4778`), GPU verification after the C8 suite releases the stage.
+
+## GPU rows 2026-10-27/28 (v3.0 end batch, staged `d9ff15db`, fixtures `f4e6fa16`)
+
+Full record: `docs/plans/v3.0/00-overview.md` §v3.0 end batch 2026-10-27.
+
+- C6 A02 `v29-a02-stopped-reply.json`: GREEN x2 again on lane 45 (batch `2026-10-27T21-10-31-704Z`).
+- J6: not green x2. J6.8 passed in every run (4 runs). Under `st-lanes batch --fresh-page` the page is lost mid-evaluate
+  (J6.11 x2 in `2026-10-27T21-14-27-193Z`, J6.12 in `2026-10-28T00-24-48-647Z`); a direct `so-journey run J6` is GREEN 12/12
+  (record `test/journeys/records/v3.0-end-batch/2026-10-28T00-24-25-872Z_journey-J6.json`). Harness, cause not pinned.
+- Image journey p41 x2 (lane 33): every functional step passes 2/2, including frames[SO-P41 Cleo] (head-box race fix
+  verified on the GPU); both runs miss gpu-idle while another agent's model lane shared the GPU. NOT GREEN (floor miss,
+  confounded); a clean-GPU rerun decides the floor.
+- C8 suite:nomodel on fixtures `f4e6fa16`: GREEN 191/191 once (`batch-2026-10-28T03-06-06-757Z.json`); the earlier run on
+  `d9ff15db` fixtures was 189/192 (three stale fixtures, fixed in `f4e6fa16`). x2 consecutive still open.
+- Freeze: still open (C1 owner playtest, suite x2, J6 under the batch runner, the end batch's D-EB1 notice defect).

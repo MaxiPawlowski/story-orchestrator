@@ -13,7 +13,7 @@ moves. With no story, each answers a placeholder such as `(none)` or `(unknown)`
 | `{{story_possible_transitions}}` | Outgoing transitions with their gate text (spoils; author use) |
 | `{{story_tension}}` | Current tension level |
 | `{{story_player_name}}` | Player persona name |
-| `{{story_role_<id>}}` | Card name of the cast member with roster id `<id>` |
+| `{{story_role_<id>}}` | Card name of the cast member with roster id `<id>`; characters other than letters, digits, `_` and `-` become `_` (`DM Narrator` is `{{story_role_DM_Narrator}}`) |
 | `{{story_quality_<key>}}` | The current value of quality `<key>`. With SillyTavern's new macro engine, `{{story_quality::<key>}}` works too |
 | `{{story_scene_location}}` / `{{story_scene_time}}` / `{{story_scene_present}}` | Where, when and who is present, from the judge's scene tracker (`(unknown)` without it, or while the memory holds a conflict about it) |
 | `{{story_blackboard}}` | Compact memo of every tracked quality |

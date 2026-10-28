@@ -1,6 +1,6 @@
 export interface ImageLoreEntry { world: string; uid?: number; comment?: string; key?: unknown; content: string; disable?: boolean }
 
-const match = (text: string, name: string): boolean => {
+export const mentions = (text: string, name: string): boolean => {
   if (name.trim().length < 3) return false;
   const escape = name.trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   return new RegExp(`(^|[^\\p{L}\\p{N}])${escape}($|[^\\p{L}\\p{N}])`, "iu").test(text);
@@ -30,7 +30,7 @@ export function visualLore(entries: ImageLoreEntry[], books: string[], enabledGa
     const appearance = lineAfter(entry.content, PUBLIC_LINE) ?? (seen ? lineAfter(entry.content, SEEN_LINE) : undefined);
     if (!appearance) continue;
     const keys = Array.isArray(entry.key) ? entry.key.filter((key): key is string => typeof key === "string") : [];
-    const name = keys.find((key) => match(scene, key)) ?? (entry.comment && match(scene, entry.comment) ? entry.comment : null);
+    const name = keys.find((key) => mentions(scene, key)) ?? (entry.comment && mentions(scene, entry.comment) ? entry.comment : null);
     if (!name || found.has(name.toLowerCase())) continue;
     found.add(name.toLowerCase());
     lines.push(`${name}: ${appearance.slice(0, 360)}`);

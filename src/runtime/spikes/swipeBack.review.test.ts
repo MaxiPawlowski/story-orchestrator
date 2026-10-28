@@ -1,10 +1,12 @@
 import type { ExtraGateSource } from "@extraction/index";
 import type { RuntimeManager } from "../runtimeManager";
 import { SWIPE_KEY_PARTS, SwipeCache, swipeKeyOf, type SwipeKey } from "./swipeCache";
-import { chatStore, restorePoint, scopeHash, SwipeBack, type SwipeBackHost, type SwipeEntry } from "./swipeBack";
+import { chatStore, restorePoint, scopeHash, showsStoredSwipe, SwipeBack, type SwipeBackHost, type SwipeEntry } from "./swipeBack";
 import { SPIKE_STORY, SpikeWorld, differentText, projectExact, randomScript, seededRandom, type ExactProjection, type SpikeTurn } from "../../../test/support/spikeHarness";
 import { spikeContext } from "../../../test/support/spikeHost";
 import { defaultGlobalSettings, sanitizeGlobalSettings } from "../settingsModel";
+import type { SpeechEvent } from "../speechLedger";
+import type { RuntimeExtras } from "../types";
 
 jest.mock("@services/STAPI", () => jest.requireActual("../../../test/support/spikeHost").spikeStapi);
 
@@ -247,5 +249,31 @@ describe("v2.5 plan 09 SP1: the install-wide flag and the seam", () => {
     await world.swipeTo(id, 0);
     expect(spike.stats).toEqual({ captures: 0, hits: 0, misses: 0 });
     world.close();
+  });
+});
+
+describe("v3.0 19 stage 2 fix 3: a new swipe is not a swipe-back", () => {
+  it("ST keeps the old text while the new swipe generates, so the cache misses and the reply lands as a swipe, not an eventless change", async () => {
+    const { world, spike } = await armed("spike");
+    await world.play([{ user: "rain", reply: "song" }, { user: "fire go", reply: "bread" }]);
+    const id = spikeContext.chat.length - 1;
+    const reaction: SpeechEvent = {
+      send: id - 1, origin: "reaction", member: "Mara", generated: true, entry: "start@0", recipient: "scene", instructed: true, yieldAfter: true, at: id - 1, messageId: id, cause: "2@1",
+    };
+    (world.manager as unknown as { extras: RuntimeExtras }).extras.speech = [reaction];
+    await world.newSwipe(id, "stone path");
+    const stored = chatStore.read()?.extras;
+    const journal = (stored?.journal ?? []).map((row) => row.summary);
+    const hits = spike.stats.hits;
+    world.close();
+    expect(hits).toBe(0);
+    expect(journal.filter((summary) => summary.startsWith("eventless change"))).toEqual([]);
+    expect(stored?.speech).toEqual([reaction]);
+  });
+
+  it("only a row showing one of its stored swipes can be a swipe-back", () => {
+    expect(showsStoredSwipe({ mes: "a", swipes: ["a", "b"], swipe_id: 0 })).toBe(true);
+    expect(showsStoredSwipe({ mes: "a", swipes: ["a"], swipe_id: 1 })).toBe(false);
+    expect(showsStoredSwipe({ mes: "a" })).toBe(false);
   });
 });

@@ -1,3 +1,4 @@
+import { SpillGuard, spillGuardOptions } from './spillGuard.mjs';
 import { randomUUID } from 'node:crypto';
 import { admission, residencyChoice, textLatencyDecision } from './policy.mjs';
 import { measuredRamMiB } from './ramEstimates.mjs';
@@ -19,15 +20,39 @@ export function median(values) {
 export const timingProfile = (config, profile) => { const tag = speculativeTag(config); return tag ? `${profile}+${tag}` : profile; };
 
 export class ResidencyScheduler {
-    constructor({ config, backend, snapshot, queue, freeImages, startComfy, saveFootprints, footprints = {}, timings = {}, saveTimings = async () => {}, runtime = async () => ({ id: 'unknown', streaming: false }), log = () => {} }) {
-        Object.assign(this, { config, backend, snapshot, queue, freeImages, startComfy, saveFootprints, footprints, timings, saveTimings, runtime, log });
+    constructor({ config, backend, snapshot, queue, freeImages, startComfy, saveFootprints, footprints = {}, timings = {}, saveTimings = async () => {}, runtime = async () => ({ id: 'unknown', streaming: false }), log = () => {}, comfyPid = () => null }) {
+        Object.assign(this, { config, backend, snapshot, queue, freeImages, startComfy, saveFootprints, footprints, timings, saveTimings, runtime, log, comfyPid });
+        const spillOptions = spillGuardOptions(config);
+        this.spillGuard = spillOptions ? new SpillGuard(spillOptions) : null;
+        this.spill = { events: [], backoffMiB: 0, textSpilled: false };
         this.residentImages = null;
         this.imagesNeedRelease = false;
         this.imageReleaseTargetMiB = null;
         this.freeImages = async (options = {}) => {
             this.residentImages = null;
             this.imagesNeedRelease = true;
-            const result = await freeImages({ ...options, maxUsedGpuMiB: options.maxUsedGpuMiB ?? this.imageReleaseTargetMiB });
+            await this.checkSleepingText();
+            const release = () => freeImages({ ...options, maxUsedGpuMiB: options.maxUsedGpuMiB ?? this.imageReleaseTargetMiB, otherMiB: (snapshot) => this.textHeldMiB(snapshot) });
+            let result;
+            try {
+                try { result = await release(); }
+                catch (error) {
+                    if (RAM_REFUSAL.test(error.message) || !this.backend.status().sleeping || !this.backend.dropSleeping) throw error;
+                    this.log(`image release: GPU memory stayed above ComfyUI's release target while text slept, so the sleeping text server is stopped (member cache dropped) and the release retried: ${error.message}`);
+                    await this.backend.dropSleeping();
+                    result = await release();
+                }
+            } catch (error) {
+                this.releaseFailures = (this.releaseFailures ?? 0) + 1;
+                if (!RAM_REFUSAL.test(error.message) && this.imageReleaseTargetMiB !== null && this.releaseFailures >= (this.config.releaseGiveUpAfter ?? 3)) {
+                    this.lastReleaseGiveUp = { at: new Date().toISOString(), targetMiB: Math.round(this.imageReleaseTargetMiB), failures: this.releaseFailures, error: error.message };
+                    this.log(`image release: ${this.releaseFailures} releases in a row missed the ${Math.round(this.imageReleaseTargetMiB)} MiB target; the next one needs only ComfyUI's own release and the text load's admission`);
+                    this.imageReleaseTargetMiB = null;
+                    this.releaseFailures = 0;
+                }
+                throw error;
+            }
+            this.releaseFailures = 0;
             this.imagesNeedRelease = false;
             this.imageReleaseTargetMiB = null;
             this.lastCacheMode = result?.mode ?? null;
@@ -36,6 +61,10 @@ export class ResidencyScheduler {
         this.pending = [];
         this.activeText = 0;
         this.activeLanes = new Set();
+        this.arrivals = new Set();
+        this.burst = null;
+        this.burstStats = { opened: 0, finished: 0, closed: 0, expired: 0, heldReloads: 0 };
+        this.replyWaits = { replies: 0, cold: 0, coldMs: [], last: null };
         this.imagePending = false;
         this.lease = null;
         this.manualHold = false;
@@ -57,10 +86,50 @@ export class ResidencyScheduler {
         this.ramShort = null;
     }
 
+    openBurst({ count, ttlMs, kind } = {}, now = Date.now()) {
+        if (!Number.isInteger(count) || count < 1 || count > 64) throw new Error('A burst needs count 1..64 (image leases still to come).');
+        if (this.config.imageBursts !== true) return { burst: null, reason: 'imageBursts is off in the controller config.' };
+        const maxMs = this.config.burstMaxMs ?? 600000;
+        const ttl = Number.isInteger(ttlMs) ? Math.min(Math.max(ttlMs, 5000), maxMs) : (this.config.burstDefaultMs ?? 120000);
+        if (this.burst) this.burstStats.closed += 1;
+        this.burst = { id: randomUUID(), remaining: count, until: now + ttl, kind: typeof kind === 'string' ? kind.slice(0, 40) : null };
+        this.burstStats.opened += 1;
+        return { burst: this.burst.id, remaining: count, until: new Date(this.burst.until).toISOString() };
+    }
+
+    closeBurst(id, reason = 'closed') {
+        if (!this.burst || (id && this.burst.id !== id)) return false;
+        this.burst = null;
+        this.burstStats[reason] = (this.burstStats[reason] ?? 0) + 1;
+        return true;
+    }
+
+    burstOpen(now = Date.now()) {
+        if (!this.burst) return false;
+        if (now < this.burst.until) return true;
+        this.closeBurst(null, 'expired');
+        return false;
+    }
+
+    noteReplyWait({ waitedMs, cold }) {
+        const waits = this.replyWaits;
+        waits.replies += 1;
+        if (cold) { waits.cold += 1; waits.coldMs.push(Math.round(waitedMs)); if (waits.coldMs.length > 50) waits.coldMs.shift(); }
+        waits.last = { at: new Date().toISOString(), waitedMs: Math.round(waitedMs), cold: Boolean(cold) };
+    }
+
+    replyWaitStatus() {
+        const waits = this.replyWaits;
+        const sorted = [...waits.coldMs].sort((a, b) => a - b);
+        return { replies: waits.replies, waitedOnReload: waits.cold, share: waits.replies ? Number((waits.cold / waits.replies).toFixed(3)) : null,
+            reloadWaitP50Ms: sorted.length ? sorted[Math.floor(sorted.length / 2)] : null, reloadWaitMaxMs: sorted.length ? sorted[sorted.length - 1] : null, last: waits.last };
+    }
+
     async keepResident(now = Date.now()) {
         if (this.config.keepTextResident === false || this.restoring || this.lease || this.imagePending || this.imageQueued || this.activeText || this.manualHold || this.pending.length) return;
         const state = this.backend.status();
         if (state.pid || state.loading) return;
+        if (this.burstOpen(now)) { if (this.lastHeldLease !== this.lastLeaseAt) { this.lastHeldLease = this.lastLeaseAt; this.burstStats.heldReloads += 1; } return; }
         if (this.lastLeaseAt && now - this.lastLeaseAt < (this.config.textReloadGraceMs ?? 5000)) return;
         if (this.imagesCooling(now)) return;
         if (this.reloadRetryAt && now < this.reloadRetryAt) return;
@@ -81,16 +150,21 @@ export class ResidencyScheduler {
         if (this.manualHold) return Promise.reject(new Error('Text is manually unloaded. Select Automatic or Load text in the tray.'));
         if (this.pending.length >= this.config.maxQueue) return Promise.reject(new Error('Local text queue is full.'));
         return new Promise((resolve, reject) => {
-            const entry = { run, resolve, reject, signal, budget, lane: lane === 'chat' ? 'chat' : 'side', timer: null, abort: null };
+            const entry = { run, resolve, reject, signal, budget, lane: lane === 'chat' ? 'chat' : 'side', idle: lane === 'idle', timer: null, abort: null };
             const remove = (error) => { this.pending = this.pending.filter((row) => row !== entry); this.cleanup(entry); reject(error); };
             entry.abort = () => remove(new Error('Queued request was cancelled.'));
             entry.timer = setTimeout(() => remove(new Error('Local resource queue deadline exceeded.')), this.config.queueTimeoutMs);
             signal?.addEventListener('abort', entry.abort, { once: true });
             if (signal?.aborted) { entry.abort(); return; }
             this.pending.push(entry);
+            if (!entry.idle) this.notifyArrival();
             void this.pump();
         });
     }
+
+    onArrival(listener) { this.arrivals.add(listener); return () => this.arrivals.delete(listener); }
+
+    notifyArrival() { for (const listener of [...this.arrivals]) { try { listener(); } catch { this.arrivals.delete(listener); } } }
 
     cleanup(entry) { clearTimeout(entry.timer); entry.signal?.removeEventListener('abort', entry.abort); }
 
@@ -134,7 +208,7 @@ export class ResidencyScheduler {
             entry.resolve(await entry.run());
         }
         catch (error) { this.lastError = error.message; entry.reject(error); }
-        finally { this.activeText -= 1; this.activeLanes.delete(entry.lane); this.servedText += 1; void this.pump(); }
+        finally { this.activeText -= 1; this.activeLanes.delete(entry.lane); if (!entry.idle) this.servedText += 1; void this.pump(); }
     }
 
     async needFor(body, key) {
@@ -155,7 +229,30 @@ export class ResidencyScheduler {
     imageTurn() {
         const queued = this.imageQueued;
         if (!queued) return true;
+        if (this.config.replyBeforeImage === true && this.pending.some((row) => row.lane === 'chat') && Date.now() - queued.at < (this.config.imageFairWaitMs ?? 45000)) return false;
         return this.servedText - queued.served >= (this.config.imageFairTextRequests ?? 3) || Date.now() - queued.at >= (this.config.imageFairWaitMs ?? 45000);
+    }
+
+    textHeldMiB(snapshot) { return this.backend.heldMiB?.(snapshot) ?? 0; }
+
+    releaseTarget(lease) { return lease.before.gpus[0].usedMiB - (lease.textHeldMiB ?? 0) + 512; }
+
+    async checkSleepingText(reading = null) {
+        if (!this.backend.status().sleeping || !this.backend.checkSleeping) return null;
+        let stray = null;
+        try { stray = await this.backend.checkSleeping(reading); } catch (error) { this.lastError = error.message; }
+        if (stray) this.log(`text sleep: the sleeping text server (pid ${stray.pid}) holds ${stray.heldMiB} MiB of GPU memory, so it was woken outside the controller; stopped it, text reloads on the next request`);
+        return stray;
+    }
+
+    async dropSleepingForRam(needRamMiB) {
+        if (!this.backend.status().sleeping || !this.backend.dropSleeping) return 0;
+        const floor = Math.max(needRamMiB + (this.config.reserves?.ramMiB ?? 0), this.config.keepCacheRamFloorMiB ?? 10240);
+        const reading = await this.snapshot({ fresh: true }).catch(() => null);
+        const available = reading?.host?.availableMiB;
+        if (Number.isFinite(available) && available >= floor) return 0;
+        this.log(`text sleep: dropping the sleeping text server and its member cache, host RAM ${Number.isFinite(available) ? Math.round(available) : 'unreadable'} MiB is under ${floor} MiB for this image`);
+        return this.backend.dropSleeping();
     }
 
     ramShortError(detail) {
@@ -177,6 +274,7 @@ export class ResidencyScheduler {
         this.lastImageRequestAt = Date.now();
         const deadline = Date.now() + this.config.queueTimeoutMs;
         this.imageQueued = { at: Date.now(), served: this.servedText };
+        this.notifyArrival();
         try {
             while (this.restoring || ((this.activeText || (this.pending.length && !this.manualHold)) && !this.imageTurn())) {
                 if (Date.now() > deadline) throw new Error('The text generation did not finish before the image deadline.');
@@ -252,11 +350,12 @@ export class ResidencyScheduler {
                     this.lastError = error.message;
                 }
                 if (!decision) {
-                    await this.backend.unload(); await freeFor(needRamMiB);
+                    await this.backend.unload({ keepCache: true }); await this.dropSleepingForRam(needRamMiB); await freeFor(needRamMiB);
                     snapshot = await this.snapshot({ fresh: true }); decision = 'swap-text';
                 }
             } else {
-                await this.backend.unload();
+                await this.backend.unload({ keepCache: true });
+                await this.dropSleepingForRam(needRamMiB);
                 await freeFor(needRamMiB);
                 snapshot = await this.snapshot({ fresh: true });
                 decision = 'swap-text';
@@ -283,7 +382,7 @@ export class ResidencyScheduler {
             this.lease = { id: randomUUID(), at: Date.now(), touched: Date.now(), key: observedKey, workflowKey: key, identity, before: creditedSnapshot(snapshot, this.residentImages ? memory.credit : null),
                 peakGpu: snapshot.gpus[0].usedMiB, lowRam: snapshot.host.availableMiB, lowCommit: snapshot.host.commitFreeMiB,
                 lowGpu: snapshot.gpus[0].freeMiB, highCadence: snapshot.highCadence === true, seenJob: false, decision, needGpuMiB, needRamMiB,
-                trace: [] };
+                textHeldMiB: residentText.pid ? this.textHeldMiB(snapshot) : 0, trace: [] };
             return { lease: this.lease.id, brokered: true, decision };
         } catch (error) {
             this.lastError = error.message;
@@ -365,6 +464,7 @@ export class ResidencyScheduler {
             const [snapshot, queue] = await Promise.all([this.snapshot({ fresh: true }), this.queue()]);
             if (this.lease !== lease) return;
             this.observe(snapshot);
+            await this.checkSleepingText(snapshot);
             busy = Boolean(queue.queue_running?.length || queue.queue_pending?.length);
             lease.seenJob ||= busy;
         } catch (error) { this.lastError = error.message; }
@@ -372,7 +472,27 @@ export class ResidencyScheduler {
         try { await this.release(lease.id); } catch (error) { this.lastError = error.message; }
     }
 
+    watchSpill(snapshot, now = Date.now()) {
+        if (!this.spillGuard) return null;
+        const state = this.backend.status();
+        if (state.loading) return null;
+        const event = this.spillGuard.observe(snapshot, { text: state.pid, comfy: this.comfyPid() }, now);
+        if (!event) return null;
+        const step = this.spillGuard.nextStep(this.spill.backoffMiB, event.deltaMiB);
+        if (step > 0 && this.config.reserves) {
+            this.config.reserves.gpuMiB += step;
+            if (this.config.streamImages) this.config.streamImages.minFreeGpuMiB = (this.config.streamImages.minFreeGpuMiB ?? 2400) + step;
+            this.spill.backoffMiB += step;
+        }
+        if (event.role === 'text') this.spill.textSpilled = true;
+        this.spill.events.push({ at: new Date(now).toISOString(), ...event, stepMiB: step, during: this.lease ? 'image' : this.activeText ? 'text' : 'idle', reserveMiB: this.config.reserves?.gpuMiB ?? null });
+        if (this.spill.events.length > 20) this.spill.events.shift();
+        this.log(`GPU memory spilled to shared memory: ${event.role} +${event.deltaMiB} MiB; GPU headroom raised by ${step} MiB to ${this.config.reserves?.gpuMiB} MiB`);
+        return event;
+    }
+
     observe(snapshot) {
+        this.watchSpill(snapshot);
         const lease = this.lease;
         if (!lease) return;
         lease.peakGpu = Math.max(lease.peakGpu, snapshot.gpus[0].usedMiB);
@@ -421,11 +541,11 @@ export class ResidencyScheduler {
                 this.observe(snapshot);
                 this.residentImages = imageResidency(lease, snapshot, this.config.reserves);
                 this.imagesNeedRelease = true;
-                this.imageReleaseTargetMiB = lease.before.gpus[0].usedMiB + 512;
+                this.imageReleaseTargetMiB = this.releaseTarget(lease);
                 cache = { mode: 'gpu-warm' };
             } else try {
                 cache = await this.freeImages({ ramRequiredMiB: this.backend.status().pid ? 0 : profile?.estimatedRamMiB ?? 6500,
-                    maxUsedGpuMiB: lease.before.gpus[0].usedMiB + 512 });
+                    maxUsedGpuMiB: this.releaseTarget(lease) });
             } catch (error) { this.lastError = error.message; }
             if (!warm) try { this.observe(await this.snapshot({ fresh: true })); } catch (error) { this.lastError = error.message; }
             this.lastWorkflow = lease.workflowKey;
@@ -439,6 +559,7 @@ export class ResidencyScheduler {
         } finally {
             if (this.lease === lease) this.lease = null;
             this.lastLeaseAt = Date.now();
+            if (this.burstOpen()) { this.burst.remaining -= 1; if (this.burst.remaining <= 0) this.closeBurst(null, 'finished'); }
             void this.pump();
         }
         return true;
@@ -446,15 +567,17 @@ export class ResidencyScheduler {
 
     async recoverFitSpill(now = Date.now()) {
         const state = this.backend.status();
-        if (!(state.fitCorrectionMiB > 0) || !state.pid || state.loading || state.fitTargetMiB !== null || this.restoring) return false;
+        const spilled = this.spill.textSpilled;
+        if (!(state.fitCorrectionMiB > 0 || spilled) || !state.pid || state.loading || state.fitTargetMiB !== null || this.restoring) return false;
         if (this.lease || this.imagePending || this.imageQueued || this.activeText || this.manualHold || this.pending.length) return false;
-        if (this.imagesCooling(now) || (this.lastLeaseAt && now - this.lastLeaseAt < (this.config.reclaimImageGraceMs ?? 180000))) return false;
-        if (this.lastSpillRecoveryAt && now - this.lastSpillRecoveryAt < (this.config.fitRecoverMs ?? 600000)) return false;
+        if (!spilled && (this.imagesCooling(now) || (this.lastLeaseAt && now - this.lastLeaseAt < (this.config.reclaimImageGraceMs ?? 180000)))) return false;
+        if (!spilled && this.lastSpillRecoveryAt && now - this.lastSpillRecoveryAt < (this.config.fitRecoverMs ?? 600000)) return false;
         this.lastSpillRecoveryAt = now;
         this.restoring = true;
         try {
             const cleared = this.backend.clearFitCorrection(state.profile);
-            this.log(`text spill recovery: reloading ${state.profile} without its ${cleared} MiB fit correction`);
+            this.spill.textSpilled = false;
+            this.log(`text spill recovery: reloading ${state.profile} without its ${cleared} MiB fit correction${spilled ? ' after a shared-memory spill' : ''}`);
             await this.backend.unload();
             await this.backend.load(state.profile, { fitTarget: null });
             this.lastError = null;
@@ -464,6 +587,7 @@ export class ResidencyScheduler {
     }
 
     async restoreIfIdle() {
+        if (this.burstOpen()) return;
         if (await this.recoverFitSpill()) return;
         const idleMs = this.config.idleRestoreMs ?? 0;
         if (!idleMs || this.restoring) return;
@@ -529,11 +653,11 @@ export class ResidencyScheduler {
 
     status() {
         return { phase: this.imagePending ? 'reserving' : this.lease ? 'image' : this.restoring ? 'restoring' : this.manualHold ? 'manual-hold' : 'text',
-            activeText: this.activeText, overlappedText: this.overlapped ?? 0, waitingText: this.pending.length, imageLease: Boolean(this.lease),
+            activeText: this.activeText, overlappedText: this.overlapped ?? 0, burst: { open: this.burstOpen() ? { remaining: this.burst.remaining, until: new Date(this.burst.until).toISOString(), kind: this.burst.kind } : null, ...this.burstStats }, replyWaits: this.replyWaitStatus(), spill: { backoffMiB: this.spill.backoffMiB, textSpilled: this.spill.textSpilled, events: this.spill.events.slice(-5) }, waitingText: this.pending.length, imageLease: Boolean(this.lease),
             imageWaiting: Boolean(this.imageQueued), servedText: this.servedText, fairImages: true, ramShort: this.ramShort,
             text: this.backend.status(), objective: this.config.residencyObjective ?? 'total-wait', timings: this.timings, lastTextDecision: this.lastTextDecision,
             lastDecision: this.lastDecision, lastResidency: this.lastResidency, lastNeedGpuMiB: this.lastNeedGpuMiB, measurement: this.lastMeasurement ? { ...this.lastMeasurement, trace: undefined } : null,
-            imageResidency: { mode: this.residentImages ? 'gpu-warm' : this.lastCacheMode, awaitingReclaim: this.imagesNeedRelease },
+            imageResidency: { mode: this.residentImages ? 'gpu-warm' : this.lastCacheMode, awaitingReclaim: this.imagesNeedRelease, releaseTargetMiB: this.imageReleaseTargetMiB, releaseFailures: this.releaseFailures ?? 0, lastReleaseGiveUp: this.lastReleaseGiveUp ?? null },
             lastError: this.lastError };
     }
 }

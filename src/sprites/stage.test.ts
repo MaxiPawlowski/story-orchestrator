@@ -7,6 +7,7 @@ import * as host from "@services/stHost/sprites";
 import { spriteStageHealth } from "@runtime/spriteStageHealth";
 import { liveHeadKey } from "./liveHeadRefs";
 import { storedReadRecord } from "./storedReads";
+import { visualBridge } from "./packs/bridgeHost";
 
 type Handler = (...args: unknown[]) => unknown;
 const handlers = new Map<string, Handler>();
@@ -20,7 +21,14 @@ jest.mock("@services/STAPI", () => ({
 }));
 
 jest.mock("@services/stHost/image", () => ({ imageModel: jest.fn() }));
+jest.mock("./packs/bridgeHost", () => ({ visualBridge: jest.fn() }));
 jest.mock("@runtime/settingsStore", () => ({ setGlobalSettings: jest.fn() }));
+const mockLookRequests: Array<{ folder: string; fields: Record<string, string> }> = [];
+jest.mock("./builder/onDemand", () => ({ OnDemandLooks: class {
+  request(request: { folder: string; fields: Record<string, string> }) { mockLookRequests.push({ folder: request.folder, fields: request.fields }); }
+  revalidate() { return undefined; }
+  close() { return undefined; }
+} }));
 
 interface Row { name: string; is_user?: boolean; mes: string; swipe_id?: number; extra?: Record<string, unknown> }
 
@@ -99,6 +107,8 @@ let settings: SpriteSettings = { ...defaultSpriteSettings(), enabled: true, expl
 let judgeAnswers: Record<string, unknown> | null = null;
 let snapshotBuilds = 0;
 let roster: Array<{ id: string; name?: string }> = [];
+let board: Record<string, unknown> = {};
+let storyExtra: Record<string, unknown> = {};
 
 const manager = {
   getEffectiveSettings: () => ({ sprites: settings }),
@@ -109,9 +119,10 @@ const manager = {
     roster,
     checkpoints: [{ id: "cp1", effects: stage ? { stage } : {} }],
     checkpointById: { cp1: { id: "cp1", effects: stage ? { stage } : {} } },
+    ...storyExtra,
   }),
-  getSnapshot: () => { snapshotBuilds += 1; return { activeCheckpointId: "cp1", blackboard: {} }; },
-  getCachedSnapshot: () => ({ activeCheckpointId: "cp1", blackboard: {} }),
+  getSnapshot: () => { snapshotBuilds += 1; return { activeCheckpointId: "cp1", blackboard: board }; },
+  getCachedSnapshot: () => ({ activeCheckpointId: "cp1", blackboard: board }),
   subscribe: (listener: () => void) => { storyListeners.push(listener); return () => {}; },
   getJudge: () => (judgeAnswers ? { ask: async () => ({ answers: judgeAnswers }) } : null),
   touch: () => undefined,
@@ -136,6 +147,8 @@ beforeEach(() => {
   vnMode = true;
   storyListeners.length = 0;
   roster = [];
+  board = {};
+  storyExtra = {};
   members = [{ name: "Ellie", avatar: "ellie.png" }, { name: "Tobias", avatar: "tobias.png" }];
   hints.length = 0;
   pending = [];
@@ -734,5 +747,47 @@ describe("sprite stage: clicking a passage replays its read, selecting text does
     mount();
     click(document.getElementById("link") as HTMLElement);
     expect(face(sprites, "Ellie")).toBe("happy");
+  });
+});
+
+describe("sprite stage: visual packs", () => {
+  const DEFAULT = "/characters/Wanderer/pack/default_neutral.png", RAIN = "/characters/Wanderer/pack/rain_cloak_neutral.png";
+  const signature = JSON.stringify([["outfit", "grey rain cloak"]]);
+
+  it("a pack-bound member with no installed sprites and no builder stands from its pack, and a look change shows the pack's look without asking a builder", async () => {
+    members = [{ name: "Wanderer", avatar: "wanderer.png", noPack: true }];
+    roster = [{ id: "wanderer", name: "Wanderer" }];
+    storyExtra = { illustrations: { packs: { identities: { wanderer: { id: "fixture-wanderer", digest: "d".repeat(64) } } } },
+      cardFieldByQuality: { wanderer_outfit: { owner: "wanderer", field: "outfit", quality: "wanderer_outfit", visual: true } } };
+    list.mockImplementation(async () => []);
+    const stageFor = jest.fn(async () => ({ pack: "fixture-wanderer@d", defaultFiles: new Map([["neutral", DEFAULT]]),
+      looks: { [signature]: { set: "pk_rain_cloak", files: new Map([["neutral", RAIN]]) } } }));
+    jest.mocked(visualBridge).mockReturnValue({ stage: stageFor } as unknown as ReturnType<typeof visualBridge>);
+    const sprites = await started();
+    await flush();
+    expect(stageFor).toHaveBeenCalledWith(expect.objectContaining({ roster }), "wanderer");
+    expect(sprites.view().actors.map((actor) => [actor.name, actor.path])).toEqual([["Wanderer", DEFAULT]]);
+    board = { wanderer_outfit: "grey rain cloak" };
+    storyListeners.forEach((listener) => listener());
+    await flush();
+    expect(sprites.view().actors[0]).toMatchObject({ set: "pk_rain_cloak", path: RAIN });
+    expect(settings.builders).toEqual({});
+  });
+});
+
+describe("sprite stage: on-demand looks with poses on", () => {
+  it("a member the pose path does not take (no pose in its library) still asks for an on-demand changed look", async () => {
+    members = [{ name: "Ellie", avatar: "ellie.png" }];
+    roster = [{ id: "ellie", name: "Ellie" }];
+    storyExtra = { poses: { use: ["no_such_pose"] }, cardFieldByQuality: { ellie_coat: { owner: "ellie", field: "coat", quality: "ellie_coat", visual: true } } };
+    settings = { ...settings, poses: true, onDemand: true };
+    mockLookRequests.length = 0;
+    await started();
+    board = { ellie_coat: "yellow oilskin coat" };
+    storyListeners.forEach((listener) => listener());
+    for (let round = 0; round < 5; round += 1) await new Promise((resolve) => setTimeout(resolve, 0));
+    storyListeners.forEach((listener) => listener());
+    await flush();
+    expect(mockLookRequests).toContainEqual({ folder: "Ellie", fields: { coat: "yellow oilskin coat" } });
   });
 });

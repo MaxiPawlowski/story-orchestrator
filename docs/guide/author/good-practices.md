@@ -36,7 +36,7 @@ Where a diagnostic or a source file covers an item, it is named in brackets.
 **Scripted lines and openers**
 
 21. **Scripted lines have no time or place check.** Word them to fit wherever they fire, or use an `llm` reply with an instruction.
-22. **Exactly one `new_chat_only` opener per story**, and none when an entering reply already introduces the character.
+22. **Exactly one scripted `new_chat_only` opener per story, plus at most one opening hook** (an `llm` `new_chat_only` reply, usually `ask_player`), and no scripted opener when an entering reply already introduces the character.
 
 **Lore**
 

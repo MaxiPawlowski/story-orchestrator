@@ -16,6 +16,7 @@ import { indexCardFields, validateCardEffects } from "./cardFields";
 import { readPlayer } from "./validate/player";
 import { GAME_LAYER_LOADING, gameLayer, usesGameLayer, type GameLayer } from "./validate/gameLayer";
 import { checkRecapGates } from "./validate/recap";
+import { checkPackBindings } from "./validate/illustrations";
 
 export { readChapters };
 
@@ -111,7 +112,7 @@ const checkTurnsKey = (qualityByKey: Record<string, Quality>, errors: Validation
 const readLivingParts = (layer: GameLayer | null, json: Record<string, unknown>, errors: ValidationError[]) => {
   const living = layer?.living.readLiving(json.living, errors);
   const authored = readList(json.checkpoints, "checkpoints", readCheckpoint, errors);
-  const checkpoints = living && layer?.living.needsLivingOpening(living, authored) ? [layer.living.livingOpening(living, json.chapters), ...authored] : authored;
+  const checkpoints = living && layer?.living.needsLivingOpening(living, authored) ? [layer.living.livingOpening(living, json.chapters, json.talk_defaults), ...authored] : authored;
   const qualities = readList(json.qualities, "qualities", readQuality, errors);
   return { living, checkpoints, baseQualities: layer ? layer.living.addLivingQualities(living, qualities) : qualities };
 };
@@ -161,6 +162,7 @@ export const parseStory = (json: unknown): NormalizedStory | ValidationError[] =
   const startCheckpointId = starts[0]?.id ?? checkpoints[0]?.id ?? "";
 
   checkReferences({ checkpoints, transitions, checkpointById, qualityByKey, arcBridges }, errors);
+  checkPackBindings(options.illustrations?.packs, new Set(roster.map((member) => member.id)), new Set(Object.keys(checkpointById)), errors);
   const normalizedTransitions = transitions.map((transition, declarationIndex) => ({ ...transition, declarationIndex }));
   const reachableByCheckpoint = buildReachability(checkpoints, normalizedTransitions);
   checkIntermediates(checkpoints, checkpointById, reachableByCheckpoint, errors);
@@ -207,6 +209,7 @@ export const parseStory = (json: unknown): NormalizedStory | ValidationError[] =
     ...(options.scene_read ? { scene_read: options.scene_read } : {}),
     ...(options.lore_select ? { lore_select: options.lore_select } : {}),
     ...(options.house_rules ? { house_rules: options.house_rules } : {}),
+    ...(options.talk_defaults ? { talk_defaults: options.talk_defaults } : {}),
     ...(options.objective_block ? { objective_block: options.objective_block } : {}),
     ...(options.display ? { display: options.display } : {}),
     ...(chapters ? { chapters } : {}),

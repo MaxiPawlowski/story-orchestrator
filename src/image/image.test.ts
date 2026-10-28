@@ -1,6 +1,6 @@
 import { checkpointFor, FAMILIES } from "./catalog";
 import { buildGraph } from "./graph";
-import { assembleImagePrompt, imageMessages, sceneForImage } from "./prompt";
+import { assembleImagePrompt, imageMessages, joinTags, sceneForImage } from "./prompt";
 import { resolveImageRoute } from "./routing";
 import { automationAllowsCues, defaultImageSettings, messageAlreadyDrawn, sanitizeImageChatState, sanitizeImageOverride, sanitizeImageSettings } from "./settings";
 import { firedLoreKeys, visualLore } from "./lore";
@@ -49,10 +49,27 @@ describe("Image Director merge", () => {
     expect(route.family.id).toBe("sdxl-illustrious");
     const { positive, negative } = assembleImagePrompt(route, null, "a ruined temple at dusk");
     expect(positive).toContain("no humans, scenery");
+    const reply = { caption: "c", checkpoint: "", reason: "", visible: [], aspect: null, shot: null, prompt: "no humans, tavern interior, Scenery, warm glow", negative: "worst quality, blurry" };
+    const directed = assembleImagePrompt(route, reply, "");
+    expect(directed.positive.match(/no humans/g)).toHaveLength(1);
+    expect(directed.positive.match(/scenery/gi)).toHaveLength(1);
+    expect(directed.negative.match(/worst quality/g)).toHaveLength(1);
+    expect(joinTags(["no humans, scenery", " no humans ,  tavern interior", "", null])).toBe("no humans, scenery, tavern interior");
     expect(positive.split(", ").length).toBeGreaterThan(3);
     expect(negative).toContain("worst quality");
     expect(Object.values(FAMILIES).map((family) => family.id)).toEqual(["sdxl-illustrious", "sdxl-noobai"]);
     expect(Object.values(settings.purposes).every((row) => row.checkpoint === "" && row.family in FAMILIES)).toBe(true);
+  });
+
+  it("ends with a real framing tag, the director's shot over the route default", () => {
+    const route = resolveImageRoute(defaultImageSettings(), "scene", {}, sanitizeImageOverride(null));
+    const tail = (positive: string) => positive.split(", ").at(-1);
+    expect(tail(assembleImagePrompt({ ...route, shot: "cowboy" }, null, "a hall").positive)).toBe("cowboy shot");
+    expect(tail(assembleImagePrompt({ ...route, shot: "upper" }, null, "a hall").positive)).toBe("upper body");
+    const reply = { caption: "c", checkpoint: "", reason: "", visible: [], aspect: null, shot: "wide" as const, prompt: "1girl, hall", negative: "" };
+    const directed = assembleImagePrompt({ ...route, shot: "cowboy" }, reply, "").positive;
+    expect(tail(directed)).toBe("wide shot");
+    expect(directed).not.toMatch(/(^|, )cowboy(,|$)/);
   });
 
   it("falls a stored FLUX choice back to the default and records it for the Repair row", () => {
@@ -109,6 +126,20 @@ describe("Image Director merge", () => {
     expect(scene.location).toBe("Wendhope");
   });
 
+  it("draws who speaks or is named, not every enabled member of a large group", () => {
+    const scene = sceneForImage({
+      id: "chat-1", groupId: "g", folder: "g", userName: "Player",
+      messages: [{ name: "Keeper", mes: "Tobias waves from the door while the hall fills.", is_user: false, is_system: false, original_avatar: "k.png" }],
+      characters: [
+        { key: "k.png", name: "Keeper", appearance: "", description: "narrator", enabled: true },
+        { key: "t.png", name: "Tobias Reed", appearance: "short brown hair", description: "", enabled: true },
+        { key: "x.png", name: "Absent", appearance: "tall", description: "", enabled: true },
+        { key: "y.png", name: "Muted Tobias", appearance: "red cloak", description: "", enabled: false },
+      ],
+    }, { purpose: "scene", text: "", messageId: null }, 6);
+    expect(scene.subjects.map((subject) => subject.name)).toEqual(["Keeper", "Tobias Reed"]);
+  });
+
   it("uses only visible appearance lines and the current path's gated entry in scan mode", () => {
     const lines = visualLore([
       { world: "Adolion World", uid: 1, comment: "Wendhope", key: ["Wendhope"], content: "Secret plot: the king is a spy.\nAppearance: misty stone walls." },
@@ -136,8 +167,8 @@ describe("Image Director merge", () => {
   });
   it("keeps image counters and cue keys with their own chat", () => {
     const state = { chatId: "chat-a", override: { paused: true }, emitted: ["chat-a:story:checkpoint:0", "chat-b:story:checkpoint:0"], automationCount: 4 };
-    expect(sanitizeImageChatState(state, "chat-a", "story")).toMatchObject({ override: { paused: true }, emitted: ["chat-a:story:checkpoint:0"], automationCount: 4 });
-    expect(sanitizeImageChatState(state, "chat-b")).toMatchObject({ override: { paused: false }, emitted: [], automationCount: 0 });
+    expect(sanitizeImageChatState(state, "chat-a", "story")).toMatchObject({ override: { paused: true }, emitted: ["chat-a:story:checkpoint:0"] });
+    expect(sanitizeImageChatState(state, "chat-b")).toMatchObject({ override: { paused: false }, emitted: [] });
     expect(sanitizeImageChatState({ ...state, chatId: undefined }, "chat-a").emitted).toEqual(["chat-a:story:checkpoint:0"]);
     expect(sanitizeImageChatState({ ...state, emitted: ["chat-a:story:checkpoint:0", "chat-a:other:checkpoint:0"] }, "chat-a", "story").emitted)
       .toEqual(["chat-a:story:checkpoint:0"]);

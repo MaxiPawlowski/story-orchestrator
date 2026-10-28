@@ -36,6 +36,7 @@ export interface BodyDeps {
   proportions?(image: PixelImage, discovery: ComfyDiscovery, signal: AbortSignal): Promise<PoseEntry["keypoints"] | undefined>;
   head?(image: PixelImage, discovery: ComfyDiscovery, signal: AbortSignal): Promise<PoseEntry["keypoints"] | null | undefined>;
   lineage?(folder: string, signal: AbortSignal): Promise<{ root: string; baseSet: string; current(): boolean } | undefined>;
+  published?(folder: string, root: string, fields: Record<string, string>): { set: string; sha256: string } | null;
   publishLook?(run: Pick<RunGuard, "stillOwns">, folder: string, root: string, set: string, fields: Record<string, string>,
     base: { path: string; sha256: string; key: string; recipe: { id: string; version: number } }): void;
 }
@@ -134,6 +135,13 @@ export class PoseBodies {
     guard();
     request.apply({ set: body.set, files: [{ label: "neutral", path }], body });
   }
+  private async lookBase<T extends { sha256: string }>(request: BodyRequest, root: string | undefined,
+    checked: (set: string, label: string) => Promise<T | null>, neutral: T): Promise<{ base: T; render: boolean }> {
+    if (!Object.keys(request.layers.base).length) return { base: neutral, render: false };
+    const published = root ? this.deps.published?.(request.folder, root, request.layers.base) : null;
+    const reused = published ? await checked(published.set, "neutral") : null;
+    return published && reused?.sha256 === published.sha256 ? { base: reused, render: false } : { base: neutral, render: true };
+  }
   async render(request: BodyRequest): Promise<BodyResult | null> {
     if (this.closed || !request.accepts()) return null;
     const run = beginRun(this.deps.ownership), builder = this.deps.builder();
@@ -181,8 +189,9 @@ export class PoseBodies {
         return saved;
       };
       const common = { character: request.folder, models, ...render, story: request.story, member: request.member, ...(lineage ? { visualRoot: lineage.root } : {}) };
-      let base = neutral;
-      if (Object.keys(request.layers.base).length) {
+      const start = await this.lookBase(request, lineage?.root, checkedPack, neutral);
+      let base = start.base;
+      if (start.render) {
         if (!cutout) throw new Error("Install a background-removal setup before rendering a new look base.");
         const reference = request.layers.rebase ? request.cardArt : neutral.path;
         if (!reference) throw new Error("A rebase needs the character card art.");

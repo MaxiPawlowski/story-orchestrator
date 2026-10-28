@@ -55,8 +55,10 @@ Optional `config.json` keys, all read by `broker/backend.mjs` `nativeArgs` (plan
   the last chat prompt's state and checkpoints while side passes run, without a RAM prompt cache. Each extra slot adds
   `estimatedGpuMiB` to the load admission (not to `--fit-target`: llama-server's fit measures its own KV slots).
   The slots share `--ctx-size`, so the gateway keeps each slot's last prompt + output and erases the other slots
-  (`POST /slots/<id>?action=erase`) before a request that would not fit beside them. `/props` reports `total_slots`;
-  `/status` reports `text.slots` (`held` tokens per slot, `requests.chat`/`requests.side`, `erased`). With slots the
+  (`POST /slots/<id>?action=erase`) before a request that would not fit beside them. A slot still generating is never
+  erased: the overflowing request waits for it to finish (`waited`), and a side pass that erases the chat slot is
+  counted (`chatErasedBySide`) and drops that slot's member owner. `/props` reports `total_slots`;
+  `/status` reports `text.slots` (`held` tokens per slot, `requests.chat`/`requests.side`, `erased`, `busy`). With slots the
   prompt-reuse park is never sent (it would land on a pinned slot).
 - `promptReuse: { enabled, minChars, minPrefixChars, minTailChars, history, parkWhenIdle }` (off unless `enabled`).
   Gemma 4 keeps 50 of 60 layers as sliding-window attention, so llama-server can resume a shared prompt prefix only
@@ -105,9 +107,23 @@ Optional `config.json` keys, all read by `broker/backend.mjs` `nativeArgs` (plan
   ~1.2-1.4 GiB per member), so `erase` can be off. `idlePrefill: true` (needs `serverKeys`) warms, after `idleDelayMs`
   (3000) with nothing waiting, each known member's next stable prefix: its head plus every history turn of the latest
   chat prompt except the last three (the depth-4 blocks sit four turns before the end, so the next prompt of any member
-  starts with exactly this text; checked byte-exact on 22 of 22 recorded turns). It runs in the text lane, yields between
-  members when a request arrives, and never loads text. The gateway cannot see the chat id, so keys are head hashes; the
+  starts with exactly this text; checked byte-exact on 22 of 22 recorded turns). It runs in the text lane, never loads
+  text and never counts toward image fairness; any text request or image arriving aborts the running step at once (the
+  server stops at its next batch) and counts an `idleYields`. The gateway cannot see the chat id, so keys are head hashes; the
   server only reuses state for an identical token prefix, so a shared head reuses only identical text.
+- `memberCache.keepAcrossImages: true` (plan v3.0 09 K; needs the so3 binary's `POST /sleep`) puts llama-server to
+  sleep for an image swap instead of stopping it: the weights and KV leave VRAM, the RAM prompt cache stays in the
+  process, and the next text request wakes it (`text.sleeping`, `text.sleepStats`). Any request that reaches a sleeping
+  llama-server other than `/health`, `/props`, `/metrics`, `/models` reloads the model on its own, so only the controller
+  may talk to it (plan v3.0 22): token counts go straight to the backend only through `NativeBackend.tryDirect`,
+  which refuses while a sleep is being entered or held, and a sleep waits for counts already in flight. A sleeping
+  process found holding more than `strayWakeMiB` (2048) of GPU memory (per-process counter, sampled in every image
+  lease, before an image release and before a wake; only readings taken `strayWakeSettleMs` (5000) after the sleep and
+  not contradicted by the GPU total count, since the counter lags the release) was woken outside the controller: it is stopped (member cache
+  dropped, `sleepStats.strayWakes`, `lastStrayWake`) and text starts clean. The image release target and its check
+  leave out the text process's own GPU memory, so a held text server is never read as unreleased ComfyUI memory; a
+  release that still fails while text sleeps stops the sleeping server and retries once. A wake short of the full
+  layout first asks for idle ComfyUI memory (same guards as the reload reclaim, `sleepStats.wakeReclaims`).
 
 `node scripts/local/stable-head.mjs plan|apply|revert --data <ST user data dir> --group <id>[,<id>] [--backup <dir>]`
 moves the system prompt's `{{char}}` sentences to its post-history instruction (a new `... (stable head)` system-prompt
@@ -186,16 +202,25 @@ presets live in `config.json` under `modes` (edit them there) and the selected o
 
 | Setting | Max (only playing) | Balanced (as before) | Safe (using the PC too) | Applies |
 |---|---|---|---|---|
-| `reserves.gpuMiB` | 1536 | 2048 | 3072 | now for images and admission; the text layout at its next load |
-| `reserves.ramMiB` | 3072 | 4096 | 6144 | now |
+| `reserves.gpuMiB` | 1024 | 2048 | 3072 | now for images and admission; the text layout at its next load |
+| `reserves.ramMiB` | 2048 | 4096 | 6144 | now |
 | `streamImages.enabled` | on | on | off | now (next image) |
 | `streamImages.minFreeGpuMiB` | 2400 | 2400 | 2400 | now |
 | `idleRestoreMs` | 180000 | 600000 | 600000 | now |
 | `keepTextResident` | on | on | on | now |
 | `fitMarginMiB` | 512 | 512 | 512 | next text load |
 | `imageCacheMode` | warm | warm | evict | now (next image release) |
+| `memberCache.budgetMiB` | 4096 | (current) | 2048 | next text load (`--cache-ram` of the RAM member cache) |
 
-Why these numbers (records: `docs/plans/v2.7/22-local-residency.md`, `22b-residency-harvest-2026-10-07.md`):
+Why these numbers (records: `docs/plans/v2.7/22-local-residency.md`, `22b-residency-harvest-2026-10-07.md`, and for Max
+`docs/plans/v3.0/09-controller-round-3.md` §M):
+
+- Max (2026-10-26, A setup: patched b11888, MTP 2, RAM member cache). GPU headroom 1024 and 1536 behaved the same: text
+  left 2.2 GiB free after load, every SDXL scene swapped the text out (MTP leaves less than the 2400 MiB stream floor),
+  no spill, no fit correction, no refusal, and decode after each image matched decode before it. 1024 only admits more
+  reloads beside foreign VRAM, and the spill guard backs off if that ever spills. A 6144 MiB member cache filled to 6.2 GiB
+  in 30 requests and left 7.8-9.3 GiB available, below the 10,240 MiB floor, so Max keeps 4096. Every image swap
+  restarts llama-server, which empties the RAM member cache.
 
 - GPU reserve. The desktop holds about 0.8 GiB; full `fast` text leaves about 2.7 GiB free at a 2048 + 512 fit target,
   all layers on the GPU. Max 1536 (fit target 2048, measured `--fit` undershoot ≤ 0.25 GiB still clears it) does not
@@ -238,6 +263,29 @@ next time text loads (after an image, an idle restore, Load text); the loaded mo
 `performance.atNextTextLoad` lists them until then. A controller started before this change answers `/ui` with 404;
 `cli mode` then saves the file and says it applies at the next controller start. With the controller stopped, `cli`
 saves directly.
+
+**Spill guard** (`spillGuard: { enabled, thresholdMiB 512, sustainMs 3000, stepMiB 512, maxBackoffMiB 2048, settleMs 15000 }`, on unless
+`enabled: false`). Under WDDM a CUDA allocation that does not fit in VRAM can land in shared system memory instead of
+failing (text then ran 1.4 tok/s on 2026-10-22). The telemetry probe reads each GPU process's `Shared Usage` counter
+(PDH `\GPU Process Memory(pid_*)`, once a second) for the text server and the owned ComfyUI. Each process keeps the
+lowest non-zero value seen after its first `settleMs` as its baseline (a reading of 0 right after a load once made normal
+pinned buffers look like a 1.6 GiB spill) (llama-server holds ~1.2-1.7 GiB of pinned host buffers there from the start); a rise
+of `thresholdMiB` held for `sustainMs` is a spill. The controller then raises `reserves.gpuMiB` and
+`streamImages.minFreeGpuMiB` by at least the spilled amount (`stepMiB` minimum, `maxBackoffMiB` in total, in memory
+only: a restart or a mode save resets them) and, when the text server spilled, reloads text as soon as nothing runs.
+`/status` → `spill { backoffMiB, textSpilled, events }`.
+
+**Image bursts and reply waits** (plan 11a):
+- `reclaimFreeFirst` (on by default). On a text reserve miss, the controller first asks the idle owned ComfyUI to free
+  its models (`/free` + host-cache release). It stops ComfyUI only when free VRAM still misses the reserve after
+  `reclaimFreeWaitMs`.
+- `imageBursts` (off unless `true`). The page announces a run of image leases with `POST /burst {count, ttlMs, kind}`
+  (on-demand look edits do). While the burst is open and no text request waits, the text reload between its leases is
+  held, and so are idle restore and the ComfyUI reclaim. A reply still loads text at once. The burst ends after `count`
+  leases, on `{close: id}`, or at its deadline (`burstMaxMs`, 600 s).
+- `replyBeforeImage` (off unless `true`). A queued chat reply runs before a queued image, within `imageFairWaitMs`.
+- `/status` → `burst`, `replyWaits {replies, waitedOnReload, share, reloadWaitP50Ms}` (time each streamed reply waited
+  while text was unloaded or an image held the GPU), `comfy.reclaims {freed, stopped}`.
 
 **Settings page**: `http://127.0.0.1:18888/ui` (served by the controller, loopback only, no external files). It shows
 live GPU/RAM free, the mode picker, and each setting with a one-line trade-off; edits save as `custom`, through the same

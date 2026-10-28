@@ -6,13 +6,14 @@ export interface HostReplyText {
   mes: string;
   reasoning: string;
   isUser: boolean;
+  name?: string;
 }
 
 export function readReplyText(messageId: number): HostReplyText | null {
   const message = getContext()?.chat?.[messageId];
   if (!isRecord(message) || typeof message.mes !== "string") return null;
   const reasoning = isRecord(message.extra) && typeof message.extra.reasoning === "string" ? message.extra.reasoning : "";
-  return { mes: message.mes, reasoning, isUser: message.is_user === true };
+  return { mes: message.mes, reasoning, isUser: message.is_user === true, ...(typeof message.name === "string" ? { name: message.name } : {}) };
 }
 
 export function rewriteReplyText(messageId: number, text: { mes: string; reasoning: string }): WriteResult {

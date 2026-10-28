@@ -3,11 +3,7 @@ import { lorebookFileId } from "@utils/string";
 
 export const YOU_DECIDE = "You decide — pick sensible defaults and say which ones you picked.";
 
-const slug = (value: string) => value.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
-
-// One wizard session per draft, so an interrupted setup resumes on the story it belongs to and
-// never bleeds into the next one. A draft with no id yet keys by its title.
-export const wizardSessionKey = (draft: { id?: string; title?: string }): string => slug(draft.id ?? draft.title ?? "") || "untitled";
+export { wizardSessionKey } from "./sessionKey";
 
 export const newWizardSession = (key: string, seed = ""): WizardSessionState => ({
   key,

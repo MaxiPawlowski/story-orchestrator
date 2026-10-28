@@ -12,10 +12,28 @@ export const beatLabel = (checkpoint: Pick<Checkpoint, "player_name"> | null | u
   checkpoint?.player_name?.trim() || null;
 
 export const cueText = (kind: "checkpoint" | "scene", label: string | null): string =>
-  kind === "checkpoint" ? (label ? `Establishing shot of ${label}.` : "Establishing shot of the current scene.") : `The scene moves to ${label ?? "a new place"}.`;
+  kind === "checkpoint" ? (label ? `Establishing shot of ${label}.` : "Establishing shot of the current scene.") : label ? `The scene moves to ${label}.` : "A new scene begins.";
+
+export const sceneCueLabel = (reason: string, location: string | null | undefined): string | null =>
+  reason === "location" ? location?.trim() || null : null;
 
 export const beatIllustrated = (story: NormalizedStory | null, checkpointId: string | null): boolean =>
   !checkpointId || story?.checkpointById[checkpointId]?.illustrate !== false;
+
+export const stageAlreadySet = (story: NormalizedStory | null, checkpointId: string | null): boolean => {
+  const effects = checkpointId ? story?.checkpointById[checkpointId]?.effects : undefined;
+  return Boolean(effects?.background?.name || effects?.stage);
+};
+
+export const backgroundPlace = (name: string | null | undefined): string | null => name?.replace(/\.[a-z0-9]+$/i, "").replace(/[_-]+/g, " ").trim() || null;
+
+export const authoredPlace = (story: NormalizedStory | null, path: readonly string[]): string | null => {
+  for (const id of [...path].reverse()) {
+    const name = story?.checkpointById[id]?.effects?.background?.name;
+    if (name) return backgroundPlace(name);
+  }
+  return null;
+};
 
 export const lookFor = (story: NormalizedStory | null, checkpointId: string | null): IllustrationLook => {
   const base = story?.illustrations;
@@ -31,7 +49,7 @@ export const castForImage = (subjects: ImageScene["subjects"], story: Normalized
   return subjects.flatMap((subject) => {
     const member = story.roster.find((entry) => (entry.name ?? entry.id).toLowerCase() === subject.name.toLowerCase());
     const authored = member ? look.appearances?.[member.id] : undefined;
-    if (!authored && member && isNarratorMember(member) && subject.described) return [];
+    if (member && isNarratorMember(member) && (authored || subject.described)) return [];
     const changed = member ? publicLook(cardValues(story, values, member.id, true)) : "";
     const base = authored ?? (subject.described ? "" : subject.appearance);
     if (changed) return [{ ...subject, appearance: base ? `${base}. Current appearance overrides: ${changed}` : `Current appearance: ${changed}`, described: false }];

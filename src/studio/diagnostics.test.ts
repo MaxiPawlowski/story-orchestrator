@@ -227,6 +227,16 @@ describe("runDiagnostics", () => {
         echoes: [{ id: "debt", after: { transition: "start->cache#0" }, delay: { boundaries: [1, 2] }, to: "narrator", cue: "Tobin is back and you feel uneasy",
           cancel_when: { not: { q: "trust", op: ">=", v: 1 } } }],
       }),
+      ...runDiagnostics({ ...clean, checkpoints: [{ ...clean.checkpoints[0], effects: { npc_replies: [
+        { trigger: "onEnter", member: "Arin", kind: "llm", instruction: "Ask what the player will do next." },
+      ] } }, clean.checkpoints[1]] }),
+      ...runDiagnostics({ ...clean, checkpoints: [
+        { ...clean.checkpoints[0], talk_control: { chain: { max: 4 }, budget: { voices: 2 } } },
+        { ...clean.checkpoints[1], talk_control: { chain: false, spotlight: {} }, effects: { npc_replies: [{ trigger: "onEnter", member: "Arin", kind: "scripted", text: "Hm.", once_per: "player_turn" }] } },
+      ] }),
+      ...runDiagnostics({ ...clean, roster: [{ id: "arin", name: "Arin" }], checkpoints: [
+        { ...clean.checkpoints[0], talk_control: { lead: "Arin", lead_max_consecutive: 2, chain: { mode: "scripted", sequence: ["Arin"] } } }, clean.checkpoints[1],
+      ] }),
     ];
     const counts = new Map<string, number>();
     diagnostics.forEach((entry) => counts.set(entry.code, (counts.get(entry.code) ?? 0) + 1));

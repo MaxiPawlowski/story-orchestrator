@@ -67,7 +67,7 @@ export default function ImageGroup({ manager }: { manager: RuntimeManager }) {
             automation: { ...settings.automation, mode: event.target.value as ImageSettings["automation"]["mode"] },
           })}>
             <option value="manual">Manual only</option><option value="story">Story-authored moments</option>
-            <option value="everyN">Every N replies + story moments</option><option value="tool">Model requests</option>
+            <option value="everyN">Every N turns + story moments</option><option value="tool">Model requests</option>
           </select>
         </div>
         {settings.automation.mode === "everyN" && <div className="flex flex-col gap-1">
@@ -76,6 +76,14 @@ export default function ImageGroup({ manager }: { manager: RuntimeManager }) {
             automation: { ...settings.automation, everyN: Math.max(1, Number(event.target.value)) },
           })} />
         </div>}
+        <div className="flex flex-col gap-1">
+          <FieldLabel htmlFor="so-image-automatic-route" setting="image.automaticRoute" />
+          <select id="so-image-automatic-route" className="text_pole" value={settings.automaticRoute}
+            onChange={(event) => change({ automaticRoute: event.target.value as ImageSettings["automaticRoute"] })}>
+            <option value="auto">Auto: references when every character is prepared</option><option value="sdxl">Always SDXL tags</option>
+            <option value="qwen">References only (skip otherwise)</option>
+          </select>
+        </div>
         <div className="flex flex-col gap-1">
           <FieldLabel htmlFor="so-image-profile" setting="image.directorProfileId" />
           <select id="so-image-profile" className="text_pole" value={settings.directorProfileId} onChange={(event) => change({ directorProfileId: event.target.value })}>

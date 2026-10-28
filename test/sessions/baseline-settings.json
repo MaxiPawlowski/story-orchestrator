@@ -107,7 +107,8 @@
       "chain": {
         "enabled": true,
         "max": 3
-      }
+      },
+      "keepLastQuestion": true
     },
     "stagecraft": {
       "curatorEnabled": true,
@@ -212,6 +213,7 @@
         "mode": "everyN",
         "everyN": 5
       },
+      "automaticRoute": "auto",
       "safeMode": false,
       "retired": []
     },
@@ -233,6 +235,7 @@
       "onDemand": true,
       "renderPreset": "standard",
       "builders": {},
+      "sceneRecipe": null,
       "poses": true,
       "customPoses": []
     },

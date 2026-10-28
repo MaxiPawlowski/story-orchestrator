@@ -38,6 +38,7 @@ export function createGateway({ arbiter, config, fetchImpl = fetch, allowOrigin 
         snapshot: arbiter.scheduler?.snapshot ? () => arbiter.scheduler.snapshot({ fresh: true }) : null, reserves: () => config.reserves ?? {} }) : null;
     const membersReady = members?.init ? members.init().catch((error) => { members.lastError = error.message; }) : null;
     if (members && arbiter.scheduler) arbiter.scheduler.onImageRam = (need) => members.makeRoom(need);
+    if (members && arbiter.backend) arbiter.backend.onSlotErased = (id) => members.noteOther(id);
     const memberIdle = () => idle() && !arbiter.scheduler?.imageQueued && !arbiter.scheduler?.imagePending;
     let idleTimer = null;
     const backendReady = () => { const state = arbiter.backend.status(); return Boolean(state.pid) && !state.loading; };
@@ -46,8 +47,13 @@ export function createGateway({ arbiter, config, fetchImpl = fetch, allowOrigin 
         clearTimeout(idleTimer);
         idleTimer = setTimeout(() => {
             if (closing || !memberIdle() || !backendReady()) return;
-            arbiter.text(async () => { if (backendReady() && memberIdle()) await members.runIdlePrefill({ idle: memberIdle, slot }); }, undefined, null)
-                .catch((error) => { members.lastError = error.message; });
+            const stop = new AbortController();
+            const unsubscribe = arbiter.scheduler?.onArrival?.(() => stop.abort()) ?? (() => {});
+            const signal = AbortSignal.any([stop.signal, AbortSignal.timeout(120000)]);
+            const stillIdle = () => !stop.signal.aborted && memberIdle();
+            arbiter.text(async () => { if (backendReady() && stillIdle()) await members.runIdlePrefill({ idle: stillIdle, slot, signal }); }, stop.signal, null, 'idle')
+                .catch((error) => { if (!stop.signal.aborted) members.lastError = error.message; })
+                .finally(unsubscribe);
         }, members.idleDelayMs ?? 3000);
         idleTimer.unref?.();
     };
@@ -59,9 +65,9 @@ export function createGateway({ arbiter, config, fetchImpl = fetch, allowOrigin 
             if (origin && !(allowOrigin && allowOrigin.test(origin))) { answer(res, 403, { error: 'The text gateway serves SillyTavern\'s server, not pages.' }); return; }
             if (req.method === 'GET' && extraGet[route]) { answer(res, 200, await extraGet[route]()); return; }
             if (req.method === 'GET' && ['/', '/status', '/health'].includes(route)) { answer(res, 200, await arbiter.status({ fresh: true })); return; }
-            if (controls && req.method === 'POST' && ['/lease', '/renew', '/release'].includes(route)) {
+            if (controls && req.method === 'POST' && ['/lease', '/renew', '/release', '/burst'].includes(route)) {
                 const body = await readBody(req);
-                const data = route === '/lease' ? await arbiter.reserve(body) : route === '/renew' ? { renewed: arbiter.renew(body.lease) } : { released: await arbiter.release(body.lease) };
+                const data = route === '/lease' ? await arbiter.reserve(body) : route === '/renew' ? { renewed: arbiter.renew(body.lease) } : route === '/burst' ? arbiter.burst(body) : { released: await arbiter.release(body.lease) };
                 answer(res, 200, data);
                 return;
             }
@@ -93,6 +99,10 @@ export function createGateway({ arbiter, config, fetchImpl = fetch, allowOrigin 
             const backend = arbiter.backend;
             const generating = req.method === 'POST' && body && GENERATION_ROUTES.includes(route);
             const slot = generating ? (Number.isInteger(body.id_slot) && body.id_slot >= 0 ? body.id_slot : slotFor(config, body)) : null;
+            const replying = generating && body?.stream === true;
+            const arrivedAt = Date.now();
+            const arrival = backend.status();
+            const coldArrival = replying && (!arrival.pid || Boolean(arrival.loading) || Boolean(arbiter.scheduler?.lease));
             if (slot !== null) body.id_slot = slot;
             const reusing = reuse && req.method === 'POST' && route === '/completion' && body;
             const backendCall = async (payload) => {
@@ -129,12 +139,18 @@ export function createGateway({ arbiter, config, fetchImpl = fetch, allowOrigin 
                 if (park) await backendCall(park).catch((error) => { reuse.lastError = error.message; });
             };
             const state = backend.status();
-            if (COUNTING_ROUTES.includes(route) && state.pid && !state.loading && state.profile) { await forward(); return; }
+            if (COUNTING_ROUTES.includes(route) && (backend.tryDirect ? backend.tryDirect() : Boolean(state.pid && !state.loading && state.profile))) {
+                try { await forward(); } finally { backend.endDirect?.(); }
+                return;
+            }
             await arbiter.text(async () => {
-                if (body && GENERATION_ROUTES.includes(route)) await backend.forRequest(body, abort.signal, slot);
-                else await backend.ensure(backend.profile ?? config.defaultProfile);
-                try { await forward(); }
-                finally { if (!memberDone && members?.afterOther && generating && backend.status().pid) await members.afterOther(slot ?? 0).catch((error) => { members.lastError = error.message; }); }
+                try {
+                    if (body && GENERATION_ROUTES.includes(route)) await backend.forRequest(body, abort.signal, slot);
+                    else await backend.ensure(backend.profile ?? config.defaultProfile);
+                    if (replying) arbiter.scheduler?.noteReplyWait?.({ waitedMs: Date.now() - arrivedAt, cold: coldArrival });
+                    try { await forward(); }
+                    finally { if (!memberDone && members?.afterOther && generating && backend.status().pid) await members.afterOther(slot ?? 0).catch((error) => { members.lastError = error.message; }); }
+                } finally { if (slot !== null) backend.releaseSlot?.(slot); }
             }, abort.signal, GENERATION_ROUTES.includes(route) ? Number(body?.n_predict ?? body?.max_tokens ?? 1400) : null, generating && body?.stream === true ? 'chat' : 'side');
         } catch (error) {
             if (error instanceof ContextRefusal) answer(res, 400, { error: { code: 400, message: error.message, type: 'exceed_context_size_error', n_prompt_tokens: error.promptTokens, n_ctx: error.context } });

@@ -18,7 +18,7 @@ export * from "./conflicts";
 export * from "./polarity";
 export * from "./supersede";
 export * from "./parse";
-export * from "./contract";
+export * from "./contractKit";
 export * from "./sceneDetect";
 export * from "./sceneSummary";
 export * from "./inject";

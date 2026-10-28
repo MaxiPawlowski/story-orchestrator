@@ -1,7 +1,7 @@
 import type { PassRole } from "@extraction/passRole";
 import { DEFAULT_JUDGE_PROVIDER, JUDGE_PROVIDERS } from "@judge/providers";
 import { judgeProviderControlId, type JudgeCalibrationProblem, type JudgeReadinessKey } from "@judge/readiness";
-import { JUDGE_USE_COPY, ridesWardenRoute } from "@judge/settings";
+import { JUDGE_USE_LABELS, ridesWardenRoute } from "@judge/settings";
 import type { RuntimeSnapshot } from "./types";
 import type { Check, CheckFinding } from "./checks";
 import { hasUnsavedChanges, playerSaveNotice, SAVE_PLAYER_TEXT } from "./saveHealth";
@@ -237,7 +237,7 @@ const JUDGE_GAP_COPY: Record<JudgeCalibrationProblem, string> = {
   model: "measured on another model",
 };
 
-const judgeLabel = (key: JudgeReadinessKey): string => (key === "warden" ? "Continuity warden" : JUDGE_USE_COPY[key].label);
+const judgeLabel = (key: JudgeReadinessKey): string => (key === "warden" ? "Continuity warden" : JUDGE_USE_LABELS[key]);
 
 export const IMAGE_TARGET_ID = "so-image-settings";
 
@@ -279,6 +279,14 @@ export const IMAGE_CHECKS: readonly Check[] = [
     },
   }),
   degrades({
+    id: "image-prompt-profile-missing", area: "image", scope: "install", audience: "author", feature: "images",
+    detect: (snapshot) => (snapshot.imageHealth?.promptProfileMissing ? {
+      consequence: "The image-prompt model points to a connection profile that no longer exists, so pictures are drawn from a rough template instead of a written scene.",
+      detail: "Choose a profile under Images → Image-prompt model, or pick Template prompt to keep the template on purpose.",
+      target: { kind: "setting", id: IMAGE_TARGET_ID },
+    } : null),
+  }),
+  degrades({
     id: "story-workflow-missing", area: "image", scope: "story", audience: "player",
     detect: (snapshot) => {
       const health = snapshot.imageHealth?.storyWorkflows;
@@ -297,6 +305,17 @@ export const INFO_SETUP_CHECKS: readonly Check[] = [
       return issues.length ? {
         consequence: "A character's changed appearance has no matching sprites, so the stage keeps an older look.",
         detail: issues.map((issue) => `${issue.name}: ${issue.reason}`).join(" · "),
+        target: { kind: "setting", id: "so-sprite-on-demand" },
+      } : null;
+    },
+  },
+  {
+    id: "sprite-qwen-route-missing", area: "image", scope: "install", audience: "author", severity: "info", feature: "sprite-builder",
+    detect: (snapshot) => {
+      const recipe = snapshot.spriteRecipe;
+      return recipe?.status === "missing" && recipe.waiting.length ? {
+        consequence: "Characters with an accepted base but no Qwen route of their own get no on-demand looks, posed bodies or cast scenes; the stage keeps their prepared look.",
+        detail: `${recipe.problem ?? "No install-wide Qwen edit route."} Waiting: ${recipe.waiting.join(", ")}.`,
         target: { kind: "setting", id: "so-sprite-on-demand" },
       } : null;
     },

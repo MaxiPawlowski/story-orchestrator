@@ -61,6 +61,8 @@ const MODIFIERS = {
     park: (a) => a,
     keys: (a) => a,
     idle: (a) => a,
+    ckat: (a) => a,
+    rewind: (a) => a,
 };
 const DEFAULT_ARMS = ['base', 'cram6144', 'par2pin', 'par2', 'mtp3', 'mtp2', 'mtp4', 'cms2048', 'cram4096', 'kvq4v', 'base'];
 
@@ -254,7 +256,7 @@ function serverCounts(log) {
         exceed: (log.match(/exceeds cache size limit/g) ?? []).length, restored: (log.match(/restored context checkpoint/g) ?? []).length, forced: (log.match(/forcing full prompt re-processing/g) ?? []).length, cacheEvict: (log.match(/making room for prompt cache entry/g) ?? []).length,
         swaKv: log.match(/SWA KV cache, size = (\d+) cells/)?.[1] ?? null, ctxSlot: log.match(/n_ctx_slot = (\d+)/)?.[1] ?? null,
         offloaded: log.match(/offloaded (\d+\/\d+) layers/)?.[1] ?? null, computeBuffers: [...log.matchAll(/CUDA0 compute buffer size =\s+([\d.]+) MiB/g)].map((m) => Number(m[1])),
-        cacheLoads: (log.match(/found better prompt/g) ?? []).length, cacheSaves: (log.match(/saving prompt with length/g) ?? []).length, restoredCkpt: (log.match(/restored context checkpoint/g) ?? []).length,
+        cacheLoads: (log.match(/found better prompt/g) ?? []).length, cacheSaves: (log.match(/saving prompt with length/g) ?? []).length, stateMiB: [...log.matchAll(/saving prompt with length \d+, total state size = ([\d.]+) MiB/g)].map((m) => Number(m[1])), rewinds: (log.match(/rewound the cached state/g) ?? []).length, restoredCkpt: (log.match(/restored context checkpoint/g) ?? []).length,
         kvBuffers: [...log.matchAll(/CUDA0 KV buffer size =\s+([\d.]+) MiB/g)].map((m) => Number(m[1])),
         draftLoaded: /draft/i.test(log.match(/load_model[^\n]*draft[^\n]*/)?.[0] ?? '') };
 }
@@ -270,7 +272,7 @@ async function runArm(config, corpus, arm, dir, telemetry) {
     const parts = arm.split('+');
     const ram = parts.includes('ramcut');
     const cache = parts.includes('memcache') || ram ? new MemberCache({ ...memberCacheOptions({ memberCache: { enabled: true, dir: memberDir, budgetMiB: Number(option('member-budget', 6144)), rewind: !parts.includes('norewind'),
-        store: ram ? 'ram' : 'file', park: parts.includes('park'), erase: !parts.includes('noerase'), serverKeys: parts.includes('keys'), idlePrefill: parts.includes('idle') } }) },
+        store: ram ? 'ram' : 'file', park: parts.includes('park'), erase: !parts.includes('noerase'), serverKeys: parts.includes('keys'), idlePrefill: parts.includes('idle'), checkpointAt: parts.includes('ckat'), serverRewind: parts.includes('rewind') } }) },
         { baseUrl: `http://127.0.0.1:${port}`, snapshot: async () => ({ host: { availableMiB: Math.round(os.freemem() / 1048576) } }), reserves: { ramMiB: 2048 } }) : null;
     const reuse = reusing(arm, config) ? new PromptReuse({ ...promptReuseOptions(config), ...(pinned(arm, config) ? { history: 1 } : {}), parkWhenIdle: !arm.split('+').includes('nopark') && !pinned(arm, config) && (promptReuseOptions(config)?.parkWhenIdle ?? true) }) : null;
     try {

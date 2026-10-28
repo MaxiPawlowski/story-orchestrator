@@ -66,6 +66,11 @@ function mountSupervised(router, config) {
         try { res.json({ released: await arbiter.release(req.body?.lease) }); }
         catch (error) { res.status(409).json({ error: errorText(error, 'The image work could not be released.') }); }
     });
+    router.post('/burst', (req, res) => {
+        if (!hasUser(req)) return res.status(401).json({ error: 'Sign in to SillyTavern first.' });
+        try { res.json(arbiter.burst(req.body ?? {})); }
+        catch (error) { res.status(400).json({ error: errorText(error, 'The burst was not opened.') }); }
+    });
     router.post('/control/:action', async (req, res) => {
         if (!isAdmin(req)) return res.status(403).json({ error: 'Broker controls are admin-only.' });
         try { res.json(await arbiter.control(req.params?.action, req.body ?? {})); }

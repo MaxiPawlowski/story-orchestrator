@@ -50,8 +50,9 @@ test('a mode patches only its own keys and keeps the rest of nested settings', (
     assert.deepEqual(plan.config.reserves, { gpuMiB: 3072, ramMiB: 6144 });
     assert.equal(plan.config.shedCeilingMiB, 13000);
     assert.deepEqual(plan.config.comfyExtraArgs, ['--fast-disk']);
-    assert.deepEqual(plan.changed.sort(), ['imageCacheMode', 'reserves.gpuMiB', 'reserves.ramMiB', 'streamImages.enabled'].sort());
-    assert.deepEqual(plan.textLoad, ['reserves.gpuMiB']);
+    assert.deepEqual(plan.changed.sort(), ['imageCacheMode', 'memberCache.budgetMiB', 'reserves.gpuMiB', 'reserves.ramMiB', 'streamImages.enabled'].sort());
+    assert.deepEqual(plan.textLoad.sort(), ['memberCache.budgetMiB', 'reserves.gpuMiB']);
+    assert.deepEqual(plan.config.memberCache, { budgetMiB: 2048 });
     assert.equal(currentMode(plan.config), 'safe');
 });
 
@@ -87,7 +88,7 @@ test('saving backs up the old file first and replaces it atomically', async () =
         assert.equal(plan.backup, path.join(backupRoot, 'local-config-42', 'config.json'));
         const saved = JSON.parse(await fs.readFile(file, 'utf8'));
         assert.equal(saved.mode, 'max');
-        assert.equal(saved.reserves.gpuMiB, 1536);
+        assert.equal(saved.reserves.gpuMiB, 1024);
         assert.deepEqual((await fs.readdir(dir)).sort(), ['backups', 'config.json']);
         const again = await changeConfigFile(file, { mode: 'max' }, { backupRoot, now: 43 });
         assert.equal(again.backup, null);
@@ -113,16 +114,18 @@ const fakeScheduler = () => {
 test('live settings apply at once when idle, and wait for running work otherwise', async () => {
     const target = { ...install(), comfySupervise: true };
     const scheduler = fakeScheduler();
+    scheduler.spill = { backoffMiB: 512 };
     const text = { pid: 9, loading: false, loads: 3 };
     const live = createLiveSettings({ target, scheduler: () => scheduler, backend: { status: () => text }, timers: false });
     const reservesBefore = target.reserves;
     assert.equal(await live.request(planChange(install(), { mode: 'max' })), 'now');
-    assert.deepEqual(target.reserves, { gpuMiB: 1536, ramMiB: 3072 });
+    assert.deepEqual(target.reserves, { gpuMiB: 1024, ramMiB: 2048 });
+    assert.equal(scheduler.spill.backoffMiB, 0);
     assert.deepEqual(reservesBefore, { gpuMiB: 2048, ramMiB: 4096 });
     assert.equal(target.idleRestoreMs, 180000);
     assert.equal(target.comfySupervise, true);
     assert.equal(target.streamImages.maxWeightMiB, 8192);
-    assert.deepEqual(live.status().atNextTextLoad, ['reserves.gpuMiB']);
+    assert.deepEqual(live.status().atNextTextLoad.sort(), ['memberCache.budgetMiB', 'reserves.gpuMiB']);
     text.loads = 4;
     assert.deepEqual(live.status().atNextTextLoad, []);
     scheduler.busy = true;

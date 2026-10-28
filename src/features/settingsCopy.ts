@@ -234,6 +234,11 @@ export const SETTING_COPY = {
     "In a group chat, more than one character can reply to a single message; the story picks each next speaker and stops when it is your turn. "
       + "Off: one voice per turn.",
   ),
+  "talk.keepLastQuestion": copy(
+    "Keep one question when a character asks you",
+    "When a character is told to turn to you with one question, such as the line right after a story's opening, and the reply asks several, "
+      + "only the last question is kept and the rest of the line stays as written. A reply the trim would break is left alone, and thinking is never changed.",
+  ),
   "talk.chain.max": copy(
     "Voices per turn at most",
     "The most characters that may answer one of your messages. Higher makes busier scenes and longer waits.",
@@ -352,11 +357,17 @@ export const SETTING_COPY = {
   "image.backend": copy("Image backend", "Use SillyTavern’s configured Image Generation service, or advanced ComfyUI recipes through the optional media plugin."),
   "image.automation.mode": copy(
     "When pictures are drawn",
-    "Story: at the moments each story asks for. Every N: every few replies, plus those moments. Model requests: when the model asks. Manual: only when you ask.",
+    "Story: at the moments each story asks for. Every N: every few of your turns, plus those moments. Model requests: when the model asks. Manual: only when you ask.",
   ),
   "image.automation.everyN": copy(
-    "Every N replies",
-    "Draw a picture every this many replies. Lower draws more often and keeps the GPU busier.",
+    "Every N turns",
+    "Draw a picture on the first reply of every this many of your turns (the greeting never counts). Lower draws more often and keeps the GPU busier.",
+  ),
+  "image.automaticRoute": copy(
+    "How automatic scene pictures are drawn",
+    "Auto: when every visible character (one or two) has a prepared current look, draw from their reference pictures with the Qwen edit route; "
+      + "otherwise SDXL from tags. SDXL: always tags. References: only from reference pictures, skipping the picture when that is not possible. "
+      + "Auto is still being compared with SDXL in a blind pilot; choose SDXL to keep the earlier behaviour.",
   ),
   "image.directorProfileId": copy(
     "Image-prompt model",

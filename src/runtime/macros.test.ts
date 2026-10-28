@@ -11,7 +11,7 @@ jest.mock("@services/STAPI", () => ({
 }));
 
 import type { NormalizedStory } from "@engine/index";
-import { registerRuntimeMacros } from "./macros";
+import { registerRuntimeMacros, roleMacroName } from "./macros";
 import type { RuntimeManager } from "./runtimeManager";
 import type { RuntimeSnapshot } from "./types";
 
@@ -62,6 +62,22 @@ describe("registerRuntimeMacros", () => {
     registerRuntimeMacros(makeManager([{ id: "arin", name: "Arin" }, { id: "narrator", name: "DM Narrator" }]));
     expect(mockRegistry.get("story_role_arin")?.()).toBe("Arin");
     expect(mockRegistry.get("story_role_narrator")?.()).toBe("DM Narrator");
+  });
+
+  it("v3.0 19 fix 4: a roster id with a space or other characters registers a valid macro name, and lookups use the same name", () => {
+    const dispose = registerRuntimeMacros(makeManager([{ id: "DM Narrator", name: "Narrator" }, { id: "dm.narrator", name: "Echo" }, { id: "finn", name: "Finn" }]));
+    const names = [...mockRegistry.keys()].filter((key) => key.startsWith("story_role_"));
+    expect(names.sort()).toEqual(["story_role_DM_Narrator", "story_role_dm_narrator", "story_role_finn"]);
+    expect(names.every((name) => /^[a-zA-Z][\w-]*$/.test(name))).toBe(true);
+    expect(roleMacroName("DM Narrator")).toBe("story_role_DM_Narrator");
+    expect(mockRegistry.get(roleMacroName("DM Narrator"))?.()).toBe("Narrator");
+    dispose();
+    expect([...mockRegistry.keys()].filter((key) => key.startsWith("story_role_"))).toEqual([]);
+  });
+
+  it("two ids that sanitize to one name register it once, for the first", () => {
+    registerRuntimeMacros(makeManager([{ id: "dm narrator", name: "First" }, { id: "dm_narrator", name: "Second" }]));
+    expect(mockRegistry.get("story_role_dm_narrator")?.()).toBe("First");
   });
 
   it("unregisters stale role macros when the roster changes", () => {

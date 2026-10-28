@@ -21,7 +21,7 @@ import type { NarrativeStatus, RollbackKind, RollbackNotice, RollbackUnavailable
 import { coordinatorHosts, featureCoordinatorHosts } from "./coordinatorHosts";
 import { wireCoordinators } from "./managerWiring";
 import { activeSpeakerId, enabledCharacterIds, namesForRosterId, rosterIdForName } from "./roster";
-import { EffectsApplier } from "./effectsApplier";
+import { hostEffectsApplier, type EffectsApplier } from "./effectsApplierHost";
 import { carryStartSeed, createExtras, hydrateExtras, restartCarry, restartedExtras, TALK_DECISION_LIMIT, type RestartCarry } from "./extras";
 import { SettingsControl } from "./settingsControl";
 import { lazyPlayerSetup } from "./playerSetupPort";
@@ -29,7 +29,7 @@ import { beginRun, type RunContext, type RunOwnership } from "./runToken";
 import { RunOwner } from "./runOwner";
 import { LOST_CHECKPOINT, repairActiveCheckpoint, runRollback, type DecodeJournal, type RollbackListener } from "./rollback";
 import { memoryActions, memoryDelegates } from "./memoryActions";
-import { readEffectTarget, reconcileEffectLedgerInto, restoreCastFlags, restoreEffectTarget } from "./effectHost";
+import { reconcileEffectLedgerInto } from "./effectHost";
 import { ChatSave } from "./chatSave";
 import { hasUnsavedChanges } from "./saveHealth";
 import { getGlobalSettings, setGlobalSettings, TALK_CHAIN_FIXED, type SpikeSettings } from "./settingsStore";
@@ -153,10 +153,9 @@ export class RuntimeManager extends SettingsDelegates {
 
   constructor() {
     super();
-    this.effects = new EffectsApplier(this.owner.ownership, { reads: { read: readEffectTarget },
-        restore: restoreEffectTarget, restoreCast: restoreCastFlags, persist: () => this.persist(),
-        unsaved: () => hasUnsavedChanges(this.extras.saveHealth), journal: (summary, note) => this.noteRecap(summary,
-        note ?? ""), roll: (key) => this.chance.npcRoll(key) });
+    this.effects = hostEffectsApplier(this.owner.ownership, { persist: () => this.persist(), unsaved: () => hasUnsavedChanges(this.extras.saveHealth),
+      journal: (summary, note) => this.noteRecap(summary, note ?? ""), roll: (key) => this.chance.npcRoll(key),
+      direct: (member, text) => this.pacing.armDirection(member, text), speech: this.co.speech.speech, view: this });
   }
 
   subscribe(listener: () => void) { this.listeners.add(listener); return () => { this.listeners.delete(listener); }; }
@@ -248,7 +247,7 @@ export class RuntimeManager extends SettingsDelegates {
   async commitBoundary(at?: number) {
     if (!this.loaded) return null;
     const run = beginRun(this.owner.ownership);
-    this.notices.lastRollback = null;
+    if (!this.noticeHolds) this.notices.lastRollback = null;
     if (!(await this.chatSave.reconcile(run))) return null;
     this.refreshRequirements(); this.expansion.revalidateInserted();
     repairActiveCheckpoint(this.engine, (detail) => this.noteRecap(LOST_CHECKPOINT, detail));
@@ -256,7 +255,7 @@ export class RuntimeManager extends SettingsDelegates {
     const result = this.engine.commitBoundary(this.getBoundaryContext(at ?? readableEndBefore(this.loadedChatId)));
     this.chatSave.fingerprints.settle();
     this.memory.markBridgesApplied(pendingBridges);
-    if (result.fired) {
+    if (result.fired) { this.notices.lastRollback = null;
       await this.effects.announceTransition(this.engine.activeCheckpoint, this.extras, this.owner.ownsOpenChat());
       if (!run.stillOwns()) return null;
     }

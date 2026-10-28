@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { withDefaultBuilders } from "../../sprites/defaultRecipe";
 import type { PoseEntry } from "@engine/schema";
 import { readPoseList } from "@engine/validate/poses";
 import { poseLibrary } from "../../sprites/poses/library";
@@ -29,7 +30,7 @@ const host: PosesServices = {
   render: async (pose, id) => {
     const draft = useDraftStore.getState().draft, member = draft.roster.find((member) => member.id === id);
     if (!member) throw new Error("Choose a member of this story first.");
-    const target = spriteBuilderMembers([member.name ?? id])[0], settings = getGlobalSettings().sprites;
+    const target = spriteBuilderMembers([member.name ?? id])[0], settings = withDefaultBuilders(getGlobalSettings().sprites);
     const config = target && settings.builders[target.folder];
     if (!target || !config) throw new Error("Choose this member's reference pack in Sprites first.");
     const renderer = createPoseBodies(draftOwnership);
@@ -44,7 +45,7 @@ const host: PosesServices = {
   },
   importImage: async (image) => (await import("../../sprites/poses/importHost")).importPoseImage(image, draftOwnership),
   prepare: async () => {
-    const { draft, draftKey } = useDraftStore.getState(), parsed = parseStory(draft), settings = getGlobalSettings().sprites;
+    const { draft, draftKey } = useDraftStore.getState(), parsed = parseStory(draft), settings = withDefaultBuilders(getGlobalSettings().sprites);
     if (isValidationErrorList(parsed)) throw new Error("Fix the story's validation errors before preparing poses.");
     const jobs = posesToPrepare(parsed, settings.customPoses);
     if (!jobs.length) return "Nothing to prepare: no member has a default or directed pose that differs from the base.";

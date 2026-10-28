@@ -2,6 +2,7 @@ import React from "react";
 import {
   castMemberNames, isCastMember, NPC_REPLY_KINDS, NPC_REPLY_TRIGGERS, type CheckpointEffects, type NpcReplyEffect, type NpcReplyKind, type NpcReplyTrigger, type RosterMember,
 } from "@engine/index";
+import NpcReplyScope from "./NpcReplyScope";
 import MultiSelect from "@components/studio/MultiSelect";
 import HelpTooltip from "@components/studio/HelpTooltip";
 import type { DeclaredCardField } from "@engine/cardFields";
@@ -95,6 +96,42 @@ const WorldInfoList: React.FC<{ title: string; entries: WorldInfoEntry[]; onChan
   </div>
 );
 
+const NPC_REPLIES_HELP = "Forces a group member to reply when the checkpoint is entered or after someone speaks: scripted posts a fixed line, generated triggers a real reply. "
+  + "'Only after' restricts afterSpeak replies to one speaker, and an onEnter reply to right after that member's line. A generated reply's instruction is a private "
+  + "direction for that one reply; 'asks the player' has the member turn to the player with one question. A generated new-chat-only reply is the opening hook. "
+  + "Unchecking Enabled keeps the entry but skips it.";
+
+const NpcReplyFlags: React.FC<{ reply: NpcReplyEffect; index: number; update: (index: number, patch: Partial<NpcReplyEffect>) => void }> = ({ reply, index, update }) => (
+  <>
+    {reply.trigger === "onEnter" || reply.kind === "llm" ? (
+      <div className="flex flex-wrap items-center gap-3 text-xs st-muted">
+        {reply.trigger === "onEnter" ? (
+          <label className="flex items-center gap-1">
+            <input
+              type="checkbox"
+              aria-label={`Reply ${index + 1} new chat only`}
+              checked={reply.new_chat_only === true}
+              onChange={(event) => update(index, { new_chat_only: event.target.checked ? true : undefined })}
+            />
+            {reply.kind === "llm" ? "opening hook: once, right after the opening of a new chat" : "new chat only: the story's opener"}
+          </label>
+        ) : null}
+        {reply.kind === "llm" ? (
+          <label className="flex items-center gap-1">
+            <input
+              type="checkbox"
+              aria-label={`Reply ${index + 1} asks the player`}
+              checked={reply.ask_player === true}
+              onChange={(event) => update(index, { ask_player: event.target.checked ? true : undefined })}
+            />
+            turns to the player and asks one thing
+          </label>
+        ) : null}
+      </div>
+    ) : null}
+  </>
+);
+
 const NpcRepliesEditor: React.FC<{ replies: NpcReplyEffect[]; roster: RosterMember[]; onChange: (next: NpcReplyEffect[]) => void }> = ({ replies, roster, onChange }) => {
   const update = (index: number, patch: Partial<NpcReplyEffect>) => onChange(replies.map((entry, entryIndex) => (entryIndex === index ? { ...entry, ...patch } : entry)));
   return (
@@ -106,11 +143,16 @@ const NpcRepliesEditor: React.FC<{ replies: NpcReplyEffect[]; roster: RosterMemb
               aria-label="Reply trigger"
               className="text_pole st-input"
               value={reply.trigger}
-              onChange={(event) => update(index, { trigger: event.target.value as NpcReplyTrigger, ...(event.target.value === "afterSpeak" ? {} : { after_member: undefined }) })}
+              onChange={(event) => update(index, {
+                trigger: event.target.value as NpcReplyTrigger,
+                ...(event.target.value === "sceneBreak" ? { after_member: undefined } : {}),
+                ...(event.target.value === "onEnter" ? {} : { new_chat_only: undefined }),
+              })}
             >
               {NPC_REPLY_TRIGGERS.map((trigger) => <option key={trigger} value={trigger}>{trigger}</option>)}
             </select>
-            <select aria-label="Reply kind" className="text_pole st-input" value={reply.kind} onChange={(event) => update(index, { kind: event.target.value as NpcReplyKind })}>
+            <select aria-label="Reply kind" className="text_pole st-input" value={reply.kind}
+              onChange={(event) => update(index, { kind: event.target.value as NpcReplyKind, ...(event.target.value === "llm" ? {} : { ask_player: undefined }) })}>
               {NPC_REPLY_KINDS.map((kind) => <option key={kind} value={kind}>{kind}</option>)}
             </select>
             <input className="text_pole st-input" aria-label="Reply member" placeholder="member" value={reply.member} onChange={(event) => update(index, { member: event.target.value })} />
@@ -125,16 +167,18 @@ const NpcRepliesEditor: React.FC<{ replies: NpcReplyEffect[]; roster: RosterMemb
             </label>
             <button type="button" className="st-button danger" aria-label={`Remove reply ${index + 1}`} onClick={() => onChange(replies.filter((_, entryIndex) => entryIndex !== index))}>×</button>
           </div>
-          {reply.trigger === "afterSpeak" ? (
+          <NpcReplyFlags reply={reply} index={index} update={update} />
+          <NpcReplyScope reply={reply} index={index} update={update} />
+          {reply.trigger !== "sceneBreak" ? (
             <label className="flex items-center gap-2 text-xs st-muted">
-              only after
+              {reply.trigger === "onEnter" ? "only right after" : "only after"}
               <select
                 aria-label="Reply after member"
                 className="text_pole st-input"
                 value={reply.after_member ?? ""}
                 onChange={(event) => update(index, { after_member: event.target.value || undefined })}
               >
-                <option value="">any speaker</option>
+                <option value="">{reply.trigger === "onEnter" ? "any line" : "any speaker"}</option>
                 {roster.map((member) => <option key={member.id} value={member.name ?? member.id}>{member.name ?? member.id}</option>)}
               </select>
             </label>
@@ -151,7 +195,7 @@ const NpcRepliesEditor: React.FC<{ replies: NpcReplyEffect[]; roster: RosterMemb
             <textarea
               className="text_pole st-input min-h-[3rem]"
               aria-label="Reply instruction"
-              placeholder="instruction"
+              placeholder="instruction: private direction to this member for this one reply"
               value={reply.instruction ?? ""}
               onChange={(event) => update(index, { instruction: event.target.value })}
             />
@@ -341,8 +385,7 @@ const EffectsEditor: React.FC<{
 
       <Section
         title="NPC replies"
-        help={"Forces a group member to reply when the checkpoint is entered or after someone speaks: scripted posts a fixed line, generated triggers a real reply. 'Only after' " +
-          "restricts afterSpeak replies to one speaker; unchecking Enabled keeps the entry but skips it."}
+        help={NPC_REPLIES_HELP}
         enabled={Array.isArray(effects.npc_replies) && effects.npc_replies.length > 0}
         onToggle={(on) => emit({ ...effects, npc_replies: on ? [{ trigger: "onEnter", member: "", kind: "scripted" }] : undefined })}
       >

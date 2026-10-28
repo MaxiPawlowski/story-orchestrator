@@ -49,7 +49,7 @@ test('the managed adapter is refused at init without a controllerUrl, and never 
     await assert.rejects(start(router, { adapter: 'managed' }), /controllerUrl/);
     assert.deepEqual(routes, []);
     await start(router, { adapter: 'managed', controllerUrl: 'http://localhost:19500' });
-    assert.deepEqual(routes.sort(), ['/lease', '/release', '/renew', '/status']);
+    assert.deepEqual(routes.sort(), ['/burst', '/lease', '/release', '/renew', '/status']);
 });
 
 test('the none adapter passes images through on the configured port', async () => {

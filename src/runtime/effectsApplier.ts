@@ -1,7 +1,6 @@
 import { rewardedQuestIds, type Checkpoint, type CheckpointEffects, type NormalizedStory, type NpcReplyEffect, type NpcReplyTrigger } from "@engine/index";
 import {
-  applyBackground, executeSlashCommands, resolveGroupMemberId, samplerApi, setGroupMembersDisabled, setGroupMemberFlags, getActiveGroup,
-  getContext, guardHostStream, watchHostChatMove, isHostGenerating, stopHostGeneration,
+  applyBackground, executeSlashCommands, resolveGroupMemberId, samplerApi, setGroupMembersDisabled, setGroupMemberFlags, getActiveGroup, getContext,
 } from "@services/STAPI";
 import { quoteSlashArg } from "@utils/string";
 import { resolveSamplerOverlay, type SamplerApi } from "@utils/samplerKeys";
@@ -13,18 +12,22 @@ import { appendRow, castFlag, pendingRow, restorePlan, rollbackCastMirror, rowsA
 import { effectExtensions, type EffectExtension, type EffectExtensionInput } from "./effectExtensions";
 import type { EffectLedgerRow, EffectOrigin, EffectTarget, RuntimeExtras, RuntimeSnapshot } from "./types";
 import { earnedWorldInfo, releasePlan, worldInfoPlan } from "./worldInfoGates";
-import { applyAuthorNote, applyWorldInfo, authorNoteText, fireReply, readNpcReplies, resolvePreset } from "./effectSteps";
+import { applyAuthorNote, applyWorldInfo, authorNoteText, fireReply, needsCast, waitsForOpener, readNpcReplies, resolvePreset } from "./effectSteps";
 import { worldInfoFilesHeld } from "./worldInfoMode";
 import { beginRun, type RunGuard, type RunOwnership } from "./runToken";
-import { generationWatch } from "./generationWatch";
-import { heldLine, npcReplyMayFire, recordNpcReplyFire, recordOnEnterPost, releaseNpcReplyFire, type ActiveTrigger } from "./npcReplyRewind";
+import { hostChat, lastMessageId, lastSpeakerName, memberSpeaks, npcSpeechRequest, playerHasSpoken, rollsReply, settleSpeech, speakGenerated, type SpeakDeps } from "./npcSpeak";
+import {
+  heldLine, npcReplyKey, npcReplyMayFire, recordCuedLine, recordNpcReplyFire, recordOnEnterPost, releaseNpcReplyFire, type ActiveTrigger, type ReplyScopeView,
+} from "./npcReplyRewind";
+import type { SpeechBudget } from "./speechBudget";
 import { castInPlayNote } from "./castInPlay";
 import { CAST_UNRESOLVED, CAST_UNRESOLVED_NOTE, holdsBackground, planCastChanges } from "./castEffect";
 import { InFlight } from "./inFlight";
 import { chatSettle } from "./chatSettle";
 import { heldOpenerLine, holdOpener, openerRelease } from "./openerDeferral";
-import { identitySettled } from "./playerSetup";
+import { OpeningSequence, type NewChatOpening } from "./openingSequence";
 import { busyWork } from "./busy";
+import { ownPost } from "./playerSend";
 
 // What a host effect changed, read back from the host as it is NOW. Every reader is a
 // QUESTION with an honest "cannot tell", so a reconcile never guesses: a target whose value cannot be
@@ -42,11 +45,7 @@ const JUMP_RELEASED = new Set<EffectTarget["kind"]>(["an", "background", "extens
 
 export const OVERLAY_UNSUPPORTED_REASON = "a checkpoint preset applies on Text Completion and Chat Completion connections only; this connection uses another API";
 
-const hostChat = (): unknown[] => (Array.isArray(getContext().chat) ? getContext().chat : []);
-
-const lastMessageId = () => hostChat().length - 1;
-
-export interface EffectApplierDeps {
+export interface EffectApplierDeps extends SpeakDeps {
   /** The host as it is now, for the ledger's questions. */
   reads?: EffectHostReads;
   /** Puts a recorded value back. Returns whether the host agreed. */
@@ -72,9 +71,14 @@ export interface EffectApplierDeps {
    * Unifying them would move one of the two failures to the other's side of the line.
    */
   unsaved?: () => boolean;
-  journal?: (summary: string, note?: string) => void;
   roll?: (key: string) => number | null;
+  speakerNames?: (name: string) => string[];
+  awaitsPlayer?: () => boolean;
+  speech?: Pick<SpeechBudget, "reserve" | "settle" | "recordEntry">;
+  scope?: () => ReplyScopeView & { entry: string };
 }
+
+const NO_SCOPE: ReplyScopeView & { entry: string } = { entryStart: -1, send: -1, playerTurns: [], entry: "" };
 
 export const PENDING_NOT_SAVED = "the effect was not applied: its write-ahead record could not be saved";
 export const NO_OPEN_CHAT = "the effect was not applied: no chat is open to own it";
@@ -95,7 +99,7 @@ export const NO_OPEN_GROUP = "the effect was not applied: stories play in group 
 const openChatId = () => String(getContext().chatId ?? "");
 const openGroupId = () => String(getContext().groupId ?? "");
 
-interface NewChatOpening { fired: boolean }
+const openingAwaitsPlayer = (extras: RuntimeExtras): boolean => extras.lastSelfInjectionMessageId === lastMessageId() && !playerHasSpoken();
 
 export class EffectsApplier {
   private speaking = 0;
@@ -103,6 +107,12 @@ export class EffectsApplier {
 
   private appliedChat: string | null = null;
   private applying: { key: string; run: RunGuard; opening: NewChatOpening; done: Promise<void> } | null = null;
+  private readonly openings = new OpeningSequence({
+    fire: (checkpoint, extras, allow) => this.fireNpcReplies(checkpoint, extras, "onEnter", undefined, [], allow),
+    fireOnEnter: (checkpoint, extras, gate, deferrable) => this.fireOnEnter(checkpoint, extras, gate, deferrable),
+    castSettled: () => this.castWrites.settled(),
+    journal: (summary, note) => this.deps.journal?.(summary, note),
+  });
   private readonly castWrites = new InFlight();
 
   // The one thing a transition posts into the chat itself: a compact system note naming where the
@@ -117,8 +127,13 @@ export class EffectsApplier {
     if (!extras.ui.announceTransitions) return;
     const unannounced = `${what} was not announced`;
     if (!ownsOpenChat) return this.deps.journal?.(unannounced, "the open chat is not the chat this boundary belongs to");
-    if (!(await executeSlashCommands(`/comment compact=true raw=false ${quoteSlashArg(raw.replace(/\s*\r?\n\s*/g, " ").trim())}`, { silent: true }))) {
-      this.deps.journal?.(unannounced, "the /comment that posts the note was refused");
+    const own = ownPost();
+    try {
+      if (!(await executeSlashCommands(`/comment compact=true raw=false ${quoteSlashArg(raw.replace(/\s*\r?\n\s*/g, " ").trim())}`, { silent: true }))) {
+        this.deps.journal?.(unannounced, "the /comment that posts the note was refused");
+      }
+    } finally {
+      own();
     }
   }
 
@@ -169,8 +184,9 @@ export class EffectsApplier {
     const key = `${openChatId()}|${checkpoint.id}`;
     const running = this.applying;
     if (mode === "hydrate" && running?.key === key && running.run.stillOwns()) {
-      await this.openNewChat(running.opening, checkpoint, extras, running.run);
-      return running.done;
+      await this.openings.open(running.opening, checkpoint, extras, running.run);
+      await running.done;
+      return this.openings.after(running.opening, checkpoint, extras, running.run);
     }
     const run = beginRun(this.ownership);
     const opening: NewChatOpening = { fired: false };
@@ -181,12 +197,6 @@ export class EffectsApplier {
     } finally {
       if (this.applying === entry) this.applying = null;
     }
-  }
-
-  private async openNewChat(opening: NewChatOpening, checkpoint: Checkpoint, extras: RuntimeExtras, run: RunGuard) {
-    if (opening.fired || !extras.requirements.ready || !identitySettled(extras.playerSetup) || !run.stillOwns()) return;
-    opening.fired = true;
-    await this.fireNpcReplies(checkpoint, extras, "onEnter", undefined, [], (reply) => reply.new_chat_only === true);
   }
 
   private async applyCheckpointNow(
@@ -209,7 +219,7 @@ export class EffectsApplier {
     // writes ~100 group members one await at a time, so an opening fired at the end of the sequence
     // left a brand-new chat blank for the better part of a minute — and an interrupted apply lost it
     // entirely. Every other onEnter beat stays below, after the cast it needs is enabled.
-    await this.openNewChat(opening, checkpoint, extras, run);
+    await this.openings.open(opening, checkpoint, extras, run);
     if (!run.stillOwns()) return;
     const scope = { checkpointId: checkpoint.id, boundary: 0, messageId: lastMessageId() };
     const plan = worldInfoPlan(story, path, rewardedQuestIds(story, snapshot.blackboard), earnedWorldInfo(story, snapshot.blackboard));
@@ -258,8 +268,12 @@ export class EffectsApplier {
     }
     if (!run.stillOwns()) return;
     this.appliedChat = openChatId();
+    const holds = mode === "activate" && waitsForOpener(checkpoint, opening.fired, hostChat().length);
+    if (holds) this.openings.hold(checkpoint, gate);
     if (!ready) return;
-    if (mode === "activate") await this.fireOnEnter(checkpoint, extras, gate);
+    if (mode === "activate" && !holds) await this.fireOnEnter(checkpoint, extras, gate, !opening.fresh);
+    if (!run.stillOwns()) return;
+    await this.openings.after(opening, checkpoint, extras, run);
     if (!run.stillOwns()) return;
     extras.lastAppliedCheckpointId = checkpoint.id;
     extras.updatedAt = new Date().toISOString();
@@ -408,30 +422,8 @@ export class EffectsApplier {
 
   private reads(): EffectHostReads { return this.deps.reads ?? { read: () => null }; }
 
-  private async speak(reply: NpcReplyEffect): Promise<WriteResult> {
-    if (reply.kind === "scripted") return fireReply(reply);
-    const chatId = openChatId();
-    const stream = guardHostStream(chatId);
-    const lapse = this.ownership.signal?.();
-    const before = generationWatch.openedCount();
-    let stopped = false;
-    const stopIfOurs = () => {
-      if (stopped) return;
-      stopped = true;
-      if (stream.halt()) return;
-      if (before !== null && generationWatch.openedCount() === before + 1 && isHostGenerating()) stopHostGeneration();
-    };
-    lapse?.addEventListener("abort", stopIfOurs, { once: true });
-    const unwatch = watchHostChatMove(chatId, stopIfOurs);
-    try {
-      const fired = await fireReply(reply);
-      if (!fired.ok) this.deps.journal?.(`${reply.member}'s reply was not triggered`, fired.reason);
-      return fired;
-    } finally {
-      unwatch();
-      lapse?.removeEventListener("abort", stopIfOurs);
-      stream.release();
-    }
+  private speak(reply: NpcReplyEffect): Promise<WriteResult & { direction?: string }> {
+    return reply.kind === "scripted" ? fireReply(reply) : speakGenerated(reply, this.ownership, this.deps);
   }
 
   private async fireOnEnter(checkpoint: Checkpoint, extras: RuntimeExtras, gate?: number, deferrable = true) {
@@ -456,54 +448,64 @@ export class EffectsApplier {
   private async releaseOpener(checkpoint: Checkpoint, extras: RuntimeExtras) {
     const next = openerRelease(extras.deferredOpener, checkpoint.id, hostChat());
     if (next.kind !== "wait") delete extras.deferredOpener;
-    if (next.kind === "fire") await this.fireOnEnter(checkpoint, extras, next.gate, false);
+    if (next.kind === "fire") await this.fireOnEnter(checkpoint, extras, next.gate, next.recheck === true);
   }
 
   async fireActiveReplies(checkpoint: Checkpoint | undefined, extras: RuntimeExtras, trigger: ActiveTrigger, leaving: string | null, breakAt?: number, aliases: string[] = []) {
     if (!checkpoint) return 0;
     if (!leaving && trigger === "afterSpeak") await this.releaseOpener(checkpoint, extras);
+    if (!leaving && trigger === "afterSpeak" && this.deps.awaitsPlayer?.()) {
+      if (readNpcReplies(checkpoint.effects).some((reply) => reply.trigger === "afterSpeak" && reply.enabled !== false)) {
+        this.deps.journal?.(`the afterSpeak lines of ${checkpoint.name || checkpoint.id} waited`, "the last reply asks the player something, so the turn is the player's");
+      }
+      return 0;
+    }
     if (!leaving) return this.fireNpcReplies(checkpoint, extras, trigger, breakAt, aliases);
     const held = heldLine(readNpcReplies(checkpoint.effects), trigger, checkpoint.name || checkpoint.id, leaving);
     if (held) this.deps.journal?.(...held);
     return 0;
   }
 
+  private lastSpeakerIs(member: string): boolean {
+    const name = lastSpeakerName();
+    const ref = member.trim().toLowerCase();
+    return Boolean(name) && (this.deps.speakerNames?.(name) ?? [name]).some((entry) => entry.trim().toLowerCase() === ref);
+  }
+
   async fireNpcReplies(
     checkpoint: Checkpoint, extras: RuntimeExtras, trigger: NpcReplyTrigger, breakAt?: number, speakerAliases: string[] = [], allow?: (reply: NpcReplyEffect) => boolean,
   ): Promise<number> {
     if (trigger === "afterSpeak" && (this.speaking > 0 || extras.lastSelfInjectionMessageId === lastMessageId())) return 0;
-    if (trigger === "sceneBreak" && (this.speaking > 0 || (breakAt !== undefined && extras.lastSelfInjectionMessageId === breakAt))) return 0;
+    if (trigger === "sceneBreak" && (this.speaking > 0 || (breakAt !== undefined && extras.lastSelfInjectionMessageId === breakAt) || openingAwaitsPlayer(extras))) return 0;
     const aliases = speakerAliases.map((alias) => alias.trim().toLowerCase());
-    const replies = readNpcReplies(checkpoint.effects).filter((reply) => reply.trigger === trigger && (!allow || allow(reply)));
+    const authored = readNpcReplies(checkpoint.effects);
+    const replies = authored.filter((reply) => reply.trigger === trigger && (!allow || allow(reply)));
     // This is the only effect that SPEAKS: `fireReply` posts a message into whatever
     // chat is open. One await per reply, so a multi-reply checkpoint that outlives its chat puts
     // the rest of this story's characters into somebody else's conversation, visibly, in the
     // transcript. The check is inside the loop because each reply is its own write.
     const run = beginRun(this.ownership);
+    const view = this.deps.scope?.() ?? NO_SCOPE;
     let spoken = 0;
     for (let index = 0; index < replies.length; index += 1) {
       if (!run.stillOwns()) return spoken;
       const reply = replies[index];
-      if (reply.enabled === false) continue;
-      if (reply.new_chat_only && (trigger !== "onEnter" || !Array.isArray(getContext().chat) || getContext().chat.length !== 0)) continue;
-      if (trigger === "afterSpeak" && reply.after_member && !aliases.includes(reply.after_member.trim().toLowerCase())) continue;
-      const key = `${checkpoint.id}:${trigger}:${reply.member}:${index}`;
-      if (!npcReplyMayFire(extras.firedNpcReplies, extras.firedNpcRepliesAt, key, reply.maxTriggers, trigger, lastMessageId())) continue;
-      if (typeof reply.probability === "number") {
-        const roll = this.deps.roll?.(key) ?? Math.random();
-        const fired = roll <= reply.probability;
-        this.deps.journal?.(`NPC reply ${reply.member} (${trigger}) ${fired ? "fired" : "skipped"} by its roll`, `rolled ${roll.toFixed(3)} against ${reply.probability} at ${key}`);
-        if (!fired) continue;
-      }
+      if (!this.admits(reply, trigger, aliases)) continue;
+      const key = npcReplyKey(checkpoint.id, reply, authored.indexOf(reply));
+      if (!npcReplyMayFire(extras.firedNpcReplies, extras.firedNpcRepliesAt, key, reply, view) || !rollsReply(reply, trigger, key, this.deps)) continue;
+      const reservation = trigger === "onEnter" ? null : this.deps.speech?.reserve(npcSpeechRequest(reply, view.entry)) ?? null;
+      if (trigger !== "onEnter" && this.deps.speech && !reservation) continue;
       extras.firedNpcRepliesAt = extras.firedNpcRepliesAt ?? {};
       recordNpcReplyFire(extras.firedNpcReplies, extras.firedNpcRepliesAt, key, lastMessageId());
       this.speaking += 1;
-      let fired: WriteResult;
+      let fired: WriteResult & { direction?: string };
       try { fired = await chatSettle.speak(() => this.speak(reply)); }
       catch (error) {
+        settleSpeech(this.deps.speech, reply, null, reservation, null);
         if (run.stillOwns()) releaseNpcReplyFire(extras.firedNpcReplies, extras.firedNpcRepliesAt, key);
         throw error;
       } finally { this.speaking -= 1; }
+      settleSpeech(this.deps.speech, reply, trigger === "onEnter" ? view.entry : null, reservation, fired.ok && run.stillOwns() && this.lastSpeakerIs(reply.member) ? lastMessageId() : null);
       if (!run.stillOwns()) return spoken;
       if (!fired.ok) {
         releaseNpcReplyFire(extras.firedNpcReplies, extras.firedNpcRepliesAt, key);
@@ -511,7 +513,20 @@ export class EffectsApplier {
       }
       spoken += 1;
       extras.lastSelfInjectionMessageId = lastMessageId();
+      if (fired.direction && this.lastSpeakerIs(reply.member)) extras.cuedLines = recordCuedLine(extras.cuedLines, { messageId: lastMessageId(), member: reply.member, text: fired.direction });
     }
     return spoken;
   }
+
+  private admits(reply: NpcReplyEffect, trigger: NpcReplyTrigger, aliases: string[]): boolean {
+    if (reply.enabled === false) return false;
+    if (reply.new_chat_only && (trigger !== "onEnter" || !this.openings.posts() || playerHasSpoken())) return false;
+    if (trigger === "afterSpeak" && reply.after_member && !aliases.includes(reply.after_member.trim().toLowerCase())) return false;
+    if (trigger === "onEnter" && reply.after_member && !this.lastSpeakerIs(reply.after_member)) return false;
+    if (!needsCast(reply) || memberSpeaks(reply.member)) return true;
+    this.deps.journal?.(`${reply.member}'s line was skipped`, "the member is not switched on in this group");
+    return false;
+  }
+
+
 }

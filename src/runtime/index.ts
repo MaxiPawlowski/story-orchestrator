@@ -3,6 +3,7 @@ import { getChatWindow } from "@extraction/index";
 import { checkLibraryIndex } from "./libraryIndexPort";
 import {
   clearStoryExtensionPrompt, getContext, loadPersonasModule, loadPersonaWrites, noteHostSettingsLoaded, readPersonas,
+  getActiveGroup, installDraftGuard,
   isUserStoppedReply, onGroupEdited, onLorebookListChanged, setStoryExtensionPrompt, settingsReady, startSaveWatcherSurface, subscribeToHostEvents, watchPendingWorldSaves,
 } from "@services/STAPI";
 import { registerRuntimeMacros } from "./macros";
@@ -28,7 +29,7 @@ import { onWizardSessionSave } from "./wizardSessions";
 import { startScheduler } from "./wiring/scheduler";
 import { startJudge, startScene } from "./wiring/judgeScene";
 import { startLore } from "./wiring/lore";
-import { startTalk } from "./wiring/talk";
+import { startKeepLastQuestion, startTalk } from "./wiring/talk";
 import { attachGenerationObservers, subscribeGenerationEvents } from "./wiring/generation";
 import { publishSpikeDebug } from "./spikeDebug";
 import type { Disposers, LiveParts, WindowAccess } from "./wiring/types";
@@ -191,6 +192,8 @@ export function startRuntime() {
   const generation = new GenerationLifecycle(isTurnMessageType);
   const lore = startLore(runtimeDisposers, judgeRuntime, generation, access);
   startTalk(live, judgeRuntime, access, lore.onIntercept);
+  runtimeDisposers.push(installDraftGuard(() => Boolean(getActiveGroup())));
+  startKeepLastQuestion(runtimeDisposers);
   globalThis.storyOrchestratorTalk = { chainPending: () => live.talk?.chainPending() ?? false };
   runtimeDisposers.push(watchVoiceChain(() => live.talk?.chainPending() ?? false));
   void import("./agendaProposalsHost").then(({ attachAgendaProposals }) => { if (started) globalThis.storyOrchestratorAgendaProposals = attachAgendaProposals(runtimeManager); });

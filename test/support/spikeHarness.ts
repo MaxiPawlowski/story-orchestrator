@@ -188,9 +188,8 @@ export class SpikeWorld {
 
   async newSwipe(messageId: number, text: string) {
     const row: SpikeRow = spikeContext.chat[messageId];
-    row.swipes = [...(row.swipes ?? [row.mes]), ""];
-    row.swipe_id = row.swipes.length - 1;
-    row.mes = "";
+    row.swipes = [...(row.swipes ?? [row.mes])];
+    row.swipe_id = row.swipes.length;
     await spikeEvents.emit("MESSAGE_SWIPED", messageId);
     await this.settle();
     row.mes = text;

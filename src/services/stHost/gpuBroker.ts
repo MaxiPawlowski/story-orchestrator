@@ -108,3 +108,25 @@ export async function renewGpu(lease: string | null): Promise<WriteResult<{ rene
   return response.ok && isRecord(data) && data.renewed === true ? wrote({ renewed: true }) : couldNot("The GPU broker lease expired. Stop this batch and check the broker.");
 }
 
+export interface ImageBurstRequest { count: number; ttlMs?: number; kind?: string }
+
+export async function openImageBurst(request: ImageBurstRequest): Promise<WriteResult<{ burst: string | null }>> {
+  let response: Response;
+  try {
+    response = await post("burst", { count: Math.max(1, Math.min(64, Math.round(request.count))), ttlMs: request.ttlMs, kind: request.kind });
+  } catch { return couldNot("The GPU broker could not be reached to announce the image burst."); }
+  if (response.status === 404 || response.status === 501) return wrote({ burst: null });
+  const data: unknown = await response.json().catch(() => null);
+  if (!response.ok || !isRecord(data) || typeof data.burst !== "string") {
+    return couldNot(isRecord(data) && typeof data.error === "string" ? data.error : "The GPU broker did not accept the image burst.");
+  }
+  return wrote({ burst: data.burst });
+}
+
+export async function closeImageBurst(burst: string | null): Promise<WriteResult<{ closed: boolean }>> {
+  if (!burst) return wrote({ closed: false });
+  let response: Response;
+  try { response = await post("burst", { close: burst }); } catch { return couldNot("The GPU broker could not be reached to close the image burst."); }
+  const data: unknown = await response.json().catch(() => null);
+  return response.ok && isRecord(data) ? wrote({ closed: data.closed === true }) : couldNot("The GPU broker did not close the image burst; it ends on its deadline.");
+}

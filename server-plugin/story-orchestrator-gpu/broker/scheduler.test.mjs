@@ -791,3 +791,186 @@ test('with two slots a chat runs beside a side pass, never two of one lane, and 
     assert.ok(log.indexOf('end sideA') < log.indexOf('start sideB'));
 });
 
+test('an idle prefill step neither counts toward image fairness nor announces itself; a real request or an image does', async () => {
+    const { scheduler } = setup({ config: { maxQueue: 8 } });
+    const heard = [];
+    const unsubscribe = scheduler.onArrival(() => heard.push(scheduler.status().waitingText));
+    await scheduler.text(async () => {}, undefined, null, 'idle');
+    assert.equal(scheduler.status().servedText, 0);
+    assert.deepEqual(heard, []);
+    await scheduler.text(async () => {}, undefined, null, 'side');
+    assert.equal(scheduler.status().servedText, 1);
+    assert.equal(heard.length, 1);
+    const lease = await scheduler.reserve();
+    assert.equal(heard.length, 2);
+    await scheduler.release(lease.lease);
+    unsubscribe();
+    await scheduler.text(async () => {}, undefined, null, 'chat');
+    assert.equal(heard.length, 2);
+});
+
+test('a shared-memory spill of the text server raises the GPU headroom and the stream floor, and reloads text once idle without waiting out the image grace', async () => {
+    const { scheduler, calls, backend } = setup({ config: { reclaimImageGraceMs: 600000, fitRecoverMs: 600000, streamImages: { enabled: true, minFreeGpuMiB: 2400 }, spillGuard: { sustainMs: 0, settleMs: 0 } }, comfyPid: () => 77 });
+    backend.status = () => ({ pid: backend.profile ? 42 : null, profile: backend.profile, desiredProfile: 'fast', fitTargetMiB: backend.fitTarget, fitCorrectionMiB: 0, loading: false });
+    backend.clearFitCorrection = () => 0;
+    const reading = (text, comfy) => ({ ...free(1500), gpuProcesses: { 42: { sharedMiB: text }, 77: { sharedMiB: comfy } } });
+    scheduler.observe(reading(1600, 200));
+    assert.equal(scheduler.status().spill.backoffMiB, 0);
+    scheduler.observe(reading(2500, 200));
+    const spill = scheduler.status().spill;
+    assert.equal(spill.backoffMiB, 1024);
+    assert.equal(spill.textSpilled, true);
+    assert.equal(spill.events[0].role, 'text');
+    assert.equal(scheduler.config.reserves.gpuMiB, 3072);
+    assert.equal(scheduler.config.streamImages.minFreeGpuMiB, 3424);
+    scheduler.lastLeaseAt = Date.now() - 1000;
+    assert.equal(await scheduler.recoverFitSpill(), true);
+    assert.deepEqual(calls, ['unload', 'load']);
+    assert.equal(scheduler.status().spill.textSpilled, false);
+    scheduler.observe(reading(1600, 200));
+    scheduler.observe(reading(1600, 900));
+    assert.equal(scheduler.status().spill.events.at(-1).role, 'comfy');
+    assert.equal(scheduler.status().spill.textSpilled, false);
+    assert.equal(scheduler.status().spill.backoffMiB, 1792);
+});
+
+test('an open image burst holds the text reload between its leases, ends after its count, and expires on its deadline', async () => {
+    let n = 0;
+    const off = setup().scheduler;
+    assert.deepEqual(off.openBurst({ count: 2 }).burst, null);
+    const { scheduler, backend } = setup({ snapshot: async () => free(n++ % 2 === 0 ? 3000 : 22000), config: { textReloadGraceMs: 1000, imageBursts: true } });
+    assert.throws(() => scheduler.openBurst({ count: 0 }), /count 1..64/);
+    const opened = scheduler.openBurst({ count: 2, ttlMs: 60000, kind: 'sprites' });
+    assert.equal(opened.remaining, 2);
+    const first = await scheduler.reserve({ workflowKey: 'background', needGpuMiB: 17000 });
+    await scheduler.release(first.lease);
+    await scheduler.keepResident(Date.now() + 1500);
+    assert.equal(backend.profile, null);
+    assert.equal(scheduler.status().burst.open.remaining, 1);
+    assert.equal(scheduler.status().burst.heldReloads, 1);
+    const second = await scheduler.reserve({ workflowKey: 'background', needGpuMiB: 17000 });
+    await scheduler.release(second.lease);
+    assert.equal(scheduler.status().burst.open, null);
+    assert.equal(scheduler.status().burst.finished, 1);
+    await scheduler.keepResident(Date.now() + 1500);
+    assert.equal(backend.profile, 'fast');
+    await scheduler.unload();
+    scheduler.manualHold = false;
+    const late = scheduler.openBurst({ count: 5, ttlMs: 5000 });
+    assert.equal(scheduler.burstOpen(Date.now() + 6000), false);
+    assert.equal(scheduler.status().burst.expired, 1);
+    assert.equal(scheduler.closeBurst(late.burst), false);
+});
+
+test('reply waits are logged per reply, and with replyBeforeImage a queued chat reply goes before a queued image', async () => {
+    const { scheduler } = setup({ config: { replyBeforeImage: true, imageFairTextRequests: 1, maxQueue: 8 } });
+    scheduler.noteReplyWait({ waitedMs: 120, cold: false });
+    scheduler.noteReplyWait({ waitedMs: 21000, cold: true });
+    assert.deepEqual({ ...scheduler.status().replyWaits, last: null }, { replies: 2, waitedOnReload: 1, share: 0.5, reloadWaitP50Ms: 21000, reloadWaitMaxMs: 21000, last: null });
+    const order = [];
+    const gate = deferred();
+    const running = scheduler.text(async () => { order.push('side'); await gate.promise; }, undefined, null, 'side');
+    await tick();
+    const image = scheduler.reserve({ workflowKey: 'scene', needGpuMiB: 9000 }).then((lease) => { order.push('image'); return lease; });
+    await tick();
+    const chat = scheduler.text(async () => { order.push('chat'); }, undefined, null, 'chat');
+    gate.resolve();
+    await running; await chat;
+    const lease = await image;
+    assert.deepEqual(order, ['side', 'chat', 'image']);
+    await scheduler.release(lease.lease);
+});
+
+test('a sleeping text server with its member cache is dropped first when an image would leave host RAM under the floor', async () => {
+    let available = 20000;
+    const { scheduler, backend } = setup({ snapshot: async () => ({ ...free(22000), host: { availableMiB: available, commitFreeMiB: 80000 } }), config: { keepCacheRamFloorMiB: 10240 } });
+    const dropped = [];
+    backend.status = () => ({ pid: null, profile: null, sleeping: { profile: 'fast' }, fitTargetMiB: null });
+    backend.dropSleeping = async () => { dropped.push('drop'); return 4096; };
+    assert.equal(await scheduler.dropSleepingForRam(6000), 0);
+    available = 9000;
+    assert.equal(await scheduler.dropSleepingForRam(6000), 4096);
+    available = 14000;
+    assert.equal(await scheduler.dropSleepingForRam(11000), 4096);
+    assert.deepEqual(dropped, ['drop', 'drop']);
+    backend.status = () => ({ pid: 42, profile: 'fast', sleeping: null, fitTargetMiB: null });
+    assert.equal(await scheduler.dropSleepingForRam(9000), 0);
+});
+
+test('after a warm image, a sleeping text server that holds GPU memory never wedges text: it is dropped, the release retried and the reply served', async () => {
+    let failures = 0;
+    const dropped = [];
+    let sleeping = null;
+    const { scheduler, backend, render } = warmImages({ freeImages: async () => {
+        if (sleeping) { failures += 1; throw new Error('ComfyUI accepted free but its model memory has not been released; text will not race the release.'); }
+        return { mode: 'evicted' };
+    } });
+    backend.status = () => ({ pid: sleeping ? null : backend.profile ? 42 : null, profile: sleeping ? null : backend.profile, sleeping, fitTargetMiB: null });
+    backend.dropSleeping = async () => { dropped.push('drop'); sleeping = null; return 4096; };
+    const { lease } = await scheduler.reserve({ workflowKey: 'face-edit', needGpuMiB: 18000 });
+    render(); await scheduler.release(lease);
+    sleeping = { profile: 'fast' };
+    let replied = false;
+    await scheduler.text(async () => { replied = true; });
+    assert.equal(replied, true);
+    assert.equal(failures, 1);
+    assert.deepEqual(dropped, ['drop']);
+    assert.equal(scheduler.imagesNeedRelease, false);
+});
+
+test('the image release target and its check exclude GPU memory the text process holds, and a stray wake seen in a lease sample is stopped', async () => {
+    const options = [];
+    const strays = [];
+    const { scheduler, backend, snapshot } = warmImages({ freeImages: async (value) => { options.push(value); return { mode: 'evicted' }; } });
+    let sleeping = { profile: 'fast' };
+    backend.heldMiB = (reading) => reading?.gpuProcesses?.[42]?.dedicatedMiB ?? null;
+    backend.status = () => ({ pid: sleeping ? null : 42, profile: sleeping ? null : 'fast', sleeping, fitTargetMiB: null });
+    backend.checkSleeping = async (reading) => {
+        const held = reading?.gpuProcesses?.[42]?.dedicatedMiB;
+        if (!(held > 2048)) return null;
+        strays.push(held); sleeping = null; return { pid: 42, heldMiB: held };
+    };
+    snapshot({ ...free(22000), gpuProcesses: { 42: { dedicatedMiB: 300 } } });
+    const { lease } = await scheduler.reserve({ workflowKey: 'face-edit', needGpuMiB: 18000 });
+    snapshot({ ...free(1000), host: { availableMiB: 14000, commitFreeMiB: 70000 }, gpuProcesses: { 42: { dedicatedMiB: 21000 } } });
+    await scheduler.sampleLease();
+    assert.deepEqual(strays, [21000]);
+    snapshot({ ...free(5000), host: { availableMiB: 14000, commitFreeMiB: 70000 }, gpuProcesses: { 42: { dedicatedMiB: 300 } } });
+    await scheduler.release(lease);
+    assert.equal(scheduler.imageReleaseTargetMiB, 24576 - 22000 + 512);
+    await scheduler.text(async () => {});
+    assert.equal(options.at(-1).maxUsedGpuMiB, 24576 - 22000 + 512);
+    assert.equal(options.at(-1).otherMiB({ gpuProcesses: { 42: { dedicatedMiB: 777 } } }), 777);
+});
+
+test('text kept loaded beside an image is left out of the image release target by its own GPU reading at lease start', async () => {
+    const options = [];
+    const { scheduler, backend, snapshot } = warmImages({ freeImages: async (value) => { options.push(value); return { mode: 'evicted' }; } });
+    backend.profile = 'fast';
+    backend.heldMiB = (reading) => reading?.gpuProcesses?.[42]?.dedicatedMiB ?? null;
+    snapshot({ ...free(22000), gpuProcesses: { 42: { dedicatedMiB: 4000 } } });
+    const { lease, decision } = await scheduler.reserve({ workflowKey: 'face-edit', needGpuMiB: 9000 });
+    assert.equal(decision, 'retain-text');
+    snapshot({ ...free(12000), host: { availableMiB: 14000, commitFreeMiB: 70000 }, gpuProcesses: { 42: { dedicatedMiB: 4000 } } });
+    await scheduler.release(lease);
+    await scheduler.text(async () => {});
+    assert.equal(options.at(-1).maxUsedGpuMiB, 24576 - 22000 - 4000 + 512);
+});
+
+test('an image release target missed three times in a row is dropped, so text recovers on ComfyUI\'s own release instead of wedging', async () => {
+    const targets = [];
+    const { scheduler, render } = warmImages({ freeImages: async (options) => {
+        targets.push(options.maxUsedGpuMiB);
+        if (options.maxUsedGpuMiB !== null && options.maxUsedGpuMiB !== undefined) throw new Error('ComfyUI accepted free but its model memory has not been released');
+        return { mode: 'evicted' };
+    } });
+    const { lease } = await scheduler.reserve({ workflowKey: 'face-edit', needGpuMiB: 18000 });
+    render(); await scheduler.release(lease);
+    for (let attempt = 0; attempt < 3; attempt += 1) await assert.rejects(scheduler.text(async () => {}), /has not been released/);
+    assert.equal(scheduler.status().imageResidency.lastReleaseGiveUp.failures, 3);
+    let replied = false;
+    await scheduler.text(async () => { replied = true; });
+    assert.equal(replied, true);
+    assert.deepEqual(targets, [3088, 3088, 3088, null]);
+    assert.equal(scheduler.status().imageResidency.releaseFailures, 0);
+});

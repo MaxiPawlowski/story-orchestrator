@@ -90,3 +90,12 @@ test('a model that cannot offload while its loader is cached escalates to cache 
     assert.deepEqual(calls, [{ unload_models: true, free_memory: false }, { unload_models: true, free_memory: true }]);
     assert.equal(cache.last.mode, 'evicted');
 });
+
+test('GPU memory held by the text server is not counted against the image release target', async () => {
+    const { cache } = setup({ gpuUsed: [23000] });
+    await cache.free({ maxUsedGpuMiB: 2700, clear: true, otherMiB: () => 21000 });
+    assert.equal(cache.last.mode, 'evicted');
+    const unattributed = setup({ gpuUsed: [23000] });
+    await assert.rejects(unattributed.cache.free({ maxUsedGpuMiB: 2700, clear: true, otherMiB: () => 500 }), /500 MiB of it held by the text server/);
+    assert.equal(unattributed.cache.lastFailure.textGpuMiB, 500);
+});

@@ -30,7 +30,7 @@ export function mountManagedRoutes(router, url, fetchImpl = fetch) {
         try { res.json(await call('/status')); }
         catch (error) { res.status(503).json({ adapter: 'managed', guarding: true, error: error.message }); }
     });
-    for (const route of ['lease', 'renew', 'release']) router.post(`/${route}`, async (req, res) => {
+    for (const route of ['lease', 'renew', 'release', 'burst']) router.post(`/${route}`, async (req, res) => {
         try {
             const data = await call(`/${route}`, req.body ?? {});
             if ((res.destroyed || res.writableEnded) && route === 'lease' && data.lease) await call('/release', { lease: data.lease });

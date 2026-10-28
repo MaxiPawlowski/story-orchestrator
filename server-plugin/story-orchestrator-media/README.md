@@ -92,3 +92,7 @@ user), `POST test-key {provider}`, `POST plan {provider, ref, kind?, root?}`, `P
 "modelRoots": { "checkpoints": ["D:/models/checkpoints"], "loras": ["D:/models/loras"] },
 "downloads": { "freeMarginBytes": 2147483648, "allowPickle": false }
 ```
+
+## Visual packs
+
+`GET /packs` lists the visual pack files under the signed-in user's `story-orchestrator/visual-packs/` folder (JSON, at most 512 files of 512 KB, three folder levels). It only reads; the page validates each pack, checks its digest and fingerprints every image it uses. A missing folder is an empty list.

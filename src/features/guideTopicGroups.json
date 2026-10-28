@@ -21,6 +21,7 @@
    "drives-motives",
    "inner-voice",
    "talk-control",
+   "talk-pacing",
    "character-life",
    "factions",
    "rumors",
@@ -107,6 +108,7 @@
   "title": "Game layer and display",
   "topics": [
    "presentation",
+   "visual-packs",
    "quests",
    "checks",
    "offers",

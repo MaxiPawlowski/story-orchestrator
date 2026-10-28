@@ -22,7 +22,9 @@ import { sanitizeLivingState } from "@generation/living/sanitize";
 import { JUDGED_READ_LIMIT, VERIFY_DROP_LIMIT } from "./types";
 import { trimLedger } from "./effectLedger";
 import { createSaveHealth } from "./saveHealth";
-import { sanitizeOnEnterPosts } from "./npcReplyRewind";
+import { sanitizeCuedLines, sanitizeOnEnterPosts } from "./npcReplyRewind";
+import { sanitizeSpeech } from "./speechLedger";
+import { sanitizeChainEnds } from "./chainEnds";
 import { sanitizeDeferredOpener } from "./openerDeferral";
 import { freshBriefing, sanitizeBriefingRecord } from "./briefing";
 import { freshPlayerSetup, sanitizePlayerSetup } from "./playerSetup";
@@ -481,6 +483,9 @@ export const hydrateExtras = (persisted: RuntimeExtras | undefined, read: () => 
   extras.firedNpcReplies = extras.firedNpcReplies && typeof extras.firedNpcReplies === "object" ? extras.firedNpcReplies : {};
   extras.firedNpcRepliesAt = extras.firedNpcRepliesAt && typeof extras.firedNpcRepliesAt === "object" ? extras.firedNpcRepliesAt : {};
   if (extras.onEnterPosts !== undefined) extras.onEnterPosts = sanitizeOnEnterPosts(extras.onEnterPosts);
+  if (extras.cuedLines !== undefined) extras.cuedLines = sanitizeCuedLines(extras.cuedLines);
+  if (extras.speech !== undefined) extras.speech = sanitizeSpeech(extras.speech);
+  if (extras.chainEnds !== undefined) extras.chainEnds = sanitizeChainEnds(extras.chainEnds);
   if (extras.deferredOpener !== undefined) {
     const deferred = sanitizeDeferredOpener(extras.deferredOpener);
     if (deferred) extras.deferredOpener = deferred;

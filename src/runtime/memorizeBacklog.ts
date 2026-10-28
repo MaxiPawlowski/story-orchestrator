@@ -3,10 +3,10 @@ import { planBacklog } from "@extraction/backlogPlan";
 import { isLapse, retryOnTimeout } from "@extraction/modelError";
 import { preflightNeeded, withJudgeCalls } from "@extraction/preflight";
 import { deriveFullScope } from "@extraction/scope";
-import { runSharedRead, sharedReadOverhead } from "@extraction/sharedRead";
+import { runSharedRead, sharedReadOverhead, type RunSharedReadOptions } from "@extraction/sharedRead";
 import { createTokenMeter } from "@extraction/tokenMeter";
 import type {
-  ModelAsk, ModelCall, ParsedFact, PreflightConfirm, ReadOwnership, RequestBudget, RunSharedReadOptions, SchedulerJob, SharedReadAudit,
+  ModelAsk, ModelCall, ParsedFact, PreflightConfirm, ReadOwnership, RequestBudget, SchedulerJob, SharedReadAudit,
   SharedReadWindow,
 } from "@extraction/index";
 import type { ParsedArcSignal, ParsedEpistemicSignal, ParsedLedgerSignal, ParsedMemoryLine } from "@memory/index";

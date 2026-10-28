@@ -4,7 +4,7 @@ import type { Commitment } from "@engine/lifeSchema";
 import type { StoryPolish } from "@engine/polishSchema";
 import type { MemberCue, MemberTopic, StoryNorm, TopicTier } from "@engine/cueSchema";
 import type { StoryEcho } from "@engine/echoSchema";
-import type { Checkpoint, CheckpointEffects, Quality, RosterMember, Story, Transition } from "@engine/index";
+import type { Checkpoint, CheckpointEffects, NpcReplyEffect, Quality, RosterMember, Story, StoryTalkDefaults, TalkControl, Transition } from "@engine/index";
 import { GUIDE_TOPICS, type GuideTopicId } from "./guideTopics";
 import { PENDING_GUIDE_TOPICS, readGuide } from "./guideRead";
 
@@ -20,7 +20,7 @@ const STORY: Record<keyof Story, Covered> = {
   objective_block: "objective-agency", display: "presentation", chapters: "chapters", memory: "chapters", quests: "quests", milestones: "quests",
   widgets: "widgets", clock: "story-time", calendar: "story-time", living: "living-director", factions: "factions",
   codex: "codex", observations: "observations", outcome: "outcome", carry_from: "carry-from", rumors: "rumors", patterns: "patterns", polish: "story-polish",
-  norms: "norms", echoes: "echoes",
+  norms: "norms", echoes: "echoes", talk_defaults: "talk-pacing",
 };
 
 const CHECKPOINT: Record<keyof Checkpoint, Covered> = {
@@ -88,7 +88,19 @@ const NORM: Record<keyof StoryNorm, Covered> = {
 const ECHO: Record<keyof StoryEcho, Covered> = {
   id: "echoes", after: "echoes", delay: "echoes", when: "echoes", cancel_when: "echoes", expires: "echoes", to: "echoes", cue: "echoes", hold: "echoes",
 };
+const TALK_CONTROL: Record<keyof TalkControl, Covered> = {
+  speakers: "talk-control", lead: "talk-control", no_repeat: "talk-control", allow_silence: "talk-control", director: "talk-control", chain: "talk-control",
+  profile: "talk-pacing", budget: "talk-pacing", lead_words: "talk-pacing", lead_max_consecutive: "talk-pacing", spotlight: "talk-pacing", address_player: "talk-pacing",
+  reaction: "talk-pacing",
+};
+const TALK_DEFAULTS: Record<keyof StoryTalkDefaults, Covered> = { profile: "talk-pacing", budget: "talk-pacing" };
+const NPC_REPLY: Record<keyof NpcReplyEffect, Covered> = {
+  trigger: "npc-replies", member: "npc-replies", kind: "npc-replies", new_chat_only: "opening-scene", text: "npc-replies", instruction: "npc-replies", ask_player: "npc-replies",
+  maxTriggers: "npc-replies", probability: "npc-replies", after_member: "npc-replies", enabled: "npc-replies", id: "npc-replies", once_per: "npc-replies",
+  cooldown_player_turns: "npc-replies",
+};
 const TABLES: Array<[string, Record<string, Covered>]> = [
+  ["checkpoints[].talk_control", TALK_CONTROL], ["talk_defaults", TALK_DEFAULTS], ["checkpoints[].effects.npc_replies[]", NPC_REPLY],
   ["polish", STORY_POLISH],
   ["roster[].cues[]", CUE], ["roster[].topics[]", TOPIC], ["roster[].topics[].tiers[]", TIER], ["norms[]", NORM], ["echoes[]", ECHO],
   ["outcome[]", OUTCOME], ["carry_from", CARRY], ["carry_from.map[]", CARRY_MAP],

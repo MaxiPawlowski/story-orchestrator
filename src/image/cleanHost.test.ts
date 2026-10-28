@@ -7,25 +7,30 @@ const host = {
   checkpoints: [] as string[],
   onReady: null as null | (() => void),
   generating: false,
+  profiles: [] as Array<{ id: string }>,
+  director: async () => "",
+  messages: [{ name: "Narrator", mes: "The gate opens.", is_user: false, is_system: false }] as Array<{ name: string; mes: string; is_user: boolean; is_system: boolean }>,
 };
 
 const renderStImage = jest.fn(async () => "/user/images/st.png");
 const comfyRenderOwned = jest.fn(async () => ({ data: "AAAA", format: "png" }));
-const comfyDiscover = jest.fn(async () => ({ nodes: {}, embeddings: [], checkpoints: host.checkpoints, diffusionModels: [], textEncoders: [], vaes: [], loras: [], upscalers: [] }));
+const discovered = async () => ({ nodes: {}, embeddings: [], checkpoints: host.checkpoints, diffusionModels: [], textEncoders: [], vaes: [], loras: [], upscalers: [] });
+const comfyDiscover = jest.fn(discovered);
 const reserveGpu = jest.fn(async () => ({ lease: null, brokered: false }));
 const imagePlace = jest.fn(async () => ({ ok: true as const, placed: true as const }));
 
-jest.mock("@services/STAPI", () => ({ isHostGenerating: () => host.generating, listConnectionProfiles: () => [], getScannableEntries: async () => [] }));
+jest.mock("@services/STAPI", () => ({ isHostGenerating: () => host.generating, listConnectionProfiles: () => host.profiles, getScannableEntries: async () => [] }));
 jest.mock("@services/stHost/image", () => ({
   imageChat: () => ({ id: "chat-1", groupId: "g1", folder: "g1", userName: "Player", characters: [],
-    messages: [{ name: "Narrator", mes: "The gate opens.", is_user: false, is_system: false }] }),
-  imageModel: async () => "", imageSave: async () => "/user/images/comfy.png", imageDelete: async () => ({ ok: true }),
+    messages: host.messages }),
+  imageModel: () => host.director(), imageSave: async () => "/user/images/comfy.png", imageDelete: async () => ({ ok: true }),
   imagePlace: (...args: unknown[]) => imagePlace(...(args as [])), imageChatSettings: () => null,
   imageWriteChatSettings: async () => ({ ok: true, chatId: "chat-1" }),
 }));
 jest.mock("@services/stHost/gpuBroker", () => ({
   reserveGpu: (...args: unknown[]) => reserveGpu(...(args as [])), releaseGpu: async () => ({ ok: true, released: false }), gpuBrokerStatus: async () => null,
 }));
+jest.mock("@services/stHost/generation", () => ({ isHostGenerating: () => host.generating }));
 jest.mock("@services/stHost/stImage", () => ({
   stImageReadiness: async () => (host.onReady?.(), host.stReady ? { ready: true, reason: null, source: "comfy" } : { ready: false, reason: "Set up SillyTavern’s Image Generation extension first.", source: null }),
   renderStImage: (...args: unknown[]) => renderStImage(...(args as [])),
@@ -85,8 +90,65 @@ beforeEach(() => {
   host.checkpoints = [];
   host.onReady = null;
   host.generating = false;
+  host.profiles = [];
+  host.director = async () => "";
+  host.messages = [{ name: "Narrator", mes: "The gate opens.", is_user: false, is_system: false }];
   jest.clearAllMocks();
   workflowHost.swaps = [];
+});
+
+describe("an image-prompt model with no usable answer falls back to the template", () => {
+  it("draws from the template and says so when the reply is not JSON twice", async () => {
+    host.stReady = true;
+    host.settings = { ...defaultImageSettings(), directorProfileId: "p1" };
+    host.profiles = [{ id: "p1" }];
+    host.director = async () => "no json here";
+    const { director, fire, stop } = harness();
+    fire();
+    await settle();
+    expect(renderStImage).toHaveBeenCalledTimes(1);
+    expect(director.status().lastPlan?.promptSource).toBe("degraded");
+    stop();
+  });
+});
+
+describe("opening pictures: the greeting is never drawn by the reply cadence", () => {
+  it("skips a reply with no player line before it, draws one after the player spoke", async () => {
+    host.stReady = true;
+    host.settings = { ...defaultImageSettings(), automation: { mode: "everyN", everyN: 1 } };
+    const { director, stop } = harness();
+    await director.onReply(0, "command");
+    await settle();
+    expect(renderStImage).not.toHaveBeenCalled();
+    host.messages = [{ name: "Player", mes: "We go in.", is_user: true, is_system: false }, { name: "Narrator", mes: "The gate opens.", is_user: false, is_system: false }];
+    await director.onReply(1, "normal");
+    await settle();
+    expect(renderStImage).toHaveBeenCalledTimes(1);
+    stop();
+  });
+});
+
+describe("the every-N cadence counts player turns, not member replies", () => {
+  const turn = (n: number) => [{ name: "Player", mes: `Turn ${n}.`, is_user: true, is_system: false }, { name: "Narrator", mes: `Reply ${n}.`, is_user: false, is_system: false },
+    { name: "Mira", mes: `Second voice ${n}.`, is_user: false, is_system: false }];
+
+  it("considers only the first reply of a turn and fires on every Nth turn", async () => {
+    host.stReady = true;
+    host.settings = { ...defaultImageSettings(), automation: { mode: "everyN", everyN: 2 } };
+    host.messages = turn(1);
+    const { director, stop } = harness();
+    await director.onReply(1, "normal");
+    await settle();
+    expect(renderStImage).not.toHaveBeenCalled();
+    host.messages = [...turn(1), ...turn(2)];
+    await director.onReply(5, "normal");
+    await settle();
+    expect(renderStImage).not.toHaveBeenCalled();
+    await director.onReply(4, "normal");
+    await settle();
+    expect(renderStImage).toHaveBeenCalledTimes(1);
+    stop();
+  });
 });
 
 describe("plan 32 W4: a clean host never tries to render", () => {
@@ -215,6 +277,45 @@ describe("v2.8 29 B: a story's workflow is used for its renders only, and a miss
     expect(director.status().workflowNote).toMatch(/SO-Missing.json is not installed/);
     await director.refreshHealth();
     expect(imageHealth()?.storyWorkflows).toEqual({ wanted: ["SO-Missing.json", "SO-Portrait.json"], missing: ["SO-Missing.json"], missingNodes: [], comfySource: true });
+    stop();
+  });
+});
+
+describe("v3.0 20 D10: a picture wakes a ComfyUI the controller stopped", () => {
+  const turn = () => {
+    host.settings = { ...defaultImageSettings(), backend: "comfy", automation: { mode: "everyN", everyN: 1 } };
+    host.media = { ready: true, comfyUrl: "http://comfy.test:8188" };
+    host.checkpoints = ["waiIllustriousSDXL_v170.safetensors"];
+    host.messages = [{ name: "Player", mes: "We go in.", is_user: true, is_system: false }, { name: "Narrator", mes: "The gate opens.", is_user: false, is_system: false }];
+  };
+  const keys = () => (reserveGpu.mock.calls as unknown as Array<[{ workflowKey?: string }]>).map(([request]) => request.workflowKey);
+
+  it("an automatic picture with ComfyUI down takes a discovery lease, finds it up and draws", async () => {
+    turn();
+    let up = false;
+    comfyDiscover.mockImplementation(async () => { if (!up) throw new Error("fetch failed"); return discovered(); });
+    reserveGpu.mockImplementation((async (request: { workflowKey?: string }) => { if (request.workflowKey === "comfy-discovery") up = true; return { lease: null, brokered: true }; }) as never);
+    const { director, stop } = harness();
+    try {
+      await director.onReply(1, "normal");
+      await settle();
+      expect(keys()[0]).toBe("comfy-discovery");
+      expect(keys()).toHaveLength(2);
+      expect(comfyRenderOwned).toHaveBeenCalledTimes(1);
+      expect(imagePlace).toHaveBeenCalledTimes(1);
+      expect(director.status().lastError).toBeNull();
+    } finally { reserveGpu.mockImplementation(async () => ({ lease: null, brokered: false })); comfyDiscover.mockImplementation(discovered); stop(); }
+  });
+
+  it("control: with ComfyUI up the picture takes only its render lease", async () => {
+    turn();
+    const { director, stop } = harness();
+    await director.onReply(1, "normal");
+    await settle();
+    expect(keys()).toHaveLength(1);
+    expect(keys()).not.toContain("comfy-discovery");
+    expect(comfyRenderOwned).toHaveBeenCalledTimes(1);
+    expect(director.status().lastError).toBeNull();
     stop();
   });
 });

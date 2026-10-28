@@ -216,7 +216,26 @@ Each flag from the owner's playthrough (Flag button + end notes) gets one verdic
 13. D1 06 usefulness: one prompt change and a rerun.
 14. llama.cpp patch: keep the fork for now; decide upstreaming after it is proven in play.
 
-### Added 2026-10-26
+### Additions 2026-10-26 (playtest 1)
+
+Plans 13-17 live on the unmerged integration branch `v3.0-wave1-integration` (`C:\dev\so-dev`); 18-21 on master or their branches.
+
+| Plan | Subject | Where | State 2026-10-26 |
+|---|---|---|---|
+| 13 | Prefix stability gate | integration branch | built, gates:quick green |
+| 14 | D follow-ups | integration branch | built |
+| 15 | End test batch (GPU, ~6-7 h) | integration branch | run 2026-10-27/28 on master: §v3.0 end batch 2026-10-27 |
+| 16 | Twine/Twee spike | integration branch | spike-later (Astra triage) |
+| 17 | Reply polish integration review | integration branch | polish stays off; review later |
+| 18 | Image e2e review (live, showcase lane) | master (written by the run) | baseline e2e26 NOT GREEN (4 misses, 2 environment); probe running |
+| 19 | Talk pacing: one-shot instruction, yield on question, opening hook | branch `v3.0-talk-pacing` | in build; campaign hooks (63, private plan) wait for its keys |
+| 20 | Visual bridge: identity/place packs, style recipe, resolver, default Qwen recipe, background renders | branch `v3.0-visual-bridge` | stage 1 in build |
+| 21 | Image fixes from playtest 1 | master | done (`2403c70f`, `f96dabda`, `d12deead`) |
+
+Research for 18-21: `research/image-audit-2026-10-26.md`, `image-astra-2026-10-26.md`, `image-astra-prep-bridge-2026-10-26.md`,
+`talk-pacing-review-2026-10-26.md`, `talk-astra-2026-10-26.md`. Campaign hook placement: private, `adolion-campaign/docs/talk-hooks-plan-2026-10-26.md`.
+
+Plan files from the integration branch (owner 2026-10-26):
 
 - 17 `17-reply-polish-integration-review.md`: reply polish stays OFF; review the integration (thought-carry fix, ratings, route, S3 lane) before it returns (owner).
 - 16 `16-twine-twee-spike.md`: Twine / Twee 3 import-export, SPIKE only; triage with Astra before any build (owner).
@@ -238,6 +257,156 @@ Each flag from the owner's playthrough (Flag button + end notes) gets one verdic
 12. SP1 swipe-back cache: count swipe-backs from your playthrough journal as its S4 evidence (needs >= 300 turns), or let it auto-drop at the freeze?
 13. 06 F4: one prompt change and a rerun (~60 min + rating), or accept the miss as is?
 14. Upstream the llama.cpp patch (`cache_key`, `cache_ckpt_max`, zero-fill) as a public PR from your account, or keep the fork?
+
+## v3.0 end batch 2026-10-27
+
+Run 2026-10-27 20:30Z to 2026-10-28 04:40Z, owner away, with a 1.5 h owner-ordered GPU pause (22:45Z-00:05Z; controller
+stopped, the partial suite run discarded). Build: master `d9ff15db` staged in ST's slot (bundle `766f6afc…`, `dirty` = two
+untracked files), never restaged; fixtures from master `f4e6fa16` after the pause (test material only). Controller: patched
+b11888 + MTP n-max 2 + RAM member cache 4096 MiB, perf mode max, config sha256 `d48e439d…` unchanged before and after;
+left running with ComfyUI as found. Lanes: 45 (model, adolion-fresh reseeded at pin `c5723c53`), 33 (images, image lane
+only), 30/31/32 (offline no-model). Evidence: `C:\dev\so-lanes\reviews\v30-end-batch-2026-10-27\`, archived to so-sessions
+`evidence/phase-c/v30-end-batch/` (4611 files + `extra/`, commit `16cd4408`). Floors unchanged; misses recorded.
+
+Verdict: functional rows green except four reds diagnosed below (none a v3.0 regression in product code); the image
+journey's functional steps pass 2/2 (head-box fix verified on the GPU) but both runs miss gpu-idle; timings during the
+image window are confounded by a second agent's model lane on the same GPU.
+
+### Controller regression list (feature-impact-controller.md), base set
+
+- 1 GS1 x2 strict: GREEN 2/2, 9/9 each (batch `2026-10-27T21-39-29-460Z`, lane 45).
+- 2 J5 (talk director on the critical path): RED in the first run on J5.6 only (the flagged line was the drafted member's own
+  carried intent, not another member's: stale check); after the J5.6 fix on master (`739d7f74`) GREEN 7/7
+  (batch `2026-10-28T00-34-59-608Z`). Record `test/journeys/records/v3.0-end-batch/2026-10-28T00-40-57-810Z_journey-J5.json`.
+- 3 turn types: `live-v4-turn-types-real` GREEN (batch `2026-10-27T21-32-18-819Z`); `so-turn-types-check --skip-image
+  --skip-solo` on the toy group ok (a-reply, c-greetings, c-origin, e-*); the solo leg is stale (solo stories were removed,
+  `importStory failed in the solo chat` by design). v24-02 set, k8 swipe-append: inside `suite:nomodel` (green).
+  J6: see the v2.9 rows below.
+- 4 `v29-a02-stopped-reply` x2 GREEN (batch `2026-10-27T21-10-31-704Z`); `v24-01-stopped` green inside `suite:nomodel`.
+- 5 `live-v28-24-reply-effort` RED (fixture, see diagnosis 1); `effects-preset` green inside `suite:nomodel`. J13 not run.
+- 6 T8 via `so-prompt-batch` (capture lane 45, send to the controller): 4/4, floor 0.9 met (`45/debug/prompt-batch/t8-eb`).
+  Item shas moved against the 10-25 capture `t8-I` (prompt changes since); scores unchanged.
+- 7 Payload goldens x2 on a suite-prepared offline lane 32: eb-1 = eb-2 identical, and eb-1 = the v2.9 golden r4 (10-22)
+  identical over all cases (`32/debug/payload-endbatch/`).
+- 8 Full-length output + Sol rating: not run (bench window; nothing new adopted since 09's rating).
+
+MTP / binary rows: `v28-a13-thought-carry` and `v28-40-local-judge-uncalibrated` green inside `suite:nomodel`; GBNF parity
+not run (the checker lives on the unmerged integration branch).
+Cache rows: GS6 x1 GREEN 12/12 (batch `2026-10-27T22-18-00-220Z`); `live-rollback-derived` RED (diagnosis 2, not cache);
+impersonate round trip on the toy group: member cache planned 3 -> 7, hits 1 -> 3, misses 2 -> 4, restore failures 0
+(`diag/impersonate.log`); 4-member thrash not measured separately.
+409 / reclaim rows: p41 x2 below; `so-sprite-builder` interleave, `sagaBatchPriority.mjs` (campaign images on hold) and
+`retainBatchLi.mjs` (needs its own broker and text port, a bench window) not run; render-survival and comfy-kill checks
+live on the integration branch, not run.
+Controller samples (`controller/status-samples*.jsonl`, every 15 s):
+- Lane 45 window (21:10-22:42Z): 0 new reclaims, no spill, fitCorrection 0, 100 replies with 0 waits on a reload, member
+  cache planned 210 -> 253, hits 61 -> 84, restore failures 0, RAM available min 5552 MiB (text only).
+- Image window (00:53-04:38Z, p41 x2, with another agent's model lane 36 on the same GPU and the no-model suite during
+  run 2): text loads 1 -> 81 (text reloaded between almost every image job: audit risk 2), replies waiting on a reload
+  0 -> 25, 1 reclaim, fitCorrection up to 1819 MiB, no spill, `ramShort` set in 118 samples ("workload 10746 + reserve 2048
+  MiB" against 12740 available), RAM available min during an image lease 4276 MiB (the audit's 10240 MiB floor: miss,
+  confounded), member cache hits 4 -> 11 of planned 10 -> 50, restore failures 0.
+
+### Image journey (p41) x2, lane 33, images on deliberately
+
+- `so-p41-journey run 1|2 --label eb` on the staged build, landmarks 8096 and ComfyUI up, lane headed.
+- Run 1 (`33/debug/p41/2026-10-28T00-53-48-899Z-eb-real-run1`) and run 2 (`…2026-10-28T03-00-32-527Z-eb-real-run2`):
+  NOT GREEN, each on gpu-idle only (45-71 % and 52-78 % utilisation > 10 %: the other agent's model lane was generating).
+  Every other step passes both times, including frames[SO-P41 Cleo] 2/2 (refused 2/2 before `4732bd28`/`0940f561`: the
+  head-box race fix is verified on the GPU). 10 turns each, 0 silent, 0 refusals, 0 stale findings; ComfyUI 40 / 40,
+  Artemis 80 / 57, Sol 29 / 25 calls; cleanup leaked 0; lane header diff before/after clean (after a reload).
+- Timing against the 10-27 post-install run on the same controller code: expressions 320-340 s vs 106-244 s, poses 49 min
+  and 20 min vs 8 min. Not a regression claim: the GPU was shared with another lane (see the samples above).
+- Harness residue the journey cleanup leaves: the cast's three empty character folders, two group image folders and two
+  `plays` rows for deleted chats; moved to `C:\dev\backups\story-orchestrator\endbatch-lane33-residue-20261028\`.
+
+### suite:nomodel (lanes 30, 31, offline)
+
+- Run 1 (fixtures at `d9ff15db`): GREEN 189, RED 3 (`batch-2026-10-27T20-51-40-709Z.json`): J4 (profile picked after
+  import), `v30-19s2-profile` (policy gained `leadMaxConsecutive`), `v30-19-opening-hook` (an llm hook cannot fire on a
+  no-model lane since stage 3). All three fixed as test material on master (`f4e6fa16`); the opening hook ran on the model
+  lane: GREEN.
+- Run 2: aborted by the owner's GPU pause (partial, not counted).
+- Run 3 (fixtures at `f4e6fa16`): **GREEN 191, RED 0, INCOMPLETE 0, NOT-RUNNABLE 0** (`batch-2026-10-28T03-06-06-757Z.json`).
+  One green run on this fixture set; the freeze's "x2 consecutively" needs one more run on the same build.
+
+### Diagnosis of the reds (no product code changed)
+
+1. `live-v28-24-reply-effort` step 8, "off: 3 of 5 reply requests do not carry budget 1": fixture defect, not a regression.
+   The captured rows (`diag/reply-effort.log`, `reply-effort-rows.txt`) are streamed replies with `reasoning_budget_tokens`
+   1 and inner-beat requests (`stream: false`, `n_predict` 96, the BEAT/TONE prompt from `src/memory/innerBeat.ts:43`) with
+   no budget key. The inner beat runs inside ST's generating window because the draft hook awaits it
+   (`src/runtime/coordinators/innerCoordinator.ts:132`, request at `:77` via `:139/:156`); the fixture classifies rows by
+   `document.body.dataset.generating` and counts the beat as a reply. The budget overlay is correct (loud only, quiet rows
+   carry no key). The fixture was written in v2.8 24 and has no recorded green run. Fix: classify by `stream` (or the
+   pass), not the generating flag.
+2. `live-rollback-derived` step 13, "the edit did not roll the story back": product, from the editReread spike (on by
+   default since `047d2335`, 2026-10-07), not v3.0. Trace (`diag/rollback.log`): the edit rolls the engine back (cp2 -> cp1,
+   boundary 2 -> 0) and the notice is never visible. `src/runtime/spikes/editReread.ts:239` calls `rollbackFromMessage`,
+   which sets `notices.lastRollback` (`src/runtime/rollback.ts:202`), then `:248` recommits the edited message with
+   `commitBoundary(messageId)`, whose first act is `this.notices.lastRollback = null` (`src/runtime/runtimeManager.ts:250`).
+   The player is never told the story stepped back after editing a consumed reply. Last run of the fixture: 2026-10-03,
+   before the spike existed. J6.4 (Play page notice) still passes.
+3. J6.11 / J6.12 blocked, "SillyTavern page navigated away during evaluation" at the `extract` right after `send`: harness or
+   page-history, not reproduced outside `st-lanes batch --fresh-page`. Under batch it hit J6.11 in both runs of
+   `2026-10-27T21-14-27-193Z` and J6.12 in `2026-10-28T00-24-48-647Z` (plus a J6.3 "Message 1 not found" flake there).
+   Run directly through `so-journey` the full J6 is GREEN 12/12 (`…00-24-25-872Z_journey-J6.json`) and J6.11 alone passes. A
+   second CDP client watching the main frame saw no navigation at the failure. The only in-product history move recorded
+   was the workspace closing with `history.go(-depth)` (`src/components/workspace/WorkspaceShell.tsx:77`), which did not
+   coincide with the failure. First seen 2026-10-26 run 2 (batch). Cause not pinned.
+
+### Defects and findings
+
+- D-EB1 (product, spike): edit re-read clears the rollback notice it just set (diagnosis 2).
+- D-EB2 (fixture): reply-effort counts inner beats as replies (diagnosis 1).
+- D-EB3 (harness): J6 under `batch --fresh-page` loses the page mid-evaluate (diagnosis 3).
+- D-EB4 (harness): `so-p41-journey cleanup` leaves empty character folders, group image folders and `plays` rows.
+- D-EB5 (harness): `so-turn-types-check` solo leg is stale; `--skip-solo` should be the default.
+- D-EB6 (process): `so-run-header diff` captures live from its own environment; run unlaned it read the owner's ST page on
+  :8000 (read-only header capture, three times between 22:42Z and 00:51Z) and wrote `so-lanes/0/debug/run-header-diff-end.json`. Always
+  run it through `st-lanes run <n> --`.
+- Image/text thrash under shared GPU load (samples above): input for track B1 (11) and A2 (10).
+
+### Blocks freezing v3.0
+
+- `suite:nomodel` needs a second consecutive green run on one build.
+- J6 is not green x2 under the batch runner (D-EB3); D-EB1 is a player-visible defect.
+- The image journey misses gpu-idle every run; a clean GPU window (no other model lane) is needed to separate the
+  floor from contention and to read the RAM floor.
+- Owed elsewhere and still open: the owner playtest (v2.9 13 C1), GBNF parity and render-survival (integration branch),
+  J13, the bench rows.
+
+### Gate record: end-batch fixes 2026-10-28 (branch `v3.0-endbatch-fixes`)
+
+- D-EB1 fixed. Cause: the edit re-read cycle rolls back (sets `notices.lastRollback`) then recommits and re-reads through
+  `commitBoundary`, whose first line clears the notice. Fix: `CoordinatorDelegates.holdingRollbackNotice(work)` keeps a hold
+  count; `commitBoundary` clears the notice only when no hold is open, and clears it on a fired transition (the re-read moved
+  the story on again, so "stepped back" would be false). `EditReread.fire` runs each cycle inside the hold. The next turn
+  still clears it. Census row `CoordinatorDelegates.holdingRollbackNotice` (local). Manager stays at 700/700.
+- Jest: `editReread.review.test.ts` "D-EB1: an edit that steps the story back keeps the rollback notice through its re-read,
+  and the next turn clears it" failed before the fix (notice `null`), passes after; "D-EB1: an edit whose re-read moves the
+  story on again drops the notice" pins the fired-transition clear.
+- D-EB2 fixed (fixture): `live-v28-24-reply-effort` classifies reply requests by `body.stream === true`, and fails any
+  streamed request sent outside the generating window; budget assertions unchanged and strict.
+- D-EB5 fixed (harness): `so-turn-types-check` solo leg removed (`d-reopen`, `d-swipe`, `--character`, `--skip-solo`);
+  group checks only.
+- `live-rollback-derived` (fixture): two flakes found on the way, neither product. A chained voice or the cp2 onEnter opener
+  can land after the gate message, so editing `engine` (last message) missed the gate (run 2/4 below). The fixture now edits
+  the gate message (`checkpointStartedMessageId`) after the turn settles, dates its two passes by it, and pins every other
+  read to `SCENE_NONE` so a background read cannot re-propose the delta. Records which path ran (`edit re-read` = D-EB1 path).
+- Live, lane 42 (model, `--allow-local`, local controller), candidate bundle `79c2575f52dc` served by a route holder on the
+  lane browser (staged master untouched), every script through `st-lanes run 42 --`:
+  - `live-rollback-derived`: run 1 green (old fixture, spike path, notice kind `edit`); run 2 red and run 4 red (old
+    edit target, see above); runs 5 and 6 green on the final fixture, both on the edit re-read path, notice
+    `{checkpointName, kind: "edit"}` present. Logs `C:\dev\so-lanes\42\debug\endfix\rollback-{1..6}.log`.
+  - `live-v28-24-reply-effort`: green x2 (`effort-1.log`, `effort-2.log`), all four levels.
+  - `so-turn-types-check --group "Group: Arin, DM Narrator" --image synthetic`: ok, 9/9 (setup, b-image, a-reply,
+    c-greetings, c-origin, e-*), cleanup clean (`turn-types.log`).
+- `npm run gates` (no `--resume`): all green in 411.3 s; jest 10745 passed / 1 skipped, Storybook 1010 passed, build,
+  typecheck, typecheck:test, debug:typecheck, lint, test:debug, test:replay, test:plugin, test:release ok.
+- `npm run gates:quick`: green (170.4 s) before the live runs.
+- After merging master (talk fixes C, `fe50b961`) into the branch: `npm run gates` (no `--resume`) all green in 305.0 s;
+  jest 10759 passed / 1 skipped, Storybook 1010 passed. Live rows not rerun on the merged tree (talk fixes touch no file here).
 
 ## Rules
 

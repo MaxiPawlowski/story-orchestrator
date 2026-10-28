@@ -8,7 +8,7 @@ import type {
 } from "@memory/index";
 import type { ChapterSettings, ChapterView } from "./chapters";
 import type { SealSkip } from "@memory/reverse";
-import type { OnEnterPost } from "./npcReplyRewind";
+import type { CuedLine, OnEnterPost } from "./npcReplyRewind";
 import type { BriefingRecord, BriefingState } from "./briefing";
 import type { PlayerSetupRecord, PlayerSetupView } from "./playerSetup";
 import type { ContextOverServer } from "./replyContext";
@@ -33,6 +33,7 @@ import type { ExtensionConflict } from "./extensionConflicts";
 import type { ImageHealthView } from "./imageHealth";
 import type { SpriteLookIssue } from "./spriteLookHealth";
 import type { SpriteStageHealth } from "./spriteStageHealth";
+import type { SpriteRecipeHealth } from "./spriteRecipeHealth";
 import type { NoGroupView } from "./noGroup";
 import type { LoreEvidenceView } from "./worldInfoEvidence";
 import type { SamplerOverlayView } from "./samplerOverlay";
@@ -110,6 +111,9 @@ export interface RuntimeExtras {
   firedNpcReplies: Record<string, number>;
   firedNpcRepliesAt: Record<string, number[]>;
   onEnterPosts?: OnEnterPost[];
+  cuedLines?: CuedLine[];
+  speech?: import("./speechLedger").SpeechEvent[];
+  chainEnds?: import("./chainEnds").ChainEnd[];
   deferredOpener?: DeferredOpener;
   requirements: RequirementsState;
   lastAppliedCheckpointId: string | null;
@@ -431,6 +435,7 @@ export interface RuntimeSnapshot {
   judgeRouteGaps?: import("@judge/index").JudgeRouteGap[];
   spriteLookIssues?: SpriteLookIssue[];
   spriteStage?: SpriteStageHealth;
+  spriteRecipe?: SpriteRecipeHealth | null;
   activeCheckpointId: string | null;
   activeCheckpointName: string | null;
   activeObjective: string | null;
