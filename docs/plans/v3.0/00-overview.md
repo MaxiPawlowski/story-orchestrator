@@ -400,6 +400,8 @@ Controller samples (`controller/status-samples*.jsonl`, every 15 s):
 - `npm run gates` (no `--resume`): all green in 411.3 s; jest 10745 passed / 1 skipped, Storybook 1010 passed, build,
   typecheck, typecheck:test, debug:typecheck, lint, test:debug, test:replay, test:plugin, test:release ok.
 - `npm run gates:quick`: green (170.4 s) before the live runs.
+- After merging master (talk fixes C, `fe50b961`) into the branch: `npm run gates` (no `--resume`) all green in 305.0 s;
+  jest 10759 passed / 1 skipped, Storybook 1010 passed. Live rows not rerun on the merged tree (talk fixes touch no file here).
 
 ## Rules
 
