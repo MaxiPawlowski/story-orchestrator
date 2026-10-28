@@ -365,6 +365,19 @@ Readings:
 - Not done (no retuning, declared): no threshold change, no band abstention, no window change. O4 stays undesigned
   (coordinator); the O3 numbers above are what the O4 decision reads.
 
+## Gate record 2026-10-28, C1 pass 3 (branch `v3.0-c1-witness`, no GPU, one no-model lane)
+
+- Declarations `40cfa1fc` before any judge call; recorder + result `d3bd132b`.
+- Built: `scripts/debug/lib/witnessPresence.mts` (`presence-read`, `presence-score`, `derive-score --presence` via `witnessDerive.mts`
+  `O3_VARIANT`), scene read kit exported through `witnessEntry.ts`; test `scripts/debug/witnessPresence.test.mts` (plan, window,
+  roster mapping, resume, scoring, rule-6 source). No `src/` change in this pass.
+- Live: lane 38 as recorded above (route holder, served hash = manifest, lane stopped after, holder stopped).
+- Gates: `npm run gates:quick` green in 121.5 s; `npm run gates` (no `--resume`) **all green in 318.4 s** (jest 10,775 passed /
+  1 skipped; test:debug 1,584; Storybook 167 suites / 1,010 stories; build, typecheck, typecheck:test, lint, debug:typecheck,
+  test:replay, test:plugin, test:release ok).
+- Master re-checked after gates: still `d2006d17` (local and origin), already merged into the branch; the wave1-integration merge
+  had not landed. Branch left unmerged (coordinator: W2 merges only after GPU step 1).
+
 ## Unresolved questions
 
 - Is message-level privacy a product goal now (v3.0 02 reopen condition), or only witness-filtered recall?
