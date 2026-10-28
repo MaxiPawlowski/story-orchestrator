@@ -8,6 +8,7 @@ import { addError, isOneOf, rejectUnknownKeys } from "./common";
 import { readText } from "./briefing";
 import { readGate, validateGate } from "./gates";
 import { PLAYER_TURNS_KEY } from "../stretch";
+import { TALK_PROFILES, type TalkProfileName } from "../talkSchema";
 
 const LIVING_KEYS = ["premise", "tone", "cast", "horizon", "chapter_size", "ending", "autonomy", "authored_until", "opening", "scene_test"] as const;
 
@@ -103,7 +104,10 @@ export const LIVING_FIRST_CHAPTER_ID = "liv_ch_1";
 const declaresFirstChapter = (chapters: unknown): boolean =>
   Array.isArray(chapters) && chapters.some((chapter) => isRecord(chapter) && chapter.id === LIVING_FIRST_CHAPTER_ID);
 
-export const livingOpening = (living: StoryLiving, chapters?: unknown): Checkpoint => ({
+const openingProfile = (defaults: unknown): TalkProfileName =>
+  (isRecord(defaults) && isOneOf(defaults.profile, TALK_PROFILES) ? defaults.profile : "opening");
+
+export const livingOpening = (living: StoryLiving, chapters?: unknown, talkDefaults?: unknown): Checkpoint => ({
   id: LIVING_OPENING_ID,
   name: "The opening",
   objective: living.opening ?? living.premise,
@@ -111,6 +115,7 @@ export const livingOpening = (living: StoryLiving, chapters?: unknown): Checkpoi
   start: true,
   tension_target: "calm",
   ...(declaresFirstChapter(chapters) ? { chapter: LIVING_FIRST_CHAPTER_ID } : {}),
+  talk_control: { profile: openingProfile(talkDefaults) },
 });
 
 export const checkLiving = (

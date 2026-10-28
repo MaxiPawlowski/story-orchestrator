@@ -1,6 +1,6 @@
 import type { SourceRevision } from "@memory/audience";
 
-export const CHAIN_END_REASONS = ["rules", "judge", "director", "cap", "budget", "yield", "player", "stopped", "interrupted", "transition", "script", "refused", "off"] as const;
+export const CHAIN_END_REASONS = ["rules", "judge", "director", "cap", "budget", "yield", "player", "stopped", "interrupted", "transition", "script", "refused", "off", "empty"] as const;
 export type ChainEndReason = (typeof CHAIN_END_REASONS)[number];
 
 export interface ChainEnd {

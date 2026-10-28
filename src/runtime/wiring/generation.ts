@@ -152,7 +152,11 @@ export const subscribeGenerationEvents = (live: LiveParts, generation: Generatio
     } },
     { eventName: "GENERATION_ENDED", handler: (...args: unknown[]) => { live.loudGate.release(); apply(generation.ended(args)); } },
     { eventName: "GENERATION_STOPPED", handler: (...args: unknown[]) => { live.loudGate.release(); live.talk?.onGenerationStopped(); apply(generation.stopped(args)); } },
-    { eventName: "MESSAGE_RECEIVED", handler: (messageId, type) => { live.loudGate.release(); apply(generation.rendered(messageId, type)); } },
+    { eventName: "MESSAGE_RECEIVED", handler: (messageId, type) => {
+      live.loudGate.release();
+      live.talk?.onReplyRendered(hostMessageId(messageId), type);
+      apply(generation.rendered(messageId, type));
+    } },
     { eventName: "CHARACTER_MESSAGE_RENDERED", handler: (messageId, type) => {
       live.loudGate.release();
       const id = hostMessageId(messageId);
