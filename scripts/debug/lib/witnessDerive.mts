@@ -85,7 +85,7 @@ export const VARIANTS: Array<{ id: string; options: Partial<DeriveOptions>; cont
 export const labelledPresence = (labels: Labels): Map<number, string[]> =>
   new Map((labels.labels as Array<{ messageId: number; present: string[] }>).map((label) => [label.messageId, label.present]));
 
-async function realSet(root: string, readsFile: string): Promise<DeriveSet> {
+export async function realSet(root: string, readsFile: string): Promise<DeriveSet> {
   const reads = await readJson<Reads>(readsFile);
   const dir = join(root, reads.set);
   const runtimeName = (await readdir(dir)).filter((name) => /^runtime-.+\.json$/.test(name)).sort().at(-1);
@@ -98,7 +98,7 @@ async function realSet(root: string, readsFile: string): Promise<DeriveSet> {
   return { reads, omniscient, enabledAt: castEnabled(story?.extras?.effects?.ledger ?? [], reads.members.map((member) => member.id), (id) => sent.get(id) ?? null) };
 }
 
-async function labSet(readsFile: string, labStory?: string): Promise<DeriveSet> {
+export async function labSet(readsFile: string, labStory?: string): Promise<DeriveSet> {
   const reads = await readJson<Reads>(readsFile);
   const roster = labStory && existsSync(labStory) ? (await readJson<{ roster?: Array<{ name?: string; view?: string }> }>(labStory)).roster ?? [] : [];
   const omniscient = roster.filter((row) => row.view === 'omniscient' && row.name).map((row) => row.name as string);

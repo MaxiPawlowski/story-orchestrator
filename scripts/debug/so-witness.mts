@@ -17,6 +17,7 @@ const USAGE = `Usage:
   node scripts/debug/so-witness.mts freeze --out <dir> --record <freeze.json> [--adjudicated]
   node scripts/debug/so-witness.mts presence --out <dir> --freeze <freeze.json> [--adjudicated]
   node scripts/debug/so-witness.mts derive-score --out <dir> --sessions <root> --freeze <freeze-adjudicated.json> [--lab-story <f>] [--speaker-own] [--write <result.json>]
+  node scripts/debug/so-witness.mts diagnose --out <dir> --sessions <root> --freeze <freeze-adjudicated.json> [--lab-story <f>] [--write <result.json>]
 
 v2.8 plan 42 B, offline: replays recorded witness read responses (format so-witness-reads/1) through the witness
 contract parser and record (no model, no ST), scores them against labels (format so-witness-labels/1; a private set
@@ -38,6 +39,9 @@ derive-score (v3.0 plan 12, offline, no model): derives witness claims in code (
 (<dir>/reads/files) with each session's cast ledger as the enabled set, scores every design variant against the adjudicated labels
 with the W4 scorer, plus the labelled-presence diagnostic and the presence null control; counts only. --speaker-own (owner 2026-10-26,
 new runs only, off when re-scoring a result recorded before it): the speaker of an "unknown"-labelled message is not a false inclusion.
+diagnose (v3.0 plan 12 C1 pass 2, offline, no model): puts every scored pair of the W4 model read (recorded responses replayed), W2 as shipped
+and the presence null control in one failure class (false inclusion: disabled, omniscient, offstage, aside; false exclusion: speaker, present;
+no answer by state; unknown labels; mixed labels); counts only, under the recorded rule.
 record (GPU, the read model): on the lane page st-lanes env names, runs the shipped shared read through
 storyOrchestratorLiveSuite.runWitnessRead over each labelled window (real: first and last 8 of 12; lab: 5 x 8), witness lines on
 and/or off, interleaved per read (on, off, on, off) so any stop leaves balanced pairs; resumes; writes <dir>/reads/<arm>/. Plan 11 stop
@@ -117,6 +121,19 @@ async function labelCommand(command: string, args: string[]): Promise<number> {
     const write = option(args, '--write');
     if (write) {
       refusePrivateOutput(false, write, 'witness derive score');
+      await writeFile(write, `${JSON.stringify(result, null, 1)}
+`, 'utf-8');
+    }
+  } else if (command === 'diagnose') {
+    const refused = await lib.checkWitnessFreeze(out, need(args, '--freeze'), true);
+    if (refused) {
+      console.error(refused);
+      return 3;
+    }
+    result = await (await import('./lib/witnessDiagnose.mts')).diagnoseAll(out, need(args, '--sessions'), option(args, '--lab-story'));
+    const write = option(args, '--write');
+    if (write) {
+      refusePrivateOutput(false, write, 'witness diagnosis');
       await writeFile(write, `${JSON.stringify(result, null, 1)}
 `, 'utf-8');
     }

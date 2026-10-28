@@ -3,7 +3,7 @@
 **Status: DESIGNED + BUILT OFFLINE 2026-10-26 (branch `v3.0-c1-witness`, owner decision 8: offline now, GPU later).
 Design W2 (derived witness) is on master's switch `memory.witness` once merged, still unconsumed. It does NOT clear the W4
 floors on its own; with a presence source as good as the labels it clears exact-set and FE and misses FI by the ambiguous
-stratum only. Floors kept as written (owner 2026-10-26).** Follows v2.8 42 (`docs/plans/v2.8/42-witness-filter-v2.md`, W4 FAIL).
+stratum only. Floors kept as written (owner 2026-10-26).** **C1 pass 2 (2026-10-28): W4 failure diagnosed by class (78 % of the read's false inclusions are disabled members and the narrator, code facts; the rest is presence); recommendation O3 = W2 + presence source P1; speaker-own scores: W2 fails, presence-oracle ceiling passes exact-set/FI/FE/coverage, mixed and span FI stay structural. Not merged: the prompt change needs a real-model gate (GPU step 1).** Follows v2.8 42 (`docs/plans/v2.8/42-witness-filter-v2.md`, W4 FAIL).
 
 ## Goal
 
@@ -193,6 +193,90 @@ model call.
 - **No model replay**: Sol (the only allowed offline model) wrote the labels, so Sol as the classifier is not an independent
   measurement; the product read runs on Artemis (GPU, out of bounds), and the presence source P1 is the TypeSafe scene read,
   which needs a lane page. A model pass is therefore not needed and not run.
+
+## C1 pass 2: diagnosis of the W4 failure (2026-10-28, `so-witness.mts diagnose`, counts only)
+
+Private result `test/sessions/witness-real/diagnose-2026-10-28.json` (sha256 `ce828959…`). Old rule (unknown-label speaker
+counts). Pairs = (message, member); FI pairs below are on single-audience labels, the ambiguous stratum apart.
+
+**W4 model read, real set (192 messages: 171 single, 11 mixed, 10 `unknown`).** The read wrote 240 lines: 196 `all-present`
+(82 %), 40 member lists, 4 `unknown`, 0 `mixed`.
+
+| Failure class | Pairs / messages | Cause |
+|---|---|---|
+| FI, member disabled at read time | 155 pairs (49 % of 313) | recorder resolved `all-present` to every session member; the product resolves it to the enabled set (artifact, not the model) |
+| FI, omniscient member (narrator) not speaking | 92 pairs (29 %) | the read counts the narrator as a listener; labels never do (convention; code rule) |
+| FI, enabled member off stage | 66 pairs (21 %) | real presence error: the read says `all-present` for members not in the scene |
+| FI, ambiguous stratum (`unknown` labels) | 26 of 60 pairs (12 aside, 8 off stage, 4 narrator, 2 speaker) | counted as FI by rule |
+| FE | 4 pairs (1 speaker, 3 present) | negligible |
+| No answer (coverage) | 24 messages, 136 pairs | 29 lines rejected because they name the player character as a member (4 distinct player tokens: persona names and role words) |
+| Mixed missed | 11 of 11 (10 answered a single set, 1 `unknown`) | the read never writes `mixed` |
+| Exact-set misses | 134 of 147 classified | 82 only disabled/narrator pairs (code-fixable), 48 with an off-stage member, 4 FE |
+
+Lab (40): 20 of 40 lines `all-present`; 17 lines rejected (player named), leaving 16 messages uncovered; FI 30 pairs (aside
+10, narrator 11, off stage 9) + 5 ambiguous; FE 36 (33 present: the lab's authored listeners include members the read left out).
+
+**Readings.** About 78 % of the read's false inclusions come from two things code knows for certain (who is enabled, who is
+the omniscient narrator). The rest is presence. The read added no information about asides or mixed messages (0 `mixed`
+lines, 0 asides detected), and its member lists broke coverage when it named the player. A model line per message is the wrong
+place for this signal.
+
+**W2 as shipped (same windows), real set.** FI 82 pairs, every one an enabled member off stage, over 51 messages (the whole
+exact-set gap); 19 single-audience messages flagged mixed by an aside cue (78 pairs no answer: the coverage loss); 6 of 11
+mixed messages carry no cue (missed); FE 5 present members cut by a cue; ambiguous 13 (8 aside, 4 off stage, 1 speaker).
+Lab: FI 34 (24 aside kept-out, 10 off stage), FE 34 present (the lab puts the narrator and named listeners in `heard`).
+
+**Presence null control, real set.** 0 non-ambiguous FI; all 27 FE are the speaker (the narrator speaking, not in `present`);
+mixed 0/11. Its weakness on the real set is only the speaker rule, which W2 has.
+
+## C1 pass 2: design options and recommendation
+
+| | Design | Real-set evidence | Cost |
+|---|---|---|---|
+| O1 | Model witness lines in the shared read (v2.8 42 B) | exact 13/147, FI 339/471, mixed 0/11; Wc miss | +150 in / +282 out tokens per read |
+| O2 | W2: code rules (speaker, narrator, enabled set, on stage by spoke/named, aside cues), no model (built) | exact 99/152, FI 94/465 (speaker-own) | 0 tokens, 0 latency |
+| O3 | **W2 + presence source P1** (judge scene read history, calibrated `scene.present` row) | ceiling with labelled presence: exact 153/155, FI 8/465, FE 5/574, coverage 167/192 | TypeSafe call per boundary, already made (scene read); off the reply path |
+| O4 | O3 + per-message mixed/aside classifier (B′) | only path to mixed >= 0.8 and span FI <= 0.02 (6 cue-less mixed messages) | a side pass per message (GPU or a calibrated judge use); not designed |
+| O5 | Drop: block level + host-channel alert only | — | 0 |
+
+**Recommendation: O3.** O1 is dominated on every row. O2 is the right skeleton: its remaining error is presence (82 of 94 FI
+pairs) and aside-cue false positives (19 messages). O3 replaces the weakest stage with a signal we already compute; its
+oracle ceiling clears exact-set, FI, FE and coverage on the real set. It cannot clear mixed (5/11) or span FI (9/79), and
+the lab's aside row (W2 6/32 vs control 0/32, margin 0.19 < 0.3) fails under any presence source: those need O4, a separate
+decision after O3 is measured. Nothing consumes the record under any option until every floor passes.
+
+## C1 pass 2: scores (2026-10-28, `derive-score --speaker-own`, declared above)
+
+Private result `test/sessions/witness-real/derive-score-speaker-own-2026-10-28.json` (sha256 `6746b5ce…`). FI denominators
+drop by the 6 real / 1 lab speaker pairs of `unknown` labels.
+
+| Row (floor) | W2 shipped, real | Ceiling: labelled presence + W2 rules, real | Presence control, real | W2 shipped, lab |
+|---|---|---|---|---|
+| exact-set (>= 0.9) | 99/152 = 0.651 FAIL | 153/155 = 0.987 pass | 144/171 = 0.842 FAIL | 6/37 FAIL |
+| FI incl. ambiguous (<= 0.02) | 94/465 = 0.202 FAIL | 8/465 = 0.017 pass | 13/465 = 0.028 FAIL | 38/426 FAIL |
+| FE (<= 0.10) | 5/574 pass | 5/574 pass | 27/574 pass | 34/143 FAIL |
+| coverage (>= 0.85) | 162/192 = 0.844 FAIL | 167/192 = 0.870 pass | 181/192 pass | 38/40 pass |
+| mixed (>= 0.8) | 5/11 FAIL | 5/11 FAIL | 0/11 FAIL | 0/2 FAIL |
+| span FI (<= 0.02) | 16/79 FAIL | 9/79 FAIL | 14/79 FAIL | 0/50 pass |
+| aside exact (>= 0.8) | no denominator (0 real asides) | — | — | 6/32 FAIL |
+| beat presence on W4a by >= 0.3 | — | — | — | 6/32 vs 0/32 = +0.19 FAIL |
+
+As expected before the run: nothing passes. Under the speaker-own rule the presence-oracle ceiling passes 4 of the 6 real
+rows; mixed and span FI stay structural. Floors not retuned.
+
+## C1 pass 2: GPU step proposed (owner decides; nothing here was run)
+
+1. **Before merge to master (GPU, ~30 min of 3090):** W2 removes the witness section from the shared-read prompt, an
+   LLM-consuming path, so the project rule wants a real-model gate: one model lane, Artemis read profile, images and sprites
+   off, `node scripts/debug/so-live-suite.mts run` twice consecutive on the W2 build against the last green per-tier floors
+   and `plotDeltaAccuracy` (the Wc row is 0 added tokens by construction). Estimate from the W4 run's read latency (p95 21 s):
+   about 15 min of reads plus lane start and model load per run.
+2. **P1 measurement (no GPU, TypeSafe, ~5 min of calls; recorder not built):** as "Next step: presence source P1" above, on a
+   no-model lane.
+3. **Held-out set (no read-model time):** labels for >= 8 new group sessions from the next owner play batch; W2/O3 derive
+   needs 0 reads.
+4. **O4 only if chosen after O3 (GPU, ~15 min):** a per-message mixed/aside classifier over the 232 labelled messages, about
+   3 s each on the 3090.
 
 ## Unresolved questions
 
