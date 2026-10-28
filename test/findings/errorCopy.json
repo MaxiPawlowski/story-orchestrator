@@ -18,8 +18,6 @@
       "surface": "console", "rawError": false, "silentCatch": "probe", "verdict": "pass", "reason": "Prefetch tail of the lazy curator pass kit only: a pass that reaches the prompt awaits the same promise, so a failed chunk load still lands in the pass's own lastError; an empty-scope pass never needed it." },
     { "site": "src/runtime/managerWiring.ts#track", "kind": 3, "template": ".catch(() => undefined)",
       "surface": "author", "rawError": false, "silentCatch": "probe", "verdict": "pass", "reason": "Bookkeeping only: drops a finished inner-beat run from the in-flight set; the run's own caller still sees its error (inner beat failed is logged by the boundary work)."},
-    { "site": "src/extraction/sharedRead.ts#witnessContext", "kind": 3, "template": "catch {} #1",
-      "surface": "author", "rawError": false, "silentCatch": "probe", "verdict": "pass", "reason": "v3.0 12 W2: a chat window that cannot be read gives the witness derivation no earlier context, so fewer members count as on stage (fails closed); the record has no consumer and the read itself is unaffected."},
     { "site": "src/copilot/agent/turn.ts#castCards", "kind": 3, "template": "catch {} #1",
       "surface": "author", "rawError": false, "silentCatch": "probe", "verdict": "pass", "reason": "A card host that fails leaves readCharacterCard with no card; it answers that no card was found, so the wizard leaves the voice sheet empty instead of inventing it."},
     { "site": "src/sprites/visualManifest.ts#parseSignature", "kind": 3, "template": "catch {} #1",
