@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { DEBUG_DIR, PROJECT_ROOT } from './lib/connection.mts';
 import { evaluateInST } from './lib/evaluate.mts';
 import { writeJSON } from './lib/output.mts';
+import { replayTargetFromEnv, sessionStats } from './lib/replayClient.mts';
 import { runCli, hasHelpFlag, stripCommonArgs } from './lib/cli.mts';
 import { beginSandboxSession, closeUnpinnedDrawers, deleteSandboxChats, openGroup, openMostRecentGroupChat, waitForSettledChat } from './st-navigation.mts';
 
@@ -36,6 +37,7 @@ import { dumpEngineHistory } from './lib/engineHistoryDump.mts';
 import { currentPageCapture } from './lib/pageCapture.mts';
 import { classOf, deselectedDetail, MODEL_FLAG, modelSelection, parseModelFilter, type ModelClass } from './lib/modelClass.mts';
 
+const REPLAY_TARGET = replayTargetFromEnv();
 const JOURNEY_DIR = resolve(PROJECT_ROOT, 'test/journeys');
 const CONFIG_SNAPSHOT = resolve(DEBUG_DIR, 'so-journey-config-snapshot.json');
 const ASSET_BASELINE = resolve(DEBUG_DIR, 'so-journey-asset-baseline.json');
@@ -702,6 +704,7 @@ export async function runJourney(page, idOrFile, { strict = false, keep = false,
     engineHistory: engineHistoryOfCleanup(setupApplied.cleanup),
     cleanup: setupApplied.cleanup ?? null,
     page: pageMark === null ? null : currentPageCapture()?.summary(pageMark) ?? null,
+    replay: REPLAY_TARGET ? await sessionStats(REPLAY_TARGET) : null,
   };
   await mkdir(DEBUG_DIR, { recursive: true });
   await writeFile(resolve(DEBUG_DIR, `journey-${journey.id}.md`), `${renderMatrix(journey, results)}${renderChecklist(results)}`, 'utf-8');

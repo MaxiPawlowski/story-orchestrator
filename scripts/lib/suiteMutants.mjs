@@ -102,6 +102,66 @@ export function stratifiedSample(items, groupOf, count, seed) {
   return picked;
 }
 
+export const relativeTest = (path, stagedDir) => {
+  const normal = String(path).replace(/\\/g, '/');
+  const name = String(stagedDir).replace(/\\/g, '/').replace(/\/+$/, '').split('/').pop().toLowerCase();
+  const at = name ? normal.toLowerCase().indexOf(`/${name}/`) : -1;
+  if (at >= 0) return normal.slice(at + name.length + 2);
+  const staged = /\/so-[a-z]+-\d+-[0-9a-f]{8}\//i.exec(normal);
+  return staged ? normal.slice(staged.index + staged[0].length) : normal;
+};
+
+const IMPORT = /(?:from\s+|import\s*\(\s*|require\(\s*|jest\.mock\(\s*)["']([^"']+)["']/g;
+
+export function importsModule(testSource, testPath, mutatedFile) {
+  const target = mutatedFile.replace(/\.tsx?$/, '');
+  const dir = testPath.split('/').slice(0, -1);
+  for (const match of String(testSource).matchAll(IMPORT)) {
+    const spec = match[1];
+    let resolved = null;
+    if (spec.startsWith('.')) {
+      const parts = [...dir];
+      for (const part of spec.split('/')) {
+        if (part === '..') parts.pop();
+        else if (part !== '.') parts.push(part);
+      }
+      resolved = parts.join('/');
+    } else if (spec.startsWith('@') && !spec.startsWith('@/')) {
+      const [alias, ...rest] = spec.split('/');
+      if (rest.length) resolved = `src/${alias.slice(1)}/${rest.join('/')}`;
+    }
+    if (resolved && (resolved.replace(/\.tsx?$/, '') === target || `${resolved}/index` === target)) return true;
+  }
+  return false;
+}
+
+export function testAttribution(result, stagedDir) {
+  const suites = (result?.testResults ?? []).map((suite) => ({ file: relativeTest(suite.name, stagedDir), failed: (suite.assertionResults ?? []).some((assertion) => assertion.status === 'failed') }));
+  return { related: suites.map((suite) => suite.file).sort(), killers: suites.filter((suite) => suite.failed).map((suite) => suite.file).sort() };
+}
+
+export function noKillTests(outcomes, minFaced = 3, targets = () => true) {
+  const tally = new Map();
+  for (const outcome of outcomes) {
+    if (outcome.verdict !== 'killed' && outcome.verdict !== 'survived') continue;
+    for (const file of (outcome.related ?? []).filter((test) => targets(test, outcome.file))) {
+      const row = tally.get(file) ?? { faced: 0, killed: 0 };
+      row.faced += 1;
+      if ((outcome.killers ?? []).includes(file)) row.killed += 1;
+      tally.set(file, row);
+    }
+  }
+  const rows = [...tally].map(([file, row]) => ({ file, ...row }));
+  const silent = rows.filter((row) => row.killed === 0);
+  return {
+    minFaced,
+    tests: rows.length,
+    killing: rows.length - silent.length,
+    noKill: silent.filter((row) => row.faced >= minFaced).sort((a, b) => b.faced - a.faced || a.file.localeCompare(b.file)),
+    thin: silent.filter((row) => row.faced < minFaced).length,
+  };
+}
+
 /** Killed over killed + survived. Crashes, timeouts and uncovered mutants are reported, never scored. */
 export function mutationScore(outcomes) {
   const tally = { killed: 0, survived: 0, crashed: 0, 'no-tests': 0, timeout: 0 };

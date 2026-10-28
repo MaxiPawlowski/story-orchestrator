@@ -197,7 +197,7 @@ Each flag from the owner's playthrough (Flag button + end notes) gets one verdic
 | C | 12 (stub) | stub; record unconsumed |
 | D | rows D1-D8 (homes: v2.9 02/04/05/06/08, v2.8 47, v2.9 11) | not started |
 | E | 01, 04, 05.x, v2.9 03 S2/S3, v2.8 55-59, V3.0 rows | parked on triggers |
-| F | v2.9 11 B3, B6 review, F3 | not started |
+| F | v2.9 11 B3, B6 review, F3; 15 end batch | built 2026-10-26 on `v3.0-f-test-economy`, no GPU (v2.9 11 §Build record: B3 + B6 review + F3); first record/replay run owed in the end batch (`15-end-test-batch.md`) |
 
 ### Owner decisions 2026-10-26 ("as recommended")
 
@@ -218,22 +218,29 @@ Each flag from the owner's playthrough (Flag button + end notes) gets one verdic
 
 ### Additions 2026-10-26 (playtest 1)
 
-Plans 13-17 live on the unmerged integration branch `v3.0-wave1-integration` (`C:\dev\so-dev`); 18-21 on master or their branches.
+Plans 13-17 merged to master 2026-10-28 with `v3.0-wave1-integration` (full `npm run gates` green on the merged tree); the
+State column below is current, the 2026-10-26 lines are history. 18-21 on master or their branches.
 
-| Plan | Subject | Where | State 2026-10-26 |
+| Plan | Subject | Where | State (13-17: 2026-10-28; 18-21: 2026-10-26) |
 |---|---|---|---|
-| 13 | Prefix stability gate | integration branch | built, gates:quick green |
-| 14 | D follow-ups | integration branch | built |
-| 15 | End test batch (GPU, ~6-7 h) | integration branch | run 2026-10-27/28 on master: §v3.0 end batch 2026-10-27 |
-| 16 | Twine/Twee spike | integration branch | spike-later (Astra triage) |
-| 17 | Reply polish integration review | integration branch | polish stays off; review later |
+| 13 | Prefix stability gate | master (merged 2026-10-28) | built, merged; first capture x2 done offline (end-batch captures); in-page recorder fires (no-model); real-generation recorder row owed |
+| 14 | D follow-ups | master (merged 2026-10-28) | merged; D6 P5 miss recorded; D8 passive-modifier scope finding open; D1 rerun (GPU + rating), J6 x2 (model lane), SP1 count owed |
+| 15 | End test batch (GPU, ~6-7 h) | master | run 2026-10-27/28: §v3.0 end batch 2026-10-27; GBNF parity, render-survival now on master, not run |
+| 16 | Twine/Twee spike | master (merged 2026-10-28) | spike-later (Astra triage), docs only |
+| 17 | Reply polish integration review | master (merged 2026-10-28) | planned; polish stays off |
 | 18 | Image e2e review (live, showcase lane) | master (written by the run) | baseline e2e26 NOT GREEN (4 misses, 2 environment); probe running |
 | 19 | Talk pacing: one-shot instruction, yield on question, opening hook | branch `v3.0-talk-pacing` | in build; campaign hooks (63, private plan) wait for its keys |
 | 20 | Visual bridge: identity/place packs, style recipe, resolver, default Qwen recipe, background renders | branch `v3.0-visual-bridge` | stage 1 in build |
 | 21 | Image fixes from playtest 1 | master | done (`2403c70f`, `f96dabda`, `d12deead`) |
+| 25 | Read facts tier below floor on Artemis (`25-read-facts-tier.md`) | master (record only) | 2026-10-28: cause = the model writes facts as MEMORY lines, never FACT; prompt candidate A not adopted (rating format -0.267, intents precision < 0.8 on live x2); 3 owner questions |
 
 Research for 18-21: `research/image-audit-2026-10-26.md`, `image-astra-2026-10-26.md`, `image-astra-prep-bridge-2026-10-26.md`,
 `talk-pacing-review-2026-10-26.md`, `talk-astra-2026-10-26.md`. Campaign hook placement: private, `adolion-campaign/docs/talk-hooks-plan-2026-10-26.md`.
+
+Plan files from the integration branch (owner 2026-10-26):
+
+- 17 `17-reply-polish-integration-review.md`: reply polish stays OFF; review the integration (thought-carry fix, ratings, route, S3 lane) before it returns (owner).
+- 16 `16-twine-twee-spike.md`: Twine / Twee 3 import-export, SPIKE only; triage with Astra before any build (owner).
 
 ### Unresolved questions (owner decisions)
 
@@ -286,13 +293,13 @@ image window are confounded by a second agent's model lane on the same GPU.
 - 8 Full-length output + Sol rating: not run (bench window; nothing new adopted since 09's rating).
 
 MTP / binary rows: `v28-a13-thought-carry` and `v28-40-local-judge-uncalibrated` green inside `suite:nomodel`; GBNF parity
-not run (the checker lives on the unmerged integration branch).
+not run (the checker lived on the integration branch; on master since 2026-10-28).
 Cache rows: GS6 x1 GREEN 12/12 (batch `2026-10-27T22-18-00-220Z`); `live-rollback-derived` RED (diagnosis 2, not cache);
 impersonate round trip on the toy group: member cache planned 3 -> 7, hits 1 -> 3, misses 2 -> 4, restore failures 0
 (`diag/impersonate.log`); 4-member thrash not measured separately.
 409 / reclaim rows: p41 x2 below; `so-sprite-builder` interleave, `sagaBatchPriority.mjs` (campaign images on hold) and
 `retainBatchLi.mjs` (needs its own broker and text port, a bench window) not run; render-survival and comfy-kill checks
-live on the integration branch, not run.
+live on the integration branch then (on master since 2026-10-28), not run.
 Controller samples (`controller/status-samples*.jsonl`, every 15 s):
 - Lane 45 window (21:10-22:42Z): 0 new reclaims, no spill, fitCorrection 0, 100 replies with 0 waits on a reload, member
   cache planned 210 -> 253, hits 61 -> 84, restore failures 0, RAM available min 5552 MiB (text only).
@@ -364,11 +371,11 @@ Controller samples (`controller/status-samples*.jsonl`, every 15 s):
 
 ### Blocks freezing v3.0
 
-- `suite:nomodel` needs a second consecutive green run on one build.
-- J6 is not green x2 under the batch runner (D-EB3); D-EB1 is a player-visible defect.
+- ~~`suite:nomodel` needs a second consecutive green run on one build.~~ Met 2026-10-28 (§End batch 2).
+- ~~J6 is not green x2 under the batch runner (D-EB3)~~ (met 2026-10-28, §End batch 2); D-EB1 fixed (§Gate record: end-batch fixes).
 - The image journey misses gpu-idle every run; a clean GPU window (no other model lane) is needed to separate the
   floor from contention and to read the RAM floor.
-- Owed elsewhere and still open: the owner playtest (v2.9 13 C1), GBNF parity and render-survival (integration branch),
+- Owed elsewhere and still open: the owner playtest (v2.9 13 C1), GBNF parity and render-survival (on master since 2026-10-28),
   J13, the bench rows.
 
 ### Gate record: end-batch fixes 2026-10-28 (branch `v3.0-endbatch-fixes`)
@@ -402,6 +409,50 @@ Controller samples (`controller/status-samples*.jsonl`, every 15 s):
 - `npm run gates:quick`: green (170.4 s) before the live runs.
 - After merging master (talk fixes C, `fe50b961`) into the branch: `npm run gates` (no `--resume`) all green in 305.0 s;
   jest 10759 passed / 1 skipped, Storybook 1010 passed. Live rows not rerun on the merged tree (talk fixes touch no file here).
+
+### End batch 2 2026-10-28 (staged `982f945d`, bundle `9aec23d35ee4`, not restaged during the runs)
+
+suite:nomodel (v2.9 13 C8 x2): lanes 30,31 offline, `npm run suite:nomodel` (prepare + `st-lanes batch --strict --model none --fresh-page`):
+
+- Run A 11:38Z: GREEN 189, RED 0, INCOMPLETE 2, NOT-RUNNABLE 0 (`C:\dev\so-lanes\batch-2026-10-28T11-38-06-242Z.json`).
+  Both INCOMPLETE rows (`v24-01-transition-note-speaker`, `v27-37-agenda-effect-file`) lost the `--fresh-page` reload
+  (`st-session reload`: `page.waitForFunction: Timeout 30000ms`, so the row never started). The J6 diagnosis below was
+  writing a 2.5 GB Playwright protocol log on the same machine at the time. Environment, not counted.
+- Run B 13:14Z: **GREEN 191, RED 0, INCOMPLETE 0, NOT-RUNNABLE 0** (`batch-2026-10-28T13-14-21-843Z.json`): 181 scenarios
+  + 10 journeys (48 none checks).
+- Run C: **GREEN 191, RED 0, INCOMPLETE 0, NOT-RUNNABLE 0** (`batch-2026-10-28T14-41-03-123Z.json`), started right after B on the same build. B and C are the two consecutive greens on one build that v2.9 13 C8 asks for.
+
+J6 under `st-lanes batch --lanes 45 --repeat 2 --strict --fresh-page J6` (lane 45 model, `--allow-local`, local controller Artemis):
+
+- D-EB3 cause: not a navigation. The Playwright CDP log (`DEBUG=pw:protocol`, one file per process) shows that the failing
+  `Runtime.callFunctionOn` (`awaitPromise`) was answered with `{"code":-32000,"message":"Promise was collected"}`. Playwright
+  1.58 `crExecutionContext.rewriteError` turns every non-script protocol error into "Execution context was destroyed, most
+  likely because of a navigation". Evidence: a second CDP client saw no `frameNavigated` or `executionContextsCleared`, the
+  page's `performance.now()` ran on across the failure, and an in-page probe holding the promises of
+  `runExtractionNow` and `eventSource.emit` saw each one settle (slowest 20 s) while the harness still got
+  "Promise was collected". Seen on `extract` (J6.11, J6.12) and `delete` (J6.3), each right after a group chat save. The
+  first attempt's work had landed, so the S5 retry of J6.3 failed on "Message 1 not found". Not reproduced with plain
+  timer/emit/fetch promises under forced GC. The V8-side trigger is not pinned. Excerpt:
+  `C:\dev\so-lanes\45\debug\d-eb3-promise-collected.txt`.
+- Old harness, 4 batches: `11-38-32-144Z` run 1 GREEN, run 2 BLOCKED J6.11; `12-15-28-304Z` run 1 RED (J6.3 + J6.11),
+  run 2 GREEN after a J6.12 S5 retry; `12-41-49-596Z` (probe on) RED x2 (J6.3, J6.11); `12-02-46-719Z` discarded (the
+  protocol log overflowed the batch parent's stderr buffer).
+- Fix (harness, `scripts/debug/lib/evaluate.mts`): `evaluateInST` runs an async function as a page-side job. One
+  synchronous call starts it and holds its promise on the page (`__soEvalJobs`), and synchronous polls every 100 ms read the
+  outcome. A script error keeps its message, and a job the page no longer holds (a reload) reads as a navigation.
+  Sync functions and fake pages keep the plain `page.evaluate`. Tests: `evaluate.test.mts` (5).
+- Fixed harness, 3 batches, 0 navigation or harness errors in 6 runs:
+  - `13-11-18-931Z`: run 1 GREEN; run 2 RED on J6.7. A background epistemic pass took the scripted debug response first,
+    so the tracked belief was stamped message 12 instead of the scripted window end 11, and the edit at 12 correctly
+    dropped it. Fixture race, open.
+  - `13-38-44-358Z`: RED x2 on J6.8, caused by a fixture edit that selected the belief by message id. That was wrong: J6.8
+    reuses J6.7's chat and the content dedups onto the earlier row. Reverted, not counted.
+  - `14-01-33-428Z`: **GREEN x2** (11/11 automated each, 1 human row unscored). Records
+    `test/journeys/records/v3.0-end-batch-2/2026-10-28T14-12-15-893Z_journey-J6.json`, `…14-25-21-760Z_journey-J6.json`.
+- Open: the J6.7 race (1 of 6 runs) and the "Promise was collected" trigger itself.
+- Gates (branch `v3.0-eb2-evaljob`, worktree `C:\dev\so-eb2-evaljob`): `npm run gates:quick` green (149.7 s); `npm run gates`
+  (no `--resume`) all green in 395.9 s: jest 10799 passed / 1 skipped, test:debug 1640/1640, Storybook 1010 passed, build,
+  typecheck, typecheck:test, debug:typecheck, lint, test:replay, test:plugin, test:release ok. Record lines added after the run (docs only).
 
 ## Rules
 
@@ -451,6 +502,7 @@ No build order is set. If several reopen at once, by dependency: 02 B before 05.
 | 09 | `09-controller-round-3.md` controller round 3: patched llama.cpp b11888 (`scripts/local/llama-patches/`) + RAM member cache 4 GiB LIVE on the owner controller 2026-10-26 (warm member switch 8.55 → 3.8 s, member turn 14.6 → 10.5 s; Sol 25 pairs better on all categories, thinking floor missed as written 23/25, owner adopted); 409 reserve-refusal fix + ComfyUI reclaim guards; chat-first queue built; max-memory profile, rewound entries + checkpoint_at, read reorder queued. Research: `research/` (web, Fable simulation, feature-impact audit, Astra review) |
 | 10 | `10-max-memory-profile.md` max-memory profile + tray headroom toggle: STUB 2026-10-26 (replan track A2), floors TO DECIDE |
 | 11 | `11-image-perf-after-unlock.md` image performance after the unlock, ComfyUI flags, image/text thrash: STUB 2026-10-26 (track B1), floors TO DECIDE |
+| 15 | `15-end-test-batch.md` end test batch for the current wave (09 r3, A0, D1/D3/D5/D6/D8, C1, B1 prep, v2.9 freeze): DESIGN 2026-10-26, est. ~6 h GPU (up to ~7.2 h with conditionals), no-model and replay lanes in parallel |
 | 12 | `12-witness-redesign.md` witness record redesign after v2.8 42 W4 FAIL: STUB 2026-10-26 (track C1), floors TO DECIDE |
 
 ## Decisions (user, 2026-10-03: as recommended)

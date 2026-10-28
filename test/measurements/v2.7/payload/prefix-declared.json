@@ -1,0 +1,8 @@
+{
+  "prefix": [
+    { "group": "group-lore-placement", "key": "(resting)", "from": "turn-rest-authored", "to": "turn-rest-late", "plan": "v3.0 13 (A0)", "why": "worldInfo.lateLore flipped between the captures: the keyed entries leave the story string on purpose" },
+    { "group": "group-lore-placement", "key": "Arin", "from": "turn-arin-authored", "to": "turn-arin-late", "plan": "v3.0 13 (A0)", "why": "worldInfo.lateLore flipped between the captures: the keyed entries leave the story string on purpose" },
+    { "group": "group-relationships", "key": "(resting)", "from": "off-rest", "to": "on-market-rest", "plan": "v3.0 13 (A0)", "why": "a second story is imported into the chat between the captures: a new run, not a turn" },
+    { "group": "group-relationships", "key": "Arin", "from": "off-arin", "to": "on-market-arin", "plan": "v3.0 13 (A0)", "why": "a second story is imported into the chat between the captures: a new run, not a turn" }
+  ]
+}

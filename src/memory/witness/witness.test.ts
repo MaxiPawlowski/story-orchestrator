@@ -123,13 +123,17 @@ describe("plan 42 B: the shared read carries witness lines only when the feature
     expect(parsed.rejected).toEqual([]);
   });
 
-  it("adds the section, hashes it, and lands accepted claims on the audit", async () => {
-    const result = await read("WITNESS m=4 heard=all-present\nWITNESS m=6 heard=ula\nWITNESS m=9 heard=ben\nNO_DELTA", ["mara", "ben", "ula"]);
-    expect(result.audit.prompt).toContain("WITNESS m=<message index>");
+  it("derives the claims in code: no witness section in the prompt, the model's witness lines ignored", async () => {
+    const result = await read("WITNESS m=4 heard=ula\nWITNESS m=9 heard=ben\nNO_DELTA", ["mara", "ben", "ula"]);
+    expect(result.audit.prompt).not.toContain("WITNESS m=");
     expect(result.audit.witness).toMatchObject({ status: "accepted", inputRange: { from: 4, to: 6 } });
-    expect(result.audit.witness?.claims.map((claim) => claim.messageId)).toEqual([4, 6]);
+    expect(result.audit.witness?.claims.map((claim) => [claim.messageId, claim.mixed, claim.heard])).toEqual([
+      [4, false, { kind: "members", members: ["mara", "ben"] }],
+      [5, false, { kind: "members", members: ["mara", "ben"] }],
+      [6, false, { kind: "members", members: ["mara", "ben"] }],
+    ]);
     expect(result.audit.witness?.inputRange.revisions.map((entry) => entry.revision.swipeId)).toEqual([null, 1, null]);
-    expect(result.audit.rejected).toContainEqual({ line: "WITNESS m=9 heard=ben", reason: "message not in the read's window" });
+    expect(result.audit.rejected).toEqual([]);
     const s = story();
     const engine = new StoryEngine();
     engine.loadStory(s);
@@ -144,9 +148,10 @@ describe("plan 42 B: the shared read carries witness lines only when the feature
     expect(result.audit.witness).toBeUndefined();
   });
 
-  it("marks an empty-scope read no-read and a truncated read outage, with no claims", async () => {
-    expect((await read("WITNESS m=4 heard=mara", ["mara"], false)).audit.witness).toMatchObject({ status: "no-read", claims: [] });
-    expect((await read("WITNESS m=4 heard=mara", ["mara"], true, "length")).audit.witness).toMatchObject({ status: "outage", claims: [] });
+  it("derives the same claims for an empty-scope read and a truncated read, since no model line is used", async () => {
+    const full = (await read("NO_DELTA", ["mara", "ben", "ula"])).audit.witness;
+    expect((await read("WITNESS m=4 heard=mara", ["mara", "ben", "ula"], false)).audit.witness).toEqual(full);
+    expect((await read("WITNESS m=4 heard=mara", ["mara", "ben", "ula"], true, "length")).audit.witness).toEqual(full);
   });
 });
 
@@ -247,6 +252,13 @@ describe("plan 42 B Wr: rollback by input range equals the replay of the kept re
     expect(witnessLookup(rolled, "b", 3)).toMatchObject({ state: "classified", heard: "yes" });
     expect(witnessState(rolled, 7)).toBe("invalidated");
     expect(witnessRevision(rolled)).not.toBe(witnessRevision(record));
+    const [tomb] = rolled.invalidated;
+    const ids = Array.from({ length: tomb.to - tomb.from + 1 }, (_, offset) => tomb.from + offset);
+    const lines = (named: number[]) => named.map((id) => `WITNESS m=${id} heard=a`);
+    const almost = acceptWitnessRead(rolled, "almost", witnessAudit("accepted", lines(ids.slice(0, -1)), at(tomb.from, tomb.to)).audit);
+    expect(almost.invalidated).toEqual(rolled.invalidated);
+    const all = acceptWitnessRead(rolled, "all", witnessAudit("accepted", lines(ids), at(tomb.from, tomb.to)).audit);
+    expect(all.invalidated).toEqual([]);
   });
 
   it("folding past the cap keeps every winning claim", () => {

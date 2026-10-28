@@ -37,6 +37,10 @@ export interface WitnessLabelSet {
 
 export type WitnessPredict = (messageId: number, member: string, span?: [number, number]) => WitnessLookup;
 
+export interface WitnessScoreOptions {
+  speakers?: ReadonlyMap<number, string>;
+}
+
 export interface Ratio {
   hits: number;
   of: number;
@@ -84,7 +88,7 @@ export const reviewedLabel = (label: WitnessLabel): boolean => {
   return review.agreed || (review.adjudicated === true && Boolean(review.adjudicator) && review.adjudicator !== review.writer && review.adjudicator !== review.checker);
 };
 
-export function scoreWitness(set: WitnessLabelSet, predict: WitnessPredict): WitnessScore {
+export function scoreWitness(set: WitnessLabelSet, predict: WitnessPredict, options: WitnessScoreOptions = {}): WitnessScore {
   const kept = set.labels.filter((label) => set.synthetic || reviewedLabel(label));
   const counts = { exact: 0, classified: 0, fi: 0, notHeard: 0, fe: 0, heard: 0, covered: 0, ambiguousPairs: 0, ambiguousHeard: 0,
     mixedLabelled: 0, mixedFlagged: 0, spanFi: 0, spanNotHeard: 0, asides: 0, asideExact: 0, asideKeptOut: 0 };
@@ -110,8 +114,9 @@ export function scoreWitness(set: WitnessLabelSet, predict: WitnessPredict): Wit
     const predicted = predictedSet(set.members, lookups);
     if (predicted) counts.covered += 1;
     if (label.heard === "unknown") {
-      counts.ambiguousPairs += set.members.length;
-      counts.ambiguousHeard += set.members.filter((member) => lookups.get(member)?.heard === "yes" && lookups.get(member)?.state === "classified").length;
+      const judged = set.members.filter((member) => member !== options.speakers?.get(label.messageId));
+      counts.ambiguousPairs += judged.length;
+      counts.ambiguousHeard += judged.filter((member) => lookups.get(member)?.heard === "yes" && lookups.get(member)?.state === "classified").length;
       continue;
     }
     const heard = label.heard;

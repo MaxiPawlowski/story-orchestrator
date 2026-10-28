@@ -263,3 +263,19 @@ Full record: `docs/plans/v3.0/00-overview.md` §v3.0 end batch 2026-10-27.
 - C8 suite:nomodel on fixtures `f4e6fa16`: GREEN 191/191 once (`batch-2026-10-28T03-06-06-757Z.json`); the earlier run on
   `d9ff15db` fixtures was 189/192 (three stale fixtures, fixed in `f4e6fa16`). x2 consecutive still open.
 - Freeze: still open (C1 owner playtest, suite x2, J6 under the batch runner, the end batch's D-EB1 notice defect).
+
+## End batch 2 2026-10-28 (staged `982f945d`, bundle `9aec23d35ee4`)
+
+Full record: `docs/plans/v3.0/00-overview.md` §End batch 2 2026-10-28.
+
+- C8 suite:nomodel, command `npm run suite:nomodel` (lanes 30,31 offline, prepared from scratch each run):
+  - Run A: GREEN 189, INCOMPLETE 2 (`batch-2026-10-28T11-38-06-242Z.json`). Two `--fresh-page` reloads timed out under
+    machine load from the J6 diagnosis, so those rows never ran. Environment, not counted.
+  - Run B: **GREEN 191/191** (`batch-2026-10-28T13-14-21-843Z.json`).
+  - Run C: **GREEN 191/191** (`batch-2026-10-28T14-41-03-123Z.json`). B and C are green x2 consecutively on one build, so C8 is met.
+  - The 10-28 03:06Z green (191/191) was on bundle `766f6afc…` (staged `d9ff15db`), not this build.
+- J6 under `st-lanes batch --fresh-page --repeat 2 --strict`: **GREEN x2** (batch `2026-10-28T14-01-33-428Z`, records in
+  `test/journeys/records/v3.0-end-batch-2/`) after the harness fix for D-EB3. The CDP answer was "Promise was collected",
+  which Playwright rewrites as a navigation; `evaluateInST` now runs async evaluations as polled page-side jobs. One J6.7
+  fixture race in 6 runs stays open.
+- Freeze: C8 and J6 under the batch runner are now met. Still open: the C1 owner playtest and the final freeze run (one `npm run gates` + `suite:nomodel` on the frozen build).

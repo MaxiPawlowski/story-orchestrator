@@ -12,8 +12,9 @@ import { enableGroupMembers, readRequiresFacts } from './lib/scenarioRequiresHos
 import { bundleWarning, captureHeader } from './so-run-header.mts';
 import { runScenario } from './so-scenario.mts';
 import { describeReport, diffCases, NORMALISE_RULES, renderNormalised, validateDeclarations, type PayloadCapture, type PayloadCase } from './lib/payloadGolden.mts';
+import { describePrefixReport, payloadCaseGroup, payloadLogGroups, prefixReport, validatePrefixDeclarations, type PrefixDeclaration, type PrefixGroup } from './lib/prefixGate.mts';
 
-const USAGE = `Usage: node scripts/debug/so-payload-golden.mts <capture|diff> ...
+const USAGE = `Usage: node scripts/debug/so-payload-golden.mts <capture|diff|prefix> ...
 
   capture --label <name> --out <dir> [--cases a,b] [--group <id|name>] [--run-header <file>] [--force]
       On the open lane, runs every case in test/scenarios/payload/*.json (or --cases) as a so-scenario
@@ -35,7 +36,22 @@ const USAGE = `Usage: node scripts/debug/so-payload-golden.mts <capture|diff> ..
       pattern = "substring" | {"contains": "..."} | {"regex": "...", "flags"?: "imsu"}.
       Exit 1 on an undeclared hunk, on a declaration (or one of its patterns) that never happened
       (stale), on a case missing from either side, or on a fixture whose sha256 changed.
-      Writes the report to --out, default <candidate-dir>/payload-diff.json.`;
+      Writes the report to --out, default <candidate-dir>/payload-diff.json.
+
+  prefix <capture-dir | payloads.jsonl> [--declared <file.json>] [--out <report.json>] [--side-fails]
+      Prefix stability (v3.0 A0). For each pair of consecutive prompts with the same key (a capture dir:
+      the drafted member or resting, within one case; a st-payload --persist JSONL: the drafted member of a
+      streamed request, or side:<hash of the opening 160 chars> for a non-streamed one, within one chat), finds the
+      first differing character and fails when it lies before the previous prompt's per-turn boundary: the
+      second system turn (first injected depth block), else the earliest in-chat story_* block, else the
+      newest message. A prompt with none of these is no-boundary and fails. Raw text, no normalisation:
+      a {{time}} in the head is exactly what this catches. Side-pass pairs are reported, gated only with
+      --side-fails. A pair where the cache key restarts on purpose (another story, a layout setting flipped)
+      is declared and not compared:
+        {"prefix": [{"group": "<case or chat id>", "key"?, "from": "<label>", "to": "<label>", "plan", "why"}]}
+      Exit 1 on a failing undeclared pair or a declaration matching no consecutive pair (stale). Writes the
+      report to --out, default <dir>/prefix-stability.json or <file>.prefix.json. JSONL reports carry no
+      prompt text; capture-dir reports carry a short excerpt at each failing divergence.`;
 
 const PAYLOAD_DIR = resolve(PROJECT_ROOT, 'test', 'scenarios', 'payload');
 
@@ -266,15 +282,45 @@ export async function diff(args: string[]) {
   return { ok: report.ok };
 }
 
+export async function prefix(args: string[]) {
+  const [targetArg] = args.slice(1).filter((arg, index, list) => !arg.startsWith('--') && !['--declared', '--out'].includes(list[index - 1] ?? ''));
+  if (!targetArg) throw new Error('prefix needs <capture-dir> or <payloads.jsonl>');
+  const target = resolve(PROJECT_ROOT, targetArg);
+  const jsonl = target.endsWith('.jsonl');
+  let groups: PrefixGroup[];
+  if (jsonl) {
+    const rows = (await readFile(target, 'utf-8')).split(/\r?\n/).filter((line) => line.trim()).map((line) => { try { return JSON.parse(line); } catch { return null; } });
+    groups = payloadLogGroups(rows);
+  } else {
+    groups = (await readGoldenDir(target)).cases.map(payloadCaseGroup);
+  }
+  const declaredArg = argValue(args, '--declared');
+  let declarations: PrefixDeclaration[] = [];
+  if (declaredArg) {
+    const parsed = validatePrefixDeclarations(JSON.parse(await readFile(resolve(PROJECT_ROOT, declaredArg), 'utf-8')));
+    if (parsed.problems.length) {
+      for (const problem of parsed.problems) console.error(`ERROR: ${problem}`);
+      return { ok: false };
+    }
+    declarations = parsed.declarations;
+  }
+  const report = prefixReport(groups, declarations, { sideFails: args.includes('--side-fails') });
+  for (const line of describePrefixReport(report, declarations)) console.log(line);
+  const outPath = resolve(PROJECT_ROOT, argValue(args, '--out') ?? (jsonl ? `${targetArg}.prefix.json` : rel(resolve(target, 'prefix-stability.json'))));
+  await writeFile(outPath, JSON.stringify({ tool: 'so-payload-golden prefix', source: rel(target), declared: declaredArg, ...report }, null, 2), 'utf-8');
+  console.log(`Wrote ${rel(outPath)}`);
+  return { ok: report.ok };
+}
+
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const args = process.argv.slice(2);
   const command = args[0];
-  if (hasHelpFlag(args) || !['capture', 'diff'].includes(command)) {
+  if (hasHelpFlag(args) || !['capture', 'diff', 'prefix'].includes(command)) {
     console.log(USAGE);
     process.exit(hasHelpFlag(args) ? 0 : 1);
   }
-  if (command === 'diff') {
-    diff(args).then((result) => process.exit(result.ok ? 0 : 1), (error) => { console.error('Error:', error instanceof Error ? error.message : String(error)); process.exit(1); });
+  if (command === 'diff' || command === 'prefix') {
+    (command === 'diff' ? diff(args) : prefix(args)).then((result) => process.exit(result.ok ? 0 : 1), (error) => { console.error('Error:', error instanceof Error ? error.message : String(error)); process.exit(1); });
   } else {
     runCli((page) => capture(page, args), { pageCapture: 'payload-golden' });
   }

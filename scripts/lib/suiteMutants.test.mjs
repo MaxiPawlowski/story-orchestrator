@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readdirSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { applyMutant, classifyJest, classifyRun, mutationScore, specProblems, stratifiedSample } from './suiteMutants.mjs';
+import { applyMutant, classifyJest, classifyRun, importsModule, mutationScore, noKillTests, relativeTest, specProblems, stratifiedSample, testAttribution } from './suiteMutants.mjs';
 import { applyAt, mutantsOf } from './suiteMutantGen.mjs';
 import { replayScope } from '../suite/defect-replay.mjs';
 
@@ -76,4 +76,40 @@ test('CR-P23: test:replay runs each mutant against its named killers by default,
   const spec = { tests: ['src/a.test.ts', 'src/b.test.ts'] };
   assert.deepEqual(replayScope(spec, false), ['--runTestsByPath', 'src/a.test.ts', 'src/b.test.ts']);
   assert.deepEqual(replayScope(spec, true), []);
+});
+
+test('testAttribution names the related and killing test files relative to the staged copy', () => {
+  const result = { testResults: [
+    { name: String.raw`C:\Temp\so-mutation-0\src\engine\gates.test.ts`, assertionResults: [{ status: 'passed' }, { status: 'failed' }] },
+    { name: String.raw`C:\Temp\so-mutation-0\src\engine\engine.test.ts`, assertionResults: [{ status: 'passed' }] },
+  ] };
+  assert.deepEqual(testAttribution(result, String.raw`C:\Temp\so-mutation-0`), { related: ['src/engine/engine.test.ts', 'src/engine/gates.test.ts'], killers: ['src/engine/gates.test.ts'] });
+  assert.deepEqual(testAttribution(null, 'x'), { related: [], killers: [] });
+});
+
+test('noKillTests lists test files that faced enough scored mutants and killed none; crashes are not evidence', () => {
+  const outcomes = [
+    { verdict: 'killed', related: ['a.test.ts', 'b.test.ts'], killers: ['a.test.ts'] },
+    { verdict: 'survived', related: ['a.test.ts', 'b.test.ts', 'c.test.ts'], killers: [] },
+    { verdict: 'killed', related: ['b.test.ts', 'c.test.ts'], killers: ['c.test.ts'] },
+    { verdict: 'crashed', related: ['b.test.ts', 'd.test.ts'], killers: [] },
+    { verdict: 'survived', related: ['d.test.ts'], killers: [] },
+  ];
+  const review = noKillTests(outcomes, 3);
+  assert.deepEqual(review.noKill, [{ file: 'b.test.ts', faced: 3, killed: 0 }]);
+  assert.deepEqual([review.tests, review.killing, review.thin], [4, 2, 1]);
+});
+
+test('relativeTest strips a staged copy whether jest reports the short or the long temp path', () => {
+  assert.equal(relativeTest('C:/Users/Some/AppData/Local/Temp/so-mutation-2-5c3493db/src/a/b.test.ts', 'C:/Users/SOME~1/AppData/Local/Temp/so-mutation-2-5c3493db'), 'src/a/b.test.ts');
+  assert.equal(relativeTest('C:/Users/Some/AppData/Local/Temp/so-mutation-0-5c3493db/src/c.test.ts', ''), 'src/c.test.ts');
+  assert.equal(relativeTest('src/d.test.ts', ''), 'src/d.test.ts');
+});
+
+test('importsModule follows relative and alias imports to the mutated module only', () => {
+  const source = 'import { a } from "./arcs";\nimport { b } from "@engine/gates";\njest.mock("../judge/scene");';
+  assert.equal(importsModule(source, 'src/memory/arcs.test.ts', 'src/memory/arcs.ts'), true);
+  assert.equal(importsModule(source, 'src/memory/arcs.test.ts', 'src/engine/gates.ts'), true);
+  assert.equal(importsModule(source, 'src/memory/arcs.test.ts', 'src/judge/scene.ts'), true);
+  assert.equal(importsModule(source, 'src/memory/arcs.test.ts', 'src/memory/score.ts'), false);
 });
