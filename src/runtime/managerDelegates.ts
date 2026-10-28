@@ -43,6 +43,11 @@ export abstract class CoordinatorDelegates {
   get cues() { return this.co.cues; }
   get echoes() { return this.co.echoes; }
   get carry() { return this.co.carry; }
+  protected noticeHolds = 0;
+  async holdingRollbackNotice<T>(work: () => Promise<T>): Promise<T> {
+    this.noticeHolds += 1;
+    try { return await work(); } finally { this.noticeHolds -= 1; }
+  }
   protected generationOpen = false;
   setGenerationOpen(open: boolean) {
     if (open) this.co.narrator.requested();

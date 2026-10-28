@@ -247,7 +247,7 @@ export class RuntimeManager extends SettingsDelegates {
   async commitBoundary(at?: number) {
     if (!this.loaded) return null;
     const run = beginRun(this.owner.ownership);
-    this.notices.lastRollback = null;
+    if (!this.noticeHolds) this.notices.lastRollback = null;
     if (!(await this.chatSave.reconcile(run))) return null;
     this.refreshRequirements(); this.expansion.revalidateInserted();
     repairActiveCheckpoint(this.engine, (detail) => this.noteRecap(LOST_CHECKPOINT, detail));
@@ -255,7 +255,7 @@ export class RuntimeManager extends SettingsDelegates {
     const result = this.engine.commitBoundary(this.getBoundaryContext(at ?? readableEndBefore(this.loadedChatId)));
     this.chatSave.fingerprints.settle();
     this.memory.markBridgesApplied(pendingBridges);
-    if (result.fired) {
+    if (result.fired) { this.notices.lastRollback = null;
       await this.effects.announceTransition(this.engine.activeCheckpoint, this.extras, this.owner.ownsOpenChat());
       if (!run.stillOwns()) return null;
     }

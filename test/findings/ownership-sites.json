@@ -633,6 +633,10 @@
       "status": "checked",
       "note": "v2.3 plan 03, moved out of ChatSave.persist by V26 (the manager keeps a one-line delegate): the chokepoint. A runtime hydrated for another chat declines to write, so every coordinator save() is covered by one check. Reproduction in persistOwnership.review.test.ts."
     },
+    "src/runtime/managerDelegates.ts#CoordinatorDelegates.holdingRollbackNotice": {
+      "status": "local",
+      "note": "Restores an in-memory hold counter in finally; the counter only stops commitBoundary clearing the rollback notice while the edit re-read spike recommits and re-reads the edited message. No host, chat or story-state write. Tests: spikes/editReread.review.test.ts D-EB1."
+    },
     "src/runtime/managerDelegates.ts#CoordinatorDelegates.removeArc": {
       "status": "delegate",
       "note": "awaits MemoryCoordinator.removeArc, which owns the check"
