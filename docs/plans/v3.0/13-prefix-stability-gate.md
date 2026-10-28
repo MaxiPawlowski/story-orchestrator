@@ -1,7 +1,8 @@
 # Plan 13 — Prefix-stability gate (track A0)
 
-**Status: BUILT 2026-10-26 on branch `v3.0-a0-prefix-gate`, deterministic tiers green (`gates:quick`); full `npm run gates`
-and the first capture on a lane NOT run (coordinator batches them). Not merged.** Replan track A0 (`00-overview.md`
+**Status 2026-10-28 (current): MERGED to master with `v3.0-wave1-integration`, full `npm run gates` green, first capture
+twice done (offline, end-batch captures), in-page recorder fires (no-model lane). See §Gate record: merge 2026-10-28.**
+Earlier status (2026-10-26, history): built on branch `v3.0-a0-prefix-gate`, `gates:quick` green, not merged. Replan track A0 (`00-overview.md`
 §Replan 2026-10-26), web idea 5 (`research/context-chunking-web.md`), boundary b from `research/fable-context-slicing.md`
 §2–4. No prompt layout change, no model call, no GPU, no lane used.
 
@@ -75,12 +76,29 @@ each warm switch into a full re-prefill.
 
 ## Still needs a live run (no GPU)
 
-- First capture on a no-model lane: `so-payload-golden.mts capture --label a0 --out <dir>`, then
+Both rows below are done as of 2026-10-28 (§Gate record: merge 2026-10-28); kept as the recipe.
+
+- First capture, twice: done (offline, end-batch captures). First capture on a no-model lane: `so-payload-golden.mts capture --label a0 --out <dir>`, then
   `so-payload-golden.mts prefix <dir> --declared test/measurements/v2.7/payload/prefix-declared.json`, twice. Expected
   same-member pairs: group-opening `opening-* -> turn-*`, commitments `open -> kept -> broken`, delivery `sheet -> repeat`,
   relationships `on-market -> on-docks`. A stale restart or a failing pair is a finding, not a retune: record it.
 - Runtime recorder in a real browser session: one played group turn, then `storyOrchestratorPrefixDrift.summary()` shows
   reply keys per member with `ok` and side keys per role. Real generation only proves the hook fires; no GPU measurement.
+
+## Gate record: merge 2026-10-28
+
+Integration branch `v3.0-wave1-integration` (13, 14, 16, 17, plan 11 prep, F1/F3, 12 W2) merged with master `d2006d17`.
+
+- `npm run gates` (no `--resume`) on the merged tree `cf249aa8`: all green in 300.9 s (build, typecheck, typecheck:test,
+  lint, debug:typecheck, test 10,799 passed / 1 skipped, test:debug 1632/1632, test:replay, test:plugin, test:release,
+  test-storybook:ci 167/167 suites). Main bundle 1,263,247 B (budget 1,300,000); `runtimeManager.ts` 621 lines,
+  architecture guards green.
+- Prefix gate over the end-batch payload captures (`C:\dev\so-lanes\32\debug\payload-endbatch\eb-1`, `eb-2`, coordinator,
+  offline): exit 0 both, 21 pairs, 0 failing, 4 declared restarts, 0 stale.
+- In-page recorder, no-model lane 35, branch `dist/` served by a route holder (not staged): a group trigger with ST's online
+  status set in page (a no-model lane returns from `Generate` before `GENERATE_AFTER_DATA` otherwise) gave
+  `summary()` = one reply key per chat and member, 1 pair, verdict `ok`, boundary from the cut marker, lost 0. Plumbing only;
+  real-generation divergence on a model lane: owed (no GPU used).
 
 ## Deviations
 

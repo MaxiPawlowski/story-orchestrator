@@ -1,6 +1,9 @@
 # Plan 14 — Track D follow-ups (offline parts)
 
-**Status 2026-10-26: offline parts built on branch `v3.0-d-followups`; GPU and model-lane rows deferred to the end batch.**
+**Status 2026-10-28 (current): MERGED to master with `v3.0-wave1-integration` (§Gate record: merge 2026-10-28). Open: D6 P5
+still a miss (not retuned), D8 passive-modifier scope finding, D1 rerun (GPU + Sol rating), J6 x2 on a model lane, SP1 count
+after the owner's play.** Earlier status (2026-10-26, history): offline parts built on branch `v3.0-d-followups`; GPU and
+model-lane rows deferred to the end batch.
 Source: `00-overview.md` §Replan 2026-10-26 track D and E/SP1, §Owner decisions 2026-10-26 (12, 13). Each item: one change,
 floors unchanged (v2.9 11 stop rules). No GPU, no model lane was used for this plan.
 
@@ -142,3 +145,18 @@ floors unchanged (v2.9 11 stop rules). No GPU, no model lane was used for this p
   needs `dist/manifest.json`, absent in a fresh worktree. After `npm run build` (bundle 1,269,120 B, budget 1,300,000) that
   file is 35/35.
 - Not run here (coordinator batches them): full `npm run gates`, merge, stage, push; every GPU or model-lane row above.
+
+## Gate record: merge 2026-10-28
+
+- `npm run gates` (no `--resume`) on the merged tree `cf249aa8`: all green in 300.9 s (build, typecheck, typecheck:test,
+  lint, debug:typecheck, test 10,799 passed / 1 skipped, test:debug 1632/1632, test:replay, test:plugin, test:release,
+  test-storybook:ci 167/167 suites). Main bundle 1,263,247 B (budget 1,300,000); `runtimeManager.ts` 621 lines,
+  architecture guards green.
+- D1 capture, no-model lane 35, branch `dist/` via route holder, branch harness (`--only s01,s07-s12,s36`): the dormant-anchor
+  rows s07, s09, s10, s11, s36 anchored and both s01 arms rebuild offline byte-for-byte (ok). Every sha moved against the
+  10-26 lane 33 manifest, controls included: master prompts changed since. s08 and s12 (both arms) fail "offline-rebuilt
+  suggestions prompt is not inside the request body" on master's staged build with master's harness too (same `current`
+  shas): pre-existing on master, not this merge; to diagnose before the D1 rerun.
+- Still open: D6 P5 misses its 2 ms floor by 0.03-0.19 ms (recorded, not retuned); D8 finding (a quality used only as an
+  observation's passive modifier is outside the runtime read scope, so the modifier reads its start value); D1 rerun
+  (send + Sol rating), J6 x2 on a model lane, SP1 count after the owner's play.

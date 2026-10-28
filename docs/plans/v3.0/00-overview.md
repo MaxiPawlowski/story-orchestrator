@@ -218,15 +218,16 @@ Each flag from the owner's playthrough (Flag button + end notes) gets one verdic
 
 ### Additions 2026-10-26 (playtest 1)
 
-Plans 13-17 live on the unmerged integration branch `v3.0-wave1-integration` (`C:\dev\so-dev`); 18-21 on master or their branches.
+Plans 13-17 merged to master 2026-10-28 with `v3.0-wave1-integration` (full `npm run gates` green on the merged tree); the
+State column below is current, the 2026-10-26 lines are history. 18-21 on master or their branches.
 
-| Plan | Subject | Where | State 2026-10-26 |
+| Plan | Subject | Where | State (13-17: 2026-10-28; 18-21: 2026-10-26) |
 |---|---|---|---|
-| 13 | Prefix stability gate | integration branch | built, gates:quick green |
-| 14 | D follow-ups | integration branch | built |
-| 15 | End test batch (GPU, ~6-7 h) | integration branch | run 2026-10-27/28 on master: §v3.0 end batch 2026-10-27 |
-| 16 | Twine/Twee spike | integration branch | spike-later (Astra triage) |
-| 17 | Reply polish integration review | integration branch | polish stays off; review later |
+| 13 | Prefix stability gate | master (merged 2026-10-28) | built, merged; first capture x2 done offline (end-batch captures); in-page recorder fires (no-model); real-generation recorder row owed |
+| 14 | D follow-ups | master (merged 2026-10-28) | merged; D6 P5 miss recorded; D8 passive-modifier scope finding open; D1 rerun (GPU + rating), J6 x2 (model lane), SP1 count owed |
+| 15 | End test batch (GPU, ~6-7 h) | master | run 2026-10-27/28: §v3.0 end batch 2026-10-27; GBNF parity, render-survival now on master, not run |
+| 16 | Twine/Twee spike | master (merged 2026-10-28) | spike-later (Astra triage), docs only |
+| 17 | Reply polish integration review | master (merged 2026-10-28) | planned; polish stays off |
 | 18 | Image e2e review (live, showcase lane) | master (written by the run) | baseline e2e26 NOT GREEN (4 misses, 2 environment); probe running |
 | 19 | Talk pacing: one-shot instruction, yield on question, opening hook | branch `v3.0-talk-pacing` | in build; campaign hooks (63, private plan) wait for its keys |
 | 20 | Visual bridge: identity/place packs, style recipe, resolver, default Qwen recipe, background renders | branch `v3.0-visual-bridge` | stage 1 in build |
@@ -291,13 +292,13 @@ image window are confounded by a second agent's model lane on the same GPU.
 - 8 Full-length output + Sol rating: not run (bench window; nothing new adopted since 09's rating).
 
 MTP / binary rows: `v28-a13-thought-carry` and `v28-40-local-judge-uncalibrated` green inside `suite:nomodel`; GBNF parity
-not run (the checker lives on the unmerged integration branch).
+not run (the checker lived on the integration branch; on master since 2026-10-28).
 Cache rows: GS6 x1 GREEN 12/12 (batch `2026-10-27T22-18-00-220Z`); `live-rollback-derived` RED (diagnosis 2, not cache);
 impersonate round trip on the toy group: member cache planned 3 -> 7, hits 1 -> 3, misses 2 -> 4, restore failures 0
 (`diag/impersonate.log`); 4-member thrash not measured separately.
 409 / reclaim rows: p41 x2 below; `so-sprite-builder` interleave, `sagaBatchPriority.mjs` (campaign images on hold) and
 `retainBatchLi.mjs` (needs its own broker and text port, a bench window) not run; render-survival and comfy-kill checks
-live on the integration branch, not run.
+live on the integration branch then (on master since 2026-10-28), not run.
 Controller samples (`controller/status-samples*.jsonl`, every 15 s):
 - Lane 45 window (21:10-22:42Z): 0 new reclaims, no spill, fitCorrection 0, 100 replies with 0 waits on a reload, member
   cache planned 210 -> 253, hits 61 -> 84, restore failures 0, RAM available min 5552 MiB (text only).
@@ -373,7 +374,7 @@ Controller samples (`controller/status-samples*.jsonl`, every 15 s):
 - J6 is not green x2 under the batch runner (D-EB3); D-EB1 is a player-visible defect.
 - The image journey misses gpu-idle every run; a clean GPU window (no other model lane) is needed to separate the
   floor from contention and to read the RAM floor.
-- Owed elsewhere and still open: the owner playtest (v2.9 13 C1), GBNF parity and render-survival (integration branch),
+- Owed elsewhere and still open: the owner playtest (v2.9 13 C1), GBNF parity and render-survival (on master since 2026-10-28),
   J13, the bench rows.
 
 ### Gate record: end-batch fixes 2026-10-28 (branch `v3.0-endbatch-fixes`)
