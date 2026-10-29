@@ -1,6 +1,8 @@
 # Plan 06 — Grounded next actions and stakes
 
-**Status: written 2026-10-21 from the v2.9 triage (`01-triage-sol.md` §06); slices 1–4 built 2026-10-21 on branch `v2.9-06-next-actions` (Gate record below); LT acceptance not run (no GPU).** Implementation
+**Status 2026-10-26: BUILT, on master since 2026-10-22 (wave 2); LT 2026-10-25 (40 situations x 2 arms, 3090): F1 40/40, F2 36/40, F3 0 leaks, F5 80/80 pass; F4 blind usefulness +0.0 (floor +0.5): MISS; help line on the player surface, greyed offers Author view only (owner 2026-10-25, built). Feature stays on. Left: F4 follow-up (v3.0 14 §D1: dormant-thread prompt change built, rerun owed in the end batch). Records: §LT run 2026-10-25.**
+
+**Was 2026-10-21: written 2026-10-21 from the v2.9 triage (`01-triage-sol.md` §06); slices 1–4 built 2026-10-21 on branch `v2.9-06-next-actions` (Gate record below); LT acceptance not run (no GPU).** Implementation
 tier **D** (pure anchor ranking, schema, validation, Storybook, no-LLM scenarios). Acceptance **LT** (suggestions run on the
 memory model, 3090, authorized window only) + independent rater on the authoring route (opencode `openai/gpt-6.1-sol`) +
 owner decision for the two new panel elements (00-overview rule 4).
@@ -427,6 +429,35 @@ panel only (not on the widget check button).
 - LT acceptance (40 synthetic stuck-player situations x 2 arms): NOT run; the 40 situations need 40 authored stories (quests,
   arcs, promises, hinted checks, offers), more than 2 h to write before inference.
 
+## Folds from v2.9 triage (applied 2026-10-25, owner)
+
+- N14 greyed visible prerequisites (Author view only, owner decision 2); N25 visible ways to improve a pending check.
+- Source: `docs/plans/v2.9/01-triage-sol.md`.
+
+## Owner decision 2026-10-25
+
+- Help line ships on the player surface; greyed offers stay Author view only. Anything more waits for the LT result (plan 11 B2, stop rules).
+- Built 2026-10-25 (branch `v2.9-decided-2026-10-25`): `suggestionsHost` `sideFor` sends `unavailable` only in Author view (the player outcome carries none) and `SuggestionsPanel` renders greyed rows only with `side.author`; the help line is unchanged for players. Storybook: `HelpLineForThePlayer` (no greyed row), `GroundedLinesInAuthorView` (greyed row disabled with its reason), `AuthorGreyedOffersAt390`. Test: `suggestionsHost.test.ts`.
+
+## LT run 2026-10-25 (3090, plan 11 B2 `lt06`)
+
+- Corpus: 40 frozen synthetic situations x 2 arms (current, anchored), 80/80 answered, real memory model, thinking on. Rater
+  Sol (`openai/gpt-6.1-sol`), passes A+B complete, 115 calls, no DeepSeek fallback. Evidence:
+  `C:\dev\so-lanes\gpu-b2ext\lt06-gpu1\score.json` (archived to so-sessions with the close-out).
+- F1 usable (>= 36/40): 40/40, pass. No abstentions in either arm.
+- F2 grounded (>= 34/40): rater 36/40, pass (strict mechanical 33/40, informational).
+- F3 leaks (0): 0 needle hits, 0 rater flags, pass.
+- F4 blind usefulness (>= +0.5): mean +0.0, median 0, 10 wins / 18 ties / 12 losses, CI95 [-0.25, +0.275]. **Miss**, floor unchanged.
+- F5 one call per ask: 80/80, pass.
+- Verdict: anchoring grounds and does not leak, but the blind rater does not prefer it over current suggestions. Feature stays on
+  (owner rule); recorded as a miss.
+
+## F4 follow-up 2026-10-26 (v3.0 14 §D1)
+
+- Cause named from Sol's pass-A notes: 5 of 12 losses are tagged lines for a `dormant-thread` anchor that the visible scene does
+  not show, read as invented; 4 of 12 overlap inside the set. One prompt change: dormant anchors are marked from earlier and their
+  line must carry its own context. Ceiling: current arm 5/5 in 22 of 40, so the reachable mean delta is +0.625 at most (floor +0.5,
+  unchanged). Rerun commands and the expected reach: `docs/plans/v3.0/14-d-followups.md` §D1.
 ### LT freeze 2026-10-23 (before the first inference)
 
 - Corpus frozen as committed in `ddad561a` / `9ddddfbd`, unedited since. Hashes (LF-normalised, as `frozen.json` records them):
