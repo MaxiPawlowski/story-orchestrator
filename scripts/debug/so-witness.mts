@@ -20,6 +20,7 @@ const USAGE = `Usage:
   node scripts/debug/so-witness.mts presence-read --out <dir> --sessions <root> --freeze <freeze-adjudicated.json> [--lab-rows <f> --lab-story <f>]
   node scripts/debug/so-witness.mts presence-score --out <dir> --sessions <root> --freeze <freeze-adjudicated.json> [--lab-rows <f> --lab-story <f>] [--write <result.json>]
   node scripts/debug/so-witness.mts diagnose --out <dir> --sessions <root> --freeze <freeze-adjudicated.json> [--lab-story <f>] [--write <result.json>]
+  node scripts/debug/so-witness.mts candidates --out <dir> --sessions <root> --freeze <freeze-adjudicated.json> --presence <presence-reads.json> [--lab-story <f>] [--write <result.json>]
 
 v2.8 plan 42 B, offline: replays recorded witness read responses (format so-witness-reads/1) through the witness
 contract parser and record (no model, no ST), scores them against labels (format so-witness-labels/1; a private set
@@ -44,6 +45,10 @@ new runs only, off when re-scoring a result recorded before it): the speaker of 
 diagnose (v3.0 plan 12 C1 pass 2, offline, no model): puts every scored pair of the W4 model read (recorded responses replayed), W2 as shipped
 and the presence null control in one failure class (false inclusion: disabled, omniscient, offstage, aside; false exclusion: speaker, present;
 no answer by state; unknown labels; mixed labels); counts only, under the recorded rule.
+candidates (v3.0 plan 12 pass 4, offline, no model): scores W2, D1 scene-reset stage (spoke or named since the latest SCENE_BREAK the
+shared read recorded: the session's own audits ending at or before the read, lab: the recorded reads), D2 (P1 p >= 0.7 on, < 0.3 off,
+band or no row = D1), D3 (D2, whole message unknown where P1 is confident and disagrees with D1) and the O3 reference, under the speaker-own
+rule; plus a transcript-signal census per (single-audience message, listener) pair; counts only.
 presence-read (v3.0 plan 12 P1, TypeSafe judge, no GPU): on the lane page st-lanes env names, sends the shipped scene read (tracker family,
 present:<rosterId> per cast member, window = the 8 message ids ending at the message) through storyOrchestratorJudge.probe for every kept
 adjudicated label, resumable, writes <dir>/presence-reads.json (private). presence-score scores it per (message, member) pair against the
@@ -128,6 +133,19 @@ async function labelCommand(command: string, args: string[]): Promise<number> {
     const write = option(args, '--write');
     if (write) {
       refusePrivateOutput(false, write, 'witness derive score');
+      await writeFile(write, `${JSON.stringify(result, null, 1)}
+`, 'utf-8');
+    }
+  } else if (command === 'candidates') {
+    const refused = await lib.checkWitnessFreeze(out, need(args, '--freeze'), true);
+    if (refused) {
+      console.error(refused);
+      return 3;
+    }
+    result = await (await import('./lib/witnessCandidates.mts')).candidatesAll(out, need(args, '--sessions'), need(args, '--presence'), option(args, '--lab-story'));
+    const write = option(args, '--write');
+    if (write) {
+      refusePrivateOutput(false, write, 'witness candidates');
       await writeFile(write, `${JSON.stringify(result, null, 1)}
 `, 'utf-8');
     }

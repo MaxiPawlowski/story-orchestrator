@@ -503,7 +503,7 @@ No build order is set. If several reopen at once, by dependency: 02 B before 05.
 | 10 | `10-max-memory-profile.md` max-memory profile + tray headroom toggle: STUB 2026-10-26 (replan track A2), floors TO DECIDE |
 | 11 | `11-image-perf-after-unlock.md` image performance after the unlock, ComfyUI flags, image/text thrash: STUB 2026-10-26 (track B1), floors TO DECIDE |
 | 15 | `15-end-test-batch.md` end test batch for the current wave (09 r3, A0, D1/D3/D5/D6/D8, C1, B1 prep, v2.9 freeze): DESIGN 2026-10-26, est. ~6 h GPU (up to ~7.2 h with conditionals), no-model and replay lanes in parallel |
-| 12 | `12-witness-redesign.md` witness record redesign after v2.8 42 W4 FAIL: STUB 2026-10-26 (track C1), floors TO DECIDE |
+| 12 | `12-witness-redesign.md` witness record redesign after v2.8 42 W4 FAIL: W2 on master (unconsumed); pass 4 2026-10-29 offline: D2 (P1 when confident, scene-reset code otherwise) chosen, FAIL on decision-1 floors; no GPU presence reader recommended |
 | 26 | `26-llama-fork-round-4.md` llama.cpp fork round 4 (light sleep, fast load, read preemption, request-local n-gram): STUB 2026-10-28, floors in `research/llama-fork-opportunities.md` (workload measurement, C1-C9, Sol review) |
 
 ## Decisions (user, 2026-10-03: as recommended)

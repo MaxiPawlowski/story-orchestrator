@@ -6,7 +6,7 @@ floors on its own; with a presence source as good as the labels it clears exact-
 stratum only. Floors kept as written (owner 2026-10-26).** **C1 pass 2 (2026-10-28): W4 failure diagnosed by class (78 % of the read's false inclusions are disabled members and the narrator, code facts; the rest is presence); recommendation O3 = W2 + presence source P1; speaker-own scores: W2 fails, presence-oracle ceiling passes exact-set/FI/FE/coverage, mixed and span FI stay structural. Not merged: the prompt change needs a real-model gate (GPU step 1).** **C1 pass 3 (2026-10-28): P1 presence measured on lane 38 (TypeSafe, 232 calls): pair accuracy 0.817 real / 0.810 lab vs 0.95 FAIL, false-present 0.010 real pass / 0.041 lab FAIL. O3 (W2 + P1): FI 9/465 pass, FE 0.31 and exact-set 0.38 FAIL; W2 merges only after GPU step 1.** **GPU step 1 (2026-10-28): live suite ×2 on Artemis (lane 41, C1 build) NOT green against
 its floors (facts 8/20, epistemic 2/3, intents playerAttributed 1), identical on a pre-W2 control build (same prompt
 fingerprint, 0 regressed); the fixture prompt never carries the witness section, so the suite cannot see W2. Merged (branch
-adds no `src/` over master, which has carried W2 since `49fa0fa5`).** Follows v2.8 42 (`docs/plans/v2.8/42-witness-filter-v2.md`, W4 FAIL).
+adds no `src/` over master, which has carried W2 since `49fa0fa5`).** **Pass 4 (2026-10-29, offline): diagnosed the all-present answer (prompt shape); scored D1 scene reset, D2 judge-for-exceptions, D3 abstention on the frozen set; D2 chosen (FI 0.054, FE 0.118, exact-set 0.66: FAIL); an oracle presence reader on D2's exceptions still fails FI (13/465), so no GPU presence reader is recommended under decision 1.** Follows v2.8 42 (`docs/plans/v2.8/42-witness-filter-v2.md`, W4 FAIL).
 
 ## Goal
 
@@ -454,6 +454,107 @@ audits, `presence-reads.json` from pass 3) against the frozen adjudicated labels
   candidate is implemented in `src/` only if it clears every floor offline; none is expected to (mixed cap), so this pass
   changes no product code.
 
+## Pass 4: diagnosis (2026-10-29, `so-witness.mts candidates`, counts only)
+
+Private result `test/sessions/witness-real/candidates-2026-10-29.json` (sha256 `8fa515b2…`). W2 and O3 re-scored in the same run
+reproduce pass 2/3 on every row (speaker-own).
+
+**Why the read answers all-present (prompt shape and contract).**
+- The section (`renderWitnessContractSection`) asks "who heard each line" and offers `all-present` as a valid answer that code
+  resolves to the enabled set. It tells the model nothing about who is in the scene beyond the roster and states the rule
+  "speech said aloud reaches everyone in earshot". Real play has no whole-message asides (0 of 171), so under the prompt's own
+  rule `all-present` is the literally correct answer to almost every line. The model answered the question it was asked (aloud
+  vs aside) and handed the hard one, who is in earshot, back to code through the shorthand.
+- Code then resolved "present" to the enabled set (product) or to every session member (recorder). Enabled equals the labelled
+  present on only 102 of 171 real single-audience messages, so even a perfectly resolved `all-present` tops out near 0.60
+  exact-set; the narrator convention and the recorder artifact took the recorded result down to 13/147.
+- The section came last in a dense extraction contract (deltas, memory, arcs, scene break), one line per message: the cost miss
+  (+282 output tokens p95) bought no presence signal (40 member lists in 240 lines, 0 `mixed`).
+
+**What signal the transcript carries** (listener pairs = single-audience message x enabled, non-omniscient, non-speaker member;
+real 595 pairs: 468 present, 127 absent):
+
+| Source | present kept | absent caught | Reading |
+|---|---|---|---|
+| W2 stage (spoke or named, 24 back) | 468/468 | 31/127 | stale: a member seen earlier stays on stage after leaving |
+| D1 stage (since the read's last `SCENE_BREAK`) | 432/468 | 60/127 | breaks cut stale members, but also cut a party that crosses a time skip or a move |
+| P1 judge, p >= 0.7 | 293/468 | 122/127 | conservative: right when it says present, misses a third of those there |
+| D2 (P1 when confident, D1 otherwise) | 404/468 | 107/127 | best balance of the three signals |
+
+The cell no rule over these signals resolves: code says on stage and P1 says absent (p < 0.3) on 80 pairs, 33 present and 47
+absent. The best possible listener-pair accuracy of any rule over (W2, D1, P1 class) is 524/595 = 0.881 (cell majority).
+Scene-break source: 25 of 32 real reads had a session audit ending inside their context (7 fall back to the W2 stage: the
+audit ring had evicted them); 27 breaks seen.
+
+## Pass 4: candidates and offline scores (speaker-own, decision 1 floors)
+
+| Row (floor) | W2 (ref) | D1 scene reset | **D2 judge-for-exceptions** | D3 abstain | O3 (ref) | ceiling: D2 + oracle on exceptions |
+|---|---|---|---|---|---|---|
+| exact-set (>= 0.9) | 99/152 = 0.651 | 86/152 = 0.566 | **101/153 = 0.660** | 67/92 = 0.728 | 60/158 = 0.380 | 137/153 = 0.895 |
+| FI incl. ambiguous (<= 0.02) | 94/465 = 0.202 | 71/465 = 0.153 | **25/465 = 0.054** | 20/465 = 0.043 | 9/465 = 0.019 pass | 13/465 = 0.028 |
+| FE (<= 0.10) | 5/574 pass | 40/574 pass | **68/574 = 0.118** | 35/574 pass | 179/574 = 0.312 | 14/574 pass |
+| coverage (>= 0.85) | 162/192 = 0.844 | 162/192 | **165/192 = 0.859 pass** | 99/192 = 0.516 | 172/192 pass | 165/192 pass |
+| mixed (>= 0.8) | 5/11 | 5/11 | 5/11 | 5/11 | 5/11 | 5/11 |
+| span FI (<= 0.02) | 16/79 | 16/79 | 13/79 | 12/79 | 5/79 | 9/79 |
+| lab exact-set / aside exact (>= 0.8) | 6/37, 6/32 | 9/37, 9/32 | 20/37, 20/32 | 8/18, 8/32 | 19/37, 19/32 | 12/37, 12/32 |
+| lab FI / FE | 38/426, 34/143 | 27/426, 36/143 | 10/426, 39/143 | 6/426, 26/143 | 6/426, 44/143 | 23/426, 34/143 |
+| beat presence on W4a by >= 0.3 (lab, control 0/32) | +0.19 | +0.28 | **+0.63 pass** | +0.25 | +0.59 pass | +0.38 |
+
+As declared: no candidate passes W4. Readings:
+- **D2 is the best measured balance**: FI falls about 4x against W2 (0.20 to 0.054) for FE 0.118 (0.018 short of 0.10),
+  coverage passes, exact-set stays at 0.66; on the lab set it beats the presence control by 0.63.
+- **D1 alone is worse than W2** on exact-set: the read's scene breaks are too eager (a time skip or a move with the same party
+  ends the scene), costing 36 present listeners for 29 more absent ones caught. It earns its place only as D2's fallback.
+- **D3's abstention is not cheap**: P1 confidently disagrees with code on 71 of 171 real single-audience messages, so coverage
+  collapses to 0.52 while FI barely moves (0.043). Abstention is the wrong lever here.
+- **"Model only for exceptions" is not sparse**: 129 of 171 real messages hold an exception pair (band or confident
+  disagreement; 234 pairs: 162 present, 72 absent). Even a perfect reader on every exception pair (the oracle ceiling, a
+  post-hoc diagnostic like the labelled-presence row, not a candidate) leaves FI at 13/465 (8 of them the ambiguous stratum,
+  where no reader can be scored) and exact-set at 0.895: **no presence reader added to D2 clears FI <= 0.02 on this label set**,
+  before the structural mixed (6/11 cap) and span FI rows.
+- Privacy (audience contract, fail closed): every candidate only narrows W2's "on stage", except that D2 and O3 add a member P1
+  calls present (p >= 0.7) whom the scene-reset stage left off (real 5 pairs, all labelled present; lab 2). D3's `unknown` adds nothing
+  (`mayAdd` refuses it). The record stays unconsumed under every candidate; none changes the read prompt.
+
+## Pass 4: chosen design and what it needs
+
+**Chosen: D2** (W2 rules 1-3 and 5; rule 6 filled per listener by P1 when confident, else the scene-reset code stage). Not built
+into `src/`: it is not deterministic (it needs P1's history ring, "Next step: presence source P1") and it fails the floors.
+
+Floors for D2, predeclared now, never retuned: **decision 1 unchanged** (exact-set >= 0.9, FI <= 0.02 incl. ambiguous, FE <= 0.10,
+coverage >= 0.85, mixed >= 0.8, span FI <= 0.02, aside exact >= 0.8, beat presence on W4a by >= 0.3), speaker-own, scored on the
+**held-out set** (end-batch check 3) as the deciding run; the frozen-set numbers above are tuning-biased and decide nothing. P1's
+calibration row stays as pass 3 declared (pair accuracy >= 0.95, false-present <= 0.02); D2 trusts P1 only at p >= 0.7 or < 0.3,
+so those two bands' accuracy is reported alongside, not a new floor.
+
+Expected on the held-out set (from the frozen set, optimistic): FI about 0.05, FE about 0.12, exact-set about 0.66, a fail. The
+pass-4 result argues **against** spending GPU on a presence reader: under the current label convention its oracle ceiling
+already fails FI.
+
+**GPU recipe (later, owner decides; nothing here ran in this pass).**
+1. **Fresh scene breaks on the current build** (D1/D2's code input came from older session builds): one model lane, Artemis
+   read profile, images and sprites off, `memory.witness` on, build served from the worktree;
+   `node scripts/debug/st-lanes.mts run <lane> -- scripts/debug/so-witness.mts record --sessions C:/dev/story-orchestrator/test/sessions --out <fresh dir> --arm off --lab-rows C:/dev/story-orchestrator/test/sessions/witness-real/lab-rows.json --lab-story C:/dev/adolion-campaign/build/story/adolion-academy.story.json --adjudicated --no-stop`
+   over the 37 labelled read windows (32 real + 5 lab), then `candidates` reading breaks from those reads (one flag to add).
+   37 reads at p95 21 s is about 13 min, plus lane start and model load: **about 25 min** of 3090.
+2. **Held-out labels** (no read-model time): >= 8 new qualifying group sessions from the owner's next play batch, labelled and
+   frozen as end-batch check 3; P1 on them is TypeSafe only (`presence-read`, about 2 min of calls, no GPU); then `candidates`
+   on the fresh freeze. GPU time is only the play batch itself.
+3. **Not recommended**: an exception reader (a per-message presence question on the 129 exception messages, about 3 s each on
+   the 3090, **about 10 min**). Run it only if the owner changes what the record is for (unresolved questions); under decision 1
+   its oracle ceiling already fails FI.
+
+## Gate record 2026-10-29, pass 4 (branch `v3.0-12-witness-redesign`, offline, no model, no GPU, no lanes)
+
+- Declarations `a7bb3605` committed before any run.
+- Built: `scripts/debug/lib/witnessCandidates.mts` (`so-witness.mts candidates`: scene breaks from audits and reads, scene-reset
+  code stage, P1 fusion, abstention wrapper, oracle-exception ceiling, census), test `scripts/debug/witnessCandidates.test.mts`
+  (5 cases, synthetic). No `src/` change: no candidate is deterministic and above floor.
+- Run: `node scripts/debug/so-witness.mts candidates --out C:/dev/story-orchestrator/test/sessions/witness-real --sessions
+  C:/dev/story-orchestrator/test/sessions --freeze …/freeze-adjudicated.json --presence …/presence-reads.json --lab-story
+  C:/dev/adolion-campaign/build/story/adolion-academy.story.json --write …/candidates-2026-10-29.json` exit 0 (`8fa515b2…`).
+- Gates: GATES_PLACEHOLDER
+
 ## Unresolved questions
 
 - Is message-level privacy a product goal now (v3.0 02 reopen condition), or only witness-filtered recall?
@@ -462,3 +563,8 @@ audits, `presence-reads.json` from pass 3) against the frozen adjudicated labels
   path (`runWitnessRead`, delta recall with vs without the witness section) owed, or does the unchanged fixture suite suffice?
 - Live suite misses on Artemis (facts 0.40, epistemic 2/3, intents playerAttributed 1) are pre-existing: whose track owns them?
 - O4 (per-message mixed/aside classifier) worth designing, or accept mixed and span FI as unmet and keep the record unconsumed?
+- Pass 4: no presence reader clears FI <= 0.02 on this label set (oracle ceiling 13/465). Keep decision 1 as the bar (the record
+  stays unconsumed; park C until a playtest flag shows a character acting on a scene it missed), or split the bar by consumer:
+  an ADD-text consumer needs FI (O3 passes it at FE 0.31), a REMOVE filter needs FE (W2 passes it at FI 0.20)? Owner call;
+  floors are not retuned here.
+- Spend about 25 min of 3090 on fresh scene breaks (GPU recipe 1) now, or wait for the held-out play batch first?
