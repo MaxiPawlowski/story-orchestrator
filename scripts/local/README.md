@@ -85,6 +85,11 @@ Optional `config.json` keys, all read by `broker/backend.mjs` `nativeArgs` (plan
   received is never discarded. `/status` → `readPreemption` (reads, preempted, requeued, completed,
   completedAfterPreempt, cancelled, failed, retriesMax, wasted ms p50/p95/total); `controller.log` gets one line per
   requeue and per finished preempted read.
+  `mode: "limited"` (plan v3.0 27 W4) preempts a read at most once, only while it has decoded at most
+  `maxDecodedTokens` (32; read from llama-server `GET /slots`, `probeTimeoutMs` 500) and has run at most `maxRunMs`
+  (4000; the only check when `/slots` does not answer), and never a read older than `maxAgeBoundaries` (1) finished chat
+  replies since it was issued. `/status` `readPreemption` adds `mode`, `chatsDone`, `skipped {preempted, age, decoded,
+  runMs, probeMissed}` and `lastSkip`.
 - `memberCache: { enabled, budgetMiB, dir, headChars, minPromptChars, minCutChars, minTailChars, cutMarker, rewind,
   ramHeadroomMiB, ctxCheckpoints }` (off unless `enabled: true`; plan v3.0 08). A per-member state cache for group chats
   with per-member prompt heads; needs llama.cpp b11888 or later (slot files that keep their context checkpoints; b11388
@@ -144,6 +149,20 @@ Optional `config.json` keys, all read by `broker/backend.mjs` `nativeArgs` (plan
   lease reason name the numbers. The wake recreates the contexts (0.4-0.5 s measured) and needs only the freed amount
   plus the reserve. The stray
   check subtracts the weights a light sleeper still holds. `sleepStats.lightSleeps|lightWakes|lastLightWakeMs`.
+- `memberCache.lightSleepStreamMarginMiB` (plan v3.0 27 W1; 0 or absent = off, else 256-8192; needs `lightSleep`): an
+  image too big to fit whole beside a light sleeper may stream beside it (`streamImages` policy: enabled, streaming
+  runtime, model kinds and weights) when the free reading after the light sleep minus the stream need keeps the margin
+  free (checked on the estimate, then on the reading after the sleep; RAM reserve as usual). Stream need = the larger of
+  `streamImages.minFreeGpuMiB` and the stream use learned for that workflow (peak minus admission reading, largest of
+  the last 3 leases, kept in `footprints.json` under `stream-use:`). Decision stays `sleep-context`;
+  `lastResidency.lightSleep.stream` = `{stage, needMiB, floorMiB, learnedMiB, marginMiB, freeMiB, predictedMinMiB,
+  fits}`. If ComfyUI fails that job out of memory (history `execution_error`, `torch.OutOfMemoryError` or "out of
+  memory"), the controller stops the sleeping text (member cache dropped; so5 cannot deepen a light sleep), deletes the
+  history entry and resubmits the identical graph once under the same prompt id at the queue front: the lease becomes
+  `swap-text` and the learned use is set to everything that was free. `memberCache.lightSleepStreamOomRetry: false`
+  only reports it. The media plugin's job poll waits up to 30 s on an out-of-memory error for that retry before it
+  fails the job. `/status` `lightStream` {enabled, marginMiB, leases, oomRetries, oomRetryFailed, oomAfterRetry,
+  belowMargin, lastLease, lastOom}.
 - `speculative.chatNMax` / `speculative.sideNMax` (plan v3.0 26 C3, so5 binary): the gateway adds
   `speculative.n_max` to streamed (chat) or other generation requests, capping the model drafter per request at most
   at `speculative.nMax`. `speculative.extraTypes: ["ngram-simple"]` adds the request-local n-gram drafter (the shared
@@ -354,6 +373,16 @@ node scripts/local/residency-arms.mjs <config.json> resident|ffn|reload scene|po
 (SDPA, Comfy Kitchen INT8 attention, fp16 accumulation, autotune, highvram, fast-disk, cache thresholds) in its own ComfyUI on
 :18288, 2 warm-ups + 6 timed at fixed seeds, and diffs pixels against the SDPA cell; `image-compare <a> <b>` compares two runs
 (before/after the unlock), `image-rating-pack <dir>` builds a blind A/B pack of changed images. Plan v3.0 11.
+
+`burst-bench.mjs <config.json> --pattern RRRIRRRIRRRI [--hires]` (controller running) records per image the decision,
+whether it streamed beside a light sleeper, the lease's lowest GPU free reading, an out-of-memory retry (it waits 30 s for
+the controller's retry like the media plugin) or a failure, and per run `imagesFailed`, `oomRetries`, `textSpills`,
+`streamLowGpuMiB` and `/status` `lightStream` (plan v3.0 27 W1).
+
+`rate-seeds.mjs manifest|rate|aggregate` (plan v3.0 27 W3) pairs full-length `bench-controller.mjs text --keep-text`
+runs of two arms by `--seed`, rates each pair blind with `codex exec -m gpt-6.1-sol` (`rate` needs `--owner-approved`)
+and evaluates the plan 09 R2 floors over the whole multi-seed set (flags scaled to 2 per 25 rated pairs), per seed and
+with a paired bootstrap interval per category.
 
 `residency-arms` needs the controller stopped (`cli.mjs stop`): it owns its own llama-server and ComfyUI, measures
 image s, image→completed reply s, reply tok/s, peak VRAM, low GPU/RAM and the WDDM shared-usage delta, then stops both.
