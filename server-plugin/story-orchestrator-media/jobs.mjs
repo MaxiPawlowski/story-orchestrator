@@ -1,6 +1,9 @@
 import { randomUUID } from 'node:crypto';
 
 const settled = new Set(['cancelled', 'failed', 'complete']);
+const unreachable = 'ComfyUI stopped answering (comfy-unreachable); start it again and retry.';
+
+class ComfyUnreachable extends Error {}
 
 export class ComfyJobs {
     constructor({ url, fetchImpl = fetch, now = Date.now, maxJobs = 64, retentionMs = 600_000 }) {
@@ -16,7 +19,7 @@ export class ComfyJobs {
         const response = await this.fetch(`${this.url}${route}`, {
             ...(body === undefined ? {} : { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) }),
             signal: AbortSignal.timeout(30_000),
-        });
+        }).catch((error) => { throw new ComfyUnreachable(error?.message ?? String(error)); });
         if (!response.ok) throw new Error(`ComfyUI ${route.split('?')[0]} answered ${response.status}.`);
         return response;
     }
@@ -34,7 +37,7 @@ export class ComfyJobs {
     }
 
     view(job) {
-        return { id: job.id, status: job.status, error: job.error ?? null, promptId: job.promptId ?? null };
+        return { id: job.id, status: job.status, error: job.error ?? null, reason: job.reason ?? null, promptId: job.promptId ?? null };
     }
 
     async submit(owner, id, graph) {
@@ -57,7 +60,7 @@ export class ComfyJobs {
             if (job.status === 'cancelled') await this.removeQueued(job);
             else job.status = 'queued';
         } catch (error) {
-            if (job.status !== 'cancelled') { job.status = 'failed'; job.error = error.message; }
+            if (job.status !== 'cancelled') this.fail(job, error);
         }
         job.at = this.now();
         return this.view(job);
@@ -77,9 +80,33 @@ export class ComfyJobs {
         return this.view(job);
     }
 
+    fail(job, error) {
+        job.status = 'failed';
+        if (error instanceof ComfyUnreachable) { job.reason = 'comfy-unreachable'; job.error = unreachable; }
+        else job.error = error.message;
+    }
+
+    dropped(job, error) {
+        job.missingSince ??= this.now();
+        if (this.now() - job.missingSince <= 60_000) return false;
+        this.fail(job, error);
+        job.at = this.now();
+        return true;
+    }
+
     async poll(owner, id) {
         const job = this.get(owner, id);
         if (settled.has(job.status) || !job.promptId) return this.view(job);
+        try {
+            return await this.check(job);
+        } catch (error) {
+            if (!(error instanceof ComfyUnreachable) || settled.has(job.status)) throw error;
+            if (!this.dropped(job, error) && this.now() - job.at > 900_000) { job.status = 'cancelled'; job.error = 'The render exceeded fifteen minutes.'; job.at = this.now(); }
+            return this.view(job);
+        }
+    }
+
+    async check(job) {
         const history = await (await this.request(`/history/${encodeURIComponent(job.promptId)}`)).json();
         if (job.status === 'cancelled') return this.view(job);
         const item = history[job.promptId];
@@ -90,10 +117,7 @@ export class ComfyJobs {
             const pending = queue.queue_pending?.some((entry) => entry[1] === job.promptId);
             job.status = running ? 'running' : 'queued';
             if (running || pending) job.missingSince = null;
-            else {
-                job.missingSince ??= this.now();
-                if (this.now() - job.missingSince > 60_000) { job.status = 'failed'; job.error = 'ComfyUI no longer has this render (it restarted or dropped it); try again.'; job.at = this.now(); return this.view(job); }
-            }
+            else if (this.dropped(job, new Error('ComfyUI no longer has this render (it restarted or dropped it); try again.'))) return this.view(job);
             if (this.now() - job.at > 900_000) { job.status = 'cancelled'; await this.removeQueued(job); job.error = 'The render exceeded fifteen minutes.'; }
             return this.view(job);
         }
