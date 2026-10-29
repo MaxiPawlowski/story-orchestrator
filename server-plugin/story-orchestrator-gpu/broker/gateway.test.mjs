@@ -2,6 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createGateway } from './gateway.mjs';
 import { ContextRefusal } from './backend.mjs';
+import { testTempDir } from '../../../scripts/lib/testTemp.mjs';
 
 const fakeArbiter = (state, refuse = null) => {
     const queued = [];
@@ -181,7 +182,8 @@ test('the member cache is off by default and gives up image RAM through the sche
     const off = createGateway({ arbiter: fakeArbiter({ pid: 7 }), config: { modelAlias: 'm' }, fetchImpl: backendFetch });
     assert.equal(off.memberCache, null);
     const arbiter = fakeArbiter({ pid: 7 });
-    const on = createGateway({ arbiter, config: { modelAlias: 'm', stateDir: (await import('node:os')).tmpdir(), memberCache: { enabled: true, dir: `${(await import('node:os')).tmpdir()}/so-gw-member-test` } }, fetchImpl: backendFetch });
+    const stateDir = await testTempDir('so-gw-member-');
+    const on = createGateway({ arbiter, config: { modelAlias: 'm', stateDir, memberCache: { enabled: true, dir: `${stateDir}/members` } }, fetchImpl: backendFetch });
     assert.equal(typeof arbiter.scheduler.onImageRam, 'function');
     assert.equal(await arbiter.scheduler.onImageRam({ needRamMiB: 8000, availableMiB: 1000 }), 0);
     assert.equal(on.memberCache.status().entries, 0);
@@ -298,5 +300,23 @@ test('a token count goes straight to the server only through the backend direct 
         arbiter.queued.shift()();
         assert.equal((await pending).status, 200);
         assert.equal(ended, 1);
+    } finally { await gateway.close(); }
+});
+
+test('per-request draft caps: a streamed chat gets speculative.chatNMax, a side pass sideNMax, and a caller value is never overwritten', async () => {
+    const arbiter = fakeArbiter({ pid: 7, loading: false, profile: 'fast' });
+    const seen = [];
+    const fetchImpl = async (url, init = {}) => { if (url.endsWith('/completion')) seen.push(JSON.parse(init.body)); return new Response('{}', { headers: { 'content-type': 'application/json' } }); };
+    const gateway = createGateway({ arbiter, config: { modelAlias: 'm', defaultProfile: 'fast', speculative: { model: 'mtp.gguf', nMax: 3, chatNMax: 2, sideNMax: 3 } }, fetchImpl });
+    const { port } = await gateway.listen(0);
+    const url = `http://127.0.0.1:${port}`;
+    try {
+        for (const body of [{ prompt: 'c', n_predict: 8, stream: true }, { prompt: 's', n_predict: 8 }, { prompt: 'o', n_predict: 8, 'speculative.n_max': 1 }]) {
+            const pending = fetch(`${url}/completion`, { method: 'POST', body: JSON.stringify(body) });
+            while (!arbiter.queued.length) await new Promise((resolve) => setTimeout(resolve, 5));
+            arbiter.queued.shift()();
+            await (await pending).text();
+        }
+        assert.deepEqual(seen.map((body) => body['speculative.n_max']), [2, 3, 1]);
     } finally { await gateway.close(); }
 });

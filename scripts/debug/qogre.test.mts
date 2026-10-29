@@ -1,12 +1,13 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { validateFixture } from './lib/scenarioSchema.mts';
 import { cleanReply, installReplyRelay, opensThought, promptOf, RELAY_MODEL_ID, sseText, textBody } from './lib/replyRelay.mts';
 import { abaScenario, caseScenario, labBook, labStory, QO_CASES, QO_DIR, scoreCase, stringPass, summarize, tagsOf, type QoRating, type QoReply } from './lib/quantumOgre.mts';
 import { rateCommand, scenariosCommand } from './so-qogre.mts';
+import { testTempDirSync } from '../lib/testTemp.mjs';
 
 const ROOT = join(import.meta.dirname, '..', '..');
 
@@ -114,7 +115,7 @@ test('62 score: contradictions over the ask swipes and the re-asks; disclosure o
 });
 
 test('62 rate: blind rater answers are parsed, an unparsed answer is an error that a re-run retries', async () => {
-  const run = mkdtempSync(join(tmpdir(), 'qogre-'));
+  const run = testTempDirSync('qogre-');
   const item = QO_CASES[4];
   writeFileSync(join(run, `${item.id}.json`), JSON.stringify({ replies: [{ ...reply(item.id, 'ask-0', 0), speaker: 'Arin', text: 'It was Hessa Vane.' }, { ...reply(item.id, 'ask-1', 1), speaker: 'Arin', text: 'Old Tom rang it.' }] }));
   const seen: string[] = [];

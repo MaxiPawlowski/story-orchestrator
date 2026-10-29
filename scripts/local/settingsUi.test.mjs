@@ -2,17 +2,17 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import http from 'node:http';
-import os from 'node:os';
 import path from 'node:path';
 import { createGateway } from '../../server-plugin/story-orchestrator-gpu/broker/gateway.mjs';
 import { createSettingsRoutes } from './settingsUi.mjs';
 import { serializeConfig } from './modes.mjs';
+import { testTempDir } from '../lib/testTemp.mjs';
 
 const config = () => ({ gatewayPort: 0, reserves: { gpuMiB: 2048, ramMiB: 4096 }, idleRestoreMs: 600000, fitMarginMiB: 512,
     streamImages: { enabled: true, minFreeGpuMiB: 2400, maxWeightMiB: 8192, kinds: ['checkpoints'] }, profiles: { fast: { args: [] } }, defaultProfile: 'fast' });
 
 const serve = async () => {
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'so-ui-'));
+    const dir = await testTempDir('so-ui-');
     const configFile = path.join(dir, 'config.json');
     await fs.writeFile(configFile, serializeConfig(config()));
     const requests = [];

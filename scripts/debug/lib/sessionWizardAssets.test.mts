@@ -1,8 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, readFile, writeFile } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
 import { readFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { REPO_ROOT } from '../../lib/stRoot.mjs';
 import { resolveHeaderAllow, storyContext, wizardAllowance } from './sessionWizardAssets.mts';
@@ -15,6 +14,7 @@ import { agentProblems, runAgentVerb, type AgentUi } from './sessionDriver.mts';
 import { agentModeTarget } from '../so-ui.mts';
 import { findCard, loadCards, loadIndex, loadSessionFiles, parseLiveArgs, scoreCommand, scoreRefusal } from '../so-session.mts';
 import { digestSession } from './sessionDigest.mts';
+import { testTempDir } from '../../lib/testTemp.mjs';
 
 const T52 = resolve(REPO_ROOT, 'test', 'fixtures', 'sessions', 'T5-2-1');
 const json = (name: string) => JSON.parse(readFileSync(resolve(T52, name), 'utf-8'));
@@ -183,7 +183,7 @@ test('T5-2 score: an INVALID session refuses a score unless --provisional, which
   assert.equal(scoreRefusal({ valid: false }, true), null);
   assert.match(String(scoreRefusal({ valid: true }, true)), /only for an INVALID session/);
   assert.equal(scoreRefusal(null, false), null);
-  const dir = await mkdtemp(join(tmpdir(), 'so-provisional-'));
+  const dir = await testTempDir('so-provisional-');
   await writeFile(join(dir, 'turns.jsonl'), '{"seq":1}\n', 'utf-8');
   await writeFile(join(dir, 'session.json'), JSON.stringify({ valid: false, invalid: ['the run header diff failed (exit 1)'] }), 'utf-8');
   await writeFile(join(dir, 'rubric.json'), JSON.stringify(rubricTemplate(findCard(await loadCards(), 'T5-2'))), 'utf-8');

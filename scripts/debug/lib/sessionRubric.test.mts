@@ -1,14 +1,14 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, mkdir, writeFile, readFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { mkdir, writeFile, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { evidenceRefProblems, findRow, parseEvidence, scoreRow } from './sessionRubric.mts';
 import { rubricProblems, rubricTemplate, USER_REVIEW } from './sessionCharters.mts';
 import { findCard, loadCards, parseScoreArgs, scoreCommand } from '../so-session.mts';
+import { testTempDir } from '../../lib/testTemp.mjs';
 
 async function sessionDir() {
-  const dir = await mkdtemp(join(tmpdir(), 'so-rubric-'));
+  const dir = await testTempDir('so-rubric-');
   await writeFile(join(dir, 'turns.jsonl'), '{"seq":1}\n{"seq":2}\n', 'utf-8');
   await mkdir(join(dir, 'shots'));
   await writeFile(join(dir, 'shots', '001-hud.png'), 'png', 'utf-8');

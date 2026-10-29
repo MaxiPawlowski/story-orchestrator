@@ -2,7 +2,7 @@ import http from 'node:http';
 import { Readable } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
 import { ResponseTiming } from './responseTiming.mjs';
-import { ContextRefusal, slotFor, slots } from './backend.mjs';
+import { ContextRefusal, draftCap, slotFor, slots } from './backend.mjs';
 import { PromptReuse, promptReuseOptions } from './promptReuse.mjs';
 import { MemberCache, memberCacheOptions } from './memberCache.mjs';
 
@@ -122,6 +122,8 @@ export function createGateway({ arbiter, config, fetchImpl = fetch, allowOrigin 
                 }
                 const prefill = reusing && !memberPlan ? reuse.prefill(body, slot ?? 'all') : null;
                 if (prefill) await backendCall(slot === null ? prefill : { ...prefill, id_slot: slot }).catch((error) => { reuse.lastError = error.message; });
+                const cap = generating && body ? draftCap(config, body.stream === true) : null;
+                if (cap !== null && body['speculative.n_max'] === undefined) body['speculative.n_max'] = cap;
                 const response = await fetchImpl(`${backend.url}${route}`, { method: req.method, headers: { 'content-type': 'application/json' }, ...(body ? { body: JSON.stringify(body) } : {}), signal: abort.signal });
                 if (res.destroyed) return;
                 res.writeHead(response.status, { 'content-type': response.headers.get('content-type') ?? 'application/json', 'cache-control': 'no-store' });

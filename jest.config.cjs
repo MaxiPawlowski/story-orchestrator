@@ -1,4 +1,7 @@
+const path = require("path");
+
 module.exports = {
+  cacheDirectory: process.env.SO_JEST_CACHE || path.join(__dirname, ".build", "jest-cache"),
   testEnvironment: "node",
   roots: ["<rootDir>/src"],
   testMatch: ["**/*.test.ts"],

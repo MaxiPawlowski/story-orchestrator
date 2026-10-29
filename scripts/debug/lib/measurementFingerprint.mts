@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { TERM_SCORER_VERSION } from '../../../src/utils/termPresent.ts';
+import { SCORER_VERSION } from './liveSuiteScore.mts';
 import { evaluateInST } from './evaluate.mts';
 
 export interface MeasurementFingerprints {
@@ -32,7 +32,7 @@ export const configFingerprint = (header: unknown): string | null =>
 
 export const fingerprintsOf = (input: { prompts: readonly string[]; model: string | null; header: unknown }): MeasurementFingerprints => ({
   prompt: promptFingerprint(input.prompts),
-  scorer: TERM_SCORER_VERSION,
+  scorer: SCORER_VERSION,
   model: input.model,
   config: configFingerprint(input.header),
 });

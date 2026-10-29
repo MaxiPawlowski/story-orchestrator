@@ -3,9 +3,9 @@ import assert from 'node:assert/strict';
 import { ContextRefusal, NativeBackend, nativeArgs, profileContext, profileGpuMiB, slotFor, slots } from './backend.mjs';
 import { withControllerDefaults } from './controllerStatus.mjs';
 import { EventEmitter } from 'node:events';
-import { mkdtemp, rm } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { rm } from 'node:fs/promises';
 import path from 'node:path';
+import { testTempDir } from '../../../scripts/lib/testTemp.mjs';
 
 const deferred = () => { let resolve; const promise = new Promise((done) => { resolve = done; }); return { promise, resolve }; };
 const config = { defaultProfile: 'fast', maxContext: 98304, profiles: { fast: { args: ['--ctx-size', '32768', '--load-mode', 'none'] }, normal: { args: ['--ctx-size', '98304'] } }, reserves: { gpuMiB: 2048 } };
@@ -133,7 +133,7 @@ test('the fit margin is added to the fit target llama-server plans for, never to
 });
 
 async function fittedBackend(t, { gpu = 1700, ram = 12000, layers = 'auto', alwaysShort = false } = {}) {
-    const stateDir = await mkdtemp(path.join(tmpdir(), 'so-fit-'));
+    const stateDir = await testTempDir('so-fit-');
     let child = null;
     const calls = [];
     const backend = new NativeBackend({ ...config, stateDir, backendPort: 18889, model: 'fixture', modelAlias: 'fixture',
@@ -284,7 +284,7 @@ test('memberCache store ram sizes --cache-ram from its budget and keeps the slot
 });
 
 test('a GPU reserve miss after load first asks to reclaim idle image memory and keeps the loaded text when that frees enough', async (t) => {
-    const stateDir = await mkdtemp(path.join(tmpdir(), 'so-reclaim-'));
+    const stateDir = await testTempDir('so-reclaim-');
     let child = null;
     let freed = false;
     const calls = [];
@@ -460,7 +460,7 @@ test('a wake short of the full text layout first asks for idle image memory, the
 });
 
 test('fitRam sizes --cache-ram at each load from free RAM minus text and the image floor, and learns what text took', async () => {
-    const stateDir = await mkdtemp(path.join(tmpdir(), 'so-fit-'));
+    const stateDir = await testTempDir('so-fitram-');
     try {
         const fit = { ...config, model: 'm', backendPort: 1, modelAlias: 'a', binary: 'llama-server', stateDir, keepCacheRamFloorMiB: 10240, admissionPollMs: 1,
             reserves: { gpuMiB: 1024, ramMiB: 2048 }, profiles: { fast: { args: ['--ctx-size', '32768', '--n-gpu-layers', 'auto'], estimatedGpuMiB: 20500, estimatedRamMiB: 3000 } },
@@ -491,4 +491,57 @@ test('fitRam sizes --cache-ram at each load from free RAM minus text and the ima
         assert.equal(spawned[2][spawned[2].indexOf('--cache-ram') + 1], '12288');
         await backend.stopOwned();
     } finally { await rm(stateDir, { recursive: true, force: true }); }
+});
+
+test('a light sleep asks for level context, records what the contexts held, wakes against that amount only and keeps the weights baseline out of the stray check', async () => {
+    const { backend, requests, state } = sleepingBackend({ memberCache: { enabled: true, store: 'ram', budgetMiB: 4096, serverKeys: true, keepAcrossImages: true, lightSleep: true } });
+    const bodies = [];
+    const inner = backend.fetch;
+    backend.fetch = async (url, init = {}) => {
+        if (url.endsWith('/sleep')) { bodies.push(init.body ?? null); state.held = 18000; state.free = 5200; }
+        return inner(url, init);
+    };
+    state.held = 21300; state.free = 1900;
+    await backend.load('fast');
+    await backend.unload({ keepCache: true, light: true });
+    assert.deepEqual(bodies, [JSON.stringify({ level: 'context' })]);
+    assert.equal(backend.status().sleeping.light, true);
+    assert.equal(backend.status().sleeping.freedMiB, 3300);
+    assert.equal(backend.status().sleepStats.lightSleeps, 1);
+    assert.equal(await backend.checkSleeping(), null);
+    state.free = 5600;
+    await backend.load('fast');
+    assert.equal(backend.status().sleeping, null);
+    assert.equal(backend.status().sleepStats.lightWakes, 1);
+    assert.deepEqual(backend.calls, [{ name: 'fast', fitTarget: null }]);
+    assert.ok(requests.includes('POST /completion'));
+    await backend.unload({ keepCache: true });
+    assert.deepEqual(bodies, [JSON.stringify({ level: 'context' }), null]);
+    assert.equal(backend.status().sleeping.light, false);
+});
+
+test('a light wake short of the context memory asks for idle image memory, and without it falls back to a clean start', async () => {
+    const { backend, state } = sleepingBackend({ memberCache: { enabled: true, store: 'ram', budgetMiB: 4096, serverKeys: true, keepAcrossImages: true, lightSleep: true } });
+    const inner = backend.fetch;
+    backend.fetch = async (url, init = {}) => { if (url.endsWith('/sleep')) { state.held = 18000; state.free = 5200; } return inner(url, init); };
+    state.held = 21300; state.free = 1900;
+    await backend.load('fast');
+    await backend.unload({ keepCache: true, light: true });
+    state.free = 1500;
+    await backend.load('fast');
+    assert.deepEqual(backend.calls, [{ name: 'fast', fitTarget: null }, 'unload', { name: 'fast', fitTarget: null }]);
+    assert.equal(backend.status().sleepStats.wakeFailures, 1);
+});
+
+test('light sleep needs keepAcrossImages; extra drafters are request-local only; per-request draft caps stay within nMax', async () => {
+    const { memberCacheOptions } = await import('./memberCache.mjs');
+    const { speculative, speculativeArgs, draftCap } = await import('./backend.mjs');
+    assert.throws(() => memberCacheOptions({ memberCache: { enabled: true, store: 'ram', budgetMiB: 4096, serverKeys: true, lightSleep: true } }), /needs keepAcrossImages/);
+    const spec = { speculative: { model: 'mtp.gguf', nMax: 3, extraTypes: ['ngram-simple'], chatNMax: 2, sideNMax: 3 } };
+    assert.deepEqual(speculativeArgs(spec), ['--model-draft', 'mtp.gguf', '--spec-type', 'draft-mtp,ngram-simple', '--spec-draft-n-max', '3']);
+    assert.equal(draftCap(spec, true), 2);
+    assert.equal(draftCap(spec, false), 3);
+    assert.equal(draftCap({ speculative: { model: 'mtp.gguf' } }, true), null);
+    assert.throws(() => speculative({ speculative: { model: 'm', extraTypes: ['ngram-mod'] } }), /request-local/);
+    assert.throws(() => speculative({ speculative: { model: 'm', nMax: 2, chatNMax: 3 } }), /chatNMax/);
 });

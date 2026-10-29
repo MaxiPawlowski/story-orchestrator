@@ -1,16 +1,16 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import fs from 'node:fs/promises';
-import os from 'node:os';
 import path from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { ComfyJobs } from './jobs.mjs';
 import { saveSprite, deleteSprite, reconcileSet, removeStorySprites, fingerprint, digest, referencePack, referenceSets, alphaRecipes,
     recordReference, ownsReference, releaseReference, pruneReferences, referenceInventory, reapableReferences, STALE_REFERENCE_MS } from './files.mjs';
 import { ALLOWED_NODES, init, unsupportedNode, validatePoseFiles } from './index.mjs';
+import { testTempDir } from '../../scripts/lib/testTemp.mjs';
 
 test('DWPose preflight accepts only both installed ONNX files and never fetches a model', async () => {
-    const root = await fs.mkdtemp(path.join(os.tmpdir(), 'so-dwpose-'));
+    const root = await testTempDir('so-dwpose-');
     const inputs = { bbox_detector: 'yolox_l.onnx', pose_estimator: 'dw-ll_ucoco_384.onnx' };
     try {
         await assert.rejects(validatePoseFiles(inputs, { poseModels: [root] }));
@@ -90,7 +90,7 @@ test('a browser that forgot to poll a finished job does not permanently block it
 });
 
 test('sprite writes and deletion refuse foreign files and changed owned files', async (t) => {
-    const root = await fs.mkdtemp(path.join(os.tmpdir(), 'so-media-'));
+    const root = await testTempDir('so-media-');
     t.after(() => fs.rm(root, { recursive: true, force: true }));
     const data = Buffer.alloc(32);
     Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]).copy(data);
@@ -105,7 +105,7 @@ test('sprite writes and deletion refuse foreign files and changed owned files', 
 });
 
 test('animation frame labels accept the drawn mouth shapes and refuse unknown frame kinds', async (t) => {
-    const root = await fs.mkdtemp(path.join(os.tmpdir(), 'so-media-'));
+    const root = await testTempDir('so-media-');
     t.after(() => fs.rm(root, { recursive: true, force: true }));
     const data = Buffer.alloc(32);
     Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]).copy(data);
@@ -117,7 +117,7 @@ test('animation frame labels accept the drawn mouth shapes and refuse unknown fr
 });
 
 test('a crashed sprite write is reconciled: a landed file completes its row, a partial one is dropped', async (t) => {
-    const root = await fs.mkdtemp(path.join(os.tmpdir(), 'so-media-'));
+    const root = await testTempDir('so-media-');
     t.after(() => fs.rm(root, { recursive: true, force: true }));
     const character = 'Test', set = 'pilot';
     const folder = path.join(root, character, set);
@@ -142,7 +142,7 @@ test('a crashed sprite write is reconciled: a landed file completes its row, a p
 });
 
 test('story-scoped removal deletes only the labels built for that story, and an emptied set folder', async (t) => {
-    const root = await fs.mkdtemp(path.join(os.tmpdir(), 'so-media-'));
+    const root = await testTempDir('so-media-');
     t.after(() => fs.rm(root, { recursive: true, force: true }));
     const bytes = Buffer.alloc(32);
     Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]).copy(bytes);
@@ -160,7 +160,7 @@ test('story-scoped removal deletes only the labels built for that story, and an 
 });
 
 test('fingerprints change when weights change under the same name, and cannot escape roots', async (t) => {
-    const root = await fs.mkdtemp(path.join(os.tmpdir(), 'so-fingerprint-'));
+    const root = await testTempDir('so-fingerprint-');
     t.after(() => fs.rm(root, { recursive: true, force: true }));
     await fs.writeFile(path.join(root, 'model.bin'), 'first');
     const first = await fingerprint([root], 'model.bin');
@@ -171,7 +171,7 @@ test('fingerprints change when weights change under the same name, and cannot es
 });
 
 test('existing reference packs are read-only, fingerprinted by content, and never acquire generated ownership', async (t) => {
-    const root = await fs.mkdtemp(path.join(os.tmpdir(), 'so-references-'));
+    const root = await testTempDir('so-references-');
     t.after(() => fs.rm(root, { recursive: true, force: true }));
     const folder = path.join(root, 'Test', 'old_pack');
     await fs.mkdir(folder, { recursive: true });
@@ -196,7 +196,7 @@ test('existing reference packs are read-only, fingerprinted by content, and neve
 });
 
 test('story cleanup preserves unledgered files inside an otherwise emptied generated folder', async (t) => {
-    const root = await fs.mkdtemp(path.join(os.tmpdir(), 'so-cleanup-'));
+    const root = await testTempDir('so-cleanup-');
     t.after(() => fs.rm(root, { recursive: true, force: true }));
     const bytes = Buffer.alloc(32);
     Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]).copy(bytes);
@@ -213,7 +213,7 @@ test('story cleanup preserves unledgered files inside an otherwise emptied gener
 });
 
 test('alpha discovery offers only configured, installed files and never downloads a missing model', async (t) => {
-    const root = await fs.mkdtemp(path.join(os.tmpdir(), 'so-alpha-'));
+    const root = await testTempDir('so-alpha-');
     t.after(() => fs.rm(root, { recursive: true, force: true }));
     await fs.writeFile(path.join(root, 'installed.bin'), 'alpha-weights');
     const recipes = [{ id: 'installed', node: 'BiRefNetRMBG', model: 'installed', files: [{ kind: 'alpha', name: 'installed.bin' }] },
@@ -227,7 +227,7 @@ test('alpha discovery offers only configured, installed files and never download
 });
 
 test('reference cleanup survives restart and removes only explicitly released, hash-matching inputs', async (t) => {
-    const root = await fs.mkdtemp(path.join(os.tmpdir(), 'so-reference-cleanup-'));
+    const root = await testTempDir('so-reference-cleanup-');
     t.after(() => fs.rm(root, { recursive: true, force: true }));
     const user = path.join(root, 'user'), foreignUser = path.join(root, 'other-user'), input = path.join(root, 'input');
     await fs.mkdir(user); await fs.mkdir(foreignUser); await fs.mkdir(path.join(input, 'story-orchestrator'), { recursive: true });
@@ -255,7 +255,7 @@ test('reference cleanup survives restart and removes only explicitly released, h
 });
 
 test('a reference left by a page that never released it is reaped once stale, a fresh one stays owned', async (t) => {
-    const user = await fs.mkdtemp(path.join(os.tmpdir(), 'so-reference-reap-'));
+    const user = await testTempDir('so-reference-reap-');
     t.after(() => fs.rm(user, { recursive: true, force: true }));
     const fresh = `story-orchestrator/so_${randomUUID()}.png`, orphan = `story-orchestrator/so_${randomUUID()}.png`, released = `story-orchestrator/so_${randomUUID()}.png`;
     for (const name of [fresh, orphan, released]) await recordReference(user, name, digest(Buffer.from(name)));
@@ -301,7 +301,7 @@ test('control: an unlisted node is refused, by the check and by the jobs route, 
     assert.equal(unsupportedNode({ class_type: 'KSampler', inputs: {} }), false);
     assert.equal(unsupportedNode({ class_type: 'KSampler' }), true);
     assert.equal(unsupportedNode(null), true);
-    const root = await fs.mkdtemp(path.join(os.tmpdir(), 'so-media-allow-'));
+    const root = await testTempDir('so-media-allow-');
     t.after(() => fs.rm(root, { recursive: true, force: true }));
     const routes = {};
     await init({ get: (name, run) => { routes[`get ${name}`] = run; }, post: (name, run) => { routes[`post ${name}`] = run; } });

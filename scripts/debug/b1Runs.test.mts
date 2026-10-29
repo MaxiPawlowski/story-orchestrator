@@ -1,13 +1,13 @@
 import { test, afterEach } from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync, mkdtempSync, readFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import {
   b1Problems, combineRuns, growth, insideRepo, labProblems, labellerProblems, leakedText, liveRead, percentile, readB1Facts, recordPath, runNumber, writeB1Record,
 } from './lib/b1Runs.mts';
 import { B1_RUNNERS } from './lib/b1Registry.mts';
 import { combine } from './so-b1.mts';
+import { testTempDirSync } from '../lib/testTemp.mjs';
 
 const g = globalThis as Record<string, any>;
 afterEach(() => { delete g.SillyTavern; delete g.storyOrchestratorLiveSuite; delete g.storyOrchestratorRuntime; delete g.storyOrchestratorJudge; });
@@ -26,8 +26,8 @@ test('B1 runs: --run is 1 or 2, the lab stays outside this repo, and a missing l
 });
 
 test('B1 runs: a public summary that carries private text is refused before anything is written', async () => {
-  const root = mkdtempSync(join(tmpdir(), 'b1-records-'));
-  const debugDir = mkdtempSync(join(tmpdir(), 'b1-debug-'));
+  const root = testTempDirSync('b1-records-');
+  const debugDir = testTempDirSync('b1-debug-');
   const secret = 'The courier hid the second letter under the well.';
   assert.deepEqual(leakedText({ note: `quote: ${secret}` }, [{ text: secret }]), [secret]);
   assert.deepEqual(leakedText({ count: 3 }, [{ text: secret }]), []);

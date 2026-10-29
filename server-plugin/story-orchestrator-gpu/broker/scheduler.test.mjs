@@ -3,8 +3,8 @@ import assert from 'node:assert/strict';
 import { ResidencyScheduler } from './scheduler.mjs';
 import { footprintKey, FOOTPRINT_REVISION } from './footprints.mjs';
 import fs from 'node:fs/promises';
-import os from 'node:os';
 import path from 'node:path';
+import { testTempDir } from '../../../scripts/lib/testTemp.mjs';
 
 const deferred = () => { let resolve; const promise = new Promise((done) => { resolve = done; }); return { promise, resolve }; };
 const tick = () => new Promise((resolve) => setTimeout(resolve, 0));
@@ -549,7 +549,7 @@ test('an abandoned lease is freed after it goes unrenewed, and a renewed one aft
 });
 
 const fakeCheckpoint = async (mib) => {
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'so-stream-'));
+    const dir = await testTempDir('so-stream-');
     const header = Buffer.from(JSON.stringify({ w: { dtype: 'F16', shape: [1], data_offsets: [0, mib * 1048576] } }));
     const prefix = Buffer.alloc(8); prefix.writeBigUInt64LE(BigInt(header.length));
     await fs.writeFile(path.join(dir, 'sdxl.safetensors'), Buffer.concat([prefix, header]));
@@ -973,4 +973,56 @@ test('an image release target missed three times in a row is dropped, so text re
     assert.equal(replied, true);
     assert.deepEqual(targets, [3088, 3088, 3088, null]);
     assert.equal(scheduler.status().imageResidency.releaseFailures, 0);
+});
+
+function lightSetup({ before, afterLight }, extra = {}) {
+    const state = {};
+    const result = setup({ snapshot: async () => free(state.backend.sleeping?.light ? afterLight : state.backend.profile ? before : 22000),
+        config: { memberCache: { enabled: true, store: 'ram', budgetMiB: 4096, serverKeys: true, keepAcrossImages: true, lightSleep: true, lightSleepFreesMiB: 3000 }, ...extra } });
+    const { backend, calls } = result;
+    state.backend = backend;
+    backend.sleeping = null;
+    backend.status = () => ({ pid: backend.profile ? 42 : null, profile: backend.profile, desiredProfile: backend.desiredProfile, fitTargetMiB: backend.fitTarget, sleeping: backend.sleeping });
+    backend.unload = async (options = {}) => { calls.push(options.light ? 'sleep-light' : 'unload'); backend.sleeping = options.light ? { profile: backend.profile, light: true } : null; backend.profile = null; };
+    backend.dropSleeping = async () => { calls.push('drop'); backend.sleeping = null; return 4096; };
+    return result;
+}
+
+test('with lightSleep an SDXL-sized image frees the text contexts and keeps the weights: decision sleep-context, no shed, no stop', async () => {
+    const { scheduler, calls, backend } = lightSetup({ before: 2000, afterLight: 5000 });
+    const lease = await scheduler.reserve({ workflowKey: 'scene', needGpuMiB: 2816 });
+    assert.equal(lease.decision, 'sleep-context');
+    assert.deepEqual(calls, ['sleep-light']);
+    assert.equal(backend.sleeping.light, true);
+});
+
+test('a light sleep that still leaves the image short stops the sleeping text and swaps as before', async () => {
+    const { scheduler, calls } = lightSetup({ before: 2000, afterLight: 3000 });
+    const lease = await scheduler.reserve({ workflowKey: 'scene', needGpuMiB: 2816 });
+    assert.equal(lease.decision, 'swap-text');
+    assert.deepEqual(calls, ['sleep-light', 'drop', 'free']);
+});
+
+test('an image larger than what a light sleep can free skips it and swaps text out', async () => {
+    const { scheduler, calls } = lightSetup({ before: 2000, afterLight: 5000 });
+    const lease = await scheduler.reserve({ workflowKey: 'edit', needGpuMiB: 17000 });
+    assert.equal(lease.decision, 'swap-text');
+    assert.deepEqual(calls, ['unload', 'free']);
+});
+
+test('with lightSleep an SDXL image too big to fit whole streams beside the kept weights once the contexts are freed', async () => {
+    const modelDirs = await fakeCheckpoint(6600);
+    const state = {};
+    const { scheduler, calls, backend } = setup({ runtime: streamingRuntime, snapshot: async () => free(state.backend.sleeping?.light ? 4600 : 1700),
+        config: { modelDirs, reserves: { gpuMiB: 1024, ramMiB: 2048 }, streamImages: { enabled: true, minFreeGpuMiB: 2400, maxWeightMiB: 8192 },
+            memberCache: { enabled: true, store: 'ram', budgetMiB: 4096, serverKeys: true, keepAcrossImages: true, lightSleep: true, lightSleepFreesMiB: 2800 } } });
+    state.backend = backend;
+    backend.sleeping = null;
+    backend.status = () => ({ pid: backend.profile ? 42 : null, profile: backend.profile, desiredProfile: backend.desiredProfile, fitTargetMiB: backend.fitTarget, sleeping: backend.sleeping });
+    backend.unload = async (options = {}) => { calls.push(options.light ? 'sleep-light' : 'unload'); backend.sleeping = options.light ? { profile: backend.profile, light: true } : null; backend.profile = null; };
+    backend.dropSleeping = async () => { calls.push('drop'); backend.sleeping = null; return 4096; };
+    const lease = await scheduler.reserve(sdxl);
+    assert.equal(lease.decision, 'sleep-context');
+    assert.deepEqual(calls, ['sleep-light']);
+    assert.match(scheduler.status().lastResidency.reason, /streams beside/);
 });

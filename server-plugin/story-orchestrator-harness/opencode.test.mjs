@@ -1,12 +1,12 @@
 import assert from 'node:assert/strict';
 import { EventEmitter } from 'node:events';
 import fs from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
 import { Readable } from 'node:stream';
 import { test } from 'node:test';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { createFakeOpencode, FAKE_MODELS } from './fixtures/fake-opencode-server.mjs';
+import { testTempDirSync } from '../../scripts/lib/testTemp.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const plugin = await import(pathToFileURL(path.join(here, 'index.mjs')).href);
@@ -28,7 +28,7 @@ const until = async (check, ms = 10000) => {
 };
 
 function setup({ fake: fakeOptions = {}, transportOptions = {}, loadLibs, concurrency, queueLimit, extraEnv = {}, fsImpl, models } = {}) {
-    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'so-opencode-test-'));
+    const root = testTempDirSync('so-opencode-test-');
     const bin = path.join(root, 'opencode.exe');
     fs.writeFileSync(bin, '');
     const config = plugin.sanitizeConfig({ tmpRoot: path.join(root, 'tmp'), harnesses: { opencode: { binary: bin, offer: true, ...(concurrency ? { concurrency } : {}), ...(queueLimit ? { queueLimit } : {}), ...(models ? { models } : {}) } } });

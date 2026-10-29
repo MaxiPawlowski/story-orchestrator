@@ -1,17 +1,17 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { cp, mkdtemp, readdir, readFile, writeFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { cp, readdir, readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { compare, reconstruct } from './lib/j6dReplay.mts';
 import { main } from './so-j6d-replay.mts';
+import { testTempDir } from '../lib/testTemp.mjs';
 
 const FIXTURE = join(process.cwd(), 'test/fixtures/j6d/session-synthetic');
 const REPLIES = join(process.cwd(), 'test/fixtures/j6d/replies.json');
 const GOLDEN = join(process.cwd(), 'test/goldens/j6d/replay-summary.json');
 
 const copySession = async (edit?: (dir: string) => Promise<void>) => {
-  const dir = join(await mkdtemp(join(tmpdir(), 'so-j6d-test-')), 'session');
+  const dir = join(await testTempDir('so-j6d-test-'), 'session');
   await cp(FIXTURE, dir, { recursive: true });
   if (edit) await edit(dir);
   return dir;
@@ -91,7 +91,7 @@ test('J6d C compare: the recorded replies replay to the jest golden; no replies 
 });
 
 test('J6d C CLI: reconstruct, prompts and compare run offline; compare without replies exits 2', async () => {
-  const work = await mkdtemp(join(tmpdir(), 'so-j6d-cli-'));
+  const work = await testTempDir('so-j6d-cli-');
   const log = console.log;
   console.log = () => {};
   try {

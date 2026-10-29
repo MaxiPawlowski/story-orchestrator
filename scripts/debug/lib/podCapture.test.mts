@@ -1,10 +1,10 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { createCapture, createLineSplitter, createLlamaLogParser, execArgs, parseMetrics, parseNvidiaSmi, POD_FILES, readJsonl, requestStats, scrubNumbers, segmentLog, splitTick, teardownProblems, tickCommand, tunnelArgs, type PodDeps, type PodTarget } from './podCapture.mts';
+import { testTempDirSync } from '../../lib/testTemp.mjs';
 
 const LOG = [
   'main: server is listening on http://127.0.0.1:8080 - starting the main loop',
@@ -132,7 +132,7 @@ function fakePod({ log = '' as string | null, gpu = '0, 50, 20, 40000, 97887, 60
 }
 
 test('incremental pulls copy the pod log byte for byte, survive a restart as a new segment, and the final pull verifies sha256', async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'so-pod-'));
+  const dir = testTempDirSync('so-pod-');
   try {
     const { pod, deps } = fakePod({ log: `${LOG.slice(0, 7).join('\n')}\n` });
     const capture = createCapture(dir, deps, { maxBytes: 64 });
@@ -162,7 +162,7 @@ test('incremental pulls copy the pod log byte for byte, survive a restart as a n
 });
 
 test('planted: no llama-server log on the pod (LLM_DEBUG_LOG unset) fails the final pull and refuses teardown', async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'so-pod-nolog-'));
+  const dir = testTempDirSync('so-pod-nolog-');
   try {
     const { deps } = fakePod({ log: null });
     const capture = createCapture(dir, deps);
@@ -178,7 +178,7 @@ test('planted: no llama-server log on the pod (LLM_DEBUG_LOG unset) fails the fi
 });
 
 test('planted: a local copy that differs from the pod log is caught by the sha check', async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'so-pod-sha-'));
+  const dir = testTempDirSync('so-pod-sha-');
   try {
     const { deps } = fakePod({ log: 'line one\nline two\n' });
     const capture = createCapture(dir, deps);
@@ -193,7 +193,7 @@ test('planted: a local copy that differs from the pod log is caught by the sha c
 });
 
 test('teardown is refused without a final pull, and when ssh never answered', async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'so-pod-down-'));
+  const dir = testTempDirSync('so-pod-down-');
   try {
     assert.match(teardownProblems(dir).join(' '), /no final pull landed/);
     const { deps } = fakePod({ sshDown: true });

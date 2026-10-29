@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { createHash } from 'node:crypto';
 import path from 'node:path';
-import { DEFAULT_TIER_FLOORS, matchV1, parseTierFloors, scoreContains, scoreIntents, scoreRejected, SCORER_VERSION, suiteVerdict, tierTotals, type FixtureScore } from './lib/liveSuiteScore.mts';
+import { DEFAULT_TIER_FLOORS, matchV1, parseTierFloors, scoreContains, scoreIntents, scoreLiveFixture, scoreRejected, SCORER_VERSION, suiteVerdict, tierTotals, type FixtureScore } from './lib/liveSuiteScore.mts';
 
 test('a tier the fixture says nothing about is not scored, and never counted as passed', () => {
   const outcome = scoreContains('facts', undefined, []);
@@ -45,7 +45,7 @@ test('v2.8 35 G1: needles are whole terms unless the fixture lists them as prefi
   assert.equal(scoreIntents({ expect: [{ subject: 'Mara', anyOf: ['bargain'] }] }, rows).pass, true);
   assert.equal(scoreIntents({ expect: [{ subject: 'Mara', anyOf: ['barg'] }] }, rows).pass, false);
   assert.equal(scoreIntents({ expect: [{ subject: 'Mara', anyOf: ['barg'], modes: { barg: 'prefix' } }] }, rows).pass, true);
-  assert.equal(SCORER_VERSION, 2);
+  assert.equal(SCORER_VERSION, 3);
 });
 
 test('an empty needle is reported as vacuous, not honoured as a pass', () => {
@@ -223,4 +223,11 @@ test('v2.6 plan 01: no extractor fixture carries a vacuous expectation in any ti
   assert.deepEqual(declaredNone, ['extractor10', 'extractor11', 'extractor14', 'extractor16', 'extractor20', 'extractor6', 'extractor7', 'extractor8', 'extractor9']);
   const liveScoped = liveFixtures().filter((name) => expectedOf(name).facts?.scope === 'live');
   assert.deepEqual(liveScoped, ['extractor12', 'extractor17', 'extractor18', 'extractor19']);
+});
+
+test('v3.0 25: a facts-type MEMORY row scored in the facts tier is counted once by the claims tier', () => {
+  const live = { facts: [{ text: 'Mara lost the key.' }], factLines: [], memory: [{ tier: 'facts', text: 'Mara lost the key.' }] };
+  const scored = scoreLiveFixture({ expected: { facts: { mustContain: ['key'] }, claims: { event: ['key'], claimant: ['Mara'] } }, transcript: [] }, live);
+  assert.equal(scored.tiers.find((row) => row.tier === 'facts')?.pass, true);
+  assert.match(scored.tiers.find((row) => row.tier === 'claims')?.detail ?? '', /^1 row\(s\) assert/);
 });

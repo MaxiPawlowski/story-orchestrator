@@ -1,8 +1,7 @@
 import assert from 'node:assert/strict';
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http';
 import { existsSync } from 'node:fs';
-import { mkdtemp, readFile, writeFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { test } from 'node:test';
 import {
@@ -10,6 +9,7 @@ import {
   type BatchItem, type BatchManifest, type Finish,
 } from './promptBatch.mts';
 import { installRecorder, runPageItem } from './promptBatchRecorder.mts';
+import { testTempDir } from '../../lib/testTemp.mjs';
 
 const GENERATE = 'http://127.0.0.1:8131/api/backends/text-completions/generate';
 const finishOf = (json: unknown): Finish => ((json as { stop_type?: string }).stop_type === 'limit' ? 'length' : 'stop');
@@ -44,7 +44,7 @@ test('diffShas names moved, added and removed items', () => {
 });
 
 async function batchDir(bodies: string[], extra: Partial<BatchItem>[] = []) {
-  const dir = await mkdtemp(join(tmpdir(), 'so-prompt-batch-'));
+  const dir = await testTempDir('so-prompt-batch-');
   const map = new Map<string, string>();
   const items: BatchItem[] = bodies.map((body, index) => {
     const sha = sha256(body);
@@ -214,7 +214,7 @@ test('the page recorder answers the text-completion call with the canned reply a
 });
 
 test('writeManifest refuses a body stored under the wrong sha', async () => {
-  const dir = await mkdtemp(join(tmpdir(), 'so-prompt-batch-'));
+  const dir = await testTempDir('so-prompt-batch-');
   const manifest = { format: BATCH_FORMAT, items: [] } as unknown as BatchManifest;
   await assert.rejects(writeManifest(dir, manifest, new Map([['0'.repeat(64), '{}']])), /does not hash/);
   assert.equal(existsSync(join(dir, FILES.manifest)), false);

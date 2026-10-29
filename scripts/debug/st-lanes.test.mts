@@ -1,9 +1,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { batchExitCode, createLineStamper, itemArgs, lanePreflight, rowStatus, runEvidenceRequired, runRowName } from './st-lanes.mts';
+import { testTempDirSync } from '../lib/testTemp.mjs';
 
 test('A29: each child line is stamped when it arrives, a split line once it completes', () => {
   const lines: string[] = [];
@@ -52,7 +52,7 @@ test('v2.5 plan 01: --wi-gating reaches a journey and never a scenario', () => {
 });
 
 test('a lane batch refuses a missing dist/ before any lane runs; the one build passes', () => {
-  const root = mkdtempSync(join(tmpdir(), 'so-lane-preflight-'));
+  const root = testTempDirSync('so-lane-preflight-');
   try {
     assert.match(String(lanePreflight(root)), /no dist\/manifest\.json/);
     mkdirSync(join(root, 'dist'));

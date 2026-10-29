@@ -1,15 +1,15 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
-import os from 'node:os';
 import path from 'node:path';
 import { MemberCache, memberCacheOptions, memberKey, historyCut } from './memberCache.mjs';
+import { testTempDir } from '../../../scripts/lib/testTemp.mjs';
 
 const SYS = '<|turn>system\n';
 const prompt = (member, turns, tail = 'x'.repeat(1500)) => `${SYS}You are ${member}.${'h'.repeat(2500)}<turn|>\n${Array.from({ length: turns }, (_, at) => `<|turn>user\nmessage ${at} ${'m'.repeat(400)}<turn|>\n`).join('')}${SYS}author note ${tail}<turn|>\n<|turn>model\n`;
 
 async function harness({ ram = 20000, budgetMiB = 6144, rewind = true, fail = {} } = {}) {
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'so-member-'));
+    const dir = await testTempDir('so-member-');
     const calls = [];
     const fetchImpl = async (url, init) => {
         const route = new URL(url).pathname + new URL(url).search;
@@ -155,7 +155,7 @@ async function ramHarness({ park = true, cacheN = (prompt) => 0 } = {}) {
         const cached = cacheN(body.prompt ?? '');
         return Response.json({ tokens_evaluated: evaluated, timings: { prompt_n: evaluated - cached, cache_n: cached } });
     };
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'so-member-ram-'));
+    const dir = await testTempDir('so-member-ram-');
     const cache = new MemberCache(memberCacheOptions({ stateDir: dir, memberCache: { enabled: true, store: 'ram', park, budgetMiB: 6144, minPromptChars: 1000, minCutChars: 1000, minTailChars: 100 } }),
         { fetch: fetchImpl, baseUrl: 'http://backend', snapshot: async () => ({ host: { availableMiB: 20000 } }), reserves: { ramMiB: 2048 } });
     await cache.init();
@@ -211,7 +211,7 @@ test('store ram: when idle the reply is parked (the server copies it to its RAM 
 test('store ram with serverKeys tags the prefill and the request with the member key and the cut token count; erase off keeps the slot', async () => {
     const calls = [];
     const fetchImpl = async (url, init) => { calls.push({ route: new URL(url).pathname + new URL(url).search, body: JSON.parse(init.body) }); return Response.json({ tokens_evaluated: 700, timings: { prompt_n: 700, cache_n: 0 } }); };
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'so-member-keys-'));
+    const dir = await testTempDir('so-member-keys-');
     const cache = new MemberCache(memberCacheOptions({ stateDir: dir, memberCache: { enabled: true, store: 'ram', serverKeys: true, erase: false, park: false, minPromptChars: 1000, minCutChars: 1000, minTailChars: 100 } }), { fetch: fetchImpl, baseUrl: 'http://backend' });
     await cache.init();
     const body = { prompt: prompt('Ana', 3), stream: true };
@@ -238,7 +238,7 @@ test('idle prefill warms other members first with their key, skips repeats and y
     assert.throws(() => memberCacheOptions({ memberCache: { enabled: true, idlePrefill: true } }), /idlePrefill/);
     const calls = [];
     const fetchImpl = async (url, init) => { calls.push({ route: new URL(url).pathname + new URL(url).search, body: JSON.parse(init.body) }); return Response.json({ tokens_evaluated: 700, timings: { prompt_n: 700, cache_n: 0 } }); };
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'so-member-idle-'));
+    const dir = await testTempDir('so-member-idle-');
     const cache = new MemberCache(memberCacheOptions({ stateDir: dir, memberCache: { enabled: true, store: 'ram', serverKeys: true, erase: false, park: false, idlePrefill: true, minPromptChars: 1000, minCutChars: 1000, minTailChars: 100 } }), { fetch: fetchImpl, baseUrl: 'http://backend' });
     await cache.init();
     const ana = await cache.before({ prompt: prompt('Ana', 6), stream: true }, 0);
@@ -267,7 +267,7 @@ test('an idle prefill step aborted by an arriving request counts as a yield, not
         if (body.n_predict === 0 && body.cache_ckpt_max === 1e9) { posts += 1; stop.abort(); throw new DOMException('aborted', 'AbortError'); }
         return Response.json({ tokens_evaluated: 700, timings: { prompt_n: 700, cache_n: 0 } });
     };
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'so-member-idle-abort-'));
+    const dir = await testTempDir('so-member-idle-abort-');
     const cache = new MemberCache(memberCacheOptions({ stateDir: dir, memberCache: { enabled: true, store: 'ram', serverKeys: true, erase: false, park: false, idlePrefill: true, minPromptChars: 1000, minCutChars: 1000, minTailChars: 100 } }), { fetch: fetchImpl, baseUrl: 'http://backend' });
     await cache.init();
     await cache.before({ prompt: prompt('Ana', 6), stream: true }, 0);
@@ -282,7 +282,7 @@ test('with checkpointAt the cut is counted with /tokenize and marked on the chat
     assert.throws(() => memberCacheOptions({ memberCache: { enabled: true, store: 'ram', checkpointAt: true } }), /checkpointAt needs/);
     const calls = [];
     const fetchImpl = async (url, init) => { const body = JSON.parse(init.body); calls.push({ route: new URL(url).pathname, body }); return Response.json({ tokens: Array.from({ length: 2345 }, (_, i) => i) }); };
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'so-member-ckptat-'));
+    const dir = await testTempDir('so-member-ckptat-');
     const cache = new MemberCache(memberCacheOptions({ stateDir: dir, memberCache: { enabled: true, store: 'ram', serverKeys: true, checkpointAt: true, serverRewind: true, erase: false, park: false, minPromptChars: 1000, minCutChars: 1000, minTailChars: 100 } }), { fetch: fetchImpl, baseUrl: 'http://backend' });
     await cache.init();
     const body = { prompt: prompt('Ana', 6), stream: true };

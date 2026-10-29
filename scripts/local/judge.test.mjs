@@ -1,11 +1,11 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { childEnv, DEFAULT_JUDGE_ROOT, JUDGE_MODELS, judgeConfig, missingDistributions, readinessLine, requiredGB, serverCommands, setupSteps } from './judgeModels.mjs';
+import { testTempDirSync } from '../lib/testTemp.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 
@@ -97,7 +97,7 @@ test('v2.8 14: the install step is done once its distributions sit in the venv s
 });
 
 test('v2.8 14: plan reports the install step done when the packages are installed, todo otherwise', () => {
-    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'so-judge-plan-'));
+    const root = testTempDirSync('so-judge-plan-');
     try {
         const env = { ...process.env, SO_JUDGE_MODELS_DIR: root };
         const config = judgeConfig(env);

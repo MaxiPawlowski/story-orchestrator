@@ -232,7 +232,7 @@ State column below is current, the 2026-10-26 lines are history. 18-21 on master
 | 19 | Talk pacing: one-shot instruction, yield on question, opening hook | branch `v3.0-talk-pacing` | in build; campaign hooks (63, private plan) wait for its keys |
 | 20 | Visual bridge: identity/place packs, style recipe, resolver, default Qwen recipe, background renders | branch `v3.0-visual-bridge` | stage 1 in build |
 | 21 | Image fixes from playtest 1 | master | done (`2403c70f`, `f96dabda`, `d12deead`) |
-| 25 | Read facts tier below floor on Artemis (`25-read-facts-tier.md`) | master (record only) | 2026-10-28: cause = the model writes facts as MEMORY lines, never FACT; prompt candidate A not adopted (rating format -0.267, intents precision < 0.8 on live x2); 3 owner questions |
+| 25 | Read facts tier below floor on Artemis (`25-read-facts-tier.md`) | master | 2026-10-28: cause = the model writes facts as MEMORY lines, never FACT; prompt candidate A not adopted (rating format -0.267, intents precision < 0.8 on live x2); owner Q1+Q3 done (`v3.0-facts-count`): scorer v3 facts tier = product facts tier, offline rescore 8/20 -> 14/20 (floor 0.68 unchanged); parser keeps hybrid FACT lines (stored-output bug fix, rejected 35 -> 36/36); live suite x2 owed after the controller benchmark; Q2 open |
 
 Research for 18-21: `research/image-audit-2026-10-26.md`, `image-astra-2026-10-26.md`, `image-astra-prep-bridge-2026-10-26.md`,
 `talk-pacing-review-2026-10-26.md`, `talk-astra-2026-10-26.md`. Campaign hook placement: private, `adolion-campaign/docs/talk-hooks-plan-2026-10-26.md`.
@@ -504,6 +504,7 @@ No build order is set. If several reopen at once, by dependency: 02 B before 05.
 | 11 | `11-image-perf-after-unlock.md` image performance after the unlock, ComfyUI flags, image/text thrash: STUB 2026-10-26 (track B1), floors TO DECIDE |
 | 15 | `15-end-test-batch.md` end test batch for the current wave (09 r3, A0, D1/D3/D5/D6/D8, C1, B1 prep, v2.9 freeze): DESIGN 2026-10-26, est. ~6 h GPU (up to ~7.2 h with conditionals), no-model and replay lanes in parallel |
 | 12 | `12-witness-redesign.md` witness record redesign after v2.8 42 W4 FAIL: STUB 2026-10-26 (track C1), floors TO DECIDE |
+| 26 | `26-llama-fork-round-4.md` llama.cpp fork round 4 (light sleep, fast load, read preemption, request-local n-gram): STUB 2026-10-28, floors in `research/llama-fork-opportunities.md` (workload measurement, C1-C9, Sol review) |
 
 ## Decisions (user, 2026-10-03: as recommended)
 

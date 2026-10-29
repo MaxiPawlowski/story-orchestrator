@@ -1,7 +1,7 @@
 From 252ca4db6572943b8d0d0a7d808ec837c5e933c3 Mon Sep 17 00:00:00 2001
 From: MaxiPawlowski <maxipawlowski@gmail.com>
 Date: Mon, 26 Oct 2026 03:36:29 -0300
-Subject: [PATCH 1/6] server: prompt cache key, cache_ckpt_max, no zero-fill of
+Subject: [PATCH 1/8] server: prompt cache key, cache_ckpt_max, no zero-fill of
  cached state buffers
 
 ---
@@ -270,7 +270,7 @@ index d6b6f4b..9b679b3 100644
 From 8f17b1a416f28e24a64f2ac65d7fdfefb36140f1 Mon Sep 17 00:00:00 2001
 From: MaxiPawlowski <maxipawlowski@gmail.com>
 Date: Mon, 26 Oct 2026 04:52:59 -0300
-Subject: [PATCH 2/6] server: keys isolate cache entries both ways, unkeyed
+Subject: [PATCH 2/8] server: keys isolate cache entries both ways, unkeyed
  never evicts keyed, dedup per key, keyed tasks skip foreign slots, validate
  state write length
 
@@ -376,7 +376,7 @@ index dd83b39..c0f89b1 100644
 From 603203f774353a2bafab7c2e7f3df20c189e6420 Mon Sep 17 00:00:00 2001
 From: MaxiPawlowski <maxipawlowski@gmail.com>
 Date: Mon, 26 Oct 2026 07:52:05 -0300
-Subject: [PATCH 3/6] server: checkpoint_at request positions, cache_rewind
+Subject: [PATCH 3/8] server: checkpoint_at request positions, cache_rewind
  saves the state rewound to the cut checkpoint
 
 ---
@@ -532,7 +532,7 @@ index 9b679b3..e65b094 100644
 From 8897e3b7a7efffd367d29437b0af45b388e3fd20 Mon Sep 17 00:00:00 2001
 From: MaxiPawlowski <maxipawlowski@gmail.com>
 Date: Mon, 26 Oct 2026 10:24:10 -0300
-Subject: [PATCH 4/6] server: cache_rewind drops the cut checkpoint it rewound
+Subject: [PATCH 4/8] server: cache_rewind drops the cut checkpoint it rewound
  to (same state stored twice)
 
 ---
@@ -561,7 +561,7 @@ index 5cb53e5..6c200b7 100644
 From 72f8d7d8f0419bde3b5eca81a56b7403d5e8639f Mon Sep 17 00:00:00 2001
 From: MaxiPawlowski <maxipawlowski@gmail.com>
 Date: Mon, 26 Oct 2026 11:12:41 -0300
-Subject: [PATCH 5/6] server: POST /sleep enters the sleeping state at the next
+Subject: [PATCH 5/8] server: POST /sleep enters the sleeping state at the next
  idle point; slot states are saved to the prompt cache before sleeping and the
  cache survives the reload
 
@@ -708,7 +708,7 @@ index b6ebf75..c8efacf 100644
 From 3bae32be635b0c78d694fbc59127c8ce60a7c362 Mon Sep 17 00:00:00 2001
 From: MaxiPawlowski <maxipawlowski@gmail.com>
 Date: Wed, 28 Oct 2026 03:37:01 -0300
-Subject: [PATCH 6/6] server: GET /cache reports prompt cache occupancy without
+Subject: [PATCH 6/8] server: GET /cache reports prompt cache occupancy without
  waking a sleeping server; POST /cache/limit sets the cache size limit
  (applied at once while sleeping, else at the next idle point) and evicts down
  to it
@@ -990,6 +990,900 @@ index c8efacf..7fbf4e7 100644
      ctx_http.post("/v1/responses",             ex_wrapper(routes.post_responses_oai));
      ctx_http.post("/responses",                ex_wrapper(routes.post_responses_oai));
      ctx_http.post("/v1/audio/transcriptions",  ex_wrapper(routes.post_transcriptions_oai));
+-- 
+2.55.0.windows.3
+
+
+From 58785ca519d3eb1df9c3fa1a19761803a35f2e2f Mon Sep 17 00:00:00 2001
+From: MaxiPawlowski <maxipawlowski@gmail.com>
+Date: Wed, 28 Oct 2026 14:43:30 -0300
+Subject: [PATCH 7/8] load timing log lines and staging env knobs; light sleep
+ (POST /sleep level context frees target and draft contexts, keeps weights;
+ wake recreates contexts without fit or warmup); per-request speculative.n_max
+ caps model drafters only
+
+---
+ common/common.cpp               | 44 +++++++++++++++++++
+ common/common.h                 |  9 ++++
+ common/speculative.cpp          | 32 +++++++++++++-
+ common/speculative.h            |  9 ++++
+ src/llama-model-loader.cpp      | 39 ++++++++++++++++-
+ src/llama-model.cpp             |  4 ++
+ tools/server/server-context.cpp | 76 ++++++++++++++++++++++++++++++---
+ tools/server/server-queue.cpp   |  5 ++-
+ tools/server/server-queue.h     |  7 ++-
+ tools/server/server-schema.cpp  |  4 ++
+ tools/server/server-task.h      |  1 +
+ 11 files changed, 218 insertions(+), 12 deletions(-)
+
+diff --git a/common/common.cpp b/common/common.cpp
+index a4b4fea..91506be 100644
+--- a/common/common.cpp
++++ b/common/common.cpp
+@@ -1171,6 +1171,9 @@ struct common_init_result::impl {
+ 
+     std::vector<common_sampler_ptr> samplers;
+     std::vector<llama_sampler_seq_config> samplers_seq_config;
++
++    llama_context_params cparams = llama_context_default_params();
++    bool has_cparams = false;
+ };
+ 
+ static const std::map<common_decision_type, std::string> COMMON_DECISION_TYPE_NAMES = {
+@@ -1256,6 +1259,7 @@ common_init_result::common_init_result(common_params & params, bool model_only)
+     pimpl(new impl{}) {
+     auto mparams = common_model_params_to_llama(params);
+     auto cparams = common_context_params_to_llama(params);
++    const int64_t t_fit0 = ggml_time_us();
+ 
+     if (params.fit_params) {
+         COM_TRC("%s", "fitting params to device memory ...\n");
+@@ -1291,10 +1295,12 @@ common_init_result::common_init_result(common_params & params, bool model_only)
+             params.verbosity >= LOG_LEVEL_DEBUG ? GGML_LOG_LEVEL_DEBUG : GGML_LOG_LEVEL_ERROR);
+     }
+ 
++    const int64_t t_model0 = ggml_time_us();
+     llama_model * model = llama_model_load_from_file(params.model.path.c_str(), mparams);
+     if (model == NULL) {
+         return;
+     }
++    const int64_t t_model1 = ggml_time_us();
+ 
+     pimpl->model.reset(model);
+ 
+@@ -1384,13 +1390,18 @@ common_init_result::common_init_result(common_params & params, bool model_only)
+         cparams.n_samplers = pimpl->samplers_seq_config.size();
+     }
+ 
++    const int64_t t_ctx0 = ggml_time_us();
+     llama_context * lctx = llama_init_from_model(model, cparams);
+     if (lctx == NULL) {
+         COM_ERR("failed to create context with model '%s'\n", params.model.path.c_str());
+         return;
+     }
++    COM_INF("load timing: fit %.1f ms, model %.1f ms, context %.1f ms\n",
++        (t_model0 - t_fit0) / 1000.0, (t_model1 - t_model0) / 1000.0, (ggml_time_us() - t_ctx0) / 1000.0);
+ 
+     pimpl->context.reset(lctx);
++    pimpl->cparams     = cparams;
++    pimpl->has_cparams = true;
+ 
+     set_process_priority(params.cpuparams.priority);
+ 
+@@ -1422,6 +1433,31 @@ std::vector<llama_adapter_lora_ptr> & common_init_result::lora() {
+     return pimpl->lora;
+ }
+ 
++void common_init_result::release_context() {
++    pimpl->context.reset();
++}
++
++bool common_init_result::recreate_context(const common_params & params) {
++    GGML_ASSERT(pimpl->model && !pimpl->context && pimpl->has_cparams);
++
++    const int64_t t_ctx0 = ggml_time_us();
++    llama_context * lctx = llama_init_from_model(pimpl->model.get(), pimpl->cparams);
++    if (lctx == NULL) {
++        COM_ERR("failed to recreate context with model '%s'\n", params.model.path.c_str());
++        return false;
++    }
++    pimpl->context.reset(lctx);
++    pimpl->threadpools.attach(lctx);
++
++    if (!params.lora_init_without_apply) {
++        common_set_adapter_lora(lctx, const_cast<std::vector<common_adapter_lora_info> &>(params.lora_adapters));
++    }
++    reset_samplers();
++
++    COM_INF("load timing: context recreated in %.1f ms\n", (ggml_time_us() - t_ctx0) / 1000.0);
++    return true;
++}
++
+ // only for warmup and probe decodes, fill zeros as dummy input
+ static void common_batch_set_zero_state(common_batch & batch, const llama_model * model, std::vector<float> & zeros) {
+     zeros.assign(llama_model_n_embd_out(model), 0.0f);
+@@ -1507,6 +1543,7 @@ common_init_result_ptr common_init_from_params(common_params & params, bool mode
+ 
+     if (params.warmup) {
+         COM_TRC("%s", "warming up the model with an empty run - please wait ... (--no-warmup to disable)\n");
++        const int64_t t_warm0 = ggml_time_us();
+ 
+         std::vector<llama_token> tmp;
+         llama_token bos = llama_vocab_bos(vocab);
+@@ -1546,6 +1583,7 @@ common_init_result_ptr common_init_from_params(common_params & params, bool mode
+ 
+         // reset samplers to reset RNG state after warmup to the seeded state
+         res->reset_samplers();
++        COM_INF("load timing: warmup %.1f ms\n", (ggml_time_us() - t_warm0) / 1000.0);
+     }
+ 
+     return res;
+@@ -1836,6 +1874,12 @@ void common_threadpools::init(llama_context * ctx, const common_params & params)
+     llama_attach_threadpool(ctx, threadpool, threadpool_batch);
+ }
+ 
++void common_threadpools::attach(llama_context * ctx) {
++    if (threadpool) {
++        llama_attach_threadpool(ctx, threadpool, threadpool_batch);
++    }
++}
++
+ //
+ // Vocab utils
+ //
+diff --git a/common/common.h b/common/common.h
+index 8e3fe2c..4896ae3 100644
+--- a/common/common.h
++++ b/common/common.h
+@@ -1005,6 +1005,12 @@ struct common_init_result {
+ 
+     std::vector<llama_adapter_lora_ptr> & lora();
+ 
++    // free the context (KV cache, compute buffers, graphs) and keep the model weights loaded
++    void release_context();
++
++    // create the context again with the parameters the first load fitted, no fit and no warmup
++    bool recreate_context(const common_params & params);
++
+ private:
+     struct impl;
+     std::unique_ptr<impl> pimpl;
+@@ -1041,6 +1047,9 @@ struct common_threadpools {
+ 
+     void init(llama_context * ctx, const common_params & params);
+ 
++    // attach the pools created by init() to a new context
++    void attach(llama_context * ctx);
++
+ private:
+     ggml_threadpool * threadpool       = nullptr;
+     ggml_threadpool * threadpool_batch = nullptr;
+diff --git a/common/speculative.cpp b/common/speculative.cpp
+index 4305ac6..d500dde 100644
+--- a/common/speculative.cpp
++++ b/common/speculative.cpp
+@@ -439,7 +439,8 @@ struct common_speculative_impl_draft_simple : public common_speculative_impl {
+                 }
+ 
+                 if ((params.n_max <= (int) result.size()) ||
+-                    (dp.n_max > 0 && dp.n_max <= (int) result.size())) {
++                    (dp.n_max > 0 && dp.n_max <= (int) result.size()) ||
++                    (dp.n_max_model > 0 && dp.n_max_model <= (int) result.size())) {
+                     drafting[seq_id] = false;
+                     n_drafting--;
+                     continue;
+@@ -1861,7 +1862,8 @@ struct common_speculative_impl_draft_mtp : public common_speculative_impl {
+                     dp.result_q->emplace_back(cur_p->data, cur_p->data + cur_p->size);
+                 }
+ 
+-                if (params.n_max <= (int) result.size()) {
++                if (params.n_max <= (int) result.size() ||
++                    (dp.n_max_model > 0 && dp.n_max_model <= (int) result.size())) {
+                     drafting[seq_id] = false;
+                     n_drafting--;
+                     continue;
+@@ -2699,6 +2701,9 @@ struct common_speculative_init_result::impl {
+     // note: the order in which model, context, etc. are declared matters because their destructors will be called bottom-to-top
+     llama_model_ptr   model;
+     llama_context_ptr context;
++
++    llama_context_params cparams = llama_context_default_params();
++    bool has_cparams = false;
+ };
+ 
+ common_speculative_init_result::common_speculative_init_result(
+@@ -2746,6 +2751,8 @@ common_speculative_init_result::common_speculative_init_result(
+         }
+ 
+         pimpl->context.reset(ctx_dft);
++        pimpl->cparams     = cparams;
++        pimpl->has_cparams = true;
+     } else if (spec_mtp) {
+         model_path = params.model.path;
+ 
+@@ -2758,7 +2765,28 @@ common_speculative_init_result::common_speculative_init_result(
+         }
+ 
+         pimpl->context.reset(ctx_dft);
++        pimpl->cparams     = cparams;
++        pimpl->has_cparams = true;
++    }
++}
++
++void common_speculative_init_result::release_context() {
++    pimpl->context.reset();
++}
++
++bool common_speculative_init_result::recreate_context(llama_model * model_tgt, llama_context * ctx_tgt) {
++    GGML_ASSERT(!pimpl->context && pimpl->has_cparams);
++    llama_model * model = pimpl->model ? pimpl->model.get() : model_tgt;
++    llama_context_params cparams = pimpl->cparams;
++    cparams.n_ctx     = llama_n_ctx(ctx_tgt);
++    cparams.ctx_other = ctx_tgt;
++    llama_context * ctx_dft = llama_init_from_model(model, cparams);
++    if (ctx_dft == nullptr) {
++        LOG_ERR("%s: failed to recreate the draft context\n", __func__);
++        return false;
+     }
++    pimpl->context.reset(ctx_dft);
++    return true;
+ }
+ 
+ common_speculative_init_result::~common_speculative_init_result() = default;
+diff --git a/common/speculative.h b/common/speculative.h
+index 4262327..d0dacd5 100644
+--- a/common/speculative.h
++++ b/common/speculative.h
+@@ -79,6 +79,9 @@ struct common_speculative_draft_params {
+     // the target's temp and seed, read only when the drafter samples probabilistically
+     float    temp = 1.0f;
+     uint32_t seed = LLAMA_DEFAULT_SEED;
++
++    // per-request cap for the model drafters (draft-simple, draft-mtp), n-gram drafters are not capped (-1 disabled)
++    int32_t n_max_model = -1;
+ };
+ 
+ common_speculative_draft_params & common_speculative_get_draft_params(common_speculative * spec, llama_seq_id seq_id);
+@@ -115,6 +118,12 @@ struct common_speculative_init_result {
+     llama_model   * model();
+     llama_context * context();
+ 
++    // free the draft context and keep the draft model weights
++    void release_context();
++
++    // create the draft context again against a recreated target context
++    bool recreate_context(llama_model * model_tgt, llama_context * ctx_tgt);
++
+ private:
+     struct impl;
+     std::unique_ptr<impl> pimpl;
+diff --git a/src/llama-model-loader.cpp b/src/llama-model-loader.cpp
+index a963f24..26b9a28 100644
+--- a/src/llama-model-loader.cpp
++++ b/src/llama-model-loader.cpp
+@@ -1577,7 +1577,13 @@ bool llama_model_loader::load_all_data(
+ 
+     // 4 staging buffers for async uploads, each sized 1MB seems to be a good default for single NVMe drives.
+     // NVMe raid configurations might require more / larger buffers.
+-    constexpr size_t n_buffers = 4;
++    const char * env_staging_n   = getenv("LLAMA_LOAD_STAGING_N");
++    const char * env_staging_mib = getenv("LLAMA_LOAD_STAGING_MIB");
++    const size_t n_buffers   = env_staging_n   ? std::max<size_t>(2, (size_t) atoi(env_staging_n)) : 4;
++    const size_t staging_mib = env_staging_mib ? std::max<size_t>(1, (size_t) atoi(env_staging_mib)) : 1;
++    int64_t t_read_us = 0, t_wait_us = 0, t_enqueue_us = 0, t_sync_us = 0, t_host_us = 0, t_map_us = 0;
++    size_t n_async_bytes = 0, n_sync_bytes = 0, n_host_bytes = 0, n_map_bytes = 0;
++    const int64_t t_start_us = ggml_time_us();
+ 
+     size_t alignment = 1;
+     for (const auto & file : files) {
+@@ -1585,7 +1591,7 @@ bool llama_model_loader::load_all_data(
+     }
+ 
+     // Buffer size: balance between memory usage and I/O efficiency
+-    const size_t buffer_size = alignment != 1 ? LLAMA_DIRECT_IO_BUFFER_SIZE + 2 * alignment : 1 * 1024 * 1024;
++    const size_t buffer_size = alignment != 1 ? LLAMA_DIRECT_IO_BUFFER_SIZE + 2 * alignment : staging_mib * 1024 * 1024;
+ 
+     std::vector<ggml_backend_buffer_t> host_buffers;
+     std::vector<ggml_backend_event_t> events;
+@@ -1708,6 +1714,8 @@ bool llama_model_loader::load_all_data(
+         const bool from_mapping = use_mmap || lazy.has(cur);
+ 
+         if (from_mapping) {
++            const int64_t t_map0 = ggml_time_us();
++            n_map_bytes += n_size;
+             const auto & mapping = mappings.at(weight->idx);
+             uint8_t * data = (uint8_t *) mapping->addr() + weight->offs;
+ 
+@@ -1743,12 +1751,16 @@ bool llama_model_loader::load_all_data(
+             } else {
+                 ggml_backend_tensor_set(cur, data, 0, n_size);
+             }
++            t_map_us += ggml_time_us() - t_map0;
+         } else {
+             const auto & file = files.at(weight->idx);
+ 
+             if (ggml_backend_buffer_is_host(cur->buffer)) {
++                const int64_t t_host0 = ggml_time_us();
+                 file->seek(weight->offs, SEEK_SET);
+                 file->read_raw(cur->data, n_size);
++                t_host_us += ggml_time_us() - t_host0;
++                n_host_bytes += n_size;
+                 if (check_tensors) {
+                     validation_result.emplace_back(std::async(std::launch::async, [cur, n_size] {
+                         return std::make_pair(cur, ggml_validate_row_data(cur->type, cur->data, n_size));
+@@ -1777,10 +1789,14 @@ bool llama_model_loader::load_all_data(
+                         uintptr_t ptr_dest_aligned = (reinterpret_cast<uintptr_t>(host_ptrs[buffer_idx]) + alignment - 1) & ~(alignment - 1);
+ 
+                         // Wait for previous upload to complete before reusing buffer
++                        const int64_t t_w0 = ggml_time_us();
+                         ggml_backend_event_synchronize(events[buffer_idx]);
++                        const int64_t t_r0 = ggml_time_us();
++                        t_wait_us += t_r0 - t_w0;
+ 
+                         // Read aligned chunk from file
+                         file->read_raw_unsafe(reinterpret_cast<void *>(ptr_dest_aligned), read_size);
++                        t_read_us += ggml_time_us() - t_r0;
+ 
+                         // Calculate actual data portion (excluding alignment padding)
+                         uintptr_t ptr_data = ptr_dest_aligned;
+@@ -1798,9 +1814,12 @@ bool llama_model_loader::load_all_data(
+                         }
+ 
+                         // Async upload actual data to GPU
++                        const int64_t t_e0 = ggml_time_us();
+                         ggml_backend_tensor_set_async(upload_backend, cur,
+                                                       reinterpret_cast<void *>(ptr_data), data_read, data_to_copy);
+                         ggml_backend_event_record(events[buffer_idx], upload_backend);
++                        t_enqueue_us += ggml_time_us() - t_e0;
++                        n_async_bytes += data_to_copy;
+ 
+                         data_read += data_to_copy;
+                         bytes_read += read_size;
+@@ -1810,10 +1829,15 @@ bool llama_model_loader::load_all_data(
+                     }
+                 } else {
+                     // scoped to one tensor so only one staging buffer is alive at a time
++                    const int64_t t_s0 = ggml_time_us();
+                     std::vector<no_init<uint8_t>> read_buf(n_size);
+                     file->seek(weight->offs, SEEK_SET);
+                     file->read_raw(read_buf.data(), n_size);
++                    const int64_t t_s1 = ggml_time_us();
++                    t_read_us += t_s1 - t_s0;
+                     ggml_backend_tensor_set(cur, read_buf.data(), 0, n_size);
++                    t_sync_us += ggml_time_us() - t_s1;
++                    n_sync_bytes += n_size;
+                     if (check_tensors && !ggml_validate_row_data(cur->type, read_buf.data(), n_size)) {
+                         throw std::runtime_error(format("tensor '%s' has invalid data", ggml_get_name(cur)));
+                     }
+@@ -1825,10 +1849,21 @@ bool llama_model_loader::load_all_data(
+     }
+ 
+     // free temporary resources used for async uploads
++    const int64_t t_drain0 = ggml_time_us();
+     for (auto * event : events) {
+         ggml_backend_event_synchronize(event);
+         ggml_backend_event_free(event);
+     }
++    t_wait_us += ggml_time_us() - t_drain0;
++    {
++        const double mib = 1024.0 * 1024.0;
++        const double total_ms = (ggml_time_us() - t_start_us) / 1000.0;
++        const size_t bytes = n_async_bytes + n_sync_bytes + n_host_bytes + n_map_bytes;
++        LLAMA_LOG_INFO("%s: load timing: %.1f MiB in %.1f ms (%.2f GB/s); staging %zu x %zu MiB; async %.1f MiB read %.1f ms wait %.1f ms enqueue %.1f ms; sync %.1f MiB set %.1f ms; host %.1f MiB %.1f ms; mapped %.1f MiB %.1f ms\n",
++            __func__, bytes / mib, total_ms, total_ms > 0 ? bytes / (total_ms * 1e6) : 0.0, n_buffers, staging_mib,
++            n_async_bytes / mib, t_read_us / 1000.0, t_wait_us / 1000.0, t_enqueue_us / 1000.0,
++            n_sync_bytes / mib, t_sync_us / 1000.0, n_host_bytes / mib, t_host_us / 1000.0, n_map_bytes / mib, t_map_us / 1000.0);
++    }
+     for (auto * buf : host_buffers) {
+         ggml_backend_buffer_free(buf);
+     }
+diff --git a/src/llama-model.cpp b/src/llama-model.cpp
+index 1de65c7..38c59d4 100644
+--- a/src/llama-model.cpp
++++ b/src/llama-model.cpp
+@@ -1909,6 +1909,7 @@ bool llama_model_base::load_tensors(llama_model_loader & ml) {
+     // create the backend buffers
+     // note: the buffers are owned by pimpl->ctxs_bufs, this is a raw-pointer view used to load the data
+     std::vector<std::pair<ggml_context *, std::vector<ggml_backend_buffer_t>>> ctx_bufs;
++    const int64_t t_alloc0 = ggml_time_us();
+     ctx_bufs.reserve(ml.ctx_map.size());
+ 
+     // reserve hint: each context creates one buffer per file, or more when its tensors are spread
+@@ -2048,11 +2049,14 @@ bool llama_model_base::load_tensors(llama_model_loader & ml) {
+     }
+ 
+     // load tensor data
++    const int64_t t_data0 = ggml_time_us();
+     for (auto & [ctx, bufs] : ctx_bufs) {
+         if (!ml.load_all_data(ctx, bufs, use_mlock ? &pimpl->mlock_mmaps : NULL, params.progress_callback, params.progress_callback_user_data)) {
+             return false;
+         }
+     }
++    LLAMA_LOG_INFO("%s: load timing: buffers allocated in %.1f ms, tensor data loaded in %.1f ms\n", __func__,
++        (t_data0 - t_alloc0) / 1000.0, (ggml_time_us() - t_data0) / 1000.0);
+ 
+     if (use_mmap_buffer) {
+         for (auto & mapping : ml.mappings) {
+diff --git a/tools/server/server-context.cpp b/tools/server/server-context.cpp
+index 67fe75a..05e0ad3 100644
+--- a/tools/server/server-context.cpp
++++ b/tools/server/server-context.cpp
+@@ -1166,6 +1166,7 @@ private:
+     std::set<std::string> model_tags;    // informational tags
+ 
+     bool sleeping = false;
++    bool light_sleeping = false;
+ 
+     int64_t t_last_load_progress_ms = 0;
+ 
+@@ -1185,6 +1186,26 @@ private:
+         mctx = nullptr;
+     }
+ 
++    // free the contexts (KV, compute buffers, graphs, draft context) and keep the target weights on the device
++    void destroy_contexts(bool free_draft_model) {
++        spec.reset();
++        if (spec_init) {
++            if (free_draft_model) {
++                spec_init.reset();
++                model_dft = nullptr;
++            } else {
++                spec_init->release_context();
++            }
++        }
++        ctx_dft = nullptr;
++
++        llama_init->release_context();
++        ctx_tgt = nullptr;
++
++        mtmd_free(mctx);
++        mctx = nullptr;
++    }
++
+     void publish_cache_state() {
+         if (!prompt_cache) {
+             queue_tasks.cache_prompts = -1;
+@@ -1218,12 +1239,25 @@ private:
+                     }
+                 }
+             }
+-            destroy();
++            const int level = queue_tasks.sleep_level.load();
++            if (level >= 1 && llama_init && llama_init->model()) {
++                const int64_t t0 = ggml_time_us();
++                destroy_contexts(level >= 2);
++                light_sleeping = true;
++                SRV_INF("light sleep (level %d): contexts freed in %.1f ms, weights kept\n", level, (ggml_time_us() - t0) / 1000.0);
++            } else {
++                destroy();
++                light_sleeping = false;
++            }
+         } else {
+             SRV_INF("%s", "server is exiting sleeping state\n");
++            const bool was_light = light_sleeping;
++            const int64_t t0 = ggml_time_us();
+             if (!load_model(params_base)) {
+                 GGML_ABORT("failed to reload model after sleeping");
+             }
++            light_sleeping = false;
++            SRV_INF("%s wake in %.1f ms\n", was_light ? "light" : "full", (ggml_time_us() - t0) / 1000.0);
+         }
+         sleeping = new_state;
+     }
+@@ -1268,6 +1302,7 @@ private:
+         load_progress_data load_progress_spec  (this, "spec_model");
+ 
+         const bool is_resume = sleeping;
++        const bool light_resume = is_resume && light_sleeping && llama_init && llama_init->model() && !llama_init->context();
+ 
+         params_base = params;
+         const auto output_limits = server_output_limits(params_base);
+@@ -1364,7 +1399,14 @@ private:
+             params_base.load_progress_callback_user_data = &load_progress_text;
+         }
+ 
+-        llama_init = common_init_from_params(params_base);
++        if (light_resume) {
++            if (!llama_init->recreate_context(params_base)) {
++                SRV_ERR("%s", "failed to recreate the context after a light sleep\n");
++                return false;
++            }
++        } else {
++            llama_init = common_init_from_params(params_base);
++        }
+ 
+         model_tgt = llama_init->model();
+         ctx_tgt   = llama_init->context();
+@@ -1404,7 +1446,14 @@ private:
+                 params_dft.load_progress_callback           = load_progress_callback;
+                 params_dft.load_progress_callback_user_data = &load_progress_spec;
+ 
+-                spec_init = common_speculative_init_from_params(params_dft, model_tgt, ctx_tgt);
++                if (light_resume && spec_init) {
++                    if (!spec_init->recreate_context(model_tgt, ctx_tgt)) {
++                        SRV_ERR("%s", "failed to recreate the draft context after a light sleep\n");
++                        return false;
++                    }
++                } else {
++                    spec_init = common_speculative_init_from_params(params_dft, model_tgt, ctx_tgt);
++                }
+                 model_dft = spec_init->model();
+                 ctx_dft   = spec_init->context();
+ 
+@@ -3891,6 +3940,7 @@ private:
+                             /* .result_q = */ spec_reject ? &slot.spec_draft_q : nullptr,
+                             /* .temp     = */ slot.task->params.sampling.temp,
+                             /* .seed     = */ slot.task->params.sampling.seed,
++                            /* .n_max_model = */ slot.task->params.spec_n_max_model,
+                         };
+ 
+                         drafting.push_back(&slot);
+@@ -6022,6 +6072,7 @@ void server_routes::init_routes() {
+             { "size_mib",  queue_tasks.cache_bytes.load() / (1024.0 * 1024.0) },
+             { "limit_mib", queue_tasks.cache_limit_bytes.load() / (1024.0 * 1024.0) },
+             { "sleeping",  queue_tasks.is_sleeping() },
++            { "sleep_level", queue_tasks.sleep_level.load() },
+         });
+         return res;
+     };
+@@ -6039,10 +6090,23 @@ void server_routes::init_routes() {
+         return res;
+     };
+ 
+-    this->post_sleep = [this](const server_http_req &) {
++    this->post_sleep = [this](const server_http_req & req) {
+         auto res = create_response(true);
+-        queue_tasks.request_sleep();
+-        res->ok({{ "sleeping", "requested" }});
++        int level = 0;
++        if (!req.body.empty()) {
++            const json body = json::parse(req.body);
++            const std::string name = json_value(body, "level", std::string("full"));
++            if (name == "context") {
++                level = 1;
++            } else if (name == "context-draft") {
++                level = 2;
++            } else if (name != "full") {
++                res->error(format_error_response("level must be full, context or context-draft", ERROR_TYPE_INVALID_REQUEST));
++                return res;
++            }
++        }
++        queue_tasks.request_sleep(level);
++        res->ok({{ "sleeping", "requested" }, { "level", level }});
+         return res;
+     };
+ 
+diff --git a/tools/server/server-queue.cpp b/tools/server/server-queue.cpp
+index 5eb727a..b88ab8c 100644
+--- a/tools/server/server-queue.cpp
++++ b/tools/server/server-queue.cpp
+@@ -112,9 +112,10 @@ void server_queue::pop_deferred_task(int id_slot) {
+     condition_tasks.notify_one();
+ }
+ 
+-void server_queue::request_sleep() {
++void server_queue::request_sleep(int level) {
+     std::unique_lock<std::mutex> lock(mutex_tasks);
+     req_sleep = true;
++    req_sleep_level = level;
+     condition_tasks.notify_all();
+ }
+ 
+@@ -354,7 +355,9 @@ void server_queue::start_loop(int64_t idle_sleep_ms) {
+             // no tasks, check for sleeping state
+             if (should_sleep()) {
+                 QUE_INF("%s", "entering sleeping state\n");
++                sleep_level = req_sleep ? req_sleep_level : 0;
+                 req_sleep = false;
++                req_sleep_level = 0;
+                 sleeping = true;
+                 // Call order cb0 -> cb1 -> cb{N}
+                 for (auto & cb : callback_sleeping_state) {
+diff --git a/tools/server/server-queue.h b/tools/server/server-queue.h
+index 051fb67..cfb8042 100644
+--- a/tools/server/server-queue.h
++++ b/tools/server/server-queue.h
+@@ -20,6 +20,7 @@ private:
+     bool sleeping = false;
+     bool req_stop_sleeping = false;
+     bool req_sleep = false;
++    int  req_sleep_level = 0;
+     int64_t req_cache_limit_mib = -1;
+     int64_t time_last_task = 0;
+ 
+@@ -74,7 +75,11 @@ public:
+     void wait_until_no_sleep();
+ 
+     // enter the sleeping state at the next idle point, whatever the idle timeout
+-    void request_sleep();
++    // level 0 frees everything, 1 frees the contexts and keeps the weights, 2 also frees the draft weights
++    void request_sleep(int level = 0);
++
++    // level of the current or last sleep, set before the sleeping callbacks run
++    std::atomic<int> sleep_level{0};
+ 
+     // prompt cache occupancy, published by the main loop; read from any thread without waking the server
+     std::atomic<int64_t> cache_prompts{-1};
+diff --git a/tools/server/server-schema.cpp b/tools/server/server-schema.cpp
+index 0aae760..0270cb2 100644
+--- a/tools/server/server-schema.cpp
++++ b/tools/server/server-schema.cpp
+@@ -61,6 +61,10 @@ std::vector<std::unique_ptr<field>> make_llama_cmpl_schema(const common_params &
+             ctx.params.checkpoint_at = positions;
+         }));
+ 
++    add((new field_num("speculative.n_max", params.spec_n_max_model))
++        ->set_hard_limits(-1, 64)
++        ->set_desc("Cap the model drafter (draft-mtp, draft-simple) to this many tokens per step for this request, at most the server's n-max (-1 = server value); n-gram drafters are not capped"));
++
+     add((new field_bool("return_tokens", params.return_tokens))
+         ->set_desc("Return the raw generated token ids in the `tokens` field"));
+ 
+diff --git a/tools/server/server-task.h b/tools/server/server-task.h
+index 9292835..b168b6b 100644
+--- a/tools/server/server-task.h
++++ b/tools/server/server-task.h
+@@ -68,6 +68,7 @@ struct task_params {
+     int32_t     cache_ckpt_max = -1; // prompt cache: keep only the newest context checkpoint at or before this many tokens when the state is cached (-1 = all)
+     bool        cache_rewind   = false; // prompt cache: rewind the saved state to that checkpoint, dropping every token after it
+     std::vector<int32_t> checkpoint_at; // prompt positions (in tokens) where a context checkpoint is created during prompt processing
++    int32_t     spec_n_max_model = -1; // per-request cap on model draft length (draft-mtp, draft-simple), at most the server's own n-max (-1 = server value)
+     bool return_tokens   = false;
+     bool return_progress = false;
+ 
+-- 
+2.55.0.windows.3
+
+
+From 8b83266e47249ef106dc3f2215b416c7ebfaee44 Mon Sep 17 00:00:00 2001
+From: MaxiPawlowski <maxipawlowski@gmail.com>
+Date: Wed, 28 Oct 2026 16:38:42 -0300
+Subject: [PATCH 8/8] loader: LLAMA_LOAD_OVERLAPPED reads weights through
+ unbuffered overlapped requests (Windows), staging N in flight
+
+---
+ src/llama-model-loader.cpp | 166 ++++++++++++++++++++++++++++++++++++-
+ src/llama-model-loader.h   |   1 +
+ 2 files changed, 166 insertions(+), 1 deletion(-)
+
+diff --git a/src/llama-model-loader.cpp b/src/llama-model-loader.cpp
+index 26b9a28..433d222 100644
+--- a/src/llama-model-loader.cpp
++++ b/src/llama-model-loader.cpp
+@@ -15,6 +15,16 @@
+ #include <regex>
+ #include <unordered_set>
+ 
++#if defined(_WIN32)
++#ifndef WIN32_LEAN_AND_MEAN
++#define WIN32_LEAN_AND_MEAN
++#endif
++#ifndef NOMINMAX
++#define NOMINMAX
++#endif
++#include <windows.h>
++#endif
++
+ static const size_t kiB = 1024;
+ static const size_t MiB = 1024*kiB;
+ static const size_t GiB = 1024*MiB;
+@@ -580,6 +590,7 @@ llama_model_loader::llama_model_loader(
+         llm_kv = LLM_KV(llm_arch_from_string(arch_name));
+ 
+         files.emplace_back(new llama_file(fname.c_str(), "rb", use_direct_io));
++        file_paths.emplace_back(fname);
+         contexts.emplace_back(ctx);
+ 
+         // Save tensors data offset of the main file.
+@@ -648,6 +659,7 @@ llama_model_loader::llama_model_loader(
+                 }
+ 
+                 files.emplace_back(new llama_file(fname_split, "rb", use_direct_io));
++                file_paths.emplace_back(fname_split);
+                 contexts.emplace_back(ctx);
+ 
+                 // Save tensors data offset info of the shard.
+@@ -699,6 +711,7 @@ llama_model_loader::llama_model_loader(
+         llm_kv = LLM_KV(llm_arch_from_string(arch_name));
+ 
+         files.emplace_back(new llama_file(file));
++        file_paths.emplace_back();
+         contexts.emplace_back(ctx);
+ 
+         // Save tensors data offset info of the main file.
+@@ -1559,6 +1572,79 @@ const void * llama_model_loader::load_data_range(const llama_tensor_weight & w,
+     return data;
+ }
+ 
++#if defined(_WIN32)
++// unbuffered overlapped reads with several requests in flight: the buffered path issues one synchronous read at a time,
++// which an NVMe drive serves far below its sequential rate when the file is not in the page cache
++struct llama_overlapped_reader {
++    HANDLE handle = INVALID_HANDLE_VALUE;
++    std::vector<OVERLAPPED> ovl;
++    std::vector<HANDLE> events;
++    std::vector<DWORD> requested;
++
++    bool open(const std::string & path, size_t depth) {
++        if (path.empty()) {
++            return false;
++        }
++        std::wstring wpath(path.size(), L'\0');
++        const int n = MultiByteToWideChar(CP_UTF8, 0, path.c_str(), (int) path.size(), wpath.data(), (int) wpath.size());
++        if (n <= 0) {
++            return false;
++        }
++        wpath.resize(n);
++        handle = CreateFileW(wpath.c_str(), GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING,
++            FILE_FLAG_NO_BUFFERING | FILE_FLAG_OVERLAPPED | FILE_FLAG_SEQUENTIAL_SCAN, nullptr);
++        if (handle == INVALID_HANDLE_VALUE) {
++            return false;
++        }
++        ovl.assign(depth, OVERLAPPED{});
++        requested.assign(depth, 0);
++        for (size_t i = 0; i < depth; ++i) {
++            events.push_back(CreateEventW(nullptr, TRUE, FALSE, nullptr));
++            if (!events.back()) {
++                return false;
++            }
++        }
++        return true;
++    }
++
++    void issue(size_t slot, void * dst, size_t offset, DWORD len) {
++        OVERLAPPED & o = ovl[slot];
++        o = OVERLAPPED{};
++        o.Offset     = (DWORD) (offset & 0xffffffffull);
++        o.OffsetHigh = (DWORD) (offset >> 32);
++        o.hEvent     = events[slot];
++        ResetEvent(events[slot]);
++        requested[slot] = len;
++        if (!ReadFile(handle, dst, len, nullptr, &o) && GetLastError() != ERROR_IO_PENDING) {
++            throw std::runtime_error(format("overlapped read failed at offset %zu: error %lu", offset, GetLastError()));
++        }
++    }
++
++    size_t wait(size_t slot) {
++        DWORD got = 0;
++        if (!GetOverlappedResult(handle, &ovl[slot], &got, TRUE)) {
++            const DWORD err = GetLastError();
++            if (err != ERROR_HANDLE_EOF) {
++                throw std::runtime_error(format("overlapped read failed: error %lu", err));
++            }
++        }
++        return got;
++    }
++
++    ~llama_overlapped_reader() {
++        for (HANDLE e : events) {
++            if (e) {
++                CloseHandle(e);
++            }
++        }
++        if (handle != INVALID_HANDLE_VALUE) {
++            CancelIoEx(handle, nullptr);
++            CloseHandle(handle);
++        }
++    }
++};
++#endif
++
+ bool llama_model_loader::load_all_data(
+         struct ggml_context * ctx,
+         std::vector<ggml_backend_buffer_t> & bufs,
+@@ -1683,6 +1769,23 @@ bool llama_model_loader::load_all_data(
+         tensors.push_back(cur);
+     }
+ 
++#if defined(_WIN32)
++    // LLAMA_LOAD_OVERLAPPED=1 reads through unbuffered overlapped requests, n_buffers in flight
++    std::vector<std::unique_ptr<llama_overlapped_reader>> ovl_readers(files.size());
++    const char * env_overlapped = getenv("LLAMA_LOAD_OVERLAPPED");
++    if (upload_backend && env_overlapped && atoi(env_overlapped) > 0 && (buffer_size % 4096) == 0) {
++        for (size_t idx = 0; idx < files.size(); ++idx) {
++            auto reader = std::make_unique<llama_overlapped_reader>();
++            if (idx < file_paths.size() && reader->open(file_paths[idx], n_buffers)) {
++                ovl_readers[idx] = std::move(reader);
++            }
++        }
++        LLAMA_LOG_INFO("%s: load timing: overlapped unbuffered reads, %zu in flight of %zu MiB\n", __func__, n_buffers, buffer_size / (1024 * 1024));
++    }
++    int64_t t_ovl_wait_us = 0;
++    size_t  n_ovl_bytes   = 0;
++#endif
++
+     // without mmap, tensors in non-host buffers are staged through a temporary buffer sized like the tensor
+     // load them biggest-first so the largest staging buffer is allocated while the fewest weights are resident
+     if (!use_mmap) {
+@@ -1768,7 +1871,63 @@ bool llama_model_loader::load_all_data(
+                 }
+             } else {
+                 // If upload_backend is valid load the tensor in chunks to pinned memory and upload the buffers asynchronously to the GPU.
+-                if (upload_backend) {
++#if defined(_WIN32)
++                llama_overlapped_reader * ovr = upload_backend && weight->idx < ovl_readers.size() ? ovl_readers[weight->idx].get() : nullptr;
++#else
++                void * ovr = nullptr;
++#endif
++                if (ovr) {
++#if defined(_WIN32)
++                    constexpr size_t sector = 4096;
++                    const size_t offset     = weight->offs;
++                    const size_t read_start = offset & ~(sector - 1);
++                    const size_t read_end   = (offset + n_size + sector - 1) & ~(sector - 1);
++                    const size_t n_chunks   = (read_end - read_start + buffer_size - 1) / buffer_size;
++
++                    std::vector<size_t> chunk_slot(n_chunks);
++                    size_t issued = 0;
++                    auto issue_next = [&]() {
++                        const size_t chunk = issued;
++                        const size_t slot  = (buffer_idx + chunk) % n_buffers;
++                        const int64_t t_w0 = ggml_time_us();
++                        ggml_backend_event_synchronize(events[slot]);
++                        t_wait_us += ggml_time_us() - t_w0;
++                        const size_t pos = read_start + chunk * buffer_size;
++                        const size_t len = std::min(buffer_size, read_end - pos);
++                        ovr->issue(slot, host_ptrs[slot], pos, (DWORD) len);
++                        chunk_slot[chunk] = slot;
++                        issued++;
++                    };
++                    while (issued < n_chunks && issued < n_buffers) {
++                        issue_next();
++                    }
++                    size_t data_read = 0;
++                    for (size_t chunk = 0; chunk < n_chunks; ++chunk) {
++                        const size_t slot = chunk_slot[chunk];
++                        const size_t pos  = read_start + chunk * buffer_size;
++                        const int64_t t_r0 = ggml_time_us();
++                        const size_t got  = ovr->wait(slot);
++                        t_ovl_wait_us += ggml_time_us() - t_r0;
++                        const size_t want_end = std::min(pos + buffer_size, offset + n_size);
++                        const size_t lo = std::max(pos, offset);
++                        if (pos + got < want_end) {
++                            throw std::runtime_error(format("overlapped read of tensor '%s' came back short", ggml_get_name(cur)));
++                        }
++                        const size_t data_to_copy = want_end - lo;
++                        const int64_t t_e0 = ggml_time_us();
++                        ggml_backend_tensor_set_async(upload_backend, cur, (uint8_t *) host_ptrs[slot] + (lo - pos), data_read, data_to_copy);
++                        ggml_backend_event_record(events[slot], upload_backend);
++                        t_enqueue_us += ggml_time_us() - t_e0;
++                        data_read += data_to_copy;
++                        n_async_bytes += data_to_copy;
++                        n_ovl_bytes += got;
++                        if (issued < n_chunks) {
++                            issue_next();
++                        }
++                    }
++                    buffer_idx = (buffer_idx + n_chunks) % n_buffers;
++#endif
++                } else if (upload_backend) {
+                     size_t offset = weight->offs;
+                     alignment = file->read_alignment();
+                     size_t aligned_offset = offset & ~(alignment - 1);
+@@ -1855,6 +2014,11 @@ bool llama_model_loader::load_all_data(
+         ggml_backend_event_free(event);
+     }
+     t_wait_us += ggml_time_us() - t_drain0;
++#if defined(_WIN32)
++    if (n_ovl_bytes > 0) {
++        t_read_us += t_ovl_wait_us;
++    }
++#endif
+     {
+         const double mib = 1024.0 * 1024.0;
+         const double total_ms = (ggml_time_us() - t_start_us) / 1000.0;
+diff --git a/src/llama-model-loader.h b/src/llama-model-loader.h
+index ed59079..71bd8b4 100644
+--- a/src/llama-model-loader.h
++++ b/src/llama-model-loader.h
+@@ -116,6 +116,7 @@ struct llama_model_loader {
+     } lazy;
+ 
+     llama_files files;
++    std::vector<std::string> file_paths; // empty entry when the file was opened from a FILE *
+     llama_ftype ftype;
+     llama_fver  fver;
+ 
 -- 
 2.55.0.windows.3
 

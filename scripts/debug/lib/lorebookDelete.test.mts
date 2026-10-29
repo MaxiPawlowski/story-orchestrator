@@ -1,10 +1,10 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { deleteLorebooksInPage } from './lorebookDelete.mts';
+import { testTempDirSync } from '../../lib/testTemp.mjs';
 
 const FAKE_MODULE = `
 const host = () => globalThis.__soFakeWorldInfo;
@@ -23,7 +23,7 @@ export async function deleteWorldInfo(name) {
 `;
 
 const moduleUrl = (() => {
-  const dir = mkdtempSync(join(tmpdir(), 'so-wi-'));
+  const dir = testTempDirSync('so-wi-');
   const file = join(dir, 'world-info.mjs');
   writeFileSync(file, FAKE_MODULE);
   return pathToFileURL(file).href;

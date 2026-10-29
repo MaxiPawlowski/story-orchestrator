@@ -1,12 +1,12 @@
 import assert from 'node:assert/strict';
 import { EventEmitter } from 'node:events';
 import fs from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
 import { Readable } from 'node:stream';
 import { test } from 'node:test';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { createFakeOpencode } from './fixtures/fake-opencode-server.mjs';
+import { testTempDirSync } from '../../scripts/lib/testTemp.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const plugin = await import(pathToFileURL(path.join(here, 'index.mjs')).href);
@@ -79,7 +79,7 @@ const waitClock = () => {
 };
 
 function setup({ offer = true, concurrency, fsImpl, fake: fakeOptions = {}, configWaitMs = 150, connectWaitMs = SESSION_MS, toolsSettleMs = 300, waitNow } = {}) {
-    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'so-bridge-test-'));
+    const root = testTempDirSync('so-bridge-test-');
     const bin = path.join(root, 'opencode.exe');
     fs.writeFileSync(bin, '');
     const config = plugin.sanitizeConfig({ tmpRoot: path.join(root, 'tmp'), harnesses: { opencode: { binary: bin, offer, ...(concurrency ? { concurrency } : {}) } } });

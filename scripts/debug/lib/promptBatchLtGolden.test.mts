@@ -1,8 +1,7 @@
 import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
 import { existsSync } from 'node:fs';
-import { cp, mkdtemp, readFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { cp, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { test } from 'node:test';
 import { REPO_ROOT } from './bundleEntry.mts';
@@ -10,6 +9,7 @@ import { FILES, readBody, readManifest, readResponses, sendBatch, sha256 } from 
 import { loadBatchKit } from './promptBatchMeasures.mts';
 import { rate } from './promptBatchRater.mts';
 import { loadScenarioKit, lt06, ltCorpus } from './promptBatchScenarios.mts';
+import { testTempDir } from '../../lib/testTemp.mjs';
 
 const GOLDEN = join(REPO_ROOT, 'test/measurements/v2.9/11-b2/lt06-golden');
 const RECAPTURE = 'recapture on a no-model lane: node scripts/debug/st-lanes.mts run <n> -- scripts/debug/so-prompt-batch.mts capture --measurement lt06 --only s01,s05 --profile <memory profile> --out <dir>, then copy manifest.json, bodies/ and contexts/ over the golden';
@@ -67,7 +67,7 @@ async function sendAll(dir: string, leakOn: (prompt: string) => 'none' | 'visibl
 }
 
 test('lt06 golden: the declared stop rule halts at the first hidden leak needle (S3), not at a needle the prompt already shows', async () => {
-  const dir = await mkdtemp(join(tmpdir(), 'so-lt06-stop-'));
+  const dir = await testTempDir('so-lt06-stop-');
   await cp(GOLDEN, dir, { recursive: true });
   const result = await sendAll(dir, (prompt) => (!prompt.includes('SO-V29-06 LT s05') ? 'none' : prompt.includes('Build on these things') ? 'hidden' : 'visible'));
   assert.equal(result.stopped?.stopped, 'S3');
@@ -82,7 +82,7 @@ test('lt06 golden: the declared stop rule halts at the first hidden leak needle 
 });
 
 test('lt06 golden: score gives the per-row facts, rate fills both rater passes blind, and the floors close', async () => {
-  const dir = await mkdtemp(join(tmpdir(), 'so-lt06-score-'));
+  const dir = await testTempDir('so-lt06-score-');
   await cp(GOLDEN, dir, { recursive: true });
   const sent = await sendAll(dir, () => 'none');
   assert.equal(sent.stopped, null);

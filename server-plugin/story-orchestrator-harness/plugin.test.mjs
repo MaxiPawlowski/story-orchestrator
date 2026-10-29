@@ -6,6 +6,7 @@ import path from 'node:path';
 import { Readable } from 'node:stream';
 import { test } from 'node:test';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { testTempDirSync } from '../../scripts/lib/testTemp.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const plugin = await import(pathToFileURL(path.join(here, 'index.mjs')).href);
@@ -37,7 +38,7 @@ const RECORDED = {
     codexQuota: JSON.stringify({ type: 'error', message: "You've hit your usage limit. Upgrade to Pro or try again at Sep 27th, 2026 8:58 PM." }),
 };
 
-const tempRoot = () => fs.mkdtempSync(path.join(os.tmpdir(), 'so-harness-test-'));
+const tempRoot = () => testTempDirSync('so-harness-test-');
 
 const until = async (check, ms = 10000) => {
     const started = Date.now();

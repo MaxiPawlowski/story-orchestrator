@@ -6,10 +6,10 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { diffHeaders, foreignChatGrowth, parseAllow, readBuild, readCampaign, bundleWarning, profileInventory, promptSetup, samplerState, thirdPartyState } from './so-run-header.mts';
+import { testTempDirSync } from '../lib/testTemp.mjs';
 
 test('prompt setup: the header states whether the page runs the thinking setup, from the page values alone', () => {
   const opener = '<|channel>thought' + String.fromCharCode(10);
@@ -326,7 +326,7 @@ test('control: an extension that is not installed reads null, not an empty objec
 });
 
 test('campaign: the pin commit and the installed inventory of the lane are recorded, and a re-import at another commit is a blocking diff (CR-P19)', () => {
-  const dir = mkdtempSync(join(tmpdir(), 'so-campaign-'));
+  const dir = testTempDirSync('so-campaign-');
   const pin = join(dir, 'pin.json');
   const work = join(dir, 'adolion-fresh');
   mkdirSync(work);
@@ -346,7 +346,7 @@ test('campaign: the pin commit and the installed inventory of the lane are recor
 });
 
 test('campaign: off an adolion-fresh lane the inventory reads null without a warning; a missing or broken pin, or a broken inventory, warns', () => {
-  const dir = mkdtempSync(join(tmpdir(), 'so-campaign-'));
+  const dir = testTempDirSync('so-campaign-');
   const pin = join(dir, 'pin.json');
   writeFileSync(pin, JSON.stringify({ commit: 'aaa111' }));
   const plain = readCampaign(pin, join(dir, 'no-lane'));

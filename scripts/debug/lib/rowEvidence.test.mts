@@ -1,10 +1,10 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { appendFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { appendFileSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { collectRowEvidence, recordPathsIn, rowEvidenceProblems, ROW_FILES, sliceServerLog, type RowLane } from './rowEvidence.mts';
 import { POD_FILES } from './podCapture.mts';
+import { testTempDirSync } from '../../lib/testTemp.mjs';
 
 const START = Date.parse('2026-10-07T10:00:00.000Z');
 const END = Date.parse('2026-10-07T10:05:00.000Z');
@@ -48,7 +48,7 @@ function podFixture(root: string, k: number, { tunnel = true, samples = true, lo
 }
 
 test('a complete row: runner log, copied record, page capture, server log slice; page errors and failed requests are surfaced', () => {
-  const root = mkdtempSync(join(tmpdir(), 'so-row-'));
+  const root = testTempDirSync('so-row-');
   try {
     const lane = laneFixture(root);
     const offset = readFileSync(lane.serverLog).length;
@@ -68,7 +68,7 @@ test('a complete row: runner log, copied record, page capture, server log slice;
 });
 
 test('planted: a row whose page capture is missing is INCOMPLETE, never green', () => {
-  const root = mkdtempSync(join(tmpdir(), 'so-row-nopage-'));
+  const root = testTempDirSync('so-row-nopage-');
   try {
     const lane = laneFixture(root);
     const rowDir = join(root, '3', 'debug', 'batch', 'S', 'x-run1');
@@ -83,7 +83,7 @@ test('planted: a row whose page capture is missing is INCOMPLETE, never green', 
 });
 
 test('planted: an empty runner log and a lost record are INCOMPLETE; a not-runnable row needs no record', () => {
-  const root = mkdtempSync(join(tmpdir(), 'so-row-norecord-'));
+  const root = testTempDirSync('so-row-norecord-');
   try {
     const rowDir = join(root, 'row');
     runnerRow(rowDir, { record: false });
@@ -100,7 +100,7 @@ test('planted: an empty runner log and a lost record are INCOMPLETE; a not-runna
 });
 
 test('a pod lane needs the tunnel and pod capture for the row window; with them the row carries tok/s, drops and llama events', () => {
-  const root = mkdtempSync(join(tmpdir(), 'so-row-pod-'));
+  const root = testTempDirSync('so-row-pod-');
   try {
     const lane = laneFixture(root, { pod: 1 });
     podFixture(root, 1, { drop: true });
@@ -128,7 +128,7 @@ test('planted: a pod lane without the capture, without the tunnel log, or withou
     ['no samples', (root: string) => podFixture(root, 1, { samples: false }), /no \/health \/metrics sample/],
     ['no llama log', (root: string) => podFixture(root, 1, { logMissing: true }), /LLM_DEBUG_LOG=1/],
   ] as const) {
-    const root = mkdtempSync(join(tmpdir(), 'so-row-podgap-'));
+    const root = testTempDirSync('so-row-podgap-');
     try {
       const lane = laneFixture(root, { pod: 1 });
       setup(root);
@@ -144,7 +144,7 @@ test('planted: a pod lane without the capture, without the tunnel log, or withou
 });
 
 test('a cloud or no-model lane needs no pod evidence', () => {
-  const root = mkdtempSync(join(tmpdir(), 'so-row-cloud-'));
+  const root = testTempDirSync('so-row-cloud-');
   try {
     for (const lane of [laneFixture(root, { pod: null }), { ...laneFixture(root, { pod: 2 }), noModel: true }]) {
       const rowDir = join(root, 'row');
@@ -159,7 +159,7 @@ test('a cloud or no-model lane needs no pod evidence', () => {
 });
 
 test('server log slice: from the row offset, restarted when the log was rotated, capped from the end', () => {
-  const root = mkdtempSync(join(tmpdir(), 'so-row-slice-'));
+  const root = testTempDirSync('so-row-slice-');
   try {
     const log = join(root, 'server.log');
     writeFileSync(log, 'aaaa\nbbbb\n');
@@ -185,7 +185,7 @@ test('the runner output names the record and the failure dump', () => {
 });
 
 test('B1b: a row whose server log shows a provider outage (DeepSeek 402 Insufficient Balance, 401/403) is INCOMPLETE; a 429 or a 500 alone is not', () => {
-  const root = mkdtempSync(join(tmpdir(), 'so-row-outage-'));
+  const root = testTempDirSync('so-row-outage-');
   try {
     const rowDir = join(root, 'row');
     runnerRow(rowDir, { record: false });
