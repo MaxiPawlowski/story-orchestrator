@@ -16,6 +16,15 @@ Pose import and body measurements need `modelDirs.poseModels` pointing at the in
 matching the media plugin's `modelRoots.poseModels`. ONNX weights use their file size for conservative admission;
 they are not safetensors. Restart the controller after changing its model folders.
 
+## Owned text server
+
+The controller records every llama-server it starts in `<stateDir>/owned-text.json` (pid, binary, port, controller pid)
+and stops it as a tree (`taskkill /t /f`). On start it stops any recorded llama-server, or one listening on
+`backendPort`, that runs `binary` and whose parent controller is gone (`/status` `textOrphans`); a server whose owner
+still runs is left alone. Ctrl-C/close/SIGTERM stop it through the arbiter, a crash stops it on exit, and a detached
+watcher (`textReaper.mjs`, holding a stdin pipe to the controller) stops the recorded servers when the controller is
+killed outright; it logs to `<stateDir>/text-reaper.log`. Code: `orphans.mjs`.
+
 ## Context
 
 Each profile's context is its `--ctx-size`. The gateway counts every completion request with the backend's own
