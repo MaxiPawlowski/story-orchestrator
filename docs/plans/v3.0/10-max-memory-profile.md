@@ -1,7 +1,9 @@
 # Plan 10 — Max-memory profile and tray headroom toggle
 
-**Status: BENCHED 2026-10-29, NOT adopted, NOT merged** (branch `v3.0-a2-maxmem`). Four floors missed as written
-(M3 5-member warm, M4 judge-GPU, M5 post-image hit, H1 RAM); see §Bench record. Floors predeclared 2026-10-28 before any bench. Track A2 (`00-overview.md` §Replan 2026-10-26). Owner decisions that
+**Status: misses ACCEPTED 2026-10-29 (coordinator decision, no retune); candidate L (A2 max + RAM fit + so5 light
+sleep) smoke and regression list run, PAUSED for the owner's GPU use; NOT merged, NOT adopted** (branch
+`v3.0-a2-maxmem`). Four floors missed as written (M3 5-member warm, M4 judge-GPU, M5 post-image hit, H1 RAM); see
+§Bench record and §Candidate L. Floors predeclared 2026-10-28 before any bench. Track A2 (`00-overview.md` §Replan 2026-10-26). Owner decisions that
 apply (§Owner decisions 2026-10-26): (3) max memory is the default and the tray toggle frees headroom; (2) no controller
 change on the owner's install during a play session; (9) R5 48K is tried once A2 works.
 
@@ -365,6 +367,97 @@ Follow-up candidates (not built):
 Not run: the controller regression list and `npm run gates`. The brief merges only when the bench and the list both
 pass; with four floors missed, the ~4.5 h list waits for the owner's call on the misses.
 
+### Decision 2026-10-29
+
+- Coordinator, for the owner: the four misses (M3, M4, M5, H1) are accepted as recorded. Floors are informational, as
+  with 09 A, and none is retuned.
+- Test the config that would be adopted, not X: candidate **L** = A2 max preset + RAM fit, on the so5 binary
+  (`C:/dev/tools/llama-b11888-so5-cu128/llama-server.exe`, plan 26 round 4), with `memberCache.lightSleep true` and
+  `lightSleepFreesMiB 2800` (bench config `bench-controller/10/ctl-L.json`).
+- Stop rule set beforehand: if light sleep and the RAM fit fight (RAM floor broken, or sleep falling back on every
+  image), stop and report instead of adopting.
+
+## Candidate L (2026-10-29)
+
+### Smoke (03:51-04:21Z, `bench-controller/10/logs-smoke/`)
+
+- Parity so5 vs so4, same B1 rotation, 1 repeat each:
+  - chat p50 7,258 vs 7,196 ms (+0.9 %); side 3,271 vs 3,262 ms (+0.3 %); warm 7,259 vs 7,242 ms (+0.2 %);
+  - decode 43.3 vs 41.6 tok/s (+4 %); draft acceptance identical (0.522); 0 errors, 0 rewinds.
+- Image cycles on L (fill rotation, then 2 SDXL scenes, each followed by an 8-request rotation):
+  - lease decision `sleep-context` both times, no fallback to a full sleep; light wake 397-404 ms;
+  - fitCorrection 0, 0 spills, 0 errors in 76 requests;
+  - RAM: lowest inside the leases 8,973 and 12,320 MiB (above `reserves.ramMiB`); outside the leases the only dips under
+    10,240 fall in the release second;
+  - post-image returning hits 0 (the known M5 miss);
+  - **flag**: GPU free fell to 537 and 275 MiB during the renders, under the 1,024 MiB Max reserve, because a light
+    sleeper keeps its weights on the GPU. No spill, no OOM, both renders complete. `render-benchmark` marks each cycle
+    `ok: false` ("crossed a predeclared memory reserve") because the decision was not `stream-image`.
+- Neither stop condition fired: the RAM floor held and light sleep was taken on every image.
+
+### Regression list on L (04:22-08:25Z, lanes 45/33, real generation, thinking on; `logs-reg/`)
+
+Base set:
+- GS1 ×2 strict: GREEN, GREEN (9/9 each; batch `45/debug/batch/2026-10-29T04-22-39-291Z`).
+- J5: GREEN 7/7. J6: GREEN 11/11.
+- `live-v4-turn-types-real`, `v29-a02-stopped-reply`, `live-v28-24-reply-effort`: GREEN. `so-turn-types-check`: ok.
+- T8 prompt batch (the frozen `t8-eb` bodies sent to L, `--expect-count 4`): 4/4, deltas and rejected tiers 1.0.
+- J13 (on arm, `--judge-uses houseRules --warden-mode auto`): no valid green.
+  - Run 1 (in the batch, no arm flags): harness error; the journey refuses to run without an arm.
+  - Run 2: 409 "Text is manually unloaded", left behind by my text-reload probe (harness mistake; `automatic` restored).
+  - Run 3: RED at turn 24/28. The model answered thought-only twice (2,162 and 5,200 reasoning characters); the
+    empty-reply recovery swiped once and kept the second, as designed, and the send reported `ok: false`.
+  - Run 4: stopped at 19/28 by the owner's GPU stop (every turn ok until then).
+- Not runnable on a model lane (their `requires` ask for a no-model lane, so they never reach the controller):
+  v24-02 branch-continue and checkpoint-continue, v28-69-k8-swipe-append, v24-01-stopped, effects-preset,
+  plan03a-edit-rollback.
+- Not run: payload goldens (controller only, no prompt path changes); the full-length rating (not required, B1 parity
+  holds).
+
+RAM member cache rows:
+- GS6: 11/12; GS6.8 is the known promise-row model miss (v2.9 13 C3).
+- `live-rollback-derived`: GREEN.
+- Impersonate round trip on lane 45: 2,761 characters back in the input, no error.
+
+Max/headroom rows:
+- p41 image journey ×2 with live images: GREEN, GREEN (`33/debug/p41/*-a2L-real-run1|2`). Reserve sample beside each
+  (2 s): fitCorrection max 0, no spill, no crash, 0 reserve errors, 1 reclaim per run.
+- Unleased SDXL render straight to ComfyUI (`render-survival --via direct`):
+  - during a max -> headroom toggle reload: completed 36 s after the event (pass);
+  - during a text unload + automatic reload + reply: completed 33 s after the event (pass). The first try ran `unload`
+    alone, so no reload happened; it is not counted.
+- Comfy-kill (`render-survival --via media`): **miss, in the media plugin, not A2** (`story-orchestrator-media/jobs.mjs`
+  is untouched by this branch; this is the checker's first run):
+  - ComfyUI killed and left down: the job never settles; `poll` throws "fetch failed" before the 15-minute cancel.
+  - ComfyUI killed and restarted 10 s later: failed at 90.8 s, the 60 s dropped rule counted from the restart.
+  - Restarted at once after the kill: "Owned ComfyUI process exited before becoming ready"; a later `start-comfy` works.
+- Not run: `so-sprite-builder` interleave and `sagaBatchPriority` (campaign images on hold), `retainBatchLi` (needs its
+  own broker and text port), the judge-GPU row (M4, accepted miss).
+- Controller `/status` at the end:
+  - mode max, fitCorrection 0, no spill, lastError null;
+  - member cache hits 25 / misses 54, restore failures 0, refits 19, trims 7, `makeRoomUnsupported` 0;
+  - sleeps 18 (8 light), wakes 14, wake failures 0, stray wakes 0.
+  - The 15 s status sampler was started with wrong arguments and recorded nothing; the reserve samples and this
+    snapshot stand in for it.
+
+### Pause 2026-10-29 08:25Z
+
+- The owner asked for the GPU. Stopped: J13 run 4, every harness child, the L controller (with its ComfyUI and
+  llama-server), landmarks, lanes 42/45/33. nvidia-smi afterwards: 499 / 24,576 MiB, 0 %.
+- Owner controller left stopped, `config.json` unchanged (sha `d48e439d`), tray untouched.
+- Remaining on resume:
+  - one clean J13 on-arm run;
+  - full `npm run gates` (no `--resume`), then merge `--no-ff` and push;
+  - adoption: back up `config.json` to `C:\dev\backups\story-orchestrator\local-config.before-a2-2026-10-29.json`; set
+    `binary` to so5 and `memberCache.lightSleep true` / `lightSleepFreesMiB 2800`; `mode-reset max,headroom`;
+    `mode max`; tray file from `bench-controller/10/tray-story-orchestrator.a2.json`; restart; check `/status`
+    (sleepStats present, fitCorrectionMiB 0).
+
+Follow-up candidates found here (not built):
+- Media jobs: count unreachable ComfyUI polls toward the 60 s dropped timer, so a dead ComfyUI fails the job.
+- Light sleep and the Max GPU reserve: either count the light sleeper's weights in admission or accept the dip; the
+  owner decides (no spill seen).
+
 ## Gate record
 
 Offline handover 2026-10-28 (worktree `C:\dev\so-a2`, no GPU used, live controller, `config.json` and tray untouched):
@@ -377,3 +470,8 @@ Offline handover 2026-10-28 (worktree `C:\dev\so-a2`, no GPU used, live controll
 - so4 binary: built with `build-llama.bat` (368/368, no errors) at idle CPU priority while the live controller served (no GPU);
   never started, so the routes are unexercised until B2.
 - Not run: `npm run gates` (owed at merge), the bench, the regression list.
+
+Candidate L, 2026-10-29 (GPU window, owner not playing):
+- Misses accepted (coordinator decision); smoke and regression list as in §Candidate L; evidence archived with
+  `so-evidence.mts archive --label v30-a2-L` and `npm run sessions:archive`.
+- Not run yet: `npm run gates` (held while the owner uses the machine), merge, adoption.
