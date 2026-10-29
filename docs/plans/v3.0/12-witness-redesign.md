@@ -553,7 +553,12 @@ already fails FI.
 - Run: `node scripts/debug/so-witness.mts candidates --out C:/dev/story-orchestrator/test/sessions/witness-real --sessions
   C:/dev/story-orchestrator/test/sessions --freeze …/freeze-adjudicated.json --presence …/presence-reads.json --lab-story
   C:/dev/adolion-campaign/build/story/adolion-academy.story.json --write …/candidates-2026-10-29.json` exit 0 (`8fa515b2…`).
-- Gates: GATES_PLACEHOLDER
+- Gates: `npm run gates:quick` green in 416.9 s (defect replay 32/32 killed); `npm run debug:typecheck` clean; `node --test
+  scripts/debug/witnessCandidates.test.mts` 5/5. `npm run gates` (no `--resume`) first run RED only at `test-storybook:ci`
+  (port 6006 held by another worktree's Storybook, environment; every other step green); second run after the port freed:
+  **all green in 878.6 s** (jest 10,809 passed / 1 skipped; test:debug 1,665; Storybook 167 suites / 1,010 stories; build,
+  typecheck, typecheck:test, lint, debug:typecheck, test:replay, test:plugin, test:release ok).
+- Not merged (coordinator). Nothing staged or installed; owner ST, lane 0, GPU and controller untouched.
 
 ## Unresolved questions
 
