@@ -406,55 +406,51 @@ No GPU, no model; no-model lane 85 (lanes root `C:\dev\so-live-lanes`) on the pr
 - 2026-10-17: run schedule and pod budget in plan 71 §Owner arrangement.
 
 
-## Gate record (2026-10-25, lean suite on G `d6d6aed5`, bundle `1148eb7af1b9`; reruns on H `6d84dc1d`, bundle `6dde70ebffae`)
+## Gate record 2026-10-24 (lean night on the 3090, master `d6d6aed5`, bundle `1148eb7af1b9`)
 
-Owner revision 2026-10-17 (lean, x1 per row). Supersedes the 2026-10-23 partial night on F `9d88d992` (paused on the owner's call;
-its W4 partial reads kept as `test/sessions/witness-real/reads-F-partial-2026-10-23`, not scored).
+- Window 2026-10-24 02:41-04:21Z, local 3090 through the controller (automatic), ONE model lane: lane 41, adolion-fresh at campaign
+  pin `4762f0ff` (0 problems at seed), Artemis v1.1 (`Artemis RunPod RP`, context 32768), thinking and inner voice on, judge on
+  TypeSafe, images and sprites off. Build: master `d6d6aed5` built and staged into the ST slot before the night (`npm run build &&
+  npm run stage`; served hash = manifest `1148eb7af1b9`). Deviation: not the frozen build F `9d88d992` (lane 45) the queue named;
+  every row ran on master, so this is a post-freeze shakedown, not the F verdict. Every row x1 (owner lean rule); a failing row got
+  one rerun only where it was cheap (45 seal).
+- Header: `so-run-header capture` before (`C:\dev\so-lanes\41\debug\night\header-pre.json`) and `diff` after: one difference,
+  `display.playerSetup true -> false` left by the failed 45 seal runs' cleanup; set back to true by hand, diff then 0 (exit 0).
+- Evidence `C:\dev\so-lanes\41\debug\night\` (logs) and each lane's `debug/runs/`; journey records
+  `C:\dev\so-lanes\41\debug\2026-10-24T03-31-45-780Z_journey-GS6.json`, `...T04-06-25-357Z_journey-GS1.json`. They hold campaign
+  state, so they are archived to so-sessions (`so-evidence.mts archive`), not to `test/journeys/records/` in this public repo.
 
-- Freeze G: master `d6d6aed5`, local tag `suite-G-v2.8` (a `v*` tag on HEAD trips test:release R4 release mode, so renamed),
-  bundle 1,298,246 B (budget 1,300,000). `npm run gates` x1 all green 481.5 s (Storybook included). Deviation: x1, not x2.
-  Staged + `plugins:install` (unchanged); served = built (`so-run-header` `bundle.served.sha256` = dist).
-- Freeze H (reruns only): master `6d84dc1d`, tag `suite-H-v2.8`, bundle 1,298,271 B; `npm run gates` green 364.8 s. Carries the
-  rollback fix (below), the so-journey cleanup-order fix `8e378dab`, plan 11 B1/B2 (scripts only).
-- Pre-flight: lane 45 re-seeded `adolion-fresh seed 45` at pin `4762f0ff` (0 problems; drift = pin commit + 9 story hashes,
-  baseline replaced); controller `automatic`, GPU free 23.6 GB; owner ST down (not playing); images/sprites off by the seed;
-  header `run-header-suite-G-base.json` 0 warnings.
-- Budget: 3090 only, about 2.0 h model time (W4 22 min, GS6 38 min, GS1 20 min, 47 x2 21 min, T8 2 min, seal x2 20 min);
-  TypeSafe judge on; Sol: GS1.1 briefing + GS1.9 Ask; DeepSeek 0 EUR.
-- 42 W4 recorder (G): 74 reads, 0 outages. FAIL (informational, decision-bearing). Real sessions: exact-set 13/147 (0.088, floor
-  0.9), false inclusion 339/471 (0.72, floor 0.02), false exclusion 4/574, coverage 153/192 (0.80, floor 0.85), mixed 0/11; null
-  control (presence) exact-set 144/171 (0.84). Lab: exact-set 3/21, 17 lines rejected ("unknown member player"). Wc: added input
-  p95 150 (floor 120), output p95 282 (floor 160), latency p95 24.6 s vs 21.1 s (floor x1.15) all miss; length rate 0/0 ok.
-  Shape: the read answers `heard=all-present` on almost every message. Decision 9 (43 R-Gate2) not triggered. Record:
-  `test/sessions/witness-real/score-real-G.json` (private tree).
-- GS6 (G): 11/12, first try 11/11, cleanup clean. FAIL GS6.8 (no promise row after the promise turns and a read; real-model
-  miss on the saga carrier). Header diff found `display.playerSetup` left off: harness defect (cleanup restored the setting before
-  the config snapshot that held the suppressed value), fixed `8e378dab`, lane restored. Record batch `2026-10-25T08-00-03-602Z`.
-- GS1 (G, run with the cleanup fix): 9/9 automated, first try 9/9, cleanup clean; GS1.10 human copy check SKIP (second-model
-  rating owed). Doubles as the inner-beat real recheck (GS1.2 green). Record batch `2026-10-25T08-46-11-803Z`.
-- 47 promises: G run FAIL (step 13: deleting the keeping turn left the kept event; step 10 read kept=1, so not vacuous).
-  Product defect: a burst delete whose earlier delete already stepped the engine back made `engine.rollbackTo` answer noop and
-  `rollbackOnce` returned before `quarantine()`, keeping per-message rows (promises, checks, observations, audits, ...) at the
-  deleted message. Fixed `5be3a107` (`settleInPlace` for both in-place paths; jest case red on old code). H rerun PASS.
-  Records `2026-10-25T09-06-40-461Z` (G), `2026-10-25T09-33-57-395Z` (H).
-- T8 (G): 0.75 (3/4), floor 0.9, FAIL (informational): timewindow04 flashback control read "morning" again (same as the two
-  2026-10 runs). Report `so-live-suite-t8-G-report.json`.
-- 45 seal: G run FAIL (fixture: `sealNow()` raced the automatic final seal, returned null; word split `/s+/`). Fixture fixed
-  (waits for the automatic final record). H rerun: epilogue = joined-summaries fallback. Cause (lane server.log): attempt 1 was
-  ~110 words (< 120), attempt 2 (~250 words) was refused for "names not in the records" that the prompt's own HOW IT ENDED lines
-  supplied: product defect, fixed `c5e3546b` (verifySaga's known text includes the outcome lines; jest case red on old code).
-  I rerun (staged from the gated worktree build of `c5e3546b`, bundle `9f0bfb781af5`, 1,299,999 B): epilogue 177 words, not the
-  fallback (floor met); the final record was `degraded` and the carry picker did not offer the finished run: FAIL, open as
-  v2.9 13 C2. Records `2026-10-25T09-16-06-550Z` (G), `2026-10-25T09-40-40-934Z` (H), `2026-10-25T11-10-29-798Z` (I).
-- Build I note: the main checkout builds `c5e3546b` at 1,300,002 B (module ids follow the folder layout) while the worktree
-  builds 1,299,999 B; staged from the worktree build; headroom is v2.9 13 C7.
-- Image POC rows (41 journey, 33 latency pair): not run (owner: images on hold).
-- Header diffs: after W4, GS6 (1 blocking: playerSetup, harness, fixed), GS1, 47, T8: 0 undeclared after the fix.
-- Evidence: `so-evidence archive --label lean-suite-G-20261025 --lanes 45` (1,174 files; the 976 MB lane server.log stored
-  gzipped, original sha in ARCHIVE.json `gzipOf`), so-sessions `0eb30314`.
-- Verdict: PARTIAL. Green: GS1 9/9, 47 (H), 45 epilogue (I). Red: W4 (feature unconsumed; moved to v3.0), GS6.8 (13 C3), T8
-  control (13 C4), 45 record/picker (13 C2). Defects fixed in this run: burst-delete rollback, journey cleanup order, epilogue
-  name check.
-- 45 seal rerun 2026-10-25 (v2.9 13 C2, batch `2026-10-25T13-04-09-059Z`, lane 45, after `f6740313`: possessive names in the
-  record check, outcome names in verifySaga, fixture waits for the automatic seal): **PASS** x1. Epilogue not the fallback
-  (>= 120 words), final record not degraded, the picker lists the finished run, the carry seed lands before boundary 0.
+Rows:
+- 42 W4 recorder (I, decision-bearing): resumed `so-witness.mts record --arm both` (16/37 on and 17/37 off were saved earlier, on an
+  older build; the rest ran on master), now 37/37 per arm. Then `reads`, `wc`, `score-real --adjudicated`. **Fail.**
+  - Real sessions (192 messages): exact set 16/152 = 0.105 (floor 0.9), false inclusion 359/471 = 0.762 (W4fi floor 0.02), false
+    exclusion 4/574 = 0.007 (floor 0.1, met), coverage 160/192 = 0.833 (floor 0.85), mixed detection 0/11, span false inclusion
+    79/79. The presence null control scores higher (exact 144/171 = 0.842, fi 18/471 = 0.038): the read's witness lines are worse
+    than "everyone present heard it"; the model lists members who were not there.
+  - Lab (40 messages, 5 reads): exact 3/21 = 0.143, fi 35/427 = 0.082, fe 36/143 = 0.252, coverage 22/40 = 0.55; 17 witness lines
+    rejected as `unknown member "player"` (the model names the player as a witness; the contract has no such member).
+  - Wc (37 pairs): added input p95 163 tokens (floor 120, missed), added output p95 305 (missed), length rate 0/0 (met), latency
+    p95 on 40.5 s vs off 22.5 s (missed). Live-suite Wc row still owed.
+  - Not diagnosed further; 43 (VR rows) stays closed (needs W4/W4fi to pass).
+- GS6 adoption play (A): `so-journey.mts run GS6` **11 pass, 1 fail**, cleanup clean, first try 11/11. GS6.8 promise row failed: no
+  promise row after the promise turn and a read (real model). Every other world-layer check green (codex after gate and gone on
+  swipe, label reveal, faction band, rumor private, recap What changed, story time monotonic, public check waits, scene test/carry
+  census, reopen).
+- GS1 first hour (A): `so-journey.mts run GS1` **9/9 pass**, cleanup clean, first try 9/9; 1 human row unscored (owner/second model).
+- 47 promises live (A): `so-scenario.mts run test/scenarios/live-v28-47-promises.json --sandbox` **fail** at step 13 of 14: the
+  promise row landed and its `kept` event was read (step 10: rows 1, events [kept]), but deleting the keeping turn (message 9) left
+  the `kept` event (source message 9, input range 4-11). `rollbackPromises` itself drops events at or after the message, so either
+  the delete did not reach the quarantine path or a read in flight re-landed the event afterwards. Same row as the earlier RED x2
+  (fix `6e8d782e`); still red on master.
+- T8 time windows (A, floor informational): `so-live-suite.mts run --set time` plot-delta accuracy **0.75** (3/4; floor 0.9, missed
+  again): timewindow04 expected no time delta, the read answered `life_time_read="morning"`; rejected tier 4/4.
+- 45 seal (A): `so-scenario.mts run test/scenarios/live-v28-45-seal.json --sandbox` **fail x2** (deterministic, step 16 of 37):
+  `rt.chapters.sealNow()` returned null 60-90 ms after the tower transition. `ChapterSeal.seal` returns null while a seal is in
+  flight or when that chapter part exists, so the transition's own seal is the likely holder; not diagnosed. Carry/sequel legs not
+  reached.
+
+Verdict: lean night **NOT green**: GS1 green; GS6 11/12 (GS6.8); 47 promises red (rollback leaves the kept event); 45 seal red; T8
+below its informational floor; W4 recorder fails every W4 floor and its null control.
+
+Deviations: master build instead of F; W4 on arm mixes two builds (first 16 reads older); rows x1; journeys not archived to the
+public records tree (campaign state).
