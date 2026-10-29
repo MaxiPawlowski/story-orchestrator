@@ -1,7 +1,7 @@
 # Plan 10 — Max-memory profile and tray headroom toggle
 
-**Status: BUILT on branch `v3.0-a2-maxmem` (worktree `C:\dev\so-a2`), floors predeclared 2026-10-28 before any bench.
-No bench run, nothing adopted, nothing merged.** Track A2 (`00-overview.md` §Replan 2026-10-26). Owner decisions that
+**Status: BENCHED 2026-10-29, NOT adopted, NOT merged** (branch `v3.0-a2-maxmem`). Four floors missed as written
+(M3 5-member warm, M4 judge-GPU, M5 post-image hit, H1 RAM); see §Bench record. Floors predeclared 2026-10-28 before any bench. Track A2 (`00-overview.md` §Replan 2026-10-26). Owner decisions that
 apply (§Owner decisions 2026-10-26): (3) max memory is the default and the tray toggle frees headroom; (2) no controller
 change on the owner's install during a play session; (9) R5 48K is tried once A2 works.
 
@@ -44,8 +44,9 @@ whenever something else needs RAM.
    - At each text load: `--cache-ram = available − text RAM − floor`, in 256 MiB steps, between 1024 and the ceiling.
      Text RAM is learned per profile from the previous load's RAM drop; the first load uses `estimatedRamMiB`.
      `/status` → `text.cacheBudget`, `text.textRamMiB`.
-   - With `/cache`, the limit follows free RAM after every idle chat reply and on every settings change (refit). It
-     drops at once and rises only by 512 MiB or more.
+   - With `/cache`, the limit follows free RAM before every planned chat (applied and confirmed before the request runs),
+     after every idle chat reply and on every settings change (refit). It keeps room for one more entry, drops at once
+     and rises only by 1 GiB or more (v2, `fc6310be`, after the B3 v1 miss).
 5. **Presets** (`scripts/local/modes.mjs`):
    - **max** (default): GPU 1024, RAM 2048, stream on/2400, idle restore 180 s, warm, fit 512, cache ceiling 12,288,
      `fitRam` on.
@@ -231,6 +232,138 @@ windows.
 - Should the tray keep Balanced and Safe at all, now that headroom exists? They sit under "Other modes" in the draft.
 - R5: after the probe, does the owner want a 48K SillyTavern preset trial (that is the owner's data and an
   output-changing context change), or should it stay a measurement?
+
+## Bench record (2026-10-28 16:13Z to 2026-10-29 03:44Z)
+
+Runner `C:\dev\so-lanes\bench-controller\10\run-a2.sh`. Evidence: `C:\dev\so-lanes\bench-controller\10\logs\` and lane 42
+runs, archived to so-sessions `evidence/phase-c/v30-a2-maxmem-bench/` (lane 42 + `extra/bench-controller-10/`).
+
+Interruptions (controller handed over and taken back each time, owner config untouched):
+- the r4 fork agent's GPU window, 17:37Z-22:27Z;
+- the owner's GPU pause, 00:20Z-02:08Z.
+The owner's controller was stopped from B0 until B6. It came back at 03:44Z on its unchanged config (sha256 `d48e439d…`):
+Max, cache 4096, fit 0, GPU free 2,084 MiB. Backup: `C:\dev\backups\story-orchestrator\local-config.before-a2-20261028T1613Z.json`.
+
+Bench changes made while it ran, none of them a floor change:
+- `replay-gateway` replaced by `seq-replay.mjs` (sequential, 1 s gap). The first B3 control arms overran the gateway queue
+  at the capture's retimed offsets (36 of 65 requests failed), so they are void.
+- `ready()` waits for the text load instead of racing `restore`.
+- B4 aborts when the live head does not start.
+
+### B1 parity (so4 vs so3, 2 repeats each, `corpus-rate.json`): pass
+
+- Chat TTFT p50 7,205 vs 7,204 ms (0 %).
+- Side TTFT p50 3,333 vs 3,278 ms (+1.7 %).
+- Warm member switch 7,288 vs 7,213 ms (+1.0 %).
+- Decode 43.2 vs 42.9 tok/s (+0.7 %), acceptance 0.522 vs 0.519.
+- 0 errors.
+
+### B2 endpoints: pass
+
+- `GET /cache` reported the fitted limit (6,400 MiB at a load with 19,674 MiB available).
+- `POST /cache/limit {"mib":2048}` set it to 2,048.
+- `{"mib":0}` was refused with 400.
+
+### B3 member rotation
+
+- **v1 (`2ba65eb1`): M1 miss.** The load-time fit set 8,192 MiB. Text used more RAM after `/health` than the load
+  measured, and the next save landed before any refit. RAM available fell to 1,565 MiB (22:30:31Z) with the cache at
+  7.8 GiB, and 101 of 747 samples were under 10,240. Kept in `logs/B3X-v1-miss`.
+- **Fix v2 (`fc6310be`).**
+  - A refit runs before every planned chat: the limit is applied, and confirmed with `GET /cache`, before the request runs.
+  - The target keeps room for one more entry.
+  - The limit is raised only by 1 GiB or more.
+- The first v2 control arms ran during the r4 CPU build (RAM low 5,069 MiB, kept in `logs/B3C-r4window`), so both arms were
+  rerun together at 22:58-23:45Z.
+- v2 results:
+  - M1 pass. Lowest RAM available after the first 30 s: X 11,709 (3-member) and 10,703 MiB (5-member); control 14,452 and
+    13,155; 0 samples under 10,240.
+  - M2 pass. Returning-member hit share: 5-member X 0.807 against the 0.60 floor (control 0.14); 3-member X 0.822 against
+    control 0.467.
+  - M3:
+    - 3-member pass: warm 5,814 vs 5,597 ms (104 %), cold 10,110 vs 14,173 ms, decode 43.05 vs 43.11.
+    - 5-member **miss as written** on warm: 5,716 vs 4,142 ms (138 %). The control's warm median rests on 8 hits, mostly
+      early, short prompts. Cold passes: 9,951 vs 9,932 ms (100.2 %). Decode passes: 42.97 vs 42.80.
+    - Chat TTFT p50 overall: X 5,742 vs 7,347 ms on 3 members, 5,027 vs 8,052 ms on 5 members (−38 %).
+  - M6 pass. `native.sizeMiB` never exceeded the limit. After the fill, native size is 89-91 % of llama-server's
+    private-bytes growth (4,498 of 5,048 and 5,909 of 6,463 MiB), inside ±15 %.
+  - Errors, spills, fit corrections, stray wakes: 0.
+
+### B4 images
+
+- **Run 1, with a GPU-layered local judge** (decider-4b, 99 layers, ~4 GiB VRAM): stopped during the control arm.
+  - The control config (the owner's current one) could not hold the full text: fit corrections ~5.7 GiB, spill-recovery
+    reloads.
+  - **M4 judge-GPU row: miss**, for the control config itself. Not caused by A2: both arms use the same 1,024 MiB GPU
+    reserve. Kept in `logs/B4-judgegpu`.
+- Two retries aborted:
+  - a popup on the reused lane-42 page blocked the live head;
+  - SOLH synthetic assets left by the killed hold run. Removed with `so-assets remove --marker SOLH`; `assert-clean` was ok.
+- **Clean run** (02:10-02:57Z): live head on lane 42 (held 2,700 s, renderer RTX 3090, `contexts: 1`, PASS) and the landmark
+  service; 3 SDXL scenes per arm with rotation turns in between.
+  - M1 pass.
+    - X: lowest RAM outside leases 10,530 MiB, 0 of 1,266 samples under the floor; inside leases 12,758; 0 RAM-short
+      refusals.
+    - Control: 9,657 MiB outside leases, with 75 samples under 10,240. The current config misses the floor that A2 holds.
+  - M4 pass (live head + landmarks). `so-controller-checks reserve score` passes for both arms; 0 spills, fit 0, 0 stray
+    wakes, 0 errors.
+  - M5:
+    - Image → next reply p50 53.2 vs 49.9 s (107 %, pass). Cycles: X 78.9/51.4/53.2 s, control 78.5/49.9/47.2 s.
+    - Every lease admitted (swap-text, sleep/wake 3/3).
+    - **"A returning member is a hit after 2 of 3 images": miss**, 0 hits in all three cycles on both arms (0 of 7 each).
+      Cause on X: the refit before the first chat after an image counts ComfyUI's warm RAM cache as used RAM
+      (available 12-13.5 GiB after a render). It shrinks the member cache to 2-3.5 GiB and evicts the states that
+      survived the sleep. On the control, 4 GiB holds about three of the five members' states, so the post-image turns
+      miss as well.
+  - M7 pass: 0 stray wakes; `native.sleeping` was true through every lease (≥ 20 reads each).
+
+### B5 headroom toggle (X, cache filled first)
+
+- H1:
+  - GPU free 4,498 MiB after each max → headroom (≥ 4,096), up 2,230-2,438 MiB (pass).
+  - **RAM: miss as written** in round 1: available rose 2,234 MiB against the required 3,076 (cache 5,636 − 2,048 − 512).
+    Headroom puts about 2.4 GiB of text layers in host RAM, which takes back most of what the cache frees.
+- H2 pass: max → headroom 53.7/22.3/22.2 s (p50 22.3); headroom → max 11.2/12.3/12.4 s (p50 12.3). The first switch
+  included freeing the warm image cache.
+- H3 pass: headroom replies 200, decode 13.2-13.3 tok/s.
+- H4 pass: a toggle sent 4 s into a 600-token streamed reply waited ("applies when the current job finishes"). The reply
+  finished (0 failed requests), then headroom applied at 03:07:12Z (reload 24.1 s, GPU free 2,042 → 4,498 MiB).
+- H5 pass: back on max, fit 0, short-reply decode 71.5-72.2 tok/s in every round (±1 %), cache limit back to the fitted
+  value (6,400 MiB).
+
+### B7 48K probe (informational)
+
+- The `ctx48` profile loaded under X with fit 0 and GPU free 1,606 MiB after the run.
+- On the 3-member rotation: 0 errors, hits 37 / misses 11; chat TTFT p50 6,307 ms against 5,742 at 32K.
+- Decode 32.7 tok/s against 43.1 at 32K (76 %), under the 95 % bar. 48K costs about a quarter of decode speed with images
+  idle, so it is not worth a SillyTavern preset trial on this card (decision 9 input).
+
+### Verdict
+
+**Not adopted, not merged.** A2 misses four floors as written:
+- M3 warm TTFT on 5 members (selection bias);
+- M4 judge-GPU row (the control config misses it too);
+- M5 post-image hit;
+- H1 RAM.
+
+What passes:
+- parity;
+- the RAM floor that the current config breaks;
+- capacity: 0.81 vs 0.14 returning hits on 5 members;
+- chat TTFT −22 to −38 %;
+- the image cycle within 10 %;
+- the toggle: 22 s / 12 s, never interrupting a reply.
+
+The owner decides, as with 09 A.
+
+Follow-up candidates (not built):
+1. Count ComfyUI's reclaimable warm RAM in the fit. ComfyUI evicts its own RAM cache at its 8 GiB headroom threshold, so
+   the member cache need not give way to it. This targets M5.
+2. Let headroom drop its CPU-layer share, or unload text. This targets H1.
+3. A local judge on the GPU needs its VRAM counted in the reserve, or it stays on the CPU.
+
+Not run: the controller regression list and `npm run gates`. The brief merges only when the bench and the list both
+pass; with four floors missed, the ~4.5 h list waits for the owner's call on the misses.
 
 ## Gate record
 

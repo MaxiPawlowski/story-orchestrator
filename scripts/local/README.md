@@ -140,8 +140,9 @@ Optional `config.json` keys, all read by `broker/backend.mjs` `nativeArgs` (plan
   the RAM available before the load, minus what text takes (learned per profile from the previous load, else the
   profile's `estimatedRamMiB`), minus `keepCacheRamFloorMiB` (10240: reserve plus an image's staging), in 256 MiB steps,
   at least 1024 (`/status` → `text.cacheBudget`, `text.textRamMiB`). On a server with `GET /cache` (patch commit 6,
-  binary `llama-b11888-so4-cu128`) the limit also follows free RAM after every idle chat reply and every settings change
-  (`POST /cache/limit`: down at once, up by 512 MiB or more), and image admission lowers it before an image (`makeRoom`):
+  binary `llama-b11888-so4-cu128` or later) the limit also follows free RAM before every planned chat, after every idle chat
+  reply and on every settings change (`POST /cache/limit`, confirmed before the chat runs: room for one more entry kept,
+  down at once, up by 1 GiB or more), and image admission lowers it before an image (`makeRoom`):
   to what leaves the image's RAM plus `reserves.ramMiB` free, which evicts the oldest entries (unkeyed first) and caps
   growth for the lease, while text is awake or asleep. `/status` → `memberCache.native` (entries, keyed, MiB, limit),
   `lastRefit`, `lastTrim`, `trims`, `trimFreedMiB`; a stock server reports `nativeReported: false` and `makeRoom`
