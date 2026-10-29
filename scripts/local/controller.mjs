@@ -36,6 +36,7 @@ const performance = createLiveSettings({ target: arbiterConfig, scheduler: () =>
     onApplied: () => gateway.memberCache?.refit?.('settings') });
 const status = async () => {
     await gateway.memberCache?.nativeState?.().catch(() => null);
+    await gateway.memberCache?.refreshSpillUsage?.().catch(() => null);
     return controllerStatus({ config: arbiterConfig, scheduler: arbiter.scheduler.status(), imageCache: arbiter.imageCache,
     telemetry: (await arbiter.status({ fresh: true })).telemetry, controllerBuild, pid: process.pid, configFile, performance: performance.status(), promptReuse: gateway.promptReuse?.status() ?? null, memberCache: gateway.memberCache?.status() ?? null });
 };
@@ -53,9 +54,10 @@ const gateway = createGateway({ arbiter, config: arbiterConfig, allowOrigin: /^h
             });
             performance.stop();
             await arbiter.stop();
+            await gateway.memberCache?.sweepSpilled?.(null);
             setTimeout(() => { void gateway.close().finally(() => process.exit(0)); }, 50);
         },
     } });
-process.on('SIGTERM', () => { void arbiter.stop().finally(() => { void gateway.close(); process.exit(0); }); });
+process.on('SIGTERM', () => { void arbiter.stop().then(() => gateway.memberCache?.sweepSpilled?.(null)).finally(() => { void gateway.close(); process.exit(0); }); });
 await gateway.listen(config.gatewayPort, '127.0.0.1');
 console.log(`Local residency gateway listening on 127.0.0.1:${config.gatewayPort}`);

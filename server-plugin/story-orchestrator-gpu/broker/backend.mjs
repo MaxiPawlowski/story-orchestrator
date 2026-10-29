@@ -5,6 +5,7 @@ import { memorySnapshot } from './telemetry.mjs';
 import { withinReserve } from './policy.mjs';
 import { CONTROLLER_DEFAULTS } from './controllerStatus.mjs';
 import { fitCacheMiB, memberCacheOptions } from './memberCache.mjs';
+import { ensureSpillDir } from './cacheSpill.mjs';
 
 export const SPECULATIVE_DEFAULTS = Object.freeze({ type: 'draft-mtp', nMax: 2, estimatedGpuMiB: 900, extraTypes: [], chatNMax: null, sideNMax: null });
 export const LOCAL_DRAFT_TYPES = Object.freeze(['ngram-simple']);
@@ -60,9 +61,10 @@ export function nativeArgs(config, profile, fitTargetMiB = config.reserves.gpuMi
     const members = memberCacheOptions(config);
     const checkpoints = Number.isInteger(config.ctxCheckpoints) ? ['--ctx-checkpoints', String(config.ctxCheckpoints)] : members ? ['--ctx-checkpoints', String(members.ctxCheckpoints)] : [];
     const slotActions = members ? ['--slot-save-path', members.dir] : slots(config) ? ['--slot-save-path', path.join(config.stateDir ?? '.', 'slots')] : [];
+    const cacheSpill = members?.store === 'ram' && members.serverKeys === true && members.spill === true ? ['--cache-spill-dir', members.spillDir, '--cache-spill-max-mib', String(members.spillMaxMiB)] : [];
     return ['--model', config.model, '--host', '127.0.0.1', '--port', String(config.backendPort), '--alias', config.modelAlias,
         '--offline', '--no-mmproj', '--no-webui', '--threads', '8', '--threads-batch', '8', '--parallel', String(slots(config)?.count ?? 1), '--kv-unified',
-        '--flash-attn', 'on', '--cache-type-k', 'q8_0', '--cache-type-v', 'q8_0', '--cache-ram', String(members?.store === 'ram' ? members.budgetMiB : config.cacheRamMiB ?? 512), ...checkpoints, ...slotActions,
+        '--flash-attn', 'on', '--cache-type-k', 'q8_0', '--cache-type-v', 'q8_0', '--cache-ram', String(members?.store === 'ram' ? members.budgetMiB : config.cacheRamMiB ?? 512), ...checkpoints, ...slotActions, ...cacheSpill,
         ...(slots(config)?.cacheIdle === false ? ['--no-cache-idle-slots'] : []), '--sleep-idle-seconds', keepsCacheAcrossImages(config) ? '31536000' : '-1', ...speculativeArgs(config),
         '--fit', 'on', '--fit-target', String(fitTargetMiB + (config.fitMarginMiB ?? 0) + (speculative(config)?.estimatedGpuMiB ?? 0)), ...args];
 }
@@ -92,8 +94,10 @@ export const keepsCacheAcrossImages = (config) => memberCacheOptions(config)?.ke
 export const sleepsLight = (config) => keepsCacheAcrossImages(config) && memberCacheOptions(config)?.lightSleep === true;
 
 export class NativeBackend {
-    constructor(config, { snapshot = memorySnapshot, spawn = spawnDefault, killTree = null, fetch: fetchImpl = fetch, reclaimGpu = null } = {}) {
+    constructor(config, { snapshot = memorySnapshot, spawn = spawnDefault, killTree = null, fetch: fetchImpl = fetch, reclaimGpu = null, prepareSpill = ensureSpillDir } = {}) {
         this.config = config;
+        this.prepareSpill = prepareSpill;
+        this.cacheSpill = null;
         this.reclaimGpu = reclaimGpu;
         this.reclaims = 0;
         this.snapshot = snapshot;
@@ -199,10 +203,14 @@ export class NativeBackend {
         }
         await fs.mkdir(slots(this.config) ? path.join(this.config.stateDir, 'slots') : this.config.stateDir, { recursive: true });
         if (memberCacheOptions(this.config)) await fs.mkdir(memberCacheOptions(this.config).dir, { recursive: true });
+        const members = memberCacheOptions(this.config);
+        const cacheSpill = members?.store === 'ram' && members.serverKeys === true && members.spill === true ? await this.prepareSpill(members.spillDir) : null;
+        this.cacheSpill = cacheSpill ? { ready: cacheSpill.ok, acl: cacheSpill.acl ?? null, reason: cacheSpill.reason ?? null, dir: members.spillDir } : null;
+        const memberOverride = { ...(ramCache > 0 ? { budgetMiB: ramCache } : {}), ...(cacheSpill && !cacheSpill.ok ? { spill: false } : {}) };
         const log = await fs.open(path.join(this.config.stateDir, `native-${Date.now()}-${name}.log`), 'a');
         this.crashed = null;
         const fitConfig = { ...this.config, fitMarginMiB: (this.config.fitMarginMiB ?? 0) + (this.fitCorrections.get(name) ?? 0),
-            ...(ramCache > 0 ? { memberCache: { ...this.config.memberCache, budgetMiB: ramCache } } : {}) };
+            ...(Object.keys(memberOverride).length ? { memberCache: { ...this.config.memberCache, ...memberOverride } } : {}) };
         const child = this.spawn(this.config.binary, nativeArgs(fitConfig, profile, fitTarget ?? this.config.reserves.gpuMiB), { windowsHide: true, stdio: ['ignore', log.fd, log.fd] });
         this.child = child;
         let spawnError;
@@ -506,5 +514,5 @@ export class NativeBackend {
     }
 
     status() { return { profile: this.profile, desiredProfile: this.desiredProfile, fitTargetMiB: this.fitTarget, fitCorrectionMiB: this.fitCorrections.get(this.profile) ?? 0,
-        lastFitCorrection: this.lastFitCorrection, gpuReclaims: this.reclaims, speculative: speculativeTag(this.config), slots: slots(this.config) ? { ...slots(this.config), held: Object.fromEntries(this.slotTokens), requests: { ...this.slotStats.requests }, erased: this.slotStats.erased, waited: this.slotStats.waited, chatErasedBySide: this.slotStats.chatErasedBySide, busy: [...this.slotBusy] } : null, cacheRamMiB: memberCacheOptions(this.config)?.store === 'ram' ? this.cacheBudget?.effectiveMiB ?? memberCacheOptions(this.config).budgetMiB : this.config.cacheRamMiB ?? 512, cacheBudget: this.cacheBudget, textRamMiB: Object.fromEntries(this.textRamMiB), pid: this.sleeping ? null : this.child?.pid ?? null, sleeping: this.sleeping ? { profile: this.sleeping.profile, pid: this.child?.pid ?? null, since: new Date(this.sleeping.at).toISOString(), light: this.sleeping.light === true, freedMiB: this.sleeping.freedMiB ?? null } : null, sleepStats: { ...this.sleepStats }, loading: Boolean(this.loading), loadMs: this.loadMs, loads: this.loads, lastError: this.lastError, crashed: this.crashed, servedContext: this.servedContext() }; }
+        lastFitCorrection: this.lastFitCorrection, gpuReclaims: this.reclaims, speculative: speculativeTag(this.config), slots: slots(this.config) ? { ...slots(this.config), held: Object.fromEntries(this.slotTokens), requests: { ...this.slotStats.requests }, erased: this.slotStats.erased, waited: this.slotStats.waited, chatErasedBySide: this.slotStats.chatErasedBySide, busy: [...this.slotBusy] } : null, cacheRamMiB: memberCacheOptions(this.config)?.store === 'ram' ? this.cacheBudget?.effectiveMiB ?? memberCacheOptions(this.config).budgetMiB : this.config.cacheRamMiB ?? 512, cacheBudget: this.cacheBudget, cacheSpill: this.cacheSpill, textRamMiB: Object.fromEntries(this.textRamMiB), pid: this.sleeping ? null : this.child?.pid ?? null, sleeping: this.sleeping ? { profile: this.sleeping.profile, pid: this.child?.pid ?? null, since: new Date(this.sleeping.at).toISOString(), light: this.sleeping.light === true, freedMiB: this.sleeping.freedMiB ?? null } : null, sleepStats: { ...this.sleepStats }, loading: Boolean(this.loading), loadMs: this.loadMs, loads: this.loads, lastError: this.lastError, crashed: this.crashed, servedContext: this.servedContext() }; }
 }

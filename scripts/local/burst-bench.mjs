@@ -41,7 +41,8 @@ const status = async () => (await fetch(`${url}/status`)).json();
 const marks = (s) => ({ loads: s.text?.loads ?? 0, pid: s.text?.pid ?? null, comfyPid: s.comfy?.ownedPid ?? null, fit: s.text?.fitCorrectionMiB ?? null,
     spill: s.spill?.events?.length ?? 0, replyWaits: s.replyWaits ?? null, burst: s.burst ?? null, reclaims: s.comfy?.reclaims ?? null, lastReclaim: s.comfy?.lastReclaim ?? null,
     wakes: s.text?.sleepStats?.wakes ?? 0, lastWakeMs: s.text?.sleepStats?.lastWakeMs ?? null, lightWakes: s.text?.sleepStats?.lightWakes ?? 0, lightFreedMiB: s.text?.sleepStats?.lastLightFreedMiB ?? null,
-    residency: s.lastResidency ? { decision: s.lastResidency.decision, admitted: s.lastResidency.admittedReadings ?? null } : null });
+    residency: s.lastResidency ? { decision: s.lastResidency.decision, admitted: s.lastResidency.admittedReadings ?? null } : null,
+    memberHits: s.memberCache?.hits ?? null, memberMisses: s.memberCache?.misses ?? null, dropped: s.text?.sleepStats?.dropped ?? 0, spills: s.memberCache?.spills ?? 0, spillsInsteadOfDrop: s.memberCache?.spillsInsteadOfDrop ?? 0, spillDisk: s.memberCache?.spill?.disk ?? null, lastSpill: s.memberCache?.spill?.lastSpill ?? null });
 
 const image = async (index) => {
     const graph = buildGraph({ checkpoint, family, loras: [], positive: `an empty old stone hall, fireplace, warm light, detailed architecture, no people, variant ${index}`,
@@ -94,7 +95,8 @@ for (const kind of pattern) {
     if (kind === 'I') lastImageEnd = Date.now(); else { step.afterImageMs = lastImageEnd ? Date.now() - lastImageEnd : null; lastImageEnd = null; }
     steps.push({ ...step, wallMs: Date.now() - began, reloads: after.loads - before.loads, comfyRestarted: Boolean(before.comfyPid && after.comfyPid && before.comfyPid !== after.comfyPid) || (!before.comfyPid && Boolean(after.comfyPid) && kind === 'I'),
         textLoadedBefore: Boolean(before.pid), wakeMs: after.wakes > before.wakes ? after.lastWakeMs : null, lightWake: after.lightWakes > before.lightWakes,
-        lightFreedMiB: kind === 'I' ? after.lightFreedMiB : undefined, residency: kind === 'I' ? after.residency : undefined });
+        lightFreedMiB: kind === 'I' ? after.lightFreedMiB : undefined, residency: kind === 'I' ? after.residency : undefined,
+        memberHit: kind === 'R' && after.memberHits !== null ? after.memberHits > before.memberHits && !(after.memberMisses > before.memberMisses) : undefined, dropped: after.dropped - before.dropped, spilledInsteadOfDrop: after.spillsInsteadOfDrop - before.spillsInsteadOfDrop, spills: after.spills - before.spills, spillDisk: after.spillDisk, lastSpill: kind === 'I' ? after.lastSpill : undefined });
 }
 if (burstId) await post(url, '/burst', { close: burstId }).catch(() => {});
 await new Promise((resolve) => setTimeout(resolve, 8000));

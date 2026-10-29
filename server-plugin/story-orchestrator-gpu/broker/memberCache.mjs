@@ -1,9 +1,10 @@
 import { createHash } from 'node:crypto';
 import fsDefault from 'node:fs/promises';
 import path from 'node:path';
+import { ensureSpillDir, spillDirFor, spillUsage, sweepSpill } from './cacheSpill.mjs';
 
 export const MEMBER_CACHE_DEFAULTS = Object.freeze({ headChars: 2000, budgetMiB: 6144, minPromptChars: 16000, minCutChars: 8000, minTailChars: 1200,
-    cutMarker: '<|turn>system\n', rewind: true, ramHeadroomMiB: 0, ctxCheckpoints: 3, store: 'file', park: true, erase: true, serverKeys: false, idlePrefill: false, idleDelayMs: 3000, idleMembers: 4, pinSlots: false, checkpointAt: false, serverRewind: false, keepAcrossImages: false, lightSleep: false, lightSleepFreesMiB: 2900, fitRam: false });
+    cutMarker: '<|turn>system\n', rewind: true, ramHeadroomMiB: 0, ctxCheckpoints: 3, store: 'file', park: true, erase: true, serverKeys: false, idlePrefill: false, idleDelayMs: 3000, idleMembers: 4, pinSlots: false, checkpointAt: false, serverRewind: false, keepAcrossImages: false, lightSleep: false, lightSleepFreesMiB: 2900, fitRam: false, spill: false, spillMaxMiB: 8192 });
 
 export const CACHE_LIMIT_MIN_MIB = 1024;
 
@@ -16,16 +17,18 @@ export function fitCacheMiB({ capMiB, availableMiB, occupancyMiB = 0, floorMiB, 
 export function memberCacheOptions(config = {}) {
     const raw = config.memberCache;
     if (!raw || raw.enabled !== true) return null;
-    const merged = { ...MEMBER_CACHE_DEFAULTS, ...raw, dir: raw.dir ?? path.join(config.stateDir ?? '.', 'member-states') };
+    const merged = { ...MEMBER_CACHE_DEFAULTS, ...raw, dir: raw.dir ?? path.join(config.stateDir ?? '.', 'member-states'), spillDir: spillDirFor(config.stateDir) };
     if (!Number.isInteger(merged.budgetMiB) || merged.budgetMiB < 0 || merged.budgetMiB > 65536) throw new Error('memberCache.budgetMiB must be a whole number from 0 to 65536.');
     if (typeof merged.fitRam !== 'boolean') throw new Error('memberCache.fitRam must be true or false.');
+    if (typeof merged.spill !== 'boolean') throw new Error('memberCache.spill must be true or false.');
+    if (!Number.isInteger(merged.spillMaxMiB) || merged.spillMaxMiB < 1024 || merged.spillMaxMiB > 65536) throw new Error('memberCache.spillMaxMiB must be a whole number from 1024 to 65536.');
     if (!Number.isInteger(merged.headChars) || merged.headChars < 200 || merged.headChars > 20000) throw new Error('memberCache.headChars must be a whole number from 200 to 20000.');
     if (!Number.isInteger(merged.ctxCheckpoints) || merged.ctxCheckpoints < 3 || merged.ctxCheckpoints > 32) throw new Error('memberCache.ctxCheckpoints must be a whole number from 3 to 32.');
     if (typeof merged.cutMarker !== 'string' || !merged.cutMarker) throw new Error('memberCache.cutMarker must be a non-empty string.');
     if (!['file', 'ram'].includes(merged.store)) throw new Error("memberCache.store must be 'file' or 'ram'.");
     if (merged.store === 'ram' && merged.budgetMiB < 1024) throw new Error('memberCache.budgetMiB must be at least 1024 with store ram (it sizes --cache-ram).');
     if (merged.idlePrefill === true && !(merged.store === 'ram' && merged.serverKeys === true)) throw new Error('memberCache.idlePrefill needs store ram and serverKeys (a patched llama-server).');
-    for (const key of ['checkpointAt', 'serverRewind', 'keepAcrossImages', 'lightSleep']) if (merged[key] === true && !(merged.store === 'ram' && merged.serverKeys === true)) throw new Error(`memberCache.${key} needs store ram and serverKeys (a patched llama-server).`);
+    for (const key of ['checkpointAt', 'serverRewind', 'keepAcrossImages', 'lightSleep', 'spill']) if (merged[key] === true && !(merged.store === 'ram' && merged.serverKeys === true)) throw new Error(`memberCache.${key} needs store ram and serverKeys (a patched llama-server).`);
     if (merged.lightSleep === true && merged.keepAcrossImages !== true) throw new Error('memberCache.lightSleep needs keepAcrossImages.');
     if (!Number.isInteger(merged.lightSleepFreesMiB) || merged.lightSleepFreesMiB < 256 || merged.lightSleepFreesMiB > 16384) throw new Error('memberCache.lightSleepFreesMiB must be a whole number from 256 to 16384.');
     return merged;
@@ -60,7 +63,7 @@ const MiB = 1048576;
 const FILE = /^m-[0-9a-f]{16}\.bin$/;
 
 export class MemberCache {
-    constructor(options, { fetch: fetchImpl = fetch, baseUrl, fs = fsDefault, snapshot = null, reserves = () => ({}), now = () => Date.now(), live = null, ramFloorMiB = () => 10240, sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms)) } = {}) {
+    constructor(options, { fetch: fetchImpl = fetch, baseUrl, fs = fsDefault, snapshot = null, reserves = () => ({}), now = () => Date.now(), live = null, ramFloorMiB = () => 10240, sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms)), spillEnv = {} } = {}) {
         Object.assign(this, MEMBER_CACHE_DEFAULTS, options);
         this.fetch = fetchImpl;
         this.baseUrl = typeof baseUrl === 'function' ? baseUrl : () => baseUrl;
@@ -71,6 +74,7 @@ export class MemberCache {
         this.live = live;
         this.ramFloorMiB = typeof ramFloorMiB === 'function' ? ramFloorMiB : () => ramFloorMiB;
         this.sleep = sleep;
+        this.spillEnv = spillEnv;
         this.native = null;
         this.nativeSupported = null;
         this.lastRefit = null;
@@ -84,6 +88,13 @@ export class MemberCache {
         this.lastPrompt = null;
         this.idleDone = new Map();
         Object.assign(this.stats, { idlePrefills: 0, idleYields: 0, idleRuns: 0, refits: 0, trims: 0, trimFreedMiB: 0, limitFailures: 0, makeRoomUnsupported: 0 });
+        Object.assign(this.stats, { spills: 0, spilledEntries: 0, spilledMiB: 0, spillDropped: 0, spillFailures: 0, spillsInsteadOfDrop: 0, spillSweeps: 0 });
+        this.times.spillMs = [];
+        this.spillReady = null;
+        this.spillAcl = null;
+        this.lastSpill = null;
+        this.spillDisk = null;
+        this.sweeping = null;
     }
 
     async init() {
@@ -91,6 +102,67 @@ export class MemberCache {
         for (const name of await this.fs.readdir(this.dir)) if (FILE.test(name)) await this.fs.rm(path.join(this.dir, name), { force: true });
         this.entries.clear();
         this.owner.clear();
+        if (this.spillOn()) await this.initSpill();
+    }
+
+    spillOn() { return this.spill === true && this.store === 'ram' && this.serverKeys === true; }
+
+    async initSpill() {
+        try { this.stats.spillSweeps += await sweepSpill(this.spillDir, null, { fs: this.fs }); }
+        catch (error) { this.lastError = `spill sweep failed: ${error.message}`; }
+        const prepared = await ensureSpillDir(this.spillDir, { fs: this.fs, ...this.spillEnv });
+        this.spillReady = prepared.ok;
+        this.spillAcl = prepared.ok ? prepared.acl : null;
+        if (!prepared.ok) this.lastError = `cache spill off: ${prepared.reason}`;
+        return prepared;
+    }
+
+    async spillTo(keepMiB, reason, signal = AbortSignal.timeout(130000)) {
+        if (!this.spillOn() || this.spillReady !== true || this.nativeSupported === false) return null;
+        const keep = Math.max(0, Math.floor(keepMiB));
+        const reply = await this.post('/cache/spill', { keep_mib: keep }, signal).catch((error) => ({ ok: false, status: error.message, data: {} }));
+        if (!reply.ok) { this.stats.spillFailures += 1; this.lastError = `cache spill answered ${reply.status}${reply.data?.error?.message ? `: ${reply.data.error.message}` : ''}`; return null; }
+        const data = reply.data ?? {};
+        const spilled = Number(data.spilled) || 0;
+        const spilledMiB = Math.round(Number(data.spilled_mib) || 0);
+        this.stats.spills += 1;
+        this.stats.spilledEntries += spilled;
+        this.stats.spilledMiB += spilledMiB;
+        this.stats.spillDropped += Number(data.dropped) || 0;
+        this.remember(this.times.spillMs, reply.ms);
+        this.lastSpill = { at: new Date(this.now()).toISOString(), reason, keepMiB: keep, spilled, dropped: Number(data.dropped) || 0, spilledMiB,
+            serverMs: Number.isFinite(data.ms) ? Math.round(data.ms) : null, wallMs: reply.ms, keptMiB: Number.isFinite(data.kept_mib) ? Math.round(data.kept_mib) : null,
+            files: data.files ?? null, filesMiB: Number.isFinite(data.files_mib) ? Math.round(data.files_mib) : null };
+        return this.lastSpill;
+    }
+
+    async spillForRam({ needRamMiB = 0, availableMiB = null, floorMiB = null } = {}) {
+        if (!this.spillOn() || this.spillReady !== true || !Number.isFinite(availableMiB)) return null;
+        const state = await this.nativeState();
+        if (!state?.enabled || !(state.sizeMiB > 0)) return null;
+        const floor = Number.isFinite(floorMiB) ? floorMiB : needRamMiB + (this.reserves().ramMiB ?? 0);
+        const keep = Math.max(0, Math.floor(state.sizeMiB + availableMiB - floor));
+        if (keep >= state.sizeMiB) return null;
+        const spilled = await this.spillTo(keep, 'ram');
+        if (!spilled) return null;
+        const freedMiB = Math.max(0, state.sizeMiB - (spilled.keptMiB ?? state.sizeMiB));
+        if (freedMiB > 0) this.stats.spillsInsteadOfDrop += 1;
+        return { ...spilled, freedMiB };
+    }
+
+    sweepSpilled(keepPid) {
+        if (!this.spillOn()) return null;
+        this.sweeping = sweepSpill(this.spillDir, keepPid ?? null, { fs: this.fs })
+            .then((removed) => { this.stats.spillSweeps += removed; return removed; })
+            .catch((error) => { this.lastError = `spill sweep failed: ${error.message}`; return 0; });
+        return this.sweeping;
+    }
+
+    async refreshSpillUsage() {
+        if (!this.spillOn()) return null;
+        try { this.spillDisk = { ...(await spillUsage(this.spillDir, { fs: this.fs })), at: new Date(this.now()).toISOString() }; }
+        catch (error) { this.lastError = `spill usage failed: ${error.message}`; }
+        return this.spillDisk;
     }
 
     plan(body) {
@@ -105,7 +177,7 @@ export class MemberCache {
 
     noteOther(slot) { this.owner.set(slot, null); }
 
-    syncBackend(pid) { if (pid !== this.pid) { this.owner.clear(); this.pid = pid; this.nativeSupported = null; this.native = null; } }
+    syncBackend(pid) { if (pid !== this.pid) { this.owner.clear(); this.pid = pid; this.nativeSupported = null; this.native = null; if (pid) this.sweepSpilled(pid); } }
 
     current() { const live = this.live?.(); return { capMiB: live?.budgetMiB ?? this.budgetMiB, fitRam: (live?.fitRam ?? this.fitRam) === true }; }
 
@@ -118,7 +190,7 @@ export class MemberCache {
         const data = await reply.json().catch(() => null);
         if (!Number.isFinite(data?.size_mib) || !Number.isFinite(data?.limit_mib)) { this.nativeSupported = false; return null; }
         this.nativeSupported = true;
-        this.native = { enabled: data.enabled !== false, prompts: data.prompts ?? null, keyed: data.keyed ?? null, sizeMiB: Math.round(data.size_mib), limitMiB: Math.round(data.limit_mib), sleeping: data.sleeping === true, at: new Date(this.now()).toISOString() };
+        this.native = { enabled: data.enabled !== false, prompts: data.prompts ?? null, keyed: data.keyed ?? null, sizeMiB: Math.round(data.size_mib), limitMiB: Math.round(data.limit_mib), sleeping: data.sleeping === true, spill: data.spill ?? null, at: new Date(this.now()).toISOString() };
         return this.native;
     }
 
@@ -154,6 +226,7 @@ export class MemberCache {
         const target = fitRam ? fitCacheMiB({ capMiB, availableMiB, occupancyMiB: state.sizeMiB, floorMiB: this.ramFloorMiB() + entryMiB }) : capMiB;
         const lowering = target < state.limitMiB;
         if (target === state.limitMiB || (!lowering && target - state.limitMiB < 1024)) return { changed: false, limitMiB: state.limitMiB };
+        if (lowering && target < state.sizeMiB) await this.spillTo(target, `refit-${reason}`);
         if (!(await this.setLimit(target))) return { changed: false, limitMiB: state.limitMiB };
         this.stats.refits += 1;
         this.lastRefit = { at: new Date(this.now()).toISOString(), reason, fromMiB: state.limitMiB, toMiB: target, occupancyMiB: state.sizeMiB, availableMiB: availableMiB === null ? null : Math.round(availableMiB), floorMiB: fitRam ? this.ramFloorMiB() : null, entryMiB: fitRam ? entryMiB : null };
@@ -167,6 +240,7 @@ export class MemberCache {
         const floor = needRamMiB + (this.reserves().ramMiB ?? 0);
         const limit = Math.max(1, Math.min(state.limitMiB, Math.floor(state.sizeMiB + availableMiB - floor)));
         if (limit >= state.limitMiB) return 0;
+        if (limit < state.sizeMiB) await this.spillTo(limit, 'image');
         if (!(await this.setLimit(limit))) return 0;
         const after = limit < state.sizeMiB ? await this.settle(limit) : state;
         const freedMiB = Math.max(0, state.sizeMiB - (after?.sizeMiB ?? state.sizeMiB));
@@ -380,9 +454,15 @@ export class MemberCache {
         return freed;
     }
 
+    spillStatus() {
+        if (!this.spillOn()) return { enabled: false };
+        return { enabled: true, ready: this.spillReady, acl: this.spillAcl, dir: this.spillDir, maxMiB: this.spillMaxMiB, native: this.native?.spill ?? null, disk: this.spillDisk,
+            lastSpill: this.lastSpill, spillMsP50: median(this.times.spillMs), spillMsMax: this.times.spillMs.length ? Math.max(...this.times.spillMs) : null };
+    }
+
     status() {
         const { capMiB, fitRam } = this.current();
-        return { store: this.store, ...(this.store === 'ram' ? { capMiB, fitRam, native: this.native, nativeReported: this.nativeSupported, occupancy: this.native ? `${this.native.sizeMiB} of ${this.native.limitMiB} MiB, ${this.native.prompts} entries` : this.nativeSupported === false ? 'not reported (llama-server without GET /cache)' : 'unknown', lastRefit: this.lastRefit, lastTrim: this.lastTrim, serverKeys: this.serverKeys, erase: this.erase } : {}), dir: this.dir, budgetMiB: capMiB, rewind: this.rewind, park: this.park, entries: this.entries.size, sizeMiB: Math.round(this.bytes() / MiB), ...this.stats, parkMsP50: median(this.times.parkMs),
+        return { store: this.store, ...(this.store === 'ram' ? { capMiB, fitRam, native: this.native, nativeReported: this.nativeSupported, occupancy: this.native ? `${this.native.sizeMiB} of ${this.native.limitMiB} MiB, ${this.native.prompts} entries` : this.nativeSupported === false ? 'not reported (llama-server without GET /cache)' : 'unknown', lastRefit: this.lastRefit, lastTrim: this.lastTrim, serverKeys: this.serverKeys, erase: this.erase, spill: this.spillStatus() } : {}), dir: this.dir, budgetMiB: capMiB, rewind: this.rewind, park: this.park, entries: this.entries.size, sizeMiB: Math.round(this.bytes() / MiB), ...this.stats, parkMsP50: median(this.times.parkMs),
             restoreMsP50: median(this.times.restoreMs), prefillMsP50: median(this.times.prefillMs), rewindMsP50: median(this.times.rewindMs), saveMsP50: median(this.times.saveMs),
             saveMsMax: this.times.saveMs.length ? Math.max(...this.times.saveMs) : null, idlePrefillMsP50: median(this.times.idlePrefillMs), idleMembersKnown: this.heads.size, lastError: this.lastError };
     }

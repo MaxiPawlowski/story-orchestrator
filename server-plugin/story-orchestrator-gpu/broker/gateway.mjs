@@ -39,6 +39,7 @@ export function createGateway({ arbiter, config, fetchImpl = fetch, allowOrigin 
         live: () => memberCacheOptions(config), ramFloorMiB: () => config.keepCacheRamFloorMiB ?? 10240 }) : null;
     const membersReady = members?.init ? members.init().catch((error) => { members.lastError = error.message; }) : null;
     if (members && arbiter.scheduler) arbiter.scheduler.onImageRam = (need) => members.makeRoom(need);
+    if (members?.spillForRam && arbiter.scheduler) { arbiter.scheduler.onSpillForRam = (need) => members.spillForRam(need); arbiter.scheduler.onSleepingDropped = () => members.sweepSpilled(arbiter.backend.status().pid); }
     if (members && arbiter.backend) arbiter.backend.onSlotErased = (id) => members.noteOther(id);
     const memberIdle = () => idle() && !arbiter.scheduler?.imageQueued && !arbiter.scheduler?.imagePending;
     let idleTimer = null;

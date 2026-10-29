@@ -150,6 +150,26 @@ Optional `config.json` keys, all read by `broker/backend.mjs` `nativeArgs` (plan
   growth for the lease, while text is awake or asleep. `/status` → `memberCache.native` (entries, keyed, MiB, limit),
   `lastRefit`, `lastTrim`, `trims`, `trimFreedMiB`; a stock server reports `nativeReported: false` and `makeRoom`
   falls back to dropping the sleeping server (`dropSleepingForRam`).
+- `memberCache.spill: true` (plan v3.0 28 C5; RAM store, `serverKeys`, binary `llama-b11888-so6-cu128`, default off)
+  writes keyed member-cache entries to files instead of evicting or dropping them, and the server loads one back when its
+  key returns (exact: same bytes restored; a corrupt, foreign or unreadable file is a cold miss and is deleted). Where it
+  acts: the image trim (`makeRoom`) and a lowering refit spill down to the new limit before `POST /cache/limit`, and
+  `dropSleepingForRam` spills just enough for the image floor and keeps the sleeping server (it still drops it when the
+  spill frees too little; the dropped server's files are swept). The spill is awaited, so it finishes before image
+  admission. Files: `<stateDir>/member-spill/<pid>/<hash>.spill`, the directory owner-only (`icacls /inheritance:r`,
+  read back; refused, and spill left off for that load, when anyone else keeps access), written to `.tmp` and renamed,
+  an integrity hash and a fingerprint of model, context/KV layout and format, bound `spillMaxMiB` (default 8192, oldest
+  deleted first; an entry is also refused under 2 GiB of free disk). Deleted when loaded, on server exit, for every
+  other pid when a new text server answers, after a drop, and all of them at controller stop and start (deletion is cleanup, not
+  secure erasure). Server side: `--cache-spill-dir`, `--cache-spill-max-mib`, `POST /cache/spill {"keep_mib": N}`
+  (answers when done; at once while sleeping, else at the next idle point), `GET /cache` → `spill`. `/status` →
+  `memberCache.spill` (`ready`, `acl`, `native`, `disk` files/bytes on disk, `lastSpill`, `spillMsP50`) and
+  `spills`, `spilledEntries`, `spilledMiB`, `spillsInsteadOfDrop`, `spillFailures`; `text.cacheSpill`.
+- so6 measurement switches (plan v3.0 28 C6/C9, environment of llama-server, read at `--verbosity 4`):
+  `LLAMA_STATE_TIMING=1` logs `restore timing:` (main/draft state restore, spill read, total) and `state timing:`
+  (per-region `tensor_set`/`tensor_get` time, region count, max region); `LLAMA_DECODE_PROFILE=1` logs a
+  `decode profile:` line per 5 s window (decode synchronized, sampler, draft accept per token, drafter, logit copy). The
+  profile synchronizes after every decode, so its decode rate is not the production rate.
 
 `node scripts/local/stable-head.mjs plan|apply|revert --data <ST user data dir> --group <id>[,<id>] [--backup <dir>]`
 moves the system prompt's `{{char}}` sentences to its post-history instruction (a new `... (stable head)` system-prompt

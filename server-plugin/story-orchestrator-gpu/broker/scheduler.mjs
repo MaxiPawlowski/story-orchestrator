@@ -249,11 +249,22 @@ export class ResidencyScheduler {
     async dropSleepingForRam(needRamMiB) {
         if (!this.backend.status().sleeping || !this.backend.dropSleeping) return 0;
         const floor = Math.max(needRamMiB + (this.config.reserves?.ramMiB ?? 0), this.config.keepCacheRamFloorMiB ?? 10240);
-        const reading = await this.snapshot({ fresh: true }).catch(() => null);
-        const available = reading?.host?.availableMiB;
+        let reading = await this.snapshot({ fresh: true }).catch(() => null);
+        let available = reading?.host?.availableMiB;
         if (Number.isFinite(available) && available >= floor) return 0;
+        const spilled = this.onSpillForRam && Number.isFinite(available) ? await this.onSpillForRam({ needRamMiB, availableMiB: available, floorMiB: floor }).catch((error) => { this.lastError = error.message; return null; }) : null;
+        if (spilled?.freedMiB > 0) {
+            reading = await this.snapshot({ fresh: true }).catch(() => null);
+            available = reading?.host?.availableMiB;
+            if (Number.isFinite(available) && available >= floor) {
+                this.log(`text sleep: spilled ${spilled.spilled} member cache entries (${spilled.freedMiB} MiB) to disk in ${spilled.wallMs} ms instead of dropping the sleeping text server; host RAM ${Math.round(available)} MiB`);
+                return 0;
+            }
+        }
         this.log(`text sleep: dropping the sleeping text server and its member cache, host RAM ${Number.isFinite(available) ? Math.round(available) : 'unreadable'} MiB is under ${floor} MiB for this image`);
-        return this.backend.dropSleeping();
+        const freed = await this.backend.dropSleeping();
+        this.onSleepingDropped?.();
+        return freed;
     }
 
     ramShortError(detail) {
