@@ -1010,10 +1010,10 @@ test('an image larger than what a light sleep can free skips it and swaps text o
     assert.deepEqual(calls, ['unload', 'free']);
 });
 
-test('with lightSleep an SDXL image too big to fit whole streams beside the kept weights once the contexts are freed', async () => {
+test('with lightSleep an SDXL image too big to fit whole beside the kept weights swaps text instead of streaming beside the sleeper', async () => {
     const modelDirs = await fakeCheckpoint(6600);
     const state = {};
-    const { scheduler, calls, backend } = setup({ runtime: streamingRuntime, snapshot: async () => free(state.backend.sleeping?.light ? 4600 : 1700),
+    const { scheduler, calls, backend } = setup({ runtime: streamingRuntime, snapshot: async () => free(state.backend.sleeping?.light ? 4600 : state.backend.profile ? 1700 : 22000),
         config: { modelDirs, reserves: { gpuMiB: 1024, ramMiB: 2048 }, streamImages: { enabled: true, minFreeGpuMiB: 2400, maxWeightMiB: 8192 },
             memberCache: { enabled: true, store: 'ram', budgetMiB: 4096, serverKeys: true, keepAcrossImages: true, lightSleep: true, lightSleepFreesMiB: 2800 } } });
     state.backend = backend;
@@ -1022,7 +1022,7 @@ test('with lightSleep an SDXL image too big to fit whole streams beside the kept
     backend.unload = async (options = {}) => { calls.push(options.light ? 'sleep-light' : 'unload'); backend.sleeping = options.light ? { profile: backend.profile, light: true } : null; backend.profile = null; };
     backend.dropSleeping = async () => { calls.push('drop'); backend.sleeping = null; return 4096; };
     const lease = await scheduler.reserve(sdxl);
-    assert.equal(lease.decision, 'sleep-context');
-    assert.deepEqual(calls, ['sleep-light']);
-    assert.match(scheduler.status().lastResidency.reason, /streams beside/);
+    assert.equal(lease.decision, 'swap-text');
+    assert.equal(calls.includes('sleep-light'), false);
+    assert.match(scheduler.status().lastResidency.reason, /Light sleep skipped/);
 });

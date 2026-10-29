@@ -126,10 +126,13 @@ Optional `config.json` keys, all read by `broker/backend.mjs` `nativeArgs` (plan
   layout first asks for idle ComfyUI memory (same guards as the reload reclaim, `sleepStats.wakeReclaims`).
 - `memberCache.lightSleep: true` (plan v3.0 26 C1; needs `keepAcrossImages` and the so5 binary) sleeps at level
   `context` instead: KV, compute buffers and the MTP context leave VRAM (about 2.8 GiB), the target and MTP weights
-  stay. An image that fits whole after that, or that streams beside the kept weights (`streamImages` policy, checked
-  with `lightSleepFreesMiB`, default 2900, added to the free reading), gets lease decision `sleep-context`; the wake
-  recreates the contexts (0.4-0.5 s measured) and needs only the freed amount plus the reserve. If the light sleep still
-  leaves the image short (host RAM included) the sleeping server is stopped and the lease swaps as before. The stray
+  stay. Only an image whose admitted GPU need still leaves the mode's GPU reserve free beside the kept weights gets lease
+  decision `sleep-context`: checked first on an estimate (free reading + `lightSleepFreesMiB`, default 2900), then on
+  the reading after the sleep. Streaming an image beside a light sleeper is not offered (plan v3.0 10: it crossed the
+  1,024 MiB Max reserve, 537 and 275 MiB free). Otherwise text is stopped and the lease swaps as before.
+  `lastResidency.lightSleep` = `{stage: estimate|measured, freeMiB, needGpuMiB, reserveMiB, leftMiB, fits}` and the
+  lease reason name the numbers. The wake recreates the contexts (0.4-0.5 s measured) and needs only the freed amount
+  plus the reserve. The stray
   check subtracts the weights a light sleeper still holds. `sleepStats.lightSleeps|lightWakes|lastLightWakeMs`.
 - `speculative.chatNMax` / `speculative.sideNMax` (plan v3.0 26 C3, so5 binary): the gateway adds
   `speculative.n_max` to streamed (chat) or other generation requests, capping the model drafter per request at most

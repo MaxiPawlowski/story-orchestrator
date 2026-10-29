@@ -440,12 +440,31 @@ Max/headroom rows:
   - The 15 s status sampler was started with wrong arguments and recorded nothing; the reserve samples and this
     snapshot stand in for it.
 
+### Light-sleep admission change (2026-10-29, during the pause, CPU only)
+
+- Coordinator decision, from the smoke flag: `sleep-context` only when the GPU free reading after the light sleep minus
+  the image's admitted need still keeps the mode's GPU reserve (1,024 MiB in Max, 4,096 in Headroom); otherwise stop
+  and swap text as before.
+- `broker/scheduler.mjs`: the check runs on an estimate (free + `lightSleepFreesMiB`) before sleeping and on the reading
+  after it. Streaming an image beside a light sleeper is removed (that path admitted on `streamImages.minFreeGpuMiB`
+  2,400 instead of the need, and is what left 537 / 275 MiB). `/status` `lastResidency.lightSleep` =
+  `{stage, freeMiB, needGpuMiB, reserveMiB, leftMiB, fits}`, and the lease reason names the numbers ("Light sleep
+  skipped: about N MiB free after it, short of image X + reserve R MiB" / "N MiB free covers image X + reserve R MiB").
+- Tests: `scripts/local/lightSleepAdmission.test.mjs` (6, real Max/Headroom presets, the smoke readings 1,979 / 4,773
+  and 1,865 / 4,659 MiB as fixtures): fits -> `sleep-context`; both smoke cycles -> swap; the 9,059 MiB loader estimate
+  -> swap; estimate fits but the measured reading crosses -> drop the sleeper and swap; Headroom -> swap. The plan 26
+  broker test that expected streaming beside the sleeper now expects a swap.
+- Expected cost: in Max an SDXL image swaps text whenever the light-sleep reading cannot hold need + reserve (the smoke's
+  9,059 MiB loader estimate always swaps on this card). The live re-check waits for the resume.
+
 ### Pause 2026-10-29 08:25Z
 
 - The owner asked for the GPU. Stopped: J13 run 4, every harness child, the L controller (with its ComfyUI and
   llama-server), landmarks, lanes 42/45/33. nvidia-smi afterwards: 499 / 24,576 MiB, 0 %.
 - Owner controller left stopped, `config.json` unchanged (sha `d48e439d`), tray untouched.
 - Remaining on resume:
+  - live re-check of the light-sleep admission change (smoke image cycles on L: decision and reason in `/status`, GPU
+    reserve held);
   - one clean J13 on-arm run;
   - full `npm run gates` (no `--resume`), then merge `--no-ff` and push;
   - adoption: back up `config.json` to `C:\dev\backups\story-orchestrator\local-config.before-a2-2026-10-29.json`; set
@@ -455,8 +474,7 @@ Max/headroom rows:
 
 Follow-up candidates found here (not built):
 - Media jobs: count unreachable ComfyUI polls toward the 60 s dropped timer, so a dead ComfyUI fails the job.
-- Light sleep and the Max GPU reserve: either count the light sleeper's weights in admission or accept the dip; the
-  owner decides (no spill seen).
+- Light sleep and the Max GPU reserve: decided and built, see §Light-sleep admission change.
 
 ## Gate record
 
