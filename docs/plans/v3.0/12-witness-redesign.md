@@ -421,6 +421,39 @@ Readings:
   `b4e373a7…`, `d60d01b2…`, `compare.json`, `run-header-c1-live-{pre,post}.json`, `run-header-diff-end.json`, `hold*.log`), run
   dirs `C:/dev/so-lanes/41/debug/runs/2026-10-28T1[12]-*`; gate logs `C:/dev/so-lanes/reviews/gates-c1-w2-merge{,-2}.log`.
 
+## Pass 4: declarations (2026-10-29, written and committed before any run in this pass)
+
+Coordinator task 2026-10-29 (track C, offline only, branch `v3.0-12-witness-redesign`). CPU only: no GPU, no lanes, no model
+call, no judge call. Every number in this pass replays already-recorded evidence (`reads/files`, the sessions' own extraction
+audits, `presence-reads.json` from pass 3) against the frozen adjudicated labels (`freeze-adjudicated.json`).
+
+- **Diagnosis added in this pass** (`so-witness.mts candidates`, counts only): (a) the W4 read's prompt shape (contract text
+  vs what the labels need); (b) a transcript-signal census over every (single-audience labelled message, listener) pair,
+  listener = enabled, not omniscient, not the speaker: labelled present vs W2's code stage (spoke or named, 24 back,
+  look-ahead), the scene-reset code stage (D1 below) and P1's p class (>= 0.7, 0.3-0.7 band, < 0.3, no row).
+- **Candidates (all three fixed here; no parameter is chosen after a score):**
+  - **D1 scene-reset stage (deterministic given the shared read):** W2 with rule 4 replaced by "spoke or named since the
+    latest scene break at or before the message (still at most 24 back), look-ahead to the read window's end but not past the
+    next break". Breaks = `SCENE_BREAK at=<m>` of the shared read (the persisted `audit.sceneBreak`, already produced; no new
+    model work). Offline source, real set: the session's own extraction audits whose window ends at or before the read's
+    end (the ring the product would hold then; later audits are not visible); lab set (no session audits): the recorded W4
+    reads' `SCENE_BREAK` lines. Fed through rule 6 (`present`), so rules 1-3 and 5 are unchanged.
+  - **D2 judge-for-exceptions:** per listener, P1 p >= 0.7 = on stage, p < 0.3 = off stage, band or no row = D1's code
+    stage. Thresholds are pass 3's declared `PRESENT_P` and band edge, not new.
+  - **D3 D2 + abstention (fail closed):** where P1 is confident and disagrees with D1's code stage for any listener (p >= 0.7
+    and not on the code stage, or p < 0.3 and on it), the whole message reads `unknown` (no claim adds text). A message D2
+    already makes mixed keeps its spans (they fail closed per span).
+- **Scoring:** `scoreWitness(…, { speakers })` (decision 2's speaker-own rule, every new run), decision 1's floors unchanged:
+  exact-set >= 0.9, FI <= 0.02 (incl. ambiguous), FE <= 0.10, coverage >= 0.85, mixed >= 0.8, span FI <= 0.02, aside exact
+  >= 0.8, beat presence on W4a by >= 0.3. W2 and O3 are re-scored in the same run as references (must reproduce pass 2/3).
+- **Expected before the run:** no candidate passes W4 whole: mixed is capped at 6/11 by the cue-less mixed messages and span FI
+  sits at or above the labelled-presence ceiling (9/79). The question this pass answers is which design clears the
+  presence-bound rows (exact-set, FI, FE, coverage) on the real set, for the GPU decision.
+- **Tuning bias, declared:** D1-D3 were designed after pass 2's class diagnosis and pass 3's P1 result on this same frozen set;
+  there is no held-out set. Any pass here is optimistic until the held-out run (end-batch check 3). A purely deterministic
+  candidate is implemented in `src/` only if it clears every floor offline; none is expected to (mixed cap), so this pass
+  changes no product code.
+
 ## Unresolved questions
 
 - Is message-level privacy a product goal now (v3.0 02 reopen condition), or only witness-filtered recall?
