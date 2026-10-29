@@ -169,4 +169,19 @@ or W4 if the window is short.
 
 ## Gate record
 
-(Appended at handover.)
+Build handover 2026-10-29 (CPU only; no GPU, no llama-server or ComfyUI started, owner controller, `config.json`, ST
+:8000 and tray untouched; no codex rating run):
+- Commits: `75f73b0a` (C4a port), `320184e5` (W4 limited), `4c069936` (W1), W3 + this doc, this record.
+- Unit tests (fakes, node:test): `broker/lightStream.test.mjs` 9 (margin off = a2 behaviour; unlearned stream admitted
+  with reasons in `/status`; learned use swaps the next image; measured miss drops the sleeper; OOM → drop, delete
+  history, resubmit same id at the front, once; retry off; success and whole-image leases not retried; options;
+  helpers), `readPreemption.test.mjs` +6 limited (preempt once under the threshold; past threshold; never twice; age;
+  `/slots` fallback and `maxRunMs`; options), `media.test.mjs` +2 (OOM grace then completes; second OOM fails at once),
+  `scripts/local/rateSeeds.test.mjs` 5. Offline check: `rate-seeds aggregate` on the plan 26 R2 ratings reproduces its
+  summary.
+- `npm run gates:quick`: green (245 s; defect replay 32 of 32 killed).
+- `npm run gates` (no `--resume`): all green in 645.2 s, 11 steps (typecheck, build, typecheck:test, test:replay, test
+  10,812 passed / 1 skipped, test:debug 1,660, debug:typecheck, lint, test:release, test:plugin 461 / 5 skipped,
+  test-storybook:ci 1,010/1,010).
+- Not run: every GPU floor above, the real-LLM live gate of the ported page marker (= W4 Part B), the W3 rating
+  (owner-gated). NOT merged.
