@@ -229,8 +229,8 @@ State column below is current, the 2026-10-26 lines are history. 18-21 on master
 | 16 | Twine/Twee spike | master (merged 2026-10-28) | spike-later (Astra triage), docs only |
 | 17 | Reply polish integration review | master (merged 2026-10-28) | planned; polish stays off |
 | 18 | Image e2e review (live, showcase lane) | master (written by the run) | baseline e2e26 NOT GREEN (4 misses, 2 environment); probe running |
-| 19 | Talk pacing: one-shot instruction, yield on question, opening hook | branch `v3.0-talk-pacing` | in build; campaign hooks (63, private plan) wait for its keys |
-| 20 | Visual bridge: identity/place packs, style recipe, resolver, default Qwen recipe, background renders | branch `v3.0-visual-bridge` | stage 1 in build |
+| 19 | Talk pacing: one-shot instruction, yield on question, opening hook | master | stages 2 (`43c8121c`) and 3 (`f8b56971`) merged; campaign stage 2 on `v3.0-campaign-talk-s2`, not adopted (2026-10-29) |
+| 20 | Visual bridge: identity/place packs, style recipe, resolver, default Qwen recipe, background renders | master | stages 1+2 merged (`3cea7708`); Qwen vs SDXL and background renders wait for the owner (2026-10-29) |
 | 21 | Image fixes from playtest 1 | master | done (`2403c70f`, `f96dabda`, `d12deead`) |
 | 25 | Read facts tier below floor on Artemis (`25-read-facts-tier.md`) | master | 2026-10-28: cause = the model writes facts as MEMORY lines, never FACT; prompt candidate A not adopted (rating format -0.267, intents precision < 0.8 on live x2); owner Q1+Q3 done (`v3.0-facts-count`): scorer v3 facts tier = product facts tier, offline rescore 8/20 -> 14/20 (floor 0.68 unchanged); parser keeps hybrid FACT lines (stored-output bug fix, rejected 35 -> 36/36); live suite x2 owed after the controller benchmark; Q2 open |
 
@@ -529,11 +529,13 @@ No build order is set. If several reopen at once, by dependency: 02 B before 05.
 | 07 | `07-inference-engine-eval.md` engine evaluation (SGLang, vLLM, ExLlamaV3, llama.cpp options): RESEARCH 2026-10-25, SPIKE 2026-10-26: ExLlamaV3 dropped (TTFT, RAM, Sol 3/8); b11888 + gateway member-state cache recommended (warm switch 9-10 s → 4.7-6.0 s) |
 | 08 | `08-member-state-cache.md` per-member state cache: disk mode built 2026-10-26 and kept off (disk-bound saves); superseded by 09 RAM mode on the patched server |
 | 09 | `09-controller-round-3.md` controller round 3: patched llama.cpp b11888 (`scripts/local/llama-patches/`) + RAM member cache 4 GiB LIVE on the owner controller 2026-10-26 (warm member switch 8.55 → 3.8 s, member turn 14.6 → 10.5 s; Sol 25 pairs better on all categories, thinking floor missed as written 23/25, owner adopted); 409 reserve-refusal fix + ComfyUI reclaim guards; chat-first queue built; max-memory profile, rewound entries + checkpoint_at, read reorder queued. Research: `research/` (web, Fable simulation, feature-impact audit, Astra review) |
-| 10 | `10-max-memory-profile.md` max-memory profile + tray headroom toggle: STUB 2026-10-26 (replan track A2), floors TO DECIDE |
+| 10 | `10-max-memory-profile.md` max-memory profile + tray headroom toggle: STUB 2026-10-26 (replan track A2); built on branch `v3.0-a2-maxmem`, unmerged, live re-check + J13 owed in the next GPU window (2026-10-29) |
 | 11 | `11-image-perf-after-unlock.md` image performance after the unlock, ComfyUI flags, image/text thrash: STUB 2026-10-26 (track B1), floors TO DECIDE |
 | 15 | `15-end-test-batch.md` end test batch for the current wave (09 r3, A0, D1/D3/D5/D6/D8, C1, B1 prep, v2.9 freeze): DESIGN 2026-10-26, est. ~6 h GPU (up to ~7.2 h with conditionals), no-model and replay lanes in parallel |
-| 12 | `12-witness-redesign.md` witness record redesign after v2.8 42 W4 FAIL: STUB 2026-10-26 (track C1), floors TO DECIDE |
-| 26 | `26-llama-fork-round-4.md` llama.cpp fork round 4 (light sleep, fast load, read preemption, request-local n-gram): STUB 2026-10-28, floors in `research/llama-fork-opportunities.md` (workload measurement, C1-C9, Sol review) |
+| 12 | `12-witness-redesign.md` witness record redesign after v2.8 42 W4 FAIL: STUB 2026-10-26 (track C1); 2026-10-29: best design D2 exact-set 0.660 vs floor 0.9, FAIL; recommended parked until a playtest flag (owner question) |
+| 26 | `26-llama-fork-round-4.md` llama.cpp fork round 4 (light sleep, fast load, read preemption, request-local n-gram): STUB 2026-10-28, floors in `research/llama-fork-opportunities.md` (workload measurement, C1-C9, Sol review); carried by 27 and 28 |
+| 27 | `27-llama-fork-wrap-up.md` fork wrap-up (guarded light sleep W1, limited read preemption W4, seed rating tool W3): branch `v3.0-27-fork-wrapup`, gates green 2026-10-29, off by default, GPU recipe ~3.5 h owed, unmerged (merge after A2) |
+| 28 | `28-cache-spill-and-restore.md` member cache spill to disk across images (C5) + C6/C9 timing switches, so6 build: branch `v3.0-28-cache-spill`, gates green 2026-10-29, off by default, GPU recipe ~2 h owed, unmerged |
 
 ## Decisions (user, 2026-10-03: as recommended)
 
