@@ -362,7 +362,9 @@ Controller samples (`controller/status-samples*.jsonl`, every 15 s):
 - D-EB1 (product, spike): edit re-read clears the rollback notice it just set (diagnosis 2).
 - D-EB2 (fixture): reply-effort counts inner beats as replies (diagnosis 1).
 - D-EB3 (harness): J6 under `batch --fresh-page` loses the page mid-evaluate (diagnosis 3).
-- D-EB4 (harness): `so-p41-journey cleanup` leaves empty character folders, group image folders and `plays` rows.
+- ~~D-EB4 (harness): `so-p41-journey cleanup` leaves empty character folders, group image folders and `plays` rows.~~ Fixed
+  2026-10-29 (§Gate record: harness EB fixes); live p41 rerun owed.
+- ~~J6.7 fixture race (1 of 6 runs, §End batch 2)~~ Fixed 2026-10-29 (§Gate record: harness EB fixes); live J6 x2 owed.
 - D-EB5 (harness): `so-turn-types-check` solo leg is stale; `--skip-solo` should be the default.
 - D-EB6 (process): `so-run-header diff` captures live from its own environment; run unlaned it read the owner's ST page on
   :8000 (read-only header capture, three times between 22:42Z and 00:51Z) and wrote `so-lanes/0/debug/run-header-diff-end.json`. Always
@@ -449,10 +451,37 @@ J6 under `st-lanes batch --lanes 45 --repeat 2 --strict --fresh-page J6` (lane 4
     reuses J6.7's chat and the content dedups onto the earlier row. Reverted, not counted.
   - `14-01-33-428Z`: **GREEN x2** (11/11 automated each, 1 human row unscored). Records
     `test/journeys/records/v3.0-end-batch-2/2026-10-28T14-12-15-893Z_journey-J6.json`, `…14-25-21-760Z_journey-J6.json`.
-- Open: the J6.7 race (1 of 6 runs) and the "Promise was collected" trigger itself.
+- Open: the "Promise was collected" trigger itself. The J6.7 race is fixed (§Gate record: harness EB fixes).
 - Gates (branch `v3.0-eb2-evaljob`, worktree `C:\dev\so-eb2-evaljob`): `npm run gates:quick` green (149.7 s); `npm run gates`
   (no `--resume`) all green in 395.9 s: jest 10799 passed / 1 skipped, test:debug 1640/1640, Storybook 1010 passed, build,
   typecheck, typecheck:test, debug:typecheck, lint, test:replay, test:plugin, test:release ok. Record lines added after the run (docs only).
+
+### Gate record: harness EB fixes 2026-10-29 (branch `v3.0-harness-eb`, CPU only)
+
+- J6.7 race. Cause: J6.7 and J6.8 left background reads on the real model. Any read whose answer names a scene break
+  schedules an epistemic/ledger pass (`wiring/scheduler.ts` `scheduleSceneBreak`), and that pass reads the same
+  `storyOrchestratorDebugEpistemicResponse` global the check had just scripted, stamping the belief at its own window end
+  (12), so the edit at 12 rightly dropped it. Fix (fixture): J6.7's first step and a new first step of J6.8 pin
+  `storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'` (the scripted `extract` passes its response directly, so it
+  is unaffected), as `live-rollback-derived` does; both wait `schedulerIdle` before the edit; J6.7 now fails early,
+  naming the cause, when the tracked belief is not stamped at the scripted window end. Assertions otherwise unchanged.
+- Guard: `scriptedPassesUnpinned` (`scripts/debug/lib/scenarioSchema.mts`): a model check (journey check or scenario) that
+  scripts an epistemic/ledger response must pin background reads earlier in the same check (a `reload` drops the pin).
+  Tests in `scenarioSchema.test.mts`: corpus clean; planted controls; the pre-fix J6 fires on J6.7 steps 5-6, J6.8 steps 4-5.
+- D-EB4. Cause: `removeMarkedAssets` deletes cards and groups through ST, which keeps the card's `characters/<name>/`
+  folder, the group's `user/images/<groupId>/` (cast and director images) and the plays index rows of the deleted chats.
+  Fix (`scripts/debug/lib/p41Residue.mts`, called at the end of p41 cleanup, reported as `cleanup.residue`): owned groups =
+  groups this cleanup deleted plus the groups of plays rows for the marker story, minus groups still listed by
+  `/api/groups/all` or in the baseline (`protectedGroups`). Plays rows of owned groups are dropped and saved; owned image
+  folders are emptied through ST's `/api/images/delete`, then removed; marker-named character folders with no listed
+  card and no files are removed. Disk work only on a lane (`SO_LANE` >= 1, `<lane>/data/default-user`); a kept folder or
+  refused delete counts as a leak. Tests: `p41Residue.test.mts` (7, fake fs and fake page).
+- `npm run gates:quick` green (214.0 s). `npm run gates` (no `--resume`) all green in 869.3 s: jest 10809 passed / 1
+  skipped, test:debug 1665/1665, Storybook 1010 passed, build, typecheck, typecheck:test, debug:typecheck, lint,
+  test:replay, test:plugin, test:release ok. Record written after the run (docs only).
+- Owed (model/GPU, not run today): J6 x2 under `st-lanes batch --repeat 2 --strict --fresh-page J6` on a model lane (J6.7
+  cannot run on a no-model lane: it is a model check and the race needs a real background read); `so-p41-journey run` +
+  `cleanup` on an image lane to see `cleanup.residue` remove the folders and rows live.
 
 ## Rules
 
