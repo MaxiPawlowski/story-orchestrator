@@ -1,5 +1,5 @@
 import { timeoutAbortReason } from "@utils/signals";
-import { classifyHostFailure, cleanTextCompletionReply, readFinish, requestModelReply, type ModelRequestHost } from "./modelReply";
+import { classifyHostFailure, cleanTextCompletionReply, PASS_MARKER_FIELD, readFinish, requestModelReply, type ModelRequestHost } from "./modelReply";
 import type { ReasoningRoute } from "./reasoningPayload";
 
 const wrapped = (cause: unknown) => new Error("API request failed", { cause });
@@ -274,5 +274,34 @@ describe("AS-20: the reply keeps the provider's usage and model; unknown stays u
     expect(await requestModelReply(fixed.host, "p1", "prompt", 64, { effort: "high", reasoningBudget: 512 })).toMatchObject({
       ok: true, meter: { effort: "high", applied: true, supported: true, sent: "medium", observed: false },
     });
+  });
+});
+
+describe("v3.0 26 C4a: a story read is marked for the local gateway's chat preemption", () => {
+  const textHost = (type: string | null) => {
+    const made = fakeHost("llamacpp");
+    made.host.textApiType = () => type;
+    return made;
+  };
+
+  it("a read on a llama.cpp Text Completion profile carries so_pass: read", async () => {
+    const { host, calls } = textHost("llamacpp");
+    await requestModelReply(host, "p1", "prompt", 64, { pass: "read" });
+    expect(calls[0].override[PASS_MARKER_FIELD]).toBe("read");
+  });
+
+  it("controls: other passes, other text backends, Chat Completion and an unknown type send no marker", async () => {
+    const inner = textHost("llamacpp");
+    await requestModelReply(inner.host, "p1", "prompt", 64, { pass: "inner" });
+    const unmarked = textHost("llamacpp");
+    await requestModelReply(unmarked.host, "p1", "prompt", 64);
+    const kobold = textHost("koboldcpp");
+    await requestModelReply(kobold.host, "p1", "prompt", 64, { pass: "read" });
+    const unknown = textHost(null);
+    await requestModelReply(unknown.host, "p1", "prompt", 64, { pass: "read" });
+    const chat = fakeHost("openai", { choices: [{ message: { content: "x" } }] });
+    chat.host.textApiType = () => "llamacpp";
+    await requestModelReply(chat.host, "p1", "prompt", 64, { pass: "read" });
+    for (const made of [inner, unmarked, kobold, unknown, chat]) expect(made.calls[0].override).not.toHaveProperty(PASS_MARKER_FIELD);
   });
 });

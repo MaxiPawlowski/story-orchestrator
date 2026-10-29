@@ -5,6 +5,7 @@ import { ResponseTiming } from './responseTiming.mjs';
 import { ContextRefusal, draftCap, slotFor, slots } from './backend.mjs';
 import { PromptReuse, promptReuseOptions } from './promptReuse.mjs';
 import { MemberCache, memberCacheOptions } from './memberCache.mjs';
+import { ReadPreemption, readPreemptionOptions, takePass } from './readPreemption.mjs';
 
 export const TEXT_ROUTES = Object.freeze(['/completion', '/v1/completions', '/v1/chat/completions', '/tokenize', '/detokenize', '/props', '/slots']);
 const GENERATION_ROUTES = ['/completion', '/v1/completions', '/v1/chat/completions'];
@@ -30,6 +31,9 @@ const answer = (res, status, data) => {
 
 export function createGateway({ arbiter, config, fetchImpl = fetch, allowOrigin = null, controls = null, extraGet = {}, routes = null, promptReuse = undefined, memberCache = undefined }) {
     let closing = false;
+    const preemptOptions = readPreemptionOptions(config);
+    const preemption = preemptOptions ? new ReadPreemption(preemptOptions, { scheduler: arbiter.scheduler, log: (line) => arbiter.scheduler?.log?.(line) }) : null;
+    if (preemption && arbiter.scheduler) arbiter.scheduler.readPreemption = preemption;
     const reuseOptions = promptReuseOptions(config);
     const reuse = promptReuse !== undefined ? promptReuse : reuseOptions ? new PromptReuse(slots(config) ? { ...reuseOptions, history: 1 } : reuseOptions) : null;
     const idle = () => !(arbiter.scheduler?.pending?.length > 0);
@@ -101,13 +105,16 @@ export function createGateway({ arbiter, config, fetchImpl = fetch, allowOrigin 
             const generating = req.method === 'POST' && body && GENERATION_ROUTES.includes(route);
             const slot = generating ? (Number.isInteger(body.id_slot) && body.id_slot >= 0 ? body.id_slot : slotFor(config, body)) : null;
             const replying = generating && body?.stream === true;
+            const pass = generating ? takePass(body) : null;
             const arrivedAt = Date.now();
             const arrival = backend.status();
             const coldArrival = replying && (!arrival.pid || Boolean(arrival.loading) || Boolean(arbiter.scheduler?.lease));
             if (slot !== null) body.id_slot = slot;
             const reusing = reuse && req.method === 'POST' && route === '/completion' && body;
+            let signal = abort.signal;
+            let attempt = null;
             const backendCall = async (payload) => {
-                const reply = await fetchImpl(`${backend.url}/completion`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(payload), signal: abort.signal });
+                const reply = await fetchImpl(`${backend.url}/completion`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(payload), signal });
                 await reply.arrayBuffer();
                 if (!reply.ok) throw new Error(`prompt reuse step answered ${reply.status}`);
             };
@@ -117,14 +124,16 @@ export function createGateway({ arbiter, config, fetchImpl = fetch, allowOrigin 
                 if (members && generating) {
                     await membersReady;
                     members.syncBackend?.(backend.status().pid);
-                    if (route === '/completion') memberPlan = await members.before(body, slot ?? 0, abort.signal).catch((error) => { members.lastError = error.message; members.noteOther(slot ?? 0); return null; });
+                    if (route === '/completion') memberPlan = await members.before(body, slot ?? 0, signal).catch((error) => { members.lastError = error.message; members.noteOther(slot ?? 0); return null; });
                     else members.noteOther(slot ?? 0);
                 }
                 const prefill = reusing && !memberPlan ? reuse.prefill(body, slot ?? 'all') : null;
                 if (prefill) await backendCall(slot === null ? prefill : { ...prefill, id_slot: slot }).catch((error) => { reuse.lastError = error.message; });
                 const cap = generating && body ? draftCap(config, body.stream === true) : null;
                 if (cap !== null && body['speculative.n_max'] === undefined) body['speculative.n_max'] = cap;
-                const response = await fetchImpl(`${backend.url}${route}`, { method: req.method, headers: { 'content-type': 'application/json' }, ...(body ? { body: JSON.stringify(body) } : {}), signal: abort.signal });
+                const response = await fetchImpl(`${backend.url}${route}`, { method: req.method, headers: { 'content-type': 'application/json' }, ...(body ? { body: JSON.stringify(body) } : {}), signal });
+                if (attempt?.preempted) { await response.body?.cancel().catch(() => {}); throw new Error('A chat request preempted this story read.'); }
+                preemption?.settle(attempt);
                 if (res.destroyed) return;
                 res.writeHead(response.status, { 'content-type': response.headers.get('content-type') ?? 'application/json', 'cache-control': 'no-store' });
                 if (response.body) {
@@ -146,15 +155,37 @@ export function createGateway({ arbiter, config, fetchImpl = fetch, allowOrigin 
                 try { await forward(); } finally { backend.endDirect?.(); }
                 return;
             }
-            await arbiter.text(async () => {
+            const budget = GENERATION_ROUTES.includes(route) ? Number(body?.n_predict ?? body?.max_tokens ?? 1400) : null;
+            const read = preemption && generating && !replying && preemption.preemptible(pass) ? { preempts: 0, wastedMs: 0, issuedAt: arrivedAt } : null;
+            const preempted = () => Boolean(attempt?.preempted) && !abort.signal.aborted;
+            const run = async () => {
+                attempt = read ? preemption.begin(read) : null;
+                signal = attempt ? AbortSignal.any([abort.signal, attempt.controller.signal]) : abort.signal;
+                memberDone = false;
                 try {
-                    if (body && GENERATION_ROUTES.includes(route)) await backend.forRequest(body, abort.signal, slot);
+                    if (body && GENERATION_ROUTES.includes(route)) await backend.forRequest(body, signal, slot);
                     else await backend.ensure(backend.profile ?? config.defaultProfile);
                     if (replying) arbiter.scheduler?.noteReplyWait?.({ waitedMs: Date.now() - arrivedAt, cold: coldArrival });
                     try { await forward(); }
                     finally { if (!memberDone && members?.afterOther && generating && backend.status().pid) await members.afterOther(slot ?? 0).catch((error) => { members.lastError = error.message; }); }
-                } finally { if (slot !== null) backend.releaseSlot?.(slot); }
-            }, abort.signal, GENERATION_ROUTES.includes(route) ? Number(body?.n_predict ?? body?.max_tokens ?? 1400) : null, generating && body?.stream === true ? 'chat' : 'side');
+                } catch (error) {
+                    if (!preempted()) throw error;
+                } finally { preemption?.settle(attempt); if (slot !== null) backend.releaseSlot?.(slot); }
+                if (!preempted()) return null;
+                preemption.requeued(read);
+                const requeued = arbiter.text(run, abort.signal, budget, 'side', { requeue: true });
+                requeued.catch(() => {});
+                return { requeued };
+            };
+            if (read) preemption.stats.reads += 1;
+            try {
+                let outcome = await arbiter.text(run, abort.signal, budget, replying ? 'chat' : 'side');
+                while (outcome?.requeued) outcome = await outcome.requeued;
+                if (read) preemption.finished(read, 'completed');
+            } catch (error) {
+                if (read) preemption.finished(read, abort.signal.aborted ? 'cancelled' : 'failed');
+                throw error;
+            }
         } catch (error) {
             if (error instanceof ContextRefusal) answer(res, 400, { error: { code: 400, message: error.message, type: 'exceed_context_size_error', n_prompt_tokens: error.promptTokens, n_ctx: error.context } });
             else answer(res, 409, { error: { message: error.message, type: 'local_residency' } });
@@ -170,6 +201,7 @@ export function createGateway({ arbiter, config, fetchImpl = fetch, allowOrigin 
                 server.listen(port, host, () => { server.off('error', reject); resolve(server.address()); });
             });
         },
-        close() { closing = true; clearTimeout(idleTimer); return new Promise((resolve) => server.close(() => resolve())); },
+        readPreemption: preemption,
+        close() { closing = true; clearTimeout(idleTimer); preemption?.close(); return new Promise((resolve) => server.close(() => resolve())); },
     };
 }

@@ -153,3 +153,15 @@ describe("the call record per role and the Repair line (v2.6 plan 05 R2)", () =>
     expect(buildRoleRoutes({ settings, exists: () => true, health: () => null, selfTests: {}, calls }).find((route) => route.role === "director")?.reasoning).toEqual(meter({ effort: "high", applied: false, unsupported: "no lever" }));
   });
 });
+
+describe("v3.0 26 C4a: the pass reaches the transport", () => {
+  it("modelCall hands the transport the ask's pass, so the host can mark a story read", async () => {
+    const seen: ModelRequestOptions[] = [];
+    const call = createModelCallVia(replyVia(async (_id, _prompt, _max, options) => { seen.push(options); return { ok: true, text: "x", finish: "stop", meter: meter() }; }), {
+      settings: () => ({ profileId: "m" }), exists: () => true, planted: false,
+    });
+    await call("p", { role: "read", pass: "read" });
+    await call("p", { role: "inner", pass: "inner" });
+    expect(seen.map((options) => options.pass)).toEqual(["read", "inner"]);
+  });
+});

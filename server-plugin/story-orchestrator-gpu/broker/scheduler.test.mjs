@@ -1026,3 +1026,13 @@ test('with lightSleep an SDXL image too big to fit whole beside the kept weights
     assert.equal(calls.includes('sleep-light'), false);
     assert.match(scheduler.status().lastResidency.reason, /Light sleep skipped/);
 });
+
+test('lease and release lines in the controller log carry the lease kind', async () => {
+    const lines = [];
+    const { scheduler } = setup({ log: (line) => lines.push(line) });
+    const lease = await scheduler.reserve({ workflowKey: 'k', modelFiles: [{ kind: 'checkpoints', name: 'sdxl_base.safetensors' }], width: 832, height: 1216 });
+    await scheduler.release(lease.lease);
+    assert.ok(lines.some((line) => line.startsWith(`lease ${lease.decision} [checkpoint:sdxl_base 832x1216]: `)), lines.join('\n'));
+    assert.ok(lines.some((line) => line.startsWith(`lease released [checkpoint:sdxl_base 832x1216]: ${lease.decision}, held `)), lines.join('\n'));
+    assert.equal(scheduler.status().lastResidency.kind, 'checkpoint:sdxl_base 832x1216');
+});

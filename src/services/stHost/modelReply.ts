@@ -40,6 +40,7 @@ export interface ModelRequestOptions {
   samplers?: ModelSamplers;
   effort?: ReasoningEffort;
   reasoningBudget?: number;
+  pass?: string;
 }
 
 export interface InstructSequences {
@@ -54,6 +55,7 @@ export interface ModelRequestHost {
   profileExists: (profileId: string) => boolean;
   profile: (profileId: string) => { api?: string; instruct?: string; preset?: string } | null;
   apiSelected: (api: string | undefined) => string | null;
+  textApiType?: (api: string | undefined) => string | null;
   extractMessage: (json: unknown, type: string) => string;
   instructSequences: (name: string | undefined) => InstructSequences | null;
   reasoningRoute?: (profileId: string) => ReasoningRoute | null;
@@ -159,6 +161,12 @@ export const samplerPayload = (apiSelected: string | null, samplers: ModelSample
   ...(apiSelected === TEXT_COMPLETION_API ? { ...samplers, ...textCompletionBudget(maxTokens) } : apiSelected === CHAT_COMPLETION_API && !hasPreset ? { ...samplers } : {}),
 });
 
+export const PASS_MARKER_FIELD = "so_pass";
+export const MARKED_PASSES: readonly string[] = ["read"];
+
+export const passMarker = (textApiType: string | null, pass: string | undefined): Record<string, string> =>
+  (textApiType === "llamacpp" && pass && MARKED_PASSES.includes(pass) ? { [PASS_MARKER_FIELD]: pass } : {});
+
 export async function requestModelReply(host: ModelRequestHost, profileId: string, prompt: string, maxTokens: number, options: ModelRequestOptions = {}): Promise<ModelReply> {
   const { signal } = options;
   if (signal?.aborted) return { ok: false, ...classifyHostFailure(null, signal) };
@@ -169,13 +177,14 @@ export async function requestModelReply(host: ModelRequestHost, profileId: strin
   const plan = reasoningPayload(effort === "default" ? null : host.reasoningRoute?.(profileId) ?? null, effort);
   const budget = plan.applied && plan.thinks ? Math.max(0, Math.round(options.reasoningBudget ?? 0)) : 0;
   const total = maxTokens + budget;
+  const marker = passMarker(selected === TEXT_COMPLETION_API ? host.textApiType?.(profile?.api) ?? null : null, options.pass);
   try {
     const json = await host.sendRequest(
       profileId,
       [{ role: "user", content: prompt }],
       total,
       { extractData: false, includePreset: true, includeInstruct: true, stream: false, ...(signal ? { signal } : {}) },
-      { ...samplerPayload(selected, options.samplers, total, Boolean(profile?.preset)), ...plan.payload },
+      { ...samplerPayload(selected, options.samplers, total, Boolean(profile?.preset)), ...plan.payload, ...marker },
     );
     const type = selected === CHAT_COMPLETION_API ? CHAT_COMPLETION_API : TEXT_COMPLETION_API;
     const extracted = host.extractMessage(json, type);

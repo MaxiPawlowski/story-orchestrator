@@ -107,6 +107,7 @@ const modelRequestHost = (): ModelRequestHost => ({
   profileExists,
   profile: readProfile,
   apiSelected: (api) => (api ? getContext().CONNECT_API_MAP?.[api]?.selected ?? null : null),
+  textApiType: (api) => (api ? getContext().CONNECT_API_MAP?.[api]?.type ?? null : null),
   extractMessage: (json, type) => {
     const extract = getContext().extractMessageFromData;
     if (extract) return extract(json, type);

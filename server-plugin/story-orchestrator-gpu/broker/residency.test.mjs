@@ -48,7 +48,7 @@ test('recorded 3090 reading: the plan 28 SDXL render does not fit beside Artemis
     assert.deepEqual(row.readings, { gpuFreeMiB: freeBeside, ramAvailableMiB: RECORDED.textResidentRamMiB, commitFreeMiB: RECORDED.textResidentCommitMiB });
     assert.equal(row.admittedReadings.gpuFreeMiB, RECORDED.idleGpuFreeMiB);
     assert.deepEqual(row.reserves, RESERVES);
-    assert.match(logs[0], /^lease swap-text: Swapped text out.*GPU free 6525 MiB, need 9059 \+ reserve 2048/);
+    assert.match(logs[0], /^lease swap-text \[no-model\]: Swapped text out.*GPU free 6525 MiB, need 9059 \+ reserve 2048/);
 });
 
 test('recorded reading: a job that fits beside text with both reserves keeps text loaded (no unload, no reload)', async () => {

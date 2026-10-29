@@ -93,6 +93,7 @@ export const createModelCallVia = (reply: RouteReply, deps: ModelCallDeps): Mode
     const seen = { profileId: route ? routeKey(route) : "", effort: route?.effort ?? "default" };
     const options = {
       maxTokens: ask.maxTokens, temperature: ask.temperature, signal: ask.signal, timeoutScale: ask.timeoutScale, budgetKind: ask.budgetKind, reasoningBudget: settings.reasoningBudget, role: ask.role,
+      pass: ask.pass,
     };
     const token = deps.ownership ? deps.ownership.mint() : null;
     const stamp = deps.stamp?.();

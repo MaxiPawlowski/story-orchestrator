@@ -75,6 +75,16 @@ Optional `config.json` keys, all read by `broker/backend.mjs` `nativeArgs` (plan
   beside ComfyUI's staging); three checkpoints keep the boundary one through the reply's own two. It only pays off when
   consecutive chat prompts share their start, which needs the stable prompt head below; with per-speaker heads it costs
   ~0.3-0.5 s per chat reply and the cache's RAM for nothing. `/status` reports `promptReuse` counts.
+- `preemptReads: { enabled, maxPreempts }` (off unless `enabled: true`; plan v3.0 26 C4a). The page marks its story
+  reads with `so_pass: "read"` on llama.cpp Text Completion profiles; the gateway strips the field before forwarding,
+  with or without this key. When a chat reply (streamed generation) arrives while a marked read is running, the chat is
+  next in line (`chatFirst`) and lanes are not concurrent, the gateway aborts the read's backend request (llama-server
+  stops at its next batch) and requeues the identical body right after the queued chats, ahead of other side work. The
+  read's caller keeps one open request and gets exactly one answer. A read is preempted at most `maxPreempts` (2) times,
+  then runs to the end. Inner beats and other side passes carry no marker and are never aborted; a response already
+  received is never discarded. `/status` → `readPreemption` (reads, preempted, requeued, completed,
+  completedAfterPreempt, cancelled, failed, retriesMax, wasted ms p50/p95/total); `controller.log` gets one line per
+  requeue and per finished preempted read.
 - `memberCache: { enabled, budgetMiB, dir, headChars, minPromptChars, minCutChars, minTailChars, cutMarker, rewind,
   ramHeadroomMiB, ctxCheckpoints }` (off unless `enabled: true`; plan v3.0 08). A per-member state cache for group chats
   with per-member prompt heads; needs llama.cpp b11888 or later (slot files that keep their context checkpoints; b11388

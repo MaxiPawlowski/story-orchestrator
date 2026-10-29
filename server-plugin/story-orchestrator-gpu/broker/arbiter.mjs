@@ -13,7 +13,7 @@ import { withinReserve } from './policy.mjs';
 import { comfyPort } from './controllerStatus.mjs';
 
 export const BROKER_SOURCE_FILES = Object.freeze(['arbiter', 'backend', 'controllerStatus', 'estimate', 'fastTelemetry', 'footprints', 'gateway', 'gguf', 'imageResidency',
-    'imageCache', 'memberCache', 'models', 'policy', 'promptReuse', 'ramEstimates', 'responseTiming', 'runtimeIdentity', 'safetensors', 'scheduler', 'telemetry']);
+    'imageCache', 'memberCache', 'models', 'policy', 'promptReuse', 'ramEstimates', 'readPreemption', 'responseTiming', 'runtimeIdentity', 'safetensors', 'scheduler', 'telemetry']);
 
 export async function brokerBuild(extra = []) {
     const source = createHash('sha256');
@@ -22,6 +22,8 @@ export async function brokerBuild(extra = []) {
     for (const file of extra) source.update(await fs.readFile(file));
     return source.digest('hex');
 }
+
+export const stampedLog = (line) => console.log(`[story-orchestrator-gpu] ${new Date().toISOString()} ${line}`);
 
 const LEASE_KEYS = ['workflowKey', 'modelFiles', 'width', 'height', 'hires', 'needGpuMiB', 'needRamMiB', 'nextTextTokens'];
 
@@ -141,7 +143,7 @@ export function createArbiter(config, deps = {}) {
             freeAttempt = await freeIdleComfy({ child: () => comfyChild, busy: imageBusy, queue: () => jsonFetch('/queue'),
                 free: () => jsonFetch('/free', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ unload_models: true, free_memory: true }) }),
                 emptyHostCache: () => releaseHostCache(), measure: () => snapshot({ fresh: true }), reserveMiB: config.reserves?.gpuMiB ?? 0, waitMs: config.reclaimFreeWaitMs ?? 5000,
-                log: deps.log ?? ((line) => console.log(`[story-orchestrator-gpu] ${line}`)) }, { shortMiB });
+                log: deps.log ?? stampedLog }, { shortMiB });
             telemetryAt = 0;
             if (freeAttempt.freed) { reclaimStats.freed += 1; lastReclaim = { at: new Date().toISOString(), shortMiB: Math.round(shortMiB), stopped: false, ...freeAttempt }; return true; }
         }
@@ -149,7 +151,7 @@ export function createArbiter(config, deps = {}) {
         if (recentImage) { lastReclaim = { at: new Date().toISOString(), shortMiB: Math.round(shortMiB), stopped: false, reason: 'recent-image', freeAttempt }; return false; }
         const result = await stopIdleComfy({ child: () => comfyChild, busy: imageBusy, queue: () => jsonFetch('/queue'), settleMs: config.reclaimSettleMs ?? 1500,
             kill: async (child) => { if (killTree && child.pid) await killTree(child.pid); else child.kill(); }, timeoutMs: config.comfyStopTimeoutMs ?? 15000,
-            log: deps.log ?? ((line) => console.log(`[story-orchestrator-gpu] ${line}`)) }, { shortMiB });
+            log: deps.log ?? stampedLog }, { shortMiB });
         telemetryAt = 0;
         lastReclaim = { at: new Date().toISOString(), shortMiB: Math.round(shortMiB), ...result, freeAttempt };
         if (result.stopped) reclaimStats.stopped += 1;
@@ -199,7 +201,7 @@ export function createArbiter(config, deps = {}) {
                 queue: () => jsonFetch('/queue'), freeImages,
                 saveFootprints: (data) => fsImpl.writeFile(footprintsPath, JSON.stringify(data, null, 2)), footprints,
                 timings, saveTimings: (data) => fsImpl.writeFile(timingsPath, JSON.stringify({ identity, timings: data }, null, 2)), runtime,
-                log: deps.log ?? ((line) => console.log(`[story-orchestrator-gpu] ${line}`)), comfyPid: () => comfyChild?.pid ?? null });
+                log: deps.log ?? stampedLog, comfyPid: () => comfyChild?.pid ?? null });
             if (fast) unsubscribe = fast.subscribe((sample) => scheduler.observe(sample));
             if (deps.timers !== false) {
                 timer = setInterval(() => {
@@ -232,9 +234,9 @@ export function createArbiter(config, deps = {}) {
             if (body.close !== undefined) return { closed: scheduler.closeBurst(typeof body.close === 'string' ? body.close : null) };
             return scheduler.openBurst({ count: body.count, ttlMs: body.ttlMs, kind: body.kind });
         },
-        text(run, signal, budget, lane) {
+        text(run, signal, budget, lane, options) {
             if (backend.crashed) return Promise.reject(new Error(`The local text server exited (code ${backend.crashed.code ?? 'unknown'}). An admin can restart it with Load text.`));
-            return scheduler.text(run, signal, budget, lane);
+            return scheduler.text(run, signal, budget, lane, options);
         },
         async control(action, body = {}) {
             const input = controlRequest(action, body, config);

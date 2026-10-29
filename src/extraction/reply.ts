@@ -19,6 +19,7 @@ export interface CallOptions {
   budgetKind?: string;
   reasoningBudget?: ReasoningBudget;
   role?: string;
+  pass?: string;
   images?: HarnessImage[];
 }
 
@@ -54,6 +55,7 @@ export const replyVia = (transport: ModelTransport, harness: HarnessTransport = 
   const request: ModelRequestOptions = {
     signal: anySignal([options.signal, AbortSignal.timeout(timeoutMs)]),
     samplers: { temperature: options.temperature ?? 0.1, top_p: 0.9 },
+    ...(options.pass ? { pass: options.pass } : {}),
   };
   if (effort !== "default") Object.assign(request, { effort, reasoningBudget });
   const reply = await transport(profileId, prompt, maxTokens, request);

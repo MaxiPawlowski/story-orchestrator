@@ -18,6 +18,21 @@ export function median(values) {
     return sorted.length % 2 ? sorted[middle] : (sorted[middle - 1] + sorted[middle]) / 2;
 }
 
+const fileStem = (name) => String(name).split(/[\\/]/).pop().replace(/\.(safetensors|gguf|ckpt|pt|pth|bin|onnx)$/i, '').slice(0, 60);
+
+export function leaseKind(body = {}) {
+    const files = Array.isArray(body.modelFiles) ? body.modelFiles : [];
+    const main = files.find((file) => file?.kind === 'checkpoints') ?? files.find((file) => file?.kind === 'diffusionModels') ?? files[0];
+    let recipe = null;
+    if (typeof body.workflowKey === 'string') {
+        try { const parsed = JSON.parse(body.workflowKey); if (parsed && typeof parsed.recipe === 'string') recipe = parsed.recipe.slice(0, 40); }
+        catch { if (body.workflowKey.length <= 40 && !main) recipe = body.workflowKey; }
+    }
+    const model = main ? `${main.kind === 'checkpoints' ? 'checkpoint' : main.kind === 'diffusionModels' ? 'diffusion' : main.kind}:${fileStem(main.name)}` : 'no-model';
+    const size = Number.isFinite(body.width) && Number.isFinite(body.height) ? `${body.width}x${body.height}${body.hires === true ? '+hires' : ''}` : null;
+    return [model, recipe, size].filter(Boolean).join(' ');
+}
+
 export const timingProfile = (config, profile) => { const tag = speculativeTag(config); return tag ? `${profile}+${tag}` : profile; };
 
 export class ResidencyScheduler {
@@ -147,9 +162,9 @@ export class ResidencyScheduler {
         } finally { this.restoring = false; void this.pump(); }
     }
 
-    text(run, signal, budget = null, lane = 'side') {
+    text(run, signal, budget = null, lane = 'side', { requeue = false } = {}) {
         if (this.manualHold) return Promise.reject(new Error('Text is manually unloaded. Select Automatic or Load text in the tray.'));
-        if (this.pending.length >= this.config.maxQueue) return Promise.reject(new Error('Local text queue is full.'));
+        if (!requeue && this.pending.length >= this.config.maxQueue) return Promise.reject(new Error('Local text queue is full.'));
         return new Promise((resolve, reject) => {
             const entry = { run, resolve, reject, signal, budget, lane: lane === 'chat' ? 'chat' : 'side', idle: lane === 'idle', timer: null, abort: null };
             const remove = (error) => { this.pending = this.pending.filter((row) => row !== entry); this.cleanup(entry); reject(error); };
@@ -157,15 +172,16 @@ export class ResidencyScheduler {
             entry.timer = setTimeout(() => remove(new Error('Local resource queue deadline exceeded.')), this.config.queueTimeoutMs);
             signal?.addEventListener('abort', entry.abort, { once: true });
             if (signal?.aborted) { entry.abort(); return; }
-            this.pending.push(entry);
-            if (!entry.idle) this.notifyArrival();
+            if (requeue) { const lastChat = this.pending.findLastIndex((row) => row.lane === 'chat'); this.pending.splice(lastChat + 1, 0, entry); }
+            else this.pending.push(entry);
+            if (!entry.idle && !requeue) this.notifyArrival(entry.lane);
             void this.pump();
         });
     }
 
     onArrival(listener) { this.arrivals.add(listener); return () => this.arrivals.delete(listener); }
 
-    notifyArrival() { for (const listener of [...this.arrivals]) { try { listener(); } catch { this.arrivals.delete(listener); } } }
+    notifyArrival(lane) { for (const listener of [...this.arrivals]) { try { listener(lane); } catch { this.arrivals.delete(listener); } } }
 
     cleanup(entry) { clearTimeout(entry.timer); entry.signal?.removeEventListener('abort', entry.abort); }
 
@@ -176,8 +192,12 @@ export class ResidencyScheduler {
         return Boolean(state.pid) && !state.loading && state.fitTargetMiB == null && !this.imagesNeedRelease;
     }
 
+    chatFirstOn() { return this.config.chatFirst === true || Boolean(this.config.slots?.count >= 2 && this.config.slots?.enabled !== false); }
+
+    chatNext() { return this.chatFirstOn() ? this.pending.some((row) => row.lane === 'chat') : this.pending[0]?.lane === 'chat'; }
+
     nextEntry() {
-        const chatFirst = this.config.chatFirst === true || Boolean(this.config.slots?.count >= 2 && this.config.slots?.enabled !== false);
+        const chatFirst = this.chatFirstOn();
         const free = (row) => !this.activeLanes.has(row.lane);
         if (chatFirst) { const chat = this.pending.findIndex((row) => row.lane === 'chat' && free(row)); if (chat >= 0) return chat; }
         return this.pending.findIndex(free);
@@ -275,7 +295,7 @@ export class ResidencyScheduler {
         this.lastImageRequestAt = Date.now();
         const deadline = Date.now() + this.config.queueTimeoutMs;
         this.imageQueued = { at: Date.now(), served: this.servedText };
-        this.notifyArrival();
+        this.notifyArrival('image');
         try {
             while (this.restoring || ((this.activeText || (this.pending.length && !this.manualHold)) && !this.imageTurn())) {
                 if (Date.now() > deadline) throw new Error('The text generation did not finish before the image deadline.');
@@ -323,7 +343,7 @@ export class ResidencyScheduler {
             const choice = residencyChoice({ snapshot: creditedSnapshot(snapshot, memory.credit), needGpuMiB, needRamMiB, reserves: this.config.reserves, textResident });
             let reason = choice.reason;
             if (memory.credit) reason += ` Reusing ${Math.round(memory.credit.gpuMiB)} MiB of resident image GPU allocations.`;
-            this.lastResidency = { decision: 'deciding', reason, textResident, textProfile: textState.profile ?? null, needGpuMiB, needRamMiB, ramSource,
+            this.lastResidency = { decision: 'deciding', kind: leaseKind(body), reason, textResident, textProfile: textState.profile ?? null, needGpuMiB, needRamMiB, ramSource,
                 reserves: { ...this.config.reserves }, readings: { ...choice.readings, gpuFreeMiB: snapshot?.gpus?.[0]?.freeMiB ?? null, ramAvailableMiB: snapshot?.host?.availableMiB ?? null },
                 residentCredit: memory.credit, shortBy: choice.shortBy, at: new Date().toISOString() };
             const fits = () => admission(creditedSnapshot(snapshot, this.residentImages ? memory.credit : null), { gpuMiB: needGpuMiB, ramMiB: needRamMiB }, this.config.reserves);
@@ -404,7 +424,7 @@ export class ResidencyScheduler {
             this.lease = { id: randomUUID(), at: Date.now(), touched: Date.now(), key: observedKey, workflowKey: key, identity, before: creditedSnapshot(snapshot, this.residentImages ? memory.credit : null),
                 peakGpu: snapshot.gpus[0].usedMiB, lowRam: snapshot.host.availableMiB, lowCommit: snapshot.host.commitFreeMiB,
                 lowGpu: snapshot.gpus[0].freeMiB, highCadence: snapshot.highCadence === true, seenJob: false, decision, needGpuMiB, needRamMiB,
-                textHeldMiB: residentText.pid ? this.textHeldMiB(snapshot) : 0, trace: [] };
+                textHeldMiB: residentText.pid ? this.textHeldMiB(snapshot) : 0, trace: [], kind: this.lastResidency?.kind ?? leaseKind(body) };
             return { lease: this.lease.id, brokered: true, decision };
         } catch (error) {
             this.lastError = error.message;
@@ -450,7 +470,7 @@ export class ResidencyScheduler {
         const row = { ...this.lastResidency, decision, reason, admittedReadings };
         this.lastResidency = row;
         const mib = (value) => (Number.isFinite(value) ? Math.round(value) : '?');
-        this.log(`lease ${decision}: ${reason} (GPU free ${mib(row.readings?.gpuFreeMiB)} MiB, need ${row.needGpuMiB} + reserve ${row.reserves?.gpuMiB}; RAM available ${mib(row.readings?.ramAvailableMiB)} MiB, need ${row.needRamMiB} [${row.ramSource}] + reserve ${row.reserves?.ramMiB})`);
+        this.log(`lease ${decision} [${row.kind ?? 'unknown'}]: ${reason} (GPU free ${mib(row.readings?.gpuFreeMiB)} MiB, need ${row.needGpuMiB} + reserve ${row.reserves?.gpuMiB}; RAM available ${mib(row.readings?.ramAvailableMiB)} MiB, need ${row.needRamMiB} [${row.ramSource}] + reserve ${row.reserves?.ramMiB})`);
     }
 
     streams({ snapshot, runtime, models, needRamMiB }) {
@@ -596,6 +616,7 @@ export class ResidencyScheduler {
         } finally {
             if (this.lease === lease) this.lease = null;
             this.lastLeaseAt = Date.now();
+            this.log(`lease released [${lease.kind ?? 'unknown'}]: ${lease.decision}, held ${Math.round((this.lastLeaseAt - lease.at) / 1000)} s, job seen ${lease.seenJob}, cache ${cache?.mode ?? 'none'}`);
             if (this.burstOpen()) { this.burst.remaining -= 1; if (this.burst.remaining <= 0) this.closeBurst(null, 'finished'); }
             void this.pump();
         }
@@ -691,7 +712,7 @@ export class ResidencyScheduler {
     status() {
         return { phase: this.imagePending ? 'reserving' : this.lease ? 'image' : this.restoring ? 'restoring' : this.manualHold ? 'manual-hold' : 'text',
             activeText: this.activeText, overlappedText: this.overlapped ?? 0, burst: { open: this.burstOpen() ? { remaining: this.burst.remaining, until: new Date(this.burst.until).toISOString(), kind: this.burst.kind } : null, ...this.burstStats }, replyWaits: this.replyWaitStatus(), spill: { backoffMiB: this.spill.backoffMiB, textSpilled: this.spill.textSpilled, events: this.spill.events.slice(-5) }, waitingText: this.pending.length, imageLease: Boolean(this.lease),
-            imageWaiting: Boolean(this.imageQueued), servedText: this.servedText, fairImages: true, ramShort: this.ramShort,
+            readPreemption: this.readPreemption?.status() ?? null, imageWaiting: Boolean(this.imageQueued), servedText: this.servedText, fairImages: true, ramShort: this.ramShort,
             text: this.backend.status(), objective: this.config.residencyObjective ?? 'total-wait', timings: this.timings, lastTextDecision: this.lastTextDecision,
             lastDecision: this.lastDecision, lastResidency: this.lastResidency, lastNeedGpuMiB: this.lastNeedGpuMiB, measurement: this.lastMeasurement ? { ...this.lastMeasurement, trace: undefined } : null,
             imageResidency: { mode: this.residentImages ? 'gpu-warm' : this.lastCacheMode, awaitingReclaim: this.imagesNeedRelease, releaseTargetMiB: this.imageReleaseTargetMiB, releaseFailures: this.releaseFailures ?? 0, lastReleaseGiveUp: this.lastReleaseGiveUp ?? null },
