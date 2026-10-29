@@ -5,7 +5,7 @@ import { ResponseTiming } from './responseTiming.mjs';
 import { ContextRefusal, draftCap, slotFor, slots } from './backend.mjs';
 import { PromptReuse, promptReuseOptions } from './promptReuse.mjs';
 import { MemberCache, memberCacheOptions } from './memberCache.mjs';
-import { ReadPreemption, readPreemptionOptions, takePass } from './readPreemption.mjs';
+import { ReadPreemption, decodedOf, readPreemptionOptions, takePass } from './readPreemption.mjs';
 
 export const TEXT_ROUTES = Object.freeze(['/completion', '/v1/completions', '/v1/chat/completions', '/tokenize', '/detokenize', '/props', '/slots']);
 const GENERATION_ROUTES = ['/completion', '/v1/completions', '/v1/chat/completions'];
@@ -32,7 +32,8 @@ const answer = (res, status, data) => {
 export function createGateway({ arbiter, config, fetchImpl = fetch, allowOrigin = null, controls = null, extraGet = {}, routes = null, promptReuse = undefined, memberCache = undefined }) {
     let closing = false;
     const preemptOptions = readPreemptionOptions(config);
-    const preemption = preemptOptions ? new ReadPreemption(preemptOptions, { scheduler: arbiter.scheduler, log: (line) => arbiter.scheduler?.log?.(line) }) : null;
+    const preemption = preemptOptions ? new ReadPreemption(preemptOptions, { scheduler: arbiter.scheduler, log: (line) => arbiter.scheduler?.log?.(line),
+        probe: async (attempt, timeoutMs) => decodedOf(await (await fetchImpl(`${arbiter.backend.url}/slots`, { signal: AbortSignal.timeout(timeoutMs) })).json(), attempt.slot) }) : null;
     if (preemption && arbiter.scheduler) arbiter.scheduler.readPreemption = preemption;
     const reuseOptions = promptReuseOptions(config);
     const reuse = promptReuse !== undefined ? promptReuse : reuseOptions ? new PromptReuse(slots(config) ? { ...reuseOptions, history: 1 } : reuseOptions) : null;
@@ -156,10 +157,10 @@ export function createGateway({ arbiter, config, fetchImpl = fetch, allowOrigin 
                 return;
             }
             const budget = GENERATION_ROUTES.includes(route) ? Number(body?.n_predict ?? body?.max_tokens ?? 1400) : null;
-            const read = preemption && generating && !replying && preemption.preemptible(pass) ? { preempts: 0, wastedMs: 0, issuedAt: arrivedAt } : null;
+            const read = preemption && generating && !replying && preemption.preemptible(pass) ? preemption.issue(arrivedAt) : null;
             const preempted = () => Boolean(attempt?.preempted) && !abort.signal.aborted;
             const run = async () => {
-                attempt = read ? preemption.begin(read) : null;
+                attempt = read ? preemption.begin(read, slot) : null;
                 signal = attempt ? AbortSignal.any([abort.signal, attempt.controller.signal]) : abort.signal;
                 memberDone = false;
                 try {
@@ -177,11 +178,11 @@ export function createGateway({ arbiter, config, fetchImpl = fetch, allowOrigin 
                 requeued.catch(() => {});
                 return { requeued };
             };
-            if (read) preemption.stats.reads += 1;
             try {
                 let outcome = await arbiter.text(run, abort.signal, budget, replying ? 'chat' : 'side');
                 while (outcome?.requeued) outcome = await outcome.requeued;
                 if (read) preemption.finished(read, 'completed');
+                if (replying) preemption?.chatDone();
             } catch (error) {
                 if (read) preemption.finished(read, abort.signal.aborted ? 'cancelled' : 'failed');
                 throw error;

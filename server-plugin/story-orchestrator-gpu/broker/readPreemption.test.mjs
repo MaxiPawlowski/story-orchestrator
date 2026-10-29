@@ -2,14 +2,14 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createGateway } from './gateway.mjs';
 import { ResidencyScheduler, leaseKind } from './scheduler.mjs';
-import { readPreemptionOptions, takePass } from './readPreemption.mjs';
+import { decodedOf, readPreemptionOptions, takePass } from './readPreemption.mjs';
 
 const until = async (check, ms = 2000) => {
     const end = Date.now() + ms;
     while (!check()) { if (Date.now() > end) throw new Error('condition not reached'); await new Promise((resolve) => setTimeout(resolve, 2)); }
 };
 
-function rig({ preemptReads = { enabled: true }, chatFirst = true, maxQueue = 4 } = {}) {
+function rig({ preemptReads = { enabled: true }, chatFirst = true, maxQueue = 4, slots = () => [] } = {}) {
     const config = { modelAlias: 'm', defaultProfile: 'fast', maxQueue, queueTimeoutMs: 5000, reserves: { gpuMiB: 1024, ramMiB: 1024 }, residencyObjective: 'switch', chatFirst, ...(preemptReads ? { preemptReads } : {}) };
     const state = { pid: 7, loading: false, profile: 'fast', fitTargetMiB: null };
     const backend = { url: 'http://backend', profile: 'fast', status: () => state, servedContext: () => 32768, ensure: async () => {}, forRequest: async () => {}, releaseSlot: () => {} };
@@ -17,7 +17,9 @@ function rig({ preemptReads = { enabled: true }, chatFirst = true, maxQueue = 4 
     const scheduler = new ResidencyScheduler({ config, backend, snapshot: async () => ({}), queue: async () => ({}), freeImages: async () => {}, startComfy: async () => {}, saveFootprints: async () => {}, log: (line) => lines.push(line) });
     const arbiter = { backend, scheduler, status: async () => ({}), text: (run, signal, budget, lane, options) => scheduler.text(run, signal, budget, lane, options) };
     const calls = [];
+    const probes = [];
     const fetchImpl = async (url, init) => {
+        if (String(url).endsWith('/slots')) { probes.push(url); const data = await slots(); return new Response(JSON.stringify(data), { headers: { 'content-type': 'application/json' } }); }
         const body = JSON.parse(init.body);
         const row = { body, aborted: false, finish: null };
         calls.push(row);
@@ -30,7 +32,7 @@ function rig({ preemptReads = { enabled: true }, chatFirst = true, maxQueue = 4 
         });
     };
     const gateway = createGateway({ arbiter, config, fetchImpl });
-    return { gateway, scheduler, calls, lines, state };
+    return { gateway, scheduler, calls, lines, state, probes };
 }
 
 const post = (url, body, signal) => fetch(`${url}/completion`, { method: 'POST', body: JSON.stringify(body), signal });
@@ -191,7 +193,7 @@ test('a requeue goes after the last queued chat, ignores the queue limit, and do
 test('options validate maxPreempts; takePass strips the marker and returns it', () => {
     assert.equal(readPreemptionOptions({}), null);
     assert.equal(readPreemptionOptions({ preemptReads: { enabled: false } }), null);
-    assert.deepEqual(readPreemptionOptions({ preemptReads: { enabled: true } }), { maxPreempts: 2 });
+    assert.deepEqual(readPreemptionOptions({ preemptReads: { enabled: true } }), { mode: 'full', maxPreempts: 2 });
     assert.throws(() => readPreemptionOptions({ preemptReads: { enabled: true, maxPreempts: 0 } }), /maxPreempts/);
     const body = { prompt: 'x', so_pass: 'read' };
     assert.equal(takePass(body), 'read');
@@ -204,4 +206,134 @@ test('leaseKind names the main model, the recipe and the size so SDXL scenes and
     assert.equal(leaseKind({ workflowKey: JSON.stringify({ recipe: 'edit-v3' }), modelFiles: [{ kind: 'textEncoders', name: 'qwen_vl.safetensors' }, { kind: 'diffusionModels', name: 'qwen_image_edit_2509_fp8.safetensors' }], width: 1024, height: 1024 }), 'diffusion:qwen_image_edit_2509_fp8 edit-v3 1024x1024');
     assert.equal(leaseKind({ workflowKey: 'comfy-discovery' }), 'no-model comfy-discovery');
     assert.equal(leaseKind({}), 'no-model');
+});
+
+const LIMITED = { enabled: true, mode: 'limited', maxDecodedTokens: 32, maxRunMs: 4000, maxAgeBoundaries: 1 };
+const slotRow = (decoded) => [{ id: 0, is_processing: true, next_token: [{ has_next_token: true, n_remain: 100, n_decoded: decoded }] }];
+
+test('limited: a read that has decoded under the threshold is preempted once, requeued with the identical body and answers once', async () => {
+    const { gateway, calls, scheduler, probes, lines } = rig({ preemptReads: LIMITED, slots: () => slotRow(5) });
+    const { port } = await gateway.listen(0);
+    const url = `http://127.0.0.1:${port}`;
+    try {
+        const read = post(url, READ);
+        await until(() => calls.length === 1);
+        const chat = post(url, CHAT);
+        await until(() => calls[0].aborted && calls.length === 2);
+        assert.equal(probes.length, 1);
+        calls[1].finish(); await chat;
+        await until(() => calls.length === 3);
+        calls[2].finish();
+        assert.deepEqual(await (await read).json(), { content: 'read#2' });
+        assert.deepEqual(calls[2].body, calls[0].body);
+        const stats = scheduler.status().readPreemption;
+        assert.equal(stats.mode, 'limited');
+        assert.equal(stats.preempted, 1);
+        assert.equal(stats.completedAfterPreempt, 1);
+        assert.equal(stats.retriesMax, 1);
+        assert.equal(stats.chatsDone, 1);
+        assert.ok(lines.some((line) => /requeued after it \(preempt 1 of at most 1, \d+ ms since issue, 5 tokens decoded\)/.test(line)), lines.join('\n'));
+    } finally { await gateway.close(); }
+});
+
+test('limited: a read past the decoded threshold runs on and the chat waits behind it', async () => {
+    const { gateway, calls, scheduler } = rig({ preemptReads: LIMITED, slots: () => slotRow(33) });
+    const { port } = await gateway.listen(0);
+    const url = `http://127.0.0.1:${port}`;
+    try {
+        const read = post(url, READ);
+        await until(() => calls.length === 1);
+        const chat = post(url, CHAT);
+        await until(() => scheduler.status().readPreemption.skipped.decoded === 1);
+        assert.equal(calls[0].aborted, false);
+        assert.equal(calls.length, 1);
+        calls[0].finish(); assert.equal((await read).status, 200);
+        await until(() => calls.length === 2); calls[1].finish(); await chat;
+        const stats = scheduler.status().readPreemption;
+        assert.equal(stats.preempted, 0);
+        assert.equal(stats.lastSkip.reason, 'decoded');
+        assert.equal(stats.lastSkip.decoded, 33);
+    } finally { await gateway.close(); }
+});
+
+test('limited: a read already preempted once is never preempted again', async () => {
+    const { gateway, calls, scheduler } = rig({ preemptReads: LIMITED, slots: () => slotRow(0) });
+    const { port } = await gateway.listen(0);
+    const url = `http://127.0.0.1:${port}`;
+    try {
+        const read = post(url, READ);
+        await until(() => calls.length === 1);
+        const first = post(url, { ...CHAT, prompt: 'chat1' });
+        await until(() => calls.length === 2);
+        calls[1].finish(); await first;
+        await until(() => calls.length === 3);
+        const second = post(url, { ...CHAT, prompt: 'chat2' });
+        await new Promise((resolve) => setTimeout(resolve, 40));
+        assert.equal(calls[2].aborted, false);
+        calls[2].finish(); assert.equal((await read).status, 200);
+        await until(() => calls.length === 4); calls[3].finish(); await second;
+        assert.deepEqual(calls.map((row) => row.body.prompt), ['read', 'chat1', 'read', 'chat2']);
+        assert.equal(scheduler.status().readPreemption.preempted, 1);
+    } finally { await gateway.close(); }
+});
+
+test('limited: a read older than maxAgeBoundaries (a chat finished since it was issued) is not preempted', async () => {
+    const { gateway, calls, scheduler } = rig({ preemptReads: { ...LIMITED, maxAgeBoundaries: 0 }, slots: () => slotRow(0) });
+    const { port } = await gateway.listen(0);
+    const url = `http://127.0.0.1:${port}`;
+    try {
+        const first = post(url, { ...CHAT, prompt: 'chat1' });
+        await until(() => calls.length === 1);
+        const read = post(url, READ);
+        await until(() => scheduler.pending.length === 1);
+        calls[0].finish(); await first;
+        await until(() => calls.length === 2);
+        const second = post(url, { ...CHAT, prompt: 'chat2' });
+        await until(() => scheduler.status().readPreemption.skipped.age === 1);
+        assert.equal(calls[1].aborted, false);
+        calls[1].finish(); assert.equal((await read).status, 200);
+        await until(() => calls.length === 3); calls[2].finish(); await second;
+        assert.equal(scheduler.status().readPreemption.preempted, 0);
+        assert.equal(scheduler.status().readPreemption.lastSkip.ageBoundaries, 1);
+    } finally { await gateway.close(); }
+});
+
+test('limited: an unreadable /slots falls back to the run time; a read past maxRunMs is not preempted', async () => {
+    const { gateway, calls, scheduler } = rig({ preemptReads: LIMITED, slots: () => { throw new Error('no slots'); } });
+    const { port } = await gateway.listen(0);
+    const url = `http://127.0.0.1:${port}`;
+    try {
+        const read = post(url, READ);
+        await until(() => calls.length === 1);
+        const chat = post(url, CHAT);
+        await until(() => calls[0].aborted && calls.length === 2);
+        assert.equal(scheduler.status().readPreemption.skipped.probeMissed, 1);
+        calls[1].finish(); await chat;
+        await until(() => calls.length === 3); calls[2].finish(); await read;
+    } finally { await gateway.close(); }
+    const late = rig({ preemptReads: { ...LIMITED, maxRunMs: 100 }, slots: () => slotRow(0) });
+    const { port: port2 } = await late.gateway.listen(0);
+    const url2 = `http://127.0.0.1:${port2}`;
+    try {
+        const read = post(url2, READ);
+        await until(() => late.calls.length === 1);
+        await new Promise((resolve) => setTimeout(resolve, 150));
+        const chat = post(url2, CHAT);
+        await until(() => late.scheduler.status().readPreemption.skipped.runMs === 1);
+        assert.equal(late.calls[0].aborted, false);
+        late.calls[0].finish(); await read;
+        await until(() => late.calls.length === 2); late.calls[1].finish(); await chat;
+    } finally { await late.gateway.close(); }
+});
+
+test('limited options: maxPreempts fixed at 1, thresholds validated; decodedOf reads the slot or the one busy slot', () => {
+    assert.deepEqual(readPreemptionOptions({ preemptReads: { enabled: true, mode: 'limited' } }), { mode: 'limited', maxPreempts: 1, maxDecodedTokens: 32, maxRunMs: 4000, maxAgeBoundaries: 1, probeTimeoutMs: 500 });
+    assert.throws(() => readPreemptionOptions({ preemptReads: { enabled: true, mode: 'limited', maxPreempts: 2 } }), /always 1/);
+    assert.throws(() => readPreemptionOptions({ preemptReads: { enabled: true, mode: 'limited', maxRunMs: 5 } }), /maxRunMs/);
+    assert.throws(() => readPreemptionOptions({ preemptReads: { enabled: true, mode: 'sometimes' } }), /mode/);
+    assert.equal(decodedOf(slotRow(7), 0), 7);
+    assert.equal(decodedOf(slotRow(7), null), 7);
+    assert.equal(decodedOf([{ id: 0, is_processing: true, next_token: { n_decoded: 3 } }, { id: 1, is_processing: false, next_token: [{ n_decoded: 0 }] }], 0), 3);
+    assert.equal(decodedOf([{ id: 0, is_processing: true }, { id: 1, is_processing: true }], null), null);
+    assert.equal(decodedOf({ error: 'x' }, 0), null);
 });
