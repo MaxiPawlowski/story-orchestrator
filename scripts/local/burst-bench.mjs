@@ -3,16 +3,18 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { build } from 'esbuild';
 import { renderSignature } from '../../server-plugin/story-orchestrator-gpu/broker/policy.mjs';
+import { outOfMemory } from '../../server-plugin/story-orchestrator-media/jobs.mjs';
 
 const args = process.argv.slice(2);
 const option = (name, fallback) => { const at = args.indexOf(`--${name}`); return at >= 0 ? args[at + 1] : fallback; };
 const configFile = args[0];
 const pattern = option('pattern', 'IIRIIR');
 const burst = args.includes('--burst');
+const hires = args.includes('--hires');
 const corpusFile = option('corpus', null);
 const replyTokens = Number(option('reply-tokens', '128'));
 const out = option('out', null);
-if (!configFile || !/^[IR]+$/.test(pattern)) throw new Error('Usage: node scripts/local/burst-bench.mjs <config.json> --pattern IIRIIR [--burst] [--corpus <corpus.json>] [--reply-tokens 128] [--out <file>]');
+if (!configFile || !/^[IR]+$/.test(pattern)) throw new Error('Usage: node scripts/local/burst-bench.mjs <config.json> --pattern IIRIIR [--burst] [--hires] [--corpus <corpus.json>] [--reply-tokens 128] [--out <file>]');
 const config = JSON.parse(await fs.readFile(configFile, 'utf8'));
 const url = `http://127.0.0.1:${config.gatewayPort}`;
 const home = fileURLToPath(new URL('../../', import.meta.url));
@@ -28,7 +30,7 @@ const checkpoint = checkpointFor(checkpointFile, familyOf(checkpointFile) ?? 'sd
 const family = FAMILIES[checkpoint.family];
 const size = family.sizes.wide;
 const modelFiles = [{ kind: 'checkpoints', name: checkpoint.file }];
-const needGpuMiB = await estimateNeedMiB({ modelDirs: config.modelDirs, files: modelFiles, ...size, hires: false });
+const needGpuMiB = await estimateNeedMiB({ modelDirs: config.modelDirs, files: modelFiles, ...size, hires });
 const prompts = corpusFile ? JSON.parse(await fs.readFile(corpusFile, 'utf8')).items.filter((item) => item.kind === 'chat').map((item) => item.body.prompt) : [];
 
 const post = async (base, route, body, timeoutMs = 600000) => {
@@ -41,26 +43,35 @@ const status = async () => (await fetch(`${url}/status`)).json();
 const marks = (s) => ({ loads: s.text?.loads ?? 0, pid: s.text?.pid ?? null, comfyPid: s.comfy?.ownedPid ?? null, fit: s.text?.fitCorrectionMiB ?? null,
     spill: s.spill?.events?.length ?? 0, replyWaits: s.replyWaits ?? null, burst: s.burst ?? null, reclaims: s.comfy?.reclaims ?? null, lastReclaim: s.comfy?.lastReclaim ?? null,
     wakes: s.text?.sleepStats?.wakes ?? 0, lastWakeMs: s.text?.sleepStats?.lastWakeMs ?? null, lightWakes: s.text?.sleepStats?.lightWakes ?? 0, lightFreedMiB: s.text?.sleepStats?.lastLightFreedMiB ?? null,
-    residency: s.lastResidency ? { decision: s.lastResidency.decision, admitted: s.lastResidency.admittedReadings ?? null } : null });
+    residency: s.lastResidency ? { decision: s.lastResidency.decision, admitted: s.lastResidency.admittedReadings ?? null, lightStream: s.lastResidency.lightSleep?.stream ?? null } : null,
+    lowGpuMiB: s.measurement?.lowGpuMiB ?? null, textSpills: (s.spill?.events ?? []).filter((event) => event.role === 'text').length, lightStream: s.lightStream ?? null });
 
 const image = async (index) => {
     const graph = buildGraph({ checkpoint, family, loras: [], positive: `an empty old stone hall, fireplace, warm light, detailed architecture, no people, variant ${index}`,
-        negative: 'text, watermark, low quality', size, seed: 1000 + index, hires: false, upscaler: config.benchmarkUpscaler ?? 'RealESRGAN_x4plus_anime_6B.safetensors' });
+        negative: 'text, watermark, low quality', size, seed: 1000 + index, hires, upscaler: config.benchmarkUpscaler ?? 'RealESRGAN_x4plus_anime_6B.safetensors' });
     const began = Date.now();
-    const lease = await post(url, '/lease', { workflowKey: renderSignature(graph), needGpuMiB, nextTextTokens: replyTokens, modelFiles, ...size, hires: false });
+    const lease = await post(url, '/lease', { workflowKey: renderSignature(graph), needGpuMiB, nextTextTokens: replyTokens, modelFiles, ...size, hires });
     const admittedMs = Date.now() - began;
     try {
         const queued = await post(config.comfyUrl, '/prompt', { prompt: graph, client_id: `so-burst-${process.pid}` });
         const renderBegan = Date.now();
+        let oomSeen = null;
+        let oomRetried = false;
         while (true) {
             const history = await (await fetch(`${config.comfyUrl}/history/${queued.prompt_id}`)).json();
             const entry = history[queued.prompt_id];
+            if (!entry && oomSeen) oomRetried = true;
             if (entry?.status?.completed) { if (entry.status.status_str !== 'success') throw new Error(JSON.stringify(entry.status)); break; }
-            if (entry?.status?.status_str === 'error') throw new Error(JSON.stringify(entry.status));
+            if (entry?.status?.status_str === 'error') {
+                const oom = outOfMemory(entry);
+                const sameRun = oom && (oomSeen === null || oomSeen.started === oom.started);
+                if (!sameRun || Date.now() - (oomSeen?.at ?? Date.now()) > 30000) throw new Error(JSON.stringify(entry.status).slice(0, 2000));
+                oomSeen ??= { ...oom, at: Date.now() };
+            }
             if (Date.now() - renderBegan > 600000) throw new Error('render timed out');
             await new Promise((resolve) => setTimeout(resolve, 500));
         }
-        return { admittedMs, renderMs: Date.now() - renderBegan, decision: lease.decision ?? null };
+        return { admittedMs, renderMs: Date.now() - renderBegan, decision: lease.decision ?? null, oomRetried };
     } finally { await post(url, '/release', { lease: lease.lease }); }
 };
 
@@ -89,12 +100,13 @@ let images = 0; let replies = 0; let lastImageEnd = null;
 for (const kind of pattern) {
     const before = marks(await status());
     const began = Date.now();
-    const step = kind === 'I' ? { kind, ...(await image(images++)) } : { kind, ...(await reply(replies++)), afterImageMs: lastImageEnd ? Date.now() - lastImageEnd : null };
+    const step = kind === 'I' ? { kind, ...(await image(images++).catch((error) => ({ failed: true, error: error.message.slice(0, 2000) }))) } : { kind, ...(await reply(replies++)), afterImageMs: lastImageEnd ? Date.now() - lastImageEnd : null };
     const after = marks(await status());
     if (kind === 'I') lastImageEnd = Date.now(); else { step.afterImageMs = lastImageEnd ? Date.now() - lastImageEnd : null; lastImageEnd = null; }
     steps.push({ ...step, wallMs: Date.now() - began, reloads: after.loads - before.loads, comfyRestarted: Boolean(before.comfyPid && after.comfyPid && before.comfyPid !== after.comfyPid) || (!before.comfyPid && Boolean(after.comfyPid) && kind === 'I'),
         textLoadedBefore: Boolean(before.pid), wakeMs: after.wakes > before.wakes ? after.lastWakeMs : null, lightWake: after.lightWakes > before.lightWakes,
-        lightFreedMiB: kind === 'I' ? after.lightFreedMiB : undefined, residency: kind === 'I' ? after.residency : undefined });
+        lightFreedMiB: kind === 'I' ? after.lightFreedMiB : undefined, residency: kind === 'I' ? after.residency : undefined,
+        lowGpuMiB: kind === 'I' ? after.lowGpuMiB : undefined, besideSleeper: kind === 'I' ? after.residency?.lightStream?.stage === 'measured' && after.residency.lightStream.fits === true : undefined });
 }
 if (burstId) await post(url, '/burst', { close: burstId }).catch(() => {});
 await new Promise((resolve) => setTimeout(resolve, 8000));
@@ -102,6 +114,9 @@ const end = marks(await status());
 const summary = { pattern, burst, replyTokens, steps, reloads: end.loads - start.loads, comfyStarts: steps.filter((step) => step.comfyRestarted).length,
     replyTtftP50: (() => { const v = steps.filter((s) => s.kind === 'R').map((s) => s.ttftMs).sort((a, b) => a - b); return v[Math.floor(v.length / 2)] ?? null; })(),
     imageToReplyMs: steps.filter((s) => s.kind === 'R' && s.afterImageMs != null).map((s) => s.afterImageMs),
+    imagesFailed: steps.filter((s) => s.kind === 'I' && s.failed).length, oomRetries: steps.filter((s) => s.oomRetried).length,
+    streamBesideSleeper: steps.filter((s) => s.besideSleeper).length, streamLowGpuMiB: steps.filter((s) => s.besideSleeper).map((s) => s.lowGpuMiB),
+    textSpills: end.textSpills, lightStream: end.lightStream,
     fitCorrectionMiB: end.fit, spillEvents: end.spill - start.spill, replyWaits: end.replyWaits, burstState: end.burst, reclaims: end.reclaims, lastReclaim: end.lastReclaim };
 if (out) await fs.writeFile(out, JSON.stringify(summary, null, 2));
 console.log(JSON.stringify({ ...summary, steps: steps.map((s) => ({ kind: s.kind, wallMs: s.wallMs, reloads: s.reloads, ttftMs: s.ttftMs, renderMs: s.renderMs, decision: s.decision, comfyRestarted: s.comfyRestarted })) }));

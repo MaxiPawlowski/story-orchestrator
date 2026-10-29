@@ -7,6 +7,7 @@ import { memberCacheOptions } from './memberCache.mjs';
 import { estimateNeedMiB, modelIdentities, estimateRamMiB } from './models.mjs';
 import { footprintKey, observedFootprint, FOOTPRINT_REVISION } from './footprints.mjs';
 import { creditedSnapshot, imageResidency, residentCredit, IMAGE_IDLE_GRACE_MS } from './imageResidency.mjs';
+import { LightStreamStats, comfyOom, learnedUseMiB, lightStreamOptions, noteStreamUse, retryBody, streamUseKey } from './lightStream.mjs';
 
 export const RAM_REFUSAL = /Insufficient (physical RAM|commit) headroom/;
 export const TIMING_WINDOW = 15;
@@ -36,8 +37,10 @@ export function leaseKind(body = {}) {
 export const timingProfile = (config, profile) => { const tag = speculativeTag(config); return tag ? `${profile}+${tag}` : profile; };
 
 export class ResidencyScheduler {
-    constructor({ config, backend, snapshot, queue, freeImages, startComfy, saveFootprints, footprints = {}, timings = {}, saveTimings = async () => {}, runtime = async () => ({ id: 'unknown', streaming: false }), log = () => {}, comfyPid = () => null }) {
-        Object.assign(this, { config, backend, snapshot, queue, freeImages, startComfy, saveFootprints, footprints, timings, saveTimings, runtime, log, comfyPid });
+    constructor({ config, backend, snapshot, queue, freeImages, startComfy, saveFootprints, footprints = {}, timings = {}, saveTimings = async () => {}, runtime = async () => ({ id: 'unknown', streaming: false }), log = () => {}, comfyPid = () => null, comfy = null }) {
+        Object.assign(this, { config, backend, snapshot, queue, freeImages, startComfy, saveFootprints, footprints, timings, saveTimings, runtime, log, comfyPid, comfy });
+        lightStreamOptions(config);
+        this.lightStream = new LightStreamStats();
         const spillOptions = spillGuardOptions(config);
         this.spillGuard = spillOptions ? new SpillGuard(spillOptions) : null;
         this.spill = { events: [], backoffMiB: 0, textSpilled: false };
@@ -330,6 +333,8 @@ export class ResidencyScheduler {
             }
             let decision;
             let lightNote = '';
+            let lightStream = null;
+            let besideSleeper = false;
             if (memory.credit && (benchmarkMode === 'swap' || !admission(creditedSnapshot(snapshot, memory.credit), { gpuMiB: needGpuMiB, ramMiB: needRamMiB }, this.config.reserves).allowed)) {
                 await this.freeImages();
                 memory.credit = null;
@@ -375,6 +380,24 @@ export class ResidencyScheduler {
                     decision = 'swap-text';
                     lightNote = ` A light sleep left ${measured.freeMiB ?? '?'} MiB free, short of image ${needGpuMiB} + reserve ${measured.reserveMiB} MiB; text was stopped.`;
                 }
+            } else if (benchmarkMode !== 'swap' && textResident && textState.fitTargetMiB == null && sleepsLight(this.config)
+                && (lightStream = this.lightStreamPlan({ snapshot, runtime, models, needRamMiB, credit: memory.credit, identity }))?.fits) {
+                await this.backend.unload({ keepCache: true, light: true });
+                snapshot = await this.snapshot({ fresh: true });
+                const asleep = this.backend.status().sleeping?.light === true;
+                lightStream = this.noteLightStream({ ...this.lightStreamCheck(snapshot, lightStream, 0), stage: 'measured' });
+                if (asleep && lightStream.fits) {
+                    decision = 'sleep-context';
+                    besideSleeper = true;
+                    reason = `${choice.reason} Text contexts freed, weights kept on the GPU; the image streams beside them: ${lightStream.freeMiB} MiB free covers stream need ${lightStream.needMiB} + margin ${lightStream.marginMiB} MiB.`;
+                } else {
+                    if (this.backend.status().sleeping) await this.backend.dropSleeping();
+                    await this.dropSleepingForRam(needRamMiB);
+                    await freeFor(needRamMiB);
+                    snapshot = await this.snapshot({ fresh: true });
+                    decision = 'swap-text';
+                    lightNote = ` A light sleep left ${lightStream.freeMiB ?? '?'} MiB free, short of stream need ${lightStream.needMiB} + margin ${lightStream.marginMiB} MiB; text was stopped.`;
+                }
             } else if (ramMemory && textResident && Number.isFinite(ramBefore) && ramBefore + ramMemory.freedMiB < needRamMiB + this.config.reserves.ramMiB) {
                 const detail = `Insufficient physical RAM headroom. RAM available ${Math.round(ramBefore)} MiB, about ${Math.round(ramMemory.freedMiB)} MiB more after unloading text; workload ${needRamMiB} + reserve ${this.config.reserves.ramMiB} MiB.`;
                 this.recordResidency({ decision: 'ram-short', reason: `Host RAM is short; text kept loaded: ${detail}`, admittedReadings: { gpuFreeMiB: snapshot?.gpus?.[0]?.freeMiB ?? null, ramAvailableMiB: ramBefore } });
@@ -402,9 +425,11 @@ export class ResidencyScheduler {
             }
             if (decision === 'swap-text' && textResident && benchmarkMode !== 'swap') reason = `Swapped text out. ${choice.reason}`;
             const light = this.lastResidency.lightSleep;
-            if (light?.stage === 'estimate' && !light.fits) lightNote = ` Light sleep skipped: about ${light.freeMiB ?? '?'} MiB free after it, short of image ${needGpuMiB} + reserve ${light.reserveMiB} MiB.`;
+            if (light?.stage === 'estimate' && !light.fits && !lightNote && !besideSleeper) lightNote = ` Light sleep skipped: about ${light.freeMiB ?? '?'} MiB free after it, short of image ${needGpuMiB} + reserve ${light.reserveMiB} MiB.`;
+            if (light?.stream?.stage === 'estimate' && !light.stream.fits) lightNote += ` Streaming beside a light sleeper skipped: about ${light.stream.freeMiB ?? '?'} MiB free after it, short of stream need ${light.stream.needMiB} + margin ${light.stream.marginMiB} MiB.`;
             reason += lightNote;
-            const admitted = decision === 'stream-image' ? { allowed: this.streams({ snapshot, runtime, models, needRamMiB }), reason: 'Streaming headroom changed.' } : fits();
+            const admitted = decision === 'stream-image' ? { allowed: this.streams({ snapshot, runtime, models, needRamMiB }), reason: 'Streaming headroom changed.' }
+                : besideSleeper ? { allowed: lightStream.fits, reason: 'Streaming headroom changed after the light sleep.' } : fits();
             const admittedReadings = { gpuFreeMiB: snapshot?.gpus?.[0]?.freeMiB ?? null, ramAvailableMiB: snapshot?.host?.availableMiB ?? null };
             if (!admitted.allowed && RAM_REFUSAL.test(admitted.reason)) throw await this.noteRamShort(ramBefore, `${admitted.reason} RAM available ${Math.round(admittedReadings.ramAvailableMiB ?? -1)} MiB; workload ${needRamMiB} + reserve ${this.config.reserves.ramMiB} MiB.`);
             if (!admitted.allowed) {
@@ -425,6 +450,11 @@ export class ResidencyScheduler {
                 peakGpu: snapshot.gpus[0].usedMiB, lowRam: snapshot.host.availableMiB, lowCommit: snapshot.host.commitFreeMiB,
                 lowGpu: snapshot.gpus[0].freeMiB, highCadence: snapshot.highCadence === true, seenJob: false, decision, needGpuMiB, needRamMiB,
                 textHeldMiB: residentText.pid ? this.textHeldMiB(snapshot) : 0, trace: [], kind: this.lastResidency?.kind ?? leaseKind(body) };
+            if (besideSleeper) {
+                this.lease.lightStream = { useKey: lightStream.useKey, needMiB: lightStream.needMiB, learnedMiB: lightStream.learnedMiB, marginMiB: lightStream.marginMiB,
+                    freeAtAdmissionMiB: snapshot.gpus[0].freeMiB, beforeUsedMiB: snapshot.gpus[0].usedMiB, oomRetry: lightStreamOptions(this.config)?.oomRetry !== false, handled: new Set(), retried: false, lowGpuMiB: null };
+                this.lightStream.leases += 1;
+            }
             return { lease: this.lease.id, brokered: true, decision };
         } catch (error) {
             this.lastError = error.message;
@@ -454,6 +484,94 @@ export class ResidencyScheduler {
         return requested > estimate.ramMiB ? { needRamMiB: Math.ceil(requested), ramSource: 'request' } : { needRamMiB: Math.ceil(estimate.ramMiB), ramSource: estimate.source };
     }
 
+    streamEligible({ runtime, models }) {
+        const policy = this.config.streamImages;
+        if (!policy?.enabled || !runtime?.streaming) return false;
+        if (!models.length || models.some((row) => !(policy.kinds ?? ['checkpoints']).includes(row.kind))) return false;
+        return models.reduce((sum, row) => sum + row.weightsMiB, 0) <= (policy.maxWeightMiB ?? 8192);
+    }
+
+    lightStreamPlan({ snapshot, runtime, models, needRamMiB, credit, identity }) {
+        const options = lightStreamOptions(this.config);
+        if (!options || !this.streamEligible({ runtime, models })) return null;
+        const useKey = streamUseKey(identity);
+        const learnedMiB = learnedUseMiB(this.footprints[useKey]);
+        const floorMiB = this.config.streamImages.minFreeGpuMiB ?? 2400;
+        const base = { useKey, needMiB: Math.max(floorMiB, learnedMiB ?? 0), floorMiB, learnedMiB, marginMiB: options.marginMiB, needRamMiB };
+        return this.noteLightStream(this.lightStreamCheck(creditedSnapshot(snapshot, credit), base, this.lightSleepFreesMiB()));
+    }
+
+    lightStreamCheck(snapshot, base, freesMiB) {
+        const gpu = snapshot?.gpus?.[0];
+        const freeMiB = Number.isFinite(gpu?.freeMiB) ? Math.round(gpu.freeMiB + freesMiB) : null;
+        const reading = freeMiB === null ? null : { ...snapshot, gpus: [{ ...gpu, freeMiB }, ...snapshot.gpus.slice(1)] };
+        const fits = reading !== null && admission(reading, { gpuMiB: base.needMiB, ramMiB: base.needRamMiB }, { gpuMiB: base.marginMiB, ramMiB: this.config.reserves.ramMiB }).allowed;
+        return { ...base, stage: 'estimate', freeMiB, predictedMinMiB: freeMiB === null ? null : freeMiB - base.needMiB, fits };
+    }
+
+    noteLightStream(check) {
+        if (this.lastResidency) this.lastResidency = { ...this.lastResidency, lightSleep: { ...(this.lastResidency.lightSleep ?? {}), stream: { ...check, useKey: undefined } } };
+        return check;
+    }
+
+    async watchStreamOom(lease) {
+        const stream = lease.lightStream;
+        if (!this.comfy?.recent) return;
+        const history = await this.comfy.recent(8);
+        for (const [id, item] of Object.entries(history ?? {})) {
+            if (this.lease !== lease || stream.handled.has(id)) continue;
+            const started = (item?.status?.messages ?? []).find((entry) => Array.isArray(entry) && entry[0] === 'execution_start')?.[1]?.timestamp;
+            if (!(started >= lease.at)) continue;
+            const oom = comfyOom(item);
+            if (!oom) { if (item?.status?.completed !== undefined) stream.handled.add(id); continue; }
+            stream.handled.add(id);
+            await this.retryStreamOom(lease, id, item, oom);
+        }
+    }
+
+    async retryStreamOom(lease, id, item, oom) {
+        const stream = lease.lightStream;
+        const at = new Date().toISOString();
+        if (stream.retried || !stream.oomRetry) {
+            if (stream.retried) this.lightStream.oomAfterRetry += 1;
+            this.lightStream.lastOom = { at, id, ...oom, retried: false, reason: stream.retried ? 'already-retried' : 'retry-off' };
+            this.log(`light-sleep stream: ComfyUI ran out of GPU memory on ${id} (${oom.message}); not retried (${this.lightStream.lastOom.reason})`);
+            return;
+        }
+        const body = retryBody(item, id);
+        stream.retried = true;
+        stream.lowGpuMiB = lease.lowGpu;
+        if (!body) { this.lightStream.oomRetryFailed += 1; this.lightStream.lastOom = { at, id, ...oom, retried: false, reason: 'no-graph' }; return; }
+        this.log(`light-sleep stream: ComfyUI ran out of GPU memory on ${id} (${oom.message}); stopping the sleeping text and retrying the job once as a full swap`);
+        try {
+            if (this.backend.status().sleeping) await this.backend.dropSleeping();
+            const fresh = await this.snapshot({ fresh: true });
+            if (this.lease !== lease) return;
+            Object.assign(lease, { decision: 'swap-text', textHeldMiB: 0, before: fresh, peakGpu: fresh.gpus[0].usedMiB });
+            await this.comfy.deleteHistory(id);
+            await this.comfy.submit(body);
+            this.lightStream.oomRetries += 1;
+            this.lightStream.lastOom = { at, id, ...oom, retried: true };
+            if (this.lastResidency) this.lastResidency = { ...this.lastResidency, decision: 'swap-text', reason: `${this.lastResidency.reason} ComfyUI ran out of GPU memory streaming beside the light sleeper; the job was retried once as a full swap.` };
+        } catch (error) {
+            this.lightStream.oomRetryFailed += 1;
+            this.lastError = error.message;
+            this.lightStream.lastOom = { at, id, ...oom, retried: false, reason: 'retry-failed', error: error.message };
+        }
+    }
+
+    async noteStreamLease(lease) {
+        const stream = lease.lightStream;
+        if (!lease.seenJob && !stream.retried) return;
+        const lowGpuMiB = stream.retried ? stream.lowGpuMiB : lease.lowGpu;
+        const useMiB = stream.retried ? stream.freeAtAdmissionMiB : Math.max(0, lease.peakGpu - stream.beforeUsedMiB);
+        this.footprints[stream.useKey] = noteStreamUse(this.footprints[stream.useKey], { useMiB, lowGpuMiB, freeAtAdmissionMiB: stream.freeAtAdmissionMiB, oom: stream.retried });
+        if (Number.isFinite(lowGpuMiB) && lowGpuMiB < stream.marginMiB) this.lightStream.belowMargin += 1;
+        this.lightStream.lastLease = { at: new Date().toISOString(), kind: lease.kind ?? null, needMiB: stream.needMiB, learnedMiB: stream.learnedMiB, marginMiB: stream.marginMiB,
+            freeAtAdmissionMiB: Math.round(stream.freeAtAdmissionMiB), useMiB: Math.round(useMiB), lowGpuMiB: Number.isFinite(lowGpuMiB) ? Math.round(lowGpuMiB) : null, retried: stream.retried };
+        try { await this.saveFootprints(this.footprints); } catch (error) { this.lastError = error.message; }
+    }
+
     lightSleepCheck(snapshot, needGpuMiB, credit, freesMiB) {
         const reading = creditedSnapshot(snapshot, credit)?.gpus?.[0]?.freeMiB;
         const freeMiB = Number.isFinite(reading) ? Math.round(reading + freesMiB) : null;
@@ -474,12 +592,15 @@ export class ResidencyScheduler {
     }
 
     streams({ snapshot, runtime, models, needRamMiB }) {
-        const policy = this.config.streamImages;
         const text = this.backend.status();
-        if (!policy?.enabled || !runtime?.streaming || !text.pid || text.fitTargetMiB != null) return false;
-        if (!models.length || models.some((row) => !(policy.kinds ?? ['checkpoints']).includes(row.kind))) return false;
-        if (models.reduce((sum, row) => sum + row.weightsMiB, 0) > (policy.maxWeightMiB ?? 8192)) return false;
-        return admission(snapshot, { gpuMiB: policy.minFreeGpuMiB ?? 2400, ramMiB: needRamMiB }, this.config.reserves).allowed;
+        if (!text.pid || text.fitTargetMiB != null || !this.streamEligible({ runtime, models })) return false;
+        return admission(snapshot, { gpuMiB: this.config.streamImages.minFreeGpuMiB ?? 2400, ramMiB: needRamMiB }, this.config.reserves).allowed;
+    }
+
+    lightStreamStatus() {
+        let options = null;
+        try { options = lightStreamOptions(this.config); } catch { options = null; }
+        return this.lightStream.status(options);
     }
 
     lightSleepFreesMiB() { return memberCacheOptions(this.config)?.lightSleepFreesMiB ?? 2900; }
@@ -524,6 +645,7 @@ export class ResidencyScheduler {
             await this.checkSleepingText(snapshot);
             busy = Boolean(queue.queue_running?.length || queue.queue_pending?.length);
             lease.seenJob ||= busy;
+            if (lease.lightStream) await this.watchStreamOom(lease);
         } catch (error) { this.lastError = error.message; }
         if (this.lease !== lease || busy === true || !this.leaseExpired(lease, now)) return;
         try { await this.release(lease.id); } catch (error) { this.lastError = error.message; }
@@ -607,7 +729,8 @@ export class ResidencyScheduler {
             if (!warm) try { this.observe(await this.snapshot({ fresh: true })); } catch (error) { this.lastError = error.message; }
             this.lastWorkflow = lease.workflowKey;
             this.lastCacheMode = cache?.mode ?? null;
-            if (lease.key && lease.seenJob) {
+            if (lease.lightStream) await this.noteStreamLease(lease);
+            else if (lease.key && lease.seenJob) {
                 this.footprints[lease.key] = observedFootprint(lease, this.footprints[lease.key], this.config.reserves);
                 try { await this.saveFootprints(this.footprints); } catch (error) { this.lastError = error.message; }
             }
@@ -712,7 +835,7 @@ export class ResidencyScheduler {
     status() {
         return { phase: this.imagePending ? 'reserving' : this.lease ? 'image' : this.restoring ? 'restoring' : this.manualHold ? 'manual-hold' : 'text',
             activeText: this.activeText, overlappedText: this.overlapped ?? 0, burst: { open: this.burstOpen() ? { remaining: this.burst.remaining, until: new Date(this.burst.until).toISOString(), kind: this.burst.kind } : null, ...this.burstStats }, replyWaits: this.replyWaitStatus(), spill: { backoffMiB: this.spill.backoffMiB, textSpilled: this.spill.textSpilled, events: this.spill.events.slice(-5) }, waitingText: this.pending.length, imageLease: Boolean(this.lease),
-            readPreemption: this.readPreemption?.status() ?? null, imageWaiting: Boolean(this.imageQueued), servedText: this.servedText, fairImages: true, ramShort: this.ramShort,
+            readPreemption: this.readPreemption?.status() ?? null, lightStream: this.lightStreamStatus(), imageWaiting: Boolean(this.imageQueued), servedText: this.servedText, fairImages: true, ramShort: this.ramShort,
             text: this.backend.status(), objective: this.config.residencyObjective ?? 'total-wait', timings: this.timings, lastTextDecision: this.lastTextDecision,
             lastDecision: this.lastDecision, lastResidency: this.lastResidency, lastNeedGpuMiB: this.lastNeedGpuMiB, measurement: this.lastMeasurement ? { ...this.lastMeasurement, trace: undefined } : null,
             imageResidency: { mode: this.residentImages ? 'gpu-warm' : this.lastCacheMode, awaitingReclaim: this.imagesNeedRelease, releaseTargetMiB: this.imageReleaseTargetMiB, releaseFailures: this.releaseFailures ?? 0, lastReleaseGiveUp: this.lastReleaseGiveUp ?? null },

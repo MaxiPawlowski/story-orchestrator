@@ -340,3 +340,53 @@ test('a render ComfyUI no longer knows (restarted) fails after a minute instead 
     assert.equal(failed.status, 'failed');
     assert.match(failed.error, /no longer has this render/);
 });
+
+const oomItem = (started) => ({ status: { status_str: 'error', completed: false, messages: [['execution_start', { timestamp: started }], ['execution_error', { exception_type: 'torch.OutOfMemoryError', exception_message: 'CUDA out of memory.' }]] } });
+
+test('an out-of-memory render waits for the GPU broker one retry under the same prompt id, then completes; past the grace it fails as out of memory', async () => {
+    let now = 1000;
+    let history = { p: oomItem(1) };
+    let queue = { queue_running: [], queue_pending: [] };
+    const jobs = new ComfyJobs({ url: 'http://comfy', now: () => now, fetchImpl: async (url) => {
+        if (url.endsWith('/prompt')) return Response.json({ prompt_id: 'p' });
+        if (url.includes('/history/')) return Response.json(history);
+        return Response.json(queue);
+    } });
+    const id = randomUUID();
+    await jobs.submit('a', id, {});
+    assert.equal((await jobs.poll('a', id)).status, 'running');
+    now += 5000;
+    history = {}; queue = { queue_running: [[0, 'p']], queue_pending: [] };
+    assert.equal((await jobs.poll('a', id)).status, 'running');
+    history = { p: { status: { status_str: 'success' }, outputs: { image: { images: [{ filename: 'retried.png', type: 'output' }] } } } };
+    assert.equal((await jobs.poll('a', id)).status, 'complete');
+
+    const lone = randomUUID();
+    history = { p: oomItem(2) };
+    await jobs.submit('a', lone, {});
+    assert.equal((await jobs.poll('a', lone)).status, 'running');
+    now += 31_000;
+    const failed = await jobs.poll('a', lone);
+    assert.equal(failed.status, 'failed');
+    assert.match(failed.error, /ran out of GPU memory/);
+});
+
+test('a second out-of-memory error after the retry fails at once, and other recipe errors never wait', async () => {
+    let history = { p: oomItem(1) };
+    const jobs = new ComfyJobs({ url: 'http://comfy', fetchImpl: async (url) => {
+        if (url.endsWith('/prompt')) return Response.json({ prompt_id: 'p' });
+        if (url.includes('/history/')) return Response.json(history);
+        return Response.json({ queue_running: [], queue_pending: [] });
+    } });
+    const id = randomUUID();
+    await jobs.submit('a', id, {});
+    assert.equal((await jobs.poll('a', id)).status, 'running');
+    history = { p: oomItem(2) };
+    assert.equal((await jobs.poll('a', id)).status, 'failed');
+    const other = randomUUID();
+    history = { p: { status: { status_str: 'error', messages: [['execution_error', { exception_type: 'ValueError', exception_message: 'bad' }]] } } };
+    await jobs.submit('a', other, {});
+    const failed = await jobs.poll('a', other);
+    assert.equal(failed.status, 'failed');
+    assert.equal(failed.error, 'ComfyUI failed while running the recipe.');
+});

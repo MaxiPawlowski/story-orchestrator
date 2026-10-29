@@ -13,7 +13,7 @@ import { withinReserve } from './policy.mjs';
 import { comfyPort } from './controllerStatus.mjs';
 
 export const BROKER_SOURCE_FILES = Object.freeze(['arbiter', 'backend', 'controllerStatus', 'estimate', 'fastTelemetry', 'footprints', 'gateway', 'gguf', 'imageResidency',
-    'imageCache', 'memberCache', 'models', 'policy', 'promptReuse', 'ramEstimates', 'readPreemption', 'responseTiming', 'runtimeIdentity', 'safetensors', 'scheduler', 'telemetry']);
+    'imageCache', 'lightStream', 'memberCache', 'models', 'policy', 'promptReuse', 'ramEstimates', 'readPreemption', 'responseTiming', 'runtimeIdentity', 'safetensors', 'scheduler', 'telemetry']);
 
 export async function brokerBuild(extra = []) {
     const source = createHash('sha256');
@@ -199,6 +199,8 @@ export function createArbiter(config, deps = {}) {
             try { await ensureReserves(); } catch {}
             scheduler = deps.scheduler ?? new ResidencyScheduler({ config, backend, snapshot, startComfy,
                 queue: () => jsonFetch('/queue'), freeImages,
+                comfy: { recent: (count) => jsonFetch(`/history?max_items=${count}`), deleteHistory: (id) => jsonFetch('/history', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ delete: [id] }) }),
+                    submit: (body) => jsonFetch('/prompt', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) }) },
                 saveFootprints: (data) => fsImpl.writeFile(footprintsPath, JSON.stringify(data, null, 2)), footprints,
                 timings, saveTimings: (data) => fsImpl.writeFile(timingsPath, JSON.stringify({ identity, timings: data }, null, 2)), runtime,
                 log: deps.log ?? stampedLog, comfyPid: () => comfyChild?.pid ?? null });

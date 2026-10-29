@@ -1,9 +1,18 @@
 import { randomUUID } from 'node:crypto';
 
 const settled = new Set(['cancelled', 'failed', 'complete']);
+const OOM_TEXT = /out of memory|OutOfMemoryError/i;
+
+export function outOfMemory(item) {
+    const messages = Array.isArray(item?.status?.messages) ? item.status.messages : [];
+    const error = messages.find((entry) => Array.isArray(entry) && entry[0] === 'execution_error')?.[1];
+    if (!OOM_TEXT.test(`${error?.exception_type ?? ''} ${error?.exception_message ?? ''}`)) return null;
+    return { started: messages.find((entry) => Array.isArray(entry) && entry[0] === 'execution_start')?.[1]?.timestamp ?? null };
+}
 
 export class ComfyJobs {
-    constructor({ url, fetchImpl = fetch, now = Date.now, maxJobs = 64, retentionMs = 600_000 }) {
+    constructor({ url, fetchImpl = fetch, now = Date.now, maxJobs = 64, retentionMs = 600_000, oomGraceMs = 30_000 }) {
+        this.oomGraceMs = oomGraceMs;
         this.url = url.replace(/\/$/, '');
         this.fetch = fetchImpl;
         this.now = now;
@@ -98,7 +107,13 @@ export class ComfyJobs {
             return this.view(job);
         }
         if (item.status?.status_str === 'error') {
-            job.status = 'failed'; job.error = 'ComfyUI failed while running the recipe.';
+            const oom = outOfMemory(item);
+            if (oom && (job.oomStarted === undefined || job.oomStarted === oom.started)) {
+                job.oomStarted = oom.started;
+                job.oomSince ??= this.now();
+                if (this.now() - job.oomSince <= this.oomGraceMs) { job.status = 'running'; return this.view(job); }
+            }
+            job.status = 'failed'; job.error = oom ? 'ComfyUI ran out of GPU memory while running the recipe.' : 'ComfyUI failed while running the recipe.';
         } else {
             const image = Object.values(item.outputs ?? {}).flatMap((output) => output.images ?? []).find((image) => ['output', 'temp'].includes(image.type));
             if (!image || typeof image.filename !== 'string') { job.status = 'failed'; job.error = 'The recipe returned no saved image.'; }
