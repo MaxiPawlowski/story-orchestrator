@@ -1,8 +1,8 @@
 From 252ca4db6572943b8d0d0a7d808ec837c5e933c3 Mon Sep 17 00:00:00 2001
 From: MaxiPawlowski <maxipawlowski@gmail.com>
 Date: Mon, 26 Oct 2026 03:36:29 -0300
-Subject: [PATCH 1/8] server: prompt cache key, cache_ckpt_max, no zero-fill of
- cached state buffers
+Subject: [PATCH 01/10] server: prompt cache key, cache_ckpt_max, no zero-fill
+ of cached state buffers
 
 ---
  tools/server/server-context.cpp | 15 ++++++++---
@@ -270,7 +270,7 @@ index d6b6f4b..9b679b3 100644
 From 8f17b1a416f28e24a64f2ac65d7fdfefb36140f1 Mon Sep 17 00:00:00 2001
 From: MaxiPawlowski <maxipawlowski@gmail.com>
 Date: Mon, 26 Oct 2026 04:52:59 -0300
-Subject: [PATCH 2/8] server: keys isolate cache entries both ways, unkeyed
+Subject: [PATCH 02/10] server: keys isolate cache entries both ways, unkeyed
  never evicts keyed, dedup per key, keyed tasks skip foreign slots, validate
  state write length
 
@@ -376,7 +376,7 @@ index dd83b39..c0f89b1 100644
 From 603203f774353a2bafab7c2e7f3df20c189e6420 Mon Sep 17 00:00:00 2001
 From: MaxiPawlowski <maxipawlowski@gmail.com>
 Date: Mon, 26 Oct 2026 07:52:05 -0300
-Subject: [PATCH 3/8] server: checkpoint_at request positions, cache_rewind
+Subject: [PATCH 03/10] server: checkpoint_at request positions, cache_rewind
  saves the state rewound to the cut checkpoint
 
 ---
@@ -532,8 +532,8 @@ index 9b679b3..e65b094 100644
 From 8897e3b7a7efffd367d29437b0af45b388e3fd20 Mon Sep 17 00:00:00 2001
 From: MaxiPawlowski <maxipawlowski@gmail.com>
 Date: Mon, 26 Oct 2026 10:24:10 -0300
-Subject: [PATCH 4/8] server: cache_rewind drops the cut checkpoint it rewound
- to (same state stored twice)
+Subject: [PATCH 04/10] server: cache_rewind drops the cut checkpoint it
+ rewound to (same state stored twice)
 
 ---
  tools/server/server-context.cpp | 3 ++-
@@ -561,9 +561,9 @@ index 5cb53e5..6c200b7 100644
 From 72f8d7d8f0419bde3b5eca81a56b7403d5e8639f Mon Sep 17 00:00:00 2001
 From: MaxiPawlowski <maxipawlowski@gmail.com>
 Date: Mon, 26 Oct 2026 11:12:41 -0300
-Subject: [PATCH 5/8] server: POST /sleep enters the sleeping state at the next
- idle point; slot states are saved to the prompt cache before sleeping and the
- cache survives the reload
+Subject: [PATCH 05/10] server: POST /sleep enters the sleeping state at the
+ next idle point; slot states are saved to the prompt cache before sleeping
+ and the cache survives the reload
 
 ---
  tools/server/server-context.cpp | 20 +++++++++++++++++++-
@@ -708,8 +708,8 @@ index b6ebf75..c8efacf 100644
 From 3bae32be635b0c78d694fbc59127c8ce60a7c362 Mon Sep 17 00:00:00 2001
 From: MaxiPawlowski <maxipawlowski@gmail.com>
 Date: Wed, 28 Oct 2026 03:37:01 -0300
-Subject: [PATCH 6/8] server: GET /cache reports prompt cache occupancy without
- waking a sleeping server; POST /cache/limit sets the cache size limit
+Subject: [PATCH 06/10] server: GET /cache reports prompt cache occupancy
+ without waking a sleeping server; POST /cache/limit sets the cache size limit
  (applied at once while sleeping, else at the next idle point) and evicts down
  to it
 
@@ -997,10 +997,10 @@ index c8efacf..7fbf4e7 100644
 From 58785ca519d3eb1df9c3fa1a19761803a35f2e2f Mon Sep 17 00:00:00 2001
 From: MaxiPawlowski <maxipawlowski@gmail.com>
 Date: Wed, 28 Oct 2026 14:43:30 -0300
-Subject: [PATCH 7/8] load timing log lines and staging env knobs; light sleep
- (POST /sleep level context frees target and draft contexts, keeps weights;
- wake recreates contexts without fit or warmup); per-request speculative.n_max
- caps model drafters only
+Subject: [PATCH 07/10] load timing log lines and staging env knobs; light
+ sleep (POST /sleep level context frees target and draft contexts, keeps
+ weights; wake recreates contexts without fit or warmup); per-request
+ speculative.n_max caps model drafters only
 
 ---
  common/common.cpp               | 44 +++++++++++++++++++
@@ -1638,7 +1638,7 @@ index 9292835..b168b6b 100644
 From 8b83266e47249ef106dc3f2215b416c7ebfaee44 Mon Sep 17 00:00:00 2001
 From: MaxiPawlowski <maxipawlowski@gmail.com>
 Date: Wed, 28 Oct 2026 16:38:42 -0300
-Subject: [PATCH 8/8] loader: LLAMA_LOAD_OVERLAPPED reads weights through
+Subject: [PATCH 08/10] loader: LLAMA_LOAD_OVERLAPPED reads weights through
  unbuffered overlapped requests (Windows), staging N in flight
 
 ---
@@ -1883,6 +1883,1260 @@ index ed59079..71bd8b4 100644
 +    std::vector<std::string> file_paths; // empty entry when the file was opened from a FILE *
      llama_ftype ftype;
      llama_fver  fver;
+ 
+-- 
+2.55.0.windows.3
+
+
+From 887459081fab87d440952f52eb54cc715d7ab236 Mon Sep 17 00:00:00 2001
+From: MaxiPawlowski <maxipawlowski@gmail.com>
+Date: Thu, 29 Oct 2026 17:44:36 -0300
+Subject: [PATCH 09/10] server: keyed prompt cache entries spill to files
+ (--cache-spill-dir, --cache-spill-max-mib, POST /cache/spill keep_mib) and
+ load back when their key returns; owner dir per pid, hashed names,
+ temp+rename, integrity hash, fingerprint of model/ctx/KV/format, mismatch or
+ corrupt = cold miss, deleted on load/exit; GET /cache spill stats;
+ LLAMA_STATE_TIMING restore timing line
+
+---
+ common/arg.cpp                  |  14 ++
+ common/common.h                 |   2 +
+ tools/server/server-context.cpp |  87 +++++++
+ tools/server/server-context.h   |   1 +
+ tools/server/server-queue.cpp   |  31 ++-
+ tools/server/server-queue.h     |  24 ++
+ tools/server/server-task.cpp    | 433 ++++++++++++++++++++++++++++++++
+ tools/server/server-task.h      |  64 +++++
+ tools/server/server.cpp         |   1 +
+ 9 files changed, 656 insertions(+), 1 deletion(-)
+
+diff --git a/common/arg.cpp b/common/arg.cpp
+index 9706b3a..694ec79 100644
+--- a/common/arg.cpp
++++ b/common/arg.cpp
+@@ -1732,6 +1732,20 @@ common_params_context common_params_parser_init(common_params & params, llama_ex
+             params.cache_ram_explicit = true;
+         }
+     ).set_env("LLAMA_ARG_CACHE_RAM").set_examples({LLAMA_EXAMPLE_SERVER, LLAMA_EXAMPLE_CLI}));
++    add_opt(common_arg(
++        {"--cache-spill-dir"}, "PATH",
++        "existing owner-only directory where POST /cache/spill writes keyed prompt cache entries (default: off)",
++        [](common_params & params, const std::string & value) {
++            params.cache_spill_dir = value;
++        }
++    ).set_env("LLAMA_ARG_CACHE_SPILL_DIR").set_examples({LLAMA_EXAMPLE_SERVER}));
++    add_opt(common_arg(
++        {"--cache-spill-max-mib"}, "N",
++        string_format("size bound of the spilled prompt cache files in MiB (default: %d)", params.cache_spill_max_mib),
++        [](common_params & params, int value) {
++            params.cache_spill_max_mib = value;
++        }
++    ).set_env("LLAMA_ARG_CACHE_SPILL_MAX_MIB").set_examples({LLAMA_EXAMPLE_SERVER}));
+     add_opt(common_arg(
+         {"-kvu", "--kv-unified"},
+         {"-no-kvu", "--no-kv-unified"},
+diff --git a/common/common.h b/common/common.h
+index 4896ae3..f202b24 100644
+--- a/common/common.h
++++ b/common/common.h
+@@ -643,6 +643,8 @@ struct common_params {
+     int32_t checkpoint_min_step = 8192;  // minimum spacing between context checkpoints
+     int32_t cache_ram_mib       = 8192;  // -1 = no limit, 0 - disable, 1 = 1 MiB, etc.
+     bool    cache_ram_explicit  = false; // set by --cache-ram, decision models disable the cache otherwise
++    std::string cache_spill_dir     = "";    // keyed prompt cache entries spill to files here (POST /cache/spill); empty = off
++    int32_t cache_spill_max_mib = 8192;  // size bound of the spilled files
+ 
+     // llama-connect params
+     bool        server_connect      = false;
+diff --git a/tools/server/server-context.cpp b/tools/server/server-context.cpp
+index 05e0ad3..86c6e40 100644
+--- a/tools/server/server-context.cpp
++++ b/tools/server/server-context.cpp
+@@ -1221,6 +1221,33 @@ private:
+         queue_tasks.cache_keyed       = keyed;
+         queue_tasks.cache_bytes       = (int64_t) prompt_cache->size();
+         queue_tasks.cache_limit_bytes = (int64_t) prompt_cache->limit_size;
++        const auto * spill = prompt_cache->spill.get();
++        queue_tasks.spill_enabled   = spill ? 1 : 0;
++        queue_tasks.spill_entries   = spill ? (int64_t) spill->entries.size() : 0;
++        queue_tasks.spill_bytes     = spill ? (int64_t) spill->bytes() : 0;
++        queue_tasks.spill_max_bytes = spill ? (int64_t) spill->max_bytes : 0;
++        queue_tasks.spill_writes    = spill ? spill->n_writes : 0;
++        queue_tasks.spill_reads     = spill ? spill->n_reads : 0;
++        queue_tasks.spill_misses    = spill ? spill->n_misses : 0;
++        queue_tasks.spill_dropped   = spill ? spill->n_dropped : 0;
++    }
++
++    // model, context/KV configuration and spill file format: a spilled entry restores only into the same layout
++    uint64_t spill_fingerprint() const {
++        std::string s = string_format("so-spill-v1|state-seq-v%d|", LLAMA_STATE_SEQ_VERSION);
++        const auto add_file = [&s](const std::string & p) {
++            std::error_code ec;
++            const uint64_t sz = p.empty() ? 0 : (uint64_t) std::filesystem::file_size(p, ec);
++            s += p + "|" + std::to_string(ec ? 0 : sz) + "|";
++        };
++        add_file(params_base.model.path);
++        add_file(params_base.speculative.draft.mparams.path);
++        s += string_format("np=%llu|ms=%llu|ctx=%u|seq=%u|k=%d|v=%d|fa=%d|swa_full=%d|kvu=%d|dctx=%u|",
++                (unsigned long long) llama_model_n_params(model_tgt), (unsigned long long) llama_model_size(model_tgt),
++                llama_n_ctx(ctx_tgt), llama_n_seq_max(ctx_tgt), (int) params_base.cache_type_k, (int) params_base.cache_type_v,
++                (int) params_base.flash_attn_type, (int) params_base.swa_full, (int) params_base.kv_unified,
++                ctx_dft ? llama_n_ctx(ctx_dft) : 0u);
++        return server_spill_hash(s.data(), s.size(), 0);
+     }
+ 
+     void handle_sleeping_state(bool new_state) {
+@@ -1713,6 +1740,15 @@ private:
+             } else {
+                 SRV_INF("%s", "prompt cache kept across the sleeping state\n");
+             }
++            if (!params_base.cache_spill_dir.empty() && !prompt_cache->spill) {
++                auto spill = std::make_unique<server_cache_spill>();
++                if (spill->init(params_base.cache_spill_dir, params_base.cache_spill_max_mib)) {
++                    prompt_cache->spill = std::move(spill);
++                }
++            }
++            if (prompt_cache->spill) {
++                prompt_cache->spill->set_fingerprint(spill_fingerprint());
++            }
+             publish_cache_state();
+         } else {
+             SRV_TRC("%s", "prompt cache is disabled - use `--cache-ram N` to enable it\n");
+@@ -1777,6 +1813,27 @@ private:
+             }
+             publish_cache_state();
+         });
++        queue_tasks.on_spill([this](int64_t keep_mib) -> json {
++            if (!prompt_cache || !prompt_cache->spill) {
++                return json {{ "error", "spill is not configured (start with --cache-spill-dir and a prompt cache)" }};
++            }
++            const double mib = 1024.0 * 1024.0;
++            const auto res = prompt_cache->spill_down_to((size_t) keep_mib * 1024ull * 1024ull);
++            prompt_cache->update();
++            publish_cache_state();
++            SRV_INF("cache spill: %lld spilled (%.3f MiB), %lld dropped in %.1f ms; RAM %.3f MiB, files %zu (%.3f MiB)\n",
++                    (long long) res.n_spilled, res.bytes / mib, (long long) res.n_dropped, res.t_ms,
++                    prompt_cache->size() / mib, prompt_cache->spill->entries.size(), prompt_cache->spill->bytes() / mib);
++            return json {
++                { "spilled",     res.n_spilled },
++                { "dropped",     res.n_dropped },
++                { "spilled_mib", res.bytes / mib },
++                { "ms",          res.t_ms },
++                { "kept_mib",    prompt_cache->size() / mib },
++                { "files",       prompt_cache->spill->entries.size() },
++                { "files_mib",   prompt_cache->spill->bytes() / mib },
++            };
++        });
+ 
+         metrics.init();
+ 
+@@ -6073,6 +6130,16 @@ void server_routes::init_routes() {
+             { "limit_mib", queue_tasks.cache_limit_bytes.load() / (1024.0 * 1024.0) },
+             { "sleeping",  queue_tasks.is_sleeping() },
+             { "sleep_level", queue_tasks.sleep_level.load() },
++            { "spill", {
++                { "enabled",   queue_tasks.spill_enabled.load() != 0 },
++                { "files",     queue_tasks.spill_entries.load() },
++                { "size_mib",  queue_tasks.spill_bytes.load() / (1024.0 * 1024.0) },
++                { "max_mib",   queue_tasks.spill_max_bytes.load() / (1024.0 * 1024.0) },
++                { "writes",    queue_tasks.spill_writes.load() },
++                { "reads",     queue_tasks.spill_reads.load() },
++                { "misses",    queue_tasks.spill_misses.load() },
++                { "dropped",   queue_tasks.spill_dropped.load() },
++            } },
+         });
+         return res;
+     };
+@@ -6090,6 +6157,26 @@ void server_routes::init_routes() {
+         return res;
+     };
+ 
++    this->post_cache_spill = [this](const server_http_req & req) {
++        auto res = create_response(true);
++        int64_t keep_mib = 0;
++        if (!req.body.empty()) {
++            const json body = json::parse(req.body);
++            keep_mib = json_value(body, "keep_mib", (int64_t) 0);
++        }
++        if (keep_mib < 0) {
++            res->error(format_error_response("keep_mib must be a whole number of at least 0", ERROR_TYPE_INVALID_REQUEST));
++            return res;
++        }
++        const json out = queue_tasks.request_spill(keep_mib, 120000);
++        if (out.contains("error")) {
++            res->error(format_error_response(out.at("error").get<std::string>(), ERROR_TYPE_UNAVAILABLE));
++            return res;
++        }
++        res->ok(out);
++        return res;
++    };
++
+     this->post_sleep = [this](const server_http_req & req) {
+         auto res = create_response(true);
+         int level = 0;
+diff --git a/tools/server/server-context.h b/tools/server/server-context.h
+index 5db22c6..3308c89 100644
+--- a/tools/server/server-context.h
++++ b/tools/server/server-context.h
+@@ -122,6 +122,7 @@ struct server_routes {
+     server_http_context::handler_t post_sleep;
+     server_http_context::handler_t get_cache;
+     server_http_context::handler_t post_cache_limit;
++    server_http_context::handler_t post_cache_spill;
+     server_http_context::handler_t post_responses_oai;
+     server_http_context::handler_t post_responses_tok_oai;
+     server_http_context::handler_t post_transcriptions_oai;
+diff --git a/tools/server/server-queue.cpp b/tools/server/server-queue.cpp
+index b88ab8c..0af1a0c 100644
+--- a/tools/server/server-queue.cpp
++++ b/tools/server/server-queue.cpp
+@@ -130,6 +130,27 @@ void server_queue::request_cache_limit(int64_t mib) {
+     condition_tasks.notify_all();
+ }
+ 
++json server_queue::request_spill(int64_t keep_mib, int64_t timeout_ms) {
++    std::unique_lock<std::mutex> lock(mutex_tasks);
++    if (!callback_spill) {
++        return json {{ "error", "spill is not configured" }};
++    }
++    if (sleeping) {
++        // the loop thread is parked in the sleeping wait and cannot touch the cache while we hold the lock
++        return callback_spill(keep_mib);
++    }
++    const uint64_t gen = ++spill_req_gen;
++    req_spill_keep_mib = keep_mib;
++    condition_tasks.notify_all();
++    const bool done = condition_spill.wait_for(lock, std::chrono::milliseconds(timeout_ms), [&]{
++        return spill_done_gen >= gen || !running;
++    });
++    if (!done || spill_done_gen < gen) {
++        return json {{ "error", "spill did not run before the timeout" }};
++    }
++    return spill_result;
++}
++
+ void server_queue::wait_until_no_sleep() {
+     std::unique_lock<std::mutex> lock(mutex_tasks);
+     if (!sleeping) {
+@@ -352,6 +373,14 @@ void server_queue::start_loop(int64_t idle_sleep_ms) {
+                 }
+             }
+ 
++            if (req_spill_keep_mib >= 0) {
++                const int64_t mib = req_spill_keep_mib;
++                req_spill_keep_mib = -1;
++                spill_result   = callback_spill ? callback_spill(mib) : json {{ "error", "spill is not configured" }};
++                spill_done_gen = spill_req_gen;
++                condition_spill.notify_all();
++            }
++
+             // no tasks, check for sleeping state
+             if (should_sleep()) {
+                 QUE_INF("%s", "entering sleeping state\n");
+@@ -384,7 +413,7 @@ void server_queue::start_loop(int64_t idle_sleep_ms) {
+             } else {
+                 // wait for new tasks or timeout for checking sleeping condition
+                 bool res = condition_tasks.wait_for(lock, max_wait_time, [&]{
+-                    return (!queue_tasks.empty() || !running || req_cache_limit_mib >= 0);
++                    return (!queue_tasks.empty() || !running || req_cache_limit_mib >= 0 || req_spill_keep_mib >= 0);
+                 });
+                 if (res) {
+                     break; // new task arrived or terminate
+diff --git a/tools/server/server-queue.h b/tools/server/server-queue.h
+index cfb8042..d242953 100644
+--- a/tools/server/server-queue.h
++++ b/tools/server/server-queue.h
+@@ -22,6 +22,11 @@ private:
+     bool req_sleep = false;
+     int  req_sleep_level = 0;
+     int64_t req_cache_limit_mib = -1;
++    int64_t req_spill_keep_mib = -1;
++    uint64_t spill_req_gen  = 0;
++    uint64_t spill_done_gen = 0;
++    json spill_result;
++    std::condition_variable condition_spill;
+     int64_t time_last_task = 0;
+ 
+     // queues
+@@ -50,6 +55,7 @@ private:
+     std::function<void(void)>                 callback_update_slots;
+     std::vector<std::function<void(bool)>>    callback_sleeping_state;
+     std::function<void(int64_t)>              callback_cache_limit;
++    std::function<json(int64_t)>              callback_spill;
+ 
+ public:
+     ~server_queue() { worker_stop(); }
+@@ -94,6 +100,24 @@ public:
+         callback_cache_limit = std::move(callback);
+     }
+ 
++    // spilled prompt cache files, published by the main loop
++    std::atomic<int64_t> spill_enabled{0};
++    std::atomic<int64_t> spill_entries{0};
++    std::atomic<int64_t> spill_bytes{0};
++    std::atomic<int64_t> spill_max_bytes{0};
++    std::atomic<int64_t> spill_writes{0};
++    std::atomic<int64_t> spill_reads{0};
++    std::atomic<int64_t> spill_misses{0};
++    std::atomic<int64_t> spill_dropped{0};
++
++    // write keyed prompt cache entries to files until the cache holds at most keep_mib in RAM; runs at once while
++    // sleeping, else at the next idle point; blocks until done or timeout
++    json request_spill(int64_t keep_mib, int64_t timeout_ms);
++
++    void on_spill(std::function<json(int64_t)> callback) {
++        callback_spill = std::move(callback);
++    }
++
+     bool is_sleeping() {
+         std::unique_lock<std::mutex> lock(mutex_tasks);
+         return sleeping;
+diff --git a/tools/server/server-task.cpp b/tools/server/server-task.cpp
+index e27c911..795197d 100644
+--- a/tools/server/server-task.cpp
++++ b/tools/server/server-task.cpp
+@@ -10,8 +10,18 @@
+ #include "speculative.h"
+ #include "server-common.h"
+ 
++#include <cstring>
++#include <fstream>
+ #include <sstream>
+ 
++#ifdef _WIN32
++#include <process.h>
++#define SERVER_SPILL_PID() _getpid()
++#else
++#include <unistd.h>
++#define SERVER_SPILL_PID() getpid()
++#endif
++
+ //
+ // task_params
+ //
+@@ -1720,6 +1730,353 @@ json server_task_result_apply_lora::to_json() {
+     return json {{ "success", true }};
+ }
+ 
++//
++// server_cache_spill
++//
++
++static constexpr char     SERVER_SPILL_MAGIC[8]  = { 'S', 'O', 'S', 'P', 'I', 'L', 'L', '\0' };
++static constexpr uint32_t SERVER_SPILL_VERSION   = 1;
++static constexpr uint64_t SERVER_SPILL_P1        = 0x9E3779B185EBCA87ULL;
++static constexpr uint64_t SERVER_SPILL_P2        = 0xC2B2AE3D27D4EB4FULL;
++static constexpr size_t   SERVER_SPILL_DISK_KEEP = 2ull*1024ull*1024ull*1024ull;
++
++static inline uint64_t server_spill_rotl(uint64_t x, int r) {
++    return (x << r) | (x >> (64 - r));
++}
++
++uint64_t server_spill_hash(const void * data, size_t len, uint64_t seed) {
++    const uint8_t * p = (const uint8_t *) data;
++    uint64_t v[4] = { seed + SERVER_SPILL_P1 + SERVER_SPILL_P2, seed + SERVER_SPILL_P2, seed, seed - SERVER_SPILL_P1 };
++    size_t i = 0;
++    for (; i + 32 <= len; i += 32) {
++        for (int l = 0; l < 4; ++l) {
++            uint64_t w;
++            memcpy(&w, p + i + 8*l, 8);
++            v[l] = server_spill_rotl(v[l] + w*SERVER_SPILL_P2, 31) * SERVER_SPILL_P1;
++        }
++    }
++    uint64_t h = server_spill_rotl(v[0], 1) + server_spill_rotl(v[1], 7) + server_spill_rotl(v[2], 12) + server_spill_rotl(v[3], 18) + (uint64_t) len;
++    for (; i + 8 <= len; i += 8) {
++        uint64_t w;
++        memcpy(&w, p + i, 8);
++        h = server_spill_rotl(h ^ (w*SERVER_SPILL_P2), 27) * SERVER_SPILL_P1;
++    }
++    for (; i < len; ++i) {
++        h = server_spill_rotl(h ^ (p[i]*SERVER_SPILL_P1), 11) * SERVER_SPILL_P2;
++    }
++    h ^= h >> 33; h *= SERVER_SPILL_P2;
++    h ^= h >> 29; h *= SERVER_SPILL_P1;
++    h ^= h >> 32;
++    return h;
++}
++
++namespace {
++
++struct spill_writer {
++    std::ofstream & f;
++    uint64_t hash = 0;
++
++    void put(const void * data, size_t len) {
++        hash = server_spill_hash(data, len, hash);
++        f.write((const char *) data, (std::streamsize) len);
++    }
++    template <typename T> void put_pod(const T & value) {
++        put(&value, sizeof(T));
++    }
++    template <typename V> void put_vec(const V & vec) {
++        const uint64_t n = vec.size();
++        put_pod(n);
++        if (n > 0) {
++            put(vec.data(), (size_t) n);
++        }
++    }
++};
++
++struct spill_reader {
++    std::ifstream & f;
++    uint64_t remaining;
++    uint64_t hash = 0;
++    bool ok = true;
++
++    bool get(void * data, uint64_t len) {
++        if (!ok || len > remaining) {
++            ok = false;
++            return false;
++        }
++        f.read((char *) data, (std::streamsize) len);
++        if (!f) {
++            ok = false;
++            return false;
++        }
++        remaining -= len;
++        hash = server_spill_hash(data, (size_t) len, hash);
++        return true;
++    }
++    template <typename T> bool get_pod(T & value) {
++        return get(&value, sizeof(T));
++    }
++    template <typename V> bool get_vec(V & vec) {
++        uint64_t n = 0;
++        if (!get_pod(n) || n > remaining) {
++            ok = false;
++            return false;
++        }
++        vec.resize((size_t) n);
++        return n == 0 || get(vec.data(), n);
++    }
++};
++
++size_t spill_common_prefix(const llama_tokens & a, const llama_tokens & b) {
++    const size_t n = std::min(a.size(), b.size());
++    size_t i = 0;
++    while (i < n && a[i] == b[i] && a[i] != LLAMA_TOKEN_NULL) {
++        ++i;
++    }
++    return i;
++}
++
++}
++
++server_cache_spill::~server_cache_spill() {
++    clear();
++    if (!dir.empty()) {
++        std::error_code ec;
++        std::filesystem::remove_all(dir, ec);
++    }
++}
++
++bool server_cache_spill::init(const std::string & root, int32_t max_mib) {
++    std::error_code ec;
++    if (root.empty() || !std::filesystem::is_directory(root, ec)) {
++        SRV_WRN("cache spill off: directory '%s' does not exist (the caller creates it with owner-only access)\n", root.c_str());
++        return false;
++    }
++    dir = std::filesystem::path(root) / std::to_string((long long) SERVER_SPILL_PID());
++    std::filesystem::create_directory(dir, ec);
++    if (!std::filesystem::is_directory(dir, ec)) {
++        SRV_WRN("cache spill off: could not create '%s'\n", dir.string().c_str());
++        dir.clear();
++        return false;
++    }
++#ifndef _WIN32
++    std::filesystem::permissions(dir, std::filesystem::perms::owner_all, std::filesystem::perm_options::replace, ec);
++#endif
++    for (const auto & item : std::filesystem::directory_iterator(dir, ec)) {
++        std::error_code ec_rm;
++        std::filesystem::remove(item.path(), ec_rm);
++    }
++    max_bytes = 1024ull*1024ull*(size_t) std::max<int32_t>(0, max_mib);
++    SRV_INF("cache spill on: %s, bound %d MiB\n", dir.string().c_str(), max_mib);
++    return true;
++}
++
++size_t server_cache_spill::bytes() const {
++    size_t res = 0;
++    for (const auto & entry : entries) {
++        res += entry.bytes;
++    }
++    return res;
++}
++
++void server_cache_spill::remove(std::list<server_cache_spill_entry>::iterator it) {
++    std::error_code ec;
++    std::filesystem::remove(it->path, ec);
++    entries.erase(it);
++}
++
++void server_cache_spill::clear() {
++    while (!entries.empty()) {
++        remove(entries.begin());
++    }
++    if (!dir.empty()) {
++        std::error_code ec;
++        for (const auto & item : std::filesystem::directory_iterator(dir, ec)) {
++            std::error_code ec_rm;
++            std::filesystem::remove(item.path(), ec_rm);
++        }
++    }
++}
++
++void server_cache_spill::set_fingerprint(uint64_t fp) {
++    if (fingerprint != 0 && fingerprint != fp && !entries.empty()) {
++        SRV_WRN("cache spill: fingerprint changed, deleting %zu spilled entries\n", entries.size());
++        clear();
++    }
++    fingerprint = fp;
++}
++
++void server_cache_spill::drop_contained(const std::string & key, const server_tokens & tokens) {
++    if (tokens.has_mtmd) {
++        return;
++    }
++    const auto & cur = tokens.get_tokens();
++    for (auto it = entries.begin(); it != entries.end();) {
++        if (it->key == key && spill_common_prefix(it->tokens, cur) == it->tokens.size()) {
++            auto next = std::next(it);
++            remove(it);
++            it = next;
++        } else {
++            ++it;
++        }
++    }
++}
++
++bool server_cache_spill::write(server_prompt_cache_state & state) {
++    if (dir.empty()) {
++        return false;
++    }
++    if (state.prompt.tokens.has_mtmd) {
++        n_dropped++;
++        return false;
++    }
++    const auto & toks = state.prompt.tokens.get_tokens();
++    if (toks.empty() || std::find(toks.begin(), toks.end(), LLAMA_TOKEN_NULL) != toks.end()) {
++        n_dropped++;
++        return false;
++    }
++    const size_t need = state.size() + toks.size()*sizeof(llama_token) + 4096;
++    if (need > max_bytes) {
++        n_dropped++;
++        return false;
++    }
++    while (!entries.empty() && bytes() + need > max_bytes) {
++        SRV_WRN("cache spill: size bound reached, deleting the oldest spilled entry (%.3f MiB)\n", entries.front().bytes / (1024.0 * 1024.0));
++        remove(entries.begin());
++    }
++    std::error_code ec;
++    std::filesystem::create_directory(dir, ec);
++    const auto space = std::filesystem::space(dir, ec);
++    if (ec || space.available < need + SERVER_SPILL_DISK_KEEP) {
++        SRV_WRN("%s", "cache spill: not enough free disk space, entry dropped\n");
++        n_dropped++;
++        return false;
++    }
++
++    const int64_t t0 = ggml_time_us();
++    const uint64_t name_hash = server_spill_hash(state.key.data(), state.key.size(), fingerprint ^ (++seq * SERVER_SPILL_P1) ^ (uint64_t) t0);
++    char name[24];
++    snprintf(name, sizeof(name), "%016llx", (unsigned long long) name_hash);
++    const auto path_final = dir / (std::string(name) + ".spill");
++    const auto path_tmp   = dir / (std::string(name) + ".tmp");
++
++    bool ok = false;
++    size_t written = 0;
++    {
++        std::ofstream f(path_tmp, std::ios::binary | std::ios::trunc);
++        if (f) {
++            spill_writer w { f };
++            w.put(SERVER_SPILL_MAGIC, sizeof(SERVER_SPILL_MAGIC));
++            w.put_pod(SERVER_SPILL_VERSION);
++            w.put_pod(fingerprint);
++            w.put_vec(state.key);
++            const uint64_t n_tok = toks.size();
++            w.put_pod(n_tok);
++            w.put(toks.data(), (size_t) n_tok*sizeof(llama_token));
++            const uint32_t n_ckpt = (uint32_t) state.prompt.checkpoints.size();
++            w.put_pod(n_ckpt);
++            for (const auto & ckpt : state.prompt.checkpoints) {
++                w.put_pod(ckpt.n_tokens);
++                w.put_pod(ckpt.id_task);
++                w.put_pod(ckpt.pos_min);
++                w.put_pod(ckpt.pos_max);
++                w.put_vec(ckpt.data_tgt);
++                w.put_vec(ckpt.data_dft);
++                w.put_vec(ckpt.data_spec);
++            }
++            w.put_vec(state.data.main);
++            w.put_vec(state.data.drft);
++            const uint64_t hash = w.hash;
++            f.write((const char *) &hash, sizeof(hash));
++            f.flush();
++            ok = (bool) f;
++            written = ok ? (size_t) f.tellp() : 0;
++        }
++    }
++    if (ok) {
++        std::filesystem::rename(path_tmp, path_final, ec);
++        ok = !ec;
++    }
++    if (!ok) {
++        std::filesystem::remove(path_tmp, ec);
++        SRV_WRN("%s", "cache spill: write failed, entry dropped\n");
++        n_dropped++;
++        return false;
++    }
++
++    entries.push_back({ path_final, state.key, toks, written });
++    n_writes++;
++    SRV_INF("cache spill: wrote %d tokens, %.3f MiB in %.1f ms\n", (int) toks.size(), written / (1024.0 * 1024.0), (ggml_time_us() - t0) / 1000.0);
++    return true;
++}
++
++bool server_cache_spill::read(std::list<server_cache_spill_entry>::iterator it, server_prompt_cache_state & out) {
++    const auto path = it->path;
++    const auto key  = it->key;
++    entries.erase(it);
++
++    const int64_t t0 = ggml_time_us();
++    bool ok = false;
++    std::error_code ec;
++    const uint64_t size = std::filesystem::file_size(path, ec);
++    if (!ec && size > sizeof(uint64_t)) {
++        std::ifstream f(path, std::ios::binary);
++        if (f) {
++            spill_reader r { f, size - sizeof(uint64_t) };
++            char magic[sizeof(SERVER_SPILL_MAGIC)];
++            uint32_t version = 0;
++            uint64_t fp = 0;
++            std::string file_key;
++            ok = r.get(magic, sizeof(magic)) && memcmp(magic, SERVER_SPILL_MAGIC, sizeof(magic)) == 0
++                && r.get_pod(version) && version == SERVER_SPILL_VERSION
++                && r.get_pod(fp) && fp == fingerprint
++                && r.get_vec(file_key) && file_key == key;
++            llama_tokens toks;
++            uint64_t n_tok = 0;
++            ok = ok && r.get_pod(n_tok) && n_tok > 0 && n_tok*sizeof(llama_token) <= r.remaining;
++            if (ok) {
++                toks.resize((size_t) n_tok);
++                ok = r.get(toks.data(), n_tok*sizeof(llama_token));
++            }
++            uint32_t n_ckpt = 0;
++            ok = ok && r.get_pod(n_ckpt) && n_ckpt <= 1024;
++            std::list<common_prompt_checkpoint> checkpoints;
++            for (uint32_t i = 0; ok && i < n_ckpt; ++i) {
++                common_prompt_checkpoint ckpt;
++                ok = r.get_pod(ckpt.n_tokens) && r.get_pod(ckpt.id_task) && r.get_pod(ckpt.pos_min) && r.get_pod(ckpt.pos_max)
++                    && r.get_vec(ckpt.data_tgt) && r.get_vec(ckpt.data_dft) && r.get_vec(ckpt.data_spec);
++                if (ok) {
++                    checkpoints.push_back(std::move(ckpt));
++                }
++            }
++            server_state_buffer main;
++            server_state_buffer drft;
++            ok = ok && r.get_vec(main) && r.get_vec(drft) && r.remaining == 0;
++            uint64_t stored = 0;
++            if (ok) {
++                f.read((char *) &stored, sizeof(stored));
++                ok = (bool) f && stored == r.hash;
++            }
++            if (ok) {
++                out.prompt.tokens      = server_tokens(toks, false);
++                out.prompt.checkpoints = std::move(checkpoints);
++                out.data.main          = std::move(main);
++                out.data.drft          = std::move(drft);
++                out.key                = key;
++            }
++        }
++    }
++    std::filesystem::remove(path, ec);
++
++    if (ok) {
++        n_reads++;
++        SRV_INF("cache spill: read %d tokens, %.3f MiB in %.1f ms\n", out.prompt.n_tokens(), size / (1024.0 * 1024.0), (ggml_time_us() - t0) / 1000.0);
++    } else {
++        n_misses++;
++        SRV_WRN("%s", "cache spill: spilled entry unreadable, corrupt or foreign: cold miss, file deleted\n");
++    }
++    return ok;
++}
++
+ //
+ // server_prompt_cache
+ //
+@@ -1810,6 +2167,10 @@ server_prompt_cache_state * server_prompt_cache::alloc(const server_prompt & pro
+         }
+     }
+ 
++    if (spill) {
++        spill->drop_contained(key, prompt.tokens);
++    }
++
+     if (limit_size > 0) {
+         // an unkeyed state never pushes out a keyed one
+         if (key.empty()) {
+@@ -1905,14 +2266,54 @@ bool server_prompt_cache::load(server_prompt & prompt, const server_tokens & tok
+         }
+     }
+ 
++    static const bool state_timing = getenv("LLAMA_STATE_TIMING") != nullptr;
++    double t_spill_read_ms = 0.0;
++
++    if (spill && !spill->entries.empty() && !tokens_new.has_mtmd) {
++        const auto & cur = tokens_new.get_tokens();
++        auto it_spill = spill->entries.end();
++        for (auto it = spill->entries.begin(); it != spill->entries.end(); ++it) {
++            if (it->key != key || it->tokens.empty()) {
++                continue;
++            }
++            const size_t lcp_cur = spill_common_prefix(it->tokens, cur);
++            const float f_keep_cur = float(lcp_cur) / it->tokens.size();
++            const float f_sim_cur  = float(lcp_cur) / tokens_new.size();
++            if (f_keep_cur < 0.25f) {
++                continue;
++            }
++            if (f_keep_best < f_keep_cur && f_sim_best < f_sim_cur) {
++                f_keep_best = f_keep_cur;
++                f_sim_best  = f_sim_cur;
++                it_spill    = it;
++            }
++        }
++        if (it_spill != spill->entries.end()) {
++            const int64_t t_read0 = ggml_time_us();
++            server_prompt_cache_state state;
++            if (spill->read(it_spill, state)) {
++                states.push_back(std::move(state));
++                it_best = std::prev(states.end());
++            }
++            t_spill_read_ms = (ggml_time_us() - t_read0) / 1000.0;
++        }
++    }
++
+     if (it_best != states.end()) {
+         SRV_TRC(" - found better prompt with f_keep = %.3f, f_sim = %.3f\n", f_keep_best, f_sim_best);
+ 
++        const int64_t t_restore0 = ggml_time_us();
++        double t_main_ms = 0.0;
++        double t_drft_ms = 0.0;
++        const size_t size_main = it_best->data.main.size();
++        const size_t size_drft = it_best->data.drft.size();
++
+         {
+             auto & data = it_best->data.main;
+ 
+             const size_t size = data.size();
+             const size_t n = llama_state_seq_set_data_ext(ctx_tgt, data.data(), size, id_slot, 0);
++            t_main_ms = (ggml_time_us() - t_restore0) / 1000.0;
+             if (n != size) {
+                 SRV_ERR("failed to restore state with size %zu\n", size);
+ 
+@@ -1929,8 +2330,10 @@ bool server_prompt_cache::load(server_prompt & prompt, const server_tokens & tok
+             if (!data.empty()) {
+                 GGML_ASSERT(ctx_dft);
+ 
++                const int64_t t_drft0 = ggml_time_us();
+                 const size_t size = data.size();
+                 const size_t n = llama_state_seq_set_data_ext(ctx_dft, data.data(), size, id_slot, 0);
++                t_drft_ms = (ggml_time_us() - t_drft0) / 1000.0;
+                 if (n != size) {
+                     SRV_WRN("failed to restore state with size %zu\n", size);
+ 
+@@ -1942,6 +2345,12 @@ bool server_prompt_cache::load(server_prompt & prompt, const server_tokens & tok
+             }
+         }
+ 
++        if (state_timing) {
++            SRV_INF("restore timing: main %.3f MiB in %.1f ms, draft %.3f MiB in %.1f ms, spill read %.1f ms, total %.1f ms, %d tokens, %zu checkpoint(s)\n",
++                    size_main / (1024.0 * 1024.0), t_main_ms, size_drft / (1024.0 * 1024.0), t_drft_ms, t_spill_read_ms,
++                    (ggml_time_us() - t_restore0) / 1000.0 + t_spill_read_ms, it_best->prompt.n_tokens(), it_best->prompt.checkpoints.size());
++        }
++
+         prompt = std::move(it_best->prompt);
+ 
+         states.erase(it_best);
+@@ -1950,6 +2359,30 @@ bool server_prompt_cache::load(server_prompt & prompt, const server_tokens & tok
+     return true;
+ }
+ 
++server_prompt_cache_spill_result server_prompt_cache::spill_down_to(size_t keep_bytes) {
++    server_prompt_cache_spill_result res;
++    const int64_t t0 = ggml_time_us();
++    while (!states.empty() && size() > keep_bytes) {
++        auto it = states.begin();
++        for (auto jt = states.begin(); jt != states.end(); ++jt) {
++            if (jt->key.empty()) {
++                it = jt;
++                break;
++            }
++        }
++        const size_t sz = it->size();
++        if (!it->key.empty() && spill && spill->write(*it)) {
++            res.n_spilled++;
++            res.bytes += sz;
++        } else {
++            res.n_dropped++;
++        }
++        states.erase(it);
++    }
++    res.t_ms = (ggml_time_us() - t0) / 1000.0;
++    return res;
++}
++
+ void server_prompt_cache::set_limit_mib(int64_t mib) {
+     limit_size = 1024ull*1024ull*(mib < 0 ? 0 : mib);
+     SRV_INF(" - cache size limit set to %.3f MiB\n", limit_size / (1024.0 * 1024.0));
+diff --git a/tools/server/server-task.h b/tools/server/server-task.h
+index b168b6b..2ed3098 100644
+--- a/tools/server/server-task.h
++++ b/tools/server/server-task.h
+@@ -5,6 +5,7 @@
+ 
+ #include <string>
+ #include <unordered_set>
++#include <filesystem>
+ #include <list>
+ #include <map>
+ 
+@@ -713,6 +714,64 @@ struct server_prompt_cache_state {
+     }
+ };
+ 
++// keyed prompt cache entries spilled to files (POST /cache/spill), loaded back when their key returns
++// files live in <root>/<pid>: hashed names, written to a temp name then renamed, integrity hash and a fingerprint of
++// the model, context/KV configuration and file format; a mismatch or a corrupt file is a cold miss; every file is
++// deleted when it is loaded, when the cache is cleared and when the server exits
++struct server_cache_spill_entry {
++    std::filesystem::path path;
++    std::string  key;
++    llama_tokens tokens;
++    size_t       bytes = 0;
++};
++
++struct server_cache_spill {
++    std::filesystem::path dir;
++    size_t   max_bytes   = 0;
++    uint64_t fingerprint = 0;
++    uint64_t seq         = 0;
++
++    // oldest first
++    std::list<server_cache_spill_entry> entries;
++
++    int64_t n_writes  = 0;
++    int64_t n_reads   = 0;
++    int64_t n_misses  = 0;
++    int64_t n_dropped = 0;
++
++    ~server_cache_spill();
++
++    // root must exist (the caller owns it and its access rights); creates <root>/<pid> and empties it
++    bool init(const std::string & root, int32_t max_mib);
++
++    size_t bytes() const;
++
++    // takes ownership of the state; false = not written (media tokens, no room, write error)
++    bool write(server_prompt_cache_state & state);
++
++    // reads and always deletes the file; false = cold miss (corrupt, foreign fingerprint or key, read error)
++    bool read(std::list<server_cache_spill_entry>::iterator it, server_prompt_cache_state & out);
++
++    void remove(std::list<server_cache_spill_entry>::iterator it);
++
++    // drop spilled entries of this key fully contained in the given tokens
++    void drop_contained(const std::string & key, const server_tokens & tokens);
++
++    void clear();
++
++    // a fingerprint change makes every spilled file foreign: they are deleted
++    void set_fingerprint(uint64_t fp);
++};
++
++uint64_t server_spill_hash(const void * data, size_t len, uint64_t seed);
++
++struct server_prompt_cache_spill_result {
++    int64_t n_spilled = 0;
++    int64_t n_dropped = 0;
++    size_t  bytes     = 0;
++    double  t_ms      = 0.0;
++};
++
+ struct server_prompt_cache {
+     server_prompt_cache(int32_t limit_size_mib, size_t limit_tokens) {
+         this->limit_size   = 1024ull*1024ull*(limit_size_mib < 0 ? 0 : limit_size_mib);
+@@ -741,6 +800,11 @@ struct server_prompt_cache {
+     void update();
+ 
+     void set_limit_mib(int64_t mib);
++
++    std::unique_ptr<server_cache_spill> spill;
++
++    // move entries out of RAM, oldest first (unkeyed dropped, keyed written to files), until at most keep_bytes remain
++    server_prompt_cache_spill_result spill_down_to(size_t keep_bytes);
+ };
+ 
+ // used exclusively by router mode
+diff --git a/tools/server/server.cpp b/tools/server/server.cpp
+index 7fbf4e7..45d0af5 100644
+--- a/tools/server/server.cpp
++++ b/tools/server/server.cpp
+@@ -187,6 +187,7 @@ static void server_register_routes(server_http_context & ctx_http, server_routes
+     if (routes.get_cache) {
+         ctx_http.get ("/cache",                ex_wrapper(routes.get_cache));
+         ctx_http.post("/cache/limit",          ex_wrapper(routes.post_cache_limit));
++        ctx_http.post("/cache/spill",          ex_wrapper(routes.post_cache_spill));
+     }
+     ctx_http.post("/v1/responses",             ex_wrapper(routes.post_responses_oai));
+     ctx_http.post("/responses",                ex_wrapper(routes.post_responses_oai));
+-- 
+2.55.0.windows.3
+
+
+From 0a90c31a319e4be12ec8bf823601f6ec229139cf Mon Sep 17 00:00:00 2001
+From: MaxiPawlowski <maxipawlowski@gmail.com>
+Date: Thu, 29 Oct 2026 17:44:37 -0300
+Subject: [PATCH 10/10] measurement switches: LLAMA_STATE_TIMING per-region
+ tensor_set/tensor_get timing of state restore/save; LLAMA_DECODE_PROFILE
+ decode-step profile per 5 s window (decode synchronized, sampler, draft
+ accept per token, drafter, logit copy via llama_decode_profile_take)
+
+---
+ include/llama.h                 | 12 +++++
+ src/llama-context.cpp           | 62 ++++++++++++++++++++++-
+ src/llama-context.h             |  9 ++++
+ tools/server/server-context.cpp | 87 +++++++++++++++++++++++----------
+ 4 files changed, 142 insertions(+), 28 deletions(-)
+
+diff --git a/include/llama.h b/include/llama.h
+index ae54e66..3391007 100644
+--- a/include/llama.h
++++ b/include/llama.h
+@@ -48,6 +48,15 @@
+ #define LLAMA_STATE_SEQ_MAGIC   LLAMA_FILE_MAGIC_GGSQ
+ #define LLAMA_STATE_SEQ_VERSION 4
+ 
++// so fork: decode-step profile, collected only when the environment sets LLAMA_DECODE_PROFILE
++struct llama_decode_profile {
++    int64_t n_decode;     // ubatches computed
++    int64_t n_outputs;    // logit rows copied to the host
++    double  t_compute_ms; // wait for the graph after submission
++    double  t_logits_ms;  // logit copy to the host, synchronized
++    double  logits_mib;
++};
++
+ #ifdef __cplusplus
+ extern "C" {
+ #endif
+@@ -1132,6 +1141,9 @@ extern "C" {
+     // and is not necessary to call it explicitly in most cases
+     LLAMA_API void llama_synchronize(struct llama_context * ctx);
+ 
++    // so fork: totals since the last call (zeros unless LLAMA_DECODE_PROFILE is set); resets them
++    LLAMA_API struct llama_decode_profile llama_decode_profile_take(struct llama_context * ctx);
++
+     // Token logits obtained from the last call to llama_decode()
+     // The logits for which llama_batch.logits[i] != 0 are stored contiguously
+     // in the order they have appeared in the batch.
+diff --git a/src/llama-context.cpp b/src/llama-context.cpp
+index d5a66a4..227b845 100644
+--- a/src/llama-context.cpp
++++ b/src/llama-context.cpp
+@@ -884,6 +884,18 @@ void llama_context::sched_reserve() {
+             __func__, (t_end_us - t_start_us)/1000.0, ggml_backend_sched_get_n_copies(sched.get()));
+ }
+ 
++llama_decode_profile llama_context::decode_profile_take() {
++    llama_decode_profile res = {
++        /*.n_decode     =*/ prof.n_decode,
++        /*.n_outputs    =*/ prof.n_outputs,
++        /*.t_compute_ms =*/ prof.t_compute_us / 1000.0,
++        /*.t_logits_ms  =*/ prof.t_logits_us / 1000.0,
++        /*.logits_mib   =*/ prof.logits_bytes / (1024.0 * 1024.0),
++    };
++    prof = {};
++    return res;
++}
++
+ void llama_context::synchronize() {
+     if (!sched) {
+         return;
+@@ -2062,6 +2074,14 @@ int llama_context::decode(const llama_batch_ext & batch_inp) {
+             t_embd = res->get_embd_pooled();
+         }
+ 
++        static const bool decode_profile = getenv("LLAMA_DECODE_PROFILE") != nullptr;
++        if (decode_profile) {
++            const int64_t t_c0 = ggml_time_us();
++            ggml_backend_sched_synchronize(sched.get());
++            prof.t_compute_us += ggml_time_us() - t_c0;
++            prof.n_decode++;
++        }
++
+         // extract logits
+         if (logits.data && t_logits && n_outputs > 0 && needs_raw_logits(ubatch, sampling.samplers)) {
+             ggml_backend_t backend_res = ggml_backend_sched_get_tensor_backend(sched.get(), t_logits);
+@@ -2073,7 +2093,14 @@ int llama_context::decode(const llama_batch_ext & batch_inp) {
+             if (n_outputs) {
+                 GGML_ASSERT( n_outputs_prev + n_outputs <= n_outputs_all);
+                 GGML_ASSERT((n_outputs_prev + n_outputs)*n_vocab <= (int64_t) logits.size);
++                const int64_t t_l0 = decode_profile ? ggml_time_us() : 0;
+                 ggml_backend_tensor_get_async(backend_res, t_logits, logits_out, 0, n_outputs*n_vocab*sizeof(float));
++                if (decode_profile) {
++                    ggml_backend_sched_synchronize(sched.get());
++                    prof.t_logits_us += ggml_time_us() - t_l0;
++                    prof.n_outputs   += n_outputs;
++                    prof.logits_bytes += (int64_t) n_outputs*n_vocab*sizeof(float);
++                }
+             }
+         }
+ 
+@@ -2924,9 +2951,22 @@ public:
+             uint8_t * p, size_t len) : ptr(p), buf_size(len) {}
+ 
+     ~llama_io_write_host() {
++        static const bool timing = getenv("LLAMA_STATE_TIMING") != nullptr;
++        const int64_t t0 = timing ? ggml_time_us() : 0;
++        int64_t t_max = 0;
++        size_t  bytes = 0;
+         // TODO: add backend support to batch tensor_get? or some other way to speed this up
+         for (const auto & winfo : winfos) {
++            const int64_t t_r = timing ? ggml_time_us() : 0;
+             ggml_backend_tensor_get(winfo.tensor, winfo.ptr, winfo.offset, winfo.size);
++            if (timing) {
++                t_max  = std::max<int64_t>(t_max, ggml_time_us() - t_r);
++                bytes += winfo.size;
++            }
++        }
++        if (timing && !winfos.empty()) {
++            LLAMA_LOG_INFO("state timing: save %zu regions, %.3f MiB, tensor_get %.2f ms (max region %.3f ms)\n",
++                    winfos.size(), bytes / (1024.0 * 1024.0), (ggml_time_us() - t0) / 1000.0, t_max / 1000.0);
+         }
+     }
+ 
+@@ -2973,12 +3013,27 @@ private:
+ 
+ class llama_io_read_host : public llama_io_read_i {
+ public:
+-    llama_io_read_host(const uint8_t * p, size_t len) : ptr(p), buf_size(len) {}
++    llama_io_read_host(const uint8_t * p, size_t len) : ptr(p), buf_size(len), t_created(ggml_time_us()) {}
+ 
+     ~llama_io_read_host() {
++        static const bool timing = getenv("LLAMA_STATE_TIMING") != nullptr;
++        const int64_t t0 = timing ? ggml_time_us() : 0;
++        int64_t t_max = 0;
++        size_t  bytes = 0;
++        size_t  small = 0;
+         // flush the reads
+         for (const auto & rinfo : rinfos) {
++            const int64_t t_r = timing ? ggml_time_us() : 0;
+             ggml_backend_tensor_set(rinfo.tensor, rinfo.ptr, rinfo.offset, rinfo.size);
++            if (timing) {
++                t_max  = std::max<int64_t>(t_max, ggml_time_us() - t_r);
++                bytes += rinfo.size;
++                small += rinfo.size < 65536 ? 1 : 0;
++            }
++        }
++        if (timing && !rinfos.empty()) {
++            LLAMA_LOG_INFO("state timing: restore %zu regions (%zu under 64 KiB), %.3f MiB, tensor_set %.2f ms (max region %.3f ms), parse+memcpy before it %.2f ms\n",
++                    rinfos.size(), small, bytes / (1024.0 * 1024.0), (ggml_time_us() - t0) / 1000.0, t_max / 1000.0, (t0 - t_created) / 1000.0);
+         }
+     }
+ 
+@@ -3025,6 +3080,7 @@ private:
+         size_t offset;
+     };
+     std::vector<read_info> rinfos;
++    int64_t t_created = 0;
+ };
+ 
+ class llama_io_write_file : public llama_io_write_i {
+@@ -4229,6 +4285,10 @@ void llama_set_warmup(llama_context * ctx, bool warmup) {
+     ctx->set_warmup(warmup);
+ }
+ 
++llama_decode_profile llama_decode_profile_take(llama_context * ctx) {
++    return ctx->decode_profile_take();
++}
++
+ void llama_synchronize(llama_context * ctx) {
+     ctx->synchronize();
+ }
+diff --git a/src/llama-context.h b/src/llama-context.h
+index 6938fb1..589246d 100644
+--- a/src/llama-context.h
++++ b/src/llama-context.h
+@@ -59,6 +59,7 @@ struct llama_context {
+     void sched_reserve();
+ 
+     void synchronize();
++    llama_decode_profile decode_profile_take();
+ 
+     const llama_model   & get_model()   const;
+     const llama_cparams & get_cparams() const;
+@@ -297,6 +298,14 @@ private:
+     // members
+     //
+ 
++    struct {
++        int64_t n_decode     = 0;
++        int64_t n_outputs    = 0;
++        int64_t t_compute_us = 0;
++        int64_t t_logits_us  = 0;
++        int64_t logits_bytes = 0;
++    } prof;
++
+     const llama_model & model;
+ 
+     llama_cparams cparams;
+diff --git a/tools/server/server-context.cpp b/tools/server/server-context.cpp
+index 86c6e40..aa416f2 100644
+--- a/tools/server/server-context.cpp
++++ b/tools/server/server-context.cpp
+@@ -3587,26 +3587,60 @@ private:
+     int64_t n_decode      = 0;
+     int64_t n_post_decode = 0;
+     int64_t n_sampl       = 0;
+-// #define DEBUG_TIMINGS
+-#ifdef DEBUG_TIMINGS
++    int64_t t_accept      = 0;
++    int64_t n_accept      = 0;
++    int64_t n_accept_tok  = 0;
++    int64_t t_draft       = 0;
++    int64_t n_draft       = 0;
++    int64_t t_spec_proc   = 0;
++    int64_t n_spec_proc   = 0;
++    int64_t t_prof_window = 0;
++
++    // decode-step profile (sampler, accept, draft, logit copy per step): LLAMA_DECODE_PROFILE=1, one line per 5 s window
++    static bool decode_profile_on() {
++        static const bool on = getenv("LLAMA_DECODE_PROFILE") != nullptr;
++        return on;
++    }
++
+     struct scoped_timer {
+         int64_t & t;
+         int64_t & n;
+         int64_t t_start;
+-        scoped_timer(int64_t & t_, int64_t & n_) : t(t_), n(n_) {
+-            t_start = ggml_time_us();
+-        }
++        scoped_timer(int64_t & t_, int64_t & n_) : t(t_), n(n_), t_start(decode_profile_on() ? ggml_time_us() : 0) {}
+         ~scoped_timer() {
+-            t += ggml_time_us() - t_start;
+-            n++;
++            if (decode_profile_on()) {
++                t += ggml_time_us() - t_start;
++                n++;
++            }
+         }
+     };
+-#else
+-    struct scoped_timer {
+-        scoped_timer(int64_t &, int64_t &) {}
+-        ~scoped_timer() {}
+-    };
+-#endif
++
++    void print_decode_profile() {
++        const int64_t t_now = ggml_time_us();
++        if (t_prof_window == 0) {
++            t_prof_window = t_now;
++            return;
++        }
++        if (t_now - t_prof_window < 5 * 1000 * 1000 || n_decode == 0) {
++            return;
++        }
++        const auto avg = [](int64_t t, int64_t n) { return n > 0 ? (double) t / n / 1000.0 : 0.0; };
++        const llama_decode_profile tgt = llama_decode_profile_take(ctx_tgt);
++        const llama_decode_profile dft = ctx_dft ? llama_decode_profile_take(ctx_dft) : llama_decode_profile {};
++        SRV_INF("decode profile: window %.1f s; decode %" PRId64 " x %.3f ms (synchronized), pre %.3f ms, post %.3f ms; "
++                "sample %" PRId64 " x %.3f ms; accept %" PRId64 " x %.3f ms for %" PRId64 " tokens (%.3f ms/token); "
++                "draft %" PRId64 " x %.3f ms; spec process %" PRId64 " x %.3f ms; "
++                "target compute %" PRId64 " x %.3f ms, logits %" PRId64 " rows %.3f ms total %.2f MiB; "
++                "draft compute %" PRId64 " x %.3f ms, logits %" PRId64 " rows %.3f ms total %.2f MiB\n",
++                (t_now - t_prof_window) / 1e6, n_decode, avg(t_decode, n_decode), avg(t_pre_decode, n_pre_decode), avg(t_post_decode, n_post_decode),
++                n_sampl, avg(t_sampl, n_sampl), n_accept, avg(t_accept, n_accept), n_accept_tok, avg(t_accept, n_accept_tok),
++                n_draft, avg(t_draft, n_draft), n_spec_proc, avg(t_spec_proc, n_spec_proc),
++                tgt.n_decode, tgt.n_decode > 0 ? tgt.t_compute_ms / tgt.n_decode : 0.0, tgt.n_outputs, tgt.t_logits_ms, tgt.logits_mib,
++                dft.n_decode, dft.n_decode > 0 ? dft.t_compute_ms / dft.n_decode : 0.0, dft.n_outputs, dft.t_logits_ms, dft.logits_mib);
++        t_prof_window = t_now;
++        t_pre_decode = t_decode = t_post_decode = t_sampl = t_accept = t_draft = t_spec_proc = 0;
++        n_pre_decode = n_decode = n_post_decode = n_sampl = n_accept = n_accept_tok = n_draft = n_spec_proc = 0;
++    }
+ 
+     // fill slot.inp_embd with the next rows of the audio stream
+     // returns false if the slot has nothing to decode now
+@@ -3658,18 +3692,9 @@ private:
+     }
+ 
+     void update_slots() {
+-#ifdef DEBUG_TIMINGS
+-        static int64_t t_prev = 0;
+-        int64_t t_start = ggml_time_us();
+-        if (t_start - t_prev > 5 * 1000 * 1000) { // every 5 seconds
+-            t_prev = t_start;
+-            SRV_INF("n_pre_decode      = %" PRId64 "\n", n_pre_decode);
+-            SRV_INF("avg t_pre_decode  = %f ms\n", (double) t_pre_decode / n_pre_decode / 1000.0);
+-            SRV_INF("avg t_decode      = %f ms\n", (double) t_decode / n_decode / 1000.0);
+-            SRV_INF("avg t_post_decode = %f ms\n", (double) t_post_decode / n_post_decode / 1000.0);
+-            SRV_INF("avg t_sampl       = %f ms\n", (double) t_sampl / n_sampl / 1000.0);
++        if (decode_profile_on()) {
++            print_decode_profile();
+         }
+-#endif
+ 
+         // check if all slots are idle
+         // a realtime slot waiting for audio has no work, the next audio control task wakes the loop
+@@ -3749,9 +3774,9 @@ private:
+ 
+                 batch.render(off, n_tokens);
+                 bool ok = decode(n_batch, off);
+-#ifdef DEBUG_TIMINGS
+-                llama_synchronize(ctx_tgt);
+-#endif
++                if (decode_profile_on()) {
++                    llama_synchronize(ctx_tgt);
++                }
+ 
+                 if (ok) {
+                     // move the head of the batch forward with the number of tokens we just processed
+@@ -4009,6 +4034,7 @@ private:
+         // generate the actual drafts (if any)
+         if (!drafting.empty()) {
+             queue_tasks.yield_to_queue([&]() {
++                scoped_timer t_d(t_draft, n_draft);
+                 common_speculative_draft(spec.get());
+             });
+         }
+@@ -4861,6 +4887,7 @@ private:
+         if (spec) {
+             bool ok = true;
+             queue_tasks.yield_to_queue([&]() {
++                scoped_timer t_p(t_spec_proc, n_spec_proc);
+                 ok = common_speculative_process(spec.get(), batch.view);
+             });
+ 
+@@ -5047,6 +5074,7 @@ private:
+                 const bool use_rejection = slot.use_spec_rejection() && !slot.spec_draft_q.empty();
+ 
+                 std::vector<llama_token> accepted;
++                const int64_t t_a0 = decode_profile_on() ? ggml_time_us() : 0;
+                 if (!synth_probs.empty()) {
+                     // synthetic acceptance replaces verification entirely, so it comes first
+                     accepted = server_sample_and_accept_synth(
+@@ -5061,6 +5089,11 @@ private:
+                 }
+ 
+                 GGML_ASSERT(accepted.size() >= 1);
++                if (decode_profile_on()) {
++                    t_accept     += ggml_time_us() - t_a0;
++                    n_accept     += 1;
++                    n_accept_tok += (int64_t) accepted.size();
++                }
+ 
+                 const uint32_t n_rollback = slot.spec_draft.size() + 1 - accepted.size();
  
 -- 
 2.55.0.windows.3
