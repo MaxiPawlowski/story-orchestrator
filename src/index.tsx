@@ -13,8 +13,10 @@ import { revealSetting } from "@runtime/settingReveal";
 import { storyPageFor } from "@runtime/drawerTab";
 import type { WidgetDrawerTab } from "@engine/index";
 import { inlinePresence } from "@runtime/presence";
-import { createPresenceUi, openChatPanel, openPlay, setPanel } from "./presenceUi";
-import { castPanelShown, chatPanelsShown } from "@runtime/chatPanels";
+import { createPresenceUi, openChatPanel, openPlay, openSheet, setPanel, toggleSheet, useSheet } from "./presenceUi";
+import { castPanelShown } from "@runtime/chatPanels";
+import { sheetTabs, type SheetTab } from "@runtime/storySheet";
+import type { InlineLevel } from "@runtime/settingsModel";
 import { requestGuide } from "@guide/request";
 import { onTourRequest } from "@guide/tour/request";
 import { contextLimitInvalidators, createContextLimitCache } from "@runtime/contextLimitCache";
@@ -377,13 +379,15 @@ const openRepairStep = () => workspaceNavigation.open(repairIntent());
 
 const HudMount = () => {
   const snapshot = useRuntimeSnapshot();
+  const sheet = useSheet();
   const card = {
-    panels: chatPanelsShown(snapshot).filter((panel): panel is "journal" | "suggestions" => panel === "journal" || panel === "suggestions"),
-    openPanel: (panel: "journal" | "suggestions") => openChatPanel(panel, manager.getCachedSnapshot()),
-    openMemory: () => openStoryWindow("memory"),
+    tabs: sheetTabs(snapshot),
+    openTab: (tab: SheetTab) => openSheet(tab),
+    onRetry: () => manager.retryExtraction(),
+    setLevel: (level: InlineLevel) => manager.setInlineSettings({ level }),
     skip: () => { void manager.skipAhead(); },
   };
-  return <HudStrip snapshot={snapshot} onOpenStory={() => openStoryWindow()} onOpenSettings={openRepairStep} card={card} />;
+  return <HudStrip snapshot={snapshot} onOpenStory={() => openStoryWindow()} onOpenSettings={openRepairStep} card={card} sheet={{ open: sheet.open, toggle: () => toggleSheet() }} />;
 };
 
 const mountTopBarDrawer = () => {

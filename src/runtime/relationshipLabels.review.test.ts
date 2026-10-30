@@ -1,7 +1,5 @@
 import { readFileSync } from "fs";
 import { join } from "path";
-import { createElement } from "react";
-import { renderToStaticMarkup } from "react-dom/server";
 import { StoryEngine, parseStoryOrThrow, relationshipKey, revealKey, type EngineState, type NormalizedStory, type PrimitiveValue } from "@engine/index";
 import { labelledRelationships } from "@engine/life/labels";
 import { relationshipFeelings } from "@engine/life/lines";
@@ -13,7 +11,7 @@ import { gameSlices, loadGameComposer, storyHasGame } from "./gameSnapshot";
 import { withheldNames } from "./playerProjection";
 import { buildSessionJournal } from "./journal";
 import { MemoryInjector } from "./memoryInjector";
-import { JournalPanel } from "../components/panels/JournalPanel";
+import { playerSheetMarkup } from "../components/sheet/sheetMarkup";
 import type { GameView } from "./gameTypes";
 import type { MemoryRuntimeState } from "./types";
 import type { InjectorHosts } from "./hostPorts";
@@ -48,7 +46,7 @@ const randomTurns = (next: () => number): Array<Record<string, PrimitiveValue>> 
 const compose = (story: NormalizedStory, engine: StoryEngine, enabled = ENABLED, state: EngineState = engine.serialize()): GameView =>
   composeGame({ story, state, boundaryLog: engine.stateLog, checks: [], threads: { open: [], resolved: [] }, chat: [], castNames: CAST, enabled }).player;
 
-const surfaces = (game: GameView): string => [JSON.stringify(game), renderToStaticMarkup(createElement(JournalPanel, { game }))].join("\n");
+const surfaces = (game: GameView): string => [JSON.stringify(game), playerSheetMarkup(game)].join("\n");
 
 const secrets = (story: NormalizedStory) => labelledRelationships(story).flatMap(({ member, relationship }) =>
   (relationship.secret ?? []).map((secret) => ({ member, toward: relationship.toward, secret, key: revealKey(member, relationship.toward, secret.id) })));

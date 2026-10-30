@@ -1,11 +1,9 @@
-import { createElement } from "react";
-import { renderToStaticMarkup } from "react-dom/server";
 import { StoryEngine, codexArmedKey, codexReturnKey, isCodexKey, type EngineState, type NormalizedStory, type PrimitiveValue, type ValidationError } from "@engine/index";
 import { codexItems } from "@engine/codex";
 import { parseStory, parseStoryOrThrow } from "@engine/validate";
 import { diffStories, pruneEngineState } from "@engine/storyDiff";
 import { composeGame } from "./widgets";
-import { JournalPanel } from "../components/panels/JournalPanel";
+import { playerSheetMarkup } from "../components/sheet/sheetMarkup";
 import { labRaw, randomWrites, rng } from "../../test/support/codexLab";
 import type { GameView } from "./gameTypes";
 
@@ -122,7 +120,7 @@ describe("M52e E2: returns are projection-only", () => {
     for (let seed = 1; seed <= 500; seed += 1) {
       const engine = run(seed);
       const game = view(story, engine);
-      const surfaces = `${JSON.stringify(game)}\n${renderToStaticMarkup(createElement(JournalPanel, { game }))}`;
+      const surfaces = `${JSON.stringify(game)}\n${playerSheetMarkup(game)}`;
       const values = engine.serialize().blackboard.values;
       const unshown = codexItems(story).flatMap(({ entry }) => (entry.returns ?? []).filter((back) => values[codexReturnKey(entry.id, back.id)] === undefined).map((back) => back.text));
       leaks += unshown.filter((text) => surfaces.includes(text)).length;

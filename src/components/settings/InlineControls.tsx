@@ -4,6 +4,7 @@ import { INLINE_CATEGORIES, INLINE_LEVELS, INLINE_WINDOW_MAX, PLAYER_LEVEL_CAP, 
 import { INLINE_CATEGORY_LABELS } from "@runtime/messageInspector";
 import { INLINE_CATEGORY_HELP, INLINE_LEVEL_LABELS } from "@features/inlineCopy";
 import { Advanced, CheckRow, FieldLabel } from "./Field";
+import { InlineLegendPanel } from "../inline/InlineLegend";
 
 interface GroupProps {
   snapshot: RuntimeSnapshot;
@@ -24,6 +25,7 @@ export const InlineControls = ({ snapshot, manager }: GroupProps) => {
           {offered.map((level) => <option key={level} value={level}>{INLINE_LEVEL_LABELS[level]}</option>)}
         </select>
       </div>
+      {effective > 0 && <InlineLegendPanel level={effective} id="so-inline-legend" />}
       {inline.level > 0 && (
         <Advanced id="so-inline-advanced" label="Which notes">
           <div className="flex flex-wrap gap-x-3 gap-y-1">

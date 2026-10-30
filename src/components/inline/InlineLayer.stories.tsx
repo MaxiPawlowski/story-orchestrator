@@ -57,7 +57,7 @@ export default meta;
 type Story = StoryObj<typeof Chat>;
 
 const hostChips = (canvasElement: HTMLElement, messageId: number) =>
-  [...canvasElement.querySelectorAll(`#so-story-mes-${messageId} [data-so="inline-chip"]`)].map((chip) => chip.getAttribute("data-category"));
+  [...canvasElement.querySelectorAll(`#so-story-mes-${messageId} [data-so="inline-part"]`)].map((part) => part.getAttribute("data-category"));
 
 export const PlayerChipsLandUnderTheirMessage: Story = {
   args: { view: view(1), actions: { run: fn(), inspect: fn() } },
@@ -67,7 +67,7 @@ export const PlayerChipsLandUnderTheirMessage: Story = {
     await expect(hostChips(canvasElement, 5)).toEqual(["memory"]);
     await expect(canvasElement.textContent).not.toContain("cp1");
     await expect(canvasElement.textContent).not.toContain("Sun Ruins");
-    await userEvent.click(within(canvasElement.querySelector("#so-story-mes-5") as HTMLElement).getByRole("button", { name: "Memory: 1" }));
+    await userEvent.click(canvasElement.querySelector('#so-story-mes-5 [data-so="inline-line"]') as HTMLElement);
     await expect(canvas.getByText("Remembered: The map points east.")).toBeInTheDocument();
     await expect(canvasElement.querySelectorAll(SO_IN_MESSAGE_TEXT)).toHaveLength(0);
   },
@@ -77,7 +77,7 @@ export const AuthorLevelAddsChipsAndSkipsMissingHosts: Story = {
   args: { view: view(3), actions: { run: fn(), inspect: fn() } },
   play: async ({ canvasElement }) => {
     await expect(hostChips(canvasElement, 5)).toEqual(["progress", "memory"]);
-    await expect(canvasElement.querySelectorAll('[data-so="inline-chip"][data-category="lore"]')).toHaveLength(0);
+    await expect(canvasElement.querySelectorAll('[data-so="inline-part"][data-category="lore"]')).toHaveLength(0);
     await expect(canvasElement.querySelectorAll(SO_IN_MESSAGE_TEXT)).toHaveLength(0);
   },
 };
@@ -85,6 +85,6 @@ export const AuthorLevelAddsChipsAndSkipsMissingHosts: Story = {
 export const OffRendersNothing: Story = {
   args: { view: view(0), actions: { run: fn(), inspect: fn() } },
   play: async ({ canvasElement }) => {
-    await expect(canvasElement.querySelectorAll('[data-so="inline-chip"]')).toHaveLength(0);
+    await expect(canvasElement.querySelectorAll('[data-so="inline-line"]')).toHaveLength(0);
   },
 };

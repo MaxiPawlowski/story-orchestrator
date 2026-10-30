@@ -10,8 +10,8 @@ const baseSnapshot = (overrides: Record<string, unknown> = {}): RuntimeSnapshot 
     ready: true,
     activeCheckpointName: "The Ruined Gate",
     narrative: { title: "Quest", headline: "The Ruined Gate", sections: [{ id: "now", label: "Where you are", lines: ["The Ruined Gate"] }], text: "" },
-    tension: { level: "high", smoothed: 0.72, expected: 0.6, hint: null },
-    ui: { authorView: false, announceTransitions: true, hudEnabled: true },
+    tension: { level: "tense", smoothed: 0.72, expected: 0.6, hint: null },
+    ui: { authorView: false, announceTransitions: true, hudEnabled: true, inline: { level: 1 } },
     pendingDeltas: [],
     pipeline: { state: "idle", text: "Following along.", detail: null, needsSetup: false },
     ...overrides,
@@ -31,8 +31,10 @@ export const Default: Story = {
   args: { snapshot: baseSnapshot() },
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.getByText(/◈ The Ruined Gate/)).toBeInTheDocument();
-    await expect(canvas.getByText(/tension high/)).toBeInTheDocument();
+    await expect(canvas.getByText("The Ruined Gate")).toBeInTheDocument();
+    await expect(canvasElement.querySelector('[data-so="hud-tension"]')).toHaveAttribute("title", "tension tense");
+    await expect(canvasElement.querySelectorAll('.so-hud-dot[data-on="true"]')).toHaveLength(3);
+    await expect(canvasElement.textContent).not.toContain("◈");
     await userEvent.click(canvas.getByRole("button"));
     await expect(args.onOpenStory).toHaveBeenCalledTimes(1);
   },
@@ -43,7 +45,7 @@ export const UnnamedSceneShowsStoryTitle: Story = {
     narrative: { title: "Quest", headline: "Quest", sections: [{ id: "now", label: "Where you are", lines: ["Quest"] }], text: "" } }) },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.getByText(/◈ Quest/)).toBeInTheDocument();
+    await expect(canvas.getByText("Quest")).toBeInTheDocument();
     await expect(canvasElement.querySelector('[data-so="hud-author-checkpoint"]')).toBeNull();
     await expect(canvasElement.textContent).not.toContain("cp3 ambush");
   },
@@ -127,7 +129,7 @@ export const BranchChip: Story = {
     const canvas = within(canvasElement);
     await userEvent.click(canvas.getByText("You went back: continue from here?"));
     await expect(args.onOpenStory).toHaveBeenCalledTimes(1);
-    await expect(canvas.queryByText(/◈/)).toBeNull();
+    await expect(canvasElement.querySelector("#so-hud-main")).toBeNull();
   },
 };
 
@@ -273,10 +275,16 @@ const cardSnapshot = () => baseSnapshot({
   ],
 });
 
-const cardArgs = () => ({ panels: ["journal", "suggestions"] as const, openPanel: fn(), openMemory: fn() });
+const TABS = [
+  { id: "journal" as const, label: "Journal", icon: "fa-book" },
+  { id: "ideas" as const, label: "Ideas", icon: "fa-lightbulb" },
+  { id: "memory" as const, label: "Memory", icon: "fa-brain" },
+];
+
+const cardArgs = () => ({ tabs: TABS, openTab: fn(), onRetry: fn(), setLevel: fn() });
 
 export const StoryCardOpensFromTheStrip: Story = {
-  args: { snapshot: cardSnapshot(), card: { ...cardArgs(), panels: ["journal", "suggestions"] } },
+  args: { snapshot: cardSnapshot(), card: cardArgs() },
   parameters: { a11y: { element: "#so-hud-root" } },
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);
@@ -290,16 +298,15 @@ export const StoryCardOpensFromTheStrip: Story = {
     await expect(within(card).getByText("Breach the sanctum.")).toBeInTheDocument();
     await expect(within(card).getByText(/Following along\./)).toBeInTheDocument();
     await expect(card.textContent).not.toMatch(/cp_gate_internal|boundary/);
-    await userEvent.click(within(card).getByRole("button", { name: "What the story remembers" }));
-    const peek = canvasElement.querySelector("#so-hud-card-peek") as HTMLElement;
-    const rows = [...peek.querySelectorAll('[data-so="hud-card-memory"]')].map((row) => row.textContent);
-    await expect(rows).toEqual(["The guild master warned you.", "The sun-key opens the inner sanctum."]);
-    await expect(peek.textContent).not.toMatch(/Kel hides|old claim/);
-    await userEvent.click(within(card).getByRole("button", { name: "Open the journal" }));
-    await expect(args.card?.openPanel).toHaveBeenCalledWith("journal");
+    await expect(canvasElement.querySelector("#so-hud-card-peek")).toBeNull();
+    await expect(canvasElement.querySelector("#so-hud-card-level")).toBeNull();
+    await expect([...card.querySelectorAll('[data-so="hud-card-tab"]')].map((tab) => tab.getAttribute("data-tab"))).toEqual(["journal", "ideas", "memory"]);
+    await expect(card.querySelector("#so-hud-card-journal")).not.toBeNull();
+    await userEvent.click(within(card).getByRole("button", { name: "Journal" }));
+    await expect(args.card?.openTab).toHaveBeenCalledWith("journal");
     await expect(canvasElement.querySelector("#so-hud-card")).toBeNull();
     await userEvent.click(main);
-    await userEvent.click(await canvas.findByRole("button", { name: "More…" }));
+    await userEvent.click(await canvas.findByRole("button", { name: "Story window" }));
     await expect(args.onOpenStory).toHaveBeenCalledTimes(1);
     await expect(canvasElement.querySelector("#so-hud-card")).toBeNull();
   },
@@ -314,7 +321,7 @@ const noticing = (count: number) => baseSnapshot({
 });
 
 export const StoryCardNotices: Story = {
-  args: { snapshot: noticing(5), card: { ...cardArgs(), panels: ["journal"] } },
+  args: { snapshot: noticing(5), card: { ...cardArgs(), tabs: TABS.slice(0, 1) } },
   play: async ({ canvasElement }) => {
     await userEvent.click(canvasElement.querySelector("#so-hud-main") as HTMLElement);
     await waitFor(() => expect(canvasElement.querySelector("#so-hud-card-notice")).not.toBeNull());
@@ -327,7 +334,7 @@ export const StoryCardNotices: Story = {
 };
 
 export const StoryCardWithoutNotices: Story = {
-  args: { snapshot: noticing(0), card: { ...cardArgs(), panels: ["journal"] } },
+  args: { snapshot: noticing(0), card: { ...cardArgs(), tabs: TABS.slice(0, 1) } },
   play: async ({ canvasElement }) => {
     await userEvent.click(canvasElement.querySelector("#so-hud-main") as HTMLElement);
     await within(canvasElement).findByRole("dialog");
@@ -336,7 +343,7 @@ export const StoryCardWithoutNotices: Story = {
 };
 
 export const StoryCardNoticesOnAPhone: Story = {
-  args: { snapshot: noticing(2), card: { ...cardArgs(), panels: ["journal"] } },
+  args: { snapshot: noticing(2), card: { ...cardArgs(), tabs: TABS.slice(0, 1) } },
   parameters: { testViewport: VIEWPORTS.phone },
   render: (args) => <div style={{ paddingTop: 480 }}><HudStrip {...args} /><textarea id="send_textarea" aria-label="Chat input" /></div>,
   play: async ({ canvasElement }) => {
@@ -350,14 +357,14 @@ export const StoryCardNoticesOnAPhone: Story = {
 };
 
 export const StoryCardClosesOnEscapeAndOutsideClick: Story = {
-  args: { snapshot: cardSnapshot(), card: { ...cardArgs(), panels: [] } },
+  args: { snapshot: cardSnapshot(), card: { ...cardArgs(), tabs: [] } },
   render: (args) => <><button type="button" id="outside" className="menu_button">elsewhere</button><div id="so-hud-root"><HudStrip {...args} /></div></>,
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);
     const main = canvasElement.querySelector("#so-hud-main") as HTMLButtonElement;
     await userEvent.click(main);
     await canvas.findByRole("dialog");
-    await expect(canvas.queryByRole("button", { name: "Open the journal" })).toBeNull();
+    await expect(canvas.queryByRole("button", { name: "Journal" })).toBeNull();
     await userEvent.keyboard("{Escape}");
     await waitFor(() => expect(canvasElement.querySelector("#so-hud-card")).toBeNull());
     await expect(document.activeElement).toBe(main);
@@ -370,7 +377,7 @@ export const StoryCardClosesOnEscapeAndOutsideClick: Story = {
 };
 
 export const StoryCardSetupChipStillOpensPlay: Story = {
-  args: { snapshot: baseSnapshot({ ...playing, thinkingSilent: true }), card: { ...cardArgs(), panels: [] } },
+  args: { snapshot: baseSnapshot({ ...playing, thinkingSilent: true }), card: { ...cardArgs(), tabs: [] } },
   play: async ({ args, canvasElement }) => {
     await userEvent.click(canvasElement.querySelector("#so-hud-setup") as HTMLElement);
     await expect(args.onOpenSettings).toHaveBeenCalledTimes(1);
@@ -379,7 +386,7 @@ export const StoryCardSetupChipStillOpensPlay: Story = {
 };
 
 export const StoryCardOnAPhone: Story = {
-  args: { snapshot: cardSnapshot(), card: { ...cardArgs(), panels: ["journal", "suggestions"] } },
+  args: { snapshot: cardSnapshot(), card: cardArgs() },
   parameters: { testViewport: VIEWPORTS.phone },
   render: (args) => <div style={{ paddingTop: 480 }}><HudStrip {...args} /><textarea id="send_textarea" aria-label="Chat input" /></div>,
   play: async ({ canvasElement }) => {
@@ -397,8 +404,58 @@ export const StoryCardOnAPhone: Story = {
   },
 };
 
+const stalled = { state: "stalled-rechecking", text: "Reading is taking longer than usual. It keeps going; Try again checks on it.", detail: "read in flight 130 s", needsSetup: false,
+  nextAction: "retry", retryable: true };
+
+export const RetryableChipOpensTheCardWithTryAgain: Story = {
+  args: { snapshot: baseSnapshot({ ...playing, pipeline: stalled }), card: cardArgs() },
+  play: async ({ args, canvasElement }) => {
+    const chip = canvasElement.querySelector("#so-hud-pipeline") as HTMLElement;
+    await expect(chip).toHaveTextContent("catching up…");
+    await userEvent.click(chip);
+    const card = await within(canvasElement).findByRole("dialog");
+    await expect(args.onOpenStory).not.toHaveBeenCalled();
+    await userEvent.click(within(card).getByRole("button", { name: "Try again" }));
+    await expect(args.card?.onRetry).toHaveBeenCalledTimes(1);
+  },
+};
+
+export const WaitingOnAChip: Story = {
+  args: { snapshot: baseSnapshot({ ...playing, pipeline: { state: "working", text: "Waiting for a character to finish thinking…", detail: null, needsSetup: false,
+    nextAction: "wait", waitingOn: "inner-beat" } }), card: cardArgs() },
+  play: async ({ canvasElement }) => {
+    const chip = canvasElement.querySelector("#so-hud-pipeline") as HTMLElement;
+    await expect(chip).toHaveTextContent("waiting for a character");
+    await expect(chip).toHaveAttribute("data-waiting-on", "inner-beat");
+    await userEvent.click(chip);
+    const card = await within(canvasElement).findByRole("dialog");
+    await expect(within(card).getByText(/Waiting for a character to finish thinking/)).toBeInTheDocument();
+    await expect(within(card).queryByRole("button", { name: "Try again" })).toBeNull();
+  },
+};
+
+export const SheetButtonToggles: Story = {
+  args: { snapshot: baseSnapshot(playing), card: cardArgs(), sheet: { open: false, toggle: fn() } },
+  play: async ({ args, canvasElement }) => {
+    const button = within(canvasElement).getByRole("button", { name: "Open the story sheet" });
+    await expect(button).toHaveAttribute("aria-expanded", "false");
+    await userEvent.click(button);
+    await expect(args.sheet?.toggle).toHaveBeenCalledTimes(1);
+  },
+};
+
+export const NoSheetButtonWithoutTabs: Story = {
+  args: { snapshot: baseSnapshot(playing), card: { ...cardArgs(), tabs: [] }, sheet: { open: false, toggle: fn() } },
+  play: async ({ canvasElement }) => {
+    await expect(canvasElement.querySelector("#so-hud-sheet")).toBeNull();
+  },
+};
+
+export const SheetButtonPhone: Story = { args: { snapshot: baseSnapshot({ ...crowdedTurn.args.snapshot }), card: cardArgs(), sheet: { open: false, toggle: fn() } },
+  ...fitsAt(VIEWPORTS.phone, hudButton) };
+
 export const StoryCardSkipAhead: Story = {
-  args: { snapshot: baseSnapshot({ ...cardSnapshot(), skip: { enabled: true, reason: null } }), card: { ...cardArgs(), panels: ["journal"], skip: fn() } },
+  args: { snapshot: baseSnapshot({ ...cardSnapshot(), skip: { enabled: true, reason: null } }), card: { ...cardArgs(), tabs: TABS.slice(0, 1), skip: fn() } },
   parameters: { a11y: { element: "#so-hud-root" } },
   play: async ({ args, canvasElement }) => {
     await userEvent.click(canvasElement.querySelector("#so-hud-main") as HTMLElement);
@@ -412,7 +469,8 @@ export const StoryCardSkipAhead: Story = {
 };
 
 export const StoryCardSkipAheadWaits: Story = {
-  args: { snapshot: baseSnapshot({ ...cardSnapshot(), skip: { enabled: false, reason: "Wait for the reply to finish, then skip ahead." } }), card: { ...cardArgs(), panels: ["journal"], skip: fn() } },
+  args: { snapshot: baseSnapshot({ ...cardSnapshot(), skip: { enabled: false, reason: "Wait for the reply to finish, then skip ahead." } }),
+    card: { ...cardArgs(), tabs: TABS.slice(0, 1), skip: fn() } },
   play: async ({ canvasElement }) => {
     await userEvent.click(canvasElement.querySelector("#so-hud-main") as HTMLElement);
     const card = await within(canvasElement).findByRole("dialog");
@@ -423,7 +481,7 @@ export const StoryCardSkipAheadWaits: Story = {
 };
 
 export const StoryCardSkipAheadOff: Story = {
-  args: { snapshot: baseSnapshot({ ...cardSnapshot(), skip: null }), card: { ...cardArgs(), panels: ["journal"], skip: fn() } },
+  args: { snapshot: baseSnapshot({ ...cardSnapshot(), skip: null }), card: { ...cardArgs(), tabs: TABS.slice(0, 1), skip: fn() } },
   play: async ({ canvasElement }) => {
     await userEvent.click(canvasElement.querySelector("#so-hud-main") as HTMLElement);
     await within(canvasElement).findByRole("dialog");

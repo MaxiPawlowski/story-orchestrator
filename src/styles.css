@@ -1,5 +1,6 @@
 @import "./styles/tokens.css";
 @import "./styles/kit.css";
+@import "./styles/sheet.css";
 @reference "tailwindcss";
 @source "./";
 
@@ -523,27 +524,25 @@ dialog#so-studio-guide-reader::backdrop {
   position: absolute;
   bottom: calc(100% + 4px);
   left: 0;
-  right: 0;
-  z-index: 35;
+  z-index: var(--so-z-popover);
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  width: min(100%, 34rem);
+  gap: var(--so-space-2);
+  width: min(100%, 22rem);
   max-height: min(60vh, 28rem, var(--so-hud-card-room, 100vh));
-  margin: 0 auto;
-  padding: 0.75rem 1rem;
+  padding: var(--so-space-3);
   overflow-x: hidden;
   overflow-y: auto;
   white-space: normal;
-  font-size: 1rem;
-  line-height: 1.4;
+  font-size: var(--so-text-sm);
+  line-height: var(--so-leading);
   text-align: left;
-  color: var(--st-text-active);
-  background: var(--SmartThemeBlurTintColor, var(--st-bg-tint));
-  backdrop-filter: blur(var(--SmartThemeBlurStrength, 0px));
-  -webkit-backdrop-filter: blur(var(--SmartThemeBlurStrength, 0px));
-  border: 1px solid var(--st-border);
-  border-radius: 0.5rem;
+  color: var(--so-fg);
+  background: var(--so-surface-solid);
+  backdrop-filter: blur(var(--so-blur, 0px));
+  -webkit-backdrop-filter: blur(var(--so-blur, 0px));
+  border: 1px solid var(--so-line-strong);
+  border-radius: var(--so-radius);
   box-shadow: 0 6px 24px var(--so-shadow);
 }
 
@@ -551,77 +550,68 @@ dialog#so-studio-guide-reader::backdrop {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 0.5rem;
+  gap: var(--so-space-2);
 }
 
 #so-hud-root .so-hud-card-title {
   margin: 0;
-  font-size: 1.05rem;
+  font-size: var(--so-text);
   font-weight: 600;
   overflow-wrap: anywhere;
 }
 
-#so-hud-root .so-hud-card-line,
-#so-hud-root .so-hud-card-status {
+#so-hud-root .so-hud-card-line {
   margin: 0;
-  font-size: 0.85rem;
-  opacity: 0.85;
+  color: var(--so-fg-muted);
 }
 
-#so-hud-root .so-hud-card-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-#so-hud-root .so-hud-card-actions .menu_button,
-#so-hud-root .so-hud-card-peek .menu_button,
-#so-hud-root .so-hud-card-head .menu_button {
-  min-height: 44px;
-  margin: 0;
-  white-space: nowrap;
-}
-
-#so-hud-root .so-hud-card-actions .so-launcher {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-}
-
-#so-hud-root .so-hud-card-peek {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  padding-top: 0.5rem;
-  border-top: 1px solid var(--st-border);
-  font-size: 0.9rem;
-}
-
-#so-hud-root .so-hud-card-peek ul {
-  margin: 0;
+#so-hud-root .so-hud-card-line ul {
+  margin: 2px 0 0;
   padding-left: 1.1rem;
 }
 
-#so-hud-root .so-hud-card-peek p {
-  margin: 0;
-  opacity: 0.8;
+#so-hud-root .so-hud-card-line p {
+  margin: 2px 0 0;
+}
+
+#so-hud-root .so-hud-card-status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--so-space-2);
+  color: var(--so-fg-muted);
+}
+
+#so-hud-root .so-hud-card-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--so-space-1);
+}
+
+#so-hud-root .so-hud-card-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--so-space-2);
+  padding-top: var(--so-space-2);
+  border-top: 1px solid var(--so-line);
 }
 
 #so-hud {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.25rem 0.75rem;
+  gap: var(--so-space-1) var(--so-space-3);
   width: 100%;
-  padding: 2px 10px;
+  padding: 2px 4px 2px 10px;
   margin-bottom: 2px;
-  font-size: 12px;
-  line-height: 1.4;
-  color: var(--st-text-active);
+  font-size: calc(var(--mainFontSize, 15px) * 0.85);
+  line-height: var(--so-leading);
+  color: var(--so-fg);
   background: color-mix(in srgb, var(--st-bg-tint) 60%, transparent);
   border: 1px solid color-mix(in srgb, var(--st-border) 70%, transparent);
-  border-radius: 8px;
-  cursor: pointer;
+  border-radius: var(--so-radius);
 }
 
 #so-hud:hover {
@@ -631,10 +621,10 @@ dialog#so-studio-guide-reader::backdrop {
 #so-hud .so-hud-main {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: var(--so-space-2);
   flex: 1 1 10rem;
   min-width: 0;
-  padding: 0;
+  padding: 2px 0;
   background: none;
   border: none;
   color: inherit;
@@ -643,11 +633,34 @@ dialog#so-studio-guide-reader::backdrop {
   cursor: pointer;
 }
 
+#so-hud .so-hud-main:focus-visible {
+  outline: 2px solid var(--so-accent);
+  outline-offset: 2px;
+  border-radius: var(--so-radius-sm);
+}
+
+#so-hud .so-hud-icon {
+  color: var(--so-accent);
+}
+
+#so-hud .so-hud-status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--so-space-1) var(--so-space-2);
+  margin-left: auto;
+  min-width: 0;
+}
+
 #so-hud .so-hud-chip {
-  padding: 0 8px;
-  background: color-mix(in srgb, var(--st-info) 20%, transparent);
-  border: 1px solid color-mix(in srgb, var(--st-info) 45%, transparent);
-  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 var(--so-space-2);
+  background: color-mix(in srgb, var(--so-accent) 18%, transparent);
+  border: 1px solid color-mix(in srgb, var(--so-accent) 45%, transparent);
+  border-radius: var(--so-radius-pill);
   color: inherit;
   font: inherit;
   white-space: nowrap;
@@ -655,6 +668,15 @@ dialog#so-studio-guide-reader::backdrop {
   overflow: hidden;
   text-overflow: ellipsis;
   cursor: pointer;
+}
+
+#so-hud span.so-hud-chip {
+  cursor: default;
+}
+
+#so-hud .so-hud-chip:focus-visible {
+  outline: 2px solid var(--so-accent);
+  outline-offset: 1px;
 }
 
 #so-hud .so-hud-name {
@@ -665,14 +687,44 @@ dialog#so-studio-guide-reader::backdrop {
 }
 
 #so-hud .so-hud-dim {
-  opacity: 0.7;
+  color: var(--so-fg-muted);
   white-space: nowrap;
 }
 
-#so-hud .so-hud-pending {
-  margin-left: auto;
+#so-hud .so-hud-tension {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   white-space: nowrap;
-  color: var(--st-info);
+}
+
+#so-hud .so-hud-dots {
+  display: inline-flex;
+  gap: 3px;
+}
+
+#so-hud .so-hud-dot {
+  width: 0.5em;
+  height: 0.5em;
+  border-radius: 50%;
+  border: 1px solid var(--so-accent);
+}
+
+#so-hud .so-hud-dot[data-on="true"] {
+  background: var(--so-accent);
+}
+
+#so-hud .so-hud-pending {
+  white-space: nowrap;
+  color: var(--so-accent);
+}
+
+#so-hud .so-icon-btn {
+  min-height: 0;
+  min-width: 0;
+  height: 1.9em;
+  width: 1.9em;
+  padding: 0;
 }
 
 :is(#drawer-manager, #story-orchestrator-settings, #so-panels-root) .so-help-list {

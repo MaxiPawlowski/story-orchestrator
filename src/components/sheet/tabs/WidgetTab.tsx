@@ -2,8 +2,8 @@ import { useState } from "react";
 import type { ProvenanceView, WidgetView } from "@runtime/gameTypes";
 import { recordWidgetAudit } from "@runtime/htmlWidgetAudit";
 import { WIDGET_TEXT } from "@features/widgetCopy";
-import { WidgetCard, drawerOpener, type StoryOpener, type WidgetAction } from "../widgets/WidgetCard";
-import { HtmlWidgetFrame } from "../widgets/HtmlWidgetFrame";
+import { WidgetCard, drawerOpener, type StoryOpener, type WidgetAction } from "../../widgets/WidgetCard";
+import { HtmlWidgetFrame } from "../../widgets/HtmlWidgetFrame";
 
 export interface HtmlPanelHost {
   journal: (summary: string, detail: string) => void;
@@ -11,7 +11,7 @@ export interface HtmlPanelHost {
 
 const refuseAction: WidgetAction = () => ({ ok: false, reason: WIDGET_TEXT.htmlNoActions });
 
-export interface WidgetPanelProps {
+export interface WidgetTabProps {
   widget: WidgetView;
   onAction?: WidgetAction;
   html?: HtmlPanelHost | null;
@@ -19,7 +19,7 @@ export interface WidgetPanelProps {
   provenance?: ProvenanceView[];
 }
 
-export function WidgetPanel({ widget, onAction, html, openDrawer, provenance }: WidgetPanelProps) {
+export function WidgetTab({ widget, onAction, html, openDrawer, provenance }: WidgetTabProps) {
   const [away, setAway] = useState(false);
   const onOpen = drawerOpener(openDrawer);
   const framed = widget.body.kind === "html" && Boolean(html) && !away;
@@ -39,4 +39,4 @@ export function WidgetPanel({ widget, onAction, html, openDrawer, provenance }: 
   );
 }
 
-export default WidgetPanel;
+export default WidgetTab;

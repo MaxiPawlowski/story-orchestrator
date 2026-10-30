@@ -155,9 +155,7 @@ export class ExtractionScheduler {
     this.host.onSchedulerChange();
   }
 
-  private sameWorld(startedEpoch: number): boolean {
-    return (this.host.epoch?.() ?? 0) === startedEpoch;
-  }
+  private sameWorld(startedEpoch: number): boolean { return (this.host.epoch?.() ?? 0) === startedEpoch; }
 
   private underPressure(): boolean {
     const threshold = this.host.getExtractionSettings().pressureThreshold ?? PRESSURE_DEFAULT_THRESHOLD;
@@ -240,9 +238,7 @@ export class ExtractionScheduler {
     this.queue.sort((left, right) => left.priority - right.priority);
   }
 
-  private readProfile(): string | null {
-    return this.host.getExtractionSettings().profileId;
-  }
+  private readProfile(): string | null { return this.host.getExtractionSettings().profileId; }
 
   breakerOpen(profileId: string | null = this.readProfile()): boolean {
     return Boolean(profileId && this.breaker.isOpen(profileId) && !this.failover.fallbackFor(profileId));
@@ -455,6 +451,7 @@ export class ExtractionScheduler {
       queueDepth: this.queue.length,
       held: held(this.queue, this.readProfile()),
       inFlight: this.inFlight,
+      yielding: this.beat.isWaiting(),
       lastError: this.lastError,
       rereadReason: [this.running, ...this.queue].find((job) => job?.reason.startsWith(ROLLBACK_REREAD_PREFIX))?.reason ?? null,
       heavyQueueDepth: this.heavyQueue.length,
@@ -469,7 +466,7 @@ export class ExtractionScheduler {
   }
 
   private async pump() {
-    if (this.inFlight || this.settling || this.breakerOpen() || this.beat.holds()) return;
+    if (this.inFlight || this.settling || this.breakerOpen() || this.beat.holdsNoting(() => this.host.onSchedulerChange())) return;
     const index = this.runnable(this.queue);
     if (index < 0) return;
     const [job] = this.queue.splice(index, 1);

@@ -9,6 +9,8 @@ import { requestJournalPage } from "@runtime/drawerTab";
 import { PLAYER_COPY } from "@runtime/narrative";
 import { GAME_TEXT } from "@features/gameCopy";
 import { WIDGET_TEXT, changedAgoText, provenanceText, rollHintText } from "@features/widgetCopy";
+import { SHEET_TEXT } from "@features/sheetCopy";
+import { IconButton } from "@components/ui/IconButton";
 
 const ICON: Record<string, string> = {
   scroll: "fa-scroll", flag: "fa-flag", star: "fa-star", heart: "fa-heart", shield: "fa-shield-halved", hourglass: "fa-hourglass-half", compass: "fa-compass",
@@ -35,9 +37,9 @@ const SheetItem = ({ item }: { item: SheetItemView }) => {
   const bounded = item.value !== undefined && item.max !== undefined;
   return (
     <li data-so="sheet-item" data-as={item.as} className="flex flex-col gap-0.5">
-      <div className="flex items-center justify-between gap-2">
-        <span>{item.label}</span>
-        <span className="st-muted text-xs">{item.text}{item.trend ? ` ${TREND[item.trend]}` : ""}</span>
+      <div className="so-sheet-stat">
+        <span className="so-sheet-stat-label">{item.label}</span>
+        <span data-so="sheet-value" className="so-sheet-stat-value">{item.text}{item.trend ? ` ${TREND[item.trend]}` : ""}</span>
       </div>
       {item.warn && <span data-so="sheet-warn" role="status" className="st-pill self-start px-1.5 text-[10px]">{item.warn}</span>}
       <Ago replies={item.changedAgo} />
@@ -100,11 +102,14 @@ const Track = ({ main, quests }: { main: MainLineView | null; quests: QuestView[
   </div>
 );
 
-const Log = ({ rows }: { rows: LogRowView[] }) => (
+export type MessageJump = (messageId: number) => void;
+
+const Log = ({ rows, onJump }: { rows: LogRowView[]; onJump?: MessageJump }) => (
   <ul data-so="game-log" className="flex flex-col gap-1 list-none p-0 m-0 text-xs">
     {rows.map((row) => (
-      <li key={`${row.kind}:${row.at.messageId}:${row.at.boundary}:${row.text}`} data-so="log-row" data-kind={row.kind}>
-        <span className="st-muted">#{row.at.messageId} </span>{row.actor ? `${row.actor}: ` : ""}{row.text}{row.outcome ? `, ${row.outcome}` : ""}
+      <li key={`${row.kind}:${row.at.messageId}:${row.at.boundary}:${row.text}`} data-so="log-row" data-kind={row.kind} className="so-sheet-log-row">
+        <span>{row.actor ? `${row.actor}: ` : ""}{row.text}{row.outcome ? `, ${row.outcome}` : ""}</span>
+        {onJump && <IconButton size="sm" icon="fa-arrow-turn-up" label={SHEET_TEXT.logJump} data-so="log-jump" onClick={() => onJump(row.at.messageId)} />}
       </li>
     ))}
   </ul>
@@ -136,7 +141,11 @@ const Roster = ({ rows }: { rows: RosterRowView[] }) => (
 
 const initials = (name: string) => name.split(/\s+/).filter(Boolean).slice(0, 2).map((word) => word[0]?.toUpperCase() ?? "").join("");
 
-const SceneCard = ({ location, time, present }: SceneView) => (
+export type ScenePageOpener = (name: string) => void;
+
+const openPeoplePage: ScenePageOpener = (name) => { requestJournalPage({ page: "people", name }); };
+
+export const SceneCard = ({ location, time, present, onPage = openPeoplePage }: SceneView & { onPage?: ScenePageOpener }) => (
   <div data-so="scene-card" className="flex flex-col gap-1 text-xs">
     {location && <div data-so="scene-where" className="flex gap-1"><span className="st-muted">{PLAYER_COPY.sceneWhere}</span><span>{location}</span></div>}
     {time && <div data-so="scene-when" className="flex gap-1"><span className="st-muted">{PLAYER_COPY.sceneWhen}</span><span>{time}</span></div>}
@@ -153,7 +162,7 @@ const SceneCard = ({ location, time, present }: SceneView) => (
                 {member.page
                   ? (
                     <button type="button" className="truncate cursor-pointer border-0 bg-transparent p-0 text-left text-inherit underline" data-so="scene-page"
-                      onClick={() => requestJournalPage({ page: "people", name: member.page ?? member.name })}>{member.name}</button>
+                      onClick={() => onPage(member.page ?? member.name)}>{member.name}</button>
                   )
                   : <span className="truncate">{member.name}</span>}
               </div>
@@ -298,13 +307,13 @@ const MapView = ({ image, pins, onAction }: { image: string; pins: PinView[]; on
   </div>
 );
 
-export const WidgetBodyView = ({ body, onAction }: { body: WidgetBody; onAction?: WidgetAction }) => {
-  if (body.kind === "html") return <div data-so="html-fallback"><WidgetBodyView body={body.source.body} onAction={onAction} /></div>;
+export const WidgetBodyView = ({ body, onAction, onJump }: { body: WidgetBody; onAction?: WidgetAction; onJump?: MessageJump }) => {
+  if (body.kind === "html") return <div data-so="html-fallback"><WidgetBodyView body={body.source.body} onAction={onAction} onJump={onJump} /></div>;
   if (body.kind === "clues") return <Clues clues={body.clues} links={body.links} onAction={onAction} />;
   if (body.kind === "map") return <MapView image={body.image} pins={body.pins} onAction={onAction} />;
   if (body.kind === "meters") return <SheetGroups groups={body.groups} />;
   if (body.kind === "track") return <Track main={body.main} quests={body.quests} />;
-  if (body.kind === "log") return <Log rows={body.rows} />;
+  if (body.kind === "log") return <Log rows={body.rows} onJump={onJump} />;
   if (body.kind === "clock") return <Clock {...body} />;
   if (body.kind === "roster") return <Roster rows={body.rows} />;
   if (body.kind === "timeline") return <Timeline chapters={body.chapters} />;
@@ -318,9 +327,10 @@ export interface WidgetCardProps {
   onAction?: WidgetAction;
   onOpen?: WidgetOpen;
   provenance?: ProvenanceView[];
+  onJump?: MessageJump;
 }
 
-export const WidgetCard = ({ widget, heading = true, onAction, onOpen, provenance }: WidgetCardProps) => (
+export const WidgetCard = ({ widget, heading = true, onAction, onOpen, provenance, onJump }: WidgetCardProps) => (
   <section data-so="widget" data-widget={widget.id} data-kind={widget.body.kind} data-accent={widget.accent ?? "default"} data-motion={widget.still ? "off" : undefined}
     aria-label={widget.title} className="so-game-widget flex flex-col gap-1">
     {heading && (
@@ -329,7 +339,7 @@ export const WidgetCard = ({ widget, heading = true, onAction, onOpen, provenanc
         <span>{widget.title}</span>
       </div>
     )}
-    <WidgetBodyView body={widget.body} onAction={onAction} />
+    <WidgetBodyView body={widget.body} onAction={onAction} onJump={onJump} />
     <IntentButtons intents={(widget.body.kind === "html" ? widget.body.source.actions : widget.actions) ?? []} onAction={onAction} onOpen={onOpen} />
     <ProvenanceLines rows={provenance} />
   </section>

@@ -53,16 +53,18 @@ export interface TabProps {
   disabled?: boolean;
   className?: string;
   ref?: Ref<HTMLButtonElement>;
+  "data-so"?: string;
+  "data-tab"?: string;
 }
 
 export const tabId = (prefix: string, value: string) => `${prefix}${value}`;
 
-export const Tab = ({ value, children, controls, count, disabled, className, ref }: TabProps) => {
+export const Tab = ({ value, children, controls, count, disabled, className, ref, "data-so": dataSo, "data-tab": dataTab }: TabProps) => {
   const tabs = useTabs();
   const selected = tabs.value === value;
   return (
     <button ref={ref} type="button" role="tab" id={tabId(tabs.idPrefix, value)} aria-selected={selected} aria-controls={controls} tabIndex={selected ? 0 : -1}
-      disabled={disabled} className={cx("so-tab", className)} onClick={() => { if (!selected) tabs.onChange(value); }}>
+      disabled={disabled} data-so={dataSo} data-tab={dataTab} className={cx("so-tab", className)} onClick={() => { if (!selected) tabs.onChange(value); }}>
       {children}
       {count !== undefined && <span className="so-tab-count">{count}</span>}
     </button>
@@ -73,11 +75,13 @@ export interface TabPanelProps {
   id: string;
   children: ReactNode;
   className?: string;
+  "data-so"?: string;
+  "data-tab"?: string;
 }
 
-export const TabPanel = ({ id, children, className }: TabPanelProps) => {
+export const TabPanel = ({ id, children, className, "data-so": dataSo, "data-tab": dataTab }: TabPanelProps) => {
   const tabs = useTabs();
-  return <div id={id} role="tabpanel" tabIndex={-1} aria-labelledby={tabId(tabs.idPrefix, tabs.value)} className={className}>{children}</div>;
+  return <div id={id} role="tabpanel" tabIndex={-1} aria-labelledby={tabId(tabs.idPrefix, tabs.value)} data-so={dataSo} data-tab={dataTab} className={className}>{children}</div>;
 };
 
 export default Tabs;

@@ -9,6 +9,14 @@ export const INLINE_LEVEL_LABELS: Record<InlineLevel, string> = {
   4: "Raw",
 };
 
+export const INLINE_LEVEL_SHORT: Record<InlineLevel, string> = {
+  0: "Off",
+  1: "Story",
+  2: "Behind",
+  3: "Author",
+  4: "Raw",
+};
+
 export const INLINE_LEVEL_HELP: Record<InlineLevel, string> = {
   0: "No notes under messages.",
   1: "Where the story moved and what it remembered.",
@@ -36,7 +44,26 @@ export const INLINE_STATE_LABELS: Record<InlineItem["state"], string> = {
 };
 
 export const INLINE_LEGEND_COPY = {
-  toggle: "What do these icons mean?",
-  heading: "Notes under messages",
+  heading: "What the notes under messages mean",
   levels: "Levels",
+} as const;
+
+const counted = (one: string, many: (count: number) => string) => (count: number): string => (count === 1 ? one : many(count));
+
+export const INLINE_LINE_WORDS: Record<InlineCategory, (count: number) => string> = {
+  progress: counted("The story moved on", (count) => `The story moved on (${count})`),
+  memory: counted("Remembered 1 thing", (count) => `Remembered ${count} things`),
+  threads: counted("A thread changed", (count) => `${count} threads changed`),
+  lore: counted("Lore used", (count) => `Lore used (${count})`),
+  cast: counted("The cast changed", (count) => `The cast changed (${count})`),
+  pacing: counted("The mood shifted", (count) => `The mood shifted (${count})`),
+  calls: counted("1 background call", (count) => `${count} background calls`),
+  health: counted("Something did not work", (count) => `${count} things did not work`),
+};
+
+export const INLINE_LINE_COPY = {
+  expand: "Show what happened",
+  inspect: "Inspect",
+  inspectTitle: "Open this message in the inspector",
+  raw: (count: number) => `${count} raw`,
 } as const;
