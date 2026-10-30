@@ -1,6 +1,6 @@
 # v3.0 31 — Outward narration and swipe contrast
 
-**Status: PLANNED 2026-10-30** (harvest 2026-10-30, index `30-harvest-index.md`). Nothing built. Size: S build, M rating.
+**Status: BUILT 2026-10-30** on `v3.0-34-grounding` (see Gate record); rating rows owed. Harvest index `30-harvest-index.md`. Size: S build, M rating.
 
 ## Problem (player)
 
@@ -84,3 +84,70 @@ has >= 10 positives, else the slice records counts and stops.
 
 - S2 on regenerate (not swipe): same rejection semantics? Default no.
 - Should S1 also cover drafted members' replies about other NPCs (member narrating someone else's interior)?
+
+## Gate record 2026-10-30 (v3.0 build, branch `v3.0-34-grounding`)
+
+Scope per the owner brief 2026-10-30: both prompt changes built behind settings that ship off; blind-rating arms prepared.
+Thinking and inner voice untouched. S0 not run (see Owed).
+
+- **S1 outward clause (built, OFF).** `NARRATOR_OUTWARD_CLAUSE` (`memory/innerRender.ts`) appended last to the omniscient
+  narrator's block (`renderNarratorBlock`/`memberAimsBlock` `outward`), static text, holdings unchanged; drafted members'
+  own aims and private blocks byte-identical (test). Read from `memory.settings.outwardNarration` in `MemoryInjector`.
+  Setting `memory.outwardNarration` default **off** until ARMS-31S1; control `#so-outward-narration`.
+- **S2 swipe contrast (built, OFF).** `runtime/swipeContrast.ts` (pure) + lazy `swipeContrastHost.ts`, armed in the talk
+  interceptor after the talk decision (an aborted generation never arms), loud `swipe` in the story chat only; quotes
+  `chat.at(-1).mes` (never `extra.reasoning`), fenced, clipped to 600 characters at a word, under "The reply below was
+  rejected by the player; write a different reply. Not part of the story:". Registry entry `swipeContrast` (depth 0,
+  WITHHOLD; depth-0 allowlist extended). Explicit lifetime: cleared on non-dry GENERATE_AFTER_DATA (the prompt took it),
+  MESSAGE_RECEIVED, GENERATION_STOPPED, GENERATION_ENDED, CHAT_CHANGED and any later GENERATION_STARTED (nested or next);
+  re-arming clears first, so a second swipe quotes the newest reply only. Setting `talk.swipeContrast` default **off**
+  until ARMS-31S2; control `#so-swipe-contrast`. Regenerate excluded (plan default).
+- Tests: `outwardNarration.test.ts` (5), `swipeContrast.test.ts` (13).
+- Payload goldens not extended (the swipe path does not run on dry runs); the clause is static, so the prefix check rides
+  the arms' recorded requests.
+
+### Rating arms (prepared, not run: GPU owed)
+
+`scripts/debug/so-prompt-arms.mts` + `lib/promptArms.mts` (node tests `scripts/debug/promptArms.test.mts`, 8): gates `outward`
+(31 S1), `swipe` (31 S2), `notes` (34 S1). Fixtures `test/measurements/v3.0/prompt-arms/{outward,swipe,notes}.cases.json`, 25
+synthetic cases each (invented text, toy cast Arin + DM Narrator), built from pools (`build`), frozen in `freeze.json`. Per case
+and arm a sandbox scenario imports the case story, posts the transcript (notes: `setQuality` moves place and time mid-way),
+switches only the gate's setting (read back; reset in the last step and again after the run) and drafts the measured speaker
+(swipe: swipes the posted rejected reply); it records the request, raw and visible reply and reasoning length. Pairwise blind
+pack (sides seeded, key apart); Sol (opencode `openai/gpt-6.1-sol`) labels both replies: four 1-5 categories, flag, interior
+sentences, restates, contradicts, differs; code counts 8-word span copies, echo and closure. Floors as this plan and 34
+declare them (a percentage only when the off arm has >= 10 positives). Deviation: synthetic cases, not recorded turns
+(recorded sessions are private campaign text).
+
+Owed rows (GPU queue ARMS-31S1, ARMS-31S2, ARMS-34S1), after this branch is merged and staged, model lane 45, images off,
+toy group present:
+
+```
+node scripts/debug/st-lanes.mts run 45 -- scripts/debug/so-prompt-arms.mts record --gate <outward|swipe|notes> --arm both --out C:/dev/so-lanes/45/debug/arms/<gate>
+node scripts/debug/so-prompt-arms.mts pack  --gate <gate> --out C:/dev/so-lanes/45/debug/arms/<gate> --seed v30-arms-<gate>
+node scripts/debug/so-prompt-arms.mts rate  --gate <gate> --out C:/dev/so-lanes/45/debug/arms/<gate>
+node scripts/debug/so-prompt-arms.mts score --gate <gate> --out C:/dev/so-lanes/45/debug/arms/<gate> --json C:/dev/so-lanes/45/debug/arms/<gate>/score.json
+```
+
+Also owed: S0 baselines (not built), 31 live gate (one swipe: block present once, absent on the next send). Lane checks: NOT
+run (no staging, brief).
+
+Gates (branch tree `b2c47f1d`, shared by plans 31 and 34):
+
+- `npm run gates:quick`: RED first (expected fixture and census updates: injection registry, reply-repair order, show-me rows,
+  ownership census, session baseline, worldInfo settings), fixed, targeted jest 228/228 green, `typecheck:test` clean.
+- `npm run gates -- --no-storybook` (run 1): RED at `debug:typecheck` (two type errors in `lib/promptArms.mts`), fixed (`b2c47f1d`).
+- `npm run gates -- --no-storybook` (run 2, no `--resume`): typecheck, typecheck:test, build, lint, test, test:replay (32 of 32
+  killed), debug:typecheck, test:plugin, test:release ok; **test:debug FAIL** on `scripts/local/orphans.win.test.mjs` "a
+  hard-killed controller leaves no text server behind" (controller reaper timing, untouched by this branch, machine saturated
+  by parallel builders). Rerun alone: 3/3 pass. `npm run gates -- --no-storybook --resume`: "gates: all green in 239.2s (8
+  step(s) reused)", test:debug ok.
+- Storybook alone on port 6234 (`npm run storybook:build`, then the http-server + test-storybook pair, `--maxWorkers 2`):
+  168/169 suites, 1024/1025 tests; the one failure `Studio/StudioModal › Seeded` timed out at 15 s in a tab loop (274 s
+  suite under load, file untouched). Rerun alone (`--maxWorkers 1 src/studio/StudioModal.stories.tsx`): 13/13 pass.
+- Main bundle 1,270,115 B (budget 1,300,000): history notes and swipe contrast ride lazy chunks; pins load lazily too.
+- `node --test scripts/debug/promptArms.test.mts`: 8/8.
+- Lane checks and real-LLM gates: NOT run (no GPU, no staging, brief 2026-10-30).
+- UI-rework-zone files touched: `src/components/settings/PlayGroups.tsx` (CharacterStateGroup trial rows, lore-pins state),
+  `src/components/settings/WorldInfoGatingGroup.tsx` (`#so-wi-lore-pins` row), `src/studio/mutations.ts` (`setRequirements`
+  keeps the bindings).

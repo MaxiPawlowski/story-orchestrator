@@ -1,0 +1,553 @@
+{
+ "format": "so-v30-prompt-arms/1",
+ "synthetic": true,
+ "gate": "outward",
+ "plan": "v3.0 31 S1",
+ "cases": [
+  {
+   "id": "o01",
+   "motive": "hide that she sold the guild map to the smugglers",
+   "motiveNeedles": [
+    "sold",
+    "map"
+   ],
+   "transcript": [
+    {
+     "speaker": "player",
+     "text": "I step inside and shake the rain off my cloak."
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} smiles a little too quickly. “You made good time. Sit, sit.”"
+    },
+    {
+     "speaker": "player",
+     "text": "I watch her while she talks. What do I notice about the room and the people in it?"
+    }
+   ]
+  },
+  {
+   "id": "o02",
+   "motive": "hide that she is afraid of the harbor master",
+   "motiveNeedles": [
+    "afraid",
+    "harbor master"
+   ],
+   "transcript": [
+    {
+     "speaker": "player",
+     "text": "I step inside and shake the rain off my cloak."
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} folds her hands on the table. “I did not expect you before dark.”"
+    },
+    {
+     "speaker": "player",
+     "text": "I ask her straight out whether anything happened here today."
+    }
+   ]
+  },
+  {
+   "id": "o03",
+   "motive": "keep the letter in her coat from being found",
+   "motiveNeedles": [
+    "letter",
+    "coat"
+   ],
+   "transcript": [
+    {
+     "speaker": "player",
+     "text": "I step inside and shake the rain off my cloak."
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} glances at the door, then back. “Ask what you came to ask.”"
+    },
+    {
+     "speaker": "player",
+     "text": "I say nothing for a moment and look at her face."
+    }
+   ]
+  },
+  {
+   "id": "o04",
+   "motive": "hide that she already knows where the missing boy is",
+   "motiveNeedles": [
+    "knows",
+    "boy"
+   ],
+   "transcript": [
+    {
+     "speaker": "player",
+     "text": "I step inside and shake the rain off my cloak."
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} pours two cups without asking. “Long road?”"
+    },
+    {
+     "speaker": "player",
+     "text": "I ask her who else has been asking about the road."
+    }
+   ]
+  },
+  {
+   "id": "o05",
+   "motive": "steer the party away from the east road without saying why",
+   "motiveNeedles": [
+    "east road"
+   ],
+   "transcript": [
+    {
+     "speaker": "player",
+     "text": "I step inside and shake the rain off my cloak."
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} keeps her shawl on though the room is warm. “Well. Here we are.”"
+    },
+    {
+     "speaker": "player",
+     "text": "I tell her I am staying the night and see how she takes it."
+    }
+   ]
+  },
+  {
+   "id": "o06",
+   "motive": "hide that she sold the guild map to the smugglers",
+   "motiveNeedles": [
+    "sold",
+    "map"
+   ],
+   "transcript": [
+    {
+     "speaker": "player",
+     "text": "I set my pack down by the door and look around."
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} folds her hands on the table. “I did not expect you before dark.”"
+    },
+    {
+     "speaker": "player",
+     "text": "I ask her straight out whether anything happened here today."
+    }
+   ]
+  },
+  {
+   "id": "o07",
+   "motive": "hide that she is afraid of the harbor master",
+   "motiveNeedles": [
+    "afraid",
+    "harbor master"
+   ],
+   "transcript": [
+    {
+     "speaker": "player",
+     "text": "I set my pack down by the door and look around."
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} glances at the door, then back. “Ask what you came to ask.”"
+    },
+    {
+     "speaker": "player",
+     "text": "I say nothing for a moment and look at her face."
+    }
+   ]
+  },
+  {
+   "id": "o08",
+   "motive": "keep the letter in her coat from being found",
+   "motiveNeedles": [
+    "letter",
+    "coat"
+   ],
+   "transcript": [
+    {
+     "speaker": "player",
+     "text": "I set my pack down by the door and look around."
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} pours two cups without asking. “Long road?”"
+    },
+    {
+     "speaker": "player",
+     "text": "I ask her who else has been asking about the road."
+    }
+   ]
+  },
+  {
+   "id": "o09",
+   "motive": "hide that she already knows where the missing boy is",
+   "motiveNeedles": [
+    "knows",
+    "boy"
+   ],
+   "transcript": [
+    {
+     "speaker": "player",
+     "text": "I set my pack down by the door and look around."
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} keeps her shawl on though the room is warm. “Well. Here we are.”"
+    },
+    {
+     "speaker": "player",
+     "text": "I tell her I am staying the night and see how she takes it."
+    }
+   ]
+  },
+  {
+   "id": "o10",
+   "motive": "steer the party away from the east road without saying why",
+   "motiveNeedles": [
+    "east road"
+   ],
+   "transcript": [
+    {
+     "speaker": "player",
+     "text": "I set my pack down by the door and look around."
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} smiles a little too quickly. “You made good time. Sit, sit.”"
+    },
+    {
+     "speaker": "player",
+     "text": "I watch her while she talks. What do I notice about the room and the people in it?"
+    }
+   ]
+  },
+  {
+   "id": "o11",
+   "motive": "hide that she sold the guild map to the smugglers",
+   "motiveNeedles": [
+    "sold",
+    "map"
+   ],
+   "transcript": [
+    {
+     "speaker": "player",
+     "text": "I lean on the counter and wait for someone to notice me."
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} glances at the door, then back. “Ask what you came to ask.”"
+    },
+    {
+     "speaker": "player",
+     "text": "I say nothing for a moment and look at her face."
+    }
+   ]
+  },
+  {
+   "id": "o12",
+   "motive": "hide that she is afraid of the harbor master",
+   "motiveNeedles": [
+    "afraid",
+    "harbor master"
+   ],
+   "transcript": [
+    {
+     "speaker": "player",
+     "text": "I lean on the counter and wait for someone to notice me."
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} pours two cups without asking. “Long road?”"
+    },
+    {
+     "speaker": "player",
+     "text": "I ask her who else has been asking about the road."
+    }
+   ]
+  },
+  {
+   "id": "o13",
+   "motive": "keep the letter in her coat from being found",
+   "motiveNeedles": [
+    "letter",
+    "coat"
+   ],
+   "transcript": [
+    {
+     "speaker": "player",
+     "text": "I lean on the counter and wait for someone to notice me."
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} keeps her shawl on though the room is warm. “Well. Here we are.”"
+    },
+    {
+     "speaker": "player",
+     "text": "I tell her I am staying the night and see how she takes it."
+    }
+   ]
+  },
+  {
+   "id": "o14",
+   "motive": "hide that she already knows where the missing boy is",
+   "motiveNeedles": [
+    "knows",
+    "boy"
+   ],
+   "transcript": [
+    {
+     "speaker": "player",
+     "text": "I lean on the counter and wait for someone to notice me."
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} smiles a little too quickly. “You made good time. Sit, sit.”"
+    },
+    {
+     "speaker": "player",
+     "text": "I watch her while she talks. What do I notice about the room and the people in it?"
+    }
+   ]
+  },
+  {
+   "id": "o15",
+   "motive": "steer the party away from the east road without saying why",
+   "motiveNeedles": [
+    "east road"
+   ],
+   "transcript": [
+    {
+     "speaker": "player",
+     "text": "I lean on the counter and wait for someone to notice me."
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} folds her hands on the table. “I did not expect you before dark.”"
+    },
+    {
+     "speaker": "player",
+     "text": "I ask her straight out whether anything happened here today."
+    }
+   ]
+  },
+  {
+   "id": "o16",
+   "motive": "hide that she sold the guild map to the smugglers",
+   "motiveNeedles": [
+    "sold",
+    "map"
+   ],
+   "transcript": [
+    {
+     "speaker": "player",
+     "text": "I follow the noise toward the back of the room."
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} pours two cups without asking. “Long road?”"
+    },
+    {
+     "speaker": "player",
+     "text": "I ask her who else has been asking about the road."
+    }
+   ]
+  },
+  {
+   "id": "o17",
+   "motive": "hide that she is afraid of the harbor master",
+   "motiveNeedles": [
+    "afraid",
+    "harbor master"
+   ],
+   "transcript": [
+    {
+     "speaker": "player",
+     "text": "I follow the noise toward the back of the room."
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} keeps her shawl on though the room is warm. “Well. Here we are.”"
+    },
+    {
+     "speaker": "player",
+     "text": "I tell her I am staying the night and see how she takes it."
+    }
+   ]
+  },
+  {
+   "id": "o18",
+   "motive": "keep the letter in her coat from being found",
+   "motiveNeedles": [
+    "letter",
+    "coat"
+   ],
+   "transcript": [
+    {
+     "speaker": "player",
+     "text": "I follow the noise toward the back of the room."
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} smiles a little too quickly. “You made good time. Sit, sit.”"
+    },
+    {
+     "speaker": "player",
+     "text": "I watch her while she talks. What do I notice about the room and the people in it?"
+    }
+   ]
+  },
+  {
+   "id": "o19",
+   "motive": "hide that she already knows where the missing boy is",
+   "motiveNeedles": [
+    "knows",
+    "boy"
+   ],
+   "transcript": [
+    {
+     "speaker": "player",
+     "text": "I follow the noise toward the back of the room."
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} folds her hands on the table. “I did not expect you before dark.”"
+    },
+    {
+     "speaker": "player",
+     "text": "I ask her straight out whether anything happened here today."
+    }
+   ]
+  },
+  {
+   "id": "o20",
+   "motive": "steer the party away from the east road without saying why",
+   "motiveNeedles": [
+    "east road"
+   ],
+   "transcript": [
+    {
+     "speaker": "player",
+     "text": "I follow the noise toward the back of the room."
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} glances at the door, then back. “Ask what you came to ask.”"
+    },
+    {
+     "speaker": "player",
+     "text": "I say nothing for a moment and look at her face."
+    }
+   ]
+  },
+  {
+   "id": "o21",
+   "motive": "hide that she sold the guild map to the smugglers",
+   "motiveNeedles": [
+    "sold",
+    "map"
+   ],
+   "transcript": [
+    {
+     "speaker": "player",
+     "text": "I take a seat where I can see the door."
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} keeps her shawl on though the room is warm. “Well. Here we are.”"
+    },
+    {
+     "speaker": "player",
+     "text": "I tell her I am staying the night and see how she takes it."
+    }
+   ]
+  },
+  {
+   "id": "o22",
+   "motive": "hide that she is afraid of the harbor master",
+   "motiveNeedles": [
+    "afraid",
+    "harbor master"
+   ],
+   "transcript": [
+    {
+     "speaker": "player",
+     "text": "I take a seat where I can see the door."
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} smiles a little too quickly. “You made good time. Sit, sit.”"
+    },
+    {
+     "speaker": "player",
+     "text": "I watch her while she talks. What do I notice about the room and the people in it?"
+    }
+   ]
+  },
+  {
+   "id": "o23",
+   "motive": "keep the letter in her coat from being found",
+   "motiveNeedles": [
+    "letter",
+    "coat"
+   ],
+   "transcript": [
+    {
+     "speaker": "player",
+     "text": "I take a seat where I can see the door."
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} folds her hands on the table. “I did not expect you before dark.”"
+    },
+    {
+     "speaker": "player",
+     "text": "I ask her straight out whether anything happened here today."
+    }
+   ]
+  },
+  {
+   "id": "o24",
+   "motive": "hide that she already knows where the missing boy is",
+   "motiveNeedles": [
+    "knows",
+    "boy"
+   ],
+   "transcript": [
+    {
+     "speaker": "player",
+     "text": "I take a seat where I can see the door."
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} glances at the door, then back. “Ask what you came to ask.”"
+    },
+    {
+     "speaker": "player",
+     "text": "I say nothing for a moment and look at her face."
+    }
+   ]
+  },
+  {
+   "id": "o25",
+   "motive": "steer the party away from the east road without saying why",
+   "motiveNeedles": [
+    "east road"
+   ],
+   "transcript": [
+    {
+     "speaker": "player",
+     "text": "I take a seat where I can see the door."
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} pours two cups without asking. “Long road?”"
+    },
+    {
+     "speaker": "player",
+     "text": "I ask her who else has been asking about the road."
+    }
+   ]
+  }
+ ]
+}

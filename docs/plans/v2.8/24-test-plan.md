@@ -461,6 +461,10 @@ real-model carrier, or why none is needed.
 | judge-use-idle-check | RP | v28-40-judge-consumers (S) | GS4.5 |
 | judge-use-tone-check | RP | v28-40-judge-consumers (S) | GS4; over-steer card |
 | judge-use-repetition-check | D | v28-40-judge-consumers | none: no judge call |
+| lore-pins | D + RP | lorePins.test (validator, round, gate wins, secret refused, 40 cuts) | v3.0 34 S2 live gate on a model lane (owed) |
+| history-notes | D + RP (off until rated) | historyNotes.test (40/40 cuts, frozen notes, rollback, 200 floor, echo strip) | so-prompt-arms notes, Sol blind 25 pairs (owed, GPU) |
+| outward-narration | D + RP (off until rated) | outwardNarration.test (clause pinned, inner voice untouched) | so-prompt-arms outward, Sol blind 25 pairs (owed, GPU) |
+| swipe-contrast | D + RP (off until rated) | swipeContrast.test (loud swipe only, six clears, newest only, clip) | so-prompt-arms swipe, Sol blind 25 pairs (owed, GPU) |
 
 Every judge use also gets the judge-off column through J11's off arm (CL).
 

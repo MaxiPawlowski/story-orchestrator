@@ -59,11 +59,11 @@ export const GUIDE_TOPICS = {
   },
   requirements: {
     title: "Requirements",
-    fields: "requirements.personas, requirements.members, requirements.lorebooks",
+    fields: "requirements.personas, requirements.members, requirements.lorebooks, requirements.place_lore, requirements.people_lore",
     text: "What the install must provide before the story's effects run: personas, group members and lorebooks, each named as SillyTavern names them. Name characters by "
-      + "their CARD name, never by a roster id: \"Mara Venn\", not \"mara\". If wrong: the story never reads as ready and its effects stay deferred. A lorebook used by "
-      + "lore_select or checkpoint world_info belongs here too; a listed book the install has is loaded for this story's chats, so no global selection is needed. "
-      + "Name a persona only if it already exists: nothing creates one.",
+      + "their CARD name, never by a roster id: \"Mara Venn\", not \"mara\". If wrong: the story never reads as ready. A book used by lore_select or world_info belongs here too. "
+      + "Name a persona only if it exists. place_lore {<location value>: {book, entry (exact comment)}} and people_lore {<codex people id>: ...} pin that entry while the party is "
+      + "there or just met them; the gate and secrets win.",
   },
   roster: {
     title: "Cast",

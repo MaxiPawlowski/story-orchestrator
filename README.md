@@ -182,6 +182,9 @@ Generated from the feature registry. "Experimental" means not yet measured; it i
 | Characters | Voice and delivery | Each character is told privately how they word things. |  |
 | Characters | Reply polish | Checks what a reply would read like with a character's off-voice words removed, without changing the chat. | Experimental |
 | Characters | Rumors and gossip | News a story declares travels between characters along the channels it authors, and may change on the way. |  |
+| Characters | Time and place notes in the history | Messages where the scene or the time changed carry a short note of the day and place. | Off by default |
+| Characters | Narrate only what can be seen | The narrator shows other characters' feelings through what they say and do. | Off by default |
+| Characters | A swipe sees the reply it replaces | A new swipe is told which reply you threw away, so it writes something else. | Off by default |
 | World | Story lorebook switching | Story lorebook entries switch on and off as the story moves. |  |
 | World | Story lorebooks | A story's lorebooks load only in the chats that play it. |  |
 | World | Memory can trigger lore | Established facts and scene history can activate lorebook entries. |  |
@@ -194,6 +197,7 @@ Generated from the feature registry. "Experimental" means not yet measured; it i
 | World | Living stories | A story that writes its next turning point ahead of you, from what you actually pursued. | Experimental |
 | World | Branches that follow you | When you leave the prepared ways forward, the story writes a branch that follows you and later comes back. | Experimental |
 | World | Scene test | Before the living director writes a turning point, a seeded draw may tell it the scene arrives changed or that the world acts first. | Experimental |
+| World | Lore for where you are | The lore entry for the current place, and for whoever was just met, is in the next reply. |  |
 | Images | Live close-shot head | A rigged close shot breathes, blinks, sways, gestures and talks as a reply streams. | Experimental |
 | Images | Prepared cast presentation | Review and accept each character's base and bust before sprites, poses and live heads use them. | Experimental |
 | Images | Reference views | Draw an accepted character three-quarter left and right, in profile and from behind, then accept or cancel all six views. | Experimental |

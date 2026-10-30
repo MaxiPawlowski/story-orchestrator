@@ -398,7 +398,7 @@ describe("RuntimeManager checkpoint guidance (v2.4 plan 01, D7)", () => {
   it("review 2026-10-16 #5: every declared block seeded, a withholding start clears every manager-owned withhold block and keeps every keep block", async () => {
     const manager = new RuntimeManager();
     await manager.importStory(JSON.stringify(guided(WANDER)));
-    const wiringOwned = new Set<string>([INJECTION_REGISTRY.awayNotice.key, INJECTION_REGISTRY.previously.key, INJECTION_REGISTRY.checkOutcome.key]);
+    const wiringOwned = new Set<string>([INJECTION_REGISTRY.awayNotice.key, INJECTION_REGISTRY.previously.key, INJECTION_REGISTRY.checkOutcome.key, INJECTION_REGISTRY.swipeContrast.key]);
     const specs = Object.values(INJECTION_REGISTRY) as InjectionSpec[];
     for (const type of ["quiet", "impersonate"]) {
       manager.onGenerationStarted("normal", false);

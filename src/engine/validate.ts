@@ -11,6 +11,7 @@ import { readCheckpoint, readRoster } from "./validate/checkpoints";
 import { resolveGuidanceMembers } from "./checkpointGuidance";
 import { addBuiltinTensionQuality, addProgressQualities, readQuality } from "./validate/qualities";
 import { readArcBridges, readStoryOptions } from "./validate/storyOptions";
+import { checkLoreBindings } from "./validate/loreBindings";
 import { indexChapters, readChapters, readMemoryOptions } from "./validate/chapters";
 import { indexCardFields, validateCardEffects } from "./cardFields";
 import { readPlayer } from "./validate/player";
@@ -179,6 +180,7 @@ export const parseStory = (json: unknown): NormalizedStory | ValidationError[] =
   layer?.rumors.checkRumors(rumorNet, { roster, qualityByKey, hasClock: Boolean(life?.clock), life }, errors);
   const widgets = layer?.readWidgets(json.widgets, { qualityByKey, qualities, checkpointIds: new Set(Object.keys(checkpointById)), checkpoints, transitions, roster, factions }, errors);
   layer?.codex.checkCodex(codex, { checkpointById, qualityByKey, roster }, errors);
+  checkLoreBindings(options.requirements, { qualityByKey, codex }, errors);
   layer?.observations.checkObservations(observations, { checkpointById, qualityByKey, roster, codex }, errors);
   const carried = layer?.carry.readCarry(json, { storyId, qualityByKey, qualities, roster, transitions, checkpoints, quests: game, milestones, factions }, errors);
   layer?.living.checkLiving(living, checkpointById, roster, qualityByKey, errors);
