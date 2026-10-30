@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
-import { watchBackgroundLayer, type BackgroundLayer } from "@services/stHost/backgrounds";
+import { watchBackgroundLayer, type BackgroundLayer } from "@services/stHost/backgroundLayer";
 import type { SpriteStage } from "../stage";
 import { budgetedCue } from "./cues";
 import { playBackgroundFade } from "./player";

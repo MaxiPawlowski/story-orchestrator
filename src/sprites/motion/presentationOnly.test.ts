@@ -6,7 +6,7 @@ const sources = readdirSync(DIR).filter((name) => /\.(ts|tsx)$/.test(name) && !/
   .map((name) => ({ name, text: readFileSync(join(DIR, name), "utf8") }));
 const imports = (text: string) => [...text.matchAll(/from\s+"([^"]+)"/g), ...text.matchAll(/import\(\s*"([^"]+)"\s*\)/g)].map((match) => match[1]);
 
-const ALLOWED = [/^\.\//, /^\.\.\/(settings|stage|reactionMap)$/, /^react$/, /^@engine\/schema$/, /^@runtime\/(hash|types)$/, /^@services\/stHost\/backgrounds$/];
+const ALLOWED = [/^\.\//, /^\.\.\/(settings|stage|reactionMap)$/, /^react$/, /^@engine\/schema$/, /^@runtime\/(hash|types)$/, /^@services\/stHost\/backgroundLayer$/];
 const WRITERS = /setGlobalSettings|saveMetadata|saveSettings|applyDelta|enqueue|setQuality|upsertWIEntry|applyBackground|executeSlashCommands|spriteWriteExpressions/;
 
 describe("sprite motion is presentation only", () => {
@@ -18,7 +18,7 @@ describe("sprite motion is presentation only", () => {
   });
 
   it("reads the host background only through the read seam", () => {
-    const host = sources.flatMap(({ name, text }) => (text.includes("@services/stHost/backgrounds") ? [name] : []));
+    const host = sources.flatMap(({ name, text }) => (text.includes("@services/stHost/backgroundLayer") ? [name] : []));
     expect(host).toEqual(["BackgroundFade.tsx"]);
     expect(sources.find(({ name }) => name === "BackgroundFade.tsx")?.text).not.toMatch(/applyBackground|getCurrentBackground/);
   });

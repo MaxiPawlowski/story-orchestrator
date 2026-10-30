@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import type { SpriteStage } from "../stage";
 import type { MotionBudget } from "./budget";
-import { budgetedCue, DEFAULT_TRANSITION_COLOR, tensionShade } from "./cues";
+import { budgetedCue, tensionShade } from "./cues";
 import { playPunch, playTransition } from "./player";
 
 const CARD_HOLD_MS = 1800;
@@ -17,7 +17,6 @@ export function StageEffects({ stage, motion }: { stage: SpriteStage; motion: Mo
   const iris = useRef<HTMLDivElement | null>(null);
   const seen = useRef(feed.seq);
   const counter = useRef(0);
-  const [color, setColor] = useState(DEFAULT_TRANSITION_COLOR);
   const [card, setCard] = useState<Card | null>(null);
   const budget = useRef(motion);
   budget.current = motion;
@@ -30,7 +29,8 @@ export function StageEffects({ stage, motion }: { stage: SpriteStage; motion: Mo
       const cue = budgetedCue(raw, budget.current);
       if (!cue) continue;
       if (cue.kind === "transition" && cue.play.kind !== "cut" && cue.play.kind !== "dissolve") {
-        setColor(cue.play.color);
+        if (cover.current) cover.current.style.backgroundColor = cue.play.color;
+        if (iris.current) iris.current.style.boxShadow = `0 0 0 200vmax ${cue.play.color}`;
         playTransition(cover.current, iris.current, cue.play.kind, cue.play.ms);
       } else if (cue.kind === "punch" && budget.current.punch !== "none") {
         playPunch(vignette.current?.parentElement ?? null, vignette.current, budget.current.punch, shadeRef.current);
@@ -48,8 +48,8 @@ export function StageEffects({ stage, motion }: { stage: SpriteStage; motion: Mo
   return <>
     <div ref={vignette} className="so-stage-vignette" data-tension={feed.tension ?? "none"}
       style={{ opacity: shade, transitionDuration: motion.mode === "reduced" ? "150ms" : "2s" }} />
-    <div ref={cover} className="so-stage-cover" style={{ backgroundColor: color }} />
-    <div ref={iris} className="so-stage-iris" style={{ boxShadow: `0 0 0 200vmax ${color}` }} />
+    <div ref={cover} className="so-stage-cover" />
+    <div ref={iris} className="so-stage-iris" />
     {card && <div key={card.key} className="so-stage-chapter" data-so="stage-chapter-card" onClick={() => setCard(null)}
       style={{ "--so-card-total": `${CARD_HOLD_MS + fadeMs * 2}ms` } as React.CSSProperties}>
       {card.label && <div className="so-stage-chapter-label">{card.label}</div>}

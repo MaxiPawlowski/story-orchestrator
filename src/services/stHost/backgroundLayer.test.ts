@@ -1,11 +1,8 @@
 /**
  * @jest-environment jsdom
  */
-jest.mock("./context", () => ({ getContext: () => ({ chatMetadata: {} }) }));
-jest.mock("./modules", () => ({ backgroundsModule: { background_settings: { name: "" } } }));
-jest.mock("./slashCommands", () => ({ executeSlashCommands: async () => true }));
 
-import { readBackgroundLayer, watchBackgroundLayer } from "./backgrounds";
+import { readBackgroundLayer, watchBackgroundLayer } from "./backgroundLayer";
 
 const INN = "url(\"backgrounds/inn.jpg\")";
 const ROAD = "url(\"backgrounds/road.jpg\")";

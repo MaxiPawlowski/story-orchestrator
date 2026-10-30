@@ -176,6 +176,7 @@
   z-index: 20;
   pointer-events: none;
   opacity: 0;
+  background-color: var(--black100);
 }
 
 :is(#so-vn-root, #so-stage-strip) .so-stage-iris {
@@ -186,6 +187,7 @@
   width: 160vmax;
   height: 160vmax;
   border-radius: 50%;
+  box-shadow: 0 0 0 200vmax var(--black100);
   transform: translate(-50%, -50%);
   pointer-events: none;
   opacity: 0;
