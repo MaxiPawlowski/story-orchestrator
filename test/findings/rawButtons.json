@@ -1,3 +1,6 @@
 {
-  "src/components/settings/ExtensionsBlock.tsx": 2
+  "src/components/settings/ExtensionsBlock.tsx": 2,
+  "src/guide/tour/CoachMarks.tsx": 5,
+  "src/image/ReviewGrid.tsx": 1,
+  "src/sprites/liveHead/RigPreview.tsx": 1
 }

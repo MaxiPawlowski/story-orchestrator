@@ -10,7 +10,6 @@ import { HeadRenderer } from "./renderer";
 import { syntheticMotionHead, syntheticMotionRef } from "./synthetic";
 import { motionSummary } from "./motionSummary";
 import "../styles.css";
-import { Button } from "@components/ui/Button";
 
 const owner = (): RunGuard => ({ stillOwns: () => true, lapsed: () => null, lapsedDetail: () => null, signal: new AbortController().signal, release: () => undefined });
 
@@ -31,8 +30,8 @@ function Live() {
       <option value="">none</option><option>nod</option><option>tilt</option><option>think</option><option>giggle</option><option>shy</option>
     </select></label>
     <label><input type="checkbox" checked={motion} onChange={(event) => setMotion(event.target.checked)} />Motion</label>
-    <Button type="button" onClick={() => activity.pulse("Shape")}>Stream reply</Button>
-    <Button type="button" onClick={() => activity.pulse("Other")}>Other member streams</Button>
+    <button type="button" className="menu_button" onClick={() => activity.pulse("Shape")}>Stream reply</button>
+    <button type="button" className="menu_button" onClick={() => activity.pulse("Other")}>Other member streams</button>
     <p data-so="motion-summary">{motionSummary(syntheticMotionHead)}</p>
     <p role="status">Gesture playing: {playing || "none"}</p>
     <div ref={frame} id="so-vn-root" style={{ position: "relative", width: "100%", maxWidth: 360, height: 420 }}>

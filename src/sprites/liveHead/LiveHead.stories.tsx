@@ -7,7 +7,6 @@ import { LiveHead } from "./LiveHead";
 import { syntheticHead, syntheticRef } from "./synthetic";
 import type { ExpressionSources } from "./expressions";
 import "../styles.css";
-import { Button } from "@components/ui/Button";
 
 const owner = (): RunGuard => ({ stillOwns: () => true, lapsed: () => null, lapsedDetail: () => null, signal: new AbortController().signal, release: () => undefined });
 function Preview() {
@@ -18,8 +17,8 @@ function Preview() {
       <option>neutral</option><option>joy</option><option>anger</option><option>sadness</option><option>surprise</option>
     </select></label>
     <label><input type="checkbox" checked={motion} onChange={(event) => setMotion(event.target.checked)} />Motion</label>
-    <Button type="button" onClick={() => activity.pulse("Shape")}>Stream reply</Button>
-    <Button type="button" onClick={() => activity.stop()}>Stop reply</Button>
+    <button type="button" className="menu_button" onClick={() => activity.pulse("Shape")}>Stream reply</button>
+    <button type="button" className="menu_button" onClick={() => activity.stop()}>Stop reply</button>
     <div id="so-vn-root" style={{ position: "relative", width: "100%", maxWidth: 360, height: 420 }}>
       <div className="so-sprite" style={{ width: "100%", left: "50%" }}><div className="so-sprite-breath">
         <img src={syntheticHead.source} alt="Synthetic shape bust" />

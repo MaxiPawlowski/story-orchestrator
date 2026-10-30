@@ -2,8 +2,6 @@ import type { ReactNode } from "react";
 import { parseMarkdown, type Block, type Inline, type ListBlock } from "./markdown";
 import { resolveAsset, resolveLink, slugger } from "./links";
 import type { GuideTarget } from "./types";
-import { Button } from "@components/ui/Button";
-import "./guide.css";
 
 export interface GuideMarkdownProps {
   doc: string;
@@ -60,8 +58,8 @@ export function GuideMarkdown({ doc, body, homePage, onNavigate, hrefFor, assetS
       case "action": {
         if (!actionLabels) return null;
         if (node.name === "show") {
-          return onShow ? <Button key={id} type="button" className="so-guide-show" data-so="guide-show" data-show={node.value}
-            onClick={() => onShow(node.value)}>{actionLabels.showMe}</Button> : null;
+          return onShow ? <button key={id} type="button" className="so-btn so-guide-show" data-variant="secondary" data-so="guide-show" data-show={node.value}
+            onClick={() => onShow(node.value)}>{actionLabels.showMe}</button> : null;
         }
         if (!checks || !(node.value in checks)) return null;
         const done = checks[node.value];

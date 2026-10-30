@@ -20,7 +20,7 @@ export const StatusText = ({ tone = "warn", icon, as: Tag = "p", children, class
   return (
     <Tag {...rest} className={cx("so-status-text", className)} data-tone={tone}>
       {glyph && <Icon name={glyph} />}
-      <span>{children}</span>
+      {children}
     </Tag>
   );
 };

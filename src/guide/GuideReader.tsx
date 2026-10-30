@@ -4,6 +4,7 @@ import { IconButton } from "@components/ui/IconButton";
 import { GuideMarkdown, headingDomId } from "./GuideMarkdown";
 import { groupPages, indexPages, searchGuide, visiblePages } from "./search";
 import type { GuideNavSection, GuidePage, GuideTarget } from "./types";
+import "./guide.css";
 
 export interface GuideReaderProps {
   pages: readonly GuidePage[];

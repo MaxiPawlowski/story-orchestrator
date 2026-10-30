@@ -3,7 +3,6 @@ import ReactDOM from "react-dom/client";
 import { imageReview } from "@services/stHost/image";
 import type { ImageCandidate, ImagePlan, ImageReviewer } from "./runtime";
 import "./styles.css";
-import { Button } from "@components/ui/Button";
 
 const Grid = ({ plan, initial, rerender, choose }: { plan: ImagePlan; initial: ImageCandidate[]; rerender: (index: number) => Promise<ImageCandidate>; choose: (index: number) => void }) => {
   const [candidates, setCandidates] = useState(initial);
@@ -20,10 +19,10 @@ const Grid = ({ plan, initial, rerender, choose }: { plan: ImagePlan; initial: I
              </button>
             <figcaption>
               seed {candidate.seed}
-              <Button type="button" aria-label={`Redo image ${index + 1}`} disabled={busy} onClick={() => {
+              <button type="button" className="menu_button" aria-label={`Redo image ${index + 1}`} disabled={busy} onClick={() => {
                 setBusy(true);
                 void rerender(index).then((fresh) => setCandidates((items) => items.map((item, at) => at === index ? fresh : item))).finally(() => setBusy(false));
-              }}>Redo</Button>
+              }}>Redo</button>
             </figcaption>
           </figure>
         ))}
