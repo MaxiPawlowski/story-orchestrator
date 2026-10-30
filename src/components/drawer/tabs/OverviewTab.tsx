@@ -3,7 +3,7 @@ import { provisionableMissing } from "@runtime/repair";
 import { competingSummary } from "@runtime/storyScenario";
 import ScenePanel from "../ScenePanel";
 import { PatternsPanel } from "../PatternsPanel";
-import { StatusDot } from "../StatusDot";
+import { StatusDot } from "@components/ui/StatusDot";
 
 const extractionReady = (snapshot: RuntimeSnapshot): boolean => snapshot.extraction.settings.enabled && Boolean(snapshot.extraction.settings.profileId);
 const extractionWord = (snapshot: RuntimeSnapshot): string => {

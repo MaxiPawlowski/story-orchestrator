@@ -88,13 +88,13 @@ export const BusyLocksTheControl: Story = {
 export const ScanMemoryIsAnAdvancedAuthorSwitchAndOffByDefault: Story = {
   args: { authorView: true },
   play: async ({ canvasElement, args }) => {
-    const box = canvasElement.querySelector("#so-wi-scan-memory") as HTMLInputElement;
+    const box = canvasElement.querySelector("#so-wi-scan-memory") as HTMLButtonElement;
     await expect(box.closest("details")?.id).toBe("so-wi-gating-advanced");
     await userEvent.click(within(canvasElement).getByText("Advanced"));
-    await expect(box.checked).toBe(false);
+    await expect(box).toHaveAttribute("aria-checked", "false");
     await expect(canvasElement.querySelector('[data-so="wi-scan-memory"]')?.textContent).toMatch(/memory text can trigger lore/i);
     await expect(canvasElement.querySelector('[data-so="wi-scan-memory"]')?.textContent).toMatch(/never/);
-    await userEvent.click(box.closest("label") as HTMLElement);
+    await userEvent.click(box);
     await expect(args.onScanMemory).toHaveBeenCalledWith(true);
   },
 };

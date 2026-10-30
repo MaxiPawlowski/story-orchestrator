@@ -1,12 +1,3 @@
-dialog#so-studio-modal {
-  inset: var(--so-viewport-top, 0px) 0 auto;
-  width: 100dvw;
-  max-width: none;
-  height: var(--so-viewport-height, 100dvh);
-  max-height: none;
-  padding: 0;
-  margin: 0;
-}
 #so-studio-modal .so-studio-frame { width: 100%; height: 100%; }
 #so-studio-modal .so-studio-tasks { display: flex; overflow-x: auto; gap: .5rem; padding: .5rem .75rem; }
 #so-studio-modal .so-studio-tasks button { flex-shrink: 0; white-space: nowrap; }

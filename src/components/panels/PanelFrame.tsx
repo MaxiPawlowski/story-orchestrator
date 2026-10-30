@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type CSSProperties, type KeyboardEvent as ReactKeyboardEvent, type PointerEvent as ReactPointerEvent, type ReactNode } from "react";
+import { DialogHeader } from "@components/ui/Dialog";
 import { clampPanel, docked, isPanelKey, movedBy, type PanelGeometry, type Viewport } from "@runtime/panelGeometry";
 
 export interface PanelFrameProps {
@@ -103,7 +104,7 @@ export const PanelFrame = ({ id, title, geometry, onChange, onClose, children, v
       style={style}
       onKeyDown={onPanelKey}
     >
-      <div
+      <DialogHeader
         data-so="panel-bar"
         role="toolbar"
         className="so-panel-bar"
@@ -111,10 +112,12 @@ export const PanelFrame = ({ id, title, geometry, onChange, onClose, children, v
         aria-label={isDocked ? title : `${title}: drag, or use the arrow keys, to move`}
         onPointerDown={begin("move")}
         onKeyDown={onBarKey}
-      >
-        <span className="so-panel-title">{title}</span>
-        <button type="button" data-so="panel-close" className="menu_button fa-solid fa-xmark" aria-label={`Close ${title}`} title={`Close ${title}`} onClick={onClose} />
-      </div>
+        compact
+        title={title}
+        onClose={onClose}
+        closeLabel={`Close ${title}`}
+        closeDataSo="panel-close"
+      />
       <div className="so-panel-body">{children}</div>
       {!isDocked && <div data-so="panel-resize" className="so-panel-resize" aria-hidden="true" onPointerDown={begin("resize")} />}
     </section>

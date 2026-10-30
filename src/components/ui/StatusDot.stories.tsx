@@ -11,7 +11,7 @@ const Rows = () => (
 );
 
 const meta: Meta<typeof Rows> = {
-  title: "Drawer/StatusDot",
+  title: "Kit/StatusDot",
   component: Rows,
 };
 

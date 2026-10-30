@@ -4,6 +4,7 @@ import { BRIEFING_COPY, ONBOARDING_LINES } from "@features/helpCopy";
 import { BRIEFING_DRAFT_COPY } from "@features/briefingDraftCopy";
 import { PLAYER_SETUP_COPY } from "@features/playerSetupCopy";
 import { Lazy } from "@components/Lazy";
+import { Dialog, DialogHeader } from "@components/ui/Dialog";
 import { lazyRetry } from "@utils/lazyRetry";
 import type { PlayerSetupView } from "@runtime/playerSetup";
 import type { ChooseIdentity } from "./PlayerSetupPane";
@@ -63,7 +64,7 @@ export const BriefingModal = ({ briefing, chapter = null, blocks = [], onboardin
   useEffect(() => {
     const dialog = dialogRef.current;
     closed.current = false;
-    if (dialog && !dialog.open) dialog.showModal();
+    dialog?.querySelector<HTMLElement>("#so-briefing-start")?.focus();
     return () => {
       closed.current = true;
       if (dialog?.open) dialog.close();
@@ -73,19 +74,18 @@ export const BriefingModal = ({ briefing, chapter = null, blocks = [], onboardin
   const title = lead?.title ?? (identity && !blocks.length ? PLAYER_SETUP_COPY.heading : BRIEFING_COPY.beforeYouStart);
   const startLabel = lead?.startLabel ?? BRIEFING_COPY.close;
   return (
-    <dialog
+    <Dialog
       id="so-briefing"
+      size="window"
       ref={dialogRef}
       aria-labelledby="so-briefing-title"
       onCancel={(event) => { event.preventDefault(); close(); }}
       onKeyDown={(event) => { if (event.key === "Escape") { event.preventDefault(); close(); } }}
       onClose={close}
     >
+      <DialogHeader titleId="so-briefing-title" title={title} onClose={close} closeLabel={BRIEFING_COPY.dismiss}
+        subtitle={briefing?.tone ? <span data-so="briefing-tone">{briefing.tone}</span> : undefined} />
       <div className="so-briefing-panel flex flex-col gap-4">
-        <header className="flex flex-col gap-1">
-          <h2 id="so-briefing-title" className="so-briefing-title">{title}</h2>
-          {briefing?.tone && <div data-so="briefing-tone" className="text-sm opacity-80">{briefing.tone}</div>}
-        </header>
         {blocks.length > 0 && (
           <section data-so="briefing-before-you-start" role="alert" className="so-briefing-blocks flex flex-col gap-1">
             <h3 className="so-briefing-heading">{BRIEFING_COPY.beforeYouStart}</h3>
@@ -120,7 +120,7 @@ export const BriefingModal = ({ briefing, chapter = null, blocks = [], onboardin
           <button id="so-briefing-start" type="button" className="menu_button so-briefing-start" autoFocus onClick={close}>{startLabel}</button>
         </footer>
       </div>
-    </dialog>
+    </Dialog>
   );
 };
 

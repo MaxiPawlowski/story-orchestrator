@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import type { StoryFeatureId } from "@engine/featurePolicy";
 import type { WorkspaceContext, WorkspaceIntent, WorkspacePage } from "@runtime/workspaceNavigation";
+import { Dialog, DialogHeader } from "@components/ui/Dialog";
 
 const PAGES: Record<WorkspaceContext, Array<{ id: WorkspacePage; label: string }>> = {
   story: [{ id: "play", label: "Play" }, { id: "features", label: "Features" }, { id: "review", label: "Review" }, { id: "author", label: "Author" }],
@@ -51,7 +52,6 @@ export const WorkspaceShell = ({ intent, storyTitle, authorView, onClose, render
   useEffect(() => { setLocation(initial(intent)); }, [intent]);
   useEffect(() => {
     const id = token.current, previousFocus = opener.current, url = openedUrl.current;
-    dialog.current?.showModal();
     first.current?.focus();
     history.pushState({ soWorkspace: id, depth: 1, location: initial(initialIntent) }, "");
     depth.current = 1;
@@ -98,14 +98,12 @@ export const WorkspaceShell = ({ intent, storyTitle, authorView, onClose, render
     else if (location.feature) navigate({ ...location, feature: undefined });
     else close.current();
   };
-  return createPortal(<dialog id="so-workspace-modal" ref={dialog} data-context={location.context} aria-labelledby="so-workspace-heading"
+  return createPortal(<Dialog id="so-workspace-modal" size="full" ref={dialog} data-context={location.context} aria-labelledby="so-workspace-heading"
     onCancel={(event) => { event.preventDefault(); narrow() ? goBack() : close.current(); }} onClose={() => close.current()}>
-    <div className="so-workspace-frame">
-      <header className="so-workspace-header">
-        <div><h1 id="so-workspace-heading">{location.context === "story" ? storyTitle ?? "This story" : "Story Orchestrator"}</h1>
-          <span className="so-workspace-scope">{location.context === "story" ? `This chat · ${authorView ? "Author view" : "Player view"}` : "All chats · Install settings"}</span></div>
-        <button className="st-button secondary" onClick={onClose} aria-label="Close Story Orchestrator">Close</button>
-      </header>
+    <div className="so-workspace-frame so-dialog-frame">
+      <DialogHeader className="so-workspace-header" level={1} titleId="so-workspace-heading" title={location.context === "story" ? storyTitle ?? "This story" : "Story Orchestrator"}
+        subtitle={location.context === "story" ? `This chat · ${authorView ? "Author view" : "Player view"}` : "All chats · Install settings"}
+        onClose={onClose} closeLabel="Close Story Orchestrator" />
       <div className="so-workspace-context" aria-label="Workspace context">
         <button ref={first} aria-pressed={location.context === "story"} onClick={() => navigate({ context: "story", page: "play" })}>This story</button>
         <button aria-pressed={location.context === "orchestrator"} onClick={() => navigate({ context: "orchestrator", page: "library" })}>Orchestrator</button>
@@ -121,5 +119,5 @@ export const WorkspaceShell = ({ intent, storyTitle, authorView, onClose, render
         </main>
       </div>
     </div>
-  </dialog>, document.body);
+  </Dialog>, document.body);
 };
