@@ -185,3 +185,18 @@ Build handover 2026-10-29 (CPU only; no GPU, no llama-server or ComfyUI started,
   test-storybook:ci 1,010/1,010).
 - Not run: every GPU floor above, the real-LLM live gate of the ported page marker (= W4 Part B), the W3 rating
   (owner-gated). NOT merged.
+
+W0 upkeep 2026-10-30 (CPU only, worktree `C:\dev\so-wrapup`, no GPU):
+- Merged the updated `v3.0-a2-maxmem` twice (merge, not rebase; the branch stays on top of a2): `0d4be51b` (a2 with
+  master `a97af36c`) and `fae3c476` (a2 with master `a7fa71fc`, the ctl follow-ups and plan 10 M5/H1/M4).
+- Conflicts: `story-orchestrator-media/jobs.mjs` (master fix-comfy-poll next to the W1 OOM grace): kept both, the
+  `outOfMemory` helper and the `ComfyUnreachable` reason; `check()` keeps the OOM grace, `poll()` keeps the 60 s
+  unreachable timer. `media.test.mjs`: both test sets kept (25 pass). `broker/scheduler.mjs` release path: the
+  `warmImageRam` record (plan 10 M5) sits before the W1 `noteStreamLease` branch.
+- `npm run gates -- --jobs=3` (no `--resume`) on `fae3c476`: all green in 524.5 s, Storybook included (1025 passed).
+  Earlier full runs on the same tree went red on environment only: Storybook port 6006 taken by a peer worktree mid-run,
+  `orphans.win.test.mjs` reaper timing at 100 % CPU (fails and passes in isolation on this tree), and one flaky
+  `PosesList` Storybook a11y smoke. No code change between them and the green run.
+- W1 recipe paths and flags unchanged (`run-w1.sh`, `run-w4.sh`, `run-r2.sh`). The recipes call `cli.mjs stop`, which
+  now waits up to 15 s for active work and then stops anyway (plan 22 follow-up); `stop --force` also skips the
+  ComfyUI job check. Pushed `origin/v3.0-27-fork-wrapup`; not merged (GPU-gated).
