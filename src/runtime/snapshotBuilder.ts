@@ -1,4 +1,5 @@
 import { memorySightings, nameIndexOf, sameCharacterCandidates } from "@memory/nameFold";
+import { buildCastNames } from "./castNameMap";
 import {
   agencyFor, gateKeys, milestoneEarned, valueReader, visibleQuestTitles,
   type ApplyQueueEntry, type BoundaryLogEntry, type EngineState, type NormalizedStory, type StoryEngine, type ValidationError,
@@ -199,19 +200,6 @@ export const snapshotSources = (port: SnapshotPort): SnapshotSources => ({
 const routeGaps = () => {
   const { judge, stagecraft } = getGlobalSettings();
   return judgeRouteGaps(judge, stagecraft.wardenEnabled && stagecraft.wardenAcceptMode !== "off");
-};
-
-const stem = (value: string) =>value.replace(/\.(png|webp|jpe?g)$/i, "");
-
-export const buildCastNames = (story: NormalizedStory | null, characters: ReadonlyArray<{ avatar?: string; name?: string }>): Record<string, string> => {
-  const names: Record<string, string> = {};
-  for (const character of characters) {
-    if (!character.avatar || !character.name) continue;
-    names[character.avatar] = character.name;
-    names[stem(character.avatar)] = character.name;
-  }
-  for (const member of story?.roster ?? []) names[member.id] = member.name ?? names[member.id] ?? member.id;
-  return names;
 };
 
 const lastFiredTransition = (log: BoundaryLogEntry[], story: NormalizedStory | null, activeCheckpointId: string | undefined): LastFiredTransition | null => {

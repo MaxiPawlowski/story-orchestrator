@@ -15,6 +15,7 @@ import { AUDIENCE_FEATURES } from "./audienceFeatures";
 import { START_FEATURES } from "./startFeatures";
 import { CARRY_FEATURES } from "./carryFeatures";
 import { GROUNDING_FEATURES } from "./groundingFeatures";
+import { SKIP_FEATURES } from "./skipFeatures";
 import { chatAt, drawerAt, featureAt, settingsAt, studioAt } from "./where";
 import { IMAGE_FEATURES } from "./imageFeatures";
 import { authorGuideDoc } from "./guideLinks";
@@ -240,15 +241,6 @@ const CORE_FEATURES: readonly Feature[] = [
       + "the earlier questions are taken out and the rest of the line stays. A reply the trim would break is left as written.",
     where: settingsAt("#so-keep-last-question", "Characters › Speaker direction"),
     settings: ["talk.keepLastQuestion"], guideTopic: "npc-replies", doc: "player/playing.md", status: "shipped", needs: ["group-chat", "story"],
-  },
-  {
-    id: "skip-ahead", name: "Skip ahead", area: "characters", audience: "player",
-    oneLine: "Skip travel, waiting or routine: one narrator reply tells the time passing and stops where you are needed.",
-    what: "Skip ahead on the story card, or /story skip, asks the story's narrator (or the scene's lead) for one reply that tells the time passing, "
-      + "up to the next part of the day at most, and stops early when something needs you. It never decides for you and never reveals what you have not seen. "
-      + "A swipe of that reply keeps the skip; your next message ends it. Off until its blind rating passes.",
-    where: featureAt("skip", "enabled", "Skip ahead"),
-    settings: ["talk.skipAhead"], guideTopic: "objective-agency", doc: "player/playing.md", status: "off-by-default", needs: ["group-chat", "story"],
   },
   {
     id: "private-knowledge", name: "Private knowledge", area: "characters", audience: "author",
@@ -481,7 +473,7 @@ const POLICY_TARGETS: Record<string, [import("@engine/featurePolicy").StoryFeatu
 export const SOURCE_FEATURES: readonly Feature[] = [
   ...CORE_FEATURES, ...PRESENCE_FEATURES, ...GAME_FEATURES, ...LIFE_FEATURES, ...LIVING_FEATURES, ...JUDGE_USE_KEYS.map(judgeUseFeature),
   ...RECAP_FEATURES, ...PROMISE_FEATURES, ...THREAD_FEATURES, ...DELIVERY_FEATURES, ...POLISH_FEATURES, ...AUDIENCE_FEATURES,
-  ...GROUNDING_FEATURES,
+  ...GROUNDING_FEATURES, ...SKIP_FEATURES,
 ];
 
 export const FEATURES: readonly Feature[] = SOURCE_FEATURES.map((feature) => {

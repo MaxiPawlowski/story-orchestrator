@@ -169,7 +169,6 @@ Generated from the feature registry. "Experimental" means not yet measured; it i
 | Characters | Speaker direction | In a group, the story picks who should speak next. |  |
 | Characters | Several voices per turn | More than one character can answer one of your messages. |  |
 | Characters | One question when a character asks you | A character told to ask you one thing keeps only the last of its questions. |  |
-| Characters | Skip ahead | Skip travel, waiting or routine: one narrator reply tells the time passing and stops where you are needed. | Off by default |
 | Characters | Private knowledge | Tracks who knows what, so characters do not know things they never saw. |  |
 | Characters | Inner voice | Characters prepare a private intent before they speak. |  |
 | Characters | Character life | Feelings that move, a mood per scene, plans that go on off stage and places to be, for the characters a story declares. | Experimental |
@@ -186,6 +185,7 @@ Generated from the feature registry. "Experimental" means not yet measured; it i
 | Characters | Time and place notes in the history | Messages where the scene or the time changed carry a short note of the day and place. | Off by default |
 | Characters | Narrate only what can be seen | The narrator shows other characters' feelings through what they say and do. | Off by default |
 | Characters | A swipe sees the reply it replaces | A new swipe is told which reply you threw away, so it writes something else. | Off by default |
+| Characters | Skip ahead | Skip travel, waiting or routine: one narrator reply tells the time passing and stops where you are needed. | Off by default |
 | World | Story lorebook switching | Story lorebook entries switch on and off as the story moves. |  |
 | World | Story lorebooks | A story's lorebooks load only in the chats that play it. |  |
 | World | Memory can trigger lore | Established facts and scene history can activate lorebook entries. |  |

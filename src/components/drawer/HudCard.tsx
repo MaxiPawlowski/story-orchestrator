@@ -5,6 +5,7 @@ import type { RuntimeSnapshot } from "@runtime/types";
 import { GAME_TEXT } from "@features/gameCopy";
 import { PRESENCE_TEXT } from "@features/presenceCopy";
 import { SKIP_COPY } from "@runtime/skipGate";
+import { Button } from "@components/ui/Button";
 
 export type HudCardPanel = "journal" | "suggestions";
 
@@ -105,10 +106,8 @@ export const HudCard = ({ snapshot, panels, openPanel, openMemory, skip, onMore,
           </button>
         ))}
         {skip && snapshot.skip && (
-          <button type="button" id="so-hud-card-skip" className="menu_button so-launcher" disabled={!snapshot.skip.enabled} title={snapshot.skip.reason ?? SKIP_COPY.title}
-            onClick={() => { onClose(false); skip(); }}>
-            <i className="fa-solid fa-forward" aria-hidden="true" /><span>{SKIP_COPY.label}</span>
-          </button>
+          <Button id="so-hud-card-skip" className="so-launcher" icon="fa-forward" disabled={!snapshot.skip.enabled} title={snapshot.skip.reason ?? SKIP_COPY.title}
+            onClick={() => { onClose(false); skip(); }}><span>{SKIP_COPY.label}</span></Button>
         )}
         <button type="button" id="so-hud-card-memory" className="menu_button so-launcher" aria-expanded={peek} aria-controls="so-hud-card-peek" onClick={() => setPeek((open) => !open)}>
           <i className="fa-solid fa-brain" aria-hidden="true" /><span>{HUD_COPY.cardMemory}</span>
