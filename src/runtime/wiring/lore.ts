@@ -3,6 +3,8 @@ import { transcriptCopiersOn } from "@services/stHost/transcriptCopiers";
 import { readCopiersWith } from "../transcriptCopiers";
 import { tunnelVisionBooksWith } from "@services/stHost/tunnelVision";
 import { readTunnelVisionWith } from "../tunnelVision";
+import { TAVERNOS_FETCH_MARKER, tavernOsOnWith } from "@services/stHost/tavernOs";
+import { readTavernOsWith } from "../tavernOs";
 import { readExtensionConflictsWith } from "../extensionConflicts";
 import { LoreSelector } from "../loreSelect";
 import { loreSelectTiming, type LoreSelectTrigger } from "../loreSelectTiming";
@@ -120,6 +122,10 @@ export const startLore = (disposers: Disposers, judgeRuntime: JudgeRuntime, gene
   disposers.push(readTunnelVisionWith(() => {
     const context = getContext();
     return tunnelVisionBooksWith({ settings: context.extensionSettings, manifest: context.getExtensionManifest });
+  }));
+  disposers.push(readTavernOsWith(() => {
+    const context = getContext();
+    return tavernOsOnWith({ settings: context.extensionSettings, manifest: context.getExtensionManifest, marker: Reflect.get(globalThis, TAVERNOS_FETCH_MARKER) });
   }));
   const scanGating = startGating(disposers, {
     useActive: () => judgeRuntime.active("loreExclusive"),
