@@ -118,3 +118,10 @@ Branch `v3.0-small-harvest` (from master `cc86db08`). CPU only: no GPU, lane, ST
 Gates: `npm run gates:quick` green in 246.9 s (typecheck, typecheck:test, lint, jest related, defect replay 32/32 killed).
 `npm run build`: main `dist/index.js` 1,290,908 B (budget 1,300,000); the repair lands in lazy chunk `1381.index.js` only.
 Full `npm run gates` not run (parent runs it). Not merged, not staged.
+
+Full gates 2026-10-31 on `v3.0-small-harvest` (master `ad7074f8` merged in):
+- Run 1 RED at `test` (942.3 s): `errorCopy.guard` + `codeHealth` S4 flagged the repair (unlisted catch, nesting). Fixed: `stringStep`
+  helper, inventory rows `parse.ts#sliced` and `jsonRepair.ts#repairJsonObject`. `gates:quick` does not run these guards.
+- Run 2 RED at `test-storybook:ci` (416.6 s): `Studio/CharacterTutorial ReviewBlocksATakenName` axe color-contrast, 1 node; no
+  Studio file on this branch, green in runs 1 and 3: flaky (reported to the plan 29 session).
+- Run 3 `npm run gates -- --serial` (no --resume): all green in 907.3 s, Storybook included.
