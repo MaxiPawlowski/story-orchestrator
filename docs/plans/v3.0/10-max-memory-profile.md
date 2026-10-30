@@ -518,3 +518,15 @@ Candidate L, 2026-10-29 (GPU window, owner not playing):
 - Misses accepted (coordinator decision); smoke and regression list as in §Candidate L; evidence archived with
   `so-evidence.mts archive --label v30-a2-L` and `npm run sessions:archive`.
 - Not run yet: `npm run gates` (held while the owner uses the machine), merge, adoption.
+
+W0 upkeep 2026-10-30 (CPU only, worktree `C:\dev\so-a2`, no GPU, owner controller and `config.json` untouched):
+- Merged master twice (merge, not rebase): `2cc14743` (master `a97af36c`; conflict in `scripts/local/controller.mjs`:
+  kept the branch's live settings reload/refit status and added master's `textOrphans` to it), then `49aae5cb` (master
+  `a7fa71fc`, with `v3.0-ctl-cpu-1030`; conflicts in `cli.mjs` (`--now` filter kept, `--force` added) and
+  `memberCache.mjs` (constructor takes `imageRamMiB` and `log`; the divergence tracker sits beside the native fields)).
+- Follow-ups M5/H1/M4 `a3b41832` (see §Follow-ups built 2026-10-30).
+- `npm run gates -- --jobs=3` (no `--resume`) on `49aae5cb`: all green in 1177.8 s, Storybook included (1025 passed).
+  Two earlier full runs on the same branch went red on environment only: Storybook port 6006 held by a peer worktree's
+  server (EADDRINUSE) and a jest cache EPERM; then `orphans.win.test.mjs` timing out on `Get-CimInstance` at 100 % CPU
+  (other sessions' gates). No code change between them and the green run.
+- Pushed `origin/v3.0-a2-maxmem`. Not merged to master (GPU-gated: A2-1, A2-2 J13, adoption).
