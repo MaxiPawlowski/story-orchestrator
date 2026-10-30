@@ -1,4 +1,5 @@
-import { parseStory, isValidationErrorList, slugifyStoryId } from "@engine/index";
+import { isValidationErrorList, slugifyStoryId } from "@engine/index";
+import { parseStory } from "@engine/storyParser";
 import { getContext, observeNextSettingsSave, readServerExtensionSettings } from "@services/STAPI";
 import { hashStory } from "./hash";
 import { createSettingsWriteEvidence, missingFromServer, recordSettingsWrite, stillHeldByServer, type LibrarySaveEvidence } from "./librarySave";

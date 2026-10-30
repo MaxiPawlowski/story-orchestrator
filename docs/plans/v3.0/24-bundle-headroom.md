@@ -45,3 +45,30 @@ Method: production build with module concatenation off and full stats, each main
 - Cleanup: run header diffs differ only in owned chats and the page's open chat (declared). Lanes stopped.
 - Evidence: `C:/dev/so-lanes/34/debug/mergehb/` (`panels-*.log`, `wiz-*.log`, `assets-*.log`, `campaign/h-*`, `campaign/c*-turn.json`, `header-*`).
 - Verdict: **green on the three risks checked** (passes load and land, panels open and dock, provisioning applies and cleans).
+
+## Round 2 (2026-10-30, branch `v3.0-24-headroom-1031`)
+
+Goal: at least 60 KB main headroom before the Player and Studio UI merges, budget unchanged. Method as above, plus a real per-module measure (minified build, concatenation off, module sizes read from the parsed `dist/index.js`).
+
+Result: master `1af5cf89` 1,296,035 B -> **1,232,690 B** (-63,345 B), headroom 67,310 B. On the pre-Author base `75e9a5e4`: 1,295,296 -> 1,231,920 B.
+
+Moves:
+- **Story parser (-49,990 B).** `engine/storyParser.ts` is a port like `validate/gameLayer.ts`: `parseStory` delegates to the installed parser, else answers one `STORY_PARSER_LOADING` error; `loadStoryParser()` imports `engine/validate` (the 11 `validate/*` readers go with it). `index.tsx` starts the load before the stylesheet await and awaits it before `startRuntime()`, so it overlaps the existing boot awaits (no waterfall) and every runtime path (`storyLibrary`, `livingWiring`, `generation/merge`) stays synchronous after boot. No async step on a chat turn. Jest (`test/support/gameLayer.setup.ts`) and Storybook (`.storybook/preview.ts`) install the parser synchronously. Lazy code keeps importing `engine/validate` directly.
+- **Media plugin probe (-6,473 B).** `stHost/capabilities.ts` image probe imports `./media` on call (the probe was already async; the module is otherwise only reached by lazy image/sprite chunks).
+- **Feature control copy (-6,913 B).** `runtime/featureControlPaths.ts` holds `FEATURE_CONTROL_PATHS` (field + path), all `featureResolve` needs; `featureControls.ts` keeps names, areas, descriptions, labels (`FEATURE_COPY`, default labels for `enabled`/`acceptMode`) and builds `FEATURE_CONTROLS` from the paths. `featureControls.test.ts` pins path order and that every control has a label.
+
+Guards: `LAZY_HEADROOM_V30` adds `stHost/media.ts` and `runtime/featureControls.ts`. `engine/validate.ts` is not listed: the guard's source graph follows the `engine/index` barrel's `export *`, which webpack's `sideEffects` pruning drops; the build size is the check there.
+
+Remaining big candidates (not moved; inside files the UI branches own, or on a hot path):
+- Check registry (`checksSetup` 17 KB, `checksExtensions` 6.5 KB, `checks`, `checksGame`, ~30 KB): in main only for `HudStrip`'s `setupCounts`/`setupAlert`; copy is woven into the findings. Needs a counts-only path for the HUD (drawer file).
+- `index.tsx` (13.7 KB) mount glue: Studio/wizard/workspace host wiring could move to a lazy host module.
+- `presenceUi.tsx` + `stHost/charListBadges.ts` (~8 KB).
+- `runtime/journal.ts` (6.6 KB), `judge/readiness` + `judge/settings` + `judge/scene` (~16 KB): read by the snapshot every update, would need a split of copy from logic.
+
+## Gate record (2026-10-30, round 2)
+
+- `npm run gates:quick`: first RED (max-len in the two new tables, and the matching `codeHealth` S5 ratchet), then green.
+- `npm run gates` run 1 (after merging master `1af5cf89`): RED at `test-storybook:ci` only, 8 Studio save plays (`StudioToolbar`, `StudioModal`): Storybook had no parser installed. Fixed in `.storybook/preview.ts`.
+- `npm run test-storybook:ci` alone: 1120/1121, one `color-contrast` on `Studio/CharacterTutorial ReviewBlocksATakenName` (green in run 1 and run 2; flake).
+- `npm run gates` run 2 (no --resume): **all green in 300.9 s**, 11 steps incl. `test-storybook:ci` and `test:release`; main 1,232,690 B.
+- Live checks owed (no lanes in this task): one page load opens a chat with a pinned story (hydrate parses through the port), import a story, a living rebuild, Repair's image row on an install with only the media plugin, Features page and settings search labels.
