@@ -103,7 +103,8 @@
         "recallTokens": 200,
         "eraSeals": true,
         "foldEras": true,
-        "eraMessages": 300
+        "eraMessages": 300,
+        "compact": false
       }
     },
     "talk": {

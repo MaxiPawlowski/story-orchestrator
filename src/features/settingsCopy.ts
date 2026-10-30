@@ -158,6 +158,11 @@ export const SETTING_COPY = {
     "Leave ended chapters' messages out of the prompt",
     "Older chapters are represented by their record instead of their messages, which keeps prompts short in long stories.",
   ),
+  "memory.chapters.compact": copy(
+    "Drop old messages in large chunks near the context limit",
+    "When a long chat nears the model's context, the oldest messages the story has already read and summarised leave the prompt in one large step instead of one at a time, "
+      + "so the start of the prompt stays the same for many turns and a local backend can reuse its cache. Off until its blind rating passes.",
+  ),
   "memory.chapters.chronicleTokens": copy(
     "Story so far budget",
     "How many tokens the story so far may take in each prompt. Larger keeps more of the past, and leaves less room for the chat.",
