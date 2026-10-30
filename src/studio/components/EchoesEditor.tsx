@@ -8,6 +8,8 @@ import type { StoryDraft } from "../draft";
 import { addEcho, removeEcho, updateEcho } from "../gameMutations";
 import { narratesPlayer } from "../cueDiagnostics";
 import { OptionalGate, TextField } from "./GameFields";
+import { Button } from "@components/ui/Button";
+import { IconButton } from "@components/ui/IconButton";
 
 const HELP = "Something that happened comes back later. After the event and a delay, if the story still fits, one character or the narrator is handed one short cue, "
   + "once per chat. It waits while its gate fails or the character is away, and is dropped if it expires first. No model call, nothing a gate can read.";
@@ -98,7 +100,7 @@ const EchoRow: React.FC<{ echo: StoryEcho }> = ({ echo }) => {
       <div className="flex flex-wrap items-end gap-2">
         <span className="st-pill px-2 py-0.5 text-[11px]">{echo.id}</span>
         <Select label={`echo ${echo.id} tells`} value={echo.to} options={recipients} names={{ ...names, [ECHO_NARRATOR]: "the narrator" }} onChange={(to) => patch({ to })} />
-        <button type="button" className="st-button danger" aria-label={`Remove echo ${echo.id}`} onClick={() => mutate((current) => removeEcho(current, echo.id))}>×</button>
+        <IconButton icon="fa-xmark" label={`Remove echo ${echo.id}`} onClick={() => mutate((current) => removeEcho(current, echo.id))} />
       </div>
       <SourcePicker echo={echo} patch={patch} />
       <TextField label={`echo ${echo.id} cue`} value={echo.cue} onChange={(cue) => patch({ cue })} placeholder="the trader the player short-changed is in town" />
@@ -118,7 +120,7 @@ const EchoesEditor: React.FC = () => {
     <div id="so-echoes-editor" data-so="echoes-editor" className="st-subpanel flex flex-col gap-3 p-3">
       <div className="text-sm font-medium">Delayed echoes<HelpTooltip title={HELP} /></div>
       {echoes.map((echo) => <EchoRow key={echo.id} echo={echo} />)}
-      <button type="button" className="st-button secondary self-start" disabled={!roster.length} onClick={() => mutate((current) => addEcho(current))}>+ Echo</button>
+      <Button className="self-start" disabled={!roster.length} onClick={() => mutate((current) => addEcho(current))}>+ Echo</Button>
     </div>
   );
 };

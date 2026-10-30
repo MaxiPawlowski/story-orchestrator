@@ -9,6 +9,8 @@ import type { LivingStartFields } from "./LivingStart";
 import { lazyRetry } from "@utils/lazyRetry";
 import { Lazy } from "@components/Lazy";
 import { ActionStatus, useActionStatus } from "@components/ActionStatus";
+import { Button } from "@components/ui/Button";
+import { StatusText } from "@components/ui/StatusText";
 
 const LivingStart = lazyRetry(() => import("./LivingStart"));
 const TrophyShelf = lazyRetry(() => import("@components/carry/TrophyShelf"));
@@ -54,20 +56,19 @@ const RepairAuthorDetail = ({ repair, wizardOn, onFixWithWizard, onRepairCast }:
     <div data-so="repair-detail" className="text-xs opacity-70">{repair.detail}</div>
     {repair.action && onRepairCast && (
       <div className="so-actions">
-        <button type="button" data-so="repair-fix" className="menu_button" onClick={() => void status.run(() => onRepairCast(repair.action as OneClickFix))}>{repair.action.label}</button>
+        <Button type="button" data-so="repair-fix" onClick={() => void status.run(() => onRepairCast(repair.action as OneClickFix))}>{repair.action.label}</Button>
       </div>
     )}
     <ActionStatus text={status.text} />
     {repair.provisionable && (
       <div className="so-actions">
-        <button
+        <Button
           id="so-entry-fix-with-wizard"
           type="button"
-          className="menu_button"
           disabled={!wizardOn}
           title={wizardOn ? "Open the wizard on the provisioning step, pre-filled with what this story is missing." : WIZARD_OFF_REASON}
           onClick={onFixWithWizard}
-        >Fix with wizard</button>
+        >Fix with wizard</Button>
         {!wizardOn && <span data-so="wizard-off-reason" className="text-xs opacity-70">{WIZARD_OFF_REASON}</span>}
       </div>
     )}
@@ -90,17 +91,16 @@ export default function EntryPoints(props: EntryPointsProps) {
     <div id="so-entry-points" className="so-task-grid">
       <Row title="Start">
         <div className="so-actions">
-          <button
+          <Button
             id="so-new-story-wizard"
             type="button"
-            className="menu_button"
             disabled={busy || !wizardOn}
             title={wizardOn
               ? "Start a new story from a premise: the wizard interviews you, proposes the graph, and creates the cards, lore and group it needs."
               : WIZARD_OFF_REASON}
             onClick={onNewStory}
-          >New story (wizard)</button>
-          <button id="so-entry-import-toggle" type="button" className="menu_button" aria-expanded={importOpen} onClick={onToggleImport}>{importOpen ? "Hide import" : "Import a story"}</button>
+          >New story (wizard)</Button>
+          <Button id="so-entry-import-toggle" type="button" aria-expanded={importOpen} onClick={onToggleImport}>{importOpen ? "Hide import" : "Import a story"}</Button>
         </div>
         <div className="text-xs opacity-70">{wizardOn ? "Build a story with the wizard, or bring your own JSON." : `Bring your own JSON. ${WIZARD_OFF_REASON}`}</div>
         {importOpen && importer}
@@ -112,8 +112,8 @@ export default function EntryPoints(props: EntryPointsProps) {
           {playingLine(playing)}
         </div>
         <div className="so-actions">
-          <button type="button" className="menu_button" disabled={busy} onClick={() => onRevealSetting("story-library-select")}>Choose a story</button>
-          <button type="button" className="menu_button" disabled={busy || !snapshot.storyId} onClick={() => onRevealSetting("so-restart-story")}>Restart or export</button>
+          <Button type="button" disabled={busy} onClick={() => onRevealSetting("story-library-select")}>Choose a story</Button>
+          <Button type="button" disabled={busy || !snapshot.storyId} onClick={() => onRevealSetting("so-restart-story")}>Restart or export</Button>
         </div>
         {onOpenPlay && snapshot.ui.presence?.continueList !== false && (
           <ContinueList rows={plays} onOpen={onOpenPlay} />
@@ -125,15 +125,15 @@ export default function EntryPoints(props: EntryPointsProps) {
       <Row title="Repair">
         {repair ? (
           <div id="so-entry-repair" data-so="repair-step" data-area={repair.area} className="flex flex-col gap-2">
-            <div className="text-xs so-warning-text">{repair.consequence}</div>
+            <StatusText as="div" tone="warn">{repair.consequence}</StatusText>
             {repair.targetId && (
               <div className="so-actions">
-                <button type="button" data-so="repair-reveal" className="menu_button" onClick={() => onRevealSetting(repair.targetId as string)}>Show me the setting</button>
+                <Button type="button" data-so="repair-reveal" onClick={() => onRevealSetting(repair.targetId as string)}>Show me the setting</Button>
               </div>
             )}
             {!repair.targetId && repair.opensGroup && onOpenGroup && (
               <div className="so-actions">
-                <button type="button" data-so="repair-reveal" className="menu_button" onClick={onOpenGroup}>Show me the group</button>
+                <Button type="button" data-so="repair-reveal" onClick={onOpenGroup}>Show me the group</Button>
               </div>
             )}
             {snapshot.ui.authorView && <RepairAuthorDetail repair={repair} wizardOn={wizardOn} onFixWithWizard={onFixWithWizard} onRepairCast={onRepairCast} />}
@@ -144,9 +144,9 @@ export default function EntryPoints(props: EntryPointsProps) {
       </Row>
       <Row title="Author">
         <div className="so-actions">
-          {(!snapshot.storyId || snapshot.ui.authorView) && <button id="so-open-studio" type="button" className="menu_button" disabled={busy} onClick={onOpenStudio}>Open Studio</button>}
+          {(!snapshot.storyId || snapshot.ui.authorView) && <Button id="so-open-studio" type="button" disabled={busy} onClick={onOpenStudio}>Open Studio</Button>}
           {snapshot.storyId && !snapshot.ui.authorView && (
-            <button id="so-entry-author-view" type="button" className="menu_button" onClick={onOpenAuthorView ?? onOpenStory}>Turn on Author view</button>
+            <Button id="so-entry-author-view" type="button" onClick={onOpenAuthorView ?? onOpenStory}>Turn on Author view</Button>
           )}
         </div>
         <div className="text-xs opacity-70">Edit the story, cast and what players may see.</div>

@@ -3,6 +3,9 @@ import { GATE_OPERATORS, renderGateText, type GateLeaf, type GateNode, type Gate
 import MultiSelect from "@components/studio/MultiSelect";
 import { coerceOpForQuality, defaultLeaf, defaultValueForOp, opsForType } from "../gateOptions";
 import PrimitiveValueInput from "./PrimitiveValueInput";
+import { Button } from "@components/ui/Button";
+import { IconButton } from "@components/ui/IconButton";
+import { StatusText } from "@components/ui/StatusText";
 
 const StringListInput: React.FC<{ values: string[]; onChange: (next: string[]) => void }> = ({ values, onChange }) => (
   <div className="flex flex-col gap-1">
@@ -14,10 +17,10 @@ const StringListInput: React.FC<{ values: string[]; onChange: (next: string[]) =
           value={value}
           onChange={(event) => onChange(values.map((entry, entryIndex) => (entryIndex === index ? event.target.value : entry)))}
         />
-        <button type="button" className="st-button danger" aria-label={`Remove value ${index + 1}`} onClick={() => onChange(values.filter((_, entryIndex) => entryIndex !== index))}>×</button>
+        <IconButton icon="fa-xmark" label={`Remove value ${index + 1}`} type="button" onClick={() => onChange(values.filter((_, entryIndex) => entryIndex !== index))} />
       </div>
     ))}
-    <button type="button" className="st-button secondary self-start" onClick={() => onChange([...values, ""])}>+ Value</button>
+    <Button type="button" className="self-start" onClick={() => onChange([...values, ""])}>+ Value</Button>
   </div>
 );
 
@@ -27,7 +30,7 @@ const GateValueInput: React.FC<{
   value: PrimitiveValue | PrimitiveValue[];
   onChange: (value: PrimitiveValue | PrimitiveValue[]) => void;
 }> = ({ quality, op, value, onChange }) => {
-  if (!quality) return <span className="text-xs st-text-error">select a quality</span>;
+  if (!quality) return <StatusText tone="error" as="span" className="text-xs">select a quality</StatusText>;
   if (op === "in") {
     const list = Array.isArray(value) ? value.map(String) : [];
     if (quality.type === "enum") {
@@ -72,7 +75,7 @@ const LeafRow: React.FC<{ leaf: GateLeaf; qualities: Quality[]; onChange: (leaf:
         {ops.map((op) => <option key={op} value={op}>{op}</option>)}
       </select>
       <GateValueInput quality={quality} op={leaf.op} value={leaf.v} onChange={(v) => onChange({ ...leaf, v })} />
-      {onRemove ? <button type="button" className="st-button danger" aria-label="Remove condition" onClick={onRemove}>×</button> : null}
+      {onRemove ? <IconButton icon="fa-xmark" label="Remove condition" type="button" onClick={onRemove} /> : null}
     </div>
   );
 };
@@ -87,7 +90,7 @@ const GateNodeEditor: React.FC<{ node: GateNode; qualities: Quality[]; onChange:
       <div className="st-subpanel flex flex-col gap-2 p-2">
         <div className="flex items-center gap-2 text-xs st-muted">
           <span>NOT</span>
-          {onRemove ? <button type="button" className="st-button danger" aria-label="Remove NOT" onClick={onRemove}>×</button> : null}
+          {onRemove ? <IconButton icon="fa-xmark" label="Remove NOT" type="button" onClick={onRemove} /> : null}
         </div>
         <div className="border-l st-divider pl-3">
           <GateNodeEditor node={node.not} qualities={qualities} onChange={(child) => onChange({ not: child })} />
@@ -111,7 +114,7 @@ const GateNodeEditor: React.FC<{ node: GateNode; qualities: Quality[]; onChange:
           <option value="all">ALL (AND)</option>
           <option value="any">ANY (OR)</option>
         </select>
-        {onRemove ? <button type="button" className="st-button danger" aria-label="Remove group" onClick={onRemove}>×</button> : null}
+        {onRemove ? <IconButton icon="fa-xmark" label="Remove group" type="button" onClick={onRemove} /> : null}
       </div>
       <div className="flex flex-col gap-2 border-l st-divider pl-3">
         {children.length === 0 ? <div className="text-xs st-muted">no conditions</div> : null}
@@ -126,9 +129,9 @@ const GateNodeEditor: React.FC<{ node: GateNode; qualities: Quality[]; onChange:
         ))}
       </div>
       <div className="flex flex-wrap gap-2">
-        <button type="button" className="st-button secondary" onClick={() => setChildren([...children, defaultLeaf(qualities)])}>+ Condition</button>
-        <button type="button" className="st-button secondary" onClick={() => setChildren([...children, { all: [] }])}>+ Group</button>
-        <button type="button" className="st-button secondary" onClick={() => setChildren([...children, { not: defaultLeaf(qualities) }])}>+ NOT</button>
+        <Button type="button" onClick={() => setChildren([...children, defaultLeaf(qualities)])}>+ Condition</Button>
+        <Button type="button" onClick={() => setChildren([...children, { all: [] }])}>+ Group</Button>
+        <Button type="button" onClick={() => setChildren([...children, { not: defaultLeaf(qualities) }])}>+ NOT</Button>
       </div>
     </div>
   );

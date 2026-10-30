@@ -9,6 +9,9 @@ import { settingHelp } from "@features/settingsCopy";
 import { FieldLabel } from "./Field";
 import { ProfileOptions } from "./ProfileOptions";
 import { profileLocality, vendorLabel, type GroupableProfile } from "@utils/profileGroups";
+import { Button } from "@components/ui/Button";
+import { StatusText } from "@components/ui/StatusText";
+import type { Tone } from "@components/ui/Badge";
 
 export type RoleProfileOption = GroupableProfile;
 
@@ -28,11 +31,11 @@ export interface RoleMeasurement {
   detail: string;
 }
 
-const MEASUREMENT_COPY: Record<RoleMeasurement["state"], { text: string; tone: string }> = {
-  measured: { text: "measured: passed its create floor", tone: "so-success-text" },
-  "below-floor": { text: "measured below its create floor", tone: "so-warning-text" },
-  "not-measured": { text: "not measured for new entries", tone: "so-warning-text" },
-  "unknown-model": { text: "not measured: this route names no model", tone: "so-warning-text" },
+const MEASUREMENT_COPY: Record<RoleMeasurement["state"], { text: string; tone: Tone }> = {
+  measured: { text: "measured: passed its create floor", tone: "ok" },
+  "below-floor": { text: "measured below its create floor", tone: "warn" },
+  "not-measured": { text: "not measured for new entries", tone: "warn" },
+  "unknown-model": { text: "not measured: this route names no model", tone: "warn" },
 };
 
 export interface RoleProfilesGroupProps {
@@ -53,17 +56,17 @@ export interface RoleProfilesGroupProps {
   measurements?: Partial<Record<PassRole, RoleMeasurement>>;
 }
 
-const STATE_COPY: Record<RoleRouteView["state"], { text: string; tone: string }> = {
-  fallback: { text: "", tone: "" },
-  untested: { text: "not tested yet", tone: "opacity-70" },
-  ok: { text: "passed its self-test", tone: "so-success-text" },
-  missing: { text: "no longer available", tone: "so-error-text" },
-  "not-configured": { text: "cannot be used", tone: "so-error-text" },
-  "not-answering": { text: "not answering", tone: "so-warning-text" },
-  failed: { text: "failed its self-test", tone: "so-error-text" },
-  "reasoning-exhausted": { text: "thought without answering", tone: "so-warning-text" },
-  "not-logged-in": { text: "not logged in", tone: "so-error-text" },
-  quota: { text: "usage limit reached", tone: "so-warning-text" },
+const STATE_COPY: Record<RoleRouteView["state"], { text: string; tone: Tone }> = {
+  fallback: { text: "", tone: "neutral" },
+  untested: { text: "not tested yet", tone: "neutral" },
+  ok: { text: "passed its self-test", tone: "ok" },
+  missing: { text: "no longer available", tone: "error" },
+  "not-configured": { text: "cannot be used", tone: "error" },
+  "not-answering": { text: "not answering", tone: "warn" },
+  failed: { text: "failed its self-test", tone: "error" },
+  "reasoning-exhausted": { text: "thought without answering", tone: "warn" },
+  "not-logged-in": { text: "not logged in", tone: "error" },
+  quota: { text: "usage limit reached", tone: "warn" },
 };
 
 export const ROLE_EGRESS: Record<PassRole, string> = {
@@ -157,8 +160,8 @@ export const RoleProfilesGroup = ({
                 </select>
               </div>
               {measured && (
-                <div data-so="role-measurement" data-measurement={measured.state} className={`text-xs ${MEASUREMENT_COPY[measured.state].tone}`} title={measured.detail}>
-                  {MEASUREMENT_COPY[measured.state].text}
+                <div data-so="role-measurement" data-measurement={measured.state} title={measured.detail}>
+                  <StatusText as="span" tone={MEASUREMENT_COPY[measured.state].tone}>{MEASUREMENT_COPY[measured.state].text}</StatusText>
                 </div>
               )}
               {authorView && cloud && (
@@ -193,20 +196,19 @@ export const RoleProfilesGroup = ({
                   {REASONING_EFFORTS.map((effort) => <option key={effort} value={effort}>{effortLabel(effort)}</option>)}
                 </select>
               </div>
-              {note && <div data-so="role-reasoning-note" className="text-xs so-warning-text">{note}</div>}
+              {note && <StatusText as="div" tone="warn" data-so="role-reasoning-note">{note}</StatusText>}
               {route.state !== "fallback" && (
                 <div className="flex flex-wrap items-center gap-2 text-xs">
-                  <button
+                  <Button
                     type="button"
                     data-so="role-profile-test"
                     aria-label={`Test ${route.label}`}
-                    className="menu_button"
                     disabled={testing !== null || route.state === "missing"}
                     onClick={() => onTest(route.role)}
-                  >{testing === route.role ? "Testing…" : "Test"}</button>
+                  >{testing === route.role ? "Testing…" : "Test"}</Button>
                   {testing === route.role
                     ? <span data-so="role-profile-state" data-testing="true" className="opacity-70">{harness ? TESTING_HARNESS_TEXT : TESTING_TEXT}</span>
-                    : <span data-so="role-profile-state" className={state.tone}>{state.text}</span>}
+                    : <StatusText as="span" data-so="role-profile-state" tone={state.tone}>{state.text}</StatusText>}
                   {testing !== route.role && (authorView || harness) && route.state !== "untested" && route.state !== "ok" && route.detail
                     ? <span data-so="role-profile-detail" className="min-w-0 opacity-80">{route.detail}</span> : null}
                 </div>

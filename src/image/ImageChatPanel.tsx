@@ -4,6 +4,7 @@ import type { RuntimeSnapshot } from "@runtime/types";
 import { PLAYER_COPY } from "@runtime/narrative";
 import { startImage } from "./start";
 import { Button } from "@components/ui/Button";
+import { StatusText } from "@components/ui/StatusText";
 
 export const IMAGE_QUICK_COPY = {
   label: "Illustrations",
@@ -25,6 +26,6 @@ export default function ImageChatPanel({ manager }: { manager: RuntimeManager; s
     <Button size="sm" icon="fa-image" work={() => image.direct({ purpose: "background", text: "", messageId: null })}>{IMAGE_QUICK_COPY.background}</Button>
     {state.jobs.length > 0 && <Button size="sm" variant="ghost" icon="fa-stop" onClick={() => image.queue.cancelAll()}>{IMAGE_QUICK_COPY.stop}</Button>}
     {state.jobs.length > 0 && <span role="status" className="so-play-meta">{state.jobs.map((job) => `${job.label}: ${job.state}`).join(" · ")}</span>}
-    {state.lastError && <span role="alert" data-so="image-error" className="so-play-meta so-error-text">{PLAYER_COPY.imageError}</span>}
+    {state.lastError && <StatusText as="span" tone="error" role="alert" data-so="image-error" className="so-play-meta">{PLAYER_COPY.imageError}</StatusText>}
   </div>;
 }

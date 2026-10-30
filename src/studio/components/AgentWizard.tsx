@@ -13,6 +13,9 @@ import { coverageGaps, storyCoverage } from "../coverage";
 import { useDraftStore } from "../draft";
 import ProvisioningCard from "./ProvisioningCard";
 import type { WizardHost } from "./StudioCopilot";
+import { Button } from "@components/ui/Button";
+import { Callout } from "@components/ui/Callout";
+import { StatusText } from "@components/ui/StatusText";
 
 export type AgentTurnRunner = AgentRunner;
 
@@ -140,14 +143,14 @@ const EditCard = ({ step, busy, onAccept, onReject }: CardProps) => {
           onChange={(event) => setText(event.target.value)}
         />
       ) : null}
-      {problem ? <div className="st-alert-error rounded px-2 py-1 text-[11px]" role="alert">{problem}</div> : null}
+      {problem ? <Callout tone="error" size="sm" role="alert"><p>{problem}</p></Callout> : null}
       <div className="flex flex-wrap items-center gap-2">
         {editing
-          ? <button type="button" data-so="agent-accept" className="st-button primary" disabled={busy} onClick={acceptEdited}>Accept edited</button>
-          : <button type="button" data-so="agent-accept" className="st-button primary" disabled={busy} onClick={() => onAccept()}>Accept</button>}
-        {!editing ? <button type="button" data-so="agent-edit" className="st-button secondary" disabled={busy} onClick={() => setEditing(true)}>Edit</button> : null}
+          ? <Button variant="primary" data-so="agent-accept" disabled={busy} onClick={acceptEdited}>Accept edited</Button>
+          : <Button variant="primary" data-so="agent-accept" disabled={busy} onClick={() => onAccept()}>Accept</Button>}
+        {!editing ? <Button data-so="agent-edit" disabled={busy} onClick={() => setEditing(true)}>Edit</Button> : null}
         <ReasonInput reason={reason} onChange={setReason} />
-        <button type="button" data-so="agent-reject" className="st-button secondary" disabled={busy} onClick={() => onReject(reason)}>Reject</button>
+        <Button data-so="agent-reject" disabled={busy} onClick={() => onReject(reason)}>Reject</Button>
       </div>
     </section>
   );
@@ -163,7 +166,7 @@ const ProvisionCard = ({ step, busy, host, ops, onReject, onProvision }: CardPro
       <ProvisioningCard op={step.op} environment={host?.environment(draft) ?? emptyEnvironment()} busy={busy} context={{ draft, ops }} onApply={(op) => onProvision(op)} />
       <div className="flex items-center gap-2">
         <ReasonInput reason={reason} onChange={setReason} />
-        <button type="button" data-so="agent-reject" className="st-button secondary" disabled={busy} onClick={() => onReject(reason)}>Reject</button>
+        <Button data-so="agent-reject" disabled={busy} onClick={() => onReject(reason)}>Reject</Button>
       </div>
     </section>
   );
@@ -180,9 +183,10 @@ const ReadBacks = ({ session, busy, onRecheck }: { session: AgentSession; busy: 
   return (
     <ul data-so="agent-readbacks" className="flex flex-col gap-1 text-[11px]" aria-label="Cards to check">
       {steps.map((step) => (
-        <li key={step.id} data-so="agent-readback" data-state={step.readBack.state} className="st-alert-warning flex flex-wrap items-center gap-2 rounded px-2 py-1">
-          <span className="flex-1">#{step.id} {step.observation}</span>
-          <button type="button" data-so="agent-recheck" className="st-button secondary" disabled={busy} onClick={() => onRecheck(step)}>Check again</button>
+        <li key={step.id} data-so="agent-readback" data-state={step.readBack.state}>
+          <Callout tone="warn" size="sm" actions={<Button data-so="agent-recheck" size="sm" disabled={busy} onClick={() => onRecheck(step)}>Check again</Button>}>
+            <p>#{step.id} {step.observation}</p>
+          </Callout>
         </li>
       ))}
     </ul>
@@ -243,7 +247,7 @@ const Start = ({ busy, onStart }: { busy: boolean; onStart: (goal: string, mode:
         <select id="so-agent-mode" aria-label="Agent mode" className="text_pole st-input" value={mode} onChange={(event) => setMode(event.target.value as AgentMode)}>
           {AGENT_MODES.map((entry) => <option key={entry} value={entry}>{MODE_LABELS[entry]}</option>)}
         </select>
-        <button id="so-agent-start" type="button" className="st-button primary" disabled={busy || !goal.trim()} onClick={() => onStart(goal, mode)}>Plan it</button>
+        <Button variant="primary" id="so-agent-start" disabled={busy || !goal.trim()} onClick={() => onStart(goal, mode)}>Plan it</Button>
       </div>
       <div className="text-[11px] st-muted">The agent plans first. Cards, lorebooks and groups always wait for you, in both modes, and only your Save writes the story.</div>
     </div>
@@ -255,7 +259,7 @@ const PlanEditor = ({ session, busy, onGo }: { session: AgentSession; busy: bool
   return (
     <div className="flex flex-col gap-2">
       <textarea id="so-agent-plan" aria-label="The agent's plan" className="text_pole st-input min-h-[60px]" value={text} onChange={(event) => setText(event.target.value)} />
-      <button id="so-agent-go" type="button" className="st-button primary self-start" disabled={busy || !text.trim()} onClick={() => onGo(text.split("\n"))}>Go</button>
+      <Button variant="primary" id="so-agent-go" className="self-start" disabled={busy || !text.trim()} onClick={() => onGo(text.split("\n"))}>Go</Button>
     </div>
   );
 };
@@ -364,19 +368,19 @@ const AgentWizard: React.FC<Props> = ({ runTurn, host, initial = null, onPersist
             </select>
             <span className="st-muted">step {session.steps.length} of {session.budget.maxSteps} · ~{Math.round(session.budget.usedTokens / 1000)}k tokens</span>
             {stats ? <span className="st-muted">{stats.accepted}/{stats.proposed} changes kept</span> : null}
-            {busy ? <button id="so-agent-stop" type="button" className="st-button secondary" onClick={() => { stopRequested.current = true; }}>Stop</button> : null}
+            {busy ? <Button id="so-agent-stop" onClick={() => { stopRequested.current = true; }}>Stop</Button> : null}
             {!busy && (session.status === "stopped" || session.status === "budget" || session.status === "done") ? (
-              <button id="so-agent-continue" type="button" className="st-button secondary" onClick={() => void drive(continueAgent(session))}>Continue</button>
+              <Button id="so-agent-continue" onClick={() => void drive(continueAgent(session))}>Continue</Button>
             ) : null}
             {!busy && session.status === "budget" ? (
               <span data-so="agent-budget-note" className="st-muted">Continue grants a fresh budget: {budgetSliceText()}.</span>
             ) : null}
             {!busy && error && session.status !== "stopped" && session.status !== "budget" ? (
-              <button id="so-agent-retry" type="button" className="st-button secondary" onClick={() => void drive(session)}>Retry</button>
+              <Button id="so-agent-retry" onClick={() => void drive(session)}>Retry</Button>
             ) : null}
-            {!busy && session.status !== "awaiting-author" ? <button id="so-agent-new-goal" type="button" className="st-button secondary" onClick={newGoal}>New goal</button> : null}
+            {!busy && session.status !== "awaiting-author" ? <Button id="so-agent-new-goal" onClick={newGoal}>New goal</Button> : null}
           </div>
-          {session.fallback ? <div data-so="agent-fell-back" className="so-warning-text text-xs" role="status">{session.fallback}</div> : null}
+          {session.fallback ? <StatusText as="div" tone="warn" data-so="agent-fell-back" role="status">{session.fallback}</StatusText> : null}
           {session.status === "awaiting-plan" ? <PlanEditor session={session} busy={busy} onGo={(plan) => void drive(approvePlan(session, plan))} /> : null}
           {session.plan.length && session.status !== "awaiting-plan" ? (
             <ol className="text-xs" aria-label="Agreed plan">{session.plan.map((step, index) => <li key={index}>{`${index + 1}. ${step}`}</li>)}</ol>
@@ -394,7 +398,7 @@ const AgentWizard: React.FC<Props> = ({ runTurn, host, initial = null, onPersist
             />
           ) : null}
           {session.status === "stopped" && session.stopReason ? (
-            <div data-so="agent-stop-reason" className="st-alert-error rounded px-2 py-1 text-sm" role="status">{session.stopReason}</div>
+            <Callout tone="error" size="sm" data-so="agent-stop-reason" role="status"><p>{session.stopReason}</p></Callout>
           ) : null}
           {session.status === "done" ? (
             <div data-so="agent-done" className="st-subpanel rounded p-2 text-sm">
@@ -406,7 +410,7 @@ const AgentWizard: React.FC<Props> = ({ runTurn, host, initial = null, onPersist
           <AuthorNote busy={busy} onSend={(text) => commit(addAuthorNote(session, text))} />
         </>
       )}
-      {error ? <div className="st-alert-error rounded px-3 py-2 text-sm" role="alert">{error}</div> : null}
+      {error ? <Callout tone="error" role="alert"><p>{error}</p></Callout> : null}
       <Coverage />
     </div>
   );
@@ -423,7 +427,7 @@ const AuthorNote = ({ busy, onSend }: { busy: boolean; onSend: (text: string) =>
         value={text}
         onChange={(event) => setText(event.target.value)}
       />
-      <button type="button" className="st-button secondary" disabled={busy || !text.trim()} onClick={() => { onSend(text); setText(""); }}>Tell the agent</button>
+      <Button disabled={busy || !text.trim()} onClick={() => { onSend(text); setText(""); }}>Tell the agent</Button>
     </div>
   );
 };

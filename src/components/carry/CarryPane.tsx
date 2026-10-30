@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import type { CarryActions, CarryCandidateRow, CarryView } from "@runtime/carryPort";
 import { CarryCard } from "./CarryCard";
 import { CARRY_COPY } from "@features/carryCopy";
+import { Button } from "@components/ui/Button";
 
 export interface CarryPaneProps {
   view: CarryView;
@@ -39,13 +40,13 @@ export const CarryPane = ({ view, actions }: CarryPaneProps) => {
           {rows.map((row) => (
             <li key={row.chatId} data-so="carry-run" className="flex flex-wrap items-center justify-between gap-2">
               <span className="text-sm">{CARRY_COPY.ended(row.title, row.endingTitle)} <span className="opacity-70">{dateOf(row.endedAt)}</span></span>
-              <button type="button" className="menu_button" disabled={busy} onClick={() => void run(() => actions.pick(row.chatId))}>{CARRY_COPY.pick}</button>
+              <Button type="button" disabled={busy} onClick={() => void run(() => actions.pick(row.chatId))}>{CARRY_COPY.pick}</Button>
             </li>
           ))}
         </ul>
       )}
       {!view.required && (
-        <button id="so-carry-fresh" type="button" className="menu_button self-start" disabled={busy} onClick={() => void run(() => actions.decline())}>{CARRY_COPY.fresh}</button>
+        <Button id="so-carry-fresh" type="button" className="self-start" disabled={busy} onClick={() => void run(() => actions.decline())}>{CARRY_COPY.fresh}</Button>
       )}
       {error && <p data-so="carry-error" role="alert" className="text-sm">{error}</p>}
     </section>

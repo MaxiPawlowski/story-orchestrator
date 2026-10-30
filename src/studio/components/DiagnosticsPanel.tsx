@@ -5,15 +5,16 @@ import type { Diagnostic } from "../diagnostics";
 import { placeOf, schemaConsequence } from "../schemaErrors";
 import { diagnosticTarget, type DiagnosticTarget } from "../diagnosticTarget";
 import { Button } from "@components/ui/Button";
+import { Callout } from "@components/ui/Callout";
 
 // The plain consequence first, the technical line second. An author reads the first
 // line to decide whether to care and the second to find the thing.
 type RowProps = { label: string; message: string; path: string; tone: "error" | "warn" | "muted"; consequence?: string; onGoTo?: () => void };
 
-const DiagnosticRow: React.FC<RowProps> = ({ label, message, path, tone, consequence, onGoTo }) => (
-  <li data-so="diagnostic" data-severity={tone} className={`st-subpanel flex flex-col gap-0.5 p-2 text-sm ${tone === "error" ? "st-alert-error" : ""}`}>
+const DiagnosticRow: React.FC<RowProps> = ({ label, message, path, tone, consequence, onGoTo }) => {
+  const body = <>
     <div className="flex items-start gap-2">
-      <span className={`st-pill px-2 py-0.5 text-[10px] ${tone === "warn" ? "st-text-error" : ""}`}>{label}</span>
+      <span data-so="repair-code" className={`st-pill px-2 py-0.5 text-[10px] ${tone === "warn" ? "st-text-error" : ""}`}>{label}</span>
       <span className="flex flex-col gap-0.5">
         <span data-so="diagnostic-consequence">{consequence ?? message}</span>
         {consequence && <span className="text-[11px] st-muted">{message}</span>}
@@ -23,8 +24,11 @@ const DiagnosticRow: React.FC<RowProps> = ({ label, message, path, tone, consequ
       <span data-so="diagnostic-place" className="text-[11px] st-muted">{path}</span>
       {onGoTo && <Button size="sm" variant="ghost" icon="fa-arrow-right" data-so="diagnostic-goto" onClick={onGoTo}>Go to</Button>}
     </div>
-  </li>
-);
+  </>;
+  return tone === "error"
+    ? <li data-so="diagnostic" data-severity={tone}><Callout tone="error" size="sm">{body}</Callout></li>
+    : <li data-so="diagnostic" data-severity={tone} className="st-subpanel flex flex-col gap-0.5 p-2 text-sm">{body}</li>;
+};
 
 const DiagnosticsPanel: React.FC<{ onGoTo?: (target: DiagnosticTarget) => void }> = ({ onGoTo }) => {
   const diagnostics = useDraftStore((state) => state.diagnostics);
@@ -52,7 +56,7 @@ const DiagnosticsPanel: React.FC<{ onGoTo?: (target: DiagnosticTarget) => void }
   if (issues === 0) {
     return (
       <div className="flex flex-col gap-3" aria-label="Diagnostics">
-        <div className="st-alert-success rounded px-3 py-2 text-sm">No issues — this story is ready to save.</div>
+        <Callout tone="ok" data-so="diagnostics-clean"><p>No issues — this story is ready to save.</p></Callout>
         {notesSection}
       </div>
     );

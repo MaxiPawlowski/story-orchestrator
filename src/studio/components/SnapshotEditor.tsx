@@ -2,6 +2,8 @@ import React from "react";
 import type { PrimitiveValue, Quality } from "@engine/index";
 import { defaultValueForOp } from "../gateOptions";
 import PrimitiveValueInput from "./PrimitiveValueInput";
+import { Button } from "@components/ui/Button";
+import { IconButton } from "@components/ui/IconButton";
 
 const defaultValueFor = (quality: Quality): PrimitiveValue => defaultValueForOp(quality, "==") as PrimitiveValue;
 
@@ -44,11 +46,11 @@ const SnapshotEditor: React.FC<{ snapshot: Record<string, PrimitiveValue>; quali
               {qualities.map((entry) => <option key={entry.key} value={entry.key} disabled={entry.key !== key && usedKeys.has(entry.key)}>{entry.key}</option>)}
             </select>
             <PrimitiveValueInput quality={quality} value={value} label="Snapshot value" onChange={(next) => onChange({ ...snapshot, [key]: next })} />
-            <button type="button" className="st-button danger" aria-label={`Remove snapshot ${key}`} onClick={() => removeRow(key)}>×</button>
+            <IconButton icon="fa-xmark" label={`Remove snapshot ${key}`} type="button" onClick={() => removeRow(key)} />
           </div>
         );
       })}
-      <button type="button" className="st-button secondary self-start" onClick={addRow} disabled={available.length === 0}>+ Snapshot value</button>
+      <Button type="button" className="self-start" onClick={addRow} disabled={available.length === 0}>+ Snapshot value</Button>
     </div>
   );
 };

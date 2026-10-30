@@ -3,6 +3,7 @@ import type { LabelAuthorRow } from "@engine/life/labels";
 import type { AxisStep } from "@engine/life/beats";
 import type { CommitmentAuthorRow } from "@engine/life/commitments";
 import type { CuesAuthorView } from "@runtime/cuePort";
+import { Button } from "@components/ui/Button";
 
 const towardLabel = (toward: string, names: Record<string, string>) => (toward === "player" ? "the player" : names[toward] ?? toward);
 
@@ -138,8 +139,8 @@ export const CharacterLifePanel = ({ life, onDecide, cues }: { life: LifeAuthorV
               <span>{names[proposal.memberId] ?? proposal.memberId}: {proposal.text}</span>
               {onDecide && (
                 <>
-                  <button type="button" className="menu_button" data-so="life-proposal-accept" onClick={() => onDecide(proposal.id, "accepted")}>Accept</button>
-                  <button type="button" className="menu_button" data-so="life-proposal-reject" onClick={() => onDecide(proposal.id, "rejected")}>Reject</button>
+                  <Button type="button" data-so="life-proposal-accept" onClick={() => onDecide(proposal.id, "accepted")}>Accept</Button>
+                  <Button type="button" data-so="life-proposal-reject" onClick={() => onDecide(proposal.id, "rejected")}>Reject</Button>
                 </>
               )}
             </div>

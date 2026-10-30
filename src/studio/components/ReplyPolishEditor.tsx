@@ -43,12 +43,13 @@ const ReplyPolishEditor: React.FC = () => {
       </label>
       {narrator ? (
         <div data-so="reply-polish-narration" className="flex flex-col gap-2">
-          <span className="text-xs st-muted">Narration voice <HelpTooltip title={NARRATION_HELP} /></span>
+          <span className="text-xs st-muted">Narration voice</span>
+          <p className="so-setting-desc">{NARRATION_HELP}</p>
           <textarea className="text_pole st-input" aria-label="Narration voice notes" rows={2} maxLength={DELIVERY_CAPS.notes}
             placeholder="optional — e.g. Present tense. Short paragraphs." value={narration.notes ?? ""}
             onChange={(event) => patchNarration({ notes: event.target.value || undefined })} />
           {LISTS.map((list) => (
-            <ChipList key={list.key} name="Narration" label={list.label} help={NARRATION_HELP} placeholder={list.placeholder} items={narration[list.key] ?? []}
+            <ChipList key={list.key} name="Narration" label={list.label} placeholder={list.placeholder} items={narration[list.key] ?? []}
               max={DELIVERY_CAPS[list.key].items} onChange={(items) => patchNarration({ [list.key]: items })} />
           ))}
           <label className="flex flex-col gap-1 text-sm">

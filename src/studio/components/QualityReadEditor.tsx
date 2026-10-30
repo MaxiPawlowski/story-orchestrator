@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { READ_AS_TYPES, type Quality, type QualityCriterion, type QualityReadAs, type QualityRatingLevel } from "@engine/index";
 import { buildTypedPlan } from "@judge/index";
+import { Button } from "@components/ui/Button";
+import { IconButton } from "@components/ui/IconButton";
 
 // A fixed two-message sample, so the preview shows the exact request shape the runtime builds
 // (numbers and names in it become "stated" candidates).
@@ -110,20 +112,20 @@ const QualityReadEditor: React.FC<{
                 value={level.label}
                 onChange={(event) => setLevels(levels.map((entry, entryIndex) => (entryIndex === index ? { ...entry, label: event.target.value } : entry)))}
               />
-              <button type="button" className="st-button danger" aria-label={`Remove level ${index + 1}`} onClick={() => setLevels(levels.filter((_, entryIndex) => entryIndex !== index))}>×</button>
+              <IconButton icon="fa-xmark" label={`Remove level ${index + 1}`} type="button" onClick={() => setLevels(levels.filter((_, entryIndex) => entryIndex !== index))} />
             </div>
           ))}
-          <button
+          <Button
             type="button"
-            className="st-button secondary self-start"
+            className="self-start"
             onClick={() => setLevels([...levels, { value: levels.length ? levels[levels.length - 1].value + 1 : 0, label: "" }])}
-          >+ Level</button>
+          >+ Level</Button>
         </div>
       ) : null}
 
       {quality.read_as ? (
         <div className="flex flex-col gap-1">
-          <button type="button" className="st-button secondary self-start" aria-expanded={preview} onClick={() => setPreview((open) => !open)}>{preview ? "Hide request" : "Preview request"}</button>
+          <Button type="button" className="self-start" aria-expanded={preview} onClick={() => setPreview((open) => !open)}>{preview ? "Hide request" : "Preview request"}</Button>
           {preview ? (
             <pre data-so="quality-read-preview" className="st-subpanel max-h-72 overflow-auto whitespace-pre-wrap p-2 text-[11px]">
               {plan ? JSON.stringify(plan.request, null, 2) : "This hint asks nothing on the sample messages (a stated quality needs a number or name in them, a rating needs levels)."}

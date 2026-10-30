@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { ILLUSTRATION_PURPOSES, type WorkflowMap } from "@engine/schema";
 import { listComfyWorkflows } from "@services/stHost/comfyWorkflows";
+import { StatusText } from "@components/ui/StatusText";
 
 const PURPOSE_LABELS: Record<(typeof ILLUSTRATION_PURPOSES)[number], string> = {
   scene: "Scenes", character: "Characters", portrait: "Portraits", user: "The player", background: "Backgrounds", free: "Other pictures",
@@ -36,7 +37,7 @@ const WorkflowMapEditor: React.FC<{
         <span className="text-xs st-muted">{PURPOSE_LABELS[purpose]}</span>
         <input className="text_pole st-input" aria-label={`${PURPOSE_LABELS[purpose]} workflow`} list="so-comfy-workflows" value={current}
           placeholder={inherited ?? "Your own workflow"} onChange={(event) => set(purpose, event.target.value.trim())} />
-        {known ? null : <span className="text-xs so-warning-text" data-so="workflow-not-installed">Not installed here: players without it get their own workflow.</span>}
+        {known ? null : <StatusText tone="warn" as="span" className="text-xs" data-so="workflow-not-installed">Not installed here: players without it get their own workflow.</StatusText>}
       </label>;
     })}
     <datalist id="so-comfy-workflows">{(names ?? []).map((name) => <option key={name} value={name} />)}</datalist>

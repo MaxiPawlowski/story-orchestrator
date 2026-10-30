@@ -8,6 +8,8 @@ import type { RuntimeSnapshot } from "@runtime/types";
 import type { RuntimeManager } from "@runtime/index";
 import { MessageCitation } from "./MessageCitation";
 import { CreateCard } from "./CreateCard";
+import { Button } from "@components/ui/Button";
+import { StatusText } from "@components/ui/StatusText";
 
 const STATUS_LABELS: Record<CuratorOpRecord["status"], string> = {
   pending: "waiting for you",
@@ -79,7 +81,7 @@ const proposedContent = (entry: CuratorOpRecord, op: CuratorOp): string | null =
 const DiffView = ({ before, after }: { before: string; after: string }) => (
   <div data-so="curator-diff" className="whitespace-pre-wrap">
     {wordDiff(before, after).map((part, index) => (part.kind === "del"
-      ? <del key={index} className="so-error-text">{part.text}</del>
+      ? <del key={index} className="text-[var(--so-error)]">{part.text}</del>
       : part.kind === "ins" ? <ins key={index} className="text-[var(--so-ok)]">{part.text}</ins> : <span key={index}>{part.text}</span>))}
   </div>
 );
@@ -131,16 +133,16 @@ const OpCard = ({ record, index, entry, manager, onOpenFact }: {
                 take the author there. Without this the citation is decoration the author must hunt
                 through the drawer to use. */}
             {onOpenFact && (
-              <button data-so="warden-fact-open" className="menu_button text-[10px]" title="Show this fact where it is edited" onClick={() => onOpenFact(source.id)}>
+              <Button data-so="warden-fact-open" size="sm" title="Show this fact where it is edited" onClick={() => onOpenFact(source.id)}>
                 {source.id.startsWith("bound:") ? "Show the blackboard" : "Show the fact"}
-              </button>
+              </Button>
             )}
           </div>
         ))
         : entry.op.facts.map((fact) => <div key={fact} data-so="warden-fact" className="opacity-80">established: {fact}</div>))}
       {isNoteOp(entry.op) && entry.op.rules?.map((rule) => <div key={rule} data-so="warden-rule" className="opacity-80">house rule: {rule}</div>)}
       {isNoteOp(entry.op) && entry.op.lore?.map((title) => <div key={title} data-so="warden-lore" className="opacity-80">lore entry: {title}</div>)}
-      {entry.status === "failed" && entry.message && <div className="so-error-text">{entry.message}</div>}
+      {entry.status === "failed" && entry.message && <StatusText as="div" tone="error">{entry.message}</StatusText>}
       {text !== null && (decidable ? (
         <textarea data-so="curator-text" aria-label={`Text for ${describe(entry.op)}`} className="text_pole w-full" rows={2} value={draft} onChange={(event) => setDraft(event.target.value)} />
       ) : (
@@ -148,12 +150,11 @@ const OpCard = ({ record, index, entry, manager, onOpenFact }: {
       ))}
       {decidable && (
         <div className="flex gap-2 flex-wrap">
-          <button
+          <Button
             data-so="curator-accept"
-            className="menu_button"
             onClick={() => void manager.setCuratorOpDecision(record.id, index, "accepted", text !== null && draft !== text ? withText(entry.op, draft) : undefined)}
-          >Accept</button>
-          <button data-so="curator-reject" className="menu_button opacity-80" onClick={() => void manager.setCuratorOpDecision(record.id, index, "rejected")}>Decline</button>
+          >Accept</Button>
+          <Button data-so="curator-reject" className="opacity-80" onClick={() => void manager.setCuratorOpDecision(record.id, index, "rejected")}>Decline</Button>
         </div>
       )}
     </div>
@@ -198,7 +199,7 @@ export const StagecraftPanel = ({ snapshot, manager, onOpenFact }: { snapshot: R
           {row.name} repeats across their last {row.replies} replies: {row.phrases.map((phrase) => `"${phrase}"`).join(", ")}
         </div>
       ))}
-      {lastError && <div className="so-error-text">{lastError}</div>}
+      {lastError && <StatusText as="div" tone="error">{lastError}</StatusText>}
       {settings.curatorEnabled && settings.createEnabled && scope.length > 0 && (
         <div data-so="lore-create-status" className="opacity-70">
           New entries · {settings.acceptMode === "off" ? "not proposed while the curator only observes" : "proposed for what play has established, each waits for you"}

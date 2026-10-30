@@ -8,6 +8,7 @@ import { SearchField } from "@components/ui/SearchField";
 import { EmptyState } from "@components/ui/EmptyState";
 import { Section } from "@components/ui/Section";
 import "./help.css";
+import { StatusText } from "@components/ui/StatusText";
 
 export interface HelpGuideTopic {
   id: string;
@@ -75,7 +76,7 @@ interface FeatureRowProps {
 const StateChips = ({ state }: { state: HelpRowState }) => <>
   {state.parts.map((part, index) => <span key={part.label ?? index} data-so="help-state" data-on={part.on} data-source={part.source ?? "none"} className="so-help-state">
     {part.label && <span className="so-help-muted">{part.label}:</span>}
-    <span className={part.on ? "so-success-text" : "so-help-muted"}>{part.word}</span>
+    {part.on ? <StatusText as="span" tone="ok">{part.word}</StatusText> : <span className="so-help-muted">{part.word}</span>}
     {part.source && <span data-so="help-source" className="so-source-chip">{HELP_SOURCE_LABELS[part.source]}</span>}
   </span>)}
 </>;
@@ -90,7 +91,7 @@ const FeatureRow = ({ feature, state, where, findings, homePage, searching, onSh
         {state && <StateChips state={state} />}
         {feature.status === "experimental" && <span data-so="help-experimental" className="so-help-muted">{HELP_COPY.experimental}</span>}
       </div>
-      {setup.map((line) => <div key={line} data-so="help-setup" className="so-help-small so-warning-text">{line}</div>)}
+      {setup.map((line) => <StatusText as="div" tone="warn" key={line} data-so="help-setup" className="so-help-small">{line}</StatusText>)}
       <div className="so-help-small">{feature.oneLine}</div>
       {searching && <div data-so="help-what" className="so-help-small so-help-muted">{feature.what}</div>}
       <div data-so="help-where" className="so-help-small so-help-muted">{HELP_COPY.where}: {(where ?? feature.where).label}</div>

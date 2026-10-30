@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import type { GateNode, Quality } from "@engine/index";
 import GateBuilder from "./GateBuilder";
+import { StatusText } from "@components/ui/StatusText";
 
 export const optionalText = (value: string): string | undefined => (value.trim() ? value : undefined);
 
@@ -46,7 +47,7 @@ export const JsonField: React.FC<{ label: string; value: unknown; onChange: (val
       <span className="text-xs st-muted">{label}{hint ? ` — ${hint}` : ""}</span>
       <textarea className="text_pole st-input font-mono text-xs" aria-label={label} rows={4} value={text}
         onChange={(event) => setText(event.target.value)} onBlur={(event) => commit(event.currentTarget.value)} />
-      {problem && <span data-so="json-problem" className="text-xs st-text-error">{problem}</span>}
+      {problem && <StatusText tone="error" as="span" data-so="json-problem" className="text-xs">{problem}</StatusText>}
     </label>
   );
 };

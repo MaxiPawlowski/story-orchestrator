@@ -4,6 +4,7 @@ import ChaptersPanel from "../ChaptersPanel";
 import ModelCallsPanel from "../ModelCallsPanel";
 import InnerVoicePanel from "../InnerVoicePanel";
 import { Button } from "@components/ui/Button";
+import { StatusText } from "@components/ui/StatusText";
 
 const percent = (value: number) => Math.round(value * 100);
 
@@ -18,7 +19,7 @@ export const PipelineSection = ({ snapshot, manager }: { snapshot: RuntimeSnapsh
       <h4>Extraction</h4>
       <div>Queue {snapshot.extraction.scheduler.queueDepth}, in flight {snapshot.extraction.scheduler.inFlight ? "yes" : "no"}</div>
       <div>Last read boundary {snapshot.extraction.lastReadBoundary}</div>
-      {snapshot.extraction.scheduler.lastError && <div className="so-error-text">{snapshot.extraction.scheduler.lastError}</div>}
+      {snapshot.extraction.scheduler.lastError && <StatusText as="div" tone="error">{snapshot.extraction.scheduler.lastError}</StatusText>}
       {snapshot.extraction.audits[0] && <div>Last scope: {snapshot.extraction.audits[snapshot.extraction.audits.length - 1]?.scope.join(", ") || "none"}</div>}
       <div>Audits recorded {snapshot.extraction.audits.length}</div>
       {(snapshot.extraction.judgedReads ?? []).length > 0 && (
@@ -38,7 +39,7 @@ export const PipelineSection = ({ snapshot, manager }: { snapshot: RuntimeSnapsh
     <div className="so-console-block">
       <h4>Expansion</h4>
       <div>Queue {snapshot.expansion.scheduler.queueDepth}, in flight {snapshot.expansion.scheduler.inFlight ? "yes" : "no"}</div>
-      {snapshot.expansion.scheduler.lastError && <div className="so-error-text">{snapshot.expansion.scheduler.lastError}</div>}
+      {snapshot.expansion.scheduler.lastError && <StatusText as="div" tone="error">{snapshot.expansion.scheduler.lastError}</StatusText>}
       {Object.values(snapshot.expansion.entries).map((entry) => (
         <div key={entry.key} className="so-console-item">
           <div>{entry.kind === "encounters" ? `${entry.stubId} encounters` : `${entry.stubId} → ${entry.targetAnchorId}`}: {entry.status}

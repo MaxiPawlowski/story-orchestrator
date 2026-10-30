@@ -6,6 +6,7 @@ import { manifestRef, type HeadManifest } from "./manifest";
 import { mouthRegionProblem } from "./meshMouth";
 import { motionSummary } from "./motionSummary";
 import { REACTIONS } from "./motionDriver";
+import { Button } from "@components/ui/Button";
 
 export default function RigPreview({ manifest, name, beginRun, width = 180 }: { manifest: HeadManifest; name: string; beginRun(): RunGuard; width?: number }) {
   const [activity] = useState(() => new StreamActivity());
@@ -24,7 +25,7 @@ export default function RigPreview({ manifest, name, beginRun, width = 180 }: { 
     <figcaption className="flex flex-wrap gap-1 items-center">
       <label>Preview expression <select className="text_pole" value={label} onChange={(event) => setLabel(event.target.value)}>
         <option>neutral</option><option>joy</option><option>anger</option><option>surprise</option></select></label>
-      <button type="button" className="menu_button" onClick={() => activity.pulse(name)}>Preview talking</button>
+      <Button type="button" onClick={() => activity.pulse(name)}>Preview talking</Button>
       <label>Preview gesture <select className="text_pole" value={gesture?.id ?? ""} onChange={(event) => pickGesture(event.target.value)}>
         <option value="">none</option>{REACTIONS.map((motion) => <option key={motion.id} value={motion.id}>{motion.id}</option>)}</select></label>
       <span data-so="rig-motion-note">{moves}</span>

@@ -8,6 +8,8 @@ import { useDraftStore } from "../draft";
 import { addWidget, removeWidget, updateWidget } from "../gameMutations";
 import { JsonField, OptionalGate, TextField, optionalText } from "./GameFields";
 import WidgetPreview from "./WidgetPreview";
+import { Button } from "@components/ui/Button";
+import { IconButton } from "@components/ui/IconButton";
 
 const HELP = "A story panel shows qualities, quests, the path, a clock, a wall of clues, a map with pins, a roster of statuses, a timeline "
   + "or a scene card (where, when and who is with you). A player panel may bind only public qualities; "
@@ -48,7 +50,7 @@ const WidgetRow = ({ widget }: { widget: StoryWidget }) => {
         <Choice label={`${name} audience`} value={widget.audience} options={WIDGET_AUDIENCES} onChange={(audience) => audience && patch({ audience })} />
         <Choice label={`${name} accent`} value={widget.accent} options={WIDGET_ACCENTS} blank onChange={(accent) => patch({ accent })} />
         <Choice label={`${name} icon`} value={widget.icon} options={WIDGET_ICONS} blank onChange={(icon) => patch({ icon })} />
-        <button type="button" className="st-button danger" aria-label={`Remove panel ${name}`} onClick={() => mutate((current) => removeWidget(current, widget.id))}>×</button>
+        <IconButton icon="fa-xmark" label={`Remove panel ${name}`} type="button" onClick={() => mutate((current) => removeWidget(current, widget.id))} />
       </div>
       <JsonField label={`${name} bind`} hint='{"quality"}, {"qualities": []}, {"group"}, {"quests": true}, {"path": true}, {"arcs": true}' value={widget.bind}
         onChange={(bind) => patch({ bind: bind as WidgetBind | undefined })} />
@@ -102,7 +104,7 @@ const WidgetsEditor: React.FC = () => {
       <div className="text-sm font-medium">Story panels<HelpTooltip title={HELP} /></div>
       {!widgets.length && <div className="text-xs st-muted">None. Players still get a Journal and a Stat sheet from your quests and public qualities.</div>}
       {widgets.map((widget) => <WidgetRow key={widget.id} widget={widget} />)}
-      <button type="button" className="st-button secondary self-start" onClick={() => mutate((current) => addWidget(current))}>+ Panel</button>
+      <Button type="button" className="self-start" onClick={() => mutate((current) => addWidget(current))}>+ Panel</Button>
     </div>
   );
 };

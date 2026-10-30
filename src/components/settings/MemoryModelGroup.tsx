@@ -24,6 +24,7 @@ import { ProfileOptions } from "./ProfileOptions";
 import { REPLY_EFFORT_LABELS } from "./ReplyThinkingField";
 import { loreEligibility } from "@runtime/loreRoute";
 import { log } from "@utils/log";
+import { StatusText } from "@components/ui/StatusText";
 
 const METER_WINDOWS: Record<string, string> = { five_hour: "5h", seven_day: "7d" };
 
@@ -59,18 +60,18 @@ export const SELF_TEST_TIER_LABELS: Record<SelfTestTier, string> = {
 
 const SelfTestResult = ({ report, onApply, authorView }: { report: SelfTestReport; onApply: () => void; authorView: boolean }) => (
   <div id="so-self-test-result" className="text-xs flex flex-col gap-1">
-    {report.error && <div data-so="self-test-error" className="so-warning-text">{SELF_TEST_FAILED_TEXT}</div>}
+    {report.error && <StatusText as="div" tone="warn" data-so="self-test-error">{SELF_TEST_FAILED_TEXT}</StatusText>}
     {report.error && authorView && <div data-so="self-test-error-detail" className="opacity-70">{report.error}</div>}
     {report.results.map((result) => (
       <div key={result.tier} className="flex items-start gap-2">
-        <span className={result.status === "pass" ? "so-success-text" : "so-error-text"}>{result.status === "pass" ? "Works" : "Does not work"}</span>
+        <StatusText as="span" tone={result.status === "pass" ? "ok" : "error"}>{result.status === "pass" ? "Works" : "Does not work"}</StatusText>
         <span className="opacity-80">{SELF_TEST_TIER_LABELS[result.tier]}{authorView ? ` — ${result.detail}${result.got.length ? ` · got: ${result.got.slice(0, 2).join("; ")}` : ""}` : ""}</span>
       </div>
     ))}
     {report.suggestion && (
       <div className="flex items-center gap-2">
         <span className="opacity-80">{authorView ? report.suggestion.reason : SELF_TEST_SUGGESTION_TEXT}</span>
-        <button id="so-self-test-apply" className="menu_button" onClick={onApply}>Stop tracking what characters know</button>
+        <Button id="so-self-test-apply" onClick={onApply}>Stop tracking what characters know</Button>
       </div>
     )}
   </div>
@@ -161,7 +162,7 @@ export const MemoryModelGroup = ({ snapshot, manager, onOpenReplyThinking }: {
       <FallbackProfileField value={settings.fallbackProfileId ?? null} primary={settings.profileId} profiles={profiles}
         onChange={(fallbackProfileId) => manager.setExtractionSettings({ fallbackProfileId })} />
       {settings.enabled && !settings.profileId && (
-        <div id="so-not-configured" className="so-warning-text">Not configured: pick a memory model profile above and every chat, including this one, starts advancing on its own.</div>
+        <StatusText as="div" tone="warn" id="so-not-configured">Not configured: pick a memory model profile above and every chat, including this one, starts advancing on its own.</StatusText>
       )}
       <SettingRow label="Test memory model" description="Runs fixed scenes through the real pipeline and reports what this model can actually do."
         control={<Button id="so-self-test" size="sm" disabled={!settings.profileId} onClick={() => void runSelfTest()}>{selfTestRunning ? "Cancel test" : "Test memory model"}</Button>} />

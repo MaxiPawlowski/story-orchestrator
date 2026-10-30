@@ -7,6 +7,7 @@ import { COACH_FLOWS, copyOf, stopIndex } from "./coachFlows";
 import { boxOf, findTarget, inView, isNarrow, place, ringBox, topModal, type Box, type Found, type Placement, type Size } from "./coachGeometry";
 import type { CoachHost, CoachStop } from "./coachTypes";
 import "./coach.css";
+import { Button } from "@components/ui/Button";
 
 export interface CoachMarksProps {
   view: TourView | null;
@@ -166,17 +167,17 @@ const CoachCard = ({ view, index, search, placement, primary, card, onIndex, onP
       {note && <p className="so-coach-note" data-so="coach-note" role="status">{note}</p>}
       {view ? (
         <div className="so-coach-actions">
-          <button type="button" className="menu_button" data-so="coach-skip" onClick={onClose}>{TOUR_COPY.skip}</button>
+          <Button type="button" data-so="coach-skip" onClick={onClose}>{TOUR_COPY.skip}</Button>
           <span className="so-coach-spacer" />
-          <button type="button" className="menu_button" data-so="coach-back" disabled={index === 0} onClick={() => onIndex(index - 1)}>{TOUR_COPY.back}</button>
-          <button ref={primary} type="button" className="menu_button so-coach-primary" data-so="coach-next"
-            onClick={() => (last ? onClose() : onIndex(index + 1))}>{last ? TOUR_COPY.done : TOUR_COPY.next}</button>
+          <Button type="button" data-so="coach-back" disabled={index === 0} onClick={() => onIndex(index - 1)}>{TOUR_COPY.back}</Button>
+          <Button ref={primary} type="button" className="so-coach-primary" data-so="coach-next"
+            onClick={() => (last ? onClose() : onIndex(index + 1))}>{last ? TOUR_COPY.done : TOUR_COPY.next}</Button>
         </div>
       ) : (
         <div className="so-coach-actions so-coach-choices">
-          {TOUR_VIEWS.map((entry, at) => <button key={entry} ref={at === 0 ? primary : undefined} type="button" className="menu_button so-coach-primary"
-            data-so={`coach-pick-${entry}`} onClick={() => onPick(entry)}>{TOUR_COPY[entry]}</button>)}
-          <button type="button" className="menu_button" data-so="coach-skip" onClick={onClose}>{TOUR_COPY.close}</button>
+          {TOUR_VIEWS.map((entry, at) => <Button key={entry} ref={at === 0 ? primary : undefined} type="button" className="so-coach-primary"
+            data-so={`coach-pick-${entry}`} onClick={() => onPick(entry)}>{TOUR_COPY[entry]}</Button>)}
+          <Button type="button" data-so="coach-skip" onClick={onClose}>{TOUR_COPY.close}</Button>
         </div>
       )}
     </section>

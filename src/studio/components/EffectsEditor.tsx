@@ -12,6 +12,8 @@ import WorkflowMapEditor, { useWorkflowNames } from "./WorkflowMapEditor";
 import { TRANSITION_EFFECT_COLOR, TRANSITION_EFFECT_KINDS, TRANSITION_EFFECT_MAX_MS, type TransitionEffect, type TransitionEffectKind } from "@engine/schema";
 import { Select, TextInput } from "@components/ui/Field";
 import { IconButton } from "@components/ui/IconButton";
+import { Button } from "@components/ui/Button";
+import { Callout } from "@components/ui/Callout";
 
 const StageTransitionFields: React.FC<{ value: TransitionEffect; onChange: (next: TransitionEffect) => void }> = ({ value, onChange }) => (
   <div className="flex flex-wrap items-end gap-2" data-so="effect-transition">
@@ -64,13 +66,16 @@ const readWorldInfoEntries = (value: unknown): WorldInfoEntry[] => {
     .filter((entry): entry is WorldInfoEntry => entry !== null);
 };
 
-const Section: React.FC<{ title: string; enabled: boolean; onToggle: (enabled: boolean) => void; help?: string; children?: React.ReactNode }> = ({ title, enabled, onToggle, help, children }) => (
+type SectionProps = { title: string; enabled: boolean; onToggle: (enabled: boolean) => void; help?: string; description?: string; children?: React.ReactNode };
+
+const Section: React.FC<SectionProps> = ({ title, enabled, onToggle, help, description, children }) => (
   enabled ? (
     <div className="st-subpanel flex flex-col gap-2 p-2" data-so="effect" data-effect={title}>
       <div className="flex items-center gap-2 text-sm font-medium">
         <span className="flex-1">{title}{help ? <HelpTooltip title={help} /> : null}</span>
         <IconButton icon="fa-trash" size="sm" variant="ghost" label={`Remove ${title}`} onClick={() => onToggle(false)} />
       </div>
+      {description ? <p className="so-setting-desc">{description}</p> : null}
       <div className="flex flex-col gap-2">{children}</div>
     </div>
   ) : null
@@ -117,10 +122,10 @@ const StringListInput: React.FC<{ label: string; values: string[]; onChange: (ne
           value={value}
           onChange={(event) => onChange(values.map((entry, entryIndex) => (entryIndex === index ? event.target.value : entry)))}
         />
-        <button type="button" className="st-button danger" aria-label={`Remove ${label} ${index + 1}`} onClick={() => onChange(values.filter((_, entryIndex) => entryIndex !== index))}>×</button>
+        <IconButton icon="fa-xmark" label={`Remove ${label} ${index + 1}`} onClick={() => onChange(values.filter((_, entryIndex) => entryIndex !== index))} />
       </div>
     ))}
-    <button type="button" className="st-button secondary self-start" onClick={() => onChange([...values, ""])}>+ {label}</button>
+    <Button className="self-start" onClick={() => onChange([...values, ""])}>+ {label}</Button>
   </div>
 );
 
@@ -137,17 +142,14 @@ const WorldInfoList: React.FC<{ title: string; entries: WorldInfoEntry[]; onChan
             value={entry.lorebook}
             onChange={(event) => onChange(entries.map((item, itemIndex) => (itemIndex === index ? { ...item, lorebook: event.target.value } : item)))}
           />
-          <button
-            type="button"
-            className="st-button danger"
-            aria-label={`Remove ${title} entry ${index + 1}`}
-            onClick={() => onChange(entries.filter((_, itemIndex) => itemIndex !== index))}
-          >×</button>
+          <IconButton icon="fa-xmark"
+            label={`Remove ${title} entry ${index + 1}`}
+            onClick={() => onChange(entries.filter((_, itemIndex) => itemIndex !== index))} />
         </div>
         <StringListInput label="comment" values={entry.comments} onChange={(comments) => onChange(entries.map((item, itemIndex) => (itemIndex === index ? { ...item, comments } : item)))} />
       </div>
     ))}
-    <button type="button" className="st-button secondary self-start" onClick={() => onChange([...entries, { lorebook: "", comments: [] }])}>+ {title} entry</button>
+    <Button className="self-start" onClick={() => onChange([...entries, { lorebook: "", comments: [] }])}>+ {title} entry</Button>
   </div>
 );
 
@@ -220,7 +222,7 @@ const NpcRepliesEditor: React.FC<{ replies: NpcReplyEffect[]; roster: RosterMemb
               />
               enabled
             </label>
-            <button type="button" className="st-button danger" aria-label={`Remove reply ${index + 1}`} onClick={() => onChange(replies.filter((_, entryIndex) => entryIndex !== index))}>×</button>
+            <IconButton icon="fa-xmark" label={`Remove reply ${index + 1}`} onClick={() => onChange(replies.filter((_, entryIndex) => entryIndex !== index))} />
           </div>
           <NpcReplyFlags reply={reply} index={index} update={update} />
           <NpcReplyScope reply={reply} index={index} update={update} />
@@ -257,7 +259,7 @@ const NpcRepliesEditor: React.FC<{ replies: NpcReplyEffect[]; roster: RosterMemb
           )}
         </div>
       ))}
-      <button type="button" className="st-button secondary self-start" onClick={() => onChange([...replies, { trigger: "onEnter", member: "", kind: "scripted" }])}>+ NPC reply</button>
+      <Button className="self-start" onClick={() => onChange([...replies, { trigger: "onEnter", member: "", kind: "scripted" }])}>+ NPC reply</Button>
     </div>
   );
 };
@@ -273,10 +275,10 @@ const CastSide: React.FC<{ label: string; names: string[]; roster: RosterMember[
       <span className="text-xs st-muted">{label}</span>
       <MultiSelect label={label} options={options} value={value} onChange={onChange} />
       {unresolved.length > 0 && (
-        <div data-so="cast-unresolved" className="st-alert-error flex flex-wrap items-center gap-2 rounded px-2 py-1 text-xs">
-          <span>Not a cast member, so this changes nobody: {unresolved.join(", ")}</span>
-          <button type="button" className="st-button secondary px-2 py-0.5 text-[11px]" onClick={() => onChange(value.filter((name) => !unresolved.includes(name)))}>Remove</button>
-        </div>
+        <Callout tone="error" size="sm" data-so="cast-unresolved"
+          actions={<Button size="sm" onClick={() => onChange(value.filter((name) => !unresolved.includes(name)))}>Remove</Button>}>
+          <p>Not a cast member, so this changes nobody: {unresolved.join(", ")}</p>
+        </Callout>
       )}
     </>
   );
@@ -288,17 +290,17 @@ const WORKFLOW_HELP = "From this turning point on, these picture types use the n
 const CheckpointWorkflows: React.FC<{ effects: CheckpointEffects; emit: (next: CheckpointEffects) => void }> = ({ effects, emit }) => {
   const names = useWorkflowNames();
   const change = (workflows: WorkflowMap | undefined) => emit({ ...effects, illustrations: { ...(workflows ? { workflows } : {}) } });
-  return <Section title="Picture workflows" help={WORKFLOW_HELP} enabled={effects.illustrations !== undefined}
+  return <Section title="Picture workflows" description={WORKFLOW_HELP} enabled={effects.illustrations !== undefined}
     onToggle={(on) => emit({ ...effects, illustrations: on ? {} : undefined })}>
     <WorkflowMapEditor value={effects.illustrations?.workflows} names={names} inherited="Story default" onChange={change} />
   </Section>;
 };
 
-const TRANSITION_HELP = "How the sprite stage changes into this checkpoint: dissolve (the background crossfades), fade, wipe, iris, or cut. "
+const TRANSITION_HELP = "How the sprite stage changes into this checkpoint. "
   + "Presentation only; reduced motion and the player's stage effects setting shorten or skip it.";
 
 const StageTransitionSection: React.FC<{ effects: CheckpointEffects; emit: (next: CheckpointEffects) => void }> = ({ effects, emit }) => (
-  <Section title="Stage transition" help={TRANSITION_HELP} enabled={effects.transition !== undefined}
+  <Section title="Stage transition" description={TRANSITION_HELP} enabled={effects.transition !== undefined}
     onToggle={(on) => emit({ ...effects, transition: on ? { kind: "fade" } : undefined })}>
     {effects.transition && <StageTransitionFields value={effects.transition} onChange={(transition) => emit({ ...effects, transition })} />}
   </Section>
@@ -319,7 +321,7 @@ const CardChangesSection: React.FC<{ effects: CheckpointEffects; roster: RosterM
   return (
     <Section
       title="Card changes"
-      help={"Rewrites a character's card field for play from this checkpoint on, e.g. after a transformation. Only fields declared in the Roster tab appear, " +
+      description={"Rewrites a character's card field for play from this checkpoint on, e.g. after a transformation. Only fields declared in the Roster tab appear, " +
         "and an empty value leaves the field unchanged."}
       enabled={card !== undefined}
       onToggle={(on) => emit({ ...effects, card: on ? {} : undefined })}
@@ -403,7 +405,7 @@ const EffectsEditor: React.FC<{
 
       <Section
         title="Background"
-        help="Switches the SillyTavern background when the story enters this checkpoint. Partial filenames match, and re-entering or reloading re-applies the same background without side effects."
+        description="Switches the SillyTavern background when the story enters this checkpoint. Partial filenames match."
         enabled={effects.background !== undefined}
         onToggle={(on) => emit({ ...effects, background: on ? { name: backgroundNames[0] ?? "" } : undefined })}
       >
@@ -428,7 +430,7 @@ const EffectsEditor: React.FC<{
 
       <Section
         title="Scenario"
-        help={"Replaces the chat's scenario text from this checkpoint on, in place of every member card's own scenario. Later checkpoints without one keep it. "
+        description={"Replaces the chat's scenario text from this checkpoint on, in place of every member card's own scenario. Later checkpoints without one keep it. "
           + "Leave the text empty to clear the scenario here. Framing only: genre, place, the arc's name; never a secret or a twist."}
         enabled={effects.scenario !== undefined}
         onToggle={(on) => emit({ ...effects, scenario: on ? "" : undefined })}

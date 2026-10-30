@@ -1,5 +1,7 @@
 import { useState } from "react";
 import type { CapabilityReport, HostFacts } from "@services/STAPI";
+import { Button } from "@components/ui/Button";
+import { StatusText } from "@components/ui/StatusText";
 
 export interface CapabilitiesGroupProps {
   reports: CapabilityReport[] | "checking";
@@ -62,10 +64,10 @@ export function CapabilitiesGroup({ reports, facts = null, memoryModel = null, o
           non-wrapping row spilled outside the panel (measured at 24 viewports, 2026-09-22). */}
       <div className="flex flex-wrap items-center gap-2">
         <span className="font-medium text-sm">Host capabilities</span>
-        <button className="menu_button text-xs" onClick={onRefresh} disabled={checking}>Recheck</button>
-        <button id="so-copy-diagnostics" className="menu_button text-xs" onClick={() => void copy()}>
+        <Button size="sm" onClick={onRefresh} disabled={checking}>Recheck</Button>
+        <Button id="so-copy-diagnostics" size="sm" onClick={() => void copy()}>
           {copied === "done" ? "Copied" : copied === "failed" ? "Copy failed" : "Copy for a bug report"}
-        </button>
+        </Button>
         <span className="text-xs opacity-70">
           {checking ? "Checking…" : broken.length ? `${broken.length} of ${reports.length} unavailable` : "Everything this extension needs is here"}
         </span>
@@ -77,10 +79,10 @@ export function CapabilitiesGroup({ reports, facts = null, memoryModel = null, o
       )}
       {memoryModel && <div id="so-context-limit" className="text-xs opacity-80">{describeMemoryModelLimit(memoryModel)}</div>}
       {broken.map((report) => (
-        <div key={report.id} id={`so-capability-${report.id}`} className="text-xs so-warning-text">
+        <StatusText as="div" tone="warn" key={report.id} id={`so-capability-${report.id}`}>
           <span className="font-medium">{report.id}</span>
           {report.state === "error" ? " could not be checked" : " is unavailable"}: {report.detail}
-        </div>
+        </StatusText>
       ))}
     </div>
   );

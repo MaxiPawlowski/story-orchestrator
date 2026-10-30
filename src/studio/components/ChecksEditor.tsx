@@ -37,7 +37,8 @@ export const QualityDisplayEditor: React.FC = () => {
   const mutate = useDraftStore((state) => state.mutate);
   return (
     <div data-so="quality-display-editor" className="st-subpanel flex flex-col gap-2 p-3">
-      <div className="text-sm font-medium">Public qualities<HelpTooltip title={DISPLAY_HELP} /></div>
+      <div className="text-sm font-medium">Public qualities</div>
+      <p className="so-setting-desc">{DISPLAY_HELP}</p>
       {qualities.map((quality) => (
         <JsonField key={quality.key} label={`Display ${quality.key}`} hint={DISPLAY_HINT} value={quality.display}
           onChange={(display) => mutate((current) => setQualityDisplay(current, quality.key, display as QualityDisplay | undefined))} />

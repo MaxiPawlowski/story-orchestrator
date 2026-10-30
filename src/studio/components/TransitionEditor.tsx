@@ -4,6 +4,8 @@ import { useDraftStore } from "../draft";
 import { addTransition, removeTransition, setTransitionGate, updateTransition } from "../mutations";
 import GateBuilder from "./GateBuilder";
 import GateReplayPanel from "./GateReplayPanel";
+import { Button } from "@components/ui/Button";
+import { StatusText } from "@components/ui/StatusText";
 
 const Field: React.FC<{ label: string; children: React.ReactNode }> = ({ label, children }) => (
   <label className="flex flex-col gap-1 text-sm">
@@ -52,7 +54,7 @@ const TransitionEditor: React.FC<{ initialIndex?: number }> = ({ initialIndex })
   return (
     <div className="so-editor-drilldown flex flex-col gap-3 sm:flex-row" data-editing={editing}>
       <div className="so-editor-list flex w-full flex-col gap-2 sm:w-56">
-        <button type="button" className="st-button primary" onClick={handleAdd} disabled={checkpoints.length === 0}>+ Transition</button>
+        <Button variant="primary" type="button" onClick={handleAdd} disabled={checkpoints.length === 0}>+ Transition</Button>
         <ul className="m-0 flex list-none flex-col gap-1 p-0" aria-label="Transitions">
           {transitions.length === 0 ? <li className="text-sm st-muted">No transitions yet</li> : null}
           {transitions.map((transition, index) => (
@@ -72,7 +74,7 @@ const TransitionEditor: React.FC<{ initialIndex?: number }> = ({ initialIndex })
       </div>
 
       <div className="so-editor-detail min-w-0 flex-1">
-        <button className="so-editor-back st-button secondary" onClick={() => setEditing(false)}>Back to transitions</button>
+        <Button className="so-editor-back" onClick={() => setEditing(false)}>Back to transitions</Button>
         {!selected ? (
           <div className="st-subpanel p-4 text-sm st-muted">Select or add a transition.</div>
         ) : (
@@ -146,9 +148,9 @@ const TransitionEditor: React.FC<{ initialIndex?: number }> = ({ initialIndex })
             </div>
 
             <div className="flex items-center gap-2 border-t st-divider pt-3">
-              <button type="button" className="st-button danger" onClick={handleDelete}>Delete transition</button>
+              <Button variant="danger" type="button" onClick={handleDelete}>Delete transition</Button>
               {confirmDeleteIndex === selectedIndex ? (
-                <span className="text-xs st-text-error">Click Delete again to confirm.</span>
+                <StatusText tone="error" as="span" className="text-xs">Click Delete again to confirm.</StatusText>
               ) : null}
             </div>
           </div>

@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import type { CardBinding, Quality, RosterMember, Story } from "@engine/index";
 import { boundCardQualities, cardQualityEligible } from "@engine/cardFields";
 import HelpTooltip from "@components/studio/HelpTooltip";
+import { Button } from "@components/ui/Button";
+import { IconButton } from "@components/ui/IconButton";
 
 const FieldId: React.FC<{ index: number; name: string; onCommit: (next: string) => void }> = ({ index, name, onCommit }) => {
   const [text, setText] = useState(name);
@@ -56,7 +58,7 @@ const CardFieldsEditor: React.FC<{
   return (
     <div data-so="card-fields" className="flex basis-full flex-col gap-2">
       <div className="flex flex-wrap items-center gap-2">
-        <button type="button" className="st-button secondary px-2 py-0.5 text-xs" disabled={!eligible.length} onClick={add}>+ Card field</button>
+        <Button size="sm" disabled={!eligible.length} onClick={add}>+ Card field</Button>
         <span className="text-xs st-muted">Card fields <HelpTooltip title={"Binds one of this character's qualities to their card, so the story can change how they " +
           "look or read as play moves. Only an extracted string or enum that does not latch can bind, and a quality binds to one field across the whole cast. " +
           "A field marked 'changes the picture' is used for on-demand sprite looks."} /></span>
@@ -89,7 +91,7 @@ const CardFieldsEditor: React.FC<{
                   region: event.target.value === "" ? undefined : { x: 0, y: 0, width: 0.2, height: 0.2, ...binding.region, [axis]: Number(event.target.value) } })} /></label>)}
             </fieldset>}
           </>}
-          <button type="button" className="st-button danger" aria-label={`Remove field ${index + 1}`} onClick={() => remove(name)}>×</button>
+          <IconButton icon="fa-xmark" label={`Remove field ${index + 1}`} onClick={() => remove(name)} />
         </div>
       ))}
     </div>

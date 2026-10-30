@@ -6,6 +6,7 @@ import { MessageCitation } from "../MessageCitation";
 import { Button } from "@components/ui/Button";
 import { workspaceNavigation } from "@runtime/workspaceNavigation";
 import { settingIntent } from "@runtime/workspaceRoutes";
+import { StatusText } from "@components/ui/StatusText";
 
 export const AuthorMemoryControls = ({ snapshot, manager }: { snapshot: RuntimeSnapshot; manager: RuntimeManager }) => {
   const lastAudit = snapshot.extraction.audits[snapshot.extraction.audits.length - 1];
@@ -20,7 +21,7 @@ export const AuthorMemoryControls = ({ snapshot, manager }: { snapshot: RuntimeS
         <Button size="sm" variant="primary" onClick={() => void manager.decideCanonDraft(true)}>Use this draft</Button>
         <Button size="sm" onClick={() => void manager.decideCanonDraft(false)}>Discard draft</Button>
       </div>}
-      {snapshot.memory.backfill?.lastError && <div data-so="memorize-error-detail" className="so-error-text">{snapshot.memory.backfill.lastError}</div>}
+      {snapshot.memory.backfill?.lastError && <StatusText as="div" tone="error" data-so="memorize-error-detail">{snapshot.memory.backfill.lastError}</StatusText>}
       {(snapshot.memory.pinnedOverflow ?? 0) > 0 && <div data-so="pinned-overflow-budget" className="so-muted">Or raise this tier&apos;s budget.</div>}
       {lastAudit && <div title={`${lastAudit.prompt}\n---\n${lastAudit.rawResponse}`}>Last audit: {lastAudit.id} ({lastAudit.reason})</div>}
     </div>
@@ -42,13 +43,12 @@ export const AuthorMemoryRowExtras = ({ entry, snapshot, manager }: { entry: Mem
       <span data-so="memory-origin" title={describeProvenance(entry)}>{originLabel(entry.provenance)}</span>
       <MessageCitation messageId={entry.provenance?.messageId} />
       {fate && <span data-so="memory-fate" data-fate={fate}>{FATE_LABELS[fate]}</span>}
-      <button
+      <Button
         type="button"
-        className="menu_button"
         data-so="memory-lock"
         title="Lock: freeze this as the story's truth. No extraction or consolidation may retire it, and a contradicting claim goes to the queue you decide."
         onClick={() => void manager.memoryActions.setMemoryLocked(entry.id, !entry.locked)}
-      >{entry.locked ? "Unlock" : "Lock"}</button>
+      >{entry.locked ? "Unlock" : "Lock"}</Button>
     </>
   );
 };

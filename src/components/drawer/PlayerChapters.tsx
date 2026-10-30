@@ -1,5 +1,6 @@
 import type { ChapterView } from "@runtime/chapters";
 import { chapterFlagLabel, chapterNowText, PLAYER_COPY } from "@runtime/narrative";
+import { Button } from "@components/ui/Button";
 
 export interface PlayerChaptersProps {
   chapters: ChapterView;
@@ -20,8 +21,8 @@ export const PlayerChapters = ({ chapters, onFlag }: PlayerChaptersProps) => (
         <div className="flex flex-col gap-1 pl-3 pt-1">
           <div className="whitespace-pre-wrap opacity-90">{record.summary}</div>
           {onFlag && (
-            <button type="button" data-so="player-chapter-flag" className="menu_button self-start opacity-70" aria-label={chapterFlagLabel(record.playerTitle)}
-              title={PLAYER_COPY.chapterFlagTitle} onClick={() => onFlag(record.playerTitle)}>⚑</button>
+            <Button type="button" data-so="player-chapter-flag" className="self-start opacity-70" aria-label={chapterFlagLabel(record.playerTitle)}
+              title={PLAYER_COPY.chapterFlagTitle} onClick={() => onFlag(record.playerTitle)}>⚑</Button>
           )}
         </div>
       </details>

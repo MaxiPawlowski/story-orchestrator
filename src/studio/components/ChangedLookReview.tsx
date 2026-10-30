@@ -1,6 +1,7 @@
 import React from "react";
 import type { ChangedLookRow, LookRebuildReview } from "../../sprites/lookRebuild";
 import type { LandmarkCrossCheck } from "../../sprites/liveHead/synthesis/landmarkCheck";
+import { Button } from "@components/ui/Button";
 
 function LandmarkCheckNote({ check }: { check?: LandmarkCrossCheck }) {
   if (!check) return null;
@@ -23,11 +24,11 @@ export default function ChangedLookReview({ rows, review, busy, error, notice, r
     {!!rows.length && <ul className="flex flex-col gap-2">{rows.map((row) => <li key={row.look} data-so="changed-look-row" className="flex flex-wrap gap-2 items-center">
       <img src={row.base.path} alt={`Current artwork for ${lookName(row.look)}`} style={{ maxWidth: 64 }} />
       <span>{lookName(row.look)}: {row.state === "pending-bust" ? "bust and rig are stale" : "rig is missing"}; static artwork until rebuilt.</span>
-      <button type="button" className="st-button" disabled={busy} aria-label={`Rebuild bust and rig for ${lookName(row.look)}`} onClick={() => rebuild(row.look)}>
-        Rebuild bust and rig</button>
+      <Button disabled={busy} aria-label={`Rebuild bust and rig for ${lookName(row.look)}`} onClick={() => rebuild(row.look)}>
+        Rebuild bust and rig</Button>
     </li>)}</ul>}
     {busy && <p role="status">Rebuilding or saving the look…</p>}
-    {(busy || review) && <button type="button" className="st-button" onClick={cancel}>Cancel rebuild</button>}
+    {(busy || review) && <Button onClick={cancel}>Cancel rebuild</Button>}
     {error && <p role="alert">{error}</p>}
     {notice && <p role="status">{notice}</p>}
     {review && <div className="flex flex-wrap gap-3" data-so="changed-look-review">
@@ -37,7 +38,7 @@ export default function ChangedLookReview({ rows, review, busy, error, notice, r
       {review.rig ? <div className="flex flex-col gap-1"><p role="status">Rig prepared from face landmarks. Check blinking and talking before accepting.</p>
         <LandmarkCheckNote check={review.rigCheck} />{preview}</div>
         : <p role="status">Rig not prepared: {review.rigError ?? "no landmarks"}. Accepting keeps the bust; close shots stay static.</p>}
-      <button type="button" className="st-button" disabled={busy} onClick={accept}>{review.rig ? "Accept rebuilt bust and rig" : "Accept rebuilt bust only"}</button>
+      <Button disabled={busy} onClick={accept}>{review.rig ? "Accept rebuilt bust and rig" : "Accept rebuilt bust only"}</Button>
     </div>}
   </section>;
 }

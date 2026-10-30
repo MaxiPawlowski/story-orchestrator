@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { YOU_DECIDE, type WizardAnswer, type WizardQuestion } from "@wizard/index";
+import { Button } from "@components/ui/Button";
 
 interface Props {
   questions: WizardQuestion[];
@@ -23,7 +24,7 @@ const WizardQuestions: React.FC<Props> = ({ questions, summary, busy = false, on
       <div className="flex items-center gap-2">
         <span className="st-pill px-2 py-0.5 text-[10px]">asking first</span>
         <span className="text-sm">{summary || `${questions.length} question(s) before proposing`}</span>
-        <button type="button" className="st-button secondary ml-auto" onClick={onDismiss}>Dismiss</button>
+        <Button type="button" className="ml-auto" onClick={onDismiss}>Dismiss</Button>
       </div>
       {questions.map((question) => (
         <div key={question.id} className="flex flex-col gap-1">
@@ -54,14 +55,13 @@ const WizardQuestions: React.FC<Props> = ({ questions, summary, busy = false, on
         </div>
       ))}
       <div className="flex items-center gap-2">
-        <button id="so-wizard-answer" type="button" className="st-button primary" disabled={busy} onClick={() => onAnswer(collect())}>{busy ? "Working…" : "Send answers"}</button>
-        <button
+        <Button variant="primary" id="so-wizard-answer" type="button" disabled={busy} onClick={() => onAnswer(collect())}>{busy ? "Working…" : "Send answers"}</Button>
+        <Button
           id="so-wizard-you-decide"
           type="button"
-          className="st-button secondary"
           disabled={busy}
           onClick={() => onAnswer(questions.map((question) => ({ id: question.id, text: "" })))}
-        >You decide</button>
+        >You decide</Button>
         <span className="text-[11px] st-muted">{YOU_DECIDE}</span>
       </div>
     </section>

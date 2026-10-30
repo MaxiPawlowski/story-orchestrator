@@ -7,6 +7,7 @@ import type { ImageOverride } from "./settings";
 import { log } from "@utils/log";
 import { CheckRow } from "@components/settings/Field";
 import HelpTooltip from "@components/studio/HelpTooltip";
+import { StatusText } from "@components/ui/StatusText";
 
 export const IMAGE_PREFS_COPY = {
   heading: "Pictures in this chat",
@@ -56,6 +57,6 @@ export default function ImageChatPrefs({ manager, snapshot }: { manager: Runtime
       <input id="so-image-chat-direction" className="text_pole" value={override.extraPositive} placeholder={IMAGE_PREFS_COPY.directionPlaceholder}
         onChange={(event) => update({ extraPositive: event.target.value })} />
     </label>
-    {failed && <p role="alert" data-so="image-preference-error" className="so-play-meta so-error-text">{PLAYER_COPY.imagePreferenceError}</p>}
+    {failed && <StatusText tone="error" role="alert" data-so="image-preference-error" className="so-play-meta">{PLAYER_COPY.imagePreferenceError}</StatusText>}
   </section>;
 }

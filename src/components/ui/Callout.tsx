@@ -10,15 +10,16 @@ export interface CalloutProps {
   actions?: ReactNode;
   children?: ReactNode;
   role?: "alert" | "status" | "note";
+  size?: "sm" | "md";
+  [data: `data-${string}`]: string | number | undefined;
   id?: string;
   className?: string;
-  "data-so"?: string;
 }
 
-export const Callout = ({ tone = "info", title, icon, actions, children, className, ...rest }: CalloutProps) => {
+export const Callout = ({ tone = "info", size = "md", title, icon, actions, children, className, ...rest }: CalloutProps) => {
   const glyph = icon === undefined ? TONE_ICON[tone] ?? "fa-circle-info" : icon;
   return (
-    <div {...rest} className={cx("so-callout", className)} data-tone={tone}>
+    <div {...rest} className={cx("so-callout", className)} data-tone={tone} data-size={size === "sm" ? "sm" : undefined}>
       {glyph ? <Icon name={glyph} /> : <span />}
       <div className="so-callout-body">
         {title && <p className="so-callout-title">{title}</p>}

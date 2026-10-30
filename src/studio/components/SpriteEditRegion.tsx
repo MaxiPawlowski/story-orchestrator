@@ -1,6 +1,7 @@
 import React from "react";
 import type { HeadBox } from "../../sprites/builder/pixels";
 import { mouthRegion, type FrameRegion } from "../../sprites/builder/frameRegion";
+import { Button } from "@components/ui/Button";
 
 export default function SpriteEditRegion({ reference, size, box, changeBox, region, changeRegion, mouth, busy }: {
   reference: string; size: { width: number; height: number }; box: HeadBox; changeBox(box: HeadBox): void;
@@ -23,7 +24,7 @@ export default function SpriteEditRegion({ reference, size, box, changeBox, regi
       <fieldset className="flex flex-wrap gap-2"><legend>Mouth patch</legend>{(["x", "y", "width", "height", "feather"] as const).map((field) =>
         <label key={field}>Mouth {field}<input aria-label={`Mouth ${field}`} className="text_pole" type="number" min={0} disabled={busy} value={effective[field]}
           onChange={(event) => changeRegion({ ...effective, [field]: Number(event.target.value) })} /></label>)}</fieldset>
-      <button type="button" className="st-button" disabled={busy} onClick={() => changeRegion(undefined)}>Reset mouth region</button>
+      <Button type="button" disabled={busy} onClick={() => changeRegion(undefined)}>Reset mouth region</Button>
     </details>}
   </>;
 }

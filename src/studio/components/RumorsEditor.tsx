@@ -5,6 +5,8 @@ import HelpTooltip from "@components/studio/HelpTooltip";
 import { useDraftStore } from "../draft";
 import { addRumor, removeRumor, setMemberGossip, updateRumor } from "../gameMutations";
 import { JsonField, OptionalGate, TextField } from "./GameFields";
+import { Button } from "@components/ui/Button";
+import { IconButton } from "@components/ui/IconButton";
 
 const HELP = "A rumor starts with one character and travels along the gossip channels you give members, after a delay, as hearsay: the receiver is told who said it "
   + "and whether they believe it, never whether it is true. No model call. A rumor never carries a secret kept from someone, except to the member a leak names.";
@@ -31,8 +33,8 @@ const VersionRow = ({ rumor, version, at }: { rumor: Rumor; version: RumorVersio
           {RUMOR_TRUTHS.map((truth) => <option key={truth} value={truth}>{truth}</option>)}
         </select>
       </label>
-      <button type="button" className="st-button danger" aria-label={`Remove ${rumor.id} version ${at + 1}`}
-        onClick={() => mutate((current) => updateRumor(current, rumor.id, { versions: versions.filter((_, index) => index !== at) }))}>×</button>
+      <IconButton icon="fa-xmark" label={`Remove ${rumor.id} version ${at + 1}`} type="button"
+        onClick={() => mutate((current) => updateRumor(current, rumor.id, { versions: versions.filter((_, index) => index !== at) }))} />
     </div>
   );
 };
@@ -52,12 +54,12 @@ const RumorRow = ({ rumor, roster }: { rumor: Rumor; roster: RosterMember[] }) =
           </select>
         </label>
         <TextField label={`${rumor.id} claim`} value={rumor.claim} onChange={(claim) => patch({ claim })} />
-        <button type="button" className="st-button danger" aria-label={`Remove rumor ${rumor.id}`} onClick={() => mutate((current) => removeRumor(current, rumor.id))}>×</button>
+        <IconButton icon="fa-xmark" label={`Remove rumor ${rumor.id}`} type="button" onClick={() => mutate((current) => removeRumor(current, rumor.id))} />
       </div>
       <OptionalGate label={`${rumor.id} starts only when`} gate={rumor.starts_when} qualities={qualities} onChange={(starts_when) => patch({ starts_when })} />
       {(rumor.versions ?? []).map((version, at) => <VersionRow key={at} rumor={rumor} version={version} at={at} />)}
-      <button type="button" className="st-button secondary self-start"
-        onClick={() => patch({ versions: [...(rumor.versions ?? []), { text: rumor.claim, truth: "unknown", weight: 1 }] })}>+ Version</button>
+      <Button type="button" className="self-start"
+        onClick={() => patch({ versions: [...(rumor.versions ?? []), { text: rumor.claim, truth: "unknown", weight: 1 }] })}>+ Version</Button>
       <JsonField label={`${rumor.id} leaks`} hint={LEAKS_HINT} value={rumor.leaks_to}
         onChange={(leaks) => patch({ leaks_to: Array.isArray(leaks) ? leaks as Rumor["leaks_to"] : undefined })} />
     </div>
@@ -114,7 +116,7 @@ const RumorsEditor: React.FC = () => {
     <div data-so="rumors-editor" className="st-subpanel flex flex-col gap-2 p-3">
       <div className="text-sm font-medium">Rumors and gossip<HelpTooltip title={HELP} /></div>
       {rumors.map((rumor) => <RumorRow key={rumor.id} rumor={rumor} roster={roster} />)}
-      <button type="button" className="st-button secondary self-start" disabled={!roster.length} onClick={() => mutate((current) => addRumor(current))}>+ Rumor</button>
+      <Button type="button" className="self-start" disabled={!roster.length} onClick={() => mutate((current) => addRumor(current))}>+ Rumor</Button>
       <div data-so="gossip-editor" className="flex flex-col gap-2">
         <span className="text-xs st-muted">Who passes news to whom</span>
         {roster.map((member) => <GossipRow key={member.id} member={member} roster={roster} />)}

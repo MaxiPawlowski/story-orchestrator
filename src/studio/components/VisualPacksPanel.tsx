@@ -1,5 +1,6 @@
 import React from "react";
 import type { StoryVisualPacks, VisualPackRef } from "@engine/schema";
+import { Button } from "@components/ui/Button";
 
 type Group = "identities" | "places";
 
@@ -19,7 +20,7 @@ const Row: React.FC<{ label: string; binding: VisualPackRef; onRemove: () => voi
     <span className="font-medium">{label}</span>
     <span>{binding.id}</span>
     <span className="st-muted" title={binding.digest}>{binding.digest.slice(0, 12)}</span>
-    <button type="button" className="menu_button" aria-label={`Remove the visual pack of ${label}`} onClick={onRemove}>Remove</button>
+    <Button type="button" aria-label={`Remove the visual pack of ${label}`} onClick={onRemove}>Remove</Button>
   </div>
 );
 

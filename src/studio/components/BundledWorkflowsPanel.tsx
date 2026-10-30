@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import type { BundledWorkflow } from "@engine/schema";
 import { checkWorkflowGraph } from "../../image/workflows";
 import type { InstallOutcome } from "../workflowBundle";
+import { Button } from "@components/ui/Button";
+import { StatusText } from "@components/ui/StatusText";
 
 const installText = (outcome: InstallOutcome): string => {
   if (!outcome.ok) return outcome.reason;
@@ -22,8 +24,8 @@ const BundledWorkflowsPanel: React.FC<{
   const entries = Object.entries(bundle ?? {});
   return <div data-so="workflow-bundle" className="flex flex-col gap-2">
     <div className="flex items-center gap-2">
-      <button type="button" className="menu_button" data-so="workflow-bundle-export" disabled={!mapped.length}
-        onClick={() => { void onBundle().then(setBundling); }}>Export with workflows</button>
+      <Button data-so="workflow-bundle-export" disabled={!mapped.length}
+        onClick={() => { void onBundle().then(setBundling); }}>Export with workflows</Button>
       <span className="text-xs st-muted">Copies the mapped workflows into the story, so another install can add them.</span>
     </div>
     {bundling ? <p role="status" className="text-xs">{bundling}</p> : null}
@@ -34,17 +36,17 @@ const BundledWorkflowsPanel: React.FC<{
         <div>Node classes: {check.nodes.join(", ") || "none"}</div>
         {check.models.length ? <div>Models it loads: {check.models.join(", ")}</div> : null}
         {nodes === null ? <div className="st-muted">This ComfyUI's nodes could not be listed; missing nodes are not checked.</div> : null}
-        {check.missingNodes.length ? <div className="so-warning-text" data-so="workflow-missing-nodes">
-          Not on this ComfyUI: {check.missingNodes.join(", ")}. Nodes are never installed for you.</div> : null}
-        {check.deniedNodes.length ? <div className="so-warning-text" data-so="workflow-denied-nodes">
-          Can run code or read files: {check.deniedNodes.join(", ")}. This workflow is never installed from a story.</div> : null}
-        {check.hasPrompt ? null : <div className="so-warning-text">No "%prompt%" placeholder: it would ignore the scene.</div>}
+        {check.missingNodes.length ? <StatusText as="div" tone="warn" data-so="workflow-missing-nodes">
+          Not on this ComfyUI: {check.missingNodes.join(", ")}. Nodes are never installed for you.</StatusText> : null}
+        {check.deniedNodes.length ? <StatusText as="div" tone="warn" data-so="workflow-denied-nodes">
+          Can run code or read files: {check.deniedNodes.join(", ")}. This workflow is never installed from a story.</StatusText> : null}
+        {check.hasPrompt ? null : <StatusText as="div" tone="warn">No "%prompt%" placeholder: it would ignore the scene.</StatusText>}
         <div className="flex gap-2">
-          <button type="button" className="menu_button" data-so="workflow-bundle-install" disabled={Boolean(check.deniedNodes.length) || !check.hasPrompt}
+          <Button data-so="workflow-bundle-install" disabled={Boolean(check.deniedNodes.length) || !check.hasPrompt}
             onClick={() => {
               void onInstall(name, entry).then((outcome) => setStatus((prev) => ({ ...prev, [name]: installText(outcome) })));
-            }}>Install in SillyTavern</button>
-          <button type="button" className="menu_button" data-so="workflow-bundle-drop" onClick={() => onDrop(name)}>Remove from story</button>
+            }}>Install in SillyTavern</Button>
+          <Button data-so="workflow-bundle-drop" onClick={() => onDrop(name)}>Remove from story</Button>
         </div>
         {status[name] ? <p role="status">{status[name]}</p> : null}
       </div>;

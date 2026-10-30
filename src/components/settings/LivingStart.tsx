@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { FieldLabel } from "./Field";
+import { Button } from "@components/ui/Button";
 
 export interface LivingStartFields {
   title: string;
@@ -30,7 +31,7 @@ export const LivingStart = ({ busy, onStart }: { busy: boolean; onStart(fields: 
   return (
     <div className="flex flex-col gap-1">
       <div className="flex flex-wrap items-center gap-2">
-        <button id="so-living-start-toggle" type="button" className="menu_button" aria-expanded={open} onClick={() => setOpen(!open)}>{open ? "Hide premise" : "Start from a premise"}</button>
+        <Button id="so-living-start-toggle" type="button" aria-expanded={open} onClick={() => setOpen(!open)}>{open ? "Hide premise" : "Start from a premise"}</Button>
       </div>
       {open && (
         <div id="so-living-start" className="flex flex-col gap-1 text-xs">
@@ -44,7 +45,7 @@ export const LivingStart = ({ busy, onStart }: { busy: boolean; onStart(fields: 
           ))}
           <div className="opacity-70">The cast is this group. Nothing is written ahead: the story writes its next turning point as you play.</div>
           <div className="flex flex-wrap items-center gap-2">
-            <button id="so-living-start-go" type="button" className="menu_button" disabled={busy || !ready} onClick={() => void start()}>Start the story</button>
+            <Button id="so-living-start-go" type="button" disabled={busy || !ready} onClick={() => void start()}>Start the story</Button>
             {!ready && <span className="opacity-70">Write a premise of a sentence or two first.</span>}
           </div>
           {note && <div data-so="living-start-note">{note}</div>}

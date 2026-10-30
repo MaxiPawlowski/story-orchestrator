@@ -1,5 +1,6 @@
 import React from "react";
 import type { CardArt } from "../../sprites/cardArt";
+import { Button } from "@components/ui/Button";
 
 const NOTES: Record<Exclude<CardArt["state"], "accepted">, string> = {
   "not-installed": "No artwork yet. Prepare presentation once this card is created.",
@@ -18,7 +19,7 @@ export default function CardArtView({ name, art, onPrepare }: { name: string; ar
     <figcaption className="flex flex-col gap-1 text-[11px]">
       <span>{art.state === "accepted" ? `Accepted presentation, revision ${art.revision}${art.pack ? ", with reference views" : ""}.` : NOTES[art.state]}</span>
       {art.state !== "accepted" && art.state !== "not-installed" && onPrepare
-        && <button type="button" className="st-button" data-so="card-art-prepare" onClick={onPrepare}>Prepare presentation</button>}
+        && <Button data-so="card-art-prepare" onClick={onPrepare}>Prepare presentation</Button>}
     </figcaption>
   </figure>;
 }

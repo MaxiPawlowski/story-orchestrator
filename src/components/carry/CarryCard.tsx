@@ -1,5 +1,6 @@
 import type { CarryView } from "@runtime/carryPort";
 import { CARRY_COPY } from "@features/carryCopy";
+import { Button } from "@components/ui/Button";
 
 export interface CarryCardProps {
   view: CarryView;
@@ -19,7 +20,7 @@ export const CarryCard = ({ view, onDismiss }: CarryCardProps) => {
         <div id="so-carry-previously" className="flex flex-col gap-1 text-sm">
           <div className="font-medium">{CARRY_COPY.previously}</div>
           <p className="m-0 opacity-80 whitespace-pre-wrap">{state.previously}</p>
-          {onDismiss && <button id="so-carry-dismiss" type="button" className="menu_button self-start" onClick={onDismiss}>{CARRY_COPY.dismiss}</button>}
+          {onDismiss && <Button id="so-carry-dismiss" type="button" className="self-start" onClick={onDismiss}>{CARRY_COPY.dismiss}</Button>}
         </div>
       )}
     </div>

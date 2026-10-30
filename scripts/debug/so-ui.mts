@@ -277,7 +277,7 @@ export async function saveStudioDraft(page, choice = null, options: { title?: st
   await page.waitForTimeout(250);
   return evaluateInST(page, () => {
     const container = document.getElementById('so-studio-modal');
-    const feedback = container?.querySelector('.st-alert-success, .st-alert-error')?.textContent?.trim() ?? null;
+    const feedback = container?.querySelector('[data-so="studio-feedback"] .so-callout')?.textContent?.trim() ?? null;
     const snapshot = globalThis.storyOrchestratorRuntime?.getSnapshot?.() ?? null;
     return {
       feedback,
@@ -765,11 +765,11 @@ export async function getStudioDiagnostics(page) {
   return await evaluateInST(page, () => {
     const rows = Array.from(document.querySelectorAll('#so-studio-modal [data-so="diagnostic"]')).map((row) => ({
       severity: row.getAttribute('data-severity'),
-      code: row.querySelector('.st-pill')?.textContent?.trim() ?? null,
+      code: row.querySelector('[data-so="repair-code"]')?.textContent?.trim() ?? null,
       message: row.querySelector('span + span')?.textContent?.trim() ?? null,
       path: row.querySelector('.st-muted')?.textContent?.trim() ?? null,
     }));
-    const clean = document.querySelector('#so-studio-modal .st-alert-success')?.textContent?.trim() ?? null;
+    const clean = document.querySelector('#so-studio-modal [data-so="diagnostics-clean"]')?.textContent?.trim() ?? null;
     return { rows, clean, codes: rows.map((row) => row.code) };
   });
 }

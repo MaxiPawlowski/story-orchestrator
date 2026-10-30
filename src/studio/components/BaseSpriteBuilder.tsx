@@ -8,6 +8,7 @@ import { draftOwnership } from "../agentHost";
 import { builderRender, RENDER_PRESETS } from "../../sprites/settings";
 import { refuseDefaultCardArt } from "../../sprites/cardArt";
 import { faceAnchor, headBox } from "../../sprites/builder/headBox";
+import { Button } from "@components/ui/Button";
 
 export const BASE_ATTEMPTS = 4;
 
@@ -86,15 +87,15 @@ export default function BaseSpriteBuilder({ character, image, set, models, disco
     <label>Background removal<select aria-label="Background removal" className="text_pole" value={alpha} disabled={busy}
       onChange={(event) => setAlpha(event.target.value)}>
       {(discovery.alpha ?? []).map((recipe) => <option key={recipe.id} value={recipe.id}>{recipe.model}</option>)}</select></label>
-    <button id="so-sprite-build-base" type="button" className="st-button" disabled={busy || !image || !alpha || !/^[a-z0-9_]{1,80}$/.test(set)}
-      onClick={() => void build()}>Build a base candidate</button>
-    {candidates.length > 0 && !saved && <button type="button" className="st-button" disabled={busy} onClick={() => void build(true)}>Make another candidate</button>}
-    <button type="button" className="st-button" disabled={!busy} onClick={() => { cancelled.current = true; builder.cancel(); }}>Cancel base render</button>
+    <Button id="so-sprite-build-base" disabled={busy || !image || !alpha || !/^[a-z0-9_]{1,80}$/.test(set)}
+      onClick={() => void build()}>Build a base candidate</Button>
+    {candidates.length > 0 && !saved && <Button disabled={busy} onClick={() => void build(true)}>Make another candidate</Button>}
+    <Button disabled={!busy} onClick={() => { cancelled.current = true; builder.cancel(); }}>Cancel base render</Button>
     {errors.map((error, at) => <p role="alert" key={at}>{error}</p>)}
     <div className="flex flex-wrap gap-2">{candidates.map((candidate, at) => <div key={candidate.key}>
       <img src={`data:image/png;base64,${candidate.data}`} alt={`Base candidate ${at + 1}`} style={{ maxWidth: "min(180px,100%)" }} />
       <p>{candidate.seconds.toFixed(1)} seconds · transparency checks passed</p>
-      <button type="button" className="st-button" disabled={busy || Boolean(saved)} onClick={() => void keep(candidate)}>Keep base {at + 1}</button>
+      <Button disabled={busy || Boolean(saved)} onClick={() => void keep(candidate)}>Keep base {at + 1}</Button>
     </div>)}</div>
     {saved && <p role="status">Saved neutral base to {saved}. Adjust its head box and review presentation above.</p>}
   </details>;

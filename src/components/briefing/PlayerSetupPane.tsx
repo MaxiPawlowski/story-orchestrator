@@ -5,6 +5,7 @@ import type { PlayerSetupView } from "@runtime/playerSetup";
 import type { PlayerSetupRequest } from "@runtime/playerSetupPort";
 import { Button } from "@components/ui/Button";
 import { SegmentedControl } from "@components/ui/SegmentedControl";
+import { StatusText } from "@components/ui/StatusText";
 
 export type ChooseIdentity = (request: PlayerSetupRequest) => Promise<{ ok: boolean; reason?: string }>;
 export type StartCommit = () => Promise<boolean>;
@@ -119,7 +120,7 @@ export const PlayerSetupPane = ({ view, rechoose = false, onChoose, startRef }: 
           {keepAllowed && view.current && !rechoose && <p data-so="player-setup-close-keeps" className="so-briefing-meta">{COPY.closeKeeps(view.current.name)}</p>}
         </div>
       )}
-      {error && <p data-so="player-setup-error" role="alert" className="so-briefing-paragraph so-error-text">{error}</p>}
+      {error && <StatusText tone="error" data-so="player-setup-error" role="alert" className="so-briefing-paragraph">{error}</StatusText>}
     </section>
   );
 };

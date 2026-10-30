@@ -1,6 +1,8 @@
 import React from "react";
 import { BRIEFING_MAX_SECTIONS, BRIEFING_SECTION_MAX_CHARS, type BriefingSection, type StoryBriefing } from "@engine/index";
 import HelpTooltip from "@components/studio/HelpTooltip";
+import { Button } from "@components/ui/Button";
+import { IconButton } from "@components/ui/IconButton";
 
 export interface BriefingEditorProps {
   briefing?: StoryBriefing;
@@ -45,8 +47,8 @@ export const BriefingEditor: React.FC<BriefingEditorProps> = ({ briefing, name, 
           <div className="flex items-center gap-2">
             <input className="text_pole st-input flex-1" aria-label={`${name} section ${index + 1} heading`} placeholder="Who you are" value={section.heading}
               onChange={(event) => setSection(index, { heading: event.target.value })} />
-            <button type="button" className="st-button danger" aria-label={`Remove ${name} section ${index + 1}`}
-              onClick={() => update({ sections: current.sections.filter((_, at) => at !== index) })}>×</button>
+            <IconButton icon="fa-xmark" label={`Remove ${name} section ${index + 1}`}
+              onClick={() => update({ sections: current.sections.filter((_, at) => at !== index) })} />
           </div>
           <textarea className="text_pole st-input min-h-[4rem]" aria-label={`${name} section ${index + 1} text`} maxLength={BRIEFING_SECTION_MAX_CHARS} value={section.text}
             placeholder="What the player may know when this shows. A blank line starts a new paragraph."
@@ -54,10 +56,10 @@ export const BriefingEditor: React.FC<BriefingEditorProps> = ({ briefing, name, 
         </div>
       ))}
       <div className="flex flex-wrap items-center gap-2">
-        <button type="button" className="st-button secondary" disabled={current.sections.length >= BRIEFING_MAX_SECTIONS}
-          onClick={() => update({ sections: [...current.sections, current.sections.length ? { heading: "", text: "" } : HOW_TO_PLAY] })}>+ Section</button>
+        <Button disabled={current.sections.length >= BRIEFING_MAX_SECTIONS}
+          onClick={() => update({ sections: [...current.sections, current.sections.length ? { heading: "", text: "" } : HOW_TO_PLAY] })}>+ Section</Button>
         <span data-so="list-count" className="text-xs st-muted">{current.sections.length}/{BRIEFING_MAX_SECTIONS}</span>
-        {onPreview && <button type="button" data-so="briefing-preview" className="st-button secondary" onClick={onPreview}>Preview briefing</button>}
+        {onPreview && <Button data-so="briefing-preview" onClick={onPreview}>Preview briefing</Button>}
       </div>
     </div>
   );

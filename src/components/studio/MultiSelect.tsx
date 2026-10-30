@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from "react";
+import { Button } from "@components/ui/Button";
 
 export type Option = { value: string; label: string };
 
@@ -54,20 +55,20 @@ const MultiSelect: React.FC<Props> = ({ options, value, onChange, placeholder = 
         <div className="whitespace-nowrap text-[11px] st-muted">{selectedCount} selected</div>
       </div>
       <div className="flex items-center gap-2 mb-2 text-[11px]">
-        <button
+        <Button
           type="button"
-          className="st-button secondary px-2 py-0.5 text-[11px]"
+          size="sm"
           onClick={selectAllFiltered}
         >
           Select filtered
-        </button>
-        <button
+        </Button>
+        <Button
           type="button"
-          className="st-button secondary px-2 py-0.5 text-[11px]"
+          size="sm"
           onClick={clearAll}
         >
           Clear
-        </button>
+        </Button>
       </div>
       <div
         className="rounded border st-border st-bg-active overflow-auto"

@@ -3,7 +3,7 @@ import { isValidationErrorList } from "@engine/index";
 import { availableStoryId, confirmLibrarySave, saveStoryRecord } from "@runtime/storyLibrary";
 import { chatSaveHalf, librarySaveSentence, type ChatSaveAnswer, type LibrarySaveEvidence } from "@runtime/librarySave";
 import type { StoryLibraryRecord } from "@runtime/types";
-import FeedbackAlert from "@components/studio/FeedbackAlert";
+import { Callout } from "@components/ui/Callout";
 import { Button } from "@components/ui/Button";
 import { IconButton } from "@components/ui/IconButton";
 import { draftKeyFor, useDraftStore } from "../draft";
@@ -162,7 +162,7 @@ const StudioToolbar: React.FC<Props> = ({ onSaved, onRekeySession, confirmSave =
       <OverflowMenu entries={entries} />
       <input ref={fileRef} type="file" accept="application/json,.json" className="hidden" aria-label="Import story file" onChange={handleFile} />
       {shown && <div data-so="studio-feedback" className="so-studio-feedback">
-        <FeedbackAlert feedback={shown} />
+        <Callout role={shown.type === "error" ? "alert" : "status"} tone={shown.type === "success" ? "ok" : "error"}><p>{shown.message}</p></Callout>
         <IconButton icon="fa-xmark" size="sm" label="Dismiss" onClick={() => setFeedback(null)} />
       </div>}
     </div>

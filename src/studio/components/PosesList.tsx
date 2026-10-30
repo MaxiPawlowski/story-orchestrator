@@ -15,6 +15,7 @@ import { posesToPrepare } from "../../sprites/poses/prepareList";
 import { spriteFilesSaved } from "../../sprites/visualChanges";
 import { isValidationErrorList, parseStory } from "@engine/index";
 import PoseSkeleton from "./PoseSkeleton";
+import { Button } from "@components/ui/Button";
 
 export interface PosesServices {
   installed(): PoseEntry[];
@@ -99,8 +100,8 @@ export default function PosesList({ services = host }: { services?: PosesService
   return <section id="so-studio-poses" className="flex flex-col gap-2">
     <h3 className="font-semibold">Poses</h3>
     <p className="text-sm">Choose a default, restrict the poses a member can use, or direct a pose at a scene. A changed look renders a whole body when that pose is next used.</p>
-    {services.prepare && <button id="so-prepare-poses" type="button" className="st-button" disabled={busy} onClick={() => void work(() => (services.prepare as () => Promise<string>)())}>
-      Prepare story poses before play</button>}
+    {services.prepare && <Button id="so-prepare-poses" type="button" disabled={busy} onClick={() => void work(() => (services.prepare as () => Promise<string>)())}>
+      Prepare story poses before play</Button>}
     <label>Story pose ids or tags<input aria-label="Story pose ids or tags" className="text_pole" value={draft.poses?.use?.join(", ") ?? ""}
 onChange={(event) => event.target.value.trim() ? setUse(event.target.value.split(",").map((id) => id.trim()).filter(Boolean)) : mutate((current) => setPoses(current,
         { custom: current.poses?.custom }))} /></label>
@@ -113,17 +114,17 @@ onChange={(event) => event.target.value.trim() ? setUse(event.target.value.split
       {poses.map((entry) => <option key={entry.id} value={entry.id}>{entry.label}</option>)}</select></label>
     {pose && <><PoseSkeleton pose={pose} /><p className="text-sm">{pose.tags.join(", ")} · {pose.framing}{pose.props.length ? ` · needs ${pose.props.join(", ")}` : ""}</p>
       <div className="flex flex-wrap gap-2">
-<button type="button" className="st-button" disabled={!member || busy} onClick={() => mutate((current) => setMemberPoses(current, member,
-          { ...current.roster.find((entry) => entry.id === member)?.sprites, pose: pose.id }))}>Use as default pose</button>
-        <button type="button" className="st-button" disabled={!member || busy || !useDraftStore.getState().selectedCheckpointId}
-          onClick={() => mutate((current) => setStagePose(current, useDraftStore.getState().selectedCheckpointId ?? "", member, pose.id))}>Direct at selected scene</button>
-        <button type="button" className="st-button" disabled={!member || busy} onClick={() => void work(() => services.render(pose, member))}>Render member in this pose</button>
-        <button type="button" className="st-button" onClick={() => setJson(JSON.stringify(pose, null, 2))}>Copy pose to editor</button>
+<Button type="button" disabled={!member || busy} onClick={() => mutate((current) => setMemberPoses(current, member,
+          { ...current.roster.find((entry) => entry.id === member)?.sprites, pose: pose.id }))}>Use as default pose</Button>
+        <Button type="button" disabled={!member || busy || !useDraftStore.getState().selectedCheckpointId}
+          onClick={() => mutate((current) => setStagePose(current, useDraftStore.getState().selectedCheckpointId ?? "", member, pose.id))}>Direct at selected scene</Button>
+        <Button type="button" disabled={!member || busy} onClick={() => void work(() => services.render(pose, member))}>Render member in this pose</Button>
+        <Button type="button" onClick={() => setJson(JSON.stringify(pose, null, 2))}>Copy pose to editor</Button>
       </div></>}
     <label>Import into<select aria-label="Pose import scope" className="text_pole" value={scope} onChange={(event) => setScope(event.target.value)}>
       <option value="story">This story</option><option value="install">Every story on this install</option></select></label>
     <label>Pose JSON<textarea aria-label="Pose JSON" className="text_pole" rows={5} value={json} onChange={(event) => setJson(event.target.value)} /></label>
-    <button type="button" className="st-button" disabled={!json.trim() || busy} onClick={importJson}>Import pose JSON</button>
+    <Button type="button" disabled={!json.trim() || busy} onClick={importJson}>Import pose JSON</Button>
     <label>Pose reference image<input aria-label="Pose reference image" type="file" accept="image/png" disabled={busy} onChange={(event) => {
       const file = event.target.files?.[0];
       if (!file || file.size > 32 * 1024 * 1024) return;
@@ -131,12 +132,12 @@ onChange={(event) => event.target.value.trim() ? setUse(event.target.value.split
       reader.onload = () => { try { if (alive.current && run.stillOwns() && typeof reader.result === "string") setImage(reader.result); } finally { run.release(); } };
       reader.onerror = reader.onabort = () => run.release(); reader.readAsDataURL(file);
     }} /></label>
-    <button type="button" className="st-button" disabled={!image || !services.importImage || busy} onClick={() => void work(async (run) => {
+    <Button type="button" disabled={!image || !services.importImage || busy} onClick={() => void work(async (run) => {
       const keypoints = await services.importImage?.(image as string);
 if (keypoints && alive.current && run.stillOwns()) setJson(JSON.stringify({ id: "custom_pose", label: "Custom pose", tags: ["gesture"], framing: "full", props: [],
         text: "the imported body pose", version: 1, keypoints }, null, 2));
       return "Skeleton ready in the editor. Give it an id and description, then import it.";
-    })}>Extract skeleton with installed DWPose</button>
+    })}>Extract skeleton with installed DWPose</Button>
     <p className="text-xs">DWPose import needs installed estimator files. Downloads wait for the owner’s token and a free GPU.</p>
     {note && <p role="status">{note}</p>}
   </section>;

@@ -14,6 +14,7 @@ import { decodeBytes } from "./synthesis/decode";
 import { syntheticHead, syntheticRef } from "./synthetic";
 import { syntheticFrames } from "./syntheticFrames";
 import "../styles.css";
+import { Button } from "@components/ui/Button";
 
 const owner = (): RunGuard => ({ stillOwns: () => true, lapsed: () => null, lapsedDetail: () => null, signal: new AbortController().signal, release: () => undefined });
 const POSES: Record<string, Partial<HeadParameters>> = {
@@ -69,7 +70,7 @@ function BeforeAfter() {
 function MeshOnlyLive() {
   const [activity] = useState(() => new StreamActivity());
   return <div style={{ pointerEvents: "auto" }}>
-    <button type="button" className="menu_button" onClick={() => { void activity.visemes().then(() => activity.pulse("Shape", "Hello, how are you today?")); }}>Stream reply</button>
+    <Button type="button" onClick={() => { void activity.visemes().then(() => activity.pulse("Shape", "Hello, how are you today?")); }}>Stream reply</Button>
     <div id="so-vn-root" style={{ position: "relative", width: "100%", maxWidth: 360, height: 420 }}>
       <div className="so-sprite" style={{ width: "100%", left: "50%" }}><div className="so-sprite-breath">
         <img src={syntheticHead.source} alt="Synthetic shape bust" />
@@ -96,7 +97,7 @@ function LiveWithFrames({ shapes = false }: { shapes?: boolean }) {
     return () => { live = false; };
   }, [shapes]);
   return <div style={{ pointerEvents: "auto" }}>
-    <button type="button" className="menu_button" onClick={() => { void activity.visemes().then(() => activity.pulse("Shape", "Hello, how are you today?")); }}>Stream reply</button>
+    <Button type="button" onClick={() => { void activity.visemes().then(() => activity.pulse("Shape", "Hello, how are you today?")); }}>Stream reply</Button>
     <output data-so="viseme" aria-label="Viseme mouth">{viseme}</output>
     <div id="so-vn-root" style={{ position: "relative", width: "100%", maxWidth: 360, height: 420 }}>
       <div className="so-sprite" style={{ width: "100%", left: "50%" }}><div className="so-sprite-breath">

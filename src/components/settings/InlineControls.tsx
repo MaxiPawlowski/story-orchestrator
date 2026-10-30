@@ -10,6 +10,7 @@ import { TextInput } from "@components/ui/Field";
 import { DeviceChip, useDeviceSetting, type DeviceStore } from "./DeviceSetting";
 import { CheckRow, HelpText } from "./Field";
 import { InlineLegendPanel } from "../inline/InlineLegend";
+import { StatusText } from "@components/ui/StatusText";
 
 interface GroupProps {
   snapshot: RuntimeSnapshot;
@@ -58,7 +59,7 @@ export const InlineControls = ({ snapshot, manager, deviceStore }: GroupProps) =
               onChange={(event) => window.write(Math.min(INLINE_WINDOW_MAX, Math.max(1, Math.round(Number(event.target.value) || 1))))} />
           </>} />
       </>}
-      {error && <p role="alert" className="so-warning-text">{error}</p>}
+      {error && <StatusText tone="warn" role="alert">{error}</StatusText>}
     </div>
   );
 };

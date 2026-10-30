@@ -7,6 +7,7 @@ import { CheckRow } from "./Field";
 import { InlineControls } from "./InlineControls";
 import { PresenceControls } from "./PresenceControls";
 import { DeviceChip, useDeviceSetting, type DeviceStore } from "./DeviceSetting";
+import { StatusText } from "@components/ui/StatusText";
 
 export interface DisplayPageProps {
   snapshot: RuntimeSnapshot;
@@ -42,7 +43,7 @@ export const DisplayPage = ({ snapshot, manager, deviceStore: injected }: Displa
     <Section title="Panels and badges" level={3}>
       <PresenceControls snapshot={snapshot} onChange={(presence) => manager.setUiSettings({ presence })} />
     </Section>
-    {error && <p role="alert" className="so-warning-text">{error}</p>}
+    {error && <StatusText tone="warn" role="alert">{error}</StatusText>}
   </div>;
 };
 

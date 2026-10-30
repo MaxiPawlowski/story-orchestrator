@@ -1,6 +1,7 @@
 import type { InlineAction, InlineItem } from "@runtime/inlineTimeline";
 import { INLINE_STATE_LABELS } from "@features/inlineCopy";
 import "./inline.css";
+import { Button } from "@components/ui/Button";
 
 export interface InlineActions {
   run: (action: InlineAction) => void;
@@ -42,9 +43,9 @@ export const InlineDetail = ({ items, showDetail, detailLevel, showActions, acti
         {showActions && actions && item.actions?.length ? (
           <span className="so-inline-actions">
             {item.actions.map((action, index) => (
-              <button key={index} type="button" data-so="inline-action" data-kind={action.kind} className="menu_button" onClick={() => actions.run(action)}>
+              <Button key={index} type="button" data-so="inline-action" data-kind={action.kind} onClick={() => actions.run(action)}>
                 {ACTION_LABEL(action)}
-              </button>
+              </Button>
             ))}
           </span>
         ) : null}

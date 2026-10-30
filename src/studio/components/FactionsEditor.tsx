@@ -5,6 +5,8 @@ import { useDraftStore } from "../draft";
 import { addFaction, removeFaction, setMemberFactions, updateFaction } from "../gameMutations";
 import GateBuilder from "./GateBuilder";
 import { JsonField, OptionalGate, TextField } from "./GameFields";
+import { Button } from "@components/ui/Button";
+import { IconButton } from "@components/ui/IconButton";
 
 const HELP = "A faction is a group whose standing with the player moves only on the moves you write here and on quest rewards. Players see the band word, never the number. "
   + "A move fires once ever, the first turn its gate holds; one that lowers standing must gate on something the player did.";
@@ -31,8 +33,8 @@ const MoveRow = ({ faction, move, at }: { faction: Faction; move: FactionMove; a
             <option value="faction">The whole faction</option>
           </select>
         </label>
-        <button type="button" className="st-button danger" aria-label={`Remove ${faction.id} move ${at + 1}`}
-          onClick={() => mutate((current) => updateFaction(current, faction.id, { moves: faction.moves.filter((_, index) => index !== at) }))}>×</button>
+        <IconButton icon="fa-xmark" label={`Remove ${faction.id} move ${at + 1}`}
+          onClick={() => mutate((current) => updateFaction(current, faction.id, { moves: faction.moves.filter((_, index) => index !== at) }))} />
       </div>
       <GateBuilder gate={move.when} qualities={qualities} onChange={(when) => patch({ when })} />
     </div>
@@ -58,7 +60,7 @@ const FactionRow = ({ faction }: { faction: Faction }) => {
             onChange={(event) => patch({ introduce: event.target.checked ? true : undefined })} />
           The director may introduce it
         </label>
-        <button type="button" className="st-button danger" aria-label={`Remove faction ${faction.id}`} onClick={() => mutate((current) => removeFaction(current, faction.id))}>×</button>
+        <IconButton icon="fa-xmark" label={`Remove faction ${faction.id}`} onClick={() => mutate((current) => removeFaction(current, faction.id))} />
       </div>
       <JsonField label={`${faction.id} bands`} hint={BANDS_HINT} value={faction.bands}
         onChange={(bands) => { if (Array.isArray(bands)) patch({ bands: bands as DisplayBand[] }); }} />
@@ -75,7 +77,7 @@ const FactionRow = ({ faction }: { faction: Faction }) => {
         ))}
       </fieldset>
       {faction.moves.map((move, at) => <MoveRow key={at} faction={faction} move={move} at={at} />)}
-      <button type="button" className="st-button secondary self-start" onClick={addMove}>+ Move</button>
+      <Button className="self-start" onClick={addMove}>+ Move</Button>
     </div>
   );
 };
@@ -87,7 +89,7 @@ const FactionsEditor: React.FC = () => {
     <div data-so="factions-editor" className="st-subpanel flex flex-col gap-2 p-3">
       <div className="text-sm font-medium">Factions<HelpTooltip title={HELP} /></div>
       {factions.map((faction) => <FactionRow key={faction.id} faction={faction} />)}
-      <button type="button" className="st-button secondary self-start" onClick={() => mutate((current) => addFaction(current))}>+ Faction</button>
+      <Button className="self-start" onClick={() => mutate((current) => addFaction(current))}>+ Faction</Button>
     </div>
   );
 };
