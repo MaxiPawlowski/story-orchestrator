@@ -66,7 +66,7 @@ In a group chat the story picks who speaks next: the character the scene calls f
 than one character can answer one of your messages (three at most by default); the story picks each next speaker and
 stops when it is your turn again, and a voice that is about to start gives way when you send something.
 
-Both are on by default. **This chat → Settings → Speaker direction** and **Several voices per turn** change them for
+Both are on by default. **This chat → Story settings → Speaker direction** and **Several voices per turn** change them for
 this chat (for example, back to SillyTavern's own turn order); **Settings → Features** changes them for every chat.
 A busier scene means more replies per message, so a longer wait and more calls.
 
@@ -118,7 +118,7 @@ the way, the reply stops there instead. It never decides, says or feels anything
 not seen. A swipe of that reply keeps the skip; your next message ends it. It waits while a reply is being written,
 before the story's first reply and while a check's outcome is still to be told, and an author can switch it off at a
 scene. It is off until its blind rating passes: switch it on in **Settings → Features → Skip ahead** (then
-**This chat → Settings** can switch it off for one chat).
+**This chat → Story settings** can switch it off for one chat).
 
 ## Asking a question
 
@@ -145,7 +145,7 @@ edit of the reply that taught you something takes it back.
   owe nothing back.
 - **Your promises**, on **This chat → Play**: promises you made to a character, quoted in your own words. Only that
   character is reminded, and only when the scene touches it; the story never decides for you whether you keep it.
-  Switch it off in **This chat → Settings → Promises remembered**.
+  Switch it off in **This chat → Story settings → Promises remembered**.
 - **Standing**, on the **Stat sheet**: how the story's groups (a guild, a village) regard you, as a word such as "Wary"
   or "Trusted". What you do can raise or lower it, once per event, never for doing nothing.
 

@@ -1253,7 +1253,19 @@ export async function assertPlayerClean(page) {
     const recovery = await evaluateInST(page, collect, { surfaces: PLAYER_SELECTOR_SURFACES, selectors: PLAYER_RECOVERY_CONTROLS });
     for (const control of recovery ?? []) recoveryControls.push({ tab, ...control });
     records.push(await recordPlayerSurfaces(page, tab));
-    if (tab === 'Settings') {
+    if (tab === 'Play') {
+      const storyTabs = page.locator('#so-workspace-modal #so-story-tabs [role="tab"]');
+      for (let index = 0; index < await storyTabs.count(); index += 1) {
+        const storyTab = storyTabs.nth(index);
+        const label = `Play/${((await storyTab.textContent()) ?? '').trim()}`;
+        await storyTab.click();
+        await page.waitForTimeout(300);
+        const tabHits = await evaluateInST(page, collect, { surfaces: PLAYER_SELECTOR_SURFACES, selectors: PLAYER_FORBIDDEN_SELECTORS });
+        for (const hit of tabHits ?? []) findings.push({ tab: label, needle: `${hit.selector} reachable in ${hit.surface}` });
+        records.push(await recordPlayerSurfaces(page, label));
+      }
+    }
+    if (tab === 'Settings' || tab === 'Story settings') {
       const toggles = page.locator('#so-workspace-modal [data-so="feature-row"] button[aria-expanded="false"][id$="-toggle"]');
       for (let left = await toggles.count(); left > 0; left = await toggles.count()) await toggles.first().click();
       const hits = await evaluateInST(page, collect, { surfaces: PLAYER_SELECTOR_SURFACES, selectors: PLAYER_FORBIDDEN_SELECTORS });

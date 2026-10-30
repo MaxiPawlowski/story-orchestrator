@@ -70,7 +70,8 @@ library, setup/repair, author/inspect, long reference. A dialog control that tar
 (`components/ActionStatus.tsx`), never as a toast behind it.
 
 - **Launchers**: top-bar route icon `#so-drawer .drawer-toggle` (a launcher, not a drawer) and the wand's
-  `#so-wand-drawer` open the story window on This chat → Play; Extensions settings holds `#so-open-workspace` (Settings)
+  `#so-wand-drawer` reopen the last workspace page this device had open (`runtime/lastPage.ts`, key `so-workspace-last-page`,
+  `workspaceRoutes.ts` `resumeIntent`: Play when nothing is stored or the page is author-only in player view; deep links still win); Extensions settings holds `#so-open-workspace` (Settings)
   and `#so-open-setup` (Play at `#so-setup`). Routes live in `runtime/workspaceRoutes.ts` and `runtime/drawerTab.ts` `storyPageFor`.
 - **Workspace** `#so-workspace-modal` (lazy native dialog, kit `Dialog` translucent + blur, `components/workspace/`): contexts
   **This chat** (`story`: Play, Settings = page `features`; Review, Author only in Author view) and **Settings** (`orchestrator`: Library,
@@ -83,7 +84,7 @@ library, setup/repair, author/inspect, long reference. A dialog control that tar
   switch, `#so-feature-<id>-toggle` expands in place, scope install/story/chat; judge uses are a link to Judge, the one home);
   install values of illustrations/sprites/poses live on Images & stage. Device overrides are a **This device** chip on the row
   (`#so-device-<path-slug>`, Display and Images & stage).
-  - **This chat → Settings** (`ChatSettingsPage`): story for this chat `#story-library-select` + restart/export, group default
+  - **This chat → Story settings** (`ChatSettingsPage`): story for this chat `#story-library-select` + restart/export, group default
     `#so-group-story-select`, per-chat FeatureList, Author view switch `#so-author-view-switch`.
   - **Play** (player-safe, lazy `workspace/PlayPage.tsx`): scene header `#so-player-overview` (`#so-scene-header`, status
     `#so-pipeline-status` = `pipeline.ts` `statusSentence`, shared with the story card; image quick row `#so-image-quick` only when

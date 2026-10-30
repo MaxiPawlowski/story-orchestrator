@@ -59,7 +59,7 @@ export default function Workspace({ intent, snapshot, manager, settingsHost, dra
         expanded={location.feature} navigate={navigate} profileName={profileName} />;
       if (location.page === "features") return <div className="so-settings-page">
         <header className="so-page-head"><h2>Features</h2>
-          <p className="so-section-desc">Every feature starts on. Switch one off here for all chats, or under This chat › Settings for one chat. A story can also turn one off.</p></header>
+          <p className="so-section-desc">Every feature starts on. Switch one off here for all chats, or under This chat › Story settings for one chat. A story can also turn one off.</p></header>
         <FeaturesPage snapshot={snapshot} manager={manager} scope="install" expanded={location.feature} navigate={navigate} profileName={profileName} />
       </div>;
       if (location.context === "orchestrator") return <Lazy><SettingsPanel page={location.page as SettingsPageId} sub={location.sub} snapshot={installSnapshot}

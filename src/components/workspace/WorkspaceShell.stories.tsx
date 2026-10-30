@@ -22,7 +22,7 @@ export const PlayerSeesPlayAndSettings: Story = {
     const body = canvasElement.ownerDocument.body;
     const page = within(body);
     await expect(await page.findByRole("dialog", { name: "Test story" })).toHaveAttribute("open");
-    await expect(navLabels(body)).toEqual(["Play", "Settings"]);
+    await expect(navLabels(body)).toEqual(["Play", "Story settings"]);
     await expect(body.querySelector("#so-workspace-context-story")).toHaveTextContent("This chat");
     await expect(body.querySelector("#so-workspace-context-orchestrator")).toHaveTextContent("Settings");
     await userEvent.click(body.querySelector("#so-workspace-page-features") as HTMLElement);
@@ -38,7 +38,7 @@ export const AuthorViewAddsReviewAndAuthor: Story = {
   play: async ({ canvasElement }) => {
     const body = canvasElement.ownerDocument.body;
     await within(body).findByRole("dialog", { name: "Test story" });
-    await expect(navLabels(body)).toEqual(["Play", "Settings", "Review", "Author"]);
+    await expect(navLabels(body)).toEqual(["Play", "Story settings", "Review", "Author"]);
   },
 };
 

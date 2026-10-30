@@ -8,7 +8,8 @@ import {
   type InlineHostSet,
 } from "@services/STAPI";
 import { workspaceNavigation } from "@runtime/workspaceNavigation";
-import { modelsIntent, repairIntent, storyPlayIntent } from "@runtime/workspaceRoutes";
+import { modelsIntent, repairIntent, resumeIntent, storyPlayIntent } from "@runtime/workspaceRoutes";
+import { readLastPage } from "@runtime/lastPage";
 import { setInspectTarget } from "./components/drawer/inspectTarget";
 import { revealSetting } from "@runtime/settingReveal";
 import { storyPageFor } from "@runtime/drawerTab";
@@ -337,6 +338,7 @@ const jumpToChatMessage = async (messageId: number) => {
 };
 
 const openStoryWindow = (tab?: WidgetDrawerTab) => workspaceNavigation.open(tab ? storyPageFor(tab) : storyPlayIntent());
+const resumeStoryWindow = () => workspaceNavigation.open(resumeIntent(readLastPage(), manager.getCachedSnapshot().ui.authorView));
 
 // The one missing setup step is always in one place (made settings install-wide), so the
 // player surface points straight at it instead of describing it: ST's Extensions drawer, then our
@@ -402,8 +404,8 @@ const mountTopBarDrawer = () => {
   const rightNav = document.getElementById("rightNavHolder");
   if (rightNav && rightNav.parentElement === holder) holder.insertBefore(drawer, rightNav);
   else holder.appendChild(drawer);
-  ui.listen(toggle, "click", () => openStoryWindow());
-  ui.listen(toggle, "keydown", (event) => { if (event instanceof KeyboardEvent && (event.key === "Enter" || event.key === " ")) { event.preventDefault(); openStoryWindow(); } });
+  ui.listen(toggle, "click", () => resumeStoryWindow());
+  ui.listen(toggle, "keydown", (event) => { if (event instanceof KeyboardEvent && (event.key === "Enter" || event.key === " ")) { event.preventDefault(); resumeStoryWindow(); } });
   return true;
 };
 
@@ -425,7 +427,7 @@ const InlineMount = ({ hosts }: { hosts: InlineHostSet }) => {
 };
 
 const presenceUi = createPresenceUi({
-  manager, useSnapshot: useRuntimeSnapshot, showFeature: (where) => showFeature(where), openDrawer: openStoryWindow,
+  manager, useSnapshot: useRuntimeSnapshot, showFeature: (where) => showFeature(where), openDrawer: openStoryWindow, openLast: resumeStoryWindow,
   jumpToMessage: (messageId) => void jumpToChatMessage(messageId),
   inspectActions: inlineActions, onOpenAuthor: () => workspaceNavigation.open({ context: "story", page: "author" }),
 });

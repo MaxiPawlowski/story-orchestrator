@@ -37,10 +37,11 @@ browser only under **This device**.
 
 Open it with the route icon in SillyTavern's top bar, from **More…** on the story card, from **Open the story window**
 in the extensions wand beside where you type, or from **Extensions → Story Orchestrator → Open Story Orchestrator**
-(**Story setup and repair** there opens the setup list). It has two
+(**Story setup and repair** there opens the setup list). The route icon and the wand entry reopen the page you last had
+open on this device (Play the first time). It has two
 halves, switched at the top:
 
-- **This chat**, the chat that is open: **Play** and **Settings** (plus **Review** and **Author** while Author view is on).
+- **This chat**, the chat that is open: **Play** and **Story settings** (plus **Review** and **Author** while Author view is on).
 - **Settings**, every chat on this install: **Library**, **Features**, **Models**, **Judge**, **Images & stage**,
   **World & lore**, **Display**, **Authoring**, **Diagnostics** and **Help**, with **Search all settings** at the top.
 
@@ -94,7 +95,7 @@ chat.") and **Open library** takes you to **Settings → Library**.
 The extensions wand beside where you type also offers **Story recap**, **Story briefing** (when the story has one),
 **Flag this moment** and **Open the story window** while a story plays.
 
-### This chat → Settings
+### This chat → Story settings
 
 One card per feature (speaker direction, story reading, inner voice, illustrations and so on), each with its state:
 **Enabled**, **Off in this chat**, **Turned off by this story**, **Off on this install**, or for the character stage

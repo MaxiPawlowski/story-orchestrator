@@ -40,7 +40,7 @@ that does. You do not need to do anything for this.
 
 After each story read the extension also notes **who heard what**, in code and without adding to the read: for every
 message, the speaker and the group's enabled characters seen on stage, and for a whispered or aside part only the
-speaker and the character it names. Nothing uses this record yet; it is measured first. A swipe or edit takes the affected notes back. Switch it off in **This chat → Settings → Who heard
+speaker and the character it names. Nothing uses this record yet; it is measured first. A swipe or edit takes the affected notes back. Switch it off in **This chat → Story settings → Who heard
 what** (or for every chat in **Settings → Features**).
 
 ## Threads you put off

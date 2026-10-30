@@ -77,6 +77,7 @@ export interface PresenceUiDeps {
   useSnapshot: () => RuntimeSnapshot;
   showFeature: (where: FeatureWhere) => void;
   openDrawer: (tab?: WidgetDrawerTab) => void;
+  openLast?: () => void;
   jumpToMessage?: (messageId: number) => void;
   inspectActions?: InlineActions;
   onOpenAuthor?: () => void;
@@ -89,7 +90,7 @@ export const openPlay = async (row: ContinueRow) => {
   if (!opened.ok) window.toastr?.info?.(opened.reason, "Story Orchestrator");
 };
 
-export function createPresenceUi({ manager, useSnapshot, showFeature, openDrawer, jumpToMessage, inspectActions, onOpenAuthor }: PresenceUiDeps) {
+export function createPresenceUi({ manager, useSnapshot, showFeature, openDrawer, openLast, jumpToMessage, inspectActions, onOpenAuthor }: PresenceUiDeps) {
   const requestSuggestions = async (again: number) => (await suggestionsHost()).askSuggestions(manager, again);
   let host: Awaited<ReturnType<typeof suggestionsHost>> | null = null;
   void suggestionsHost().then((loaded) => { host = loaded; });
@@ -147,7 +148,7 @@ export function createPresenceUi({ manager, useSnapshot, showFeature, openDrawer
       { id: "so-wand-recap", icon: "fa-clock-rotate-left", label: PRESENCE_TEXT.wandRecap, run: showRecap },
       { id: "so-wand-briefing", icon: "fa-scroll", label: BRIEFING_COPY.reopen, run: () => void requestBriefing(), shown: () => Boolean(manager.getCachedSnapshot().briefing?.view) },
       { id: "so-wand-flag", icon: "fa-flag", label: PRESENCE_TEXT.wandFlag, run: () => void flag() },
-      { id: "so-wand-drawer", icon: "fa-route", label: PRESENCE_TEXT.wandDrawer, run: () => openDrawer() },
+      { id: "so-wand-drawer", icon: "fa-route", label: PRESENCE_TEXT.wandDrawer, run: () => (openLast ?? openDrawer)() },
       { id: "so-wand-help", icon: "fa-circle-question", label: HELP_COPY.heading, run: () => setPanel("help", true) },
     ]);
     ui.add(() => wand.dispose());
