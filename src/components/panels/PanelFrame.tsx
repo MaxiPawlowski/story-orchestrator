@@ -11,6 +11,7 @@ export interface PanelFrameProps {
   children: ReactNode;
   viewport?: Viewport;
   dockInset?: number;
+  actions?: ReactNode;
 }
 
 const windowViewport = (): Viewport => ({ width: window.innerWidth, height: window.innerHeight });
@@ -21,7 +22,7 @@ const dragged = (kind: DragKind, from: PanelGeometry, dx: number, dy: number): P
   ? { ...from, x: from.x + dx, y: from.y + dy }
   : { ...from, w: from.w + dx, h: from.h + dy });
 
-export const PanelFrame = ({ id, title, geometry, onChange, onClose, children, viewport, dockInset = 0 }: PanelFrameProps) => {
+export const PanelFrame = ({ id, title, geometry, onChange, onClose, children, viewport, dockInset = 0, actions }: PanelFrameProps) => {
   const [view, setView] = useState<Viewport>(() => viewport ?? windowViewport());
   const [geom, setGeom] = useState<PanelGeometry>(() => clampPanel(geometry, viewport ?? windowViewport()));
   const stop = useRef<(() => void) | null>(null);
@@ -117,7 +118,9 @@ export const PanelFrame = ({ id, title, geometry, onChange, onClose, children, v
         onClose={onClose}
         closeLabel={`Close ${title}`}
         closeDataSo="panel-close"
-      />
+      >
+        {actions}
+      </DialogHeader>
       <div className="so-panel-body">{children}</div>
       {!isDocked && <div data-so="panel-resize" className="so-panel-resize" aria-hidden="true" onPointerDown={begin("resize")} />}
     </section>

@@ -1,11 +1,10 @@
-import { createElement } from "react";
-import { renderToStaticMarkup } from "react-dom/server";
 import { StoryEngine, codexEntryKey, codexFactKey, type EngineState, type NormalizedStory } from "@engine/index";
 import { codexItems, entryKnown, factKnown } from "@engine/codex";
 import { parseStoryOrThrow } from "@engine/validate";
 import { composeGame } from "./widgets";
 import { withheldNames } from "./playerProjection";
-import { JournalPanel } from "../components/panels/JournalPanel";
+import { playerSheetMarkup } from "../components/sheet/sheetMarkup";
+import { CODEX_TEXT } from "@features/codexCopy";
 import { labRaw, labStory, randomWrites, rng } from "../../test/support/codexLab";
 import type { GameView } from "./gameTypes";
 
@@ -27,7 +26,7 @@ const view = (story: NormalizedStory, state: EngineState, engine: StoryEngine): 
   composeGame({ story, state, boundaryLog: engine.stateLog, checks: [], threads: { open: [], resolved: [] }, chat: [], castNames: CAST, enabled: ["tom", "ada"] }).player;
 
 const page = (game: GameView, tab: "people" | "places" | null): string => {
-  const markup = renderToStaticMarkup(createElement(JournalPanel, { game }));
+  const markup = playerSheetMarkup(game);
   if (!tab || !game.codex?.[tab].length) return markup;
   return markup + game.codex[tab].map((entry) => [entry.name, ...entry.facts.map((fact) => `${fact.text}|${fact.from ?? ""}`)].join("/")).join(";");
 };
@@ -99,9 +98,9 @@ describe("C1/C2/C3: the codex is projection-only", () => {
       const engine = run(story, seed);
       const game = view(story, engine.serialize(), engine);
       const markup = page(game, null);
-      if (game.codex?.people.length) expect(markup).toContain(`People · ${game.codex.people.length}`);
-      if (game.codex?.places.length) expect(markup).toContain(`Places · ${game.codex.places.length}`);
-      if (!game.codex?.places.length) expect(markup).not.toContain("Places ·");
+      if (game.codex?.people.length) expect(markup).toContain(CODEX_TEXT.countPeople(game.codex.people.length));
+      if (game.codex?.places.length) expect(markup).toContain(CODEX_TEXT.countPlaces(game.codex.places.length));
+      if (!game.codex?.places.length) expect(markup).not.toContain('data-so="codex-places"');
     }
   });
 

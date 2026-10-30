@@ -9,6 +9,14 @@ export const INLINE_LEVEL_LABELS: Record<InlineLevel, string> = {
   4: "Raw",
 };
 
+export const INLINE_LEVEL_SHORT: Record<InlineLevel, string> = {
+  0: "Off",
+  1: "Story",
+  2: "Behind",
+  3: "Author",
+  4: "Raw",
+};
+
 export const INLINE_LEVEL_HELP: Record<InlineLevel, string> = {
   0: "No notes under messages.",
   1: "Where the story moved and what it remembered.",

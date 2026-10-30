@@ -134,7 +134,8 @@ describe("architecture guards", () => {
       "components/panels/PanelFrame.tsx", "components/panels/PanelsHost.tsx", "components/panels/ActivityPanel.tsx", "components/inline/ChapterCard.tsx", "components/inline/RollChips.tsx",
       "components/settings/ContinueList.tsx", "components/settings/PresenceControls.tsx", "studio/components/StoryDisplayEditor.tsx",
       "runtime/widgets.ts", "runtime/gameSheet.ts", "runtime/gameSnapshot.ts", "runtime/gameTypes.ts", "runtime/gameSummary.ts",
-      "components/widgets/WidgetCard.tsx", "components/panels/JournalPanel.tsx", "components/panels/StatSheetPanel.tsx", "components/panels/WidgetPanel.tsx",
+      "components/widgets/WidgetCard.tsx", "components/sheet/tabs/JournalTab.tsx", "components/sheet/tabs/StatsTab.tsx", "components/sheet/tabs/WidgetTab.tsx",
+      "components/sheet/StorySheet.tsx", "components/sheet/tabs/HereNowTab.tsx", "components/sheet/tabs/PeopleTab.tsx", "components/sheet/tabs/MemoryTab.tsx", "runtime/storySheet.ts",
       "runtime/htmlWidget.ts", "runtime/htmlWidgetAudit.ts", "components/widgets/HtmlWidgetFrame.tsx", "studio/widgetPreview.ts", "studio/widgetDiagnostics.ts",
     ];
     const PROMPT_SEAM = /setStoryExtensionPrompt|clearStoryExtensionPrompt|setExtensionPrompt|INJECTION_REGISTRY|updateInjection|GENERATE_AFTER_DATA|registerHostMacro|chat_metadata\.note/;

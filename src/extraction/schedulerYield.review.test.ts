@@ -50,6 +50,27 @@ describe("v2.9 side finding: a boundary's reads wait for the inner beat on the s
     expect(run).toHaveBeenCalledTimes(1);
   });
 
+  it("v3.0 29: the snapshot says the read waits on the beat only while it does, and an in-flight read carries its start", async () => {
+    let finish = () => {};
+    const beat = new Promise<void>((resolve) => { finish = resolve; });
+    let pending: Promise<unknown> | null = beat;
+    const scheduler = harness(() => pending);
+    expect(scheduler.getSnapshot().yielding).toBe(false);
+    let release = () => {};
+    scheduler.schedule({ priority: 0, reason: "cadence", run: () => new Promise<void>((resolve) => { release = resolve; }) });
+    await flush();
+    expect(scheduler.getSnapshot()).toMatchObject({ yielding: true, inFlight: false, inFlightSince: null });
+    pending = null;
+    finish();
+    await flush();
+    const running = scheduler.getSnapshot();
+    expect(running).toMatchObject({ yielding: false, inFlight: true });
+    expect(typeof running.inFlightSince).toBe("number");
+    release();
+    await flush();
+    expect(scheduler.getSnapshot()).toMatchObject({ inFlight: false, inFlightSince: null });
+  });
+
   it("control: with no beat in flight the read runs at once", async () => {
     const scheduler = harness(() => null);
     const run = jest.fn(async () => {});

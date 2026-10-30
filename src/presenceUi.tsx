@@ -4,7 +4,8 @@ import { lazyRetry } from "@utils/lazyRetry";
 import { BADGE_REFRESH_EVENTS, fillChatInput, mountStoryBadges, mountStoryWand, openStoryGroupChat, showTextPopup, subscribeToHostEvents } from "@services/STAPI";
 import type { RuntimeManager } from "@runtime/index";
 import type { RuntimeSnapshot } from "@runtime/types";
-import { chatPanelsShown, gamePanels, type ChatPanel } from "@runtime/chatPanels";
+import { chatPanelsShown, type ChatPanel } from "@runtime/chatPanels";
+import { sheetTabForPanel, sheetTabs, type SheetTab } from "@runtime/storySheet";
 import type { WidgetDrawerTab } from "@engine/index";
 import { onPlaysChanged, readBadgeMaps } from "@runtime/playsIndexHost";
 import type { ContinueRow } from "@runtime/playsIndex";
@@ -13,7 +14,8 @@ import type { MountRegistry } from "@utils/mountRegistry";
 import type { FeatureWhere } from "@features/registry";
 import { PRESENCE_TEXT } from "@features/presenceCopy";
 import { GAME_TEXT } from "@features/gameCopy";
-import { BRIEFING_COPY } from "@features/helpCopy";
+import { SHEET_TEXT } from "@features/sheetCopy";
+import { BRIEFING_COPY, HELP_COPY } from "@features/helpCopy";
 import { requestBriefing } from "@runtime/briefingRequest";
 import { JOURNAL_PAGE_EVENT } from "@runtime/drawerTab";
 import type { SuggestionAsk } from "@runtime/suggestionsHost";
@@ -28,19 +30,47 @@ const suggestionsHost = () => import("@runtime/suggestionsHost");
 export type { PanelId };
 
 const panelListeners = new Set<() => void>();
+const notify = () => panelListeners.forEach((listener) => listener());
+const subscribe = (listener: () => void) => { panelListeners.add(listener); return () => { panelListeners.delete(listener); }; };
+
 let openPanels: readonly PanelId[] = [];
+
+const NARROW_BELOW = 768;
+
+const narrow = () => window.innerWidth < NARROW_BELOW;
+
+export interface SheetState {
+  open: boolean;
+  tab: SheetTab | null;
+  popped: boolean;
+}
+
+let sheet: SheetState = { open: false, tab: null, popped: false };
 
 export const setPanel = (id: PanelId, open: boolean) => {
   openPanels = open ? [...openPanels.filter((entry) => entry !== id), id] : openPanels.filter((entry) => entry !== id);
-  panelListeners.forEach((listener) => listener());
+  if (open && narrow()) sheet = { ...sheet, open: false };
+  notify();
 };
+
+const setSheet = (next: Partial<SheetState>) => {
+  sheet = { ...sheet, ...next };
+  notify();
+};
+
+export const openSheet = (tab?: SheetTab | null) => {
+  if (narrow()) openPanels = [];
+  setSheet({ open: true, ...(tab ? { tab } : {}) });
+};
+export const closeSheet = () => setSheet({ open: false });
+export const toggleSheet = (tab?: SheetTab | null) => (sheet.open && (!tab || tab === sheet.tab) ? closeSheet() : openSheet(tab));
+export const setSheetTab = (tab: SheetTab) => setSheet({ tab });
+export const setSheetPopped = (popped: boolean) => setSheet({ popped });
 
 let guideTarget: GuideTarget | null = null;
 
-export const useOpenPanels = () => useSyncExternalStore(
-  (listener) => { panelListeners.add(listener); return () => { panelListeners.delete(listener); }; },
-  () => openPanels,
-);
+export const useOpenPanels = () => useSyncExternalStore(subscribe, () => openPanels);
+export const useSheet = () => useSyncExternalStore(subscribe, () => sheet);
 
 export interface PresenceUiDeps {
   manager: RuntimeManager;
@@ -50,10 +80,7 @@ export interface PresenceUiDeps {
   jumpToMessage?: (messageId: number) => void;
 }
 
-export const openChatPanel = (panel: ChatPanel, snapshot: RuntimeSnapshot) => {
-  if (panel === "widgets") gamePanels(snapshot).widgets.forEach((widget) => setPanel(`widget-${widget.id}`, true));
-  else setPanel(panel, true);
-};
+export const openChatPanel = (panel: ChatPanel, snapshot: RuntimeSnapshot) => openSheet(sheetTabForPanel(panel, sheetTabs(snapshot)));
 
 const LAUNCHERS: Record<ChatPanel, { id: string; icon: string; label: string }> = {
   journal: { id: "so-open-journal", icon: "fa-book", label: GAME_TEXT.journalLaunch },
@@ -101,10 +128,12 @@ export function createPresenceUi({ manager, useSnapshot, showFeature, openDrawer
 
   const PanelsGate = () => {
     const panels = useOpenPanels();
-    if (!panels.length) return null;
+    const state = useSheet();
+    if (!panels.length && !state.open) return null;
     return (
       <Lazy fallback={null}>
-        <PanelsHost panels={panels} setPanel={setPanel} manager={manager} useSnapshot={useSnapshot} showFeature={showFeature} openDrawer={openDrawer} jumpToMessage={jumpToMessage}
+        <PanelsHost panels={panels} setPanel={setPanel} sheet={state} sheetControl={{ setTab: setSheetTab, setPopped: setSheetPopped, close: closeSheet }}
+          manager={manager} useSnapshot={useSnapshot} showFeature={showFeature} openDrawer={openDrawer} jumpToMessage={jumpToMessage}
           guideTarget={() => guideTarget} clearGuideTarget={() => { guideTarget = null; }} requestSuggestions={requestSuggestions} fillSuggestion={fillSuggestion} fill={fill} htmlHost={htmlHost} />
       </Lazy>
     );
@@ -116,9 +145,9 @@ export function createPresenceUi({ manager, useSnapshot, showFeature, openDrawer
       guideTarget = target;
       setPanel("guide", true);
     }));
-    const openJournal = () => setPanel("journal", true);
-    window.addEventListener(JOURNAL_PAGE_EVENT, openJournal);
-    ui.add(() => window.removeEventListener(JOURNAL_PAGE_EVENT, openJournal));
+    const openPeople = () => openSheet("people");
+    window.addEventListener(JOURNAL_PAGE_EVENT, openPeople);
+    ui.add(() => window.removeEventListener(JOURNAL_PAGE_EVENT, openPeople));
     const root = ui.element(document.createElement("div"));
     root.id = "so-panels-root";
     document.body.appendChild(root);
@@ -140,16 +169,12 @@ export function createPresenceUi({ manager, useSnapshot, showFeature, openDrawer
     ui.add(() => badges.dispose());
     ui.add(onPlaysChanged(() => badges.refresh()));
     const wand = mountStoryWand([
-      { id: "so-wand-recap", icon: "fa-book-open", label: PRESENCE_TEXT.wandRecap, run: showRecap },
+      { id: "so-wand-sheet", icon: "fa-book-open", label: SHEET_TEXT.title, run: () => openSheet(), shown: () => sheetTabs(manager.getCachedSnapshot()).length > 0 },
+      { id: "so-wand-recap", icon: "fa-clock-rotate-left", label: PRESENCE_TEXT.wandRecap, run: showRecap },
       { id: "so-wand-briefing", icon: "fa-scroll", label: BRIEFING_COPY.reopen, run: () => void requestBriefing(), shown: () => Boolean(manager.getCachedSnapshot().briefing?.view) },
       { id: "so-wand-flag", icon: "fa-flag", label: PRESENCE_TEXT.wandFlag, run: () => void flag() },
-      {
-        id: "so-wand-suggestions", icon: "fa-lightbulb", label: PRESENCE_TEXT.suggestionsOpen, run: () => setPanel("suggestions", true),
-        shown: () => manager.getCachedSnapshot().presence?.shown.suggestions === true,
-      },
-      { id: "so-wand-journal", icon: "fa-book", label: GAME_TEXT.wandJournal, run: () => setPanel("journal", true), shown: () => gamePanels(manager.getCachedSnapshot()).journal },
-      { id: "so-wand-stat-sheet", icon: "fa-list-check", label: GAME_TEXT.wandStatSheet, run: () => setPanel("stat-sheet", true), shown: () => gamePanels(manager.getCachedSnapshot()).statSheet },
       { id: "so-wand-drawer", icon: "fa-route", label: PRESENCE_TEXT.wandDrawer, run: () => openDrawer() },
+      { id: "so-wand-help", icon: "fa-circle-question", label: HELP_COPY.heading, run: () => setPanel("help", true) },
     ]);
     ui.add(() => wand.dispose());
     let settingsKey = "";

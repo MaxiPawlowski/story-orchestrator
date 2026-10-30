@@ -1,5 +1,11 @@
 export const YIELD_MAX_MS = 15_000;
 
+export const READ_WAIT_BOUND_MS = 120_000;
+
+export const unrefTimer = (timer: unknown): void => {
+  if (timer && typeof timer === "object" && "unref" in timer && typeof timer.unref === "function") timer.unref();
+};
+
 export type YieldOutcome = "settled" | "expired";
 
 export const boundedWait = (ahead: Promise<unknown>, ms = YIELD_MAX_MS): Promise<YieldOutcome> => {
@@ -17,6 +23,10 @@ export class YieldGate {
 
   constructor(private readonly ahead: () => Promise<unknown> | null | undefined, ...resume: Array<() => unknown>) {
     this.resume = resume;
+  }
+
+  isWaiting(): boolean {
+    return this.waiting !== null;
   }
 
   holds(): boolean {
