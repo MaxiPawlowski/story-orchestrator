@@ -8,6 +8,20 @@ export const SHOWCASE_ART_ROOT = process.env.SO_SHOWCASE_ART ?? 'C:/dev/so-showc
 export const SHOWCASE_AVATARS = ['wren-avatar.png', 'garrick-avatar.png', 'pim-avatar.png'] as const;
 export const CARD_ART_DEVIATION = 'no product path draws a card portrait: each provisioned card gets the existing POC showcase avatar through SillyTavern\'s own card picture upload (/api/characters/edit-avatar) before the base step';
 
+export const SHOWCASE_AVATAR_LOOKS: Readonly<Record<(typeof SHOWCASE_AVATARS)[number], readonly string[]>> = {
+  'wren-avatar.png': ['red hair', 'green eyes', 'green tunic'],
+  'garrick-avatar.png': ['black hair', 'plate armour', 'blue cape'],
+  'pim-avatar.png': ['silver hair', 'violet eyes', 'purple witch hat'],
+};
+
+export function cardTextProblems(cast: ReadonlyArray<{ name: string; description: string }>): string[] {
+  return cast.flatMap((member, at) => {
+    const avatar = SHOWCASE_AVATARS[at];
+    const missing = (avatar ? SHOWCASE_AVATAR_LOOKS[avatar] : []).filter((trait) => !member.description.toLowerCase().includes(trait));
+    return missing.length ? [`${member.name}: card text does not describe its showcase art ${avatar} (missing ${missing.join(', ')})`] : [];
+  });
+}
+
 export interface CardArtPlanRow { name: string; file: string }
 
 export function cardArtPlan(cast: ReadonlyArray<{ name: string }>, root = SHOWCASE_ART_ROOT): CardArtPlanRow[] {

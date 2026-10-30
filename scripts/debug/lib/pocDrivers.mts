@@ -233,12 +233,12 @@ export interface CastMember { id: string; name: string; description: string; out
 
 export function journeyCast(marker = P41_MARKER): CastMember[] {
   return [
-    { id: 'ash', name: `${marker} Ash`, description: 'Ash is a young courier with short copper hair, freckles and grey eyes, in a mustard rain jacket and dark trousers. Quick, cheerful, talks with her hands.',
-      outfit: 'mustard rain jacket', poses: ['stand_relaxed', 'sit_chair'], lookValue: 'a long navy wool coat over the jacket' },
-    { id: 'bram', name: `${marker} Bram`, description: 'Bram is a broad lighthouse keeper with a grey beard and a knitted blue sweater. Slow to speak, dry humour, steady hands.',
-      outfit: 'knitted blue sweater', poses: ['stand_relaxed', 'sit_edge'], lookValue: 'a yellow oilskin coat' },
-    { id: 'cleo', name: `${marker} Cleo`, description: 'Cleo is a slight archivist with black bobbed hair and round glasses, in a green cardigan. Precise, curious, quietly stubborn.',
-      outfit: 'green cardigan', poses: ['stand_relaxed', 'sit_floor'], lookValue: 'a red scarf and a grey cap' },
+    { id: 'ash', name: `${marker} Ash`, description: 'Ash is a young courier with short red hair and green eyes, in a belted green tunic and tall brown leather boots. Quick, cheerful, talks with her hands.',
+      outfit: 'belted green tunic', poses: ['stand_relaxed', 'sit_chair'], lookValue: 'a long navy wool coat over the tunic' },
+    { id: 'bram', name: `${marker} Bram`, description: 'Bram is a broad young keeper with short black hair and dark eyes, in silver plate armour and a long blue cape. Slow to speak, dry humour, steady hands.',
+      outfit: 'silver plate armour and a long blue cape', poses: ['stand_relaxed', 'sit_edge'], lookValue: 'a yellow oilskin coat over the armour' },
+    { id: 'cleo', name: `${marker} Cleo`, description: 'Cleo is a slight young archivist with long silver hair and violet eyes, in a wide purple witch hat and a long purple coat with gold trim. Precise, curious, quietly stubborn.',
+      outfit: 'purple witch hat and long purple coat', poses: ['stand_relaxed', 'sit_floor'], lookValue: 'a red scarf over the coat' },
   ];
 }
 
