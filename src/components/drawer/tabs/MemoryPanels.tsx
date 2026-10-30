@@ -121,11 +121,12 @@ export const ArcCanonPanel = ({ snapshot, manager }: { snapshot: RuntimeSnapshot
   const arcs = snapshot.memory.arcs ?? [];
   const openArcs = arcs.filter((arc) => arc.status === "open");
   const resolvedArcs = arcs.filter((arc) => arc.status === "resolved");
+  const putOff = openArcs.filter(arcDeferred).length;
   const canon = snapshot.memory.canon;
   if (!arcs.length && !canon) return null;
   return (
     <div className="border-t border-solid border-[var(--so-line)] mt-1 pt-1">
-      <div className="opacity-100">Arcs (open {openArcs.length} · put off {openArcs.filter(arcDeferred).length} · resolved {resolvedArcs.length})</div>
+      <div className="opacity-100">Arcs (open {openArcs.length}{putOff ? ` · put off ${putOff}` : ""} · resolved {resolvedArcs.length})</div>
       {arcs.map((arc) => (
         <div key={arc.id} className="mt-1">
           <div className={arc.status === "resolved" ? "opacity-70" : ""}>{arc.status === "resolved" ? "✓ " : "◦ "}{arc.text}{arc.pinned ? " 📌" : ""}</div>
