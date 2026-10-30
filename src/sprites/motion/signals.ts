@@ -15,6 +15,7 @@ export function stageSignals(snapshot: SignalSnapshot, story: NormalizedStory | 
     session, boundary: snapshot.boundary, checkpoint: id, background: effects?.background?.name ?? null, transition: readTransitionSpec(effects?.transition),
     tension: snapshot.tension?.level ?? null, chapters: chapters?.records.length ?? 0, chapterLabel: label, chapterTitle: current?.playerTitle ?? sealed?.playerTitle ?? null,
     chapterCards: story?.display?.chapter_card !== false,
+    backgrounds: [...new Set((story?.checkpoints ?? []).flatMap((checkpoint) => (checkpoint.effects?.background?.name ? [checkpoint.effects.background.name] : [])))],
   };
 }
 

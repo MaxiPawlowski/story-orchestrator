@@ -22,6 +22,7 @@ export interface StageSignals {
   chapterLabel: string | null;
   chapterTitle: string | null;
   chapterCards: boolean;
+  backgrounds?: readonly string[];
 }
 
 export interface TransitionPlay { kind: StageTransitionKind; ms: number; color: string }
@@ -52,7 +53,9 @@ export function stageCues(previous: StageSignals | null, next: StageSignals): St
   if (next.checkpoint !== previous.checkpoint && next.checkpoint !== null) {
     const play = transitionPlay(next.transition);
     if (play.kind !== "dissolve" && play.kind !== "cut") cues.push({ kind: "transition", play });
-    if (play.kind !== "cut" && next.background !== null && next.background !== previous.background) cues.push({ kind: "background", ms: play.kind === "dissolve" ? play.ms : Math.round(play.ms / 2) });
+    if (next.background !== null && next.background !== previous.background) {
+      cues.push({ kind: "background", ms: play.kind === "cut" ? 0 : play.kind === "dissolve" ? play.ms : Math.round(play.ms / 2) });
+    }
   }
   if (tensionRank(previous.tension) < CRITICAL && tensionRank(next.tension) >= CRITICAL) cues.push({ kind: "punch" });
   if (next.chapterCards && next.chapters > previous.chapters && next.chapterTitle) cues.push({ kind: "chapter", label: next.chapterLabel ?? "", title: next.chapterTitle });

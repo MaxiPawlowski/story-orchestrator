@@ -15,11 +15,11 @@ describe("stage cues from engine state", () => {
     expect(stageCues(base, at({ boundary: 5, checkpoint: "cp2" }))).toEqual([]);
   });
 
-  it("authored kinds: fade, wipe and iris cover the stage and crossfade underneath; cut does neither", () => {
+  it("authored kinds: fade, wipe and iris cover the stage and crossfade underneath; cut switches at once (0 ms, no cover)", () => {
     expect(stageCues(base, at({ boundary: 5, checkpoint: "cp2", background: "road.jpg", transition: { kind: "fade", ms: 1200, color: "#fff" } }))).toEqual([
       { kind: "transition", play: { kind: "fade", ms: 1200, color: "#fff" } }, { kind: "background", ms: 600 }]);
     expect(stageCues(base, at({ boundary: 5, checkpoint: "cp2", transition: { kind: "iris" } }))).toEqual([{ kind: "transition", play: { kind: "iris", ms: 1000, color: "#000000" } }]);
-    expect(stageCues(base, at({ boundary: 5, checkpoint: "cp2", background: "road.jpg", transition: { kind: "cut" } }))).toEqual([]);
+    expect(stageCues(base, at({ boundary: 5, checkpoint: "cp2", background: "road.jpg", transition: { kind: "cut" } }))).toEqual([{ kind: "background", ms: 0 }]);
   });
 
   it("presentation only: hydrate, a chat or story switch, the same boundary and a rollback produce no cue", () => {
@@ -83,5 +83,15 @@ describe("motion feed", () => {
     expect(feed.view()).toMatchObject({ seq: 1, cues: [{ kind: "background", ms: 600 }] });
     feed.update(at({ boundary: 3, checkpoint: "cp1" }));
     expect(feed.view().seq).toBe(1);
+  });
+});
+
+describe("background hold", () => {
+  it("names an authored background from ST's css url, with or without the extension, case-insensitive", () => {
+    const { layerNamesAuthored } = jest.requireActual("./backgroundHold") as typeof import("./backgroundHold");
+    expect(layerNamesAuthored('url("backgrounds/bedroom%20cyberpunk.jpg")', ["Bedroom Cyberpunk.jpg"])).toBe(true);
+    expect(layerNamesAuthored('url("backgrounds/bedroom%20cyberpunk.jpg")', ["bedroom cyberpunk"])).toBe(true);
+    expect(layerNamesAuthored('url("backgrounds/tavern.png")', ["bedroom cyberpunk.jpg"])).toBe(false);
+    expect(layerNamesAuthored("none", [])).toBe(false);
   });
 });
