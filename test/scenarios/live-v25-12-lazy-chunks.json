@@ -29,25 +29,25 @@
     {
       "ui": {
         "action": "drawer-tab",
-        "label": "Scheduler"
+        "label": "Pipeline"
       }
     },
     {
-      "eval": "const panel = document.querySelector('#drawer-manager [data-so-tab=\"scheduler\"]'); if (!panel) throw new Error('the Scheduler tab never finished loading its chunk'); if (!(panel.textContent ?? '').includes('Extraction')) throw new Error(`the Scheduler tab rendered without its content: ${(panel.textContent ?? '').slice(0, 120)}`); return { scheduler: true };"
+      "eval": "const panel = document.querySelector('#drawer-manager [data-so-tab=\"pipeline\"]'); if (!panel) throw new Error('the Pipeline section never finished loading its chunk'); if (!(panel.textContent ?? '').includes('Extraction')) throw new Error(`the Pipeline section rendered without its content: ${(panel.textContent ?? '').slice(0, 120)}`); return { pipeline: true };"
     },
     {
       "ui": {
         "action": "drawer-tab",
-        "label": "Payload"
+        "label": "Prompt"
       }
     },
     {
-      "eval": "if (!document.querySelector('#drawer-manager [data-so-tab=\"payload\"] #so-next-turn')) throw new Error('the Payload tab did not render the next-turn preview'); return { payload: true };"
+      "eval": "if (!document.querySelector('#drawer-manager [data-so-tab=\"prompt\"] #so-next-turn')) throw new Error('the Prompt section did not render the next-turn preview'); return { payload: true };"
     },
     {
       "ui": {
         "action": "drawer-tab",
-        "label": "Blackboard"
+        "label": "State"
       }
     },
     {

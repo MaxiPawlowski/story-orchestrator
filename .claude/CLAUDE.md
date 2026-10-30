@@ -80,10 +80,13 @@ library, setup/repair, author/inspect, long reference. A dialog control that tar
     Your character `#so-your-character`, Save this run `#so-living-save`, Beside the chat `#so-chat-side` (labelled
     launchers that close the workspace), Illustrations `#so-image-chat` (pause automatic images in this chat), memory
     `#so-open-memory` (Exclude has an inline Undo `#so-memory-undo`), Restart / Story briefing / Flag (`#so-flag-status`).
-  - **Author** (Author view only; nothing the Play page shows): Recent activity, `DrawerTabs` in `#drawer-manager` (Overview
-    `#so-author-overview` with engine, requirements, history floor, `#so-author-story-controls`: New story / Edit story / Update to the latest;
-    Blackboard, Memory (author), Scheduler, Payload, DriverPanel), Illustrate prepared cast `#so-cast-scene`. An author chip
-    under a message opens this page with `#so-inspector` on top (`inspectorIntent`).
+  - **Author** (Author view only; nothing the Play page shows): run console `DrawerTabs` in `#drawer-manager`
+    (`components/drawer/`, `runtime/authorConsole.ts`): sticky Steer column `[data-so="steer"]` (DriverPanel: checkpoint,
+    boundary, pipeline, readable unmet gates, Suggest/Probe/Report, Advance, Nudge, `#so-author-story-controls`) and section tabs
+    `role=tab` with `data-so-tab` on each body: health (`#so-author-overview`), state (grouped searchable table), memory
+    (who-knows-what `#so-who-knows` + kept-out-on-stage alert), prompt, proposals (count badge; Review page opens it),
+    activity (`#so-open-activity`), pipeline. `so-ui.mts drawer-tab` aliases Overview/Blackboard/Payload/Scheduler/Review.
+    Illustrate prepared cast `#so-cast-scene` below.
   - **Library** (`SettingsPanel` `workspaceSection="library"`): entry points `#so-entry-points` — Start (`#so-new-story-wizard`,
     import `#so-entry-import-toggle`/`#so-entry-import`), Continue (`#so-entry-continue`, Continue list closes the workspace
     before switching chat), Repair (`#so-entry-repair`, `[data-so="repair-step"]`, `#so-entry-fix-with-wizard`), Author (`#so-open-studio`); story select.
@@ -94,7 +97,7 @@ library, setup/repair, author/inspect, long reference. A dialog control that tar
   shown, memory peek (`memoryShown` only), **More…** (Play). Escape, close or an outside click closes it.
 - **Floating panels** `#so-panels-root` (`presenceUi.tsx`, `PanelFrame`): Help and Ask, guide reader, journal, stat sheet,
   story panels, What could I do?. Under 768px a panel docks above `#form_sheld` (`dockInset`) and only the last-opened one shows (`shownPanels`).
-- **Inline timeline**: chips under each message (`#so-inline-<mesid>` hosts from `stHost/inlineMount.ts`, `components/inline/`), level `#so-inline-level` 0 Off / 1 Story (default) / 2 Behind the scenes / 3 Author / 4 Raw (3–4 need Author view); author chip opens `#so-inspector` on the Author page. The `/comment` transition note is opt-in (`#so-announce-transitions`, default off).
+- **Inline timeline**: chips under each message (`#so-inline-<mesid>` hosts from `stHost/inlineMount.ts`, `components/inline/`), level `#so-inline-level` 0 Off / 1 Story (default) / 2 Behind the scenes / 3 Author / 4 Raw (3–4 need Author view); author chips are labelled at level ≥ 3; Inspect opens `#so-inspector` as the floating panel `inspector` (‹ › stepping, What changed / Why / Prompt / Health, raw at level 4). The `/comment` transition note is opt-in (`#so-announce-transitions`, default off).
 - **Start pane** `#so-briefing` (Before you start + identity + briefing).
 - **Checkpoint Studio** (`src/studio/`): `StudioModal` (`#so-studio-modal`, native `<dialog>` in its own `#so-studio-root`), zustand draft (`draft.ts`), all edits through typed `mutations.ts`. The **Wizard** tab (tab id `copilot`): four author steps (`[data-so="wizard-step"]`) over five stages, interview (`#so-wizard-questions`), create-only provisioning cards applied one at a time; modes **Ask** (`#so-studio-ask`) and **Build a character** (`#so-character-tutorial`). "How to write this" disclosure `#so-studio-guide`. Editors are grouped into Story setup, Flow, State and rules, Characters, World, Presentation, Story features, Assistant and Validation; mobile graph sheets and checkpoint/transition drill-down keep editing enabled. Its gate replay jump closes the Studio before scrolling the chat. Saving hands the record back via `onSaved`; the runtime decides whether this chat takes it. Every UI part has a `.stories.tsx` (`test-storybook:ci`).
 - **Ask**: Help panel `#so-help-ask`, Studio Ask, `/story ask <question>`; switch `copilot.ask` (`#so-copilot-ask`). Debug: `globalThis.storyOrchestratorAsk.ask(question, persona?)`; live Q&A `node scripts/debug/so-ask-qa.mts run --group <name>`.

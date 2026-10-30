@@ -103,7 +103,7 @@ src/
     inline/                 # v2.6 plan 08: InlineLayer/InlineStrip/InlineDetail (notes under messages)
     drawer/                 # DrawerTabs (player Overview/Memory; author adds Blackboard/Scheduler/Payload),
                             #   PlayerOverview (narrative view + pipeline signal), HudStrip, DriverPanel (author),
-                            #   StagecraftPanel (author: the curator review ring in the Scheduler tab)
+                            #   StagecraftPanel (author: the curator review ring in the Proposals section)
   services/
     STAPI.ts                # the ONLY import surface for host modules
     stHost/*                # one host wrapper per concern (dynamic webpackIgnore imports)

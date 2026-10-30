@@ -9,15 +9,15 @@ const LoreForced = ({ record }: { record: RuntimeSnapshot["loreForced"] | undefi
   if (!record) return null;
   const picks = Object.entries(record.p ?? {}).filter(([key]) => key !== "trigger");
   return (
-    <div data-so="lore-forced">
-      <div className="font-medium opacity-100">Lore forced this turn</div>
-      <div className="opacity-70"><MessageCitation
+    <div data-so="lore-forced" className="so-console-block">
+      <h4>Lore forced this turn</h4>
+      <div className="so-muted"><MessageCitation
         messageId={record.messageId}
       /> · {String(record.p?.trigger ?? "")} · {record.fallback ? `fell back (${record.fallback})` : `${record.latencyMs} ms`}</div>
-      {picks.length === 0 ? <div className="opacity-70">Nothing over the floor; ST's keyword scan ran as usual.</div> : picks.map(([
+      {picks.length === 0 ? <div className="so-muted">Nothing over the floor; ST's keyword scan ran as usual.</div> : picks.map(([
         title,
         p,
-      ]) => <div key={title}>{title} <span className="opacity-70">{typeof p === "number" ? `${Math.round(p * 100)}%` : p}</span></div>)}
+      ]) => <div key={title}>{title} <span className="so-muted">{typeof p === "number" ? `${Math.round(p * 100)}%` : p}</span></div>)}
     </div>
   );
 };
@@ -28,21 +28,21 @@ const LoreForced = ({ record }: { record: RuntimeSnapshot["loreForced"] | undefi
 const LoreFired = ({ evidence }: { evidence: RuntimeSnapshot["loreEvidence"] }) => {
   const last = evidence?.last ?? null;
   return (
-    <div id="so-lore-fired" data-so="lore-fired">
-      <div className="font-medium opacity-100">Lore that fired last turn</div>
+    <div id="so-lore-fired" data-so="lore-fired" className="so-console-block">
+      <h4>Lore that fired last turn</h4>
       {!last ? (
-        <div className="opacity-70">No reply has been generated since this chat opened.</div>
+        <div className="so-muted">No reply has been generated since this chat opened.</div>
       ) : (
         <>
           <div
-            className="opacity-70"
+            className="so-muted"
           >{last.rendered ? "reply rendered" : "no reply"} · {last.scanCount} scan{last.scanCount === 1 ? "" : "s"}{last.nestedScans ? ` (${last.nestedScans} inside a quiet run)` : ""}</div>
           {last.fired.length === 0 ? (
-            <div className="opacity-70">Nothing fired. ST reports nothing for a scan that activates nothing.</div>
+            <div className="so-muted">Nothing fired. ST reports nothing for a scan that activates nothing.</div>
           ) : last.fired.map((entry) => (
             <div key={`${entry.world}.${entry.uid}`} data-so="lore-fired-row" data-origin={entry.origin} className="flex flex-wrap items-center gap-2">
               <span>{entry.comment || `${entry.world} #${entry.uid}`}</span>
-              <span className="opacity-70">{entry.world}{entry.constant ? " · constant" : ""}</span>
+              <span className="so-muted">{entry.world}{entry.constant ? " · constant" : ""}</span>
               {entry.origin !== "other" && <span className="st-pill px-1 text-[10px]">{entry.origin}</span>}
             </div>
           ))}
@@ -70,14 +70,14 @@ const ScanGateTable = ({ view, evidence }: { view: RuntimeSnapshot["scanGate"]; 
   const fired = evidence?.last?.fired ?? [];
   const firedRow = (lorebook: string, uid: number) => fired.some((entry) => entry.uid === uid && entry.world.trim().toLowerCase() === lorebookFileId(lorebook).toLowerCase());
   return (
-    <div id="so-scan-gate" data-so="scan-gate">
-      <div className="font-medium opacity-100">Per-chat lorebook gating: {view.owner === "story" ? "this chat's path" : "no story"}</div>
+    <div id="so-scan-gate" data-so="scan-gate" className="so-console-block">
+      <h4>Per-chat lorebook gating: {view.owner === "story" ? "this chat's path" : "no story"}</h4>
       {view.rows.length === 0 ? (
-        <div className="opacity-70">No gated entry was in the last scan.</div>
+        <div className="so-muted">No gated entry was in the last scan.</div>
       ) : view.rows.map((row) => (
         <div key={`${row.lorebook}.${row.uid}`} data-so="scan-gate-row" data-effective={flagText(row.effectiveDisabled)} className="flex flex-wrap items-center gap-2">
           <span>{row.comment}</span>
-          <span className="opacity-70">{row.lorebook}{row.gatedBy?.length ? ` · gated by ${row.gatedBy.join(", ")}` : ""} · file {flagText(row.fileDisabled)} · this
+          <span className="so-muted">{row.lorebook}{row.gatedBy?.length ? ` · gated by ${row.gatedBy.join(", ")}` : ""} · file {flagText(row.fileDisabled)} · this
             chat {flagText(row.effectiveDisabled)}{firedRow(
             row.lorebook,
             row.uid,
@@ -92,47 +92,49 @@ const SamplerOverlayRow = ({ overlay }: { overlay: RuntimeSnapshot["samplerOverl
   if (!overlay) return null;
   const values = Object.entries(overlay.values).map(([key, value]) => `${key} ${value}`).join(", ");
   return (
-    <div data-so="next-turn-overlay" className="flex flex-col gap-0.5">
-      <div className="opacity-100">Sampler overlay “{overlay.name}”: {values}</div>
-      <div className="opacity-70">This checkpoint's replies only; the selected preset is untouched. {overlay.applied ? `Applied to ${overlay.applied} request(s).` : "Not applied yet."}</div>
+    <div data-so="next-turn-overlay" className="so-console-block">
+      <div className="so-strong">Sampler overlay “{overlay.name}”: {values}</div>
+      <div className="so-muted">This checkpoint's replies only; the selected preset is untouched. {overlay.applied ? `Applied to ${overlay.applied} request(s).` : "Not applied yet."}</div>
       {overlay.lastSkipped.length > 0 && <div className="so-warning-text">Not in the last request: {overlay.lastSkipped.join(", ")}</div>}
-      {overlay.unknown.length > 0 && <div className="opacity-70">Not sent (not a per-request sampler): {overlay.unknown.join(", ")}</div>}
+      {overlay.unknown.length > 0 && <div className="so-muted">Not sent (not a per-request sampler): {overlay.unknown.join(", ")}</div>}
     </div>
   );
 };
 
-export const PayloadTab = ({ snapshot, manager, onOpenOwner }: { snapshot: RuntimeSnapshot; manager: RuntimeManager; onOpenOwner: (tab: NextTurnOwnerTab) => void }) => {
+export const PromptSection = ({ snapshot, manager, onOpenOwner }: { snapshot: RuntimeSnapshot; manager: RuntimeManager; onOpenOwner: (tab: NextTurnOwnerTab) => void }) => {
   const captures = snapshot.payloadCaptures;
   return (
-    <div className="text-xs opacity-80 flex flex-col gap-2">
+    <div className="so-console-stack">
       <LoreForced record={snapshot.loreForced} />
       <LoreFired evidence={snapshot.loreEvidence} />
       <ScanGateTable view={snapshot.scanGate} evidence={snapshot.loreEvidence} />
       <SamplerOverlayRow overlay={snapshot.samplerOverlay} />
       <NextTurnPanel snapshot={snapshot} actions={manager.previewActions} onOpenOwner={onOpenOwner} />
-      <div className="font-medium opacity-100">Injected prompt payload</div>
+      <div className="so-console-block" data-so="payload-captures">
+      <h4>Injected prompt payload</h4>
       {captures.length === 0 ? (
-        <div className="opacity-70">No captures yet. Blocks are recorded when a generation starts.</div>
+        <div className="so-muted">No captures yet. Blocks are recorded when a generation starts.</div>
       ) : (
         captures.map((capture, index) => (
-          <div key={capture.at} className="border-t border-solid border-[var(--so-line)] pt-1">
-            <div className="opacity-100">
+          <div key={capture.at} className="so-console-item">
+            <div className="so-strong">
               {index === 0 ? "Latest" : capture.at} · boundary {capture.boundary} · {capture.reason} · {capture.blocks.length} blocks
               {capture.folded ? <span data-so="payload-folded"> · {capture.folded} messages folded</span> : null}
             </div>
             {capture.blocks.length === 0 ? (
-              <div className="opacity-70">No story blocks injected for this generation.</div>
+              <div className="so-muted">No story blocks injected for this generation.</div>
             ) : (
               capture.blocks.map((block) => (
                 <div key={block.key} className="mt-1">
-                  <div className="opacity-100">{block.key} <span className="opacity-70">@depth {block.depth}</span></div>
-                  <div className="whitespace-pre-wrap opacity-80">{block.value}</div>
+                  <div className="so-strong">{block.key} <span className="so-muted">@depth {block.depth}</span></div>
+                  <div className="so-pre so-muted">{block.value}</div>
                 </div>
               ))
             )}
           </div>
         ))
       )}
+      </div>
     </div>
   );
 };

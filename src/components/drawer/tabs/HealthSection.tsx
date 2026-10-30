@@ -1,8 +1,8 @@
 import type { LoreSource, RuntimeSnapshot } from "@runtime/types";
 import { provisionableMissing } from "@runtime/repair";
 import { competingSummary } from "@runtime/storyScenario";
-import ScenePanel from "../ScenePanel";
-import { PatternsPanel } from "../PatternsPanel";
+import { setupFindings } from "@runtime/repair";
+import { Button } from "@components/ui/Button";
 import { StatusDot } from "@components/ui/StatusDot";
 
 const extractionReady = (snapshot: RuntimeSnapshot): boolean => snapshot.extraction.settings.enabled && Boolean(snapshot.extraction.settings.profileId);
@@ -20,7 +20,7 @@ const LoreBindings = ({ snapshot }: { snapshot: RuntimeSnapshot }) => {
   const gaps = Object.entries(characterGaps);
   if (!bound.length && !gaps.length && !slotConflict) return null;
   return (
-    <div className="flex flex-col gap-1 text-xs opacity-80">
+    <div className="so-muted so-console-list">
       {bound.map(([book, source]) => <div key={book} data-so="lore-satisfied-by">{book}: {SOURCE_LABELS[source]}</div>)}
       {gaps.map(([book, members]) => <div key={book} data-so="lore-character-gap">{book}: not bound to {members.join(", ")}</div>)}
       {slotConflict && (
@@ -34,7 +34,7 @@ const LoreBindings = ({ snapshot }: { snapshot: RuntimeSnapshot }) => {
 };
 
 const CompetingScenarios = ({ names }: { names: string[] }) => (names.length ? (
-  <div data-so="scenario-competing" className="flex flex-col gap-1 text-xs opacity-80">
+  <div data-so="scenario-competing" className="so-muted so-console-list">
     <div>{competingSummary(names)}.</div>
     <div>Cards: {names.join(", ")}. Give a checkpoint a scenario to frame the chat with one story text instead.</div>
   </div>
@@ -57,99 +57,60 @@ const AuthorRequirements = ({ snapshot, onFixWithWizard }: { snapshot: RuntimeSn
       {items.map((item) => (
         <div key={item.label} className="flex flex-col gap-1">
           <div className="flex items-center gap-2"><StatusDot tone={item.missing.length ? "error" : "ok"} label={item.label} word={item.missing.length ? "missing" : "ready"} /></div>
-          {item.missing.length > 0 && <div className="text-xs opacity-80">Missing: {item.missing.join(", ")}</div>}
+          {item.missing.length > 0 && <div className="so-muted">Missing: {item.missing.join(", ")}</div>}
         </div>
       ))}
       <LoreBindings snapshot={snapshot} />
       <CompetingScenarios names={snapshot.competingScenarios ?? []} />
       {provisionable && onFixWithWizard && (
-        <button
-          id="so-fix-with-wizard"
-          className="menu_button self-start"
-          title="Open the wizard on the provisioning step, pre-filled with what this story is missing."
-          onClick={onFixWithWizard}
-        >Fix with wizard</button>
+        <Button id="so-fix-with-wizard" size="sm" className="self-start" title="Open the wizard on the provisioning step, pre-filled with what this story is missing."
+          onClick={onFixWithWizard}>Fix with wizard</Button>
       )}
       <div className="flex flex-col gap-1">
         <div className="flex items-center gap-2"><StatusDot tone={ready ? "ok" : "error"} label="Extraction" word={extractionWord(snapshot)} /></div>
-        {!ready && <div className="text-xs opacity-80">Off — the story will not advance on its own. Enable it and pick a model profile in settings.</div>}
+        {!ready && <div className="so-muted">Off — the story will not advance on its own. Enable it and pick a model profile in settings.</div>}
       </div>
     </div>
   );
 };
 
-// Author-only machine view of the same checkpoint: ids, counters, gate progress and the raw
-// pending queue. Convergence is a spoiler by construction (it names a future anchor), so it never
-// appears without author view.
-// An edit past the retained history cannot be rewound here,
-// but a branch cut at the floor starts exactly there, and its Continue from here restores it. Author view
-// only until a player session has looked at it (rule 7).
 const HistoryFloor = ({ snapshot, onBranchFromOldest }: { snapshot: RuntimeSnapshot; onBranchFromOldest?: (messageId: number) => void }) => {
   const oldest = snapshot.rollbackUnavailable?.oldest;
   if (!oldest || !onBranchFromOldest) return null;
   return (
-    <div id="so-history-floor" className="text-xs opacity-80">
-      <div className="font-medium opacity-100">History floor</div>
-      <div>Oldest restorable point: boundary {oldest.boundary}, message {oldest.messageId}</div>
-      <button
-        id="so-branch-from-oldest"
-        type="button"
-        className="menu_button"
-        disabled={oldest.messageId < 0}
-        onClick={() => onBranchFromOldest(oldest.messageId)}
-      >Branch from the oldest restorable point</button>
+    <div id="so-history-floor" className="so-console-block">
+      <h4>History floor</h4>
+      <p>Oldest restorable point: boundary {oldest.boundary}, message {oldest.messageId}</p>
+      <Button id="so-branch-from-oldest" size="sm" disabled={oldest.messageId < 0} onClick={() => onBranchFromOldest(oldest.messageId)}>Branch from the oldest restorable point</Button>
     </div>
   );
 };
 
-const AuthorOverview = ({ snapshot, onFixWithWizard, onBranchFromOldest }: { snapshot: RuntimeSnapshot; onFixWithWizard?: () => void; onBranchFromOldest?: (messageId: number) => void }) => (
-  <div id="so-author-overview" className="flex flex-col gap-3">
-    <HistoryFloor snapshot={snapshot} onBranchFromOldest={onBranchFromOldest} />
-    <div className="text-xs opacity-80">
-      <div className="font-medium opacity-100">Engine</div>
-      <div>{snapshot.activeCheckpointId} · boundary {snapshot.boundary}</div>
-      <div>Pipeline: {snapshot.pipeline.state}{snapshot.pipeline.detail ? ` — ${snapshot.pipeline.detail}` : ""}</div>
+const SetupSummary = ({ snapshot, onOpenRepair }: { snapshot: RuntimeSnapshot; onOpenRepair?: () => void }) => {
+  const findings = setupFindings(snapshot);
+  const counts = [[findings.blocks.length, "blocking"], [findings.degrades.length, "degrading"], [findings.info.length, "notes"]] as const;
+  const total = counts.reduce((sum, [count]) => sum + count, 0);
+  return (
+    <div data-so="health-setup" className="so-console-block">
+      <h4>Setup checks</h4>
+      <p>{total ? counts.filter(([count]) => count > 0).map(([count, word]) => `${count} ${word}`).join(" · ") : "Nothing to fix."}</p>
+      {total > 0 && onOpenRepair && <Button size="sm" variant="ghost" icon="fa-wrench" data-so="health-open-setup" onClick={onOpenRepair}>Open setup</Button>}
     </div>
-    {snapshot.pendingDeltas.length > 0 && (
-      <div className="text-xs opacity-80">
-        <div className="font-medium opacity-100">Pending writes</div>
-        {snapshot.pendingDeltas.map((pending) => <div key={pending.quality}>{pending.quality} → {String(pending.value)}</div>)}
-      </div>
-    )}
-    <AuthorRequirements snapshot={snapshot} onFixWithWizard={onFixWithWizard} />
-    <ScenePanel scene={snapshot.scene} />
-    {snapshot.patternsAuthor ? <PatternsPanel slice={snapshot.patternsAuthor} /> : null}
-    <div className="text-xs opacity-80">
-      <div className="font-medium opacity-100">Tension</div>
-      <div>Level: {snapshot.tension.level ?? "—"} {snapshot.tension.smoothed !== null && <span>({snapshot.tension.smoothed.toFixed(2)})</span>}</div>
-      <div>Expected: {snapshot.tension.expected !== null ? snapshot.tension.expected.toFixed(2) : "—"}</div>
-      {snapshot.tension.hint && <div className="opacity-100">Steering: {snapshot.tension.hint.direction} — {snapshot.tension.hint.text}</div>}
-    </div>
-    {snapshot.convergence.length > 0 && (
-      <div className="text-xs opacity-80">
-        <div className="font-medium opacity-100">Convergence</div>
-        {snapshot.convergence.map((entry) => {
-          const pct = entry.threshold > 0 ? Math.min(100, Math.round((entry.progress / entry.threshold) * 100)) : 100;
-          return (
-            <div key={entry.anchorId} className="border-t border-solid border-[var(--so-line)] mt-1 pt-1">
-              <div>{entry.anchorName}{entry.visited ? " · visited" : ""}{entry.reached ? " ✔" : ""}</div>
-              <div className="flex items-center gap-2">
-                <div className="flex-1 h-1.5 bg-[var(--so-line)] rounded">
-                  <div className="h-full bg-[var(--so-fg-muted)] rounded" style={{ width: `${pct}%` }} />
-                </div>
-                <span>{entry.progress}/{entry.threshold}</span>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    )}
-  </div>
-);
+  );
+};
 
-export const OverviewTab = ({ snapshot, authorView, onFixWithWizard, onBranchFromOldest }: {
+export const HealthSection = ({ snapshot, onFixWithWizard, onBranchFromOldest, onOpenRepair }: {
   snapshot: RuntimeSnapshot;
-  authorView: boolean;
   onFixWithWizard?: () => void;
   onBranchFromOldest?: (messageId: number) => void;
-}) => (authorView ? <AuthorOverview snapshot={snapshot} onFixWithWizard={onFixWithWizard} onBranchFromOldest={onBranchFromOldest} /> : null);
+  onOpenRepair?: () => void;
+}) => (
+  <div id="so-author-overview" className="so-console-stack">
+    <div className="so-console-block">
+      <h4>Requirements</h4>
+      <AuthorRequirements snapshot={snapshot} onFixWithWizard={onFixWithWizard} />
+    </div>
+    <SetupSummary snapshot={snapshot} onOpenRepair={onOpenRepair} />
+    <HistoryFloor snapshot={snapshot} onBranchFromOldest={onBranchFromOldest} />
+  </div>
+);

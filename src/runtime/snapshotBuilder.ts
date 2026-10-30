@@ -21,6 +21,7 @@ import { derivePipelineStatus, expansionInFlight, playerPendingCount, type Pipel
 import { playerSaveNotice } from "./saveHealth";
 import { blobMismatch, getSelectedStoryId, hasOpenChat, hasOpenGroup, hasPersistedRuntime, openChatId, UNREADABLE_NOTICE } from "./persistence";
 import { noGroupView } from "./noGroup";
+import { consoleAuthorSlice } from "./authorConsole";
 import { getGlobalSettings } from "./settingsStore";
 import { resolveFeatures } from "./featureResolve";
 import { memberRepetitionRows } from "./deliveryPort";
@@ -133,6 +134,7 @@ export interface SnapshotSources {
   generating?: boolean;
   cuesAuthor?: import("./cuePort").CuesAuthorView | null;
   echoesAuthor?: import("@engine/life/echoView").EchoAuthorView | null;
+  secretGrid?: import("./whoKnows").SecretGridView | null;
 }
 
 export interface SnapshotPort {
@@ -191,6 +193,7 @@ export const snapshotSources = (port: SnapshotPort): SnapshotSources => ({
   generating: port.generating,
   cuesAuthor: port.cues?.authorView(port.extras.ui.authorView),
   echoesAuthor: port.echoes?.authorView(port.extras.ui.authorView),
+  secretGrid: port.extras.ui.authorView ? port.memory.injector.secretGrid() : null,
 });
 
 const routeGaps = () => {
@@ -531,6 +534,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     nextTurnBuckets: promptBuckets.view(nextTurnCost.ownTokens), nextTurnFold: fold,
     roleRoutes: roleHealth.view(),
     lore: extras.lore,
+    consoleAuthor: consoleAuthorSlice({ story, state, boundaryLog: sources.boundaryLog, authorView: extras.ui.authorView, secrets: sources.secretGrid }),
     inline, castNames, ...presenceSlices(sources, story, state, { castNames, openThreads }),
     ...modelCallSlices(extras),
   };
