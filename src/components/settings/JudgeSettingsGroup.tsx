@@ -241,12 +241,12 @@ export function JudgeSettingsGroup({
       </div>
       <CheckRow id="so-judge-enabled" setting="judge.enabled" checked={settings.enabled} onChange={(on) => onChange({ enabled: on })} />
       <div className="text-xs opacity-70">When a use is on, the text it lists is sent to the provider it is routed to. Nothing is sent while this is off.</div>
-      <Section id="so-judge-uses" data-so="judge-uses" level={4} title={`What the judge is used for (${String(builtUses.filter((use) => settings.uses[use]).length)} on)`}>
+      <Section id="so-judge-uses" data-so="judge-uses" level={3} title={`What the judge is used for (${String(builtUses.filter((use) => settings.uses[use]).length)} on)`}>
         <div className="text-xs opacity-70">{settingHelp("judge.uses")}</div>
         <JudgeUseRows settings={settings} builtUses={builtUses} authorView={authorView} wardenEnabled={wardenEnabled} onChange={onChange} />
       </Section>
       <JudgeProviderNotices settings={settings} status={status} providers={inUse} onChange={onChange} />
-      {authorView && <Section id="so-judge-expansion-advanced" level={4} title="Outlines for the road ahead"><div className="flex flex-wrap items-center gap-2 text-sm">
+      {authorView && <Section id="so-judge-expansion-advanced" level={3} title="Outlines for the road ahead"><div className="flex flex-wrap items-center gap-2 text-sm">
         <FieldLabel htmlFor="so-judge-expansion-variants" setting="judge.expansion.variants" />
         <select
           id="so-judge-expansion-variants"
