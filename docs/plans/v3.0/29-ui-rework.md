@@ -157,3 +157,40 @@ the controller and docs).
   Earlier full runs: one architecture red (Studio kit import, fixed), one max-len red (stories, fixed), one `PosesList`
   color-contrast play that passed on rerun, and three different process-timing flakes in untouched tests (`sessionsArchive`,
   controller startup reap, `childTree`) while the machine sat at 100% CPU.
+
+## Phase 2 author gate record
+
+2026-10-30, branch `v3.0-29-ui-p2-author` (WP-A4 `e32331dc`, WP-A3 `f454da27`, WP-A2 `7f9f8b3f`, fixes, master merged in up to `435a614b`).
+
+- WP-A2 run console (`components/drawer/DrawerTabs.tsx`, `runtime/authorConsole.ts`): `#drawer-manager` kept; sticky Steer column
+  `[data-so="steer"]` (DriverPanel on the kit: checkpoint name + id, boundary, pipeline in words, readable unmet gates from
+  `runtime/gateReadout.ts` "Guide's trust ≥ 2, now 0 → The confession", Suggest/Probe/Report, Advance, Nudge, `#so-author-story-controls`;
+  Suggest/Report/Nudge only with the wizard on; mobile = collapsible bar). Sections are kit `Tabs` (`role=tab`, body `data-so-tab`):
+  health (`#so-author-overview`, requirements, setup checks in one line + Open setup, history floor), state, memory, prompt, proposals
+  (count badge), activity (`#so-open-activity` on the tab), pipeline. Review page renders the console on Proposals. Install toggles left the
+  Memory section (link to settings). `DRAWER_TAB_OF_CONTROL` → state/proposals; NextTurn owners state/proposals; `so-ui.mts drawer-tab` aliases
+  Overview/Blackboard/Payload/Scheduler/Review (unit test); scenarios moved to the new labels.
+- WP-A3: `blackboardView.stateTable` grouped (Gates/Authored/Character life/Clock/Factions/Compiled), search, group chips, changed-at from the
+  boundary log (`boundaryDigest.lastChanges`), fresh-row highlight, evidence popover; ActivityPanel filter chips, `#N` links, one setup line.
+- WP-A4: inspector `#so-inspector` is the floating panel `inspector` in `#so-panels-root` (default right of the chat): header with ‹ ›
+  (`stepMessage`), What changed / Why (`boundaryDigests` on `InlineView.boundaries`, Author view only), Prompt (`InlineView.prompts`), Health,
+  notes; raw items only at level 4; Open in Author page. `#so-inspector-close` dropped (PanelFrame close), `inspectorIntent`/`INSPECTOR_CONTROL`
+  removed. Author chips at level ≥ 3 carry labels and a ~1.4em hit area; Inspect is labelled.
+- Harvest: who-knows-what grid `#so-who-knows` (memory section) + kept-out-on-stage alert (Steer and grid), built from `heldSecrets` through
+  `secretAudience` (same `allowed` rule as `keptFrom`), inputs from `MemoryInjector.secretGridInputs()` only in Author view, grid built in the
+  lazy `authorConsole` chunk; `assert-player-clean` ok (0 findings) with a held secret.
+- Selector changes: tab labels/`data-so-tab` values (aliases in `drawer-tab`), `#so-inspector` parent, `#so-inspector-close` gone; kept
+  `#so-author-overview`, `#so-author-story-controls`, `#so-edit-story`, `#so-update-story`, `#so-author-new-story`, `#so-history-floor`,
+  `#so-branch-from-oldest`, `#so-fix-with-wizard`, `#so-author-moves`, `#so-open-activity`, row `data-so` hooks.
+- Raw buttons ratchet shrunk (DrawerTabs, DriverPanel, MessageInspector, ActivityPanel to 0; AuthorMemory, Workspace down).
+- Visual: lane 33 (no-model; images/sprites/living/judge/extraction switched off in the lane settings, backup in
+  `C:\dev\so-lanes\ui-review\lane33-settings.pre-p2-author.json`), worktree `dist/` routed into the lane browser, SO-UI Guide/Narrator + group,
+  `character-life` as `SO-UI Life lab`, three `/sendas` boundaries, one seeded hiding secret: desktop + 390x844, dark + light, 0 model calls,
+  cleanup leaked 0 / library 0, inline level restored, lane stopped. One earlier run leaked its group after a reload timeout; removed with
+  `so-assets remove --marker SO-UI`. `C:\dev\so-lanes\ui-review\p2-author\` (driver kept as `.mts.txt`).
+- Bundle: main `dist/index.js` 1,284,350 B (budget 1,300,000; +733 over master 435a614b).
+- `npm run gates` (no `--resume`, Storybook included) on `597a60a2`: all green in 685.8s (jest 10,977 / 1 skipped, test:debug 1,722,
+  Storybook 187 suites / 1,077 tests, replay 32/32). An earlier full run was red on code-health (snapshotBuilder file budget, two dead
+  exports), five DrawerTabs plays (story snapshot without `inline`), and two known flakes (HelpPanel Ask timeout, controller startup reap).
+- Not done: Review nav item count badge (WorkspaceShell belongs to the Settings agent; the Proposals tab carries the count); inspect chip on
+  messages that have no notes (step with ‹ › instead).
