@@ -247,7 +247,7 @@ export class LivingCoordinator {
     if (frozen || !ids || !story.living?.scene_test) return frozen;
     const record = planSceneTest({
       story, ids, frontierId, frontierName: story.checkpointById[frontierId]?.name ?? frontierId, plannedAt: state.boundary, messageId: state.lastMessageId,
-      tension: inputs.tension, candidates: focusCandidates({ arcs: inputs.openThreads, unknownNames }), prior: this.state.sceneTests ?? [],
+      tension: inputs.tension, candidates: focusCandidates({ arcs: inputs.openThreads, unknownNames, resting: inputs.scrub }), prior: this.state.sceneTests ?? [],
     });
     if (!record) return null;
     this.write({ ...this.state, sceneTests: [...(this.state.sceneTests ?? []), record] });

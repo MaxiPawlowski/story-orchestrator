@@ -1,11 +1,7 @@
 import type { FeatureArea } from "./registry";
+import { copy, SETTING_COPY_TOOLS, type SettingCopy } from "./settingsCopyTools";
 
-export interface SettingCopy {
-  label: string;
-  help: string;
-}
-
-const copy = (label: string, help: string): SettingCopy => ({ label, help });
+export type { SettingCopy } from "./settingsCopyTools";
 
 export const SETTING_COPY = {
   "extraction.enabled": copy(
@@ -41,6 +37,18 @@ export const SETTING_COPY = {
     "Send this task to a different Connection Manager profile than the memory model, for example a faster model for frequent work or a stronger one for summaries. "
       + "Left on \"Same as memory model\", it uses the memory model; the wizard's task uses opencode gpt-6.1-sol when the harness plugin offers it, else a DeepSeek profile when there is one."
       + " Claude Code claude-sonnet-5-5 is the other wizard route.",
+  ),
+  "extraction.readLayout": copy(
+    "Story read line order",
+    "A measurement arm: the story read lists its fixed instructions first and the lines that change from read to read (the current scene, what happened, "
+      + "open threads and promises, known names, the questions) after them, so a local server can reuse the start of each read. The same lines in a new order. "
+      + "Off, today's order, until a live test on the GPU shows the read scores within 0.02 of today's: an exception to every feature being on by default. "
+      + "No control yet: a measurement run switches it on.",
+  ),
+  "extraction.promiseAddressee": copy(
+    "Name who a promise to \"you\" is for",
+    "A measurement arm: adds one line to each story read, saying that a promise said to \"you\" right after a character spoke is for that character. "
+      + "Off until a GPU run shows it helps: an exception to every feature being on by default. No control yet: a measurement run switches it on.",
   ),
   "extraction.routes.*.route.options.effort": copy(
     "Thinking for this task",
@@ -150,6 +158,11 @@ export const SETTING_COPY = {
     "Leave ended chapters' messages out of the prompt",
     "Older chapters are represented by their record instead of their messages, which keeps prompts short in long stories.",
   ),
+  "memory.chapters.compact": copy(
+    "Drop old messages in large chunks near the context limit",
+    "When a long chat nears the model's context, the oldest messages the story has already read and summarised leave the prompt in one large step instead of one at a time, "
+      + "so the start of the prompt stays the same for many turns and a local backend can reuse its cache. Off until its blind rating passes.",
+  ),
   "memory.chapters.chronicleTokens": copy(
     "Story so far budget",
     "How many tokens the story so far may take in each prompt. Larger keeps more of the past, and leaves less room for the chat.",
@@ -206,6 +219,16 @@ export const SETTING_COPY = {
     "When you promise a character something, the story keeps your exact words and reminds only that character, when the scene touches it. "
       + "Adds a few lines to each story read. Not measured yet.",
   ),
+  "memory.deferrals": copy(
+    "Notice threads you put off",
+    "When you put a topic off in your own words (\"later\", \"not now\"), the story marks that thread as put off: it is no longer offered as the current thread, "
+      + "your thread list says so, and it is picked up again as soon as you mention it. A character saying later never counts. Adds two lines to each story read. Not measured yet.",
+  ),
+  "memory.deferredOutOfPrompt": copy(
+    "Leave put-off threads out of the prompt",
+    "Also leaves a thread you put off out of the open threads the characters are given, until you mention it again. "
+      + "Off until a blind rating of the replies passes: it changes what the characters see.",
+  ),
   "memory.witness": copy(
     "Note who heard each message",
     "Each story read also names the characters who heard or saw each message, and says unknown when it cannot tell. Nothing uses the record until it is measured. "
@@ -239,6 +262,11 @@ export const SETTING_COPY = {
     "When a character is told to turn to you with one question, such as the line right after a story's opening, and the reply asks several, "
       + "only the last question is kept and the rest of the line stays as written. A reply the trim would break is left alone, and thinking is never changed.",
   ),
+  "talk.skipAhead": copy(
+    "Let me skip ahead",
+    "Adds Skip ahead to the story card and /story skip: the narrator tells travel, waiting or routine in one reply, up to the next part of the day, "
+      + "and stops where you are needed. One reply per skip. Off until its blind rating passes.",
+  ),
   "talk.chain.max": copy(
     "Voices per turn at most",
     "The most characters that may answer one of your messages. Higher makes busier scenes and longer waits.",
@@ -247,183 +275,7 @@ export const SETTING_COPY = {
     "Steer the tension",
     "Adds a quiet note to the prompt that nudges the reply toward the story's intended tension: build it up, or let it cool down.",
   ),
-  "copilot.enabled": copy(
-    "Enable the wizard",
-    "Turns on the story wizard in the Studio and the author's suggestion tools. It uses your authoring model and costs calls only while you use it.",
-  ),
-  "copilot.ask": copy(
-    "Ask questions",
-    "Ask in Help, the wizard or /story ask. It only reads; while you play it knows only what you have seen. A few model calls per question.",
-  ),
-  "worldInfo.gatingMode": copy(
-    "How story lorebook entries switch on",
-    "Per chat (the default): entries rest off in their lorebook files and each chat sees its own story's entries switched on. "
-      + "File writes: entries are switched on and off in their lorebook files as a chat moves.",
-  ),
-  "worldInfo.scanMemory": copy(
-    "Memory text can trigger lore",
-    "Established facts, scene history and the current guidance join every lorebook scan, so an entry whose keys they mention can activate. "
-      + "What characters privately know never joins it.",
-  ),
-  "worldInfo.lateLore": copy(
-    "Per-turn lore after the history",
-    "Story lorebook entries that come and go turn by turn (keyword and lore-select picks) are placed a few messages from the end of the chat instead of beside the character card. "
-      + "Their text and order stay the same; the start of the prompt stays the same from turn to turn, so a local model can reuse it and answer sooner.",
-  ),
-  "stagecraft.curatorEnabled": copy(
-    "Lorebook curator",
-    "A background helper that reads what has happened and proposes changes to the story's own lorebook. It only touches the lorebooks the story lists, "
-      + "proposes rather than writes, and never changes story progress or memory.",
-  ),
-  "stagecraft.acceptMode": copy(
-    "Curator changes",
-    "Ask me first: you approve each change. Apply on their own: changes to entries marked {{// so:auto}} land at the next reply, the rest still wait for you. "
-      + "Never apply: only show what it would do.",
-  ),
-  "stagecraft.meanwhileAcceptMode": copy(
-    "Off-stage events",
-    "For stories whose characters have plans: when the story moves on or a scene ends, the memory model proposes one short thing a character did off stage toward that plan. "
-      + "Automatically: each one is accepted at once and reaches only that character at the next reply. I accept each one: it waits for you in Author view. Do not propose: no calls are made.",
-  ),
-  "stagecraft.livingEnabled": copy(
-    "Living stories write ahead",
-    "For a story with a living premise: when play reaches its last written turning point, the story director writes the next one from the premise, the canon and "
-      + "the threads you opened. It never writes behind you or into memory, and a swipe takes back what a reply led to. Off: a living story stops at its last turning point.",
-  ),
-  "stagecraft.branchingEnabled": copy(
-    "Branch when the player goes off script",
-    "When what you commit to doing fits none of a turning point's ways forward (the judge says so twice in a row, or once with near certainty), the story director writes a short "
-      + "branch that follows you and rejoins the story further on. Questions and refusing a route never branch by themselves. At most one branch per turning point; a swipe takes it back.",
-  ),
-  "stagecraft.prefetchEnabled": copy(
-    "Prepare one more way forward",
-    "When you reach a turning point that has ways forward, the story director writes one more way out of it in the background, before you need it, so going "
-      + "off script finds a road already there. Only for the turning point you are at, never further ahead, and it counts as that turning point's one branch. "
-      + "Needs branching on.",
-  ),
-  "stagecraft.createEnabled": copy(
-    "New lorebook entries",
-    "The curator may also propose a NEW keyed entry for a person, place, group or thing that at least two established facts name and no entry covers yet. "
-      + "Only in the lorebooks the story lists, never beside an excluded or checkpoint-switched entry, at most the story's limit per chat. "
-      + "Every new entry waits for you, whatever the curator setting, and a rollback deletes it unless you edited it. Its model is the Lore creation task.",
-  ),
-  "stagecraft.createRequireMeasured": copy(
-    "Only on a measured model",
-    "Propose new entries only when the Lore creation model has passed the create measurement. Off: any model may propose, and the card says it is unmeasured.",
-  ),
-  "stagecraft.wardenEnabled": copy(
-    "Continuity warden",
-    "After each character reply, the judge checks it against the story's established facts and scanned lore; when it breaks one, the next reply's prompt restates it once. "
-      + "This switch covers only that continuity check. The other reply checks (your part, house rules, attention, voice, ideas) share the same warden call "
-      + "under their own judge use switches, so warden calls can still appear with this off. "
-      + "Needs the judge. Sends the reply, up to 40 facts and the tracked values.",
-  ),
-  "stagecraft.wardenAcceptMode": copy(
-    "Warden notes",
-    "Ask me first: you approve each note. Add them on their own: notes go into the next prompt without you seeing them.",
-  ),
-  "stagecraft.agencyAcceptMode": copy(
-    "Notes about the player's part",
-    "When a reply writes what only you do, say or decide, or ignores what you just said, the next reply's prompt carries a one-line reminder. "
-      + "Add them on their own (the default): the reminder goes in without anyone approving it. Ask me first: it waits like the other notes. "
-      + "Only replies are checked; your own messages are never changed.",
-  ),
-  "judge.enabled": copy(
-    "Use the judge",
-    "A second, fast model for yes/no and pick-one decisions. Each use can be switched off on its own and says what it sends. "
-      + "It never receives character cards, persona text, other chats or the key.",
-  ),
-  "judge.uses": copy(
-    "Judge uses",
-    "Each use answers one kind of question for the story. Switch off any you do not want; the story falls back to its usual path.",
-  ),
-  "judge.provider": copy(
-    "Where this use runs",
-    "Which provider answers this use. A provider that was not measured for a use is refused, and the use takes its usual path. "
-      + "The attention and voice checks share the warden's call, so they take the warden's provider and have none of their own.",
-  ),
-  "judge.expansion.variants": copy(
-    "Outlines per gap",
-    "Write this many outlines for each gap in the story and keep the best one. Each extra outline is another run of the story model.",
-  ),
-  "judge.expansion.pick": copy(
-    "Best outline picked by",
-    "Who picks the best outline: the judge's score, or the story model.",
-  ),
-  "image.enabled": copy(
-    "Allow automatic illustrations on this install",
-    "Lets stories and the automation below draw pictures through SillyTavern’s configured image backend. An image-prompt model is optional; without one, a template uses the current scene.",
-  ),
-  "image.backend": copy("Image backend", "Use SillyTavern’s configured Image Generation service, or advanced ComfyUI recipes through the optional media plugin."),
-  "image.automation.mode": copy(
-    "When pictures are drawn",
-    "Story: at the moments each story asks for. Every N: every few of your turns, plus those moments. Model requests: when the model asks. Manual: only when you ask.",
-  ),
-  "image.automation.everyN": copy(
-    "Every N turns",
-    "Draw a picture on the first reply of every this many of your turns (the greeting never counts). Lower draws more often and keeps the GPU busier.",
-  ),
-  "image.automaticRoute": copy(
-    "How automatic scene pictures are drawn",
-    "Auto: when every visible character (one or two) has a prepared current look, draw from their reference pictures with the Qwen edit route; "
-      + "otherwise SDXL from tags. SDXL: always tags. References: only from reference pictures, skipping the picture when that is not possible. "
-      + "Auto is still being compared with SDXL in a blind pilot; choose SDXL to keep the earlier behaviour.",
-  ),
-  "image.directorProfileId": copy(
-    "Image-prompt model",
-    "The Connection Manager profile that turns the scene and the story's visual direction into a picture prompt. Separate from the chat model.",
-  ),
-  "image.comfyUrl": copy(
-    "ComfyUI address",
-    "Where your ComfyUI server listens. When text and image models share a GPU, use the GPU broker for your text profiles.",
-  ),
-  "image.safeMode": copy(
-    "Avoid explicit imagery",
-    "Adds safety terms to every picture prompt and skips explicit requests.",
-  ),
-  "image.purposes.*.checkpoint": copy("Model",
-    "The ComfyUI model this kind of picture uses. Left on automatic, it uses the one installed model of the recipe family; with none or several, Setup asks you to choose."),
-  "image.purposes.*.family": copy("Recipe family", "Choose the workflow family supported by your installed checkpoint. A file name alone does not identify its architecture."),
-  "image.purposes.*.quality": copy("Quality", "Base is faster; hires adds an upscale pass and takes longer."),
-  "image.purposes.*.aspect": copy("Shape", "The picture's proportions. Auto lets the image-prompt model choose."),
-  "image.purposes.*.shot": copy("Framing", "How close the camera is: from a close-up to a wide view."),
-  "image.purposes.*.placement": copy("Where it appears", "In the message, as its own message, or as the chat background."),
-  "image.purposes.*.candidates": copy("Pictures to choose from", "Draw this many and keep the best. Each extra one costs another render."),
-  "image.purposes.*.directorMayOverride": copy("Let the image-prompt model pick another model", "The image-prompt model may switch this picture to a different image model when it fits better."),
-  "image.purposes.*.extraPositive": copy("Always add", "Words added to every prompt of this kind."),
-  "image.purposes.*.extraNegative": copy("Always avoid", "Words added to the avoid list of every prompt of this kind."),
-  "sprites.enabled": copy(
-    "Show character sprites that change expression as replies stream",
-    "Shows the speaking characters on a small stage, and changes their expression with the reply. Needs a sprite pack for each character.",
-  ),
-  "sprites.stage": copy(
-    "Show the stage",
-    "With Visual Novel mode: only while SillyTavern's /vn mode is on. Always: in every chat that has sprites.",
-  ),
-  "sprites.profileId": copy(
-    "Expression model when the judge is off",
-    "Which profile picks expressions when the judge cannot. Same as the image-prompt model by default.",
-  ),
-  "sprites.focus": copy("Dim whoever is not speaking", "Fades the characters who are not talking, so the speaker stands out."),
-  "sprites.breathing": copy("Idle breathing", "A slow, small movement so sprites do not look frozen. Turn it off to save a little work on slow machines."),
-  "sprites.liveHead": copy("Live close-shot head",
-    "Animates a close shot when this member's look has a rig: breathing, blinks, gaze, body sway, swinging hair locks and small gestures. "
-      + "Expressions show the pack's own expression sprite on the same rig when it lines up with the neutral one. "
-      + "Falls back to the static sprite. Reduced motion and the story's motion setting stop movement."),
-  "sprites.liveHeadFrames": copy("Drawn eyes and mouth on the live head",
-    "Uses this look's blink and mouth frames for closed eyes and mouth shapes on a live close shot. Without mouth frames the head moves its own lips only a little."),
-  "sprites.blink": copy("Blink", "Uses eyes-closed frames when the sprite pack has them. Reduced motion switches this off."),
-  "sprites.cardOverlay": copy("Current character state in replies",
-    "Adds this story’s applied public changes to the next reply prompt. Character cards and personas stay unchanged."),
-  "sprites.poses": { label: "Pose library", help: "Choose body poses from scene directions, sticky keywords and reply picks. Bodies render when needed." },
-  "sprites.onDemand": copy("Generate changed looks when needed",
-    "Uses the Studio builder’s saved reference setup to edit the current expression when a public look changes. Needs the media plugin and ComfyUI. The current sprite stays visible while rendering."),
-  "sprites.mouth": copy("Mouth movement",
-    "Moves the speaking character’s mouth with the words while replies stream (English text read as mouth shapes, no audio). "
-      + "Simple, the default, opens the closed/open frames on vowels. Smooth also uses the pack's half-open, rounded (oh) and wide (ee) frames, nearest frame when one is missing. "
-      + "Off keeps the mouth still. Reduced motion switches this off."),
-  "sprites.renderPreset": copy("Render preset",
-    "The size and steps the Studio sprite builder starts with. Standard renders at 1024 px with 25 steps; Fast preview at 512 px with 20 steps, quicker but softer."),
+  ...SETTING_COPY_TOOLS,
 } as const satisfies Record<string, SettingCopy>;
 
 export type SettingCopyKey = keyof typeof SETTING_COPY;

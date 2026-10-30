@@ -97,6 +97,8 @@ export const NARRATOR_HEADER = "What the cast privately holds (use this to fores
 
 export const NARRATOR_SELF_VOICED = "These characters speak and act for themselves on their own turns; never write their words or choices:";
 export const NARRATOR_NAMED_FIRST = "Voice anyone else the scene needs, and when the story already names someone who fits, use them rather than inventing a stranger.";
+export const NARRATOR_OUTWARD_CLAUSE = "Narrate only what the player could see or hear: other characters' inner lives reach the prose through what they say, do and choose, never as "
+  + "reported thoughts, explained motives or emotions named as fact, and no feeling owes a visible tell.";
 
 const renderSelfVoiced = (voices: CastVoice[], self: string): string => {
   const names = voices.filter((voice) => voice.selfVoiced && voice.id !== self).map((voice) => voice.name);
@@ -141,8 +143,8 @@ export const narratorScope = (
   return { onStage: new Set(enabledIds), cast: new Set(checkpointCast(story, checkpointId, enabledIds)), lastNamed, budget };
 };
 
-export const renderNarratorBlock = (entries: EpistemicEntry[], voices: CastVoice[], self: string, scope?: NarratorScope): string =>
-  joinBlocks(renderSelfVoiced(voices, self), renderNarratorHoldings(entries, voices, self, scope));
+export const renderNarratorBlock = (entries: EpistemicEntry[], voices: CastVoice[], self: string, scope?: NarratorScope, outward = false): string =>
+  joinBlocks(joinBlocks(renderSelfVoiced(voices, self), renderNarratorHoldings(entries, voices, self, scope)), outward ? NARRATOR_OUTWARD_CLAUSE : "");
 
 interface Holding {
   id: string;
@@ -227,10 +229,10 @@ export const pushBeat = (beats: InnerBeat[] | undefined, beat: InnerBeat): Inner
   [...(beats ?? []).filter((entry) => !(entry.memberId === beat.memberId && entry.chatId === beat.chatId && entry.basedOnMessageId === beat.basedOnMessageId)), beat]
     .slice(-BEAT_RING_CAP);
 
-export const memberAimsBlock = (voices: CastVoice[], id: string, beat: string, known: EpistemicEntry[], privateBlock: string, scope?: NarratorScope): string => {
+export const memberAimsBlock = (voices: CastVoice[], id: string, beat: string, known: EpistemicEntry[], privateBlock: string, scope?: NarratorScope, outward = false): string => {
   const voice = voices.find((candidate) => candidate.id === id);
   const own = renderOwnAims(voice && beat ? { ...voice, beat } : voice);
-  return joinBlocks(own, voice?.omniscient ? renderNarratorBlock(known, voices, id, scope) : privateBlock);
+  return joinBlocks(own, voice?.omniscient ? renderNarratorBlock(known, voices, id, scope, outward) : privateBlock);
 };
 
 export interface BeatPorts {

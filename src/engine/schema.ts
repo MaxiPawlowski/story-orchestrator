@@ -197,7 +197,7 @@ export interface AgencyPolicy {
   objective_kind: ObjectiveKind;
   /** Optional: the checkpoint to fall back to when the player refuses the prepared route. */
   alternate?: string;
-  player_attempts_only?: boolean;
+  player_attempts_only?: boolean; skip?: boolean;
 }
 
 export interface Checkpoint {
@@ -363,6 +363,7 @@ export interface StoryRequirements {
   personas?: string[];
   members?: string[];
   lorebooks?: string[];
+  place_lore?: import("./loreBindingSchema").LoreBindings; people_lore?: import("./loreBindingSchema").LoreBindings;
 }
 
 export const STAGECRAFT_CREATE_CAP_DEFAULT = 5;

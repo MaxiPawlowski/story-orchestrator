@@ -131,7 +131,7 @@ export class MemoryInjector {
     const scope = render && voices.find((voice) => voice.id === id)?.omniscient
       ? render.narratorScope(story, this.deps.getState()?.activeCheckpointId ?? null, enabledCharacterIds(story, this.hosts.roster), this.hosts.chat.chatRows())
       : undefined;
-    const block = render ? render.memberAimsBlock(voices, id, beat, known, privateBlock, scope) : privateBlock;
+    const block = render ? render.memberAimsBlock(voices, id, beat, known, privateBlock, scope, this.deps.memory().settings.outwardNarration === true) : privateBlock;
     return [block, this.lifeLines(story, id), this.sourcedLines(story, id)].filter(Boolean).join("\n\n");
   }
 

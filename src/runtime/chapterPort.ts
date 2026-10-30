@@ -47,6 +47,8 @@ export class ChapterPort {
   carried: string | null = null;
   bridgeHeld = false;
   recalled = false;
+  recallBand: { key: string; band: Set<string> | null } | null = null;
+  compactedTo: number | null = null;
 
   constructor(readonly host: ChapterHost) {}
 
@@ -59,6 +61,9 @@ export class ChapterPort {
   storySoFar(): string { return kit?.storySoFar(this.host) ?? ""; }
   due(): SealTarget | null { return kit?.due(this.host) ?? null; }
   fold(rows: Array<{ extra?: unknown }>, type: unknown, live: readonly unknown[]) { return kit?.fold(this.host, rows, type, live) ?? null; }
+  compact(rows: Array<{ extra?: unknown }>, type: unknown, live: readonly unknown[], contextTokens: number, readEnd: number | null) {
+    return kit?.compact(this, rows, type, live, contextTokens, readEnd) ?? null;
+  }
   carryBridge(type: unknown) { kit?.carryBridge(this, type); }
   restoreBridge() { kit?.restoreBridge(this); }
   async recall(chat: readonly unknown[], type: unknown): Promise<number> { return kit ? kit.recall(this, chat, type) : 0; }

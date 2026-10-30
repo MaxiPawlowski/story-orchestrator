@@ -21,6 +21,7 @@ export const FEATURE_STATE: Readonly<Record<string, FeatureStateRow>> = {
   "inner-voice": master("inner"),
   "reply-thinking": master("thinking"),
   "promises-remembered": master("promises"),
+  "threads-put-off": master("deferrals"),
   "npc-commitments": { kind: "authored", declares: "commitments" },
   "witness-record": master("witness"),
   rumors: master("rumors"),
@@ -40,6 +41,7 @@ export const FEATURE_STATE: Readonly<Record<string, FeatureStateRow>> = {
   "story-patterns": master("patterns"),
   "reactive-cues": master("cues"),
   "delayed-echoes": master("echoes"),
+  "skip-ahead": master("skip"),
 };
 
 export const UNMAPPED_STORY_FEATURES: Readonly<Partial<Record<StoryFeatureId, string>>> = {
@@ -53,10 +55,12 @@ export const UNMAPPED_CONTROLS: Readonly<Record<string, string>> = {
   "reading.stabilityLag": "Tuning number, not on or off.",
   "chapters.storySoFar": "Prompt-shape detail of chapters; Story → Features.",
   "chapters.fold": "Prompt-shape detail of chapters; Story → Features.",
+  "chapters.compact": "Prompt-shape detail of chapters, off until its blind rating (v3.0 40); Story → Features.",
   "agency.enabled": "See agency in UNMAPPED_STORY_FEATURES.",
   "agency.acceptMode": "See agency in UNMAPPED_STORY_FEATURES.",
   "thinking.effort": "Tuning level, not on or off.",
   "voices.max": "Tuning number, not on or off.",
+  "deferrals.outOfPrompt": "Prompt-shape detail waiting on its blind rating (v3.0 33); Story → Features.",
   "inner.fanOut": "Which speaker it prepares for, not on or off.",
   "inner.harvestReasoning": "A detail of the inner voice; Story → Features.",
   "prefetch.enabled": "See prefetch in UNMAPPED_STORY_FEATURES.",

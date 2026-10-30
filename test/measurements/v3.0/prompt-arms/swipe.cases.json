@@ -1,0 +1,458 @@
+{
+ "format": "so-v30-prompt-arms/1",
+ "synthetic": true,
+ "gate": "swipe",
+ "plan": "v3.0 31 S2",
+ "cases": [
+  {
+   "id": "s01",
+   "rejected": "{receiver} sighs and looks out of the window. “I told you already, there is nothing more to say about the road. The guards closed it two days ago and nobody has come through since. If you want to try your luck, go ahead, but do not say I did not warn you.”",
+   "transcript": [
+    {
+     "speaker": "player",
+     "text": "I step inside and shake the rain off my cloak."
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} smiles a little too quickly. “You made good time. Sit, sit.”"
+    },
+    {
+     "speaker": "player",
+     "text": "I ask her what she has heard about the closed road."
+    }
+   ]
+  },
+  {
+   "id": "s02",
+   "rejected": "{receiver} laughs softly and shakes her head. “You always ask the same question, and you always get the same answer from me. The ferry leaves at dawn, the captain wants silver, not promises, and the river is high this week. That is all I know.”",
+   "transcript": [
+    {
+     "speaker": "player",
+     "text": "I step inside and shake the rain off my cloak."
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} folds her hands on the table. “I did not expect you before dark.”"
+    },
+    {
+     "speaker": "player",
+     "text": "I ask her how I can get across the river."
+    }
+   ]
+  },
+  {
+   "id": "s03",
+   "rejected": "{receiver} sets her cup down with care. “There was a man here this morning, tall, with a grey hood. He paid in old coins and asked for a room facing the street. He left before noon and did not say where he was going. That is all.”",
+   "transcript": [
+    {
+     "speaker": "player",
+     "text": "I step inside and shake the rain off my cloak."
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} glances at the door, then back. “Ask what you came to ask.”"
+    },
+    {
+     "speaker": "player",
+     "text": "I ask her whether anyone strange has stayed here."
+    }
+   ]
+  },
+  {
+   "id": "s04",
+   "rejected": "{receiver} folds her arms. “The chapel bell rang twice last night, and nobody admits to ringing it. People are nervous. I would keep my voice down if I were you, and I would not go near the chapel after dark.”",
+   "transcript": [
+    {
+     "speaker": "player",
+     "text": "I step inside and shake the rain off my cloak."
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} pours two cups without asking. “Long road?”"
+    },
+    {
+     "speaker": "player",
+     "text": "I ask her what happened at the chapel."
+    }
+   ]
+  },
+  {
+   "id": "s05",
+   "rejected": "{receiver} leans closer and lowers her voice. “The archive keeper owes me a favour. If you need a record, I can ask him, but it will take a day, maybe two. He does not like strangers and he likes questions even less.”",
+   "transcript": [
+    {
+     "speaker": "player",
+     "text": "I step inside and shake the rain off my cloak."
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} keeps her shawl on though the room is warm. “Well. Here we are.”"
+    },
+    {
+     "speaker": "player",
+     "text": "I ask her who could help me find an old record."
+    }
+   ]
+  },
+  {
+   "id": "s06",
+   "rejected": "{receiver} sighs and looks out of the window. “I told you already, there is nothing more to say about the road. The guards closed it two days ago and nobody has come through since. If you want to try your luck, go ahead, but do not say I did not warn you.”",
+   "transcript": [
+    {
+     "speaker": "player",
+     "text": "I set my pack down by the door and look around."
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} smiles a little too quickly. “You made good time. Sit, sit.”"
+    },
+    {
+     "speaker": "player",
+     "text": "I ask her what she has heard about the closed road."
+    }
+   ]
+  },
+  {
+   "id": "s07",
+   "rejected": "{receiver} laughs softly and shakes her head. “You always ask the same question, and you always get the same answer from me. The ferry leaves at dawn, the captain wants silver, not promises, and the river is high this week. That is all I know.”",
+   "transcript": [
+    {
+     "speaker": "player",
+     "text": "I set my pack down by the door and look around."
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} folds her hands on the table. “I did not expect you before dark.”"
+    },
+    {
+     "speaker": "player",
+     "text": "I ask her how I can get across the river."
+    }
+   ]
+  },
+  {
+   "id": "s08",
+   "rejected": "{receiver} sets her cup down with care. “There was a man here this morning, tall, with a grey hood. He paid in old coins and asked for a room facing the street. He left before noon and did not say where he was going. That is all.”",
+   "transcript": [
+    {
+     "speaker": "player",
+     "text": "I set my pack down by the door and look around."
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} glances at the door, then back. “Ask what you came to ask.”"
+    },
+    {
+     "speaker": "player",
+     "text": "I ask her whether anyone strange has stayed here."
+    }
+   ]
+  },
+  {
+   "id": "s09",
+   "rejected": "{receiver} folds her arms. “The chapel bell rang twice last night, and nobody admits to ringing it. People are nervous. I would keep my voice down if I were you, and I would not go near the chapel after dark.”",
+   "transcript": [
+    {
+     "speaker": "player",
+     "text": "I set my pack down by the door and look around."
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} pours two cups without asking. “Long road?”"
+    },
+    {
+     "speaker": "player",
+     "text": "I ask her what happened at the chapel."
+    }
+   ]
+  },
+  {
+   "id": "s10",
+   "rejected": "{receiver} leans closer and lowers her voice. “The archive keeper owes me a favour. If you need a record, I can ask him, but it will take a day, maybe two. He does not like strangers and he likes questions even less.”",
+   "transcript": [
+    {
+     "speaker": "player",
+     "text": "I set my pack down by the door and look around."
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} keeps her shawl on though the room is warm. “Well. Here we are.”"
+    },
+    {
+     "speaker": "player",
+     "text": "I ask her who could help me find an old record."
+    }
+   ]
+  },
+  {
+   "id": "s11",
+   "rejected": "{receiver} sighs and looks out of the window. “I told you already, there is nothing more to say about the road. The guards closed it two days ago and nobody has come through since. If you want to try your luck, go ahead, but do not say I did not warn you.”",
+   "transcript": [
+    {
+     "speaker": "player",
+     "text": "I lean on the counter and wait for someone to notice me."
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} smiles a little too quickly. “You made good time. Sit, sit.”"
+    },
+    {
+     "speaker": "player",
+     "text": "I ask her what she has heard about the closed road."
+    }
+   ]
+  },
+  {
+   "id": "s12",
+   "rejected": "{receiver} laughs softly and shakes her head. “You always ask the same question, and you always get the same answer from me. The ferry leaves at dawn, the captain wants silver, not promises, and the river is high this week. That is all I know.”",
+   "transcript": [
+    {
+     "speaker": "player",
+     "text": "I lean on the counter and wait for someone to notice me."
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} folds her hands on the table. “I did not expect you before dark.”"
+    },
+    {
+     "speaker": "player",
+     "text": "I ask her how I can get across the river."
+    }
+   ]
+  },
+  {
+   "id": "s13",
+   "rejected": "{receiver} sets her cup down with care. “There was a man here this morning, tall, with a grey hood. He paid in old coins and asked for a room facing the street. He left before noon and did not say where he was going. That is all.”",
+   "transcript": [
+    {
+     "speaker": "player",
+     "text": "I lean on the counter and wait for someone to notice me."
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} glances at the door, then back. “Ask what you came to ask.”"
+    },
+    {
+     "speaker": "player",
+     "text": "I ask her whether anyone strange has stayed here."
+    }
+   ]
+  },
+  {
+   "id": "s14",
+   "rejected": "{receiver} folds her arms. “The chapel bell rang twice last night, and nobody admits to ringing it. People are nervous. I would keep my voice down if I were you, and I would not go near the chapel after dark.”",
+   "transcript": [
+    {
+     "speaker": "player",
+     "text": "I lean on the counter and wait for someone to notice me."
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} pours two cups without asking. “Long road?”"
+    },
+    {
+     "speaker": "player",
+     "text": "I ask her what happened at the chapel."
+    }
+   ]
+  },
+  {
+   "id": "s15",
+   "rejected": "{receiver} leans closer and lowers her voice. “The archive keeper owes me a favour. If you need a record, I can ask him, but it will take a day, maybe two. He does not like strangers and he likes questions even less.”",
+   "transcript": [
+    {
+     "speaker": "player",
+     "text": "I lean on the counter and wait for someone to notice me."
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} keeps her shawl on though the room is warm. “Well. Here we are.”"
+    },
+    {
+     "speaker": "player",
+     "text": "I ask her who could help me find an old record."
+    }
+   ]
+  },
+  {
+   "id": "s16",
+   "rejected": "{receiver} sighs and looks out of the window. “I told you already, there is nothing more to say about the road. The guards closed it two days ago and nobody has come through since. If you want to try your luck, go ahead, but do not say I did not warn you.”",
+   "transcript": [
+    {
+     "speaker": "player",
+     "text": "I follow the noise toward the back of the room."
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} smiles a little too quickly. “You made good time. Sit, sit.”"
+    },
+    {
+     "speaker": "player",
+     "text": "I ask her what she has heard about the closed road."
+    }
+   ]
+  },
+  {
+   "id": "s17",
+   "rejected": "{receiver} laughs softly and shakes her head. “You always ask the same question, and you always get the same answer from me. The ferry leaves at dawn, the captain wants silver, not promises, and the river is high this week. That is all I know.”",
+   "transcript": [
+    {
+     "speaker": "player",
+     "text": "I follow the noise toward the back of the room."
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} folds her hands on the table. “I did not expect you before dark.”"
+    },
+    {
+     "speaker": "player",
+     "text": "I ask her how I can get across the river."
+    }
+   ]
+  },
+  {
+   "id": "s18",
+   "rejected": "{receiver} sets her cup down with care. “There was a man here this morning, tall, with a grey hood. He paid in old coins and asked for a room facing the street. He left before noon and did not say where he was going. That is all.”",
+   "transcript": [
+    {
+     "speaker": "player",
+     "text": "I follow the noise toward the back of the room."
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} glances at the door, then back. “Ask what you came to ask.”"
+    },
+    {
+     "speaker": "player",
+     "text": "I ask her whether anyone strange has stayed here."
+    }
+   ]
+  },
+  {
+   "id": "s19",
+   "rejected": "{receiver} folds her arms. “The chapel bell rang twice last night, and nobody admits to ringing it. People are nervous. I would keep my voice down if I were you, and I would not go near the chapel after dark.”",
+   "transcript": [
+    {
+     "speaker": "player",
+     "text": "I follow the noise toward the back of the room."
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} pours two cups without asking. “Long road?”"
+    },
+    {
+     "speaker": "player",
+     "text": "I ask her what happened at the chapel."
+    }
+   ]
+  },
+  {
+   "id": "s20",
+   "rejected": "{receiver} leans closer and lowers her voice. “The archive keeper owes me a favour. If you need a record, I can ask him, but it will take a day, maybe two. He does not like strangers and he likes questions even less.”",
+   "transcript": [
+    {
+     "speaker": "player",
+     "text": "I follow the noise toward the back of the room."
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} keeps her shawl on though the room is warm. “Well. Here we are.”"
+    },
+    {
+     "speaker": "player",
+     "text": "I ask her who could help me find an old record."
+    }
+   ]
+  },
+  {
+   "id": "s21",
+   "rejected": "{receiver} sighs and looks out of the window. “I told you already, there is nothing more to say about the road. The guards closed it two days ago and nobody has come through since. If you want to try your luck, go ahead, but do not say I did not warn you.”",
+   "transcript": [
+    {
+     "speaker": "player",
+     "text": "I take a seat where I can see the door."
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} smiles a little too quickly. “You made good time. Sit, sit.”"
+    },
+    {
+     "speaker": "player",
+     "text": "I ask her what she has heard about the closed road."
+    }
+   ]
+  },
+  {
+   "id": "s22",
+   "rejected": "{receiver} laughs softly and shakes her head. “You always ask the same question, and you always get the same answer from me. The ferry leaves at dawn, the captain wants silver, not promises, and the river is high this week. That is all I know.”",
+   "transcript": [
+    {
+     "speaker": "player",
+     "text": "I take a seat where I can see the door."
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} folds her hands on the table. “I did not expect you before dark.”"
+    },
+    {
+     "speaker": "player",
+     "text": "I ask her how I can get across the river."
+    }
+   ]
+  },
+  {
+   "id": "s23",
+   "rejected": "{receiver} sets her cup down with care. “There was a man here this morning, tall, with a grey hood. He paid in old coins and asked for a room facing the street. He left before noon and did not say where he was going. That is all.”",
+   "transcript": [
+    {
+     "speaker": "player",
+     "text": "I take a seat where I can see the door."
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} glances at the door, then back. “Ask what you came to ask.”"
+    },
+    {
+     "speaker": "player",
+     "text": "I ask her whether anyone strange has stayed here."
+    }
+   ]
+  },
+  {
+   "id": "s24",
+   "rejected": "{receiver} folds her arms. “The chapel bell rang twice last night, and nobody admits to ringing it. People are nervous. I would keep my voice down if I were you, and I would not go near the chapel after dark.”",
+   "transcript": [
+    {
+     "speaker": "player",
+     "text": "I take a seat where I can see the door."
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} pours two cups without asking. “Long road?”"
+    },
+    {
+     "speaker": "player",
+     "text": "I ask her what happened at the chapel."
+    }
+   ]
+  },
+  {
+   "id": "s25",
+   "rejected": "{receiver} leans closer and lowers her voice. “The archive keeper owes me a favour. If you need a record, I can ask him, but it will take a day, maybe two. He does not like strangers and he likes questions even less.”",
+   "transcript": [
+    {
+     "speaker": "player",
+     "text": "I take a seat where I can see the door."
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} keeps her shawl on though the room is warm. “Well. Here we are.”"
+    },
+    {
+     "speaker": "player",
+     "text": "I ask her who could help me find an old record."
+    }
+   ]
+  }
+ ]
+}

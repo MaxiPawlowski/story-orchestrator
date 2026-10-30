@@ -14,6 +14,7 @@ export const STORY_VERBS: readonly SlashVerb[] = [
   { verb: "chapter", usage: "/story chapter <n>", what: "the summary of one ended chapter" },
   { verb: "chronicle", usage: "/story chronicle export", what: "copy the story so far as Markdown" },
   { verb: "flag", usage: "/story flag [note]", what: "mark this moment for the author to look at" },
+  { verb: "skip", usage: "/story skip", what: "skip ahead: the narrator tells the time passing and stops where you are needed" },
   { verb: "guide", usage: "/story guide [page]", what: "open the guide, at a page such as player/memory" },
   { verb: "tour", usage: "/story tour [player|author|setup]", what: "take the tour: playing, writing stories, or setting up each part" },
   { verb: "ask", usage: "/story ask <question>", what: "ask about the plugin or the story; it knows only what you have played" },

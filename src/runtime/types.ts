@@ -1,6 +1,6 @@
 import type { AgencyPolicy, ArcTemplate, EngineHistory, EngineState, NormalizedStory, PrimitiveValue, TensionLevel, ValidationError } from "@engine/index";
 import type { JudgeCallRecord, JudgeMeterView, JudgeRuntimeState, SceneReadRecord } from "@judge/index";
-import type { ExtractionHealth, ReconciliationEvent, SharedReadAudit } from "@extraction/index";
+import type { ExtractionHealth, ReadLayout, ReconciliationEvent, SharedReadAudit } from "@extraction/index";
 import type { ExpansionRuntimeState } from "@generation/index";
 import type {
   CastVoice, ConflictPair, ArcEntry, ChapterRecord, ChronicleState, DerivedRecord, EpistemicEntry, InnerBeat, LedgerEntry, LedgerView, MemoryEntry, MemoryInjectionView,
@@ -193,6 +193,10 @@ export interface MemoryRuntimeSettings {
   witness?: boolean;
   rumors?: boolean;
   patterns?: boolean;
+  deferrals?: boolean;
+  deferredOutOfPrompt?: boolean;
+  historyNotes?: boolean;
+  outwardNarration?: boolean;
   chapters?: Partial<ChapterSettings>;
 }
 
@@ -324,6 +328,8 @@ export interface ExtractionRuntimeSettings {
   replyEffort?: ReplyEffort;
   cadence: number;
   stabilityLag: number;
+  readLayout?: ReadLayout;
+  promiseAddressee?: boolean;
 }
 
 export interface ExtractionRuntimeState {

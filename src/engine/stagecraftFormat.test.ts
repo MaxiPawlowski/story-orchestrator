@@ -49,7 +49,7 @@ describe("stagecraft fields", () => {
     expect(errors(story({ requirements: { persona: "Max" } as never }))).toEqual([{ path: "requirements.persona", message: 'unknown key (did you mean "personas"?)' }]);
     expect(errors(story({ requirements: { global_lorebooks: ["Lore"] } as never }))).toEqual([{ path: "requirements.global_lorebooks", message: 'unknown key (did you mean "lorebooks"?)' }]);
     expect(errors(story({ lore_select: { lorebook: "Lore" } as never }))).toEqual([{ path: "lore_select.lorebook", message: 'unknown key (did you mean "lorebooks"?)' }]);
-    expect(errors(story({ requirements: { zzz: [] } as never }))[0].message).toBe("unknown key (known: personas, members, lorebooks)");
+    expect(errors(story({ requirements: { zzz: [] } as never }))[0].message).toBe("unknown key (known: personas, members, lorebooks, place_lore, people_lore)");
   });
 
   it("control: the canonical keys parse with no error", () => {

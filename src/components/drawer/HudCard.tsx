@@ -5,6 +5,7 @@ import type { RuntimeSnapshot } from "@runtime/types";
 import type { SheetTab, SheetTabEntry } from "@runtime/storySheet";
 import { INLINE_LEVELS, type InlineLevel } from "@runtime/settingsModel";
 import { GAME_TEXT } from "@features/gameCopy";
+import { SKIP_COPY } from "@runtime/skipGate";
 import { INLINE_LEVEL_LABELS, INLINE_LEVEL_SHORT } from "@features/inlineCopy";
 import { Button } from "@components/ui/Button";
 import { IconButton } from "@components/ui/IconButton";
@@ -16,6 +17,7 @@ export interface HudCardActions {
   onRetry?: () => void;
   onOpenSettings?: () => void;
   setLevel?: (level: InlineLevel) => void;
+  skip?: () => void;
 }
 
 export interface HudCardProps extends HudCardActions {
@@ -40,7 +42,7 @@ export const cardTabs = (tabs: readonly SheetTabEntry[]): SheetTabEntry[] => {
   return [...tabs.filter((tab) => !tab.id.startsWith("widget-")), ...(widget ? [widget] : [])];
 };
 
-export const HudCard = ({ snapshot, tabs, openTab, onRetry, onOpenSettings, setLevel, onMore, onClose }: HudCardProps) => {
+export const HudCard = ({ snapshot, tabs, openTab, onRetry, onOpenSettings, setLevel, skip, onMore, onClose }: HudCardProps) => {
   const card = useRef<HTMLElement>(null);
   const now = snapshot.narrative?.sections.find((section) => section.id === "now")?.lines ?? [];
   const action = pipelineAction(snapshot.pipeline);
@@ -112,6 +114,10 @@ export const HudCard = ({ snapshot, tabs, openTab, onRetry, onOpenSettings, setL
         </div>
       )}
       <div className="so-hud-card-foot">
+        {skip && snapshot.skip && (
+          <Button id="so-hud-card-skip" size="sm" icon="fa-forward" disabled={!snapshot.skip.enabled} title={snapshot.skip.reason ?? SKIP_COPY.title}
+            onClick={() => { onClose(false); skip(); }}>{SKIP_COPY.label}</Button>
+        )}
         <Button id="so-hud-card-more" size="sm" variant="ghost" icon="fa-up-right-from-square" title={HUD_COPY.cardMoreTitle} onClick={() => { onClose(false); onMore(); }}>
           {HUD_COPY.cardMore}
         </Button>

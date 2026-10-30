@@ -385,6 +385,7 @@ const HudMount = () => {
     openTab: (tab: SheetTab) => openSheet(tab),
     onRetry: () => manager.retryExtraction(),
     setLevel: (level: InlineLevel) => manager.setInlineSettings({ level }),
+    skip: () => { void manager.skipAhead(); },
   };
   return <HudStrip snapshot={snapshot} onOpenStory={() => openStoryWindow()} onOpenSettings={openRepairStep} card={card} sheet={{ open: sheet.open, toggle: () => toggleSheet() }} />;
 };

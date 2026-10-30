@@ -31,7 +31,7 @@ const harness = () => {
 
 describe("reply repairs run first, thought-leak before keep-last", () => {
   it("pins the order", () => {
-    expect(REPLY_REPAIR_ORDER).toEqual(["thought-leak", "keep-last"]);
+    expect(REPLY_REPAIR_ORDER).toEqual(["thought-leak", "history-note", "keep-last"]);
   });
 
   it("runs ahead of a turn listener that subscribed earlier, whichever repair loaded first", async () => {

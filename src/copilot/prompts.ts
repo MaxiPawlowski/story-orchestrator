@@ -64,6 +64,10 @@ export const LORE_CONTENT_RULE =
   "Write each lore entry for its kind: a place says the ways in and out and how far it is from what; an item, its limits and who wants it; a faction, its size and " +
   "reach; history, what happened apart from what people say, with the hidden truth kept out of shared lore; a concept, its limits.";
 
+export const PLACE_DESCRIPTION_RULE =
+  "A place's visible description stands on its own: what someone standing there sees, usable by itself as an image prompt, with no invented hook, secret or event; " +
+  "how it connects to other places belongs in its lore entry.";
+
 export const LORE_RULE_OFF_GLOBAL = "storyOrchestratorDebugLoreRuleOff";
 
 export const loreContentRule = (): string => (Reflect.get(globalThis, LORE_RULE_OFF_GLOBAL) === true ? "" : LORE_CONTENT_RULE);

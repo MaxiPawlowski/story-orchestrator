@@ -1,6 +1,7 @@
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { isModelClass, parseModelFilter, type ModelClass } from './modelClass.mts';
+import { journeyArmProblems, journeyItem } from './journeyArm.mts';
 
 export const BATCH_LISTS_FORMAT = 'so-batch-lists/1';
 export const BATCH_LISTS_DIR = join('test', 'batches');
@@ -11,6 +12,7 @@ export interface BatchRow {
   id: string;
   kind: RowKind;
   target: string;
+  args?: string[];
   model: ModelClass;
   controller: boolean;
   gpu?: boolean;
@@ -93,6 +95,8 @@ export function batchListProblems(file: BatchListsFile, root: string): string[] 
       if (row.missing && row.kind !== 'script') problems.push(`${at}: a missing row is a script row (nothing to batch yet)`);
       if (row.model === 'none' && row.controller) problems.push(`${at}: a none row never reaches the controller`);
       if (row.repeat !== undefined && (!Number.isInteger(row.repeat) || row.repeat < 1)) problems.push(`${at}: repeat must be a positive integer`);
+      if (row.args !== undefined && row.kind !== 'journey') problems.push(`${at}: args are journey arm flags; a ${row.kind} row carries its options in its target`);
+      for (const problem of journeyArmProblems(row.args)) problems.push(`${at}: ${problem}`);
       if (row.missing || row.branch) continue;
       if (row.kind === 'journey') {
         if (!journeys.has(row.target)) problems.push(`${at}: no journey ${row.target} in test/journeys`);
@@ -142,7 +146,8 @@ export function selectList(file: BatchListsFile, spec: string, names: string[] |
     }
     if (filter && !filter.includes(row.model)) { selection.deselected.push(row.id); continue; }
     selection.rows.push(row);
-    if (!selection.items.includes(row.target)) selection.items.push(row.target);
+    const item = journeyItem(row.target, row.args);
+    if (!selection.items.includes(item)) selection.items.push(item);
     selection.repeat = Math.max(selection.repeat, row.repeat ?? 1);
   }
   return selection;

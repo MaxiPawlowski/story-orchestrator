@@ -16,7 +16,7 @@ import { deriveScope } from "./scope";
 import type { ScopeSourceContext } from "./scopeSources";
 import type { RequestBudget } from "./tokenMeter";
 import type {
-  ChatWindowReader, ExtraGateSource, JudgedTypedRead, ParsedDelta, ParsedFact, ParsedSharedRead, ReadBudgetRecord, ScopedQuality,
+  ChatWindowReader, ExtraGateSource, JudgedTypedRead, ParsedDelta, ParsedFact, ParsedSharedRead, ReadBudgetRecord, ReadPromptOptions, ScopedQuality,
   SharedReadAudit, SharedReadContract, SharedReadResult, SharedReadWindow, TypedJudge,
 } from "./types";
 
@@ -120,6 +120,7 @@ export interface RunSharedReadOptions {
   entities?: string[];
   judgeTyped?: TypedJudge | null;
   deltasOnly?: boolean;
+  readPrompt?: ReadPromptOptions;
   model: ModelCall;
   ask: ModelAsk;
   readWindow?: ChatWindowReader;
@@ -127,11 +128,21 @@ export interface RunSharedReadOptions {
 
 const createId = (parts: unknown) => fnv1a(stableStringify(parts));
 
+type PromiseKit = typeof import("@memory/promises/contract");
+
+const promiseSections = (kit: PromiseKit, open: readonly OpenPromiseRef[], prompt: ReadPromptOptions | undefined): Pick<SharedReadContract, "promiseSection" | "promiseOpen"> => {
+  const options = { addressee: prompt?.promiseAddressee === true };
+  if (prompt?.readLayout !== "stable-first") return { promiseSection: kit.renderPromiseContractSection(open, options) };
+  const promiseOpen = kit.renderOpenPromises(open);
+  return { promiseSection: kit.renderPromiseRules(options), ...(promiseOpen ? { promiseOpen } : {}) };
+};
+
 
 const scopeOf = (options: RunSharedReadOptions): ScopedQuality[] =>
   options.scope ?? deriveScope(options.story, options.state.activeCheckpointId, options.state.blackboard, options.extraGateSources ?? [], options.cardScope);
 
-export type ReadContractOptions = Pick<RunSharedReadOptions, "story" | "state" | "firedTransitions" | "facts" | "openArcs" | "openPromises" | "epistemicLedgerCapable" | "entities" | "deltasOnly">;
+export type ReadContractOptions = Pick<RunSharedReadOptions,
+  "story" | "state" | "firedTransitions" | "facts" | "openArcs" | "openPromises" | "epistemicLedgerCapable" | "entities" | "deltasOnly" | "readPrompt">;
 
 export const readContract = (options: ReadContractOptions, window: SharedReadWindow, qualities: ScopedQuality[]): SharedReadContract => ({
   storyTitle: options.story.title,
@@ -147,6 +158,8 @@ export const readContract = (options: ReadContractOptions, window: SharedReadWin
   ...(options.deltasOnly ? { deltasOnly: true } : {}),
   ...(options.story.rumorNet?.rumors.length ? { hearsay: true } : {}),
   counted: runningTotals(qualities, options.state.blackboard.values),
+  ...(options.readPrompt?.readLayout ? { layout: options.readPrompt.readLayout } : {}),
+  ...(options.readPrompt?.promiseAddressee ? { promiseAddressee: true } : {}),
 });
 
 export function rosterCharacterId(roster: NormalizedStory["roster"], raw: string | undefined): string | undefined {
@@ -256,8 +269,8 @@ export async function runSharedRead(options: RunSharedReadOptions): Promise<Shar
     : null;
   const answered = new Set(judged?.answered ?? []);
   const residual = scope.filter((entry) => !answered.has(entry.key));
-  const promiseSection = options.openPromises ? (await import("@memory/promises/contract")).renderPromiseContractSection(options.openPromises) : undefined;
-  const contract = { ...readContract(options, window, residual), ...(promiseSection ? { promiseSection } : {}) };
+  const promises = options.openPromises ? promiseSections(await import("@memory/promises/contract"), options.openPromises, options.readPrompt) : {};
+  const contract = { ...readContract(options, window, residual), ...promises };
   const prompt = renderSharedReadPrompt(contract);
   const ask = (maxTokens: number): Promise<ExtractionReply> => (scope.length && !silent
     ? options.model(prompt, { ...options.ask, maxTokens })

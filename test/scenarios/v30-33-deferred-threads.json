@@ -1,0 +1,27 @@
+{
+  "model": "none",
+  "requires": {"lane":"no-model","group":"Group: Arin, DM Narrator","judge":"off"},
+  "steps": [
+    {
+      "import_story": {
+        "title": "SO-V30-33 Put-off threads",
+        "description": "v3.0 33: a thread the player puts off stops being pushed and comes back on the player's mention.",
+        "qualities": [],
+        "checkpoints": [ { "id": "start", "name": "Start", "objective": "Talk at the dock.", "type": "anchor", "start": true } ],
+        "transitions": [],
+        "roster": []
+      }
+    },
+    {
+      "eval": "await globalThis.storyOrchestratorRuntime.applyExtractionAudit({ id:'d33-open', createdAt:new Date().toISOString(), priority:0, reason:'manual', contractHash:'h', scope:[], window:{from:0,to:0}, prompt:'p', rawResponse:'r', acceptedDeltas:[], rejected:[] }, [], [], [ { kind:'open', text:'The debt the party owes to the river smugglers' } ]); return globalThis.storyOrchestratorRuntime.getArcs().length;"
+    },
+    { "send": "The smugglers' debt? Later, okay? Not now." },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const m = SillyTavern.getContext().chat.length - 1; const audit = { id:'d33-defer', createdAt:new Date().toISOString(), priority:0, reason:'manual', contractHash:'h', scope:[], window:{from:m,to:m}, prompt:'p', rawResponse:'r', acceptedDeltas:[], rejected:[] }; await rt.applyExtractionAudit(audit, [], [], [ { kind:'deferred', text:'The debt the party owes to the river smugglers', messageId:m, quote:'Later, okay? Not now.' }, { kind:'deferred', text:'The debt the party owes to the river smugglers', messageId:m, quote:'some other day' } ]); const arc = rt.getArcs()[0]; const last = (arc.history ?? []).at(-1); if (last?.kind !== 'deferred' || last.span.messageId !== m) throw new Error('not put off: ' + JSON.stringify(arc)); if (!audit.rejected.some((r) => r.reason === 'quote is not word for word in that message')) throw new Error('paraphrase not refused: ' + JSON.stringify(audit.rejected)); const threads = rt.getSnapshot().narrative?.openThreads ?? rt.getSnapshot().chapters?.openThreads ?? null; return { history: arc.history.length, threads };"
+    },
+    { "send": "Fine, let's settle the smugglers' debt now." },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const m = SillyTavern.getContext().chat.length - 1; await rt.applyExtractionAudit({ id:'d33-reopen', createdAt:new Date().toISOString(), priority:0, reason:'manual', contractHash:'h', scope:[], window:{from:m,to:m}, prompt:'p', rawResponse:'r', acceptedDeltas:[], rejected:[] }, [], [], []); const kinds = (rt.getArcs()[0].history ?? []).map((e) => e.kind).join(','); if (kinds !== 'deferred,reopened') throw new Error('not picked up again: ' + kinds); return kinds;"
+    }
+  ]
+}
