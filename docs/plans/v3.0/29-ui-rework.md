@@ -105,3 +105,55 @@ Each work package closes on full `npm run gates` plus a lane screenshot check an
   all green in 457.6s (jest 10,827 passed / 1 skipped, test:debug 1,674, Storybook 169 suites / 1,025 tests, replay 32/32).
   An earlier run on the pre-merge tree was red on code-health (an `as unknown` cast and a silent catch in
   `compiledQualities.ts`, removed), a max-len, and one `CharacterTutorial` color-contrast play that passed on rerun.
+
+## Phase 1 gate record
+
+2026-10-30, branch `v3.0-29-ui-p1-kit` (kit `451e5377`, Studio-import guard and story max-len follow-ups; master merged in for 0b,
+the controller and docs).
+
+- Kit `src/components/ui/` (per-file imports, no barrel), CSS `src/styles/kit.css` (`so-*`, scoped to the mount roots), tokens extended
+  in `src/styles/tokens.css` (space 4-24, radius sm/md/lg/pill, type xs 13px floor .. xl, `--so-control-h` 36px / 44px on coarse or <700px,
+  `--so-icon-h`, `--so-dialog-w` 75rem, z panel/popover/dialog, `--so-dur` 0 under `prefers-reduced-motion` and `body.reduced-motion`):
+  - Button (primary|secondary|ghost|danger, sm|md, icon, `busy`, `work` = BusyButton semantics via shared `useBusyWork`; BusyButton
+    now uses the hook, look unchanged), IconButton (`label` required = aria-label + title), Switch (`button role=switch aria-checked`),
+    SegmentedControl (radiogroup, roving arrows/Home/End), SettingRow (label, visible description wired to `aria-describedby`, control
+    column, scope chip Default/Story/This chat/This device, reset IconButton only when `changed`, help tooltip/link; `data-so="setting-row"`),
+    Section (title/description/actions; `collapsible` off by default and then a `<details>`, so Show-me reveal and `details.open` reads keep
+    working), Tabs/TabList/Tab/TabPanel (underline|segmented, roving tabindex lifted from StudioModal into `rovingKeys.ts`), NavList
+    (groups, counts, badges, `aria-current="page"`, `mobile="bar"` = one scrolling row under 700px), Card (interactive/selected/tone),
+    Badge/Chip (tone always with an icon, neutral excepted), Callout (tone, title, actions), StatusDot (moved from `drawer/`, + info tone),
+    Toolbar (start/end, sticky), EmptyState, Skeleton (`Lazy` default fallback; `quiet` Lazies keep null), Field (TextInput/Select/TextArea,
+    `size` xs|sm|md|lg|full on `text_pole`), SearchField, Dialog/Sheet/DialogHeader (native `showModal`, ST blur on `--so-surface`,
+    `full` = viewport + centred 1200px frame, `window` = centred card, `sheet` = right dock; full-screen/bottom under 700px; transform-only
+    open animation on `--so-dur`; `body.no-blur` opaque).
+  - 18 `Kit/*` stories with plays (button/busy, icon button, switch click/label/space, segmented arrows/End/wrap, setting row reset +
+    describedby + scope chips, section toggle, tabs roving, nav aria-current, chips, callout, toolbar, empty, skeleton + Lazy fallback,
+    field sizes, search clear, dialog close); Storybook theme toolbar `soTheme` (ST dark default, light palette, Celestial Macaron) in
+    `.storybook/preview.ts` + `st-theme.css`; `Kit/` mounts in `#so-panels-root`.
+- Adopted (cross-cutting only): one DialogHeader on the workspace (`size="full"`, h1 + scope subtitle, "Close Story Orchestrator"),
+  Studio (`full`, title input + Badges in the slot, "Close studio"; the Studio frame stays full width for the graph), briefing (`window`,
+  "Close the briefing", Start keeps focus) and PanelFrame (compact header as the drag bar, `data-so="panel-bar"`/`panel-close` kept,
+  `dockInset` untouched). Old dialog chrome CSS removed from `styles.css`, `workspace.css`, `studio/mobile.css`; workspace control
+  height is `--so-control-h` through `:where()`. `settings/Field.tsx`: `CheckRow` = SettingRow + Switch (ids kept; `kind="checkbox"`
+  for the inline note categories), `Advanced` = collapsible Section (ids and `data-so="settings-advanced"` kept). Not migrated (area
+  agents): drawer tabs, Studio nav, HUD, inline, page layouts, DevicePreferences rows, the Help inner header (0b `hosted`).
+- Guards: `components/ui/kitAdoption.guard.test.ts` ratchets raw `menu_button`/`st-button` per file against
+  `test/findings/rawButtons.json` (125 files, 396 uses; shrink it when migrating; planted controls); `architecture.test.ts` lets the
+  Studio import `@components/ui/`; `rovingKeys.test.ts`.
+- Harness: `scripts/debug/lib/settingToggle.mts` (role=switch clicked directly, checkbox through its label, read back) with
+  `settingToggle.test.mts`; scenario `ui: {action: "setting-toggle", selector, on}` (schema + `so-scenario`), `so-ui.mts setting-toggle
+  <sel> on|off`; debug-scripts.md updated. Stories reading `.checked`/`role=checkbox` on CheckRows moved to `toBeChecked`/`role=switch`.
+- Visual: lane 35 (no-model, images/sprites/living/judge/extraction off, unchanged), worktree `dist/` routed into the lane browser
+  (nothing staged), SO-UI cards + group + `factions.story.json` as `SO-UI Factions lab`: briefing, workspace (library, interface,
+  connections), Help floating panel, Studio; desktop + 390x844, dark + light. Probes: workspace `data-size=full`, translucent bg +
+  `blur(26px)`, frame 1200px, one header; briefing and Studio one header; switches 24px; briefing focus on Start; the Help panel still
+  shows two closes in these shots (pre-0b build). Cleanup leaked 0, library 0, theme `Dark V 1.0` kept, 0 model calls; lane stopped.
+  Storybook kit pages x 3 themes x desktop/mobile. All in `C:\dev\so-lanes\ui-review\p1-kit\` (drivers kept there as `.mts.txt`).
+- Bundle: main `dist/index.js` 1,266,472 B (budget 1,300,000; +2,151 over 0a, merges included); kit CSS rides the lazy styles chunk.
+- `npm run gates:quick`: green. Final code tree `82e1f1bc` (later merges docs only): `npm run gates -- --no-storybook` (no `--resume`)
+  all green in 313.4s (build, typecheck, typecheck:test, test, debug:typecheck, lint, test:release, test:debug, test:replay, test:plugin).
+  Storybook skipped in that run and run separately on the same tree, because port 6006 was taken by other worktrees' gates
+  (EADDRINUSE twice): `npm run storybook:build` + `test-storybook --url http://127.0.0.1:6116`: 186 suites / 1,061 tests passed.
+  Earlier full runs: one architecture red (Studio kit import, fixed), one max-len red (stories, fixed), one `PosesList`
+  color-contrast play that passed on rerun, and three different process-timing flakes in untouched tests (`sessionsArchive`,
+  controller startup reap, `childTree`) while the machine sat at 100% CPU.

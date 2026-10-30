@@ -34,13 +34,13 @@ export const OnByDefault: Story = {
   args: { settings: defaultJudgeSettings() },
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);
-    const master = canvasElement.querySelector<HTMLInputElement>("#so-judge-enabled");
-    await expect(master?.checked).toBe(true);
-    const director = canvasElement.querySelector<HTMLInputElement>("#so-judge-use-director");
-    await expect(director?.checked).toBe(true);
+    const master = canvasElement.querySelector<HTMLButtonElement>("#so-judge-enabled");
+    await expect(master).toHaveAttribute("aria-checked", "true");
+    const director = canvasElement.querySelector<HTMLButtonElement>("#so-judge-use-director");
+    await expect(director).toHaveAttribute("aria-checked", "true");
     await expect(director?.disabled).toBe(false);
     await expect(canvas.getByText(/Nothing is sent while this is off/)).toBeInTheDocument();
-    await userEvent.click(master as HTMLInputElement);
+    await userEvent.click(master as HTMLButtonElement);
     await expect(args.onChange).toHaveBeenCalledWith({ enabled: false });
   },
 };
@@ -48,8 +48,8 @@ export const OnByDefault: Story = {
 export const MasterOffDisablesEveryUse: Story = {
   args: { settings: { ...defaultJudgeSettings(), enabled: false } },
   play: async ({ canvasElement }) => {
-    await expect(canvasElement.querySelector<HTMLInputElement>("#so-judge-enabled")?.checked).toBe(false);
-    await expect(canvasElement.querySelector<HTMLInputElement>("#so-judge-use-director")?.disabled).toBe(true);
+    await expect(canvasElement.querySelector("#so-judge-enabled")).toHaveAttribute("aria-checked", "false");
+    await expect(canvasElement.querySelector<HTMLButtonElement>("#so-judge-use-director")?.disabled).toBe(true);
   },
 };
 
@@ -122,7 +122,7 @@ export const CheckingThePlugin: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await expect(canvasElement.querySelector("#so-judge-status")).toHaveTextContent("Checking the judge plugin…");
-    await expect(canvas.getByRole("checkbox", { name: "Use the judge" })).toHaveAttribute("id", "so-judge-enabled");
+    await expect(canvas.getByRole("switch", { name: "Use the judge" })).toHaveAttribute("id", "so-judge-enabled");
   },
 };
 
@@ -376,7 +376,7 @@ export const AuthorSeesWardenLoreRow: Story = {
   args: { settings: settings({ enabled: true }, { wardenLore: true }), status: ready, authorView: true },
   play: async ({ args, canvasElement }) => {
     const box = canvasElement.querySelector<HTMLInputElement>("#so-judge-use-warden-lore");
-    await expect(box?.checked).toBe(true);
+    await expect(box).toBeChecked();
     await expect(within(canvasElement).getByText("Lore check (warden)")).toBeInTheDocument();
     await expect(canvasElement.querySelector("#so-judge-readiness")?.textContent ?? "").not.toContain("Lore check (warden)");
     await expect(canvasElement.querySelector("#so-judge-readiness-summary")?.textContent).toContain("Lore check (warden) 100% (p50 233 ms)");
@@ -388,8 +388,8 @@ export const AuthorSeesWardenLoreRow: Story = {
 export const ExclusiveLoreAndExpressionsAreSwitchesInAuthorView: Story = {
   args: { settings: settings({ enabled: true }, { loreSelect: true, loreExclusive: true, expressions: false }), status: ready, authorView: true },
   play: async ({ canvasElement }) => {
-    await expect(canvasElement.querySelector<HTMLInputElement>("#so-judge-use-lore-exclusive")?.checked).toBe(true);
-    await expect(canvasElement.querySelector<HTMLInputElement>("#so-judge-use-expressions")?.checked).toBe(false);
+    await expect(canvasElement.querySelector<HTMLInputElement>("#so-judge-use-lore-exclusive")).toBeChecked();
+    await expect(canvasElement.querySelector<HTMLInputElement>("#so-judge-use-expressions")).not.toBeChecked();
     await expect(canvasElement.querySelector("#so-judge-readiness")?.textContent).toContain("Exclusive lore selection");
   },
 };

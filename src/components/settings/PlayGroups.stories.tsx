@@ -49,11 +49,11 @@ export const AuthorView: Story = {
   args: { snapshot: snapshot(true), manager: fakeManager() },
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(canvas.getByRole("checkbox", { name: /Several characters may answer/ }));
+    await userEvent.click(canvas.getByRole("switch", { name: /Several characters may answer/ }));
     await expect(args.manager.setTalkChainSettings).toHaveBeenCalled();
-    await expect(canvas.getByRole("checkbox", { name: /Keep one question when a character asks you/ })).toBeChecked();
+    await expect(canvas.getByRole("switch", { name: /Keep one question when a character asks you/ })).toBeChecked();
     await expect(await canvas.findByLabelText("Notes under messages")).toBeInTheDocument();
-    await expect(canvas.queryByRole("checkbox", { name: "Lorebook curator" })).toBeNull();
+    await expect(canvas.queryByRole("switch", { name: "Lorebook curator" })).toBeNull();
     await waitFor(() => expect(canvasElement.querySelector("#so-inner-voice-settings")).not.toBeNull());
     await expect(canvasElement.querySelector("#so-pacing-alpha")).toBeNull();
     await expect(canvasElement.querySelector("#so-chain-hold-extraction")).toBeNull();
@@ -65,7 +65,7 @@ export const PlayerWithAStory: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await expect(await canvas.findByLabelText("Notes under messages")).toBeInTheDocument();
-    await expect(canvas.queryByRole("checkbox", { name: "Lorebook curator" })).toBeNull();
+    await expect(canvas.queryByRole("switch", { name: "Lorebook curator" })).toBeNull();
     await expect(canvasElement.querySelector("#so-chain-stop-transition")).toBeNull();
   },
 };
