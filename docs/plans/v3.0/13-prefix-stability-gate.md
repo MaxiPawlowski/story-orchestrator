@@ -116,3 +116,16 @@ Integration branch `v3.0-wave1-integration` (13, 14, 16, 17, plan 11 prep, F1/F3
 - Should the gateway also log first divergence per `memberKey` (web idea 5 literally says controller)? Left out: 08/09
   branches own `memberCache.mjs`/`gateway.mjs`.
 - Gate the story read (`--side-fails`) once A1 reorders it?
+
+## Follow-up 2026-10-30: gateway first divergence per `memberKey` (branch `v3.0-ctl-cpu-1030`, CPU only)
+
+Answers §Unresolved question 1. The member cache (`broker/prefixDivergence.mjs`, hooked in `MemberCache.before` for
+every planned chat prompt) keeps each `memberKey`'s previous prompt in memory (16 keys) and logs the first differing
+char against it: `[member-cache] first divergence key <12 hex>: char N of M (previous P), cut C, extends|below-cut|above-cut[, K cached chars lost]`.
+Offsets only, no prompt text. `/status` `memberCache.divergence` = `{compared, extends, belowCut, aboveCut, keys, last}`.
+`above-cut` (divergence before the history cut) is the head churn that costs the cached prefix.
+- Tests: `broker/prefixDivergence.test.mjs` (4: offsets, verdicts and no-text log, bounded keys/events, a churned head
+  through a real `MemberCache` counted as above-cut).
+- Gate: `npm run gates -- --jobs=3` (no `--resume`) on `9d916283`: all green in 1249.0 s. Real-generation readings:
+  owed with REG-6 (lane 45, after GS1).
+- Cascade: `v3.0-a2-maxmem`, `v3.0-27-fork-wrapup`, `v3.0-28-cache-spill` take it through their master merge.

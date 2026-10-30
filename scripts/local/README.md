@@ -11,6 +11,12 @@ against; 512 on this install, where `--fit` left 1.8–2.0 GiB free against the 
 required and is reported verbatim on `/status`. Start/stop/load/unload/automatic/
 restore/free-images/start-comfy are available through `node scripts/local/cli.mjs <action>` and the tray. Every text
 and lifecycle operation shares the lease queue; a manual hold requires Automatic or Load text to resume.
+`stop` holds new text, waits up to 15 s for active work, then stops anyway and says what it cut (a stuck image lease
+never blocks it); it still refuses while ComfyUI runs a job unless `stop --force`. `unload` waits for active work and is
+refused while it runs; `unload --force` holds new text, waits up to 15 s for the active reply, then unloads even under a
+stuck image lease (never during a text load), and reports what it cut. The RAM member cache logs each member key's first
+prompt divergence against that key's previous prompt (`[member-cache] first divergence ...`, char offsets only, no
+prompt text); `/status` `memberCache.divergence` counts `extends`, `belowCut`, `aboveCut` (head churn that loses cache).
 
 Pose import and body measurements need `modelDirs.poseModels` pointing at the installed approved DWPose ONNX pair,
 matching the media plugin's `modelRoots.poseModels`. ONNX weights use their file size for conservative admission;

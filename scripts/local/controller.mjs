@@ -8,6 +8,7 @@ import { runtimeMemoryProfile } from '../../server-plugin/story-orchestrator-gpu
 import { controllerStatus, withControllerDefaults } from '../../server-plugin/story-orchestrator-gpu/broker/controllerStatus.mjs';
 import { createLiveSettings, createSettingsReload, currentMode } from './modes.mjs';
 import { createSettingsRoutes } from './settingsUi.mjs';
+import { createControllerStop } from './controllerStop.mjs';
 import { createLedger, guardTextOnExit, killTree, reapOrphans, recordingSpawn, startReaper } from './orphans.mjs';
 
 const configFile = process.argv[2];
@@ -55,17 +56,8 @@ const gateway = createGateway({ arbiter, config: arbiterConfig, allowOrigin: /^h
         telemetry: async () => { const data = await arbiter.status({ fresh: true }); return { ...data.telemetry, phase: data.phase }; } }),
     extraGet: { '/': status, '/status': status, '/health': status, '/measurement': async () => arbiter.scheduler.lastMeasurement ?? null },
     controls: {
-        stop: async () => {
-            await arbiter.scheduler.exclusive(async () => {
-                if (arbiter.ownedChildren().length) {
-                    const queue = await comfyGet('/queue').catch(() => ({}));
-                    if (queue.queue_running?.length || queue.queue_pending?.length) throw new Error('ComfyUI has an existing job; finish it before stopping the controller.');
-                }
-            });
-            performance.stop();
-            await arbiter.stop();
-            setTimeout(() => { void gateway.close().finally(() => process.exit(0)); }, 50);
-        },
+        stop: createControllerStop({ scheduler: arbiter.scheduler, ownedChildren: () => arbiter.ownedChildren(), comfyQueue: () => comfyGet('/queue'),
+            performance, stopArbiter: () => arbiter.stop(), close: () => gateway.close() }),
     } });
 await gateway.listen(config.gatewayPort, '127.0.0.1');
 console.log(`Local residency gateway listening on 127.0.0.1:${config.gatewayPort}`);

@@ -33,6 +33,11 @@ lanes: `ui-review/settings.md`, `player.md`, `inchat.md`, `author.md`, `design-s
 - **3** clean-up: buttons/alerts migration leftovers (WP-3), CSS split + lazy styles (WP-7), harness selectors, guide and
   settings docs, screenshot pass desktop/mobile, dark/light.
 
+Harvest 2026-10-30 additions (owner asked what is worth building; `extension-research-2026-10-30/SUMMARY.md`), folded into
+phase 2: in chat, a "Here now" story-sheet tab from `runtime/sceneCard.ts` `sceneView`; the status chip says what a read waits
+on, bounded into Try again; Settings feature rows name the model and what the feature writes; Author, a who-knows-what grid
+(Author view only) with an alert when a kept-out member is on stage.
+
 Each work package closes on full `npm run gates` plus a lane screenshot check and `so-ui.mts assert-player-clean`.
 
 ## Phase 0a gate record

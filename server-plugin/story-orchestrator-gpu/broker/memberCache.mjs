@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto';
 import fsDefault from 'node:fs/promises';
 import path from 'node:path';
+import { PrefixDivergence } from './prefixDivergence.mjs';
 
 export const MEMBER_CACHE_DEFAULTS = Object.freeze({ headChars: 2000, budgetMiB: 6144, minPromptChars: 16000, minCutChars: 8000, minTailChars: 1200,
     cutMarker: '<|turn>system\n', rewind: true, ramHeadroomMiB: 0, ctxCheckpoints: 3, store: 'file', park: true, erase: true, serverKeys: false, idlePrefill: false, idleDelayMs: 3000, idleMembers: 4, pinSlots: false, checkpointAt: false, serverRewind: false, keepAcrossImages: false, lightSleep: false, lightSleepFreesMiB: 2900, fitRam: false, fitImageCacheRam: false });
@@ -61,7 +62,7 @@ const MiB = 1048576;
 const FILE = /^m-[0-9a-f]{16}\.bin$/;
 
 export class MemberCache {
-    constructor(options, { fetch: fetchImpl = fetch, baseUrl, fs = fsDefault, snapshot = null, reserves = () => ({}), now = () => Date.now(), live = null, ramFloorMiB = () => 10240, imageRamMiB = () => 0, sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms)) } = {}) {
+    constructor(options, { fetch: fetchImpl = fetch, baseUrl, fs = fsDefault, snapshot = null, reserves = () => ({}), now = () => Date.now(), live = null, ramFloorMiB = () => 10240, imageRamMiB = () => 0, log = (line) => console.log(`[member-cache] ${line}`), sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms)) } = {}) {
         Object.assign(this, MEMBER_CACHE_DEFAULTS, options);
         this.fetch = fetchImpl;
         this.baseUrl = typeof baseUrl === 'function' ? baseUrl : () => baseUrl;
@@ -77,6 +78,7 @@ export class MemberCache {
         this.nativeSupported = null;
         this.lastRefit = null;
         this.lastTrim = null;
+        this.divergence = new PrefixDivergence({ log, now });
         this.entries = new Map();
         this.owner = new Map();
         this.lastError = null;
@@ -204,6 +206,7 @@ export class MemberCache {
         const plan = this.plan(body);
         if (!plan) { this.noteOther(slot); return null; }
         this.stats.planned += 1;
+        this.divergence.note(plan.key, body.prompt, plan.cut);
         const timing = { restoreMs: null, prefillMs: null, restored: false, resident: false };
         const ram = this.store === 'ram';
         if (ram && this.nativeSupported !== false && this.current().fitRam) await this.refit('chat').catch((error) => { this.lastError = error.message; });
@@ -395,6 +398,6 @@ export class MemberCache {
         const { capMiB, fitRam } = this.current();
         return { store: this.store, ...(this.store === 'ram' ? { capMiB, fitRam, native: this.native, nativeReported: this.nativeSupported, occupancy: this.native ? `${this.native.sizeMiB} of ${this.native.limitMiB} MiB, ${this.native.prompts} entries` : this.nativeSupported === false ? 'not reported (llama-server without GET /cache)' : 'unknown', lastRefit: this.lastRefit, lastTrim: this.lastTrim, serverKeys: this.serverKeys, erase: this.erase } : {}), dir: this.dir, budgetMiB: capMiB, rewind: this.rewind, park: this.park, entries: this.entries.size, sizeMiB: Math.round(this.bytes() / MiB), ...this.stats, parkMsP50: median(this.times.parkMs),
             restoreMsP50: median(this.times.restoreMs), prefillMsP50: median(this.times.prefillMs), rewindMsP50: median(this.times.rewindMs), saveMsP50: median(this.times.saveMs),
-            saveMsMax: this.times.saveMs.length ? Math.max(...this.times.saveMs) : null, idlePrefillMsP50: median(this.times.idlePrefillMs), idleMembersKnown: this.heads.size, lastError: this.lastError };
+            saveMsMax: this.times.saveMs.length ? Math.max(...this.times.saveMs) : null, idlePrefillMsP50: median(this.times.idlePrefillMs), idleMembersKnown: this.heads.size, divergence: this.divergence.status(), lastError: this.lastError };
     }
 }

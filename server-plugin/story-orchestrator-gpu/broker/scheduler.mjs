@@ -685,8 +685,25 @@ export class ResidencyScheduler {
         });
     }
 
-    async unload() {
-        await this.exclusive(async () => { this.manualHold = true; await this.backend.unload(); });
+    async unload({ force = false, waitMs = 15000 } = {}) {
+        if (!force) { await this.exclusive(async () => { this.manualHold = true; await this.backend.unload(); }); return { forced: false }; }
+        this.manualHold = true;
+        const deadline = Date.now() + waitMs;
+        while ((this.activeText || this.restoring) && Date.now() < deadline) await new Promise((resolve) => setTimeout(resolve, 100));
+        if (this.restoring) throw new Error('A text load or residency change is still running; unload again when it ends.');
+        const interrupted = { activeText: this.activeText, imageLease: Boolean(this.lease), imagePending: Boolean(this.imagePending), imageQueued: Boolean(this.imageQueued) };
+        this.restoring = true;
+        try { await this.backend.unload(); } finally { this.restoring = false; void this.pump(); }
+        return { forced: true, interrupted };
+    }
+
+    async drainForStop(waitMs = 15000) {
+        this.manualHold = true;
+        const busy = () => this.activeText || this.restoring || this.lease || this.imagePending || this.imageQueued;
+        const deadline = Date.now() + waitMs;
+        while (busy() && Date.now() < deadline) await new Promise((resolve) => setTimeout(resolve, 100));
+        if (!busy()) return { forced: false };
+        return { forced: true, interrupted: { activeText: this.activeText, restoring: this.restoring, imageLease: Boolean(this.lease), imagePending: Boolean(this.imagePending), imageQueued: Boolean(this.imageQueued) } };
     }
 
     resume() { this.manualHold = false; void this.pump(); }
