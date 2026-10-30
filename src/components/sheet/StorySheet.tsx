@@ -196,7 +196,7 @@ export function StorySheet({ snapshot, tab, popped, onTab, onPop, onClose, actio
 
   const height = dragHeight ?? snaps[snap];
   const style: CSSProperties = mode === "bottom"
-    ? { height, bottom: Math.max(0, room.view.height - room.formTop) }
+    ? { height, top: Math.max(0, Math.round(room.formTop - height)) }
     : { width: dock.width, top: Math.max(0, room.chatTop) };
   return (
     <section id="so-sheet" data-so="sheet" data-mode={mode} data-snap={mode === "bottom" ? snap : undefined} data-overlay={mode === "dock" ? dock.overlay : undefined}

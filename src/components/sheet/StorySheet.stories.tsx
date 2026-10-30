@@ -109,7 +109,7 @@ export const PhoneBottomSheet: Story = {
     await expect(sheet).toHaveAttribute("data-snap", "half");
     const height = Number.parseFloat(sheet.style.height);
     await expect(height).toBeLessThanOrEqual(PHONE.formTop - PHONE.chatTop - PHONE.lastReply);
-    await expect(sheet.style.bottom).toBe(`${PHONE.view.height - PHONE.formTop}px`);
+    await expect(sheet.style.top).toBe(`${PHONE.formTop - height}px`);
     const grip = within(sheet).getByRole("button", { name: /Drag to change the sheet's height/ });
     grip.focus();
     await userEvent.keyboard("{Enter}");
