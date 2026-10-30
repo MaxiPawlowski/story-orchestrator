@@ -31,7 +31,7 @@ export const EffectLedgerPanel = ({ snapshot }: { snapshot: RuntimeSnapshot }) =
   const rows = [...(snapshot.effects?.ledger ?? [])].reverse();
   if (!rows.length) return null;
   return (
-    <details data-so="effect-ledger" className="border-t border-solid border-white/10 mt-1 pt-1">
+    <details data-so="effect-ledger" className="border-t border-solid border-[var(--so-line)] mt-1 pt-1">
       <summary className="opacity-100 cursor-pointer">Host changes this chat made ({rows.length})</summary>
       {rows.map((row) => (
         <div key={row.id} data-so="effect-row" data-status={row.status} className="opacity-80 mt-1">
@@ -50,7 +50,7 @@ export const NotStoredPanel = ({ snapshot, manager }: { snapshot: RuntimeSnapsho
   const drops = snapshot.memory.verifyDrops ?? [];
   if (!drops.length) return null;
   return (
-    <details data-so="memory-not-stored" className="border-t border-solid border-white/10 mt-1 pt-1">
+    <details data-so="memory-not-stored" className="border-t border-solid border-[var(--so-line)] mt-1 pt-1">
       <summary className="opacity-100 cursor-pointer">Not stored — no support in the chat ({drops.length})</summary>
       {drops.map((drop) => (
         <div key={drop.entry.id} className="flex gap-2 opacity-80 flex-wrap mt-1">
@@ -68,7 +68,7 @@ export const EpistemicPanel = ({ snapshot, manager }: { snapshot: RuntimeSnapsho
   if (!entries.length) return null;
   const subjects = Array.from(new Set(entries.map((entry) => entry.subject)));
   return (
-    <div className="border-t border-solid border-white/10 mt-1 pt-1">
+    <div className="border-t border-solid border-[var(--so-line)] mt-1 pt-1">
       <div className="opacity-100">Epistemic map ({entries.length})</div>
       {subjects.map((subject) => (
         <div key={subject} className="mt-1">
@@ -94,7 +94,7 @@ export const LedgerPanel = ({ snapshot, manager }: { snapshot: RuntimeSnapshot; 
   // Rows are version lists: the row shows the newest version, so Remove addresses that one.
   const idFor = (entity: string, field: string) => stored.filter((entry) => entry.entity.toLowerCase() === entity.toLowerCase() && entry.field.toLowerCase() === field.toLowerCase()).at(-1)?.id;
   return (
-    <div className="border-t border-solid border-white/10 mt-1 pt-1">
+    <div className="border-t border-solid border-[var(--so-line)] mt-1 pt-1">
       <div className="opacity-100">State ledger ({rows.length})</div>
       {entities.map((entity) => (
         <div key={entity} className="mt-1">
@@ -123,7 +123,7 @@ export const ArcCanonPanel = ({ snapshot, manager }: { snapshot: RuntimeSnapshot
   const canon = snapshot.memory.canon;
   if (!arcs.length && !canon) return null;
   return (
-    <div className="border-t border-solid border-white/10 mt-1 pt-1">
+    <div className="border-t border-solid border-[var(--so-line)] mt-1 pt-1">
       <div className="opacity-100">Arcs (open {openArcs.length} · resolved {resolvedArcs.length})</div>
       {arcs.map((arc) => (
         <div key={arc.id} className="mt-1">
@@ -136,7 +136,7 @@ export const ArcCanonPanel = ({ snapshot, manager }: { snapshot: RuntimeSnapshot
         </div>
       ))}
       {canon && (
-        <div className="border-t border-solid border-white/10 mt-1 pt-1">
+        <div className="border-t border-solid border-[var(--so-line)] mt-1 pt-1">
           <div className="opacity-100">Canon</div>
           <div className="opacity-80 whitespace-pre-wrap">{canon.text}</div>
         </div>

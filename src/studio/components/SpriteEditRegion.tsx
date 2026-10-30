@@ -12,8 +12,8 @@ export default function SpriteEditRegion({ reference, size, box, changeBox, regi
   return <>
     {reference && <div className="relative" style={{ width: "min(280px,100%)" }}>
       <img src={reference} alt="Selected reference" style={{ display: "block", width: "100%" }} />
-      <div aria-hidden="true" style={rectangle(box, "#f66")} />
-      {mouth && <div aria-hidden="true" style={rectangle({ ...effective, x: box.x + effective.x, y: box.y + effective.y }, "#6f6")} />}
+      <div aria-hidden="true" style={rectangle(box, "var(--so-error)")} />
+      {mouth && <div aria-hidden="true" style={rectangle({ ...effective, x: box.x + effective.x, y: box.y + effective.y }, "var(--so-ok)")} />}
     </div>}
     <fieldset className="flex flex-wrap gap-2"><legend>Head box, in reference pixels</legend>{(["x", "y", "width", "height"] as const).map((field) =>
       <label key={field}>{field}<input className="text_pole" type="number" min={0} disabled={busy} value={box[field]}

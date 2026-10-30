@@ -24,7 +24,7 @@ interface GroupProps {
 }
 
 export const DisplayGroup = ({ snapshot, manager }: GroupProps) => (
-  <div className="flex flex-col gap-2 border-t border-solid border-white/10 pt-2">
+  <div className="flex flex-col gap-2 border-t border-solid border-[var(--so-line)] pt-2">
     <GroupHeader title="Display" scope="install" id="so-display-header" />
     <Lazy fallback={null}><InlineControls snapshot={snapshot} manager={manager} /></Lazy>
     <CheckRow id="so-hud-enabled" setting="display.hudEnabled" checked={snapshot.ui.hudEnabled} onChange={(on) => manager.setUiSettings({ hudEnabled: on })} />
@@ -41,7 +41,7 @@ export const TransitionNoteRow = ({ snapshot, manager }: GroupProps) => (
 );
 
 export const ChapterBudgetGroup = ({ snapshot, manager }: GroupProps) => (
-  <div id="so-chapter-budget-group" className="flex flex-col gap-2 border-t border-solid border-white/10 pt-2">
+  <div id="so-chapter-budget-group" className="flex flex-col gap-2 border-t border-solid border-[var(--so-line)] pt-2">
     <GroupHeader title="Chapters" scope="install" id="so-chapter-budget-header" />
     <Lazy fallback={null}><ChapterBudgetField stored={snapshot.memory.settings.chapters}
       onWrite={(next) => manager.setMemorySettings({ chapters: { ...chapterSettings(snapshot.memory.settings.chapters), ...next } })} /></Lazy>
@@ -53,7 +53,7 @@ export const LorebooksGroup = ({ snapshot, manager }: GroupProps) => {
   const [lateLore, setLateLore] = useState(() => getGlobalSettings().worldInfo.lateLore);
   const [releasing, setReleasing] = useState(false);
   return (
-    <div className="flex flex-col gap-2 border-t border-solid border-white/10 pt-2">
+    <div className="flex flex-col gap-2 border-t border-solid border-[var(--so-line)] pt-2">
       <GroupHeader title="Lorebooks" scope="install" id="so-lorebooks-header" />
       <StoryLoreGlobal
         books={snapshot.globalStoryLore ?? []}
@@ -90,7 +90,7 @@ export const LorebooksGroup = ({ snapshot, manager }: GroupProps) => {
 export const InnerVoiceGroup = ({ snapshot, manager }: GroupProps) => {
   if (!snapshot.ui.authorView) return null;
   return (
-    <div className="flex flex-col gap-2 border-t border-solid border-white/10 pt-2">
+    <div className="flex flex-col gap-2 border-t border-solid border-[var(--so-line)] pt-2">
       <Lazy fallback={null}><InnerVoiceControls snapshot={snapshot} manager={manager} /></Lazy>
     </div>
   );
@@ -104,7 +104,7 @@ export const CharacterStateGroup = ({ manager }: GroupProps) => {
     manager.notify();
   };
   return (
-    <div className="flex flex-col gap-2 border-t border-solid border-white/10 pt-2">
+    <div className="flex flex-col gap-2 border-t border-solid border-[var(--so-line)] pt-2">
       <GroupHeader title="Added to the reply prompt" scope="install" id="so-character-state-header" />
       <CheckRow id="so-card-overlay" setting="sprites.cardOverlay" checked={on} onChange={change} />
     </div>
@@ -124,7 +124,7 @@ export const TalkGroup = ({ manager }: GroupProps) => {
     manager.notify();
   };
   return (
-    <div className="flex flex-col gap-2 border-t border-solid border-white/10 pt-2">
+    <div className="flex flex-col gap-2 border-t border-solid border-[var(--so-line)] pt-2">
       <GroupHeader title="Speaker direction" scope="install" id="so-talk-header" />
       <CheckRow id="so-chain-enabled" setting="talk.chain.enabled" checked={chain.enabled} onChange={(on) => update({ enabled: on })} />
       <div className="flex flex-wrap items-center gap-2 text-sm">

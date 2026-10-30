@@ -52,7 +52,7 @@ const InnerVoicePanel = ({ snapshot }: { snapshot: RuntimeSnapshot }) => {
       {!all.length ? (
         <div className="opacity-70">No cast. Drives, motives and intents appear here per character.</div>
       ) : rows.map(({ voice, intents, beat, label }) => (
-        <div key={voice.id} data-so="inner-voice-row" className="border-t border-solid border-white/10 mt-1 pt-1">
+        <div key={voice.id} data-so="inner-voice-row" className="border-t border-solid border-[var(--so-line)] mt-1 pt-1">
           <div className="opacity-100">{voice.name}{voice.omniscient ? <span className="opacity-70"> · narrator view</span> : null}</div>
           <div>Drive: {voice.drive ?? <span className="opacity-70">none</span>}</div>
           <div>Right now: {voice.motive ?? <span className="opacity-70">none</span>}</div>
