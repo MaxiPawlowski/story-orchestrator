@@ -18,6 +18,7 @@
       "rows": [
         { "id": "gs1-judged", "kind": "journey", "target": "GS1", "model": "judged", "controller": true, "repeat": 2, "note": "first hour: chat, inner, read, talk director, scheduler idle" },
         { "id": "gs1-plumbing", "kind": "journey", "target": "GS1", "model": "any", "controller": true, "repeat": 2 },
+        { "id": "prefix-drift-a0", "kind": "script", "target": "node scripts/debug/st-lanes.mts run <n> -- scripts/debug/so-prefix-drift.mts summary --out <row dir>/prefix-drift.json", "model": "any", "controller": true, "gpu": false, "note": "v3.0 A0 real-generation row (plan 13 owed): right after a GS1 batch on the same lane, no reload between (the recorder lives in the page); valid on a replay lane too, the prompts are still built" },
         { "id": "j5-judged", "kind": "journey", "target": "J5", "model": "judged", "controller": true },
         { "id": "j5-plumbing", "kind": "journey", "target": "J5", "model": "any", "controller": true, "note": "talk director on the reply's critical path" },
         { "id": "turn-types-real", "kind": "scenario", "target": "test/scenarios/live-v4-turn-types-real.json", "model": "any", "controller": true },
