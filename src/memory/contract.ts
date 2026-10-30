@@ -6,7 +6,7 @@ export const renderExistingArcs = (openArcs: readonly string[]): string[] => (op
   ? ["EXISTING OPEN ARCS (read-only context — do not copy or re-output these):", ...openArcs.map((arc) => `[arc] ${arc}`)]
   : []);
 
-export function renderArcContractSection(openArcs: string[] = [], promisesTracked = false, listedBelow = false): string {
+export function renderArcContractSection(openArcs: string[] = [], promisesTracked = false, listedBelow = false, deferrable = openArcs.length > 0): string {
   const existing = openArcs.length ? [...renderExistingArcs(openArcs), ""] : [];
   return [
     ...existing,
@@ -18,7 +18,7 @@ export function renderArcContractSection(openArcs: string[] = [], promisesTracke
     "[resolved] <brief description of an existing open arc that this window explicitly closed>",
     "Only mark [resolved] when the window directly closes the thread (promise kept, mystery answered, conflict ended); a related revelation is not a resolution.",
     ...(promisesTracked ? [PROMISE_ARC_RULE] : []),
-    ...(openArcs.length ? DEFERRED_ARC_LINES : []),
+    ...(deferrable ? DEFERRED_ARC_LINES : []),
   ].join("\n");
 }
 
@@ -120,7 +120,7 @@ export function renderMemoryContractParts(openArcs: string[] = [], capable = fal
   return {
     rules: [
       ...memoryRules(),
-      renderArcContractSection([], promises !== null, true),
+      renderArcContractSection([], promises !== null, true, openArcs.length > 0),
       ...(promises?.rules ? ["", promises.rules] : []),
       ...(capable ? ["", renderEpistemicContractSection(), "", renderLedgerContractSection([])] : []),
     ].join("\n"),
