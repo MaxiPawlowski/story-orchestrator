@@ -240,7 +240,7 @@ const checkQualitiesInScope = (run: DiagnosticRun) => {
   const referencedKeys = scopedKeys(draft);
   const widgetOnly = widgetGateKeys(draft);
   draft.qualities.forEach((quality, index) => {
-    if (quality.source !== "extractor" || quality.key === TENSION_CURRENT_KEY || widgetOnly.has(quality.key)) return;
+    if (quality.source !== "extractor" || quality.key === TENSION_CURRENT_KEY || widgetOnly.has(quality.key) || quality.display?.public) return;
     if (!referencedKeys.has(quality.key)) {
       push(
         "quality-never-in-scope",
