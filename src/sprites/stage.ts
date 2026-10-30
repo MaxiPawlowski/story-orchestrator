@@ -20,6 +20,7 @@ import { setGlobalSettings } from "@runtime/settingsStore";
 import { isRecord } from "@utils/guards";
 import { directionKeys, rosterStamp, isSpotlit, memberDirection, readStageDirection, standsOnStage, type StageDirection } from "./direction";
 import { StreamActivity } from "./animation";
+import { osReducedMotion, stageMotion } from "./motion/budget";
 import { publishSpriteLookIssues } from "@runtime/spriteLookHealth";
 import { publishSpriteStageHealth, type SpriteStageIssue } from "@runtime/spriteStageHealth";
 import { changedLookIssues } from "./lookHealth";
@@ -117,6 +118,8 @@ export class SpriteStage {
       activation,
       capability: this.capability,
       reducedMotion: spriteReducedMotion() || this.manager.getStory()?.display?.motion === false,
+      motion: stageMotion({ effects: settings.effects, hostReduced: spriteReducedMotion(), osReduced: osReducedMotion(), storyMotion: this.manager.getStory()?.display?.motion !== false }),
+      active: ready,
       headSession: this.headSession(),
     };
   }
@@ -173,6 +176,8 @@ export class SpriteStage {
     const observer = typeof MutationObserver === "undefined" ? null : new MutationObserver(this.notify);
     observer?.observe(document.body, { attributes: true, attributeFilter: ["class"] });
     const offViewport = spriteWatchViewport(this.notify);
+    const media = typeof matchMedia === "function" ? matchMedia("(prefers-reduced-motion: reduce)") : null;
+    media?.addEventListener("change", this.notify);
     const offStory = this.manager.subscribe(() => this.placeChanged());
     const offSources = subscribeVisualSources(() => { this.lists.clear(); void this.reload(); });
     const offFiles = subscribeSpriteFiles(() => { this.lists.clear(); void this.reload(); });
@@ -185,6 +190,7 @@ export class SpriteStage {
       offSources();
       offFiles();
       offViewport();
+      media?.removeEventListener("change", this.notify);
       observer?.disconnect();
       document.removeEventListener("click", click);
       this.stopPlayback();

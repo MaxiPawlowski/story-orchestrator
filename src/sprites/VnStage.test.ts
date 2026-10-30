@@ -4,6 +4,7 @@ import { VnStage } from "./VnStage";
 import type { SpriteStage } from "./stage";
 import type { StageActor, StageView } from "./stageTypes";
 import { defaultSpriteSettings } from "./settings";
+import { stageMotion } from "./motion/budget";
 
 jest.mock("react", () => ({ ...jest.requireActual("react"), default: jest.requireActual("react"),
   useSyncExternalStore: (_subscribe: unknown, snapshot: () => unknown) => snapshot() }));
@@ -17,7 +18,8 @@ const actor = (name: string, patch: Partial<StageActor> = {}): StageActor => ({
 
 function render(actors: StageActor[], patch: Partial<StageView> = {}): string {
   const view: StageView = { actors, visible: true, placement: "vn", waitsForVn: false, speaking: null, talker: null,
-    framing: "close", settings: defaultSpriteSettings(), activation: "story", capability: "present", reducedMotion: false, headSession: "chat", ...patch };
+    framing: "close", settings: defaultSpriteSettings(), activation: "story", capability: "present", reducedMotion: false,
+    motion: stageMotion({ effects: "full", hostReduced: false, osReduced: false, storyMotion: true }), active: true, headSession: "chat", ...patch };
   const stage = { view: () => view, subscribe: () => () => {}, beginHeadRun: () => {} } as unknown as SpriteStage;
   return renderToStaticMarkup(React.createElement(VnStage, { stage }));
 }

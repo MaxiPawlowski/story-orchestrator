@@ -405,6 +405,9 @@ export const SETTING_COPY = {
     "Which profile picks expressions when the judge cannot. Same as the image-prompt model by default.",
   ),
   "sprites.focus": copy("Dim whoever is not speaking", "Fades the characters who are not talking, so the speaker stands out."),
+  "sprites.effects": copy("Stage effects",
+    "Full: characters step in and out, hop when they start speaking, react to expression changes, sway at rest, and the stage fades between scenes, darkens with tension and shows a card on a new chapter. "
+      + "Calm: fades, scene transitions, the tension vignette and the chapter card only. Off: none of it. Reduced motion in SillyTavern or your system, and a story that switches motion off, keep only short fades."),
   "sprites.breathing": copy("Idle breathing", "A slow, small movement so sprites do not look frozen. Turn it off to save a little work on slow machines."),
   "sprites.liveHead": copy("Live close-shot head",
     "Animates a close shot when this member's look has a rig: breathing, blinks, gaze, body sway, swinging hair locks and small gestures. "
