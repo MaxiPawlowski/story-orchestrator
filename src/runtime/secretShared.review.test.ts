@@ -225,7 +225,7 @@ describe("chapter records on read: the chronicle, the story so far and its open 
     const { host, memory } = coordinatorHarness([ARIA_KNOWS]);
     const state = memory();
     const unfiltered = storySoFarText({ records: state.chapters ?? [], eras: state.chronicle?.eras ?? [], canon: "", chapterTitle: null,
-      threads: ARCS.filter((arc) => arc.status === "open"), settings: chapterSettings(state.settings.chapters) });
+      threads: ARCS.filter((arc) => arc.status === "open"), settings: chapterSettings(state.settings.chapters), resting: (text) => text });
     expect(storySoFar(host)).toBe(unfiltered);
     expect(unfiltered).toMatch(SECRET);
   });

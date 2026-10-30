@@ -142,8 +142,10 @@ export async function recall(port: ChapterPort, chat: readonly unknown[], type: 
   const candidates = shown(memory.entries);
   if (!candidates.length) return 0;
   const run = beginRun(host.deps.ownership);
-  const semantic = await recallBand(host.deps.hosts.vectors, text, candidates);
+  const bandKey = JSON.stringify([story.id, host.deps.hosts.vectors.source, text, candidates.map((entry) => [entry.id, entry.text])]);
+  const semantic = port.recallBand?.key === bandKey ? port.recallBand.band : await recallBand(host.deps.hosts.vectors, text, candidates);
   if (!run.stillOwns()) return 0;
+  port.recallBand = { key: bandKey, band: semantic };
   const live = host.memory();
   const context: ScoreContext = {
     boundary: state.boundary, lastMessageId: state.lastMessageId, turnText: text, turnEntities: recallMentions(live.entries, text),
@@ -279,12 +281,12 @@ export interface StorySoFarInput {
   chapterTitle: string | null;
   threads: readonly ArcEntry[];
   settings: ChapterSettings;
-  resting?: Resting;
+  resting: Resting;
 }
 
 export function storySoFarText(input: StorySoFarInput): string {
   const { settings } = input;
-  const resting = input.resting ?? ((text: string) => text);
+  const { resting } = input;
   const parts: string[] = [];
   const chronicle = input.records.length ? resting(renderChronicle(input.records, input.eras, settings.chronicleTokens).text) : "";
   if (chronicle) parts.push(`[The story so far]\n${chronicle}`);
@@ -322,28 +324,47 @@ export interface FoldOutcome {
 }
 
 export function foldRange(records: readonly ChapterRecord[], story: NormalizedStory | null, foldEras = false): Array<{ from: number; to: number }> {
-  return records.filter((record) => (isEraId(story, record.chapterId) ? foldEras : story?.chapterById?.[record.chapterId]?.seal?.fold_messages !== false)).map((record) => {
-    const tail = story?.chapterById?.[record.chapterId]?.seal?.keep_tail ?? 6;
-    return { from: record.range.from, to: record.range.to - tail };
-  }).filter((range) => range.to >= range.from);
+  const folds = (record: ChapterRecord) => (isEraId(story, record.chapterId) ? foldEras : story?.chapterById?.[record.chapterId]?.seal?.fold_messages !== false);
+  const chain: ChapterRecord[] = [];
+  for (const record of [...records].sort((left, right) => left.range.from - right.range.from)) {
+    if (!folds(record) || (chain.length && record.range.from > Math.max(...chain.map((held) => held.range.to)) + 1)) break;
+    chain.push(record);
+  }
+  if (!chain.length) return [];
+  const from = chain[0].range.from;
+  const to = Math.max(...chain.map((record) => record.range.to - (story?.chapterById?.[record.chapterId]?.seal?.keep_tail ?? 6)));
+  return to >= from ? [{ from, to }] : [];
 }
 
 export function foldRows(rows: FoldRow[], idOf: (row: FoldRow) => number | null, ranges: ReadonlyArray<{ from: number; to: number }>): FoldOutcome {
   const outcome: FoldOutcome = { folded: 0, kept: 0, missing: 0 };
-  rows.forEach((row, index) => {
-    const id = idOf(row);
-    if (id === null) {
-      outcome.missing += 1;
-      return;
-    }
-    if (!ranges.some((range) => id >= range.from && id <= range.to)) {
-      outcome.kept += 1;
-      return;
-    }
+  const ignore = (index: number) => {
+    const row = rows[index];
     const extra = typeof row.extra === "object" && row.extra !== null ? row.extra : {};
     rows[index] = { ...row, extra: { ...extra, [IGNORE]: true } };
     outcome.folded += 1;
+  };
+  let pending: number[] = [];
+  let leading = true;
+  rows.forEach((row, index) => {
+    const id = idOf(row);
+    if (id === null) {
+      if (leading) pending.push(index);
+      else outcome.missing += 1;
+      return;
+    }
+    if (leading && ranges.some((range) => id >= range.from && id <= range.to)) {
+      pending.forEach(ignore);
+      pending = [];
+      ignore(index);
+      return;
+    }
+    leading = false;
+    outcome.missing += pending.length;
+    pending = [];
+    outcome.kept += 1;
   });
+  outcome.missing += pending.length;
   return outcome;
 }
 

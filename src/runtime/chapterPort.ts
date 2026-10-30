@@ -47,6 +47,7 @@ export class ChapterPort {
   carried: string | null = null;
   bridgeHeld = false;
   recalled = false;
+  recallBand: { key: string; band: Set<string> | null } | null = null;
 
   constructor(readonly host: ChapterHost) {}
 
