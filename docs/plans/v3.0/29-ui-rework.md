@@ -304,3 +304,56 @@ master merged in twice, last at `ee9f75f7` with the harvest wave `435a614b`).
   exports), five DrawerTabs plays (story snapshot without `inline`), and two known flakes (HelpPanel Ask timeout, controller startup reap).
 - Not done: Review nav item count badge (WorkspaceShell belongs to the Settings agent; the Proposals tab carries the count); inspect chip on
   messages that have no notes (step with ‹ › instead).
+
+## Phase 2 player gate record
+
+2026-10-31, branch `v3.0-29-ui-p2-player` (P-6 `272ca1bf`, Play `dc408456`, master `a353fa66` merged at `df182e26`,
+P-5/sheet, owner 2026-10-31 decisions, gate fixes; code tree `0ef0e7b7`, then master's docs-only `1e3a938d` merged).
+
+- P-6 start pane (decision 9): briefing, then carry, then "Who you are in this story" (role, summary, assumes as chips) with one
+  SegmentedControl `[data-so=player-setup-mode]` (keep / pick / create, inline form below); the story's start button `#so-briefing-start`
+  is the one primary and commits the chosen mode (`StartCommit` ref, a refused lock keeps the pane open); the header close
+  `[data-so=briefing-close]` is Skip. Opaque surface, sticky footer, full-screen under 700px. `briefingHarness` choose and the five
+  v27-34 scenarios follow (mode radio, then Start; skip = close).
+- P-2 attention banner `#so-setup`: one line `#so-setup-toggle` ("N things need attention"), rows kept in the DOM but hidden until opened,
+  blocks open by themselves, Hide `[data-so=setup-dismiss]` + Undo `[data-so=setup-undo]`, hidden list flat (no nested disclosure);
+  install-scope degrades/info go to Settings (`repair.ts` `playFindings`, HUD count follows). Status dedupe: `pipeline.ts` `statusSentence`
+  (no "Waiting for the next reply." on idle) shared by Play and the story card; Play shows "Paused until the setup below is fixed." when an
+  open blocking row already says it.
+- P-3 scene header `#so-player-overview` (`#so-scene-header`, chapter chip, `#so-pipeline-status`, rollback notices, requirements), You card
+  `#so-your-character` (section, always shown), footer: Story briefing, labelled Flag a moment `#so-flag-moment`, danger Restart
+  `#so-play-restart` → native `#so-restart-confirm` (kit Dialog; the rollback-unavailable restart uses it too).
+- P-4 tabs `#so-story-tabs`: Now (`PlayerNow`: recently, consequences, threads, quests only without a journal tab, promises, carry,
+  What could I do? `#so-open-suggestions`, `#so-living-save`), one tab per sheet page via `sheet/SheetTabBody.tsx` (moved out of
+  StorySheet), Memory = full curate tab with id `#so-open-memory` (kit Tab/TabPanel gained `id`/`labelledBy`). Pop-out `[data-so=play-pop]`
+  ids `#so-open-journal|stat-sheet|widgets` (others `so-pop-<tab>`) close the workspace and `openSheet(tab)`; `#so-chat-side` and
+  `ChatPanelLaunchers` removed from main. Deep-link controls choose the tab (`playTabFor`). Six launcher scenarios click the tab first.
+- P-5: `#so-image-chat` (pause, model, quality, direction) is `image/ImageChatPrefs.tsx` on Settings → Images & stage when a story plays
+  and images are on; Play keeps only `#so-image-quick` (Illustrate scene / Portrait / Background), rendered only with `image.enabled`.
+  The wand's "Illustrate story scene" and the per-message image buttons are removed while images are off (`registerImageSurface` watch).
+- P-8: recently line lower-cases a leading article (`midSentence`), memory heading once, severity labels screen-reader only, copy file
+  `features/playCopy.ts`. P-9: floating panels and the popped sheet size to content until resized (`PanelFrame fit`, `panelFits`).
+- Owner answers: phone sheet peek = tab row (`SHEET_PEEK` 56, grip 12px); This chat page renamed "Story settings" (id `features` kept,
+  crumbs, guide, settings reference); the route icon and the wand reopen the last workspace page per device (`runtime/lastPage.ts`,
+  `workspaceRoutes.ts` `resumeIntent`: Play when nothing stored or the page is author-only in player view).
+- Found on the lane: expanding Chapters on Story settings crashed the workspace (`memory.chapters.compact` control has no policy field);
+  `FeatureList` now infers a switch for a boolean control without a spec and skips anything else (story added).
+- Harness: `so-ui.mts assert-player-clean` walks every Play tab and expands features on "Story settings"; rawButtons ratchet shrunk
+  (7 files to 0, Workspace 1).
+- Live: lane 31 (no-model; living + extraction switched off, images/sprites/judge off, read back), worktree `dist/` routed into the lane
+  browser (nothing staged), SO-UI cards + group + `factions.story.json` as `SO-UI Player lab` (+ player profile, briefing, public `coins`),
+  1920x1080 and 390x844, dark + light: briefing order briefing → identity, 1 primary, opaque, sticky footer (phone 390x844 full screen);
+  Start committed keep (locked); Play heading, banner "2 things need attention", You card, tabs Now/Journal/Here now/Stats/Memory,
+  no `#so-chat-side`, no image row, 0 `<details>`, nav Play + Story settings; restart confirm cancels; journal pop-out closes the
+  workspace and opens the sheet on Journal; phone peek 56px; `assertPlayerClean` ok on both; cleanup leaked 0, library 0; blocked
+  model calls 3-4 (the `/send` reply, aborted); lane stopped. `C:\dev\so-lanes\ui-review\p2-player\` (driver kept as `.mts.txt`).
+- Bundle-headroom smoke (both viewports): story import ok; fresh page load + reopening the group reopened the same chat with the pinned
+  story ready (`storyId` set, boundary 3, requirements present); Settings → Features labels render (Story reading, Prompt memory,
+  Chapters…); settings search "memory" returns Features/Models/Judge rows; 0 page errors.
+- Bundle: main `dist/index.js` 1,231,718 B (budget 1,300,000; master 1,232,690).
+- `npm run gates:quick` green. `npm run gates` (no `--resume`, Storybook included) on `0ef0e7b7`: all green in 582.2s (jest 11,028 passed /
+  1 skipped, test:debug 1,729, Storybook 192 suites / 1,129 tests, replay, release, plugin, lint, typechecks). Earlier full runs: red on
+  stories (fixtures/assertions after the redesign, a harness button contrast), the shipped-links guard (README help link moved with the
+  image prefs), the error-copy inventory (last-page probes), then one max-len; all fixed.
+- Not done / owner: the phone segmented identity control wraps to two rows with a long persona name; mobile resume after the settings
+  list stores the list page (Library), not the page before it.
