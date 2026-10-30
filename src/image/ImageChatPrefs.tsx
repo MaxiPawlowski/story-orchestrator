@@ -6,6 +6,7 @@ import { startImage } from "./start";
 import type { ImageOverride } from "./settings";
 import { log } from "@utils/log";
 import { CheckRow } from "@components/settings/Field";
+import HelpTooltip from "@components/studio/HelpTooltip";
 
 export const IMAGE_PREFS_COPY = {
   heading: "Pictures in this chat",
@@ -39,7 +40,8 @@ export default function ImageChatPrefs({ manager, snapshot }: { manager: Runtime
   };
   const cues = [snapshot.imageStory?.checkpoints && "each new turn in the story", snapshot.imageStory?.scenes && "confirmed scene changes"].filter((cue): cue is string => typeof cue === "string");
   return <section id="so-image-chat" aria-labelledby="so-image-chat-heading" className="so-image-prefs">
-    <h3 id="so-image-chat-heading" className="so-play-label">{IMAGE_PREFS_COPY.heading}</h3>
+    <h3 id="so-image-chat-heading" className="so-play-label">{IMAGE_PREFS_COPY.heading}
+      <HelpTooltip title={IMAGE_PREFS_COPY.pauseHelp} href="/scripts/extensions/third-party/story-orchestrator/README.md#illustrations-and-scope" reference="Image preferences" /></h3>
     <p className="so-play-meta">{imageAutomationText(settings.automation.mode, cues, settings.automation.everyN)}</p>
     <CheckRow id="so-image-chat-pause" label={IMAGE_PREFS_COPY.pause} description={IMAGE_PREFS_COPY.pauseHelp} checked={override.paused} onChange={(paused) => update({ paused })} />
     {settings.backend === "comfy" && <label className="so-image-field">{IMAGE_PREFS_COPY.model}

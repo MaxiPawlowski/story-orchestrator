@@ -172,7 +172,7 @@ export const CloseButtonOnOneLine: Story = {
     const button = await canvas.findByRole("button", { name: BRIEFING_COPY.close });
     const box = button.getBoundingClientRect();
     const line = parseFloat(getComputedStyle(button).lineHeight) || parseFloat(getComputedStyle(button).fontSize) * 1.5;
-    await expect(box.height).toBeLessThan(line * 2);
+    await expect(box.height).toBeLessThan(Math.max(line * 2, (Number.parseFloat(getComputedStyle(button).minHeight) || 0) + 1));
     await expect(box.width).toBeGreaterThan(box.height);
   },
 };

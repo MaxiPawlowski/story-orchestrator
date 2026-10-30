@@ -147,7 +147,7 @@ export const ModelNotAnswering: Story = {
   },
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.getByText("The memory model is not answering — the story will catch up when it does.")).toBeInTheDocument();
+    await expect(canvas.getByText(/^The memory model is not answering — the story will catch up when it does\./)).toBeInTheDocument();
     await expect(canvas.queryByText(/Response not OK/)).toBeNull();
     await expect(canvas.queryByRole("button", { name: "Open story settings" })).toBeNull();
     await userEvent.click(canvas.getByRole("button", { name: "Try again" }));

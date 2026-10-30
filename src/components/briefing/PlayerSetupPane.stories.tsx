@@ -3,6 +3,7 @@ import { expect, fn, userEvent, waitFor, within } from "@storybook/test";
 import { PLAYER_SETUP_COPY } from "@features/playerSetupCopy";
 import type { PlayerSetupView } from "@runtime/playerSetup";
 import { useRef } from "react";
+import { Button } from "@components/ui/Button";
 import { PlayerSetupPane, type PlayerSetupPaneProps, type StartCommit } from "./PlayerSetupPane";
 import { fitsAt, VIEWPORTS } from "../../../.storybook/fit";
 
@@ -29,7 +30,7 @@ type Story = StoryObj<typeof PlayerSetupPane>;
 
 const Harness = (props: PlayerSetupPaneProps) => {
   const start = useRef<StartCommit | null>(null);
-  return <><PlayerSetupPane {...props} startRef={start} /><button type="button" onClick={() => void start.current?.()}>Start</button></>;
+  return <><PlayerSetupPane {...props} startRef={start} /><Button variant="primary" onClick={() => void start.current?.()}>Start</Button></>;
 };
 
 const mode = (canvasElement: HTMLElement, value: string) => canvasElement.querySelector<HTMLElement>(`[data-so="player-setup-mode"] [data-value="${value}"]`);

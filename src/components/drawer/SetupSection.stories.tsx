@@ -154,7 +154,7 @@ export const DismissedCanComeBack: Story = {
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
     await expect(canvasElement.querySelector('[data-so="setup-row"]')).toBeNull();
-    await userEvent.click(canvas.getByText(SETUP_COPY.dismissed(1)));
+    await expect(canvas.getByRole("button", { name: new RegExp(SETUP_COPY.dismissed(1)) })).toHaveAttribute("aria-expanded", "true");
     await userEvent.click(canvas.getByRole("button", { name: SETUP_COPY.restore }));
     await expect(args.onDismiss).toHaveBeenCalledWith("model-not-thinking", false);
   },
