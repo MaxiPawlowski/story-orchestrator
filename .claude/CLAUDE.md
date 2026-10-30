@@ -89,10 +89,13 @@ library, setup/repair, author/inspect, long reference. A dialog control that tar
     Your character `#so-your-character`, Save this run `#so-living-save`, Beside the chat `#so-chat-side` (labelled
     launchers that close the workspace), Illustrations `#so-image-chat` (pause automatic images in this chat), memory
     `#so-open-memory` (Exclude has an inline Undo `#so-memory-undo`), Restart / Story briefing / Flag (`#so-flag-status`).
-  - **Author** (Author view only; nothing the Play page shows): Recent activity, `DrawerTabs` in `#drawer-manager` (Overview
-    `#so-author-overview` with engine, requirements, history floor, `#so-author-story-controls`: New story / Edit story / Update to the latest;
-    Blackboard, Memory (author), Scheduler, Payload, DriverPanel), Illustrate prepared cast `#so-cast-scene`. An author chip
-    under a message opens this page with `#so-inspector` on top (`inspectorIntent`).
+  - **Author** (Author view only; nothing the Play page shows): run console `DrawerTabs` in `#drawer-manager`
+    (`components/drawer/`, `runtime/authorConsole.ts`): sticky Steer column `[data-so="steer"]` (DriverPanel: checkpoint,
+    boundary, pipeline, readable unmet gates, Suggest/Probe/Report, Advance, Nudge, `#so-author-story-controls`) and section tabs
+    `role=tab` with `data-so-tab` on each body: health (`#so-author-overview`), state (grouped searchable table), memory
+    (who-knows-what `#so-who-knows` + kept-out-on-stage alert), prompt, proposals (count badge; Review page opens it),
+    activity (`#so-open-activity`), pipeline. `so-ui.mts drawer-tab` aliases Overview/Blackboard/Payload/Scheduler/Review.
+    Illustrate prepared cast `#so-cast-scene` below.
   - **Library** (`SettingsPanel` `page="library"`): entry points `#so-entry-points` — Start (`#so-new-story-wizard`,
     import `#so-entry-import-toggle`/`#so-entry-import`), Continue (`#so-entry-continue`, Continue list closes the workspace
     before switching chat), Repair (`#so-entry-repair`, `[data-so="repair-step"]`, `#so-entry-fix-with-wizard`), Author (`#so-open-studio`).
@@ -108,7 +111,8 @@ library, setup/repair, author/inspect, long reference. A dialog control that tar
   `#so-sheet-<tab>`; bodies `components/sheet/tabs/*` (shared with Play). Docks right of `#sheld` (`data-mode=dock`, width remembered,
   pop-out `[data-so=sheet-pop]` → `#so-panel-sheet`); under 768px a bottom sheet above `#form_sheld` (`data-snap` peek/half/full, half
   capped to keep the last reply visible). Launchers (`#so-open-*`, card tabs, `#so-wand-sheet`) all call `openSheet(tab)`.
-- **Floating panels** `#so-panels-root` (`PanelFrame`): Help and Ask (`#so-wand-help`) and the guide reader. Under 768px a panel docks
+- **Floating panels** `#so-panels-root` (`PanelFrame`): Help and Ask (`#so-wand-help`), the guide reader and, in Author view, the message
+  inspector `inspector` (`#so-inspector`: ‹ › stepping, What changed / Why / Prompt / Health, raw at level 4; opened by Inspect under a message). Under 768px a panel docks
   above `#form_sheld` and opening it closes the sheet (and the other way round).
 - **Inline timeline**: one quiet line of words under each message (`[data-so=inline-line]`, parts `[data-so=inline-part][data-category]`, click expands `[data-so=inline-expanded]`; hosts `#so-inline-<mesid>` from `stHost/inlineMount.ts`, `components/inline/`), level `#so-inline-level` 0 Off / 1 Story (default) / 2 Behind the scenes / 3 Author / 4 Raw (3–4 need Author view; legend `#so-inline-legend` beside it and in Help); the Inspect link opens `#so-inspector` on the Author page. The `/comment` transition note is opt-in (`#so-announce-transitions`, default off).
 - **Start pane** `#so-briefing` (Before you start + identity + briefing).

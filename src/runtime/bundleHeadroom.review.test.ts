@@ -75,10 +75,9 @@ describe("bundle headroom: player mode's first render loads no lazy chunk", () =
     expect(render(createElement(HudStrip, { snapshot: snapshot(false), onOpenStory: noop }))).toEqual({ loads: [], suspended: false });
   });
 
-  it("control: the author's inspector does reach a lazy chunk, so the counter sees one", () => {
-    const { loads, suspended } = render(createElement(DrawerTabs, { snapshot: snapshot(true), manager, driver, inspect: { messageId: 0, onClose: noop } }));
-    expect(suspended).toBe(true);
-    expect(loads.some((source) => source.includes("MessageInspector"))).toBe(true);
+  it("control: the author's Steer column does reach a lazy chunk, so the counter sees one", () => {
+    const { loads } = render(createElement(DrawerTabs, { snapshot: snapshot(true), manager, driver }));
+    expect(loads.some((source) => source.includes("DriverPanel"))).toBe(true);
   });
 });
 

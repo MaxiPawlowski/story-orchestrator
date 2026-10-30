@@ -43,8 +43,8 @@ The Status line on **This chat → Play** says what the story is doing:
 | "What happens next is yours to decide." | The story waits for you to act. | Do or say something in the scene. |
 
 A story only moves on what the chat shows. If a scene should be over but is not, write it happening in the chat
-rather than only thinking it. Authors debugging a scene that never opens: Author view's **Blackboard** shows the
-evidence each tracked value was read from.
+rather than only thinking it. Authors debugging a scene that never opens: Author view's **Steer** names each unmet
+condition with the value it holds now, and **State** shows the evidence each tracked value was read from.
 
 ## The story says it still needs something
 

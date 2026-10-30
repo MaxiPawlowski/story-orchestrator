@@ -112,26 +112,50 @@ proposals waiting for you (lorebook curator changes, continuity notes). **Author
 <a id="author-view-tabs"></a>
 ## Author tools
 
-**This chat → Author**, once Author view is on, adds tabs for the chat it is turned on in. They spoil the story.
-**Return to player view** turns Author view off again. Everything a player sees stays on **Play**; Author holds only
-what the player view does not show.
+**This chat → Author**, once Author view is on, is a run console for the chat it is turned on in. It spoils the
+story. **Return to player view** turns Author view off again. Everything a player sees stays on **Play**; Author holds
+only what the player view does not show.
 
-- **Overview**: the engine line (turning point and reply count), pending writes, what the story requires and where each
-  lorebook comes from, the scene read, tension and convergence, the history floor, and **New story**, **Edit story**
-  and **Update to the latest**.
-- **Inspector**: clicking an author note under a message opens this page with that message's full detail on top.
-- **Illustrate prepared cast**: draw one or two prepared characters together in their current looks.
+**Steer** stays in view on the left (on a phone it is a bar at the top; tap it to open): the turning point (name and
+id), the reply count, what the story is doing in words, each unmet condition as a readable line ("Guide's trust ≥ 2,
+now 0 → The confession"), **Suggest**, **Probe**, **Report**, **Advance to**, **Nudge**, **Edit story**, **New story**
+and **Update to the latest**. A warning shows here when a character kept out of a secret is on stage. **Suggest**,
+**Report** and **Nudge** need the wizard switched on.
 
-- **Recent activity**: what the machine did behind each recent message, rolls included, each linked to its message.
-- **Blackboard**: every tracked value, what it becomes next turn, its source and the quoted evidence.
-- **Scheduler**: the chat reads, speaker direction, stall re-checks, author moves, the road ahead, and phrases the
-  newest reply repeats from at least two of the five replies before it ("Repeating across the last 6 replies: …");
-  that count is made in code, calls no model and only reports.
-- **Payload**: the blocks the story adds to the prompt, and **Next reply**: each contributor to the next reply in
-  SillyTavern's order, its depth and size, and lines marked private for the character drafted.
+Beside it, one section at a time, each named after the question it answers:
 
-A story that never moves usually has a condition the chat cannot answer: the Blackboard shows the evidence each value
-was read from.
+- **Health**: what the story requires and where each lorebook comes from, **Fix with wizard**, the setup checks in one
+  line (**Open setup** goes to the full list) and the history floor.
+- **State**: every tracked value in one table grouped as Gates, Authored, Character life, Clock, Factions and Compiled,
+  with a search box and group chips. A value that changed at the latest reply is highlighted; each row says at which
+  reply it last changed, and **Evidence** opens the quoted line it was read from. Below: pending writes, tension,
+  convergence, the scene read, character life and factions.
+- **Memory**: **Who knows what**, each held secret against each cast member (knows, kept out, not told) and who is on
+  stage, then the story's memory with its author extras, conflicts, rumors, echoes and patterns. Memory and private
+  knowledge are switched on in settings (**Memory settings** links there), not here.
+- **Prompt**: the lore that fired, scan gating, the sampler overlay, **Next reply** (each contributor to the next reply
+  in SillyTavern's order, its depth and size, lines marked private for the character drafted) and the blocks the story
+  added to the last prompts.
+- **Proposals**: the lorebook curator's and the living story's proposals, the one place to accept or reject them. Its
+  tab shows how many wait. **This chat → Review** opens this section.
+- **Activity**: what the machine did behind each recent message, rolls included, with chips to show one kind; author
+  moves, speaker direction, stall re-checks and a refused route. Each **#N** goes to its message.
+- **Pipeline**: the model calls, the chat reads, the road ahead (**Regenerate** a failed one), the inner voice and
+  chapter seals.
+
+**Illustrate prepared cast** sits below: draw one or two prepared characters together in their current looks.
+
+### Inspector
+
+At note level 3 or 4 the notes under each message carry short labels, and **Inspect** opens the inspector beside the
+chat, so the chat stays in view. It shows one message: **What changed** (each value before and after, and whether a
+read, code or the engine wrote it), **Why** (the turning point the story moved to and the condition that opened it, or
+the conditions still unmet), **Prompt** (the story blocks sent for that reply), **Health**, then the other notes.
+**‹ ›** step to the previous or next message the story recorded something for. Raw data shows only at level 4.
+**Open in Author page** opens the console.
+
+A story that never moves usually has a condition the chat cannot answer: Steer names it with the value it holds now,
+and **State** shows the evidence each value was read from.
 
 ## Journal, stat sheet and story panels
 

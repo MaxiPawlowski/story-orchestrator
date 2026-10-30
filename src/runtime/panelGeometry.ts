@@ -22,6 +22,7 @@ export const PANEL_DEFAULTS: Record<string, PanelGeometry> = {
   guide: { x: 100, y: 60, w: 780, h: 620 },
   journal: { x: 140, y: 90, w: 420, h: 540 },
   "stat-sheet": { x: 180, y: 120, w: 340, h: 420 },
+  inspector: { x: 4000, y: 72, w: 400, h: 600 },
 };
 
 const fallback: PanelGeometry = { x: 80, y: 80, w: 420, h: 480 };

@@ -21,6 +21,7 @@ import { JOURNAL_PAGE_EVENT } from "@runtime/drawerTab";
 import type { SuggestionAsk } from "@runtime/suggestionsHost";
 import type { WriteResult } from "@utils/writeResult";
 import type { PanelId } from "./components/panels/PanelsHost";
+import type { InlineActions } from "./components/inline/InlineDetail";
 import { onGuideRequest } from "@guide/request";
 import type { GuideTarget } from "@guide/types";
 
@@ -78,6 +79,8 @@ export interface PresenceUiDeps {
   showFeature: (where: FeatureWhere) => void;
   openDrawer: (tab?: WidgetDrawerTab) => void;
   jumpToMessage?: (messageId: number) => void;
+  inspectActions?: InlineActions;
+  onOpenAuthor?: () => void;
 }
 
 export const openChatPanel = (panel: ChatPanel, snapshot: RuntimeSnapshot) => openSheet(sheetTabForPanel(panel, sheetTabs(snapshot)));
@@ -116,7 +119,7 @@ export const openPlay = async (row: ContinueRow) => {
   if (!opened.ok) window.toastr?.info?.(opened.reason, "Story Orchestrator");
 };
 
-export function createPresenceUi({ manager, useSnapshot, showFeature, openDrawer, jumpToMessage }: PresenceUiDeps) {
+export function createPresenceUi({ manager, useSnapshot, showFeature, openDrawer, jumpToMessage, inspectActions, onOpenAuthor }: PresenceUiDeps) {
   const requestSuggestions = async (again: number) => (await suggestionsHost()).askSuggestions(manager, again);
   let host: Awaited<ReturnType<typeof suggestionsHost>> | null = null;
   void suggestionsHost().then((loaded) => { host = loaded; });
@@ -134,7 +137,8 @@ export function createPresenceUi({ manager, useSnapshot, showFeature, openDrawer
       <Lazy fallback={null}>
         <PanelsHost panels={panels} setPanel={setPanel} sheet={state} sheetControl={{ setTab: setSheetTab, setPopped: setSheetPopped, close: closeSheet }}
           manager={manager} useSnapshot={useSnapshot} showFeature={showFeature} openDrawer={openDrawer} jumpToMessage={jumpToMessage}
-          guideTarget={() => guideTarget} clearGuideTarget={() => { guideTarget = null; }} requestSuggestions={requestSuggestions} fillSuggestion={fillSuggestion} fill={fill} htmlHost={htmlHost} />
+          guideTarget={() => guideTarget} clearGuideTarget={() => { guideTarget = null; }} requestSuggestions={requestSuggestions} fillSuggestion={fillSuggestion} fill={fill} htmlHost={htmlHost}
+          inspectActions={inspectActions} onOpenAuthor={onOpenAuthor} />
       </Lazy>
     );
   };
