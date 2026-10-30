@@ -99,7 +99,7 @@ export const QUALITY_FIELDS = [
   "read_as", "criteria", "evidence_from", "commit_evidence", "roll",
 ] as const;
 
-export const REQUIREMENT_FIELDS = ["personas", "members", "lorebooks"] as const;
+export const REQUIREMENT_FIELDS = ["personas", "members", "lorebooks", "place_lore", "people_lore"] as const;
 
 const FIELD_POINTERS: Record<string, string> = {
   groups: "a group is not a requirement: list its cast in members, and the group that holds them is found by its members",
@@ -445,6 +445,9 @@ export const readRequirements = (value: unknown, path: string, issues: string[])
   if (personas.length) requirements.personas = personas;
   if (members.length) requirements.members = members;
   if (lorebooks.length) requirements.lorebooks = lorebooks;
+  for (const key of ["place_lore", "people_lore"] as const) {
+    if (isRecord(value[key])) requirements[key] = value[key] as NonNullable<StoryRequirements[typeof key]>;
+  }
   return requirements;
 };
 

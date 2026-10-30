@@ -1240,6 +1240,18 @@
     "src/runtime/openingSequence.ts#OpeningSequence.post": {
       "status": "delegate",
       "note": "v3.0 19 (replaces EffectsApplier.openNewChat): posts the chat's opening lines. `posting` is in-memory state of this object, reset in the finally; it awaits EffectsApplier.fireNpcReplies, which checks the run before and after each reply."
+    },
+    "src/runtime/lorePins.ts#pinLore": {
+      "status": "checked",
+      "note": "v3.0 34 S2: mints a run before loading the scannable entries and checks it (plus the story identity) after the await and again immediately before the one host effect, the force for the next scan. Nothing is written to a lorebook. Tests: runtime/lorePins.test.ts \"a run that lapses while the entries load forces nothing\"."
+    },
+    "src/runtime/wiring/lore.ts#startLore.pin": {
+      "status": "local",
+      "note": "After pinLore (which owns its run) it records the forced picks in the in-memory lore evidence ring for the current generation slot; nothing reaches a chat, a store or the host."
+    },
+    "src/runtime/wiring/talk.ts#armSwipeContrast": {
+      "status": "local",
+      "note": "v3.0 31 S2: caches the lazily loaded swipe-contrast host after the chunk import; the stop flag is checked after the await. The arm itself runs synchronously inside the interceptor, in the chat that is generating. Tests: runtime/swipeContrast.test.ts."
     }
   }
 }

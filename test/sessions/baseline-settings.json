@@ -68,6 +68,8 @@
       "witness": true,
       "rumors": true,
       "patterns": true,
+      "historyNotes": false,
+      "outwardNarration": false,
       "injectionDepths": {
         "facts": 4,
         "session_details": 3,
@@ -108,7 +110,8 @@
         "enabled": true,
         "max": 3
       },
-      "keepLastQuestion": true
+      "keepLastQuestion": true,
+      "swipeContrast": false
     },
     "stagecraft": {
       "curatorEnabled": true,
@@ -196,7 +199,8 @@
       "gatingMode": "scan",
       "scanMemory": true,
       "lateLore": true,
-      "lateLoreDepth": 4
+      "lateLoreDepth": 4,
+      "lorePins": true
     },
     "image": {
       "enabled": false,

@@ -68,7 +68,7 @@ export interface GlobalSettings {
   };
   copilot: CopilotRuntimeSettings;
   memory: MemoryRuntimeSettings;
-  talk: { enabled: boolean; chain: TalkChainSettings; keepLastQuestion: boolean };
+  talk: { enabled: boolean; chain: TalkChainSettings; keepLastQuestion: boolean; swipeContrast: boolean };
   stagecraft: StagecraftSettings;
   judge: JudgeSettings;
   worldInfo: WorldInfoSettings;
@@ -161,6 +161,7 @@ export interface WorldInfoSettings {
   keptGlobal: string[];
   lateLore: boolean;
   lateLoreDepth: number;
+  lorePins: boolean;
 }
 
 export const DEFAULT_LATE_LORE_DEPTH = 4;
@@ -171,7 +172,7 @@ export const clampLateLoreDepth = (value: unknown, fallback: number = DEFAULT_LA
   typeof value === "number" && Number.isFinite(value) ? Math.min(LATE_LORE_DEPTH_MAX, Math.max(LATE_LORE_DEPTH_MIN, Math.round(value))) : fallback;
 
 export const defaultWorldInfoSettings = (): WorldInfoSettings => ({
-  gatingMode: "scan", normalized: {}, normalizedFrom: {}, scanMemory: true, keptGlobal: [], lateLore: true, lateLoreDepth: DEFAULT_LATE_LORE_DEPTH,
+  gatingMode: "scan", normalized: {}, normalizedFrom: {}, scanMemory: true, keptGlobal: [], lateLore: true, lateLoreDepth: DEFAULT_LATE_LORE_DEPTH, lorePins: true,
 });
 
 const sanitizeProvenance = (value: unknown): Record<string, NormalizedFrom[]> => {
@@ -208,6 +209,7 @@ const sanitizeWorldInfoSettings = (value: unknown): WorldInfoSettings => {
       : [],
     lateLore: typeof value.lateLore === "boolean" ? value.lateLore : defaultWorldInfoSettings().lateLore,
     lateLoreDepth: clampLateLoreDepth(value.lateLoreDepth),
+    lorePins: value.lorePins !== false,
   };
 };
 
@@ -231,6 +233,8 @@ export const defaultMemorySettings = (): MemoryRuntimeSettings => ({
   witness: true,
   rumors: true,
   patterns: true,
+  historyNotes: false,
+  outwardNarration: false,
 });
 
 export const defaultStagecraftSettings = (): StagecraftSettings => ({
@@ -246,7 +250,7 @@ export const defaultGlobalSettings = (): GlobalSettings => ({
   },
   copilot: { enabled: true, ask: true },
   memory: defaultMemorySettings(),
-  talk: { enabled: true, chain: { enabled: true, max: TALK_CHAIN_MAX_DEFAULT }, keepLastQuestion: true },
+  talk: { enabled: true, chain: { enabled: true, max: TALK_CHAIN_MAX_DEFAULT }, keepLastQuestion: true, swipeContrast: false },
   stagecraft: defaultStagecraftSettings(),
   judge: defaultJudgeSettings(),
   worldInfo: defaultWorldInfoSettings(),
@@ -265,6 +269,8 @@ const sanitizeInnerVoice = (memory: MemoryRuntimeSettings, defaults: MemoryRunti
   if (typeof memory.witness !== "boolean") memory.witness = defaults.witness;
   if (typeof memory.rumors !== "boolean") memory.rumors = defaults.rumors;
   if (typeof memory.patterns !== "boolean") memory.patterns = defaults.patterns;
+  memory.historyNotes = memory.historyNotes === true;
+  memory.outwardNarration = memory.outwardNarration === true;
   return memory;
 };
 
@@ -281,7 +287,7 @@ const sanitizeTalkChain = (value: unknown): TalkChainSettings => {
 
 const sanitizeTalkSettings = (value: unknown): GlobalSettings["talk"] => {
   const source = isRecord(value) ? value : {};
-  return { enabled: source.enabled !== false, chain: sanitizeTalkChain(source.chain), keepLastQuestion: source.keepLastQuestion !== false };
+  return { enabled: source.enabled !== false, chain: sanitizeTalkChain(source.chain), keepLastQuestion: source.keepLastQuestion !== false, swipeContrast: source.swipeContrast === true };
 };
 
 const LIVING_FLAGS = ["livingEnabled", "branchingEnabled", "prefetchEnabled"] as const;

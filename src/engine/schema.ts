@@ -363,6 +363,7 @@ export interface StoryRequirements {
   personas?: string[];
   members?: string[];
   lorebooks?: string[];
+  place_lore?: import("./loreBindingSchema").LoreBindings; people_lore?: import("./loreBindingSchema").LoreBindings;
 }
 
 export const STAGECRAFT_CREATE_CAP_DEFAULT = 5;

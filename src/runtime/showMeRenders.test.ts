@@ -65,6 +65,10 @@ const ARMS: Record<string, { renders: ShowMeContext; hidden: ShowMeContext }> = 
   },
   "#so-cast-scene": { renders: context(snap({}, true)), hidden: context(snap({}, false)) },
   "#so-judge-expansion-variants": { renders: context(null, { authorView: true }), hidden: context(null) },
+  "#so-wi-lore-pins": { renders: context(null, { authorView: true }), hidden: context(null) },
+  "#so-history-notes": { renders: context(null, { authorView: true }), hidden: context(null) },
+  "#so-outward-narration": { renders: context(null, { authorView: true }), hidden: context(null) },
+  "#so-swipe-contrast": { renders: context(null, { authorView: true }), hidden: context(null) },
   "#so-gpu-broker": { renders: context(null, { host: host({ gpuBroker: true }) }), hidden: context(null, { host: host({ gpuBroker: null }) }) },
   "#so-judge-local-systemone-local": { renders: context(null, { settings: settingsWith(localJudge) }), hidden: context(null) },
   "#so-getting-started": {

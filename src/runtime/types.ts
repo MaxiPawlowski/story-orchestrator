@@ -193,6 +193,8 @@ export interface MemoryRuntimeSettings {
   witness?: boolean;
   rumors?: boolean;
   patterns?: boolean;
+  historyNotes?: boolean;
+  outwardNarration?: boolean;
   chapters?: Partial<ChapterSettings>;
 }
 
