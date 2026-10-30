@@ -276,7 +276,7 @@ async function openPlayPage(ctx: Ctx) {
   catch {
     const why = await ctx.page.evaluate(() => {
       const el = document.getElementById('so-workspace-modal');
-      return { imageChat: Boolean(document.getElementById('so-image-chat')), castAnywhere: Boolean(document.getElementById('so-cast-scene')),
+      return { imageQuick: Boolean(document.getElementById('so-image-quick')), castAnywhere: Boolean(document.getElementById('so-cast-scene')),
         ids: [...(el?.querySelectorAll('[id^="so-"]') ?? [])].map((node) => node.id).slice(0, 40), tail: (el?.textContent ?? '').slice(-300) };
     });
     throw new Error(`#so-cast-scene not on the Play page: ${JSON.stringify(why)}`);
