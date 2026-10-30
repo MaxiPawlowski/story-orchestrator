@@ -10,7 +10,7 @@ export const ModelCallsPanel = ({ calls }: { calls: readonly ModelCallRow[] }) =
       <div className="opacity-70">No model calls recorded in this chat yet.</div>
     ) : (
       calls.map((row, index) => (
-        <div key={rowKey(row, index)} data-so="model-call" data-kind={row.kind} className="border-t border-solid border-white/10 mt-1 pt-1">
+        <div key={rowKey(row, index)} data-so="model-call" data-kind={row.kind} className="border-t border-solid border-[var(--so-line)] mt-1 pt-1">
           <div className="opacity-100">
             {row.role} · <span data-so="model-call-route" className={row.route ? "" : "opacity-70"}>{row.route ?? ROUTE_NOT_RECORDED}</span> · <span data-so="model-call-result">{row.result}</span>
           </div>

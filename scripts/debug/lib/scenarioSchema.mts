@@ -233,6 +233,30 @@ export function globalsReadButNeverWritten(files: Array<{ name: string; text: st
   return broken;
 }
 
+const SCRIPTED_PASS = /globalThis\.storyOrchestratorDebug(Epistemic|Ledger)Response\s*=/;
+const READ_PIN = /globalThis\.storyOrchestratorDebugExtractionResponse\s*=\s*['"`]SCENE_NONE['"`]/;
+
+export function scriptedPassesUnpinned(doc: unknown, where = 'fixture'): string[] {
+  if (!isRecord(doc)) return [];
+  const lane = isRecord(doc.requires) ? doc.requires.lane : undefined;
+  const units = Array.isArray(doc.checks)
+    ? doc.checks.filter(isRecord).map((check) => ({ id: `${where}:${String(check.id)}`, model: check.model, steps: check.steps }))
+    : [{ id: where, model: doc.model, steps: doc.steps }];
+  const broken: string[] = [];
+  for (const unit of units) {
+    if (unit.model === 'none' || lane === 'no-model' || !Array.isArray(unit.steps)) continue;
+    let pinned = false;
+    unit.steps.forEach((step, index) => {
+      if (!isRecord(step)) return;
+      if ('reload' in step) pinned = false;
+      if (typeof step.eval !== 'string') return;
+      if (READ_PIN.test(step.eval)) pinned = true;
+      if (SCRIPTED_PASS.test(step.eval) && !pinned) broken.push(`${unit.id} step ${index}: scripts an epistemic/ledger response with background reads unpinned`);
+    });
+  }
+  return broken;
+}
+
 export function validateFixture(doc: unknown, where = 'fixture'): string[] {
   if (!isRecord(doc)) return [`${where}: expected an object`];
   const problems: string[] = [...validateRequires(doc.requires, `${where}.requires`)];

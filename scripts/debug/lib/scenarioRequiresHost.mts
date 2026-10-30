@@ -3,12 +3,13 @@ import { applyJudgeMode } from './judgeHarness.mts';
 import { membersToEnable, requiresProblems, type RequiresFacts, type ScenarioRequires } from './scenarioRequires.mts';
 import { comfyCleared, harnessGaps } from './imageHarnessConfig.mts';
 import { laneHarness } from './imageHarness.mts';
+import { REMOTE_AUTHORING_PATHS } from './laneModel.mts';
 
 export async function readRequiresFacts(page, requires: ScenarioRequires): Promise<RequiresFacts> {
   const imageCheck = Boolean(requires.comfy || requires.imageHarness?.length);
   const loaded = imageCheck ? laneHarness() : null;
   const cleared = Boolean(loaded && comfyCleared(process.env, loaded.config));
-  const facts: RequiresFacts = await evaluateInST(page, async ({ probe, comfy, lane, plugins }) => {
+  const facts: RequiresFacts = await evaluateInST(page, async ({ probe, comfy, lane, plugins, remotePaths }) => {
     const ctx = SillyTavern.getContext();
     const group = (ctx.groups ?? []).find((entry) => String(entry.id) === String(ctx.groupId)) ?? null;
     const disabled = new Set((group?.disabled_members ?? []).map(String));
@@ -86,6 +87,10 @@ export async function readRequiresFacts(page, requires: ScenarioRequires): Promi
       members,
       mainApi: ctx.mainApi ?? null,
       briefingDraft: settings?.display?.briefingDraft,
+      ...(lane === 'no-model' ? { remoteAuthoring: settings ? [
+        ...remotePaths.filter((path) => { const [section, key] = path.split('.'); return settings?.[section]?.[key] !== false; }),
+        ...roles.filter((role) => routed(role) === 'harness').map((role) => `extraction.profiles.${role} (harness route)`),
+      ] : ['settings unreadable'] } : {}),
       innerBeat: settings?.memory?.innerBeat,
       roleModes: settings ? Object.fromEntries(roles.map((role) => [role, routed(role)])) : {},
       macroEngine: ctx.powerUserSettings?.experimental_macro_engine === true,
@@ -95,7 +100,7 @@ export async function readRequiresFacts(page, requires: ScenarioRequires): Promi
       comfy: comfyFacts,
       profileNames: profiles.map((profile) => String(profile?.name ?? '')).filter(Boolean),
     };
-  }, { probe: Boolean(requires.lane), comfy: Boolean(requires.comfy) && cleared, lane: requires.lane ?? null, plugins: requires.plugins ?? [] });
+  }, { probe: Boolean(requires.lane), comfy: Boolean(requires.comfy) && cleared, lane: requires.lane ?? null, plugins: requires.plugins ?? [], remotePaths: [...REMOTE_AUTHORING_PATHS] });
   if (requires.comfy && !facts.comfy) facts.comfy = { cleared, plugin: null, discovered: null, probe: null };
   if (loaded) facts.harness = { path: loaded.path, gaps: harnessGaps(loaded, requires.imageHarness ?? []), config: loaded.config };
   return facts;

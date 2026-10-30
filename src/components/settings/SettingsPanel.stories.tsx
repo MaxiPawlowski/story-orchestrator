@@ -75,6 +75,7 @@ const host = (): SettingsHost => ({
 const meta: Meta<typeof SettingsPanel> = {
   title: "Settings/SettingsPanel",
   component: SettingsPanel,
+  decorators: [(Story) => <div id="so-workspace-modal"><Story /></div>],
 };
 
 export default meta;
@@ -110,6 +111,10 @@ export const ConnectionsHoldTheInstallServices: Story = {
     await expect(canvasElement.querySelector("#so-warden-enabled")).toBeNull();
     await expect(canvasElement.querySelector("#so-pacing-hint")).toBeNull();
     await expect(canvasElement.querySelector("[data-so='engine-status']")).toBeNull();
+    const area = canvasElement.querySelector<HTMLElement>("#so-area-memory")?.closest(".so-settings-area") as HTMLElement;
+    const guide = area.querySelector<HTMLElement>("[data-so='settings-area-guide']") as HTMLElement;
+    await expect(getComputedStyle(guide).position).toBe("absolute");
+    await expect(getComputedStyle(area.querySelector(".so-settings-section") as HTMLElement).borderTopStyle).toBe("solid");
   },
 };
 

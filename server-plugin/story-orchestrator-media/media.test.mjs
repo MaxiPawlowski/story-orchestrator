@@ -390,3 +390,78 @@ test('a second out-of-memory error after the retry fails at once, and other reci
     assert.equal(failed.status, 'failed');
     assert.equal(failed.error, 'ComfyUI failed while running the recipe.');
 });
+
+const comfyGoesAway = () => {
+    const state = { now: 1000, up: true, known: true, done: false };
+    const fetchImpl = async (url) => {
+        if (!state.up) throw new TypeError('fetch failed');
+        if (url.endsWith('/prompt')) return Response.json({ prompt_id: 'p' });
+        if (url.includes('/history/')) return Response.json(state.done ? { p: { outputs: { 9: { images: [{ filename: 'a.png', subfolder: '', type: 'output' }] } } } } : {});
+        return Response.json({ queue_running: state.known ? [[1, 'p']] : [], queue_pending: [] });
+    };
+    return { state, jobs: new ComfyJobs({ url: 'http://comfy', now: () => state.now, fetchImpl }) };
+};
+
+test('a ComfyUI that goes away and stays away fails the render about a minute after the first unreachable poll', async () => {
+    const { state, jobs } = comfyGoesAway();
+    const id = randomUUID();
+    await jobs.submit('a', id, {});
+    assert.equal((await jobs.poll('a', id)).status, 'running');
+    state.up = false;
+    state.now += 5_000;
+    assert.equal((await jobs.poll('a', id)).status, 'running');
+    state.now += 30_000;
+    assert.equal((await jobs.poll('a', id)).status, 'running');
+    state.now += 31_000;
+    const failed = await jobs.poll('a', id);
+    assert.equal(failed.status, 'failed');
+    assert.equal(failed.reason, 'comfy-unreachable');
+    assert.match(failed.error, /comfy-unreachable/);
+    assert.equal((await jobs.poll('a', id)).status, 'failed');
+});
+
+test('a ComfyUI that answers again within the minute keeps the render alive and lets it finish', async () => {
+    const { state, jobs } = comfyGoesAway();
+    const id = randomUUID();
+    await jobs.submit('a', id, {});
+    state.up = false;
+    assert.equal((await jobs.poll('a', id)).status, 'queued');
+    state.now += 50_000;
+    assert.equal((await jobs.poll('a', id)).status, 'queued');
+    state.up = true;
+    assert.equal((await jobs.poll('a', id)).status, 'running');
+    state.up = false;
+    state.now += 50_000;
+    assert.equal((await jobs.poll('a', id)).status, 'running');
+    state.up = true;
+    state.done = true;
+    const done = await jobs.poll('a', id);
+    assert.equal(done.status, 'complete');
+    assert.equal(done.reason, null);
+});
+
+test('a ComfyUI that restarts without the render fails it a minute after it first went away, not after the restart', async () => {
+    const { state, jobs } = comfyGoesAway();
+    const id = randomUUID();
+    await jobs.submit('a', id, {});
+    state.up = false;
+    await jobs.poll('a', id);
+    state.now += 40_000;
+    state.up = true;
+    state.known = false;
+    assert.equal((await jobs.poll('a', id)).status, 'queued');
+    state.now += 21_000;
+    const failed = await jobs.poll('a', id);
+    assert.equal(failed.status, 'failed');
+    assert.match(failed.error, /no longer has this render/);
+});
+
+test('a ComfyUI unreachable from the start fails the submit with the unreachable reason', async () => {
+    const { state, jobs } = comfyGoesAway();
+    state.up = false;
+    const id = randomUUID();
+    const job = await jobs.submit('a', id, {});
+    assert.equal(job.status, 'failed');
+    assert.equal(job.reason, 'comfy-unreachable');
+    assert.equal((await jobs.poll('a', id)).status, 'failed');
+});

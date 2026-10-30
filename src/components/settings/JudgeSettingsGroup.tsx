@@ -217,7 +217,7 @@ export function JudgeSettingsGroup({
   };
 
   return (
-    <div id="so-judge" className="flex flex-col gap-2 border-t border-solid border-white/10 pt-2">
+    <div id="so-judge" className="flex flex-col gap-2 border-t border-solid border-[var(--so-line)] pt-2">
       <div className="font-medium text-sm">Judge <span className="opacity-70 font-normal">— install-wide, optional</span></div>
       <div id="so-judge-status" className="text-xs opacity-80">{statusText(status)}</div>
       <div className="flex flex-col gap-1 text-sm">

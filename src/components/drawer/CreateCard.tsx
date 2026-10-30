@@ -32,7 +32,7 @@ export const CreateCard = ({ record, index, entry, op, manager }: {
   const edited = keys !== op.keys.join(", ") || text !== op.text;
   const accept = () => void manager.setCuratorOpDecision(record.id, index, "accepted", edited ? { ...op, keys: keyList(keys), text } : undefined);
   return (
-    <div data-so="curator-op" data-kind="create" className="border-t border-solid border-white/10 mt-1 pt-1">
+    <div data-so="curator-op" data-kind="create" className="border-t border-solid border-[var(--so-line)] mt-1 pt-1">
       <div className="opacity-100">new entry “{op.comment}” in {op.lorebook} <span className="opacity-70">· {createStatusText(entry)}</span></div>
       {(entry.nearDups ?? []).map((dup) => (
         <div key={dup.comment} data-so="curator-near-dup" data-band={dup.band ?? ""} className="so-warning-text">{nearDupAdvice(dup)}</div>

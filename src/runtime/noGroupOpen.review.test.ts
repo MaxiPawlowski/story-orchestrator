@@ -29,7 +29,7 @@ jest.mock("./storyLibrary", () => ({
 import { dropPersistedRuntime } from "./persistence";
 import { saveStoryRecord } from "./storyLibrary";
 import { importStoryJson, loadSelectedStory, restartStory, selectStory, type StorySelectionDeps } from "./storySelection";
-import { NO_GROUP_NOTICE, NO_GROUP_STATUS, noGroupView, noteRefusedForGroup, refusedForGroup } from "./noGroup";
+import { NO_GROUP_NOTICE, NO_GROUP_STATUS, noGroupView, noteRefusedForGroup, PLAY_EMPTY, playEmptyState, refusedForGroup } from "./noGroup";
 import { runCheck, STORY_NEEDS_GROUP_CHECK, STORY_NEEDS_GROUP_PLAYER } from "./checks";
 import { repairSteps, viewerRepairStep } from "./repair";
 import type { RuntimeSnapshot } from "./types";
@@ -111,15 +111,24 @@ describe("v2.7 plan 03: the no-group view and the engine-free check", () => {
   const view = (overrides: Partial<Parameters<typeof noGroupView>[0]> = {}) =>
     noGroupView({ chatOpen: true, groupOpen: false, chatId: "Ann - 1", selectedStoryId: null, titleOf, ...overrides });
 
-  it("an ordinary one-on-one chat with no story stays quiet", () => {
-    expect(view()).toBeNull();
+  it("an ordinary one-on-one chat with no story says stories play in group chats, naming no story", () => {
+    expect(view()).toEqual({ notice: NO_GROUP_NOTICE, storyId: null, storyTitle: null });
+  });
+
+  it("the Play page heading says what is true, never Playing this story when nothing plays", () => {
+    expect(playEmptyState({ ready: true, noGroup: null })).toBeNull();
+    expect(playEmptyState({ ready: false, noChat: { notice: "x" } })?.kind).toBe("no-chat");
+    expect(playEmptyState({ ready: false, noGroup: view() })).toEqual(PLAY_EMPTY["no-group"]);
+    expect(PLAY_EMPTY["no-group"].heading).toBe("Stories play in group chats");
+    expect(playEmptyState({ ready: false, noGroup: null })?.heading).toBe("No story in this chat");
+    expect(Object.values(PLAY_EMPTY).some((state) => /Playing this story/.test(state.heading))).toBe(false);
   });
 
   it("a one-on-one chat holding a story, or refused one, names it", () => {
     expect(view({ selectedStoryId: "ruins" })).toEqual({ notice: NO_GROUP_NOTICE, storyId: "ruins", storyTitle: "The Ruins" });
     noteRefusedForGroup("Ann - 1", "ruins");
     expect(view()?.storyId).toBe("ruins");
-    expect(view({ chatId: "Bob - 1" })).toBeNull();
+    expect(view({ chatId: "Bob - 1" })?.storyId).toBeNull();
   });
 
   it("a group chat or no chat at all is never a no-group view", () => {
@@ -136,6 +145,7 @@ describe("v2.7 plan 03: the no-group view and the engine-free check", () => {
     expect(blocked).toMatchObject({ check: "story-needs-group", severity: "blocks", player: STORY_NEEDS_GROUP_PLAYER });
     expect(blocked?.detail).toContain("The Ruins");
     expect(runCheck(STORY_NEEDS_GROUP_CHECK, snapshot(null))).toBeNull();
+    expect(runCheck(STORY_NEEDS_GROUP_CHECK, snapshot(view()))).toBeNull();
   });
 
   it("Repair leads with it, and the player sees the player line", () => {

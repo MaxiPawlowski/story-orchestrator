@@ -163,6 +163,7 @@ Path aliases (tsconfig + webpack): `@components @services @utils @constants @eng
 - The next-turn preview is composed from `INJECTION_REGISTRY` + the blocks ST holds, in ST's assembly order.
 - Every diagnostic code declares its consequence (`DIAGNOSTIC_CONSEQUENCES`); one save vocabulary (`Saved "X" to the library.` / `Applied to this chat: …`).
 - Modal overlays are native `<dialog>` + `showModal()`.
+- Colour comes only from `src/styles/tokens.css` (`--so-*`, built from ST's `--SmartTheme*`/`--black*a`; status `--so-ok/warn/error` mixed toward the theme text); `--st-*` are aliases. Mount-root elements carry no Tailwind utilities (they reach descendants only). Guard: `runtime/styleTokens.guard.test.ts` (game accent table exempt).
 
 ### Tests and fixtures
 - Fixtures: `test/fixtures/*.story.json|*.transcript.json|*.expected.json`; recorded LLM goldens in `test/goldens/`. Live delta accuracy is `scripts/debug/so-live-suite.mts`, not a jest flag.

@@ -160,7 +160,7 @@ export const MemoryTab = ({ snapshot, manager, authorView, focusFact }: { snapsh
         </label>
       )}
       {searchable && (
-        <div id="so-memory-filter" className="flex flex-col gap-1 mt-1 border-t border-solid border-white/10 pt-1">
+        <div id="so-memory-filter" className="flex flex-col gap-1 mt-1 border-t border-solid border-[var(--so-line)] pt-1">
           <label className="flex items-center gap-2">
             <span>Find</span>
             <input id="so-memory-search" className="text_pole" type="search" value={query} placeholder="text or character" onChange={(event) => setQuery(event.target.value)} />
@@ -186,7 +186,7 @@ export const MemoryTab = ({ snapshot, manager, authorView, focusFact }: { snapsh
         const rows = shown.filter((entry) => entry.tier === tier);
         if (!rows.length) return null;
         return (
-          <div key={tier} className="border-t border-solid border-white/10 mt-1 pt-1">
+          <div key={tier} className="border-t border-solid border-[var(--so-line)] mt-1 pt-1">
             <div className="opacity-100">{MEMORY_TIER_LABELS[tier]} ({rows.length})</div>
             {rows.map((entry) => (
               <MemoryRow key={entry.id} entry={entry} snapshot={snapshot} manager={manager} authorView={authorView} editing={editingId === entry.id}

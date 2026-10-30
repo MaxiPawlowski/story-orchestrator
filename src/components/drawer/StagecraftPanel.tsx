@@ -80,7 +80,7 @@ const DiffView = ({ before, after }: { before: string; after: string }) => (
   <div data-so="curator-diff" className="whitespace-pre-wrap">
     {wordDiff(before, after).map((part, index) => (part.kind === "del"
       ? <del key={index} className="so-error-text">{part.text}</del>
-      : part.kind === "ins" ? <ins key={index} className="text-green-300">{part.text}</ins> : <span key={index}>{part.text}</span>))}
+      : part.kind === "ins" ? <ins key={index} className="text-[var(--so-ok)]">{part.text}</ins> : <span key={index}>{part.text}</span>))}
   </div>
 );
 
@@ -116,7 +116,7 @@ const OpCard = ({ record, index, entry, manager, onOpenFact }: {
   const exact = decidedOp(entry, "accepted");
   const shown = proposedContent(entry, decidable && text !== null ? withText(exact, draft) : exact);
   return (
-    <div data-so="curator-op" className="border-t border-solid border-white/10 mt-1 pt-1">
+    <div data-so="curator-op" className="border-t border-solid border-[var(--so-line)] mt-1 pt-1">
       <div className="opacity-100">{describe(entry.op)} <span className="opacity-70">· {statusLabel(entry)}</span></div>
       {entry.fuzzy && <div data-so="curator-fuzzy" className="opacity-80">near match, {Math.round(entry.fuzzy.score * 100)}%: “{entry.fuzzy.span}”</div>}
       {shown !== null && entry.before && <DiffView before={entry.before.content} after={shown} />}
@@ -223,7 +223,7 @@ export const StagecraftPanel = ({ snapshot, manager, onOpenFact }: { snapshot: R
         <div className="opacity-70">No proposals yet. The curator reads the story lorebook at scene breaks and checkpoint changes.</div>
       ) : (
         records.map((record) => (
-          <div key={record.id} data-so="curator-proposal" data-curator={record.curator} className="border-t border-solid border-white/10 mt-1 pt-1">
+          <div key={record.id} data-so="curator-proposal" data-curator={record.curator} className="border-t border-solid border-[var(--so-line)] mt-1 pt-1">
             <div className="opacity-100">{record.curator === "warden" ? (record.reason === "continuity" ? "Continuity warden: " : "Warden: ") : ""}{record.summary}</div>
             <div>{record.checkpointId} · {record.reason} · boundary {record.boundary}{record.appliedAt ? " · applied" : ""}</div>
             {record.ops.map((entry, index) => (isCreateOp(entry.op)

@@ -19,6 +19,15 @@ export default meta;
 
 type Story = StoryObj<typeof MakeGroupCard>;
 
+export const NoStoryPickedYet: Story = {
+  args: { view: { notice: NO_GROUP_NOTICE, storyId: null, storyTitle: null } },
+  play: async ({ canvasElement }) => {
+    await expect(canvasElement).toHaveTextContent(NO_GROUP_NOTICE);
+    await expect(canvasElement).toHaveTextContent("pick a story in the library");
+    await expect(canvasElement.querySelector('[data-so="make-group-button"]')).toBeNull();
+  },
+};
+
 export const MakesAGroup: Story = {
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);

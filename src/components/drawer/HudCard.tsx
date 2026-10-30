@@ -83,7 +83,7 @@ export const HudCard = ({ snapshot, panels, openPanel, openMemory, onMore, onClo
   return (
     <section ref={card} id="so-hud-card" role="dialog" aria-modal="false" aria-labelledby="so-hud-card-title" className="so-hud-card">
       <div className="so-hud-card-head">
-        <h2 id="so-hud-card-title" className="so-hud-card-title">{now[0] ?? HUD_COPY.fallbackScene}</h2>
+        <h2 id="so-hud-card-title" className="so-hud-card-title">{snapshot.narrative?.headline ?? now[0] ?? HUD_COPY.fallbackScene}</h2>
         <button type="button" id="so-hud-card-close" className="menu_button fa-solid fa-xmark" aria-label={HUD_COPY.cardClose} title={HUD_COPY.cardClose}
           onClick={() => onClose(true)} />
       </div>

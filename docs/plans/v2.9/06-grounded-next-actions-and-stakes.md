@@ -458,3 +458,10 @@ panel only (not on the widget check button).
   not show, read as invented; 4 of 12 overlap inside the set. One prompt change: dormant anchors are marked from earlier and their
   line must carry its own context. Ceiling: current arm 5/5 in 22 of 40, so the reachable mean delta is +0.625 at most (floor +0.5,
   unchanged). Rerun commands and the expected reach: `docs/plans/v3.0/14-d-followups.md` §D1.
+### LT freeze 2026-10-23 (before the first inference)
+
+- Corpus frozen as committed in `ddad561a` / `9ddddfbd`, unedited since. Hashes (LF-normalised, as `frozen.json` records them):
+  `situations.json` `0fcb41347ba8bb57ce905e82dea4f5536a83163c3546d8b308effe8060041947` (= `corpus.sha256`), `frozen.json`
+  `d27f360f75f8c40fddbc20ca62676a97b2301d3657d464c05272540a776d46f8`; all 80 scenario files match `corpus.scenarios.sha256`
+  (0 mismatches). `frozen.json` `status` still reads DRAFT; this record is the freeze (its own text allows the Gate record).
+  Floors, scoring and rater prompts are the ones in that file; never retuned.

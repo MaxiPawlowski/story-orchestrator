@@ -1382,7 +1382,8 @@ describe("RuntimeManager plan-13 surfacing", () => {
     await manager.selectStory(storyId, "hydrate");
     const recap = manager.getAwayRecap();
     expect(recap).not.toBeNull();
-    expect(recap?.lines[0]).toContain("Current scene");
+    expect(recap?.lines[0]).toContain("Surfacing Test");
+    expect(recap?.lines[0]).not.toContain("Current scene");
 
     metadata.stories[storyId].extras.lastSessionAt = new Date().toISOString();
     await manager.selectStory(storyId, "hydrate");
