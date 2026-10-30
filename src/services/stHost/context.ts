@@ -1,6 +1,6 @@
 import type { SillyTavernContext } from "./hostTypes";
 import { importSTModule } from "./modules";
-import { argMacroSeam, type HostArgMacro } from "./macroEngine";
+import { argMacroSeam, plainMacroSeam, type HostArgMacro } from "./macroEngine";
 
 export type StoryOrchestratorHostContext = SillyTavernContext;
 
@@ -57,6 +57,19 @@ export const hostMacrosAvailable = (): boolean => typeof macrosHost?.MacrosParse
 
 const argMacros = argMacroSeam(() => getContext());
 
+const newMacroEngineOn = (): boolean | null => {
+  try {
+    const flag = (getContext() as unknown as { powerUserSettings?: { experimental_macro_engine?: unknown } }).powerUserSettings?.experimental_macro_engine;
+    return typeof flag === "boolean" ? flag : null;
+  } catch {
+    return null;
+  }
+};
+
+const plainMacros = plainMacroSeam(() => macrosHost.MacrosParser, newMacroEngineOn);
+
+export const rearmHostMacros = (): number => plainMacros.rearm();
+
 export const hostArgMacrosAvailable = (): boolean => argMacros.available();
 
 export const registerHostMacro = (key: string, value: HostMacroValue | HostArgMacro, description?: string): void => {
@@ -64,7 +77,7 @@ export const registerHostMacro = (key: string, value: HostMacroValue | HostArgMa
     argMacros.register(key, value, description);
     return;
   }
-  macrosHost.MacrosParser.registerMacro(key, value, description);
+  plainMacros.register(key, value, description);
 };
 
 export const unregisterHostMacro = (key: string): void => {
@@ -72,7 +85,7 @@ export const unregisterHostMacro = (key: string): void => {
     argMacros.unregister(key);
     return;
   }
-  macrosHost.MacrosParser.unregisterMacro(key);
+  plainMacros.unregister(key);
 };
 
 export const getPlayerName = (): string => {

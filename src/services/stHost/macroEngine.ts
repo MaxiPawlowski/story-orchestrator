@@ -55,3 +55,42 @@ export function argMacroSeam(context: () => unknown): ArgMacroSeam {
     owns: (name) => owned.has(name),
   };
 }
+
+export type PlainMacroValue = string | ((nonce: string) => string);
+
+export interface PlainMacroParser {
+  registerMacro: (key: string, value: PlainMacroValue, description?: string) => void;
+  unregisterMacro: (key: string) => void;
+}
+
+export interface PlainMacroSeam {
+  register(key: string, value: PlainMacroValue, description?: string): void;
+  unregister(key: string): void;
+  rearm(): number;
+}
+
+export function plainMacroSeam(parser: () => PlainMacroParser, newEngineOn: () => boolean | null): PlainMacroSeam {
+  const live = new Map<string, { value: PlainMacroValue; description?: string; on: boolean | null }>();
+  return {
+    register(key, value, description) {
+      parser().registerMacro(key, value, description);
+      live.set(key, { value, description, on: newEngineOn() });
+    },
+    unregister(key) {
+      parser().unregisterMacro(key);
+      live.delete(key);
+    },
+    rearm() {
+      const now = newEngineOn();
+      if (now === null) return 0;
+      let moved = 0;
+      for (const [key, entry] of live) {
+        if (entry.on === now) continue;
+        parser().registerMacro(key, entry.value, entry.description);
+        entry.on = now;
+        moved += 1;
+      }
+      return moved;
+    },
+  };
+}

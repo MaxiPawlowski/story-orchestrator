@@ -1,4 +1,4 @@
-export { getContext, getPlayerName, parseHostYaml, registerHostMacro, unregisterHostMacro } from "@services/stHost/context";
+export { getContext, getPlayerName, parseHostYaml, rearmHostMacros, registerHostMacro, unregisterHostMacro } from "@services/stHost/context";
 export { currentUserHandle } from "@services/stHost/userIdentity";
 export type { HostArgMacro } from "@services/stHost/macroEngine";
 export { showTextPopup, showConfirmPopup, showChoicePopup, askConfirm } from "@services/stHost/popup";
