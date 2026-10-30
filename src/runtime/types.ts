@@ -485,6 +485,7 @@ export interface RuntimeSnapshot {
   /** Other extensions switched on in a way that works against the playing story (empty with no story). */
   extensionConflicts?: ExtensionConflict[];
   tunnelVisionBooks?: import("./tunnelVision").TunnelVisionBook[];
+  tavernOsRewrites?: boolean;
   /** Transcript copiers switched on while a group plays a story, held secret or not: the player alert must not reveal that one is held. */
   secretLeaks?: string[];
   /** Author only: a `[hiding]`/`[unaware]` secret is held right now. Never read by player copy. */
