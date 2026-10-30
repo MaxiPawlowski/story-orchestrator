@@ -99,3 +99,26 @@ export const BlockedSaveLineClearsOnceTheDraftIsValid: Story = {
     await waitFor(() => expect(canvas.queryByText(/validation error\(s\) block save\./)).toBeNull());
   },
 };
+
+export const OverflowHoldsTheRareActions: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const more = canvas.getByRole("button", { name: "More studio actions" });
+    await expect(more).toHaveAttribute("aria-expanded", "false");
+    await userEvent.click(more);
+    const menu = await canvas.findByRole("menu", { name: "More studio actions" });
+    await expect(within(menu).getAllByRole("menuitem").map((item) => item.id)).toEqual(["so-studio-save-as", "so-studio-export", "so-studio-import", "so-studio-mermaid", "so-studio-reset"]);
+    await expect(within(menu).getByRole("menuitem", { name: "Reset draft" })).toBeDisabled();
+    await userEvent.keyboard("{Escape}");
+    await expect(canvas.queryByRole("menu")).toBeNull();
+    await expect(more).toHaveAttribute("aria-expanded", "false");
+  },
+};
+
+export const SaveHasItsId: Story = {
+  play: async ({ canvasElement }) => {
+    await expect(canvasElement.querySelector("#so-studio-save")).toHaveTextContent("Save");
+    useDraftStore.getState().mutate((draft) => ({ ...draft, title: "Changed" }));
+    await expect(await within(canvasElement).findByRole("status")).toHaveTextContent("Unsaved");
+  },
+};

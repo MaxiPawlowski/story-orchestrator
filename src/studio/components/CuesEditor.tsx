@@ -109,8 +109,9 @@ const TopicRow: React.FC<{ member: RosterMember; topic: MemberTopic; qualities: 
   );
 };
 
-const CuesEditor: React.FC = () => {
-  const roster = useDraftStore((state) => state.draft.roster);
+const CuesEditor: React.FC<{ memberId?: string }> = ({ memberId }) => {
+  const cast = useDraftStore((state) => state.draft.roster);
+  const roster = memberId ? cast.filter((member) => member.id === memberId) : cast;
   const qualities = useDraftStore((state) => state.draft.qualities);
   const mutate = useDraftStore((state) => state.mutate);
   if (!roster.length) return null;

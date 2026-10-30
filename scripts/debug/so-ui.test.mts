@@ -469,3 +469,14 @@ test('v2.8 69 K5 planted DOM: an inline host planted inside .mes_text is caught 
   const beside = await sweepPlanted({ message: [{ class: 'mes_text', text: 'The road bends east.' }, { id: 'so-inline-3', class: 'so-inline-host' }] });
   assert.equal(beside.filter((needle) => needle.includes('.mes_text holds')).length, 0);
 });
+
+test('studio-tab keeps the old tab labels as aliases for the sidebar ids (v3.0 29 WP-S1)', async () => {
+  const { studioTabTarget } = await import('./so-ui.mts');
+  assert.deepEqual(studioTabTarget('Roster'), { tab: 'roster' });
+  assert.deepEqual(studioTabTarget('Characters'), { tab: 'roster' });
+  assert.deepEqual(studioTabTarget('Diagnostics'), { tab: 'diagnostics' });
+  assert.deepEqual(studioTabTarget('Wizard'), { tab: 'copilot' });
+  assert.deepEqual(studioTabTarget('Story features'), { tab: 'features' });
+  assert.deepEqual(studioTabTarget('Story rules'), { tab: 'rules' });
+  assert.deepEqual(studioTabTarget('The Guide'), { text: 'The Guide' });
+});

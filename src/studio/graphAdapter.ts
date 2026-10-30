@@ -1,6 +1,8 @@
 import { renderGateText } from "@engine/index";
 import type { StoryGraphDraft } from "@components/studio/graphPanelUtils";
 import type { StoryDraft } from "./draft";
+import { qualityLabelOf, readableGateText } from "./gateLabels";
+import { compiledQualities } from "./compiledQualities";
 
 type DraftCheckpoint = StoryDraft["checkpoints"][number];
 
@@ -13,6 +15,7 @@ const declaredChapters = (draft: StoryDraft) => {
 
 export const toGraphDraft = (draft: StoryDraft): StoryGraphDraft => {
   const { chapters, laneOf } = declaredChapters(draft);
+  const label = qualityLabelOf([...draft.qualities, ...compiledQualities(draft)]);
   return {
     start: draft.checkpoints.find((checkpoint) => checkpoint.start)?.id ?? draft.checkpoints[0]?.id,
     ...(chapters.length ? { chapters } : {}),
@@ -24,7 +27,9 @@ export const toGraphDraft = (draft: StoryDraft): StoryGraphDraft => {
       transitions: draft.transitions
         .map((transition, index) => ({ transition, index }))
         .filter((entry) => entry.transition.from === checkpoint.id)
-        .map((entry) => ({ id: `t${entry.index}`, to: entry.transition.to, label: renderGateText(entry.transition.gate) })),
+        .map((entry) => ({
+          id: `t${entry.index}`, to: entry.transition.to, label: readableGateText(entry.transition.gate, label), raw: renderGateText(entry.transition.gate),
+        })),
     })),
   };
 };

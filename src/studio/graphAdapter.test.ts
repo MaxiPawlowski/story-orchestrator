@@ -20,7 +20,13 @@ describe("toGraphDraft", () => {
     expect(graph.checkpoints.find((entry) => entry.id === "cache")?.type).toBe("anchor");
     const edge = graph.checkpoints.find((entry) => entry.id === "start")?.transitions?.[0];
     expect(edge?.to).toBe("cache");
-    expect(edge?.label).toBe("trust >= 2");
+    expect(edge?.label).toBe("trust ≥ 2");
+    expect(edge?.raw).toBe("trust >= 2");
+  });
+
+  it("labels an edge with the quality's display name, and keeps the raw gate for hover", () => {
+    const named = { ...story, qualities: [{ ...story.qualities[0], display: { label: "Guide's trust" } }] } as Story;
+    expect(toGraphDraft(named).checkpoints[0].transitions?.[0].label).toBe("Guide's trust ≥ 2");
   });
 });
 

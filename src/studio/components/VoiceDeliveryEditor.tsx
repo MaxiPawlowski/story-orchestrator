@@ -126,8 +126,9 @@ const MemberSheet = ({ member }: { member: RosterMember }) => {
   );
 };
 
-const VoiceDeliveryEditor: React.FC = () => {
-  const roster = useDraftStore((state) => state.draft.roster);
+const VoiceDeliveryEditor: React.FC<{ memberId?: string }> = ({ memberId }) => {
+  const cast = useDraftStore((state) => state.draft.roster);
+  const roster = memberId ? cast.filter((member) => member.id === memberId) : cast;
   return (
     <div data-so="delivery-editor" className="st-subpanel flex flex-col gap-2 p-2">
       <span className="text-sm font-semibold">Voice and delivery <HelpTooltip title={HELP} /></span>

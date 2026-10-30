@@ -886,14 +886,14 @@
       "reason": "Studio proposal review"
     },
     {
-      "site": "src/studio/components/StudioGraph.tsx#handleCopyMermaid",
+      "site": "src/studio/components/StudioToolbar.tsx#handleCopyMermaid",
       "kind": 3,
       "template": "catch {} #1",
       "surface": "author",
       "rawError": false,
       "silentCatch": "probe",
       "verdict": "pass",
-      "reason": "clipboard failure becomes the visible not-copied state"
+      "reason": "clipboard failure becomes the visible error line"
     },
     {
       "site": "src/studio/components/StudioToolbar.tsx#handleFile",

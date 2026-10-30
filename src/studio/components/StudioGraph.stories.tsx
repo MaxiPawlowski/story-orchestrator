@@ -1,7 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { within, expect, userEvent } from "@storybook/test";
+import { within, expect } from "@storybook/test";
 import StudioGraph from "./StudioGraph";
 import { sampleStory, seedDraft } from "../stories/fixtures";
+import { useDraftStore } from "../draft";
+import { toMermaid } from "../graphAdapter";
 
 const meta: Meta<typeof StudioGraph> = {
   title: "Studio/StudioGraph",
@@ -32,10 +34,9 @@ export const ChapterLanes: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await canvas.findByRole("button", { name: "+ Checkpoint" });
-    await userEvent.click(canvas.getByText("Mermaid export"));
-    const source = canvas.getByLabelText("Mermaid source");
-    await expect(source).toHaveTextContent('subgraph chapter_act1["The Approach"]');
-    await expect(source).toHaveTextContent('subgraph chapter_act2["The Vault"]');
+    const source = toMermaid(useDraftStore.getState().draft);
+    await expect(source).toContain('subgraph chapter_act1["The Approach"]');
+    await expect(source).toContain('subgraph chapter_act2["The Vault"]');
   },
 };
 
@@ -56,6 +57,8 @@ export const Seeded: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await canvas.findByRole("button", { name: "+ Checkpoint" });
-    await expect(canvas.getByText("Mermaid export")).toBeInTheDocument();
+    const root = canvasElement.querySelector('[data-so="studio-graph"]') as HTMLElement;
+    await expect(root).not.toBeNull();
+    if (root.dataset.split) await expect(canvasElement.querySelector('[data-so="graph-editor"]')).toHaveAttribute("data-pane", "checkpoint");
   },
 };

@@ -19,6 +19,11 @@ import {
   setLoreSelect,
   setSceneRead,
   setChapters,
+  addOffer,
+  moveOffer,
+  removeOffer,
+  setOffers,
+  updateOffer,
 } from "./mutations";
 
 const base = (): StoryDraft => ({
@@ -228,3 +233,28 @@ describe("setChapters (v2.6 plan 07 D13, the wizard's chapter op)", () => {
   });
 });
 
+
+describe("offers row editor ops (v3.0 29 WP-S3)", () => {
+  const offers = (draft: StoryDraft) => draft.checkpoints.find((checkpoint) => checkpoint.id === "start")?.offers;
+
+  it("adds offers with fresh ids, edits, reorders and removes them, and the story still validates", () => {
+    let draft = addOffer(addOffer(base(), "start", "Ask about the debt"), "start");
+    expect(offers(draft)?.map((offer) => offer.id)).toEqual(["offer", "offer_2"]);
+    draft = updateOffer(draft, "start", "offer_2", { text: "Leave", visible_when: { all: [] } });
+    draft = updateOffer(draft, "start", "offer_2", { visible_when: undefined });
+    expect(offers(draft)?.[1]).toEqual({ id: "offer_2", text: "Leave" });
+    draft = moveOffer(draft, "start", "offer_2", -1);
+    expect(offers(draft)?.map((offer) => offer.id)).toEqual(["offer_2", "offer"]);
+    expect(moveOffer(draft, "start", "offer_2", -1)).toBe(draft);
+    expect(isValidationErrorList(parseStory(draft))).toBe(false);
+    draft = removeOffer(removeOffer(draft, "start", "offer"), "start", "offer_2");
+    expect(offers(draft)).toBeUndefined();
+  });
+
+  it("stops at eight offers and clears an empty list", () => {
+    let draft = base();
+    for (let index = 0; index < 10; index += 1) draft = addOffer(draft, "start", `offer ${index}`);
+    expect(offers(draft)).toHaveLength(8);
+    expect(offers(setOffers(draft, "start", []))).toBeUndefined();
+  });
+});

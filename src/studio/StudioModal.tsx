@@ -31,10 +31,15 @@ import type { KnowledgeShowMe } from "@copilot/knowledge/types";
 import type { StudioAskRunner } from "./components/StudioAsk";
 import { Dialog, DialogHeader } from "@components/ui/Dialog";
 import { Badge } from "@components/ui/Badge";
+import { IconButton } from "@components/ui/IconButton";
+import { Button } from "@components/ui/Button";
+import { STUDIO_TAB_IDS, studioNav, type StudioPage, type StudioTab } from "./studioNav";
+import { StudioSectionSelect, StudioSidebar } from "./components/StudioNav";
+import type { DiagnosticTarget } from "./diagnosticTarget";
 import "./mobile.css";
 
-export type StudioTab = "graph" | "story" | "features" | "qualities" | "checkpoints" | "transitions" | "roster" | "game"
-  | "sprites" | "diagnostics" | "copilot" | "world" | "presentation" | "rules" | "chapters";
+export type { StudioTab } from "./studioNav";
+export { STUDIO_TAB_IDS } from "./studioNav";
 
 export interface StudioOpenIntent {
   tab?: StudioTab;
@@ -42,37 +47,6 @@ export interface StudioOpenIntent {
   missing?: { personas?: string[]; members?: string[]; lorebooks?: string[] };
   fromChat?: boolean;
 }
-
-const BASE_TABS: Array<{ id: StudioTab; label: string }> = [
-  { id: "graph", label: "Graph" },
-  { id: "story", label: "Story" },
-  { id: "features", label: "Story features" },
-  { id: "qualities", label: "Qualities" },
-  { id: "checkpoints", label: "Checkpoints" },
-  { id: "transitions", label: "Transitions" },
-  { id: "roster", label: "Roster" },
-  { id: "game", label: "Game" },
-  { id: "sprites", label: "Sprites" },
-  { id: "diagnostics", label: "Diagnostics" },
-  { id: "world", label: "World" },
-  { id: "presentation", label: "Presentation" },
-  { id: "rules", label: "Story rules" },
-  { id: "chapters", label: "Chapters" },
-];
-
-const TASKS: Array<{ label: string; tabs: StudioTab[] }> = [
-  { label: "Story setup", tabs: ["story"] },
-  { label: "Flow", tabs: ["graph", "checkpoints", "transitions", "chapters"] },
-  { label: "State and rules", tabs: ["qualities", "game", "rules"] },
-  { label: "Characters", tabs: ["roster", "sprites"] },
-  { label: "World", tabs: ["world"] },
-  { label: "Presentation", tabs: ["presentation"] },
-  { label: "Story features", tabs: ["features"] },
-  { label: "Assistant", tabs: ["copilot"] },
-  { label: "Validation", tabs: ["diagnostics"] },
-];
-
-export const STUDIO_TAB_IDS: StudioTab[] = [...BASE_TABS.map((entry) => entry.id), "copilot"];
 
 export interface StudioHostOptions {
   personaNames: string[];
@@ -113,15 +87,6 @@ type Props = {
   replay?: GateReplaySource | null;
 };
 
-type TabEntry = { id: StudioTab; label: string };
-
-// (the review's keyboard trace: ArrowRight on the tablist stayed on the tab it was
-// already on, and nothing linked a tab to its panel). APG tabs pattern: one tab stop for the list,
-// arrows move focus AND selection with wrapping, Home/End jump to the ends, and the panel says which
-// tab it belongs to. ST's `.js` rewrites `role="button"` onto `.menu_button` in the live DOM, so
-// anything driving this must select by the tablist, never by the role.
-const TAB_KEYS: Record<string, number> = { ArrowLeft: -1, ArrowRight: 1 };
-
 export const FOCUSABLE = "a[href], summary, button, input, select, textarea, [tabindex]:not([tabindex='-1'])";
 
 const focusTrapHandler = (panelRef: React.MutableRefObject<HTMLDivElement | null>, requestClose: () => Promise<void>) => (event: React.KeyboardEvent) => {
@@ -134,7 +99,8 @@ const focusTrapHandler = (panelRef: React.MutableRefObject<HTMLDivElement | null
   if (event.key !== "Tab") return;
   const panel = panelRef.current;
   if (!panel) return;
-  const focusable = Array.from(panel.querySelectorAll<HTMLElement>(FOCUSABLE)).filter((element) => !element.hasAttribute("disabled") && element.offsetParent !== null);
+  const focusable = Array.from(panel.querySelectorAll<HTMLElement>(FOCUSABLE))
+    .filter((element) => !element.hasAttribute("disabled") && element.getAttribute("tabindex") !== "-1" && element.offsetParent !== null);
   if (!focusable.length) return;
   const first = focusable[0];
   const last = focusable[focusable.length - 1];
@@ -150,83 +116,56 @@ const focusTrapHandler = (panelRef: React.MutableRefObject<HTMLDivElement | null
 interface HeaderProps {
   titleRef: React.MutableRefObject<HTMLInputElement | null>;
   onRequestClose: () => void;
+  onIssues: () => void;
+  guide: React.ReactNode;
+  actions: React.ReactNode;
 }
 
-const StudioHeader = ({ titleRef, onRequestClose }: HeaderProps) => {
+const StudioHeader = ({ titleRef, onRequestClose, onIssues, guide, actions }: HeaderProps) => {
   const draft = useDraftStore((state) => state.draft);
-  const dirty = useDraftStore((state) => state.dirty);
   const errors = useDraftStore((state) => state.errors);
   const diagnostics = useDraftStore((state) => state.diagnostics);
   const mutate = useDraftStore((state) => state.mutate);
+  const undo = useDraftStore((state) => state.undo);
+  const redo = useDraftStore((state) => state.redo);
+  const canUndo = useDraftStore((state) => state.past.length > 0);
+  const canRedo = useDraftStore((state) => state.future.length > 0);
   const issueCount = diagnostics.filter((entry) => entry.severity !== "info").length;
   const errorWord = errors.length === 1 ? "error" : "errors";
   return (
-    <DialogHeader titleId="so-studio-heading" title="Checkpoint Studio" onClose={onRequestClose} closeLabel="Close studio">
-      <input
-        ref={titleRef}
-        className="text_pole so-field min-w-0 flex-1"
-        aria-label="Story title"
-        value={draft.title}
-        onChange={(event) => mutate((current) => setStoryField(current, "title", event.target.value))}
-      />
-      {dirty ? <Badge tone="info" icon="fa-pen" aria-label="Unsaved changes">Unsaved</Badge> : null}
-      {errors.length > 0 ? <Badge tone="error" aria-label={`${errors.length} validation ${errorWord}`}>{errors.length} {errorWord}</Badge> : null}
-      {issueCount > 0 ? <Badge tone="warn" aria-label={`${issueCount} diagnostics`}>{issueCount} {issueCount === 1 ? "issue" : "issues"}</Badge> : null}
+    <DialogHeader titleId="so-studio-heading" title="Checkpoint Studio" onClose={onRequestClose} closeLabel="Close studio" className="so-studio-head">
+      <div className="so-studio-title-row">
+        <input
+          ref={titleRef}
+          id="so-studio-title"
+          className="so-studio-title"
+          aria-label="Story title"
+          value={draft.title}
+          onChange={(event) => mutate((current) => setStoryField(current, "title", event.target.value))}
+        />
+        <IconButton icon="fa-pen" size="sm" label="Edit the story title" onClick={() => titleRef.current?.focus()} />
+        {errors.length > 0 || issueCount > 0 ? (
+          <button type="button" id="so-studio-issues" className="so-studio-issues" title="Open validation" onClick={onIssues}>
+            {errors.length > 0 ? <Badge tone="error" aria-label={`${errors.length} validation ${errorWord}`}>{errors.length} {errorWord}</Badge> : null}
+            {issueCount > 0 ? <Badge tone="warn" aria-label={`${issueCount} diagnostics`}>{issueCount} {issueCount === 1 ? "issue" : "issues"}</Badge> : null}
+          </button>
+        ) : null}
+      </div>
+      <div className="so-studio-tools">
+        <IconButton id="so-studio-undo" icon="fa-rotate-left" label="Undo" disabled={!canUndo} onClick={undo} />
+        <IconButton id="so-studio-redo" icon="fa-rotate-right" label="Redo" disabled={!canRedo} onClick={redo} />
+        {guide}
+        {actions}
+      </div>
     </DialogHeader>
-  );
-};
-
-interface TabListProps {
-  tabs: TabEntry[];
-  activeTab: StudioTab;
-  onSelect: (tab: StudioTab) => void;
-}
-
-const StudioTabList = ({ tabs, activeTab, onSelect }: TabListProps) => {
-  const tabRefs = useRef<Array<HTMLButtonElement | null>>([]);
-  const tasks = TASKS.filter((task) => task.tabs.some((id) => tabs.some((tab) => tab.id === id)));
-  const task = tasks.find((entry) => entry.tabs.includes(activeTab)) ?? tasks[0];
-  const sections = tabs.filter((entry) => task.tabs.includes(entry.id));
-
-  const onTablistKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
-    const step = TAB_KEYS[event.key] ?? (event.key === "Home" ? -Infinity : event.key === "End" ? Infinity : null);
-    if (step === null) return;
-    event.preventDefault();
-    const last = sections.length - 1;
-    const current = sections.findIndex((entry) => entry.id === activeTab);
-    const next = step === -Infinity ? 0 : step === Infinity ? last : (current + step + sections.length) % sections.length;
-    onSelect(sections[next].id);
-    tabRefs.current[next]?.focus();
-  };
-
-  return (
-    <div><nav className="so-studio-tasks" aria-label="Studio tasks">{tasks.map((entry) => <button type="button" key={entry.label}
-      id={`so-studio-task-${entry.label.toLowerCase().replace(/\s+/g, "-")}`}
-      className={`st-button secondary ${entry === task ? "st-tab-active" : ""}`} aria-current={entry === task ? "page" : undefined}
-      onClick={() => onSelect(entry.tabs[0])}>{entry.label}</button>)}</nav>
-    <div className="flex flex-wrap items-center gap-2 px-3 py-2" role="tablist" aria-label="Studio sections" onKeyDown={onTablistKeyDown}>
-      {sections.map((entry, index) => (
-        <button
-          key={entry.id}
-          ref={(node) => { tabRefs.current[index] = node; }}
-          id={`so-studio-tab-${entry.id}`}
-          type="button"
-          role="tab"
-          aria-selected={activeTab === entry.id}
-          aria-controls="so-studio-tabpanel"
-          tabIndex={activeTab === entry.id ? 0 : -1}
-          className={`st-tab rounded px-3 py-1 text-sm ${activeTab === entry.id ? "st-tab-active" : ""}`}
-          onClick={() => onSelect(entry.id)}
-        >
-          {entry.label}
-        </button>
-      ))}
-    </div></div>
   );
 };
 
 interface TabContentProps {
   activeTab: StudioTab;
+  member?: string;
+  onNavigate: (page: StudioPage) => void;
+  onGoTo: (target: DiagnosticTarget) => void;
   options: StudioHostOptions;
   copilotEnabled: boolean;
   runCopilotStage?: (input: AuthoringStageInput) => Promise<ProposalResult>;
@@ -243,8 +182,6 @@ interface TabContentProps {
 
 const GraphTab = ({ copilotEnabled, onSelect, backgroundNames }: { copilotEnabled: boolean; onSelect: (tab: StudioTab) => void; backgroundNames: string[] }) => {
   const draft = useDraftStore((state) => state.draft);
-  // An untouched draft is the one moment where "start with the wizard" is unambiguously the right
-  // next step, so the empty graph offers it instead of an empty canvas.
   const isEmptyDraft = draft.qualities.length === 0 && draft.transitions.length === 0 && draft.checkpoints.length <= 1;
   return (
     <div className="flex h-full flex-col gap-3">
@@ -254,16 +191,16 @@ const GraphTab = ({ copilotEnabled, onSelect, backgroundNames }: { copilotEnable
       {copilotEnabled && isEmptyDraft && (
         <div id="so-studio-empty" className="st-subpanel flex flex-wrap items-center gap-2 p-3 text-sm">
           <span>Nothing authored yet. The wizard can take you from a one-line premise to a playable story.</span>
-          <button id="so-start-wizard" type="button" className="st-button primary" onClick={() => onSelect("copilot")}>Start with the wizard</button>
+          <Button id="so-start-wizard" variant="primary" onClick={() => onSelect("copilot")}>Start with the wizard</Button>
         </div>
       )}
-      <StudioGraph backgroundNames={backgroundNames} onOpenCheckpoint={() => onSelect("checkpoints")} />
+      <StudioGraph backgroundNames={backgroundNames} />
     </div>
   );
 };
 
 const StudioTabContent = ({
-  activeTab, options, copilotEnabled, runCopilotStage, runAgentTurn, wizardHost, intent, onSelect, wizardMode, onWizardMode, ask, draftTutorialStep, onShowTopic,
+  activeTab, member, onNavigate, onGoTo, options, copilotEnabled, runCopilotStage, runAgentTurn, wizardHost, intent, onSelect, wizardMode, onWizardMode, ask, draftTutorialStep, onShowTopic,
 }: TabContentProps) => {
   const idLocked = useDraftStore((state) => state.sourceHash !== null);
   const hasCast = useDraftStore((state) => Boolean(state.draft.roster?.length));
@@ -276,10 +213,10 @@ const StudioTabContent = ({
   if (activeTab === "features") return <StoryFeaturesEditor />;
   if (activeTab === "checkpoints") return <CheckpointEditor backgroundNames={options.backgroundNames} />;
   if (activeTab === "transitions") return <TransitionEditor />;
-  if (activeTab === "roster") return <RosterEditor memberNames={options.memberNames} />;
+  if (activeTab === "roster") return <RosterEditor memberNames={options.memberNames} memberId={member} onNavigate={onNavigate} />;
   if (activeTab === "game") return <GameEditor />;
   if (activeTab === "sprites") return <SpriteBuilder />;
-  if (activeTab === "diagnostics") return <DiagnosticsPanel />;
+  if (activeTab === "diagnostics") return <DiagnosticsPanel onGoTo={onGoTo} />;
   if (activeTab === "copilot") {
     return (
       <PreparePresentationContext.Provider value={() => onSelect("sprites")}><div className="flex flex-col gap-3"><StudioCopilot
@@ -294,34 +231,65 @@ const StudioTabContent = ({
         ask={ask}
         draftTutorialStep={draftTutorialStep}
         onShowTopic={onShowTopic}
-      />{hasCast && <button id="so-wizard-prepare-presentation" type="button" className="st-button"
-        onClick={() => onSelect("sprites")}>Next: prepare cast presentation</button>}</div></PreparePresentationContext.Provider>
+      />{hasCast && <Button id="so-wizard-prepare-presentation" className="self-start"
+        onClick={() => onSelect("sprites")}>Next: prepare cast presentation</Button>}</div></PreparePresentationContext.Provider>
     );
   }
   return <GraphTab copilotEnabled={copilotEnabled} onSelect={onSelect} backgroundNames={options.backgroundNames} />;
 };
 
-const StudioFooter = ({ onSaved, onRekeySession }: { onSaved?: StudioSaveHandler; onRekeySession?: (from: string, to: string) => void }) => {
-  const undo = useDraftStore((state) => state.undo);
-  const redo = useDraftStore((state) => state.redo);
-  const canUndo = useDraftStore((state) => state.past.length > 0);
-  const canRedo = useDraftStore((state) => state.future.length > 0);
-  return (
-    <div className="st-panel-header flex flex-wrap items-center gap-2 border-t px-3 py-2">
-      <button type="button" className="st-button secondary" onClick={undo} disabled={!canUndo}>Undo</button>
-      <button type="button" className="st-button secondary" onClick={redo} disabled={!canRedo}>Redo</button>
-      <StudioToolbar onSaved={onSaved} onRekeySession={onRekeySession} />
-    </div>
-  );
+const useFocusRequest = () => {
+  const [request, setRequest] = useState<{ section?: string; nonce: number } | null>(null);
+  useEffect(() => {
+    if (!request) return undefined;
+    const timer = window.setTimeout(() => {
+      const panel = document.getElementById("so-studio-tabpanel");
+      const target = (request.section && panel?.querySelector<HTMLElement>(`[data-so-section="${request.section}"]`)) || panel?.querySelector<HTMLElement>("[data-so-focus]") || panel;
+      if (!target) return;
+      target.scrollIntoView?.({ block: "start" });
+      const field = target.matches(FOCUSABLE) ? target : target.querySelector<HTMLElement>(FOCUSABLE);
+      (field ?? target).focus({ preventScroll: true });
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, [request]);
+  return (section?: string) => setRequest((current) => ({ section, nonce: (current?.nonce ?? 0) + 1 }));
 };
 
 const StudioModal: React.FC<Props> = ({ onClose, copilotEnabled = true, runCopilotStage, agentModel, askEnabled = true, onSaved, hostOptions, wizardHost, intent, replay = null }) => {
-  const [tab, setTab] = useState<StudioTab>(intent?.tab ?? "graph");
+  const [page, setPage] = useState<StudioPage>({ tab: intent?.tab ?? "graph" });
+  const [history, setHistory] = useState<StudioPage[]>([]);
   const [wizardMode, setWizardMode] = useState<WizardMode>("staged");
   const [guideDoc, setGuideDoc] = useState<string | null>(null);
   const options = useMemo(() => hostOptions ?? readHostOptions(), [hostOptions]);
-  const tabs = copilotEnabled ? [...BASE_TABS, { id: "copilot" as StudioTab, label: "Wizard" }] : BASE_TABS;
-  const activeTab = tabs.some((entry) => entry.id === tab) ? tab : "graph";
+  const roster = useDraftStore((state) => state.draft.roster);
+  const issues = useDraftStore((state) => state.errors.length + state.diagnostics.filter((entry) => entry.severity !== "info").length);
+  const tabs = useMemo(() => (copilotEnabled ? STUDIO_TAB_IDS : STUDIO_TAB_IDS.filter((entry) => entry !== "copilot")), [copilotEnabled]);
+  const groups = useMemo(() => studioNav(tabs, roster, issues), [tabs, roster, issues]);
+  const activeTab = tabs.includes(page.tab) ? page.tab : "graph";
+  const memberKnown = !page.member || roster.some((entry) => entry.id === page.member);
+  const activePage: StudioPage = memberKnown && activeTab === page.tab ? page : { tab: activeTab };
+  const requestFocus = useFocusRequest();
+  const navigate = (next: StudioPage) => {
+    if (next.tab === activePage.tab && next.member === activePage.member) return;
+    setHistory((current) => [...current.slice(-19), activePage]);
+    setPage(next);
+  };
+  const setTab = (tab: StudioTab) => navigate({ tab });
+  const back = () => {
+    const previous = history[history.length - 1];
+    if (!previous) return;
+    setHistory(history.slice(0, -1));
+    setPage(previous);
+  };
+  const goTo = (target: DiagnosticTarget) => {
+    const store = useDraftStore.getState();
+    if (target.checkpointId) store.selectCheckpoint(target.checkpointId);
+    if (target.transitionIndex !== undefined) store.selectTransition(target.transitionIndex);
+    navigate({ tab: target.tab, ...(target.member ? { member: target.member } : {}) });
+    requestFocus(target.section);
+  };
+  const tabElementId = groups.flatMap((group) => group.links).find((link) => link.page.tab === activePage.tab && link.page.member === activePage.member)?.elementId
+    ?? `so-studio-tab-${activeTab}`;
 
   const panelRef = useRef<HTMLDivElement | null>(null);
   const titleRef = useRef<HTMLInputElement | null>(null);
@@ -358,7 +326,7 @@ const StudioModal: React.FC<Props> = ({ onClose, copilotEnabled = true, runCopil
   const assist = useMemo(() => (agentModel && wizardHost ? studioAssist(agentModel, wizardHost, () => readHostOptions().backgroundNames) : null), [agentModel, wizardHost]);
   const showTopic = (target: KnowledgeShowMe) => {
     const resolved = studioTopicTarget(target);
-    if (resolved && "tab" in resolved) setTab(resolved.tab);
+    if (resolved && "tab" in resolved) navigate({ tab: resolved.tab });
     else if (resolved) setGuideDoc(resolved.doc);
   };
 
@@ -376,29 +344,35 @@ const StudioModal: React.FC<Props> = ({ onClose, copilotEnabled = true, runCopil
       onClose={onClose}
     >
       <div ref={panelRef} className="so-studio-frame so-dialog-frame">
-        <StudioHeader titleRef={titleRef} onRequestClose={() => void requestClose()} />
-        <StudioTabList tabs={tabs} activeTab={activeTab} onSelect={setTab} />
-        <div id="so-studio-tabpanel" className="flex-1 overflow-auto p-3" role="tabpanel" tabIndex={-1} aria-labelledby={`so-studio-tab-${activeTab}`}>
-          {STUDIO_TAB_GUIDE[activeTab] && <GuideDisclosure key={activeTab} topics={STUDIO_TAB_GUIDE[activeTab] ?? []} onOpenGuide={setGuideDoc} />}
-          <GateReplayContext.Provider value={replay}>
-            <StudioTabContent
-              activeTab={activeTab}
-              options={options}
-              copilotEnabled={copilotEnabled}
-              runCopilotStage={runCopilotStage}
-              runAgentTurn={agentRunner}
-              wizardHost={wizardHost}
-              intent={intent}
-              onSelect={setTab}
-              wizardMode={wizardMode}
-              onWizardMode={setWizardMode}
-              ask={askEnabled ? assist?.ask : undefined}
-              draftTutorialStep={assist?.draftStep}
-              onShowTopic={showTopic}
-            />
-          </GateReplayContext.Provider>
+        <StudioHeader titleRef={titleRef} onRequestClose={() => void requestClose()} onIssues={() => navigate({ tab: "diagnostics" })}
+          guide={<GuideDisclosure key={activeTab} topics={STUDIO_TAB_GUIDE[activeTab] ?? []} onOpenGuide={setGuideDoc} />}
+          actions={<StudioToolbar onSaved={onSaved} onRekeySession={wizardHost?.rekeySession} />} />
+        <StudioSectionSelect groups={groups} page={activePage} onSelect={navigate} onBack={history.length ? back : undefined} />
+        <div className="so-studio-body">
+          <StudioSidebar groups={groups} page={activePage} onSelect={navigate} />
+          <div id="so-studio-tabpanel" className="so-studio-page" role="tabpanel" tabIndex={-1} aria-labelledby={tabElementId} data-page={activeTab}>
+            <GateReplayContext.Provider value={replay}>
+              <StudioTabContent
+                activeTab={activeTab}
+                member={activePage.member}
+                onNavigate={navigate}
+                onGoTo={goTo}
+                options={options}
+                copilotEnabled={copilotEnabled}
+                runCopilotStage={runCopilotStage}
+                runAgentTurn={agentRunner}
+                wizardHost={wizardHost}
+                intent={intent}
+                onSelect={setTab}
+                wizardMode={wizardMode}
+                onWizardMode={setWizardMode}
+                ask={askEnabled ? assist?.ask : undefined}
+                draftTutorialStep={assist?.draftStep}
+                onShowTopic={showTopic}
+              />
+            </GateReplayContext.Provider>
+          </div>
         </div>
-        <StudioFooter onSaved={onSaved} onRekeySession={wizardHost?.rekeySession} />
       </div>
       {guideDoc && <StudioGuideDialog doc={guideDoc} onClose={() => setGuideDoc(null)} />}
     </Dialog>,

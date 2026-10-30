@@ -357,3 +357,48 @@ P-5/sheet, owner 2026-10-31 decisions, gate fixes; code tree `0ef0e7b7`, then ma
   image prefs), the error-copy inventory (last-page probes), then one max-len; all fixed.
 - Not done / owner: the phone segmented identity control wraps to two rows with a long persona name; mobile resume after the settings
   list stores the list page (Library), not the page before it.
+
+## Phase 2 studio gate record
+
+2026-10-30, branch `v3.0-29-ui-p2-studio` (WP-S2 `bdd36a43`, WP-S3 `b4893586`, WP-S5 `731eb96d`, WP-S4 `d60b9124`, WP-S6 `c00fa4ae`,
+WP-S1 `99670706`, lane fixes `d297dbd9`, Storybook flake fix `ab4d2c28`; master `5f10cfdd` merged at `3748b679`).
+
+- WP-S1 navigation (decision 10): left sidebar (`studio/studioNav.ts` pure + tested, `components/StudioNav.tsx`) of `role=tab` links
+  `#so-studio-tab-<tab>` grouped Story · Flow · State · Characters (Roster, one `#so-studio-tab-character-<id>` per member, Sprites) · World ·
+  Presentation · Story features · Wizard · Diagnostics (issue count); single-page groups are one link; arrows/Home/End move from the focused tab.
+  Under 1000px a section select `#so-studio-section` + back `#so-studio-back` (page history). Header: title input styled as text + pencil,
+  issues `#so-studio-issues` (→ Diagnostics), `#so-studio-undo|redo`, help, Save `#so-studio-save`, overflow `#so-studio-more` (menu with
+  `#so-studio-save-as|export|import|mermaid|reset`, arrow keys, Escape, focus returns to the trigger). Footer and both tab rows gone; phone
+  header hides the visible "Checkpoint Studio" heading (still the dialog's name). Wizard: mode segmented row (`[data-so=wizard-mode]`, aria-pressed
+  kept), steps as a numbered stepper (done/current).
+- WP-S2 graph: edge labels from quality display names (`studio/gateLabels.ts`, "≥", "is one of"), raw gate on hover; start badge, anchor tinted
+  accent with a thick border, intermediate outline, stub dashed; edges text colour at 50%; fit capped at 1x (`capFitZoom`). ≥1000px the
+  checkpoint (or new transition) editor sits beside the graph and a node click never leaves it; below, a half/full sheet. Mermaid moved to the
+  overflow menu.
+- WP-S3 checkpoint editor: sticky head with name + section index (Basics, Player sees, Pacing, State, Effects, Cast, Stretch, Offers, Agency,
+  Scope; `data-so-section`); effects as added cards with "Add effect" select and Remove (sprite motion's `effects.transition` is one entry);
+  Offers row editor (`OffersEditor`: text, only shown when, needs + reason, reorder, remove, "Edit as JSON") on typed ops
+  `setOffers/addOffer/updateOffer/removeOffer/moveOffer` in `mutations.ts` (tested; agent tools list them as covered by `updateCheckpoint`).
+- WP-S4: Studio → Story features renders the shared `FeatureList` (story scope, switch, reset, Changed filter); the 29 accordions are gone.
+- WP-S5: Roster = cast overview (name, role, Open, factions, player card); one page per character (identity with visible descriptions instead of
+  `?`, voice, labels, promises, cues/topics filtered by `memberId`, motives as links that select the checkpoint, Sprites link, Remove).
+- WP-S6: "Go to" on every diagnostic (`studio/diagnosticTarget.ts`: path → page, checkpoint/transition/member, section; tested) with focus on the
+  section; "How to write this" is the header menu `#so-studio-guide` (`[data-so=guide-topic]` rows open the guide reader); `?` pruned on Roster
+  and Graph only (not the review's halving).
+- Selector changes (consumers updated): task row / `#so-studio-task-*` removed (coach stop → `#so-studio-tab-diagnostics`); footer buttons → ids
+  above; `so-ui.mts studio-tab` maps old labels (Roster, Characters, Diagnostics, Wizard, Story features, Story rules, …) to ids and uses the
+  section select when the sidebar is hidden (unit test); `saveStudioDraft` clicks `#so-studio-save`; `so-studio-keyboard` requires "More studio
+  actions". `components/studio/Toolbar.tsx` deleted. Raw buttons ratchet -5 files; ownership/errorCopy rows for the Mermaid copy moved to
+  `StudioToolbar`.
+- Storybook flake (coordinator): test runner disables CSS transitions and waits for finite animations before axe (`.storybook/test-runner.ts`);
+  `PosesList` + `CharacterTutorial` 10/10 green under paired load (the flake did not reproduce unloaded before the fix either, 5/5).
+- Docs: `docs/guide/author/studio.md` (pages, header), story-guide intro, `npm run docs:guide`, CLAUDE.md Studio entry.
+- Live: lane 33 (no-model; images/sprites/living/judge/extraction read back off), worktree `dist/` routed into the lane browser, nothing staged;
+  `character-life` as `SO-UI Studio lab` loaded into the draft store only (no cards, chat or library row). Desktop 1920x1080 + 390x844, dark +
+  light: graph split true/false, nav flex/none, select none/flex, no horizontal scroll, 10 sections, 2 effect cards, 2 offer rows, character page
+  6 blocks, 31 feature rows / 0 `<details>`, Go to → Qualities with focus; 0 model calls, library 10 → 10, lane stopped. `assert-player-clean` not
+  run (Studio is author-only). `C:\dev\so-lanes\ui-review\p2-studio\` (driver as `.mts.txt`).
+- Bundle: main `dist/index.js` 1,231,715 B (budget 1,300,000); Studio code stays in its lazy chunk.
+- Gates: `npm run gates:quick` green during the work. Final `npm run gates` (no `--resume`, Storybook included) on `3748b679`: all green in
+  544.6s (jest 11,053 / 1 skipped, test:debug 1,730, Storybook 191 suites / 1,134 tests, replay, release, plugin, lint, typechecks).
+- Open: compiled life keys without a display label read humanised ("rel arin player trust ≥ 2"), not as a sentence.
