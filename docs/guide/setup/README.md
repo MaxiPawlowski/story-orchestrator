@@ -90,6 +90,8 @@ SillyTavern's top bar opens the same window at **This chat → Play**.
 pages link to it with **Change**. A row marked **This device** can keep its own value in this browser. The guide opens
 with `/story guide`, and Ask with `/story ask <question>`.
 
+![Sketch of a settings page: one row per setting, its control on the right](../assets/settings-sections.png)
+
 Settings have four scopes: **install** (every chat), **story** (what the author chose), **chat** (your change for the
 open chat) and **device** (display preferences kept in this browser). How they combine, with an example, and every
 setting with its default: [Settings reference](settings-reference.md#where-settings-live).
