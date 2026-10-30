@@ -22,6 +22,10 @@ describe("T6-4: ST Summarize and Vector Storage copy the whole transcript, secre
     expect(secretLeaks(true, [SUMMARY, VECTORS, SUMMARY])).toEqual(["Summarize", "Vector Storage"]);
   });
 
+  it("names VectFox by its block prefix (3_vectfox, _eventbase, _summarizer, _lorebook; v2.9 triage M06)", () => {
+    expect(secretLeaks(true, [{ key: "3_vectfox" }, { key: "3_vectfox_summarizer" }, { key: "3_vectfox_eventbase" }, VECTORS])).toEqual(["VectFox", "Vector Storage"]);
+  });
+
   it("control: nothing to name outside a group story, or without a copier's block", () => {
     expect(secretLeaks(false, [SUMMARY, VECTORS])).toEqual([]);
     expect(secretLeaks(true, [OTHER])).toEqual([]);
