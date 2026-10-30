@@ -145,3 +145,15 @@ export function castInventory(actors: readonly Actor[]): Record<string, SpriteIn
     faces: [...new Set([...actor.packs.values()].flatMap((pack) => [...pack.keys()]))].sort(),
   }]));
 }
+
+export function syncMuted(actors: Actor[], members: ReadonlyArray<{ avatar: string; muted: boolean }>): boolean {
+  const muted = new Map(members.map((member) => [member.avatar, member.muted]));
+  let changed = false;
+  for (const actor of actors) {
+    const now = muted.get(actor.avatar) ?? actor.muted;
+    if (now === actor.muted) continue;
+    actor.muted = now;
+    changed = true;
+  }
+  return changed;
+}

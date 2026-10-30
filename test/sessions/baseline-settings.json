@@ -223,6 +223,7 @@
       "stage": "vn",
       "segmentChars": 400,
       "crossfadeMs": 250,
+      "effects": "full",
       "focus": true,
       "breathing": true,
       "liveHead": true,

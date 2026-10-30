@@ -1,5 +1,5 @@
 import { decodeFrames, FRAME_BYTES_PER_ACTOR, frameBudget, FrameMemory, startBlink, startMouth } from "./faceFrames";
-import { blinkGap } from "./animation";
+import { blinkGap, blinkTwice } from "./animation";
 
 const MB = 1024 * 1024;
 const FRAMES = { talk: "/a/happy.talk.png", talk2: "/a/happy.talk2.png", blink: "/a/happy.blink.png" };
@@ -72,6 +72,24 @@ describe("face timers", () => {
     expect(lid.style.opacity).toBe("0");
     jest.advanceTimersByTime(20_000);
     expect(lid.style.opacity).toBe("0");
+  });
+
+  it("about one blink in six is a seeded double blink: a second 140 ms close 110 ms after the first", () => {
+    const doubles = Array.from({ length: 600 }, (_, cycle) => blinkTwice("seed", cycle)).filter(Boolean).length;
+    expect(doubles).toBeGreaterThan(60);
+    expect(doubles).toBeLessThan(150);
+    const seed = Array.from({ length: 200 }, (_, index) => `s${index}`).find((candidate) => blinkTwice(candidate, 0)) as string;
+    const lid = { style: { opacity: "0" } };
+    const stop = startBlink(lid, seed);
+    jest.advanceTimersByTime(blinkGap(seed, 0));
+    expect(lid.style.opacity).toBe("1");
+    jest.advanceTimersByTime(140);
+    expect(lid.style.opacity).toBe("0");
+    jest.advanceTimersByTime(110);
+    expect(lid.style.opacity).toBe("1");
+    jest.advanceTimersByTime(140);
+    expect(lid.style.opacity).toBe("0");
+    stop();
   });
 
   it("steps the mouth through its sequence every 110 ms and closes it on stop", () => {

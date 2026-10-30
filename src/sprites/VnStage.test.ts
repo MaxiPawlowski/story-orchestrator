@@ -8,8 +8,8 @@ import { stageMotion } from "./motion/budget";
 
 jest.mock("react", () => ({ ...jest.requireActual("react"), default: jest.requireActual("react"),
   useSyncExternalStore: (_subscribe: unknown, snapshot: () => unknown) => snapshot() }));
-jest.mock("@utils/lazyRetry", () => ({ lazyRetry: () => (props: { name: string; binding: { source: string } }) =>
-  React.createElement("canvas", { "data-head": props.name, "data-source": props.binding.source }) }));
+jest.mock("@utils/lazyRetry", () => ({ lazyRetry: () => (props: { name?: string; binding?: { source: string } }) =>
+  props.binding ? React.createElement("canvas", { "data-head": props.name, "data-source": props.binding.source }) : null }));
 
 const actor = (name: string, patch: Partial<StageActor> = {}): StageActor => ({
   name, avatar: `${name}.png`, label: "neutral", path: `/${name}/posed.png`, set: "lp_coat", pose: "sit_chair", spotlight: false,
@@ -20,7 +20,7 @@ function render(actors: StageActor[], patch: Partial<StageView> = {}): string {
   const view: StageView = { actors, visible: true, placement: "vn", waitsForVn: false, speaking: null, talker: null,
     framing: "close", settings: defaultSpriteSettings(), activation: "story", capability: "present", reducedMotion: false,
     motion: stageMotion({ effects: "full", hostReduced: false, osReduced: false, storyMotion: true }), active: true, headSession: "chat", ...patch };
-  const stage = { view: () => view, subscribe: () => () => {}, beginHeadRun: () => {} } as unknown as SpriteStage;
+  const stage = { view: () => view, subscribe: () => () => {}, beginHeadRun: () => {}, boundary: () => 0 } as unknown as SpriteStage;
   return renderToStaticMarkup(React.createElement(VnStage, { stage }));
 }
 

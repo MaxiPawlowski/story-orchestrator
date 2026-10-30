@@ -21,13 +21,15 @@ import { isRecord } from "@utils/guards";
 import { directionKeys, rosterStamp, isSpotlit, memberDirection, readStageDirection, standsOnStage, type StageDirection } from "./direction";
 import { StreamActivity } from "./animation";
 import { osReducedMotion, stageMotion } from "./motion/budget";
+import { MotionFeed } from "./motion/feed";
+import { stageSignals, watchReducedMotion } from "./motion/signals";
 import { publishSpriteLookIssues } from "@runtime/spriteLookHealth";
 import { publishSpriteStageHealth, type SpriteStageIssue } from "@runtime/spriteStageHealth";
 import { changedLookIssues } from "./lookHealth";
 import { applyLookResult } from "./lookApply";
 import { storedReadRecord, storedReads, type StoredRead } from "./storedReads";
 import { passageRead, passageTarget } from "./passageClick";
-import { castInventory, loadCast, SpriteListCache, type Actor } from "./castLoad";
+import { castInventory, loadCast, SpriteListCache, syncMuted, type Actor } from "./castLoad";
 import { packedSet, packIdentityDeps } from "./packs/stagePacks";
 import { withDefaultBuilders } from "./defaultRecipe";
 import { stagePackIssues } from "./stageHealth";
@@ -44,6 +46,7 @@ const readsOf = (message: SpriteChatMessage): StoredRead[] => storedReads(messag
 export class SpriteStage {
   readonly activity = new StreamActivity();
   readonly expressionCalls = new ExpressionCallRing();
+  readonly motionFeed = new MotionFeed();
   private actors: Actor[] = [];
   private speaking: string | null = null; private standing: string | null = null;
   private talker: string | null = null;
@@ -124,6 +127,7 @@ export class SpriteStage {
     };
   }
 
+  boundary = (): number => this.manager.getCachedSnapshot().boundary;
   private headSession(): string {
     const { chatId, storyId, storyHash, sessionEpoch } = this.manager.getOwnership().mint();
     return JSON.stringify([chatId, storyId, storyHash, sessionEpoch]);
@@ -176,8 +180,7 @@ export class SpriteStage {
     const observer = typeof MutationObserver === "undefined" ? null : new MutationObserver(this.notify);
     observer?.observe(document.body, { attributes: true, attributeFilter: ["class"] });
     const offViewport = spriteWatchViewport(this.notify);
-    const media = typeof matchMedia === "function" ? matchMedia("(prefers-reduced-motion: reduce)") : null;
-    media?.addEventListener("change", this.notify);
+    const offMotion = watchReducedMotion(this.notify);
     const offStory = this.manager.subscribe(() => this.placeChanged());
     const offSources = subscribeVisualSources(() => { this.lists.clear(); void this.reload(); });
     const offFiles = subscribeSpriteFiles(() => { this.lists.clear(); void this.reload(); });
@@ -190,7 +193,7 @@ export class SpriteStage {
       offSources();
       offFiles();
       offViewport();
-      media?.removeEventListener("change", this.notify);
+      offMotion();
       observer?.disconnect();
       document.removeEventListener("click", click);
       this.stopPlayback();
@@ -273,19 +276,10 @@ export class SpriteStage {
     return { location: typeof location === "string" ? location : null, checkpoint: snapshot.activeCheckpointId };
   }
 
-  private castChanged(): boolean {
-    const muted = new Map(spriteCast().members.map((member) => [member.avatar, member.muted]));
-    let changed = false;
-    for (const actor of this.actors) {
-      const now = muted.get(actor.avatar) ?? actor.muted;
-      if (now === actor.muted) continue;
-      actor.muted = now;
-      changed = true;
-    }
-    return changed;
-  }
+  private castChanged(): boolean { return syncMuted(this.actors, spriteCast().members); }
 
   private placeChanged(): void {
+    this.motionFeed.update(stageSignals(this.manager.getCachedSnapshot(), this.manager.getStory(), this.headSession()));
     if (this.rosterKey !== (this.rosterKey = rosterStamp(this.manager.getStory()?.roster))) return void this.reload();
     this.looks?.revalidate(); this.bodies?.revalidate();
     if (this.activation() !== this.snapshot.activation) this.notify();
