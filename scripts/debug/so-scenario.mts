@@ -8,6 +8,7 @@ import { fileURLToPath } from 'node:url';
 import { PROJECT_ROOT } from './lib/connection.mts';
 import { evaluateInST } from './lib/evaluate.mts';
 import { touchPress } from './lib/touchPress.mts';
+import { toggleSetting } from './lib/settingToggle.mts';
 import { STEP_MODIFIERS, validateFixture } from './lib/scenarioSchema.mts';
 import { vacuousReason } from './lib/stepPrecondition.mts';
 import { payloadFailures } from './lib/payloadAssert.mts';
@@ -833,6 +834,11 @@ async function uiStep(page, spec) {
   if (action === 'hit-test') {
     const result = await hitTest(page, spec?.selector ?? label);
     if (!result.clickable) throw new Error(`${result.selector} is not clickable by a pointer: ${result.reason}`);
+    return result;
+  }
+  if (action === 'setting-toggle') {
+    const result = await toggleSetting(page, spec?.selector ?? label, spec?.on !== false);
+    if (!result.ok) throw new Error(`setting-toggle: ${result.reason}`);
     return result;
   }
   if (action === 'touch-press') return touchPress(page, spec);

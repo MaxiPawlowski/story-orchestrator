@@ -1,5 +1,8 @@
-import type { ReactNode } from "react";
+import { useId, type ReactNode } from "react";
 import HelpTooltip from "@components/studio/HelpTooltip";
+import { SettingRow, type SettingScope } from "@components/ui/SettingRow";
+import { Switch } from "@components/ui/Switch";
+import { Section } from "@components/ui/Section";
 import { settingCopy, type SettingCopyKey } from "@features/settingsCopy";
 
 export interface CheckRowProps {
@@ -11,6 +14,11 @@ export interface CheckRowProps {
   label?: ReactNode;
   help?: string;
   className?: string;
+  description?: ReactNode;
+  scope?: SettingScope;
+  changed?: boolean;
+  onReset?: () => void;
+  kind?: "switch" | "checkbox";
 }
 
 const resolve = (setting: SettingCopyKey | undefined, label: ReactNode | undefined, help: string | undefined) => {
@@ -18,16 +26,24 @@ const resolve = (setting: SettingCopyKey | undefined, label: ReactNode | undefin
   return { text: label ?? copy?.label ?? "", tip: help ?? copy?.help };
 };
 
-export const CheckRow = ({ id, setting, checked, disabled, onChange, label, help, className = "text-sm" }: CheckRowProps) => {
+export const CheckRow = ({ id, setting, checked, disabled, onChange, label, help, description, scope, changed, onReset, kind = "switch" }: CheckRowProps) => {
+  const fallback = useId();
+  const controlId = id ?? fallback;
   const { text, tip } = resolve(setting, label, help);
+  if (kind === "checkbox") {
+    return (
+      <span className="so-check">
+        <label className="inline-flex items-center gap-2">
+          <input id={id} type="checkbox" checked={checked} disabled={disabled} onChange={(event) => onChange(event.target.checked)} />
+          <span>{text}</span>
+        </label>
+        {tip && <HelpTooltip title={tip} />}
+      </span>
+    );
+  }
   return (
-    <div className={`flex items-center gap-2 ${className}`}>
-      <label className="flex items-center gap-2">
-        <input id={id} type="checkbox" checked={checked} disabled={disabled} onChange={(event) => onChange(event.target.checked)} />
-        <span>{text}</span>
-      </label>
-      {tip && <HelpTooltip title={tip} />}
-    </div>
+    <SettingRow label={text} htmlFor={controlId} help={tip} description={description} scope={scope} changed={changed} onReset={onReset}
+      control={(describedBy) => <Switch id={controlId} checked={checked} disabled={disabled} describedBy={describedBy} onChange={onChange} />} />
   );
 };
 
@@ -42,8 +58,5 @@ export const FieldLabel = ({ htmlFor, setting, label, help }: { htmlFor: string;
 };
 
 export const Advanced = ({ id, label = "Advanced", children }: { id?: string; label?: string; children: ReactNode }) => (
-  <details id={id} data-so="settings-advanced" className="text-sm">
-    <summary className="cursor-pointer opacity-80">{label}</summary>
-    <div className="flex flex-col gap-2 pt-2">{children}</div>
-  </details>
+  <Section collapsible id={id} data-so="settings-advanced" title={label}>{children}</Section>
 );

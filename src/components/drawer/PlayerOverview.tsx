@@ -4,7 +4,7 @@ import type { RuntimeSnapshot } from "@runtime/types";
 import { shownCarry, shownPromises } from "@runtime/surfaceShown";
 import { Lazy } from "@components/Lazy";
 import { lazyRetry } from "@utils/lazyRetry";
-import { StatusIcon } from "./StatusDot";
+import { StatusIcon } from "@components/ui/StatusDot";
 
 const PlayerChapters = lazyRetry(() => import("./PlayerChapters"));
 const PlayerPromises = lazyRetry(() => import("./PlayerPromises"));

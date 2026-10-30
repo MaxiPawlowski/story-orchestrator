@@ -13,6 +13,7 @@ export const mountRootFor = (title: string) => {
   if (title.startsWith("Image/Review")) return "so-image-review-root";
   if (title.startsWith("Briefing/")) return "so-briefing-root";
   if (title.startsWith("Panels/")) return "so-panels-root";
+  if (title.startsWith("Kit/")) return "so-panels-root";
   return "so-studio-root";
 };
 
@@ -32,8 +33,29 @@ const withMountRoot: Decorator = (Story, context) => {
   return createElement("div", { id: root }, createElement(Story));
 };
 
+export const THEMES = ["st-dark", "light", "macaron"] as const;
+
+const withTheme: Decorator = (Story, context) => {
+  const theme = THEMES.includes(context.globals.soTheme) ? context.globals.soTheme : "st-dark";
+  if (theme === "st-dark") delete document.documentElement.dataset.soTheme;
+  else document.documentElement.dataset.soTheme = theme;
+  return createElement(Story);
+};
+
 const preview: Preview = {
-  decorators: [withMountRoot],
+  decorators: [withMountRoot, withTheme],
+  globalTypes: {
+    soTheme: {
+      description: "SillyTavern theme",
+      toolbar: {
+        title: "Theme",
+        icon: "paintbrush",
+        items: [{ value: "st-dark", title: "ST default (dark)" }, { value: "light", title: "Light palette" }, { value: "macaron", title: "Celestial Macaron (dark)" }],
+        dynamicTitle: true,
+      },
+    },
+  },
+  initialGlobals: { soTheme: "st-dark" },
   parameters: {
     actions: { argTypesRegex: "^on[A-Z].*" },
     controls: {
