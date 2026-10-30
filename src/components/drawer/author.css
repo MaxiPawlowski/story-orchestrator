@@ -48,6 +48,20 @@
   .so-console-block h4, .so-steer-block h4, .so-steer-title { margin: 0; font-size: var(--so-text); font-weight: 600; }
   .so-console-block p { margin: 0; }
   .so-console-item { padding-top: var(--so-space-2); border-top: 1px solid var(--so-line); }
+  .so-console-block { scroll-margin-top: calc(var(--so-control-h) + var(--so-space-4)); }
+  [data-so="jump-to-message"] {
+    min-height: 0;
+    margin: 0;
+    padding: 0 var(--so-space-1);
+    border: 0;
+    background: none;
+    color: var(--so-link);
+    font-size: var(--so-text-xs);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    text-shadow: none;
+    filter: none;
+  }
   .so-console-list { display: flex; flex-direction: column; gap: var(--so-space-1); }
   .so-console-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--so-space-2); }
   .so-console-toolbar .so-search { flex: 1 1 14rem; }
