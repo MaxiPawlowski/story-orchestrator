@@ -53,6 +53,7 @@ export const UNMAPPED_CONTROLS: Readonly<Record<string, string>> = {
   "reading.stabilityLag": "Tuning number, not on or off.",
   "chapters.storySoFar": "Prompt-shape detail of chapters; Story → Features.",
   "chapters.fold": "Prompt-shape detail of chapters; Story → Features.",
+  "chapters.compact": "Prompt-shape detail of chapters, off until its blind rating (v3.0 40); Story → Features.",
   "agency.enabled": "See agency in UNMAPPED_STORY_FEATURES.",
   "agency.acceptMode": "See agency in UNMAPPED_STORY_FEATURES.",
   "thinking.effort": "Tuning level, not on or off.",

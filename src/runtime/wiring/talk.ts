@@ -16,6 +16,7 @@ import { speechRows } from "@talk/index";
 import { entryKey } from "../effectsApplierHost";
 import { consequenceSince } from "../speechConsequence";
 import { isThoughtOnlyReply, residueTags } from "../emptyReply";
+import { readCoverageEnd } from "@extraction/readCursor";
 
 const talkHost = (live: LiveParts, judgeRuntime: JudgeRuntime, { chatLastId, recentTurns }: WindowAccess): TalkControlHost => ({
   isGroupChat: () => Boolean(getActiveGroup()),
@@ -92,5 +93,6 @@ export const startTalk = (live: LiveParts, judgeRuntime: JudgeRuntime, window: W
     if (!aborted && Array.isArray(chat)) await runtimeManager.chapters.recall(chat, type);
     const folded = !aborted && Array.isArray(chat) ? runtimeManager.chapters.fold(chat, type, getContext().chat ?? []) : null;
     if (folded) runtimeManager.noteFolded(folded.folded);
+    if (!aborted && Array.isArray(chat)) runtimeManager.chapters.compact(chat, type, getContext().chat ?? [], contextSize, readCoverageEnd(runtimeManager.getExtractionAudits()));
   }, () => log.warn("speaker direction: a second reply started while one was already being written; it was stopped so the model is asked once"), holdForChat);
 };
