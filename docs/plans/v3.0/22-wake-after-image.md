@@ -103,3 +103,22 @@ complete.
   `releaseGiveUpAfter` have defaults).
 - Seen, not fixed here: `cli.mjs stop`/`unload` are refused while text work is active ("Wait for the active work"),
   which under a wedge plus steady token counts meant only a process kill recovered.
+
+## Follow-up 2026-10-30: stop and unload under a wedge (branch `v3.0-ctl-cpu-1030`, CPU only)
+
+The case (§Live baseline and §Gate record): an image lease wedged on 409 "ComfyUI accepted free ...", the queue stayed
+busy for ~25 min with token counts still arriving, and `cli.mjs stop`/`unload` both went through
+`scheduler.exclusive`, which refuses while `activeText`, `lease`, `imagePending`, `imageQueued` or `restoring` is set,
+so only a process kill recovered.
+- `cli.mjs stop` (`scripts/local/controllerStop.mjs`): holds new text, waits up to 15 s for active work, then stops
+  anyway and reports `forced` with what it cut; a stuck lease never blocks it. A running ComfyUI job still refuses it;
+  `stop --force` skips the job check and the wait.
+- `cli.mjs unload --force` (`scheduler.unload({force})`, control body `{force: true}`): holds new text, waits up to
+  15 s for the active reply, then unloads even under a stuck image lease and reports what it cut. It still refuses
+  while a text load or residency change runs (never races a load). Plain `unload` keeps its old refusal, and the CLI
+  now points that refusal at `--force`.
+- Tests: `scripts/local/controllerStop.test.mjs` (6, real `ResidencyScheduler` with fakes: wedge + active reply,
+  reply ending inside the wait, refusal during a load, stop under a stuck lease, idle stop, ComfyUI job guard and
+  `--force`, control validation, CLI lines).
+- Gate: `npm run gates -- --jobs=3` (no `--resume`) on `9d916283`: all green in 1249.0 s, Storybook included
+  (1025 passed). Live check of a real wedge: not run (no GPU).
