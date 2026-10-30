@@ -11,7 +11,7 @@ import { isRecord } from "@utils/guards";
 
 const LABELS = [
   "Status strip", "Notes under replies", "Notes on the last … replies", "Note categories", "Stage visibility",
-  "Dim non-speakers", "Breathing", "Blinking", "Mouth movement", "Live close-shot head", "Drawn eyes and mouth on the live head", "Your move chip",
+  "Dim non-speakers", "Breathing", "Blinking", "Mouth movement", "Live close-shot head", "Drawn eyes and mouth on the live head", "Your move chip", "Stage effects",
 ];
 
 export const DevicePreferences = ({ manager }: { manager: RuntimeManager }) => {
@@ -21,7 +21,8 @@ export const DevicePreferences = ({ manager }: { manager: RuntimeManager }) => {
     {DEVICE_SETTING_PATHS.map((path, index) => {
       const resolved = deviceSettingValue(getGlobalSettings(), device, path);
       const spec: PolicyField = path.endsWith("level") ? { kind: "choice", options: ["0", "1", "2", "3", "4"] } : path.endsWith("window") ? { kind: "number", min: 1, max: 200 }
-        : path.endsWith("stage") ? { kind: "choice", options: ["vn", "always", "off"] } : path.endsWith("mouth") ? { kind: "choice", options: ["off", "simple", "smooth"] } : { kind: "boolean" };
+        : path.endsWith("stage") ? { kind: "choice", options: ["vn", "always", "off"] } : path.endsWith("mouth") ? { kind: "choice", options: ["off", "simple", "smooth"] }
+        : path.endsWith("effects") ? { kind: "choice", options: ["full", "calm", "off"] } : { kind: "boolean" };
       const write = (value: unknown) => {
         try { setDevice(devicePreferences().set(path, value)); setError(null); manager.notify(); }
         catch (error) { log.warn("Device preference save failed", error); setError("This browser could not save its device preferences."); }

@@ -7,6 +7,7 @@ import type { ExpressionSources } from "./liveHead/expressions";
 import type { SpriteActivation, SpriteSettings } from "./settings";
 import type { Segment } from "./segment";
 import type { ExpressionRead } from "./classify";
+import type { MotionBudget } from "./motion/budget";
 
 export interface StageActor {
   name: string;
@@ -37,6 +38,8 @@ export interface StageView {
   activation: SpriteActivation;
   capability: CapabilityState | "checking";
   reducedMotion: boolean;
+  motion: MotionBudget;
+  active: boolean;
   headSession: string;
 }
 

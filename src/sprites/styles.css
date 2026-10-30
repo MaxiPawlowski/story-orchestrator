@@ -34,6 +34,14 @@
   opacity: 1;
 }
 
+#so-vn-root .so-bg-fade {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-attachment: fixed;
+}
+
 #so-stage-strip {
   position: relative;
   flex: 0 0 auto;
@@ -56,7 +64,7 @@
   bottom: 0;
   height: 92%;
   transform: translateX(-50%);
-  transition: filter 400ms ease, transform 400ms ease;
+  transition: filter 400ms ease, transform 400ms ease, left var(--so-move-ms, 0ms) ease, width var(--so-move-ms, 0ms) ease;
   -webkit-mask-image: linear-gradient(to bottom, var(--black100) 78%, transparent 100%);
   mask-image: linear-gradient(to bottom, var(--black100) 78%, transparent 100%);
 }
@@ -118,6 +126,134 @@
   opacity: 1;
 }
 
+:is(#so-vn-root, #so-stage-strip) .so-sprite.so-enter[data-enter="rise"] {
+  animation: so-enter-rise var(--so-enter-ms, 450ms) ease-out both;
+}
+
+:is(#so-vn-root, #so-stage-strip) .so-sprite.so-enter[data-enter="fade"] {
+  animation: so-enter-fade var(--so-enter-ms, 450ms) ease-out both;
+}
+
+:is(#so-vn-root, #so-stage-strip) .so-sprite.so-exit {
+  pointer-events: none;
+  animation: so-exit-fade var(--so-exit-ms, 350ms) ease-in forwards;
+}
+
+:is(#so-vn-root, #so-stage-strip) .so-sprite.so-exit[data-enter="rise"] {
+  animation-name: so-exit-sink;
+}
+
+:is(#so-vn-root, #so-stage-strip) .so-sprite-sway,
+:is(#so-vn-root, #so-stage-strip) .so-sprite-act {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-origin: 50% 100%;
+}
+
+:is(#so-vn-root, #so-stage-strip) .so-sprite-sway.so-swaying {
+  animation: so-sway 7s ease-in-out infinite;
+  animation-delay: var(--so-sway-delay, 0s);
+}
+
+:is(#so-vn-root, #so-stage-strip) #so-vn-stage[data-blur="true"] .so-sprite.so-idle {
+  filter: brightness(0.55) saturate(0.8) blur(1.5px);
+}
+
+:is(#so-vn-root, #so-stage-strip) .so-stage-vignette {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 50% 55%, transparent 40%, var(--black100) 100%);
+  transition-property: opacity;
+  transition-timing-function: ease;
+}
+
+:is(#so-vn-root, #so-stage-strip) .so-stage-cover {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  pointer-events: none;
+  opacity: 0;
+  background-color: var(--black100);
+}
+
+:is(#so-vn-root, #so-stage-strip) .so-stage-iris {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 20;
+  width: 160vmax;
+  height: 160vmax;
+  border-radius: 50%;
+  box-shadow: 0 0 0 200vmax var(--black100);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  opacity: 0;
+}
+
+:is(#so-vn-root, #so-stage-strip) .so-stage-chapter {
+  position: absolute;
+  left: 50%;
+  top: 38%;
+  z-index: 21;
+  transform: translate(-50%, -50%);
+  max-width: min(80%, 36rem);
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  background: color-mix(in srgb, var(--black100) 72%, transparent);
+  color: var(--white100);
+  text-align: center;
+  pointer-events: auto;
+  cursor: pointer;
+  animation: so-card var(--so-card-total, 2600ms) ease both;
+}
+
+:is(#so-vn-root, #so-stage-strip) .so-stage-chapter-label {
+  font-size: 0.8rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  opacity: 0.75;
+}
+
+:is(#so-vn-root, #so-stage-strip) .so-stage-chapter-title {
+  font-size: 1.4rem;
+  font-weight: 600;
+}
+
+@keyframes so-sway {
+  0%, 100% { rotate: -0.4deg; }
+  50% { rotate: 0.4deg; }
+}
+
+@keyframes so-card {
+  0% { opacity: 0; }
+  15% { opacity: 1; }
+  85% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+@keyframes so-enter-rise {
+  from { opacity: 0; translate: 0 3%; }
+  to { opacity: 1; translate: 0 0; }
+}
+
+@keyframes so-enter-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes so-exit-sink {
+  from { opacity: 1; translate: 0 0; }
+  to { opacity: 0; translate: 0 2%; }
+}
+
+@keyframes so-exit-fade {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
 @keyframes so-fade-in {
   from { opacity: 0; }
   to { opacity: 1; }
@@ -131,4 +267,5 @@
 @media (prefers-reduced-motion: reduce) {
   :is(#so-vn-root, #so-stage-strip) .so-breathing .so-sprite-breath { animation: none; }
   :is(#so-vn-root, #so-stage-strip) .so-sprite img.so-sprite-top { animation-duration: 0ms; }
+  :is(#so-vn-root, #so-stage-strip) .so-sprite-sway.so-swaying { animation: none; }
 }
