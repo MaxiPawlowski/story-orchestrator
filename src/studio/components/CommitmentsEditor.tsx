@@ -75,8 +75,9 @@ const CommitmentRow = ({ member, commitment, list }: { member: RosterMember; com
   );
 };
 
-const CommitmentsEditor: React.FC = () => {
-  const roster = useDraftStore((state) => state.draft.roster);
+const CommitmentsEditor: React.FC<{ memberId?: string }> = ({ memberId }) => {
+  const cast = useDraftStore((state) => state.draft.roster);
+  const roster = memberId ? cast.filter((member) => member.id === memberId) : cast;
   const mutate = useDraftStore((state) => state.mutate);
   if (!roster.length) return null;
   const add = (member: RosterMember) => {
