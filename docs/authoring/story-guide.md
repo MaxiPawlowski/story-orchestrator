@@ -288,6 +288,16 @@ Field: `effects.background`: a file name, or `{ name }` (`schema.ts` `Background
 - **Bad.** A background whose picture shows the twist; a name invented for the scene (`pawnshop_interior`) that no file carries.
 - **If wrong.** A name the install lacks does not switch anything (diagnostic `background-missing`: "The scene does not change: the install has no background by that name."; checked against the install's list, with or without the file extension, when the Studio knows it).
 
+### Stage transition
+<!-- topic: stage-transition -->
+
+Field: `effects.transition`: a kind, or `{ kind, ms, color }` (`schema.ts` `TransitionEffect`, `validate/checkpoints.ts` `readTransition`, `sprites/motion/cues.ts`).
+
+- **What it does.** Sets how the sprite stage changes into this beat when play enters it. `dissolve` (the default when the field is absent) crossfades the background when the beat also switches it; `fade` covers the stage with `color` and uncovers it; `wipe` sweeps the color across and off; `iris` closes a circle to the centre and opens it again; `cut` switches with no transition and no crossfade. `ms` is the whole transition (0 to 5000; defaults dissolve 600, fade 1000, wipe 900, iris 1000), `color` a hex color (default `#000`). Presentation only: it plays on a forward step into the beat, never on reopen, rollback or a chat switch, and writes nothing to the story's state.
+- **Good.** `"transition": { "kind": "fade", "ms": 1200 }` on the first beat after a time skip; `"transition": "cut"` for a sudden shock.
+- **Bad.** A wipe on every beat; a long fade on a beat the player reaches every few turns.
+- **If wrong.** An unknown kind, an `ms` outside 0 to 5000, a color that is not a hex, or an unknown key is a validation error naming the field. The player's stage effects setting (`sprites.effects`) and reduced motion (SillyTavern, the system, or the story's `display.motion: false`) shorten every transition to a short crossfade or skip it.
+
 ### Scenario
 <!-- topic: scenario -->
 

@@ -9,6 +9,28 @@ import type { DeclaredCardField } from "@engine/cardFields";
 import { isRecord } from "@utils/guards";
 import type { WorkflowMap } from "@engine/schema";
 import WorkflowMapEditor, { useWorkflowNames } from "./WorkflowMapEditor";
+import { TRANSITION_EFFECT_KINDS, TRANSITION_EFFECT_MAX_MS, type TransitionEffect, type TransitionEffectKind } from "@engine/schema";
+import { Select, TextInput } from "@components/ui/Field";
+
+const StageTransitionFields: React.FC<{ value: TransitionEffect; onChange: (next: TransitionEffect) => void }> = ({ value, onChange }) => (
+  <div className="flex flex-wrap items-end gap-2" data-so="effect-transition">
+    <label className="flex flex-col gap-1 text-sm">
+      <span className="text-xs st-muted">Kind</span>
+      <Select aria-label="Transition kind" size="sm" value={value.kind} onChange={(event) => onChange({ ...value, kind: event.target.value as TransitionEffectKind })}>
+        {TRANSITION_EFFECT_KINDS.map((kind) => <option key={kind} value={kind}>{kind}</option>)}
+      </Select>
+    </label>
+    <label className="flex flex-col gap-1 text-sm">
+      <span className="text-xs st-muted">Milliseconds (default for the kind when empty)</span>
+      <TextInput aria-label="Transition milliseconds" size="xs" type="number" min={0} max={TRANSITION_EFFECT_MAX_MS} step={50} value={value.ms ?? ""}
+        onChange={(event) => onChange(event.target.value === "" ? { kind: value.kind, ...(value.color ? { color: value.color } : {}) } : { ...value, ms: Number(event.target.value) })} />
+    </label>
+    <label className="flex flex-col gap-1 text-sm">
+      <span className="text-xs st-muted">Color</span>
+      <TextInput aria-label="Transition color" size="xs" type="color" value={value.color ?? "#000000"} onChange={(event) => onChange({ ...value, color: event.target.value })} />
+    </label>
+  </div>
+);
 
 const readStrings = (value: unknown): string[] => (Array.isArray(value) ? value.filter((entry): entry is string => typeof entry === "string") : []);
 
@@ -239,6 +261,16 @@ const CheckpointWorkflows: React.FC<{ effects: CheckpointEffects; emit: (next: C
   </Section>;
 };
 
+const TRANSITION_HELP = "How the sprite stage changes into this checkpoint: dissolve (the background crossfades), fade, wipe, iris, or cut. "
+  + "Presentation only; reduced motion and the player's stage effects setting shorten or skip it.";
+
+const StageTransitionSection: React.FC<{ effects: CheckpointEffects; emit: (next: CheckpointEffects) => void }> = ({ effects, emit }) => (
+  <Section title="Stage transition" help={TRANSITION_HELP} enabled={effects.transition !== undefined}
+    onToggle={(on) => emit({ ...effects, transition: on ? { kind: "fade" } : undefined })}>
+    {effects.transition && <StageTransitionFields value={effects.transition} onChange={(transition) => emit({ ...effects, transition })} />}
+  </Section>
+);
+
 const EffectsEditor: React.FC<{
   effects: CheckpointEffects;
   roster: RosterMember[];
@@ -325,6 +357,8 @@ const EffectsEditor: React.FC<{
           </datalist>
         </label>
       </Section>
+
+      <StageTransitionSection effects={effects} emit={emit} />
 
       <CheckpointWorkflows effects={effects} emit={emit} />
 

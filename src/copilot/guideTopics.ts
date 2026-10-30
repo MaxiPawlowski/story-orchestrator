@@ -187,6 +187,9 @@ export const GUIDE_TOPICS = {
     text: "A SillyTavern background file the scene switches to when the beat starts: \"tavern night.jpg\" or {name}. Applied again on reopen. Use the exact file name on the "
       + "install (lookupBackgrounds), or leave the background out; a name the install lacks switches nothing.",
   },
+  "stage-transition": { title: "Stage transition", fields: "effects.transition",
+    text: "How the stage changes into this beat: dissolve (default, background crossfade), fade, wipe, iris or cut; a kind or "
+      + "{kind, ms 0-5000, color hex}. Presentation only, on forward steps only; reduced motion shortens it." },
   scenario: {
     title: "Scenario",
     fields: "effects.scenario",
