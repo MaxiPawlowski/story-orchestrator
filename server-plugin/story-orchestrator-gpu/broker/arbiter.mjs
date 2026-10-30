@@ -49,12 +49,13 @@ export const CONTROL_ACTIONS = Object.freeze(['load', 'unload', 'automatic', 're
 export function controlRequest(action, body, config) {
     if (!CONTROL_ACTIONS.includes(action)) throw new Error('Unknown control.');
     const input = body && typeof body === 'object' && !Array.isArray(body) ? body : {};
-    const allowed = { load: ['profile'], 'free-images': ['clear'], 'cache-mode': ['profile'] }[action] ?? [];
+    const allowed = { load: ['profile'], unload: ['force'], 'free-images': ['clear'], 'cache-mode': ['profile'] }[action] ?? [];
     const extra = Object.keys(input).filter((key) => !allowed.includes(key) && !(config.experiments && action === 'load' && key === 'fitTarget'));
     if (extra.length) throw new Error(`The ${action} control takes no ${extra.join(', ')}; paths, binaries and arguments come only from the server config.`);
     if (action === 'load' && input.profile !== undefined && (typeof input.profile !== 'string' || !Object.hasOwn(config.profiles ?? {}, input.profile))) throw new Error('Pick a configured profile by id.');
     if (action === 'cache-mode' && !['warm', 'evict'].includes(input.profile)) throw new Error('Cache mode must be warm or evict.');
     if (action === 'free-images' && input.clear !== undefined && typeof input.clear !== 'boolean') throw new Error('clear must be true or false.');
+    if (action === 'unload' && input.force !== undefined && typeof input.force !== 'boolean') throw new Error('force must be true or false.');
     return input;
 }
 
@@ -245,7 +246,7 @@ export function createArbiter(config, deps = {}) {
             if (action === 'load') {
                 backend.crashed = null;
                 await scheduler.load(input.profile ?? config.defaultProfile, { fitTarget: input.fitTarget });
-            } else if (action === 'unload') await scheduler.unload();
+            } else if (action === 'unload') return { ...(await arbiter.status()), unload: await scheduler.unload({ force: input.force === true }) };
             else if (action === 'automatic') { backend.crashed = null; scheduler.resume(); }
             else if (action === 'restore') await scheduler.restoreNow();
             else if (action === 'start-comfy') await scheduler.exclusive(startComfy);

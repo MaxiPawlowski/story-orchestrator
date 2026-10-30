@@ -41,7 +41,7 @@ export function createGateway({ arbiter, config, fetchImpl = fetch, allowOrigin 
     const memberOptions = memberCacheOptions(config);
     const members = memberCache !== undefined ? memberCache : memberOptions ? new MemberCache({ ...memberOptions, pinSlots: Boolean(slots(config)) }, { fetch: fetchImpl, baseUrl: () => arbiter.backend.url,
         snapshot: arbiter.scheduler?.snapshot ? () => arbiter.scheduler.snapshot({ fresh: true }) : null, reserves: () => config.reserves ?? {},
-        live: () => memberCacheOptions(config), ramFloorMiB: () => config.keepCacheRamFloorMiB ?? 10240 }) : null;
+        live: () => memberCacheOptions(config), ramFloorMiB: () => config.keepCacheRamFloorMiB ?? 10240, imageRamMiB: () => arbiter.scheduler?.warmImageRamMiB?.() ?? 0 }) : null;
     const membersReady = members?.init ? members.init().catch((error) => { members.lastError = error.message; }) : null;
     if (members && arbiter.scheduler) arbiter.scheduler.onImageRam = (need) => members.makeRoom(need);
     if (members && arbiter.backend) arbiter.backend.onSlotErased = (id) => members.noteOther(id);
@@ -80,7 +80,7 @@ export function createGateway({ arbiter, config, fetchImpl = fetch, allowOrigin 
             if (controls && req.method === 'POST' && route.startsWith('/control/')) {
                 const action = route.slice('/control/'.length);
                 const body = await readBody(req);
-                if (action === 'stop') { await controls.stop(); answer(res, 200, { stopped: true }); return; }
+                if (action === 'stop') { answer(res, 200, { stopped: true, ...(await controls.stop(body)) }); return; }
                 answer(res, 200, await arbiter.control(action, body));
                 return;
             }

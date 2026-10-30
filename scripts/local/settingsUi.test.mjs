@@ -57,7 +57,7 @@ test('the settings page is served same-origin with a locked-down policy and live
         assert.deepEqual(state.modes.map((row) => row.name), ['max', 'headroom', 'balanced', 'safe']);
         assert.equal(state.gpuFreeMiB, 2700);
         assert.equal(state.ramAvailableMiB, 12000);
-        assert.equal(state.knobs.length, 10);
+        assert.equal(state.knobs.length, 11);
     } finally { await app.close(); }
 });
 

@@ -47,6 +47,7 @@ export class ResidencyScheduler {
         this.residentImages = null;
         this.imagesNeedRelease = false;
         this.imageReleaseTargetMiB = null;
+        this.warmImageRam = null;
         this.freeImages = async (options = {}) => {
             this.residentImages = null;
             this.imagesNeedRelease = true;
@@ -75,6 +76,7 @@ export class ResidencyScheduler {
             this.imagesNeedRelease = false;
             this.imageReleaseTargetMiB = null;
             this.lastCacheMode = result?.mode ?? null;
+            if (this.lastCacheMode !== 'ram-warm') this.warmImageRam = null;
             return result;
         };
         this.pending = [];
@@ -729,6 +731,7 @@ export class ResidencyScheduler {
             if (!warm) try { this.observe(await this.snapshot({ fresh: true })); } catch (error) { this.lastError = error.message; }
             this.lastWorkflow = lease.workflowKey;
             this.lastCacheMode = cache?.mode ?? null;
+            this.warmImageRam = ['gpu-warm', 'ram-warm'].includes(this.lastCacheMode) && Number.isFinite(lease.needRamMiB) ? { ramMiB: lease.needRamMiB, comfyPid: this.comfyPid() } : null;
             if (lease.lightStream) await this.noteStreamLease(lease);
             else if (lease.key && lease.seenJob) {
                 this.footprints[lease.key] = observedFootprint(lease, this.footprints[lease.key], this.config.reserves);
@@ -826,11 +829,34 @@ export class ResidencyScheduler {
         });
     }
 
-    async unload() {
-        await this.exclusive(async () => { this.manualHold = true; await this.backend.unload(); });
+    async unload({ force = false, waitMs = 15000 } = {}) {
+        if (!force) { await this.exclusive(async () => { this.manualHold = true; await this.backend.unload(); }); return { forced: false }; }
+        this.manualHold = true;
+        const deadline = Date.now() + waitMs;
+        while ((this.activeText || this.restoring) && Date.now() < deadline) await new Promise((resolve) => setTimeout(resolve, 100));
+        if (this.restoring) throw new Error('A text load or residency change is still running; unload again when it ends.');
+        const interrupted = { activeText: this.activeText, imageLease: Boolean(this.lease), imagePending: Boolean(this.imagePending), imageQueued: Boolean(this.imageQueued) };
+        this.restoring = true;
+        try { await this.backend.unload(); } finally { this.restoring = false; void this.pump(); }
+        return { forced: true, interrupted };
+    }
+
+    async drainForStop(waitMs = 15000) {
+        this.manualHold = true;
+        const busy = () => this.activeText || this.restoring || this.lease || this.imagePending || this.imageQueued;
+        const deadline = Date.now() + waitMs;
+        while (busy() && Date.now() < deadline) await new Promise((resolve) => setTimeout(resolve, 100));
+        if (!busy()) return { forced: false };
+        return { forced: true, interrupted: { activeText: this.activeText, restoring: this.restoring, imageLease: Boolean(this.lease), imagePending: Boolean(this.imagePending), imageQueued: Boolean(this.imageQueued) } };
     }
 
     resume() { this.manualHold = false; void this.pump(); }
+
+    warmImageRamMiB() {
+        if (!this.warmImageRam || this.lease || this.imagePending) return 0;
+        if (this.warmImageRam.comfyPid !== this.comfyPid()) { this.warmImageRam = null; return 0; }
+        return this.warmImageRam.ramMiB;
+    }
 
     status() {
         return { phase: this.imagePending ? 'reserving' : this.lease ? 'image' : this.restoring ? 'restoring' : this.manualHold ? 'manual-hold' : 'text',
@@ -838,7 +864,7 @@ export class ResidencyScheduler {
             readPreemption: this.readPreemption?.status() ?? null, lightStream: this.lightStreamStatus(), imageWaiting: Boolean(this.imageQueued), servedText: this.servedText, fairImages: true, ramShort: this.ramShort,
             text: this.backend.status(), objective: this.config.residencyObjective ?? 'total-wait', timings: this.timings, lastTextDecision: this.lastTextDecision,
             lastDecision: this.lastDecision, lastResidency: this.lastResidency, lastNeedGpuMiB: this.lastNeedGpuMiB, measurement: this.lastMeasurement ? { ...this.lastMeasurement, trace: undefined } : null,
-            imageResidency: { mode: this.residentImages ? 'gpu-warm' : this.lastCacheMode, awaitingReclaim: this.imagesNeedRelease, releaseTargetMiB: this.imageReleaseTargetMiB, releaseFailures: this.releaseFailures ?? 0, lastReleaseGiveUp: this.lastReleaseGiveUp ?? null },
+            imageResidency: { mode: this.residentImages ? 'gpu-warm' : this.lastCacheMode, warmRamMiB: this.warmImageRamMiB(), awaitingReclaim: this.imagesNeedRelease, releaseTargetMiB: this.imageReleaseTargetMiB, releaseFailures: this.releaseFailures ?? 0, lastReleaseGiveUp: this.lastReleaseGiveUp ?? null },
             lastError: this.lastError };
     }
 }

@@ -24,11 +24,13 @@ export const KNOBS = Object.freeze([
         about: 'warm keeps ComfyUI\'s cache in RAM (next image ~20 s); evict gives that RAM back to your apps (next image starts cold, ~30-40 s).' },
     { path: 'memberCache.budgetMiB', type: 'int', min: 1024, max: 16384, step: 512, applies: 'text-load', label: 'Speaker memory cache (MiB)',
         about: 'RAM llama-server keeps for each group member\'s prepared prompt (about 1.3 GiB a member). Bigger = a returning speaker starts sooner in big groups; smaller returns that RAM to your apps.' },
+    { path: 'unloadTextOnApply', type: 'bool', applies: 'live', label: 'Unload text when this mode applies now',
+        about: 'Switching to this mode with apply-now unloads the text model instead of reloading it, so its CPU layers give their RAM back too. Pair it with Reload text automatically off: the next reply loads text again (that reply waits).' },
     { path: 'memberCache.fitRam', type: 'bool', applies: 'live+text-load', label: 'Fit the speaker cache to free RAM',
         about: 'Use the speaker cache size above as a ceiling and keep it where text, the cache and an image\'s RAM all fit (10 GiB kept for images and your apps). It shrinks when RAM gets short and grows back when RAM frees up.' },
 ]);
 
-const KNOB_DEFAULTS = Object.freeze({ keepTextResident: true, imageCacheMode: 'warm', fitMarginMiB: 0, idleRestoreMs: 0, 'streamImages.enabled': false, 'streamImages.minFreeGpuMiB': 2400, 'memberCache.budgetMiB': 6144, 'memberCache.fitRam': false });
+const KNOB_DEFAULTS = Object.freeze({ keepTextResident: true, imageCacheMode: 'warm', fitMarginMiB: 0, idleRestoreMs: 0, 'streamImages.enabled': false, 'streamImages.minFreeGpuMiB': 2400, 'memberCache.budgetMiB': 6144, 'memberCache.fitRam': false, unloadTextOnApply: false });
 
 export const PRESET_NOTES = Object.freeze({
     max: 'Only playing (default): VRAM to the measured-safe limit (GPU headroom 1 GiB, spill guard backs off on a shared-memory spill), the speaker cache grows into free RAM while 10 GiB stay free for images and your apps, full speed back after 3 idle minutes.',
@@ -38,9 +40,9 @@ export const PRESET_NOTES = Object.freeze({
 });
 
 export const PRESETS = Object.freeze({
-    max: Object.freeze({ 'reserves.gpuMiB': 1024, 'reserves.ramMiB': 2048, 'streamImages.enabled': true, 'streamImages.minFreeGpuMiB': 2400, idleRestoreMs: 180000, keepTextResident: true, fitMarginMiB: 512, imageCacheMode: 'warm', 'memberCache.budgetMiB': 12288, 'memberCache.fitRam': true }),
-    headroom: Object.freeze({ 'reserves.gpuMiB': 4096, 'reserves.ramMiB': 8192, 'streamImages.enabled': false, 'streamImages.minFreeGpuMiB': 2400, idleRestoreMs: 600000, keepTextResident: true, fitMarginMiB: 512, imageCacheMode: 'evict', 'memberCache.budgetMiB': 2048, 'memberCache.fitRam': true }),
-    safe: Object.freeze({ 'reserves.gpuMiB': 3072, 'reserves.ramMiB': 6144, 'streamImages.enabled': false, 'streamImages.minFreeGpuMiB': 2400, idleRestoreMs: 600000, keepTextResident: true, fitMarginMiB: 512, imageCacheMode: 'evict', 'memberCache.budgetMiB': 2048, 'memberCache.fitRam': false }),
+    max: Object.freeze({ 'reserves.gpuMiB': 1024, 'reserves.ramMiB': 2048, 'streamImages.enabled': true, 'streamImages.minFreeGpuMiB': 2400, idleRestoreMs: 180000, keepTextResident: true, fitMarginMiB: 512, imageCacheMode: 'warm', 'memberCache.budgetMiB': 12288, 'memberCache.fitRam': true, unloadTextOnApply: false }),
+    headroom: Object.freeze({ 'reserves.gpuMiB': 4096, 'reserves.ramMiB': 8192, 'streamImages.enabled': false, 'streamImages.minFreeGpuMiB': 2400, idleRestoreMs: 600000, keepTextResident: true, fitMarginMiB: 512, imageCacheMode: 'evict', 'memberCache.budgetMiB': 2048, 'memberCache.fitRam': true, unloadTextOnApply: false }),
+    safe: Object.freeze({ 'reserves.gpuMiB': 3072, 'reserves.ramMiB': 6144, 'streamImages.enabled': false, 'streamImages.minFreeGpuMiB': 2400, idleRestoreMs: 600000, keepTextResident: true, fitMarginMiB: 512, imageCacheMode: 'evict', 'memberCache.budgetMiB': 2048, 'memberCache.fitRam': false, unloadTextOnApply: false }),
 });
 
 const knob = (key) => KNOBS.find((row) => row.path === key);
@@ -205,7 +207,10 @@ export function createSettingsReload({ backend, scheduler, snapshot, target }) {
         if (state.sleeping && backend.dropSleeping) { await backend.dropSleeping(); text = 'dropped-sleeping'; }
         let imagesFreed = false;
         try { await scheduler().freeImages({ clear: target.imageCacheMode === 'evict' }); imagesFreed = true; } catch {}
-        if (state.pid && !state.loading && state.fitTargetMiB === null) {
+        if (state.pid && !state.loading && target.unloadTextOnApply === true) {
+            await backend.unload();
+            text = 'unloaded';
+        } else if (state.pid && !state.loading && state.fitTargetMiB === null) {
             const name = state.desiredProfile ?? state.profile;
             await backend.unload();
             await backend.load(name, { fitTarget: null });
