@@ -74,7 +74,7 @@ export function createGateway({ arbiter, config, fetchImpl = fetch, allowOrigin 
             if (controls && req.method === 'POST' && route.startsWith('/control/')) {
                 const action = route.slice('/control/'.length);
                 const body = await readBody(req);
-                if (action === 'stop') { await controls.stop(); answer(res, 200, { stopped: true }); return; }
+                if (action === 'stop') { answer(res, 200, { stopped: true, ...(await controls.stop(body)) }); return; }
                 answer(res, 200, await arbiter.control(action, body));
                 return;
             }
