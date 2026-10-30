@@ -1,0 +1,23 @@
+{
+  "frozen": "2026-10-30, before any inference (built on CPU, no model call; capture owed on a GPU window)",
+  "plan": "v3.0 00-overview D2 (v2.9 04 C2 caveat): the 2026-10-23 arms showed the event on screen, so the cue effect read 0 points (on 30/30, off 30/30). Here each event is told only through its cue.",
+  "corpus": "test/measurements/v3.0/d2-offscreen/frozen.json (40 opportunities: 30 cues, 10 no-cue; same ids, members, order and cue texts as test/measurements/v2.9/04-c2c5/frozen.json; each cue turn's narrator line is a neutral line, the event is never posted and never in the story)",
+  "arms": {
+    "on": "test/scenarios/v30-d2-offscreen-cue-on.json: characters.cues true (the shipped default)",
+    "off": "test/scenarios/v30-d2-offscreen-cue-off.json: characters.cues false; every other step identical"
+  },
+  "build": "node test/measurements/v3.0/d2-offscreen/build.mjs (from the 2026-10-23 on-arm scenario); --check fails on a hand edit; scripts/debug/d2OffscreenCorpus.test.mts guards the corpus (no event word on screen or in the story, arms differ only in the cue switch and the storage prefix)",
+  "runs": "each arm x1, same served bundle, same lane, on then off, real Artemis replies through /trigger, thinking and inner voice on, extraction pinned SCENE_NONE, images and sprites off",
+  "dump": "after each arm, copy localStorage keys so-v30-d2on-* / so-v30-d2off-* to a JSON file",
+  "pack": "the 60 replies at the 30 cue opportunities in one shuffled pack (seed 20261023), blind to arm; each item shows the cue as 'EVENT NOTE (a rating aid; the speaker may or may not have been shown it)' and the reply",
+  "rater": "opencode openai/gpt-6.1-sol, one pass: node test/measurements/v2.9/04-c2c5/rate-arms.mjs <on-dump> <off-dump> test/measurements/v3.0/d2-offscreen/frozen.json <out-dir> so-v30-d2 (prompt frozen in that script)",
+  "measures": {
+    "U_on": "U=yes among the 30 on-arm replies",
+    "U_off": "U=yes among the 30 off-arm replies (expected near 0: the event is nowhere in that arm's prompt)",
+    "cue_effect": "U_on - U_off in percentage points",
+    "C5_both": "P=yes over all 60"
+  },
+  "floor": "none predeclared for U_off or the effect (plan 04 C2 floor >= 80 % applies to U_on only; C5 floor 0); informational, never retuned",
+  "offered_check": "on arm: receipts offered at every cue opportunity, 0 on no-cue turns; off arm: 0 receipts",
+  "estimate": "80 replies (40 per arm) plus one rating pass; about the 2026-10-23 arm pair's wall time"
+}
