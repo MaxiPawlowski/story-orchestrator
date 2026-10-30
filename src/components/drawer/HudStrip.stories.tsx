@@ -396,3 +396,37 @@ export const StoryCardOnAPhone: Story = {
     await expect(page.scrollWidth).toBeLessThanOrEqual(page.clientWidth);
   },
 };
+
+export const StoryCardSkipAhead: Story = {
+  args: { snapshot: baseSnapshot({ ...cardSnapshot(), skip: { enabled: true, reason: null } }), card: { ...cardArgs(), panels: ["journal"], skip: fn() } },
+  parameters: { a11y: { element: "#so-hud-root" } },
+  play: async ({ args, canvasElement }) => {
+    await userEvent.click(canvasElement.querySelector("#so-hud-main") as HTMLElement);
+    const card = await within(canvasElement).findByRole("dialog");
+    const skip = within(card).getByRole("button", { name: "Skip ahead" });
+    await expect(skip).toBeEnabled();
+    await userEvent.click(skip);
+    await expect(args.card?.skip).toHaveBeenCalledTimes(1);
+    await expect(canvasElement.querySelector("#so-hud-card")).toBeNull();
+  },
+};
+
+export const StoryCardSkipAheadWaits: Story = {
+  args: { snapshot: baseSnapshot({ ...cardSnapshot(), skip: { enabled: false, reason: "Wait for the reply to finish, then skip ahead." } }), card: { ...cardArgs(), panels: ["journal"], skip: fn() } },
+  play: async ({ canvasElement }) => {
+    await userEvent.click(canvasElement.querySelector("#so-hud-main") as HTMLElement);
+    const card = await within(canvasElement).findByRole("dialog");
+    const skip = within(card).getByRole("button", { name: "Skip ahead" });
+    await expect(skip).toBeDisabled();
+    await expect(skip).toHaveAttribute("title", "Wait for the reply to finish, then skip ahead.");
+  },
+};
+
+export const StoryCardSkipAheadOff: Story = {
+  args: { snapshot: baseSnapshot({ ...cardSnapshot(), skip: null }), card: { ...cardArgs(), panels: ["journal"], skip: fn() } },
+  play: async ({ canvasElement }) => {
+    await userEvent.click(canvasElement.querySelector("#so-hud-main") as HTMLElement);
+    await within(canvasElement).findByRole("dialog");
+    await expect(canvasElement.querySelector("#so-hud-card-skip")).toBeNull();
+  },
+};

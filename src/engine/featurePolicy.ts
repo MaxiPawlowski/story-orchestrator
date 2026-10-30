@@ -30,6 +30,7 @@ export const FEATURE_POLICY_FIELDS = {
   witness: { enabled: toggle },
   rumors: { enabled: toggle },
   echoes: { enabled: toggle },
+  skip: { enabled: toggle },
   patterns: { enabled: toggle },
   meanwhile: { enabled: toggle, acceptMode: choice("auto", "review") },
   living: { enabled: toggle },

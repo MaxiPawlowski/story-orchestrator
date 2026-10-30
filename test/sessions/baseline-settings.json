@@ -108,7 +108,8 @@
         "enabled": true,
         "max": 3
       },
-      "keepLastQuestion": true
+      "keepLastQuestion": true,
+      "skipAhead": false
     },
     "stagecraft": {
       "curatorEnabled": true,

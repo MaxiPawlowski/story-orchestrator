@@ -68,7 +68,7 @@ export interface GlobalSettings {
   };
   copilot: CopilotRuntimeSettings;
   memory: MemoryRuntimeSettings;
-  talk: { enabled: boolean; chain: TalkChainSettings; keepLastQuestion: boolean };
+  talk: { enabled: boolean; chain: TalkChainSettings; keepLastQuestion: boolean; skipAhead: boolean };
   stagecraft: StagecraftSettings;
   judge: JudgeSettings;
   worldInfo: WorldInfoSettings;
@@ -246,7 +246,7 @@ export const defaultGlobalSettings = (): GlobalSettings => ({
   },
   copilot: { enabled: true, ask: true },
   memory: defaultMemorySettings(),
-  talk: { enabled: true, chain: { enabled: true, max: TALK_CHAIN_MAX_DEFAULT }, keepLastQuestion: true },
+  talk: { enabled: true, chain: { enabled: true, max: TALK_CHAIN_MAX_DEFAULT }, keepLastQuestion: true, skipAhead: false },
   stagecraft: defaultStagecraftSettings(),
   judge: defaultJudgeSettings(),
   worldInfo: defaultWorldInfoSettings(),
@@ -281,7 +281,7 @@ const sanitizeTalkChain = (value: unknown): TalkChainSettings => {
 
 const sanitizeTalkSettings = (value: unknown): GlobalSettings["talk"] => {
   const source = isRecord(value) ? value : {};
-  return { enabled: source.enabled !== false, chain: sanitizeTalkChain(source.chain), keepLastQuestion: source.keepLastQuestion !== false };
+  return { enabled: source.enabled !== false, chain: sanitizeTalkChain(source.chain), keepLastQuestion: source.keepLastQuestion !== false, skipAhead: source.skipAhead === true };
 };
 
 const LIVING_FLAGS = ["livingEnabled", "branchingEnabled", "prefetchEnabled"] as const;

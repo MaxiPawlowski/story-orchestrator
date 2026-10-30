@@ -50,6 +50,7 @@ import { createRecapPort } from "./recapPort";
 import { createPatternsPort, patternHints, patternResting, reconcilePatternsOnUpdate } from "./patternsPort";
 import { createCarryActions } from "./carryPort";
 import { wireSpeech } from "./speechWiring";
+import { createSkipPort } from "./skipPort";
 import { gameLayer } from "@engine/validate/gameLayer";
 
 const reconcileWith = (read: () => RuntimeExtras) => (previous: NormalizedStory, next: NormalizedStory): void => {
@@ -189,6 +190,9 @@ function storyUpdateDepsFor(port: ManagerPort, expansion: ExpansionCoordinator, 
     reconcile,
   };
 }
+
+const wireSkip = (port: ManagerPort, pacing: PacingCoordinator, speech: ReturnType<typeof wireSpeech>, game: ReturnType<typeof createGamePort>) =>
+  createSkipPort(port, { direct: (member, text) => pacing.armDirection(member, text), speech: speech.speech, outcomePending: () => game.outcomeBlock() !== null });
 
 export function wireCoordinators(port: ManagerPort) {
   const { view, lifecycle, engine } = port;
@@ -337,6 +341,6 @@ export function wireCoordinators(port: ManagerPort) {
   const storyUpdateDeps = storyUpdateDepsFor(port, expansion, living, patternsWiring.reconcile);
   return {
     memory, expansion, extraction, pacing, stagecraft, copilot, inner, game, meanwhile, living, rollbackDeps, storyUpdateDeps, recap, patterns, promises, witness, rumors,
-    carry, narrator, delivery, cues, echoes, polish: { port, memory }, speech,
+    carry, narrator, delivery, cues, echoes, polish: { port, memory }, speech, skip: wireSkip(port, pacing, speech, game),
   };
 }

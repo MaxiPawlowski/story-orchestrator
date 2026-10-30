@@ -18,6 +18,8 @@ const control = (field: string, path: string, label: string): FeatureControl => 
 const enabled = (path: string) => control("enabled", path, "Enabled");
 const mode = (path: string) => control("acceptMode", path, "Application policy");
 
+export const OFF_UNTIL_RATED: readonly StoryFeatureId[] = ["skip"];
+
 export const FEATURE_CONTROLS: Record<StoryFeatureId, FeatureControls> = {
   reading: { name: "Story reading",
     area: "Memory",
@@ -67,6 +69,10 @@ export const FEATURE_CONTROLS: Record<StoryFeatureId, FeatureControls> = {
     description: "Allows several characters to answer before returning to you.",
     controls: [enabled("talk.chain.enabled"),
       control("max", "talk.chain.max", "Maximum voices per turn")] },
+  skip: { name: "Skip ahead",
+    area: "Story direction",
+    description: "Lets you skip travel, waiting or routine: the narrator tells the time passing in one reply and stops where you are needed.",
+    controls: [enabled("talk.skipAhead")] },
   inner: { name: "Private inner voice",
     area: "Characters",
     description: "Prepares private intent for the next speaker and reads reply reasoning.",

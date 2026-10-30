@@ -185,6 +185,10 @@ async function storyCommand(manager: RuntimeManager, value: string | string[]) {
     await manager.flagMoment(parts.slice(1).join(" "));
     return show("Flagged this moment.");
   }
+  if (command === "skip") {
+    const outcome = await manager.skipAhead();
+    return outcome.ok ? "" : show(outcome.reason);
+  }
   if (command === "chapters" || command === "chapter" || command === "chronicle") return (await loadChapterKit()).chapterSlash(manager, command, parts[1], dump, show);
   return dump(storyHelpText());
 }

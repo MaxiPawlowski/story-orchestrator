@@ -240,6 +240,15 @@ const CORE_FEATURES: readonly Feature[] = [
     settings: ["talk.keepLastQuestion"], guideTopic: "npc-replies", doc: "player/playing.md", status: "shipped", needs: ["group-chat", "story"],
   },
   {
+    id: "skip-ahead", name: "Skip ahead", area: "characters", audience: "player",
+    oneLine: "Skip travel, waiting or routine: one narrator reply tells the time passing and stops where you are needed.",
+    what: "Skip ahead on the story card, or /story skip, asks the story's narrator (or the scene's lead) for one reply that tells the time passing, "
+      + "up to the next part of the day at most, and stops early when something needs you. It never decides for you and never reveals what you have not seen. "
+      + "A swipe of that reply keeps the skip; your next message ends it. Off until its blind rating passes.",
+    where: featureAt("skip", "enabled", "Skip ahead"),
+    settings: ["talk.skipAhead"], guideTopic: "objective-agency", doc: "player/playing.md", status: "off-by-default", needs: ["group-chat", "story"],
+  },
+  {
     id: "private-knowledge", name: "Private knowledge", area: "characters", audience: "author",
     oneLine: "Tracks who knows what, so characters do not know things they never saw.",
     what: "The memory model also notes what each character knows, suspects or hides. Each character's prompt carries only its own knowledge, so secrets stay secret.",
@@ -463,7 +472,7 @@ const POLICY_TARGETS: Record<string, [import("@engine/featurePolicy").StoryFeatu
   "curator-create": ["curator", "create"], "curator-markers": ["curator", "acceptMode"], sprites: ["sprites", "enabled"],
   "meanwhile-proposals": ["meanwhile", "acceptMode"], "living-story": ["living", "enabled"], "story-branching": ["branching", "enabled"],
   "witness-record": ["witness", "enabled"], rumors: ["rumors", "enabled"], "story-patterns": ["patterns", "enabled"],
-  "reactive-cues": ["cues", "enabled"], "delayed-echoes": ["echoes", "enabled"],
+  "reactive-cues": ["cues", "enabled"], "delayed-echoes": ["echoes", "enabled"], "skip-ahead": ["skip", "enabled"],
 };
 
 export const SOURCE_FEATURES: readonly Feature[] = [

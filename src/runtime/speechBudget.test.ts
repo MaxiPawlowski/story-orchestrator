@@ -49,6 +49,17 @@ describe("v3.0 19 stage 2: the shared speech budget", () => {
     expect(made.events().map((event) => [event.origin, event.messageId, event.generated])).toEqual([["entry", 1, false], ["npc", 2, false], ["npc", null, true]]);
   });
 
+  it("v3.0 32: a player's skip is not held by the budget a send used up, and its row is recorded like any voice", () => {
+    const made = setup(TWO, [{ name: "Rook", mes: "Go.", is_user: true }]);
+    made.post("Narrator");
+    made.post("Mara");
+    expect(made.budget.reserve(request("Finn"))).toBeNull();
+    const skip = made.budget.reserve(request("Narrator", { origin: "skip" }));
+    expect(skip).not.toBeNull();
+    made.budget.settle(skip, made.post("Narrator"));
+    expect(made.events().map((event) => [event.origin, event.messageId])).toEqual([["skip", 3]]);
+  });
+
   it("generations run out before voices when attempts are tighter", () => {
     const made = setup(resolveTalkPolicy({ control: { budget: { voices: 3, attempts: 3 } }, chainMax: 3, activeReplies: false }), [{ name: "Rook", mes: "Go.", is_user: true }]);
     made.post("Narrator");

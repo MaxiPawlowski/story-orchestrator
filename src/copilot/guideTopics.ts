@@ -136,7 +136,9 @@ export const GUIDE_TOPICS = {
     text: "agency.objective_kind: world_pressure (the world presses and escalates on its own) or player_action (the world sets up the choice and stops; the player acts). "
       + "Defaults protect the player: narration never writes the player accepting, refusing or acting, nor decides what they feel or conclude. "
       + "alternate names a beat to recover to when the player refuses the route "
-      + "(never the beat itself). player_attempts_only makes the world decide whether the player's attempt works. objective_block: off stops the objective line being injected.",
+      + "(never the beat itself). player_attempts_only makes the world decide whether the player's attempt works. "
+      + "skip: false takes Skip ahead away at this beat (a skip is one narrator reply up to the next day part, stopping early when something falls due). "
+      + "objective_block: off stops the objective line being injected.",
   },
   "open-stretches": {
     title: "Open stretches",

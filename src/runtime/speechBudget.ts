@@ -53,7 +53,7 @@ export class SpeechBudget {
 
   reserve(request: SpeechRequest): SpeechReservation | null {
     const usage = this.usage();
-    const budget = usage.send >= 0 ? usage.budget : null;
+    const budget = usage.send >= 0 && request.origin !== "skip" ? usage.budget : null;
     if (budget && usage.voices >= budget.voices) return this.refuse(request, `this player message already has ${usage.voices} of its ${budget.voices} voice(s)`);
     if (budget && request.generated && usage.attempts >= budget.attempts) {
       return this.refuse(request, `this player message already used ${usage.attempts} of its ${budget.attempts} generation(s)`);

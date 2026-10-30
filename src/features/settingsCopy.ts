@@ -239,6 +239,11 @@ export const SETTING_COPY = {
     "When a character is told to turn to you with one question, such as the line right after a story's opening, and the reply asks several, "
       + "only the last question is kept and the rest of the line stays as written. A reply the trim would break is left alone, and thinking is never changed.",
   ),
+  "talk.skipAhead": copy(
+    "Let me skip ahead",
+    "Adds Skip ahead to the story card and /story skip: the narrator tells travel, waiting or routine in one reply, up to the next part of the day, "
+      + "and stops where you are needed. One reply per skip. Off until its blind rating passes.",
+  ),
   "talk.chain.max": copy(
     "Voices per turn at most",
     "The most characters that may answer one of your messages. Higher makes busier scenes and longer waits.",

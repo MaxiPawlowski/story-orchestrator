@@ -133,6 +133,7 @@ export interface SnapshotSources {
   generating?: boolean;
   cuesAuthor?: import("./cuePort").CuesAuthorView | null;
   echoesAuthor?: import("@engine/life/echoView").EchoAuthorView | null;
+  skip?: import("./skipGate").SkipView | null;
 }
 
 export interface SnapshotPort {
@@ -157,6 +158,7 @@ export interface SnapshotPort {
   generating?: boolean;
   cues?: Pick<import("./cuePort").CuePort, "authorView">;
   echoes?: Pick<import("./echoPort").EchoPort, "authorView">;
+  skip?: Pick<import("./skipPort").SkipPort, "view">;
 }
 
 export const snapshotSources = (port: SnapshotPort): SnapshotSources => ({
@@ -191,6 +193,7 @@ export const snapshotSources = (port: SnapshotPort): SnapshotSources => ({
   generating: port.generating,
   cuesAuthor: port.cues?.authorView(port.extras.ui.authorView),
   echoesAuthor: port.echoes?.authorView(port.extras.ui.authorView),
+  skip: port.loaded ? port.skip?.view(port.generating) ?? null : null,
 });
 
 const routeGaps = () => {
@@ -491,7 +494,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     memory: extras.memory, memoryShown: shownRows(extras.memory.entries, sources.resting ?? ((text: string) => text)),
     chapters,
     promises: promisesSlice(story, extras, blackboard),
-    rumorsAuthor: rumorAuthorSlice(story, extras), ...patternSlices(story, extras, state, sources), cuesAuthor: sources.cuesAuthor, echoesAuthor: sources.echoesAuthor,
+    rumorsAuthor: rumorAuthorSlice(story, extras), ...patternSlices(story, extras, state, sources), cuesAuthor: sources.cuesAuthor, echoesAuthor: sources.echoesAuthor, skip: sources.skip,
     pacing: extras.pacing,
     copilot: extras.copilot,
     ui: extras.ui,

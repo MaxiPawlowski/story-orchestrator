@@ -40,6 +40,10 @@ export function AgencyEditor({ policy, checkpoints, onChange }: AgencyEditorProp
         <input data-so="agency-attempts-only" type="checkbox" checked={Boolean(effective.player_attempts_only)} onChange={(event) => patch({ player_attempts_only: event.target.checked })} />
         <span>The player&apos;s message is an attempt; the world decides whether it works</span>
       </label>
+      <label className="flex items-center gap-2 text-xs">
+        <input data-so="agency-skip" type="checkbox" checked={effective.skip !== false} onChange={(event) => patch({ skip: event.target.checked ? undefined : false })} />
+        <span>The player may skip ahead here</span>
+      </label>
       <label className="flex flex-col gap-1 text-xs">
         <span>If the player refuses the route here</span>
         <select data-so="agency-alternate" className="text_pole st-input" value={effective.alternate ?? ""} onChange={(event) => patch({ alternate: event.target.value || undefined })}>

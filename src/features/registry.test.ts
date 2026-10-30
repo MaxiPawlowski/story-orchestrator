@@ -235,7 +235,7 @@ describe("v2.7 plan 01 UI copy", () => {
 
 describe("v2.7 plan 01 slash help", () => {
   it("lists every /story verb, help included", () => {
-    expect(STORY_VERBS.map((entry) => entry.verb)).toEqual(["recap", "threads", "intro", "who", "quests", "chapters", "chapter", "chronicle", "flag", "guide", "tour", "ask", "help"]);
+    expect(STORY_VERBS.map((entry) => entry.verb)).toEqual(["recap", "threads", "intro", "who", "quests", "chapters", "chapter", "chronicle", "flag", "skip", "guide", "tour", "ask", "help"]);
     for (const entry of STORY_VERBS) expect(STORY_HELP_STRING).toContain(entry.what);
     expect(SO_MEM_HELP_STRING).not.toMatch(/\bv2\b/);
   });

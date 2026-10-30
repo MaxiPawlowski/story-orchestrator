@@ -109,6 +109,17 @@ where you type; nothing is sent until you send it, and it never replaces somethi
 asks again. It calls the model only when you open it. A story can switch it off, and so can you in **Orchestrator →
 Interface**.
 
+## Skipping ahead
+
+Travel, waiting and routine do not have to be played turn by turn. **Skip ahead** on the story card (click the scene
+name above the chat box), or `/story skip`, asks the story's narrator for one reply that tells the time passing. It goes
+to the next part of the day at most (morning to afternoon, say); for longer gaps, skip again. When something is due on
+the way, the reply stops there instead. It never decides, says or feels anything for you and never shows what you have
+not seen. A swipe of that reply keeps the skip; your next message ends it. It waits while a reply is being written,
+before the story's first reply and while a check's outcome is still to be told, and an author can switch it off at a
+scene. It is off until its blind rating passes: switch it on in **Orchestrator → Defaults → Skip ahead** (then
+**This story → Features** can switch it off for one chat).
+
 ## Asking a question
 
 `/story ask <question>` answers questions about Story Orchestrator and about the story you are playing: "how do I pin a
@@ -196,6 +207,7 @@ Type these in the chat box. None of them spoil anything.
 | `/story who` | Who you play in this story. |
 | `/story quests` | The quests you have found and where each stands. |
 | `/story flag [note]` | Marks this moment for the author to look at. |
+| `/story skip` | Skips ahead: the narrator tells the time passing, up to the next part of the day, and stops where you are needed. |
 | `/story guide [page]` | Opens this guide inside SillyTavern, at a page such as `player/memory`. |
 | `/story ask <question>` | Answers a question about the plugin or the story, from what you have already played. |
 | `/story tour [player\|author\|setup]` | Opens the guided tour. |
