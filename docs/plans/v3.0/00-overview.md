@@ -233,15 +233,15 @@ State column below is current, the 2026-10-26 lines are history. 18-21 on master
 | 20 | Visual bridge: identity/place packs, style recipe, resolver, default Qwen recipe, background renders | master | stages 1+2 merged (`3cea7708`); Qwen vs SDXL and background renders wait for the owner (2026-10-29) |
 | 21 | Image fixes from playtest 1 | master | done (`2403c70f`, `f96dabda`, `d12deead`) |
 | 25 | Read facts tier below floor on Artemis (`25-read-facts-tier.md`) | master | 2026-10-28: cause = the model writes facts as MEMORY lines, never FACT; prompt candidate A not adopted (rating format -0.267, intents precision < 0.8 on live x2); owner Q1+Q3 done (`v3.0-facts-count`): scorer v3 facts tier = product facts tier, offline rescore 8/20 -> 14/20 (floor 0.68 unchanged); parser keeps hybrid FACT lines (stored-output bug fix, rejected 35 -> 36/36); live suite x2 owed after the controller benchmark; Q2 open |
-| 30 | Harvest plans index 2026-10-30 (`30-harvest-index.md`, review `30-review-sol.md`) | branch `v3.0-harvest-plans` | PLANNED 2026-10-30 |
-| 31 | Outward narration and swipe contrast (`31-outward-narration-and-swipe-contrast.md`) | branch `v3.0-harvest-plans` | PLANNED 2026-10-30 |
-| 32 | Player-chosen skip ahead (`32-player-skip-ahead.md`) | branch `v3.0-harvest-plans` | PLANNED 2026-10-30 |
-| 33 | Deferred threads stop being pushed (`33-deferred-threads.md`) | branch `v3.0-harvest-plans` | PLANNED 2026-10-30 |
-| 34 | Place and time grounding (`34-place-and-time-grounding.md`) | branch `v3.0-harvest-plans` | PLANNED 2026-10-30 |
-| 35 | Here now tab and story-time spans (`35-here-now-and-last-seen.md`) | branch `v3.0-harvest-plans` | PLANNED 2026-10-30 |
-| 36 | Author secret grid and read failures per model (`36-author-secret-grid-and-read-health.md`) | branch `v3.0-harvest-plans` | PLANNED 2026-10-30 |
-| 37 | Honest pipeline and feature cost rows (`37-honest-pipeline-and-feature-rows.md`) | branch `v3.0-harvest-plans` | PLANNED 2026-10-30 |
-| 38 | Side-pass hygiene bundle (`38-side-pass-hygiene.md`) | branch `v3.0-harvest-plans` | PLANNED 2026-10-30 |
+| 30 | Harvest plans index 2026-10-30 (`30-harvest-index.md`, review `30-review-sol.md`) | master | PLANNED 2026-10-30 |
+| 31 | Outward narration and swipe contrast (`31-outward-narration-and-swipe-contrast.md`) | master | PLANNED 2026-10-30 |
+| 32 | Player-chosen skip ahead (`32-player-skip-ahead.md`) | master | PLANNED 2026-10-30 |
+| 33 | Deferred threads stop being pushed (`33-deferred-threads.md`) | master | PLANNED 2026-10-30 |
+| 34 | Place and time grounding (`34-place-and-time-grounding.md`) | master | PLANNED 2026-10-30 |
+| 35 | Story-time spans (Here now tab → plan 29) (`35-here-now-and-last-seen.md`) | master | PLANNED 2026-10-30 |
+| 36 | Read failures per model (secret grid → plan 29) (`36-author-secret-grid-and-read-health.md`) | master | PLANNED 2026-10-30 |
+| 37 | Honest pipeline and feature cost rows (`37-honest-pipeline-and-feature-rows.md`) | master | OWNED BY 29 (`491e6e22`), not built here |
+| 38 | Side-pass hygiene bundle (`38-side-pass-hygiene.md`) | master | PLANNED 2026-10-30 |
 
 Research for 18-21: `research/image-audit-2026-10-26.md`, `image-astra-2026-10-26.md`, `image-astra-prep-bridge-2026-10-26.md`,
 `talk-pacing-review-2026-10-26.md`, `talk-astra-2026-10-26.md`. Campaign hook placement: private, `adolion-campaign/docs/talk-hooks-plan-2026-10-26.md`.

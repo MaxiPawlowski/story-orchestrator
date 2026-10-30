@@ -1,5 +1,7 @@
 # v3.0 36 — Author view: who knows which secret, and read failures per model
 
+**Ownership 2026-10-30:** the Author who-knows-what grid is owned by plan 29 (folded in `491e6e22`); this plan keeps only the per-model read-failure health rows and the kept-out-member-on-stage alert data.
+
 **Status: PLANNED 2026-10-30** (harvest 2026-10-30, index `30-harvest-index.md`; revised after `30-review-sol.md`).
 Nothing built. Size: M. Author view only; lands in 29's author surfaces (decision 10).
 

@@ -1,5 +1,7 @@
 # v3.0 37 — Say what the story is waiting on, and what each feature costs
 
+**Ownership 2026-10-30:** owned by plan 29 (folded in `491e6e22`: read-wait in Try again, feature rows naming model and writes). Do not build here; kept as the design record for 29.
+
 **Status: PLANNED 2026-10-30** (harvest 2026-10-30, index `30-harvest-index.md`; revised after `30-review-sol.md`).
 Nothing built. Size: S-M. Input to 29 phase 2 (HUD card status row, FeatureList); build inside those work packages.
 

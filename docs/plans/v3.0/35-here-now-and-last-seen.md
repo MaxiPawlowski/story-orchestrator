@@ -1,5 +1,7 @@
 # v3.0 35 — "Here now" sheet tab and story-time spans
 
+**Ownership 2026-10-30:** the Here now tab is owned by plan 29 (folded in `491e6e22`); this plan keeps only the story-time spans on chapter cards and the away recap.
+
 **Status: PLANNED 2026-10-30** (harvest 2026-10-30, index `30-harvest-index.md`; revised after `30-review-sol.md`:
 "last seen" parked). Nothing built. Size: S. Rides 29 phase 2 (story sheet tab bodies).
 
