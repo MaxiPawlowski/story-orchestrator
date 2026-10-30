@@ -43,14 +43,16 @@ const AREAS = [...new Set(STORY_FEATURE_IDS.map((id) => FEATURE_CONTROLS[id].are
 
 export const featureControlId = (feature: StoryFeatureId, field: string): string => `so-feature-${feature}-${field}`;
 
-const specOf = (feature: StoryFeatureId, field: string): PolicyField => (FEATURE_POLICY_FIELDS[feature] as Record<string, PolicyField>)[field];
+const specOf = (feature: StoryFeatureId, field: string, value: FeaturePolicyValue): PolicyField | null =>
+  (FEATURE_POLICY_FIELDS[feature] as Partial<Record<string, PolicyField>>)[field] ?? (typeof value === "boolean" ? { kind: "boolean" } : null);
 
 const ControlInput = ({ feature, control, value, disabled, describedBy, onChange }: {
   feature: StoryFeatureId; control: FeatureControl; value: FeaturePolicyValue; disabled: boolean; describedBy?: string;
   onChange: (value: FeaturePolicyValue) => void;
 }) => {
   const id = featureControlId(feature, control.field);
-  const spec = specOf(feature, control.field);
+  const spec = specOf(feature, control.field, value);
+  if (!spec) return null;
   if (spec.kind === "boolean") return <Switch id={id} checked={value === true} disabled={disabled} describedBy={describedBy} onChange={onChange} />;
   if (spec.kind === "number") {
     return <TextInput id={id} type="number" size="xs" min={spec.min} max={spec.max} step={1} value={Number(value)} disabled={disabled} aria-describedby={describedBy}

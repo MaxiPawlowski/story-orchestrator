@@ -11,10 +11,13 @@ export interface PlayerOverviewProps {
   onReread?: () => void;
   onRestart?: () => void;
   onRetry?: () => void;
+  setupCovers?: boolean;
   children?: ReactNode;
 }
 
 const ATTENTION_STATES = new Set(["stalled-rechecking", "error", "not-configured"]);
+
+export const SETUP_COVERS_TEXT = "Paused until the setup below is fixed.";
 
 export const chapterChip = (snapshot: Pick<RuntimeSnapshot, "chapters">, headline: string): string | null => {
   const current = snapshot.chapters?.declared ? snapshot.chapters.current : null;
@@ -43,12 +46,13 @@ const MissingRequirements = ({ snapshot }: { snapshot: RuntimeSnapshot }) => {
   );
 };
 
-export const PlayerOverview = ({ snapshot, onOpenSettings, onReread, onRestart, onRetry, children }: PlayerOverviewProps) => {
+export const PlayerOverview = ({ snapshot, onOpenSettings, onReread, onRestart, onRetry, setupCovers = false, children }: PlayerOverviewProps) => {
   const { narrative, pipeline } = snapshot;
   const now = narrative.sections.find((section) => section.id === "now")?.lines ?? [];
   const headline = narrative.headline || now[0] || PLAYER_COPY.currentScene;
   const lines = now.filter((line) => line !== headline);
   const chip = chapterChip(snapshot, headline);
+  const covered = setupCovers && pipeline.needsSetup;
   const notes = (narrative.sections.find((section) => section.id === "status")?.lines ?? []).filter((line) => line !== pipeline.text);
   return (
     <section id="so-player-overview" data-so="scene-header" className="so-scene" aria-labelledby="so-scene-title">
@@ -58,11 +62,11 @@ export const PlayerOverview = ({ snapshot, onOpenSettings, onReread, onRestart, 
       </header>
       {lines.map((line) => <p key={line} className="so-scene-line">{line}</p>)}
       <div id="so-pipeline-status" className="so-scene-status" data-state={pipeline.state}>
-        <span id={ATTENTION_STATES.has(pipeline.state) ? "so-stall-signal" : undefined}>{statusSentence(pipeline)}</span>
+        <span id={ATTENTION_STATES.has(pipeline.state) ? "so-stall-signal" : undefined}>{covered ? SETUP_COVERS_TEXT : statusSentence(pipeline)}</span>
         {pipeline.retryable && onRetry && (
           <Button id="so-pipeline-retry" size="sm" icon="fa-rotate" onClick={onRetry}>{PLAYER_COPY.retryButton}</Button>
         )}
-        {pipeline.needsSetup && onOpenSettings && (
+        {pipeline.needsSetup && !covered && onOpenSettings && (
           <Button id="so-open-story-settings" size="sm" icon="fa-gear" onClick={onOpenSettings}>{PLAYER_COPY.openSettingsButton}</Button>
         )}
         {notes.map((line) => <span key={line} data-so="status-note">{line}</span>)}

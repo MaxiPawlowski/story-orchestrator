@@ -120,17 +120,18 @@ export default function PlayPage({ snapshot, manager, settingsHost, drawerProps,
   const active = tabs.find((tab) => tab.id === picked) ?? tabs[0];
   const jump = (messageId: number) => { onClose(); drawerProps.onJumpToMessage?.(messageId); };
   const suggestions = chatPanelsShown(snapshot).includes("suggestions");
+  const findings = playFindings(snapshot);
   return (
     <section className="so-play" data-so="play-page" data-state={empty?.kind ?? "playing"}>
       {empty && <h2 className="so-scene-title">{empty.heading}</h2>}
       {snapshot.chatIdentity?.kind === "branch" && onContinueBranch && <BranchNotice identity={snapshot.chatIdentity} onContinue={onContinueBranch} />}
       {snapshot.ready && (
         <PlayerOverview snapshot={snapshot} onOpenSettings={drawerProps.onOpenSettings} onReread={() => void manager.runExtractionNow(undefined, "recovery")}
-          onRetry={() => void manager.retryExtraction()} onRestart={() => setConfirming(true)}>
+          onRetry={() => void manager.retryExtraction()} onRestart={() => setConfirming(true)} setupCovers={findings.blocks.length > 0}>
           {imageQuick}
         </PlayerOverview>
       )}
-      <SetupSection findings={playFindings(snapshot)} authorView={snapshot.ui.authorView} beforeStart={snapshot.boundary === 0} open={control === SETUP_CONTROL}
+      <SetupSection findings={findings} authorView={snapshot.ui.authorView} beforeStart={snapshot.boundary === 0} open={control === SETUP_CONTROL}
         onShowMe={drawerProps.onShowMe} onFix={drawerProps.onFix} onDismiss={(id, dismissed) => manager.setCheckDismissed(id, dismissed)} />
       {snapshot.ready ? <>
         {snapshot.playerSetup && <Lazy fallback={null}><YourCharacter snapshot={snapshot} /></Lazy>}
