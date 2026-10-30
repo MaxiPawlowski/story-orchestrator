@@ -10,8 +10,8 @@ Read before working:
 4. `.claude/rules/gotchas.md` and `.claude/rules/debug-scripts.md`: before any live or browser work.
 5. `.claude/skills/debug/SKILL.md`: the live harness (`scripts/debug/*.mts`). `.claude/skills/st-*`: SillyTavern know-how.
 
-Current work: **v2.8**. The ordered list of open fixes, features and measurements is `docs/plans/v2.8/32-queue.md`;
-step-by-step tasks for a codex run are in `docs/plans/v2.8/37-codex-handoff.md`. v2.7 is wrapped (symbolic).
+Current work: **v3.0**. GPU and CPU queue: `docs/plans/v3.0/gpu-queue-2026-10-30.md`; UI rework:
+`docs/plans/v3.0/29-ui-rework.md`. v2.8 and v2.9 are closing; v2.7 is wrapped (symbolic).
 
 ## Owner and product
 

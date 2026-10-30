@@ -476,6 +476,31 @@ Follow-up candidates found here (not built):
 - Media jobs: count unreachable ComfyUI polls toward the 60 s dropped timer, so a dead ComfyUI fails the job.
 - Light sleep and the Max GPU reserve: decided and built, see §Light-sleep admission change.
 
+### Follow-ups built 2026-10-30 (CPU only, every one off by default, unbenched)
+
+The three §Verdict candidates. None changes the candidate L config or any preset, so the W1 recipe and the adoption keys
+above are unchanged; each needs a bench arm before it is switched on.
+- M5, `memberCache.fitImageCacheRam` (boolean, live). The scheduler remembers the RAM need of the last warm render
+  (`warmImageRamMiB()`, `/status` `imageResidency.warmRamMiB`): set when a release leaves the cache `gpu-warm` or
+  `ram-warm`, kept by a release to RAM, forgotten by an evicting release, a ComfyUI pid change, and read as 0 during a
+  lease or a pending reserve. With the switch on, `refit` adds it to the available RAM it fits against, capped at the
+  staging part of the floor (`keepCacheRamFloorMiB - reserves.ramMiB`, 8,192 on Max); `lastRefit.imageCreditMiB` records
+  it. Image admission still trims first (`trimForImage`), so the worst case is a trim before the next image. Bench arm:
+  B4 on L with the switch on, floor M5 (a returning hit after 2 of 3 images) and M1 (RAM outside leases) together.
+- H1, mode knob `unloadTextOnApply` (boolean, applies live; `false` in max, headroom and safe). An apply-now switch into
+  a mode with it unloads loaded text instead of reloading it (`lastApply.text 'unloaded'`), so the 2.4 GiB of CPU layers
+  return their RAM too. Pair with `keepTextResident: false`, or the automatic reload brings text back. Owner question
+  (plan 10 §Unresolved, "headroom targets or unload text"): set it in the headroom preset or keep the reload.
+- M4, local judge placement. `judge.mjs start` with `SO_JUDGE_LOCAL_GPU_LAYERS` probes the controller
+  (`SO_LOCAL_CONTROLLER_URL`, default `http://127.0.0.1:18888/health`) and starts on the CPU while it answers, saying
+  why; `SO_JUDGE_LOCAL_GPU_FORCE=1` takes the layers anyway. Counting the judge's VRAM in the reserve was not built
+  (the controller has no reading of it); this is the "or it stays on the CPU" half.
+- Tests: `scripts/local/maxFollowups.test.mjs` (5: credit off by default and validated, credit keeps the surviving
+  states and is capped, scheduler warm RAM set/kept/forgotten, unload-on-apply vs reload, judge placement four ways);
+  `settingsUi.test.mjs` knob count 10 -> 11.
+- Docs: `scripts/local/README.md` (three bullets, modes table row). `docs/guide/setup/judge.md` gains the force variable
+  at adoption (generated guide bundle, C-DOC2).
+
 ## Gate record
 
 Offline handover 2026-10-28 (worktree `C:\dev\so-a2`, no GPU used, live controller, `config.json` and tray untouched):
