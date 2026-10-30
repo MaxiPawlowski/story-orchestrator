@@ -2,7 +2,8 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { expect, fn, userEvent, waitFor, within } from "@storybook/test";
 import { PLAYER_SETUP_COPY } from "@features/playerSetupCopy";
 import type { PlayerSetupView } from "@runtime/playerSetup";
-import { PlayerSetupPane } from "./PlayerSetupPane";
+import { useRef } from "react";
+import { PlayerSetupPane, type PlayerSetupPaneProps, type StartCommit } from "./PlayerSetupPane";
 import { fitsAt, VIEWPORTS } from "../../../.storybook/fit";
 
 const view: PlayerSetupView = {
@@ -26,31 +27,45 @@ export default meta;
 
 type Story = StoryObj<typeof PlayerSetupPane>;
 
+const Harness = (props: PlayerSetupPaneProps) => {
+  const start = useRef<StartCommit | null>(null);
+  return <><PlayerSetupPane {...props} startRef={start} /><button type="button" onClick={() => void start.current?.()}>Start</button></>;
+};
+
+const mode = (canvasElement: HTMLElement, value: string) => canvasElement.querySelector<HTMLElement>(`[data-so="player-setup-mode"] [data-value="${value}"]`);
+
 export const Choose: Story = {
+  render: (args) => <Harness {...args} />,
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
     await expect(canvas.getByRole("heading", { name: PLAYER_SETUP_COPY.heading })).toBeVisible();
     await expect(canvas.getByText("a hired courier")).toBeVisible();
+    await expect(canvas.getByRole("radiogroup", { name: PLAYER_SETUP_COPY.modeLabel })).toBeVisible();
+    await expect(canvas.getByRole("radio", { name: PLAYER_SETUP_COPY.keep("Max") })).toHaveAttribute("aria-checked", "true");
+    await expect(canvas.getByText(PLAYER_SETUP_COPY.keepHint("Max"))).toBeVisible();
     await expect(canvas.getByText(PLAYER_SETUP_COPY.closeKeeps("Max"))).toBeVisible();
     await expect(canvas.queryByText(/Quiet, careful/, { ignore: "textarea, script, style" })).toBeNull();
-    await userEvent.click(canvas.getByRole("button", { name: PLAYER_SETUP_COPY.pickButton }));
-    await expect(args.onChoose).toHaveBeenCalledWith({ choice: "pick", avatarId: "mara.png" });
-    const keep = canvas.getByRole("button", { name: PLAYER_SETUP_COPY.keep("Max") });
-    await waitFor(() => expect(keep).toBeEnabled());
-    await userEvent.click(keep);
+    await userEvent.click(canvas.getByRole("button", { name: "Start" }));
     await expect(args.onChoose).toHaveBeenLastCalledWith({ choice: "keep" });
-    await waitFor(() => expect(keep).toBeEnabled());
+    await userEvent.click(canvas.getByRole("radio", { name: PLAYER_SETUP_COPY.pickShort }));
+    await expect(canvas.getByLabelText(PLAYER_SETUP_COPY.pick)).toHaveValue("mara.png");
+    await userEvent.click(canvas.getByRole("button", { name: "Start" }));
+    await waitFor(() => expect(args.onChoose).toHaveBeenLastCalledWith({ choice: "pick", avatarId: "mara.png" }));
   },
 };
 
 export const Create: Story = {
+  render: (args) => <Harness {...args} />,
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(canvas.getByText(PLAYER_SETUP_COPY.create));
+    await userEvent.click(mode(canvasElement, "create") as HTMLElement);
     const description = canvas.getByLabelText(PLAYER_SETUP_COPY.createDescription) as HTMLTextAreaElement;
     await expect(description.value.startsWith("In this story, {{user}} is a hired courier")).toBe(true);
+    await userEvent.click(canvas.getByRole("button", { name: "Start" }));
+    await expect(canvas.getByRole("alert")).toHaveTextContent(PLAYER_SETUP_COPY.needsName);
+    await expect(args.onChoose).not.toHaveBeenCalled();
     await userEvent.type(canvas.getByLabelText(PLAYER_SETUP_COPY.createName), "Rook");
-    await userEvent.click(canvas.getByRole("button", { name: PLAYER_SETUP_COPY.createButton }));
+    await userEvent.click(canvas.getByRole("button", { name: "Start" }));
     await expect(args.onChoose).toHaveBeenCalledWith({ choice: "create", name: "Rook", description: description.value });
   },
 };
@@ -60,9 +75,9 @@ export const FixedName: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await expect(canvas.getByText(PLAYER_SETUP_COPY.fixed("Mara"))).toBeVisible();
-    await expect(canvas.queryByRole("button", { name: PLAYER_SETUP_COPY.keep("Max") })).toBeNull();
+    await expect(canvas.queryByRole("radio", { name: PLAYER_SETUP_COPY.keep("Max") })).toBeNull();
     await expect(canvas.queryByText(PLAYER_SETUP_COPY.closeKeeps("Max"))).toBeNull();
-    await userEvent.click(canvas.getByText(PLAYER_SETUP_COPY.create));
+    await userEvent.click(mode(canvasElement, "create") as HTMLElement);
     await expect(canvas.getByLabelText(PLAYER_SETUP_COPY.createName)).toHaveAttribute("readonly");
   },
 };
@@ -72,7 +87,7 @@ export const NoCreate: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await expect(canvas.getByText(PLAYER_SETUP_COPY.noCreate)).toBeVisible();
-    await expect(canvas.queryByRole("button", { name: PLAYER_SETUP_COPY.createButton })).toBeNull();
+    await expect(mode(canvasElement, "create")).toBeNull();
   },
 };
 
@@ -81,7 +96,7 @@ export const Settled: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await expect(canvas.getByRole("status")).toHaveTextContent(PLAYER_SETUP_COPY.playingAs("Max"));
-    await expect(canvas.queryByRole("button", { name: PLAYER_SETUP_COPY.keep("Max") })).toBeNull();
+    await expect(canvas.queryByRole("radio", { name: PLAYER_SETUP_COPY.keep("Max") })).toBeNull();
   },
 };
 

@@ -38,6 +38,7 @@ export const BRIEFING_COPY = {
   reopen: "Story briefing",
   reopenHelp: "Read the story's briefing again.",
   close: "Close",
+  start: "Start the story",
   dismiss: "Close the briefing",
   preview: "Preview",
   noStory: "No story in this chat yet. Choose one under Continue, or start one under Start.",

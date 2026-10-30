@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { expect, fn, userEvent, within } from "@storybook/test";
+import { expect, fn, userEvent, waitFor, within } from "@storybook/test";
 import type { BriefingView } from "@engine/index";
 import { BRIEFING_COPY } from "@features/helpCopy";
 import { BRIEFING_DRAFT_COPY } from "@features/briefingDraftCopy";
@@ -99,7 +99,28 @@ export const WithIdentity: Story = {
   play: async ({ canvasElement }) => {
     await within(canvasElement).findByText(PLAYER_SETUP_COPY.heading);
     const order = [...canvasElement.querySelectorAll('[data-so="briefing-before-you-start"], [data-so="player-setup"], [data-so="briefing-story"]')].map((node) => node.getAttribute("data-so"));
-    await expect(order).toEqual(["briefing-before-you-start", "player-setup", "briefing-story"]);
+    await expect(order).toEqual(["briefing-before-you-start", "briefing-story", "player-setup"]);
+    await expect(canvasElement.querySelectorAll("#so-briefing .so-btn[data-variant=primary]")).toHaveLength(1);
+  },
+};
+
+export const StartCommitsIdentity: Story = {
+  args: {
+    identity: {
+      rechoose: false, onChoose: fn(async () => ({ ok: true })),
+      view: {
+        storyId: "road", pending: true, needsPane: true, player: { role: "a hired courier" }, fixedName: null,
+        current: { avatarId: "max.png", name: "Max" }, personas: [{ avatarId: "max.png", name: "Max" }, { avatarId: "mara.png", name: "Mara" }], canCreate: false,
+        record: { pending: true }, lockedName: null, switched: false, injected: true, beforeFirstMessage: true, castClash: null, descriptionEmpty: false, injectOff: false,
+      },
+    },
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(await canvas.findByRole("radio", { name: PLAYER_SETUP_COPY.pickShort }));
+    await userEvent.click(canvas.getByRole("button", { name: "Begin" }));
+    await waitFor(() => expect(args.onClose).toHaveBeenCalledWith({ dontShow: false }));
+    await expect(args.identity?.onChoose).toHaveBeenCalledWith({ choice: "pick", avatarId: "mara.png" });
   },
 };
 
