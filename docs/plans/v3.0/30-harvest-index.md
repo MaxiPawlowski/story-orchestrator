@@ -73,3 +73,48 @@ recall on the reply path; display-only qualities never read; optional held-secre
 6. New player surfaces from earlier harvests, each on your explicit request only: player-safe character diary at chapter
    seal (M01), player authors their own feelings/thoughts (simulation-blackboard P1, touches 54 inner voice), named player
    inner voices (N23), per-member typography (N26).
+
+## Small harvest items 2026-10-30
+
+Branch `v3.0-small-harvest` (from master `cc86db08`). CPU only: no GPU, lane, ST, model or judge call; nothing staged.
+
+1. **Local JSON repair before a living-director retry** (lattice P3).
+   - `src/utils/jsonRepair.ts` `repairJsonObject` (pure, own module so it rides the living lazy chunk): drops text before
+     and after the first object (string-aware, so prose holding braces is cut), trailing commas, raw control characters in
+     strings, and closes unclosed final brackets. Refuses anything needing content: unclosed string, dangling key or
+     colon, mismatched bracket, unquoted keys.
+   - `living/parse.ts` tries the existing slice parse first, then the repair; a repaired draft carries
+     `JSON syntax repaired locally: <fixes>` in `draft.repaired` (already journaled by `livingCoordinator`). The draft still
+     goes through `buildDirectorOps`, `checkDirectorOps` and `guardDraft` unchanged. Reused `normalizeJsonText` and
+     `stripReasoningBlocks`; no other JSON-extract helper existed (`generation/parse.ts`, `copilot/parse.ts` not touched).
+   - Tests: `src/utils/jsonRepair.test.ts` (good, prose, commas, unclosed, control chars, 6 refusals);
+     `living.test.ts` "repairs JSON syntax locally before spending a retry, and still retries an unrepairable answer"
+     (repairable = 1 model call; truncated = 2 calls with the parse issue named; repaired draft refused by the guard = retry).
+   - Owed: how often recorded runs refuse at stage `parse` (lattice's precondition) was not measured; the remote director
+     route was not run.
+2. **Off means unseen** (dooms P3). `src/runtime/offMeansUnseen.test.ts`, settings from `sanitizeGlobalSettings(undefined)`
+   and with each switch stored explicitly off:
+   - `extraction.readLayout` + `promiseAddressee`: read prompt and contract hash equal `test/goldens/read-prompt/classic.json`
+     (junk values too).
+   - `memory.deferredOutOfPrompt`: a put-off thread's story-so-far block equals the same arcs without deferral history.
+   - `memory.historyNotes`: ST's prompt copy is byte-identical on normal/swipe/regenerate/continue.
+   - `memory.outwardNarration`: narrator and member blocks equal the pre-feature render.
+   - `talk.swipeContrast`: no set and no clear on any generation type or clearing event (no empty block).
+   - `memory.chapters.compact`: no row ignored, no marker, no journal row, `compactedTo` unset.
+   - `talk.skipAhead`: feature resolves off, `view()` null, `/story skip` refuses with `SKIP_COPY.off`, no direction armed,
+     the host untouched.
+   - Each case has a planted on-control. No payload fixture added: no case needs ST's dry-run. Owed: the wiring guards that
+     read the same settings (`wiring/talk.ts` `noteHistory`, `armSwipeContrast`; `memoryInjector` outward flag) are not unit
+     reached; a lane `so-payload-golden capture` with defaults vs master would cover them (not run).
+3. **Host facts into docs** (SUMMARY §Host facts), every file:line re-read in `C:\dev\SillyTavern-MainBranch` (read only):
+   - `gotchas.md` §SillyTavern host: stop button events (`script.js:3532-3538`, `:5607-5619`, Castward), swipe prompt view
+     (`:4496-4498`, `:4564`, `:6670-6676`), `extra` across swipes (`:6680-6684`, `:3686-3688`, `:3705-3712`, `:6789-6797`),
+     Connection Manager accumulated streams and status-less errors (`custom-request.js:165-187`, `:506-529`, `:129-131`,
+     `:472-475`), PromptManager DOM drag order (`PromptManager.js:1918-1931`).
+   - `debug-scripts.md` Generation state: forced-visible Stop and per-swipe `extra` lines.
+   - `ui-dom-selectors.md`: `textarea#curEditTextarea` in the message tree + an edit lifecycle bullet (`script.js:8262-8280`,
+     `:11862`, `:12330`).
+
+Gates: `npm run gates:quick` green in 246.9 s (typecheck, typecheck:test, lint, jest related, defect replay 32/32 killed).
+`npm run build`: main `dist/index.js` 1,290,908 B (budget 1,300,000); the repair lands in lazy chunk `1381.index.js` only.
+Full `npm run gates` not run (parent runs it). Not merged, not staged.

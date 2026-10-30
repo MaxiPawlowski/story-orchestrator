@@ -104,6 +104,7 @@ Template `#message_template` (verified: `public/index.html:7391-7470`):
 │  │           > .mes_buttons > .extraMesButtonsHint, .extraMesButtons > .mes_button.mes_translate|sd_message_gen|mes_narrate|mes_prompt|mes_hide|mes_unhide|…|mes_copy
 │  │                          > .mes_bookmark, .mes_edit
 │  │           > .mes_edit_buttons > .mes_edit_done|…|mes_edit_cancel
+│  │           (editing: .mes_text holds textarea#curEditTextarea.edit_textarea.mdHotkeys)
 │  ├─ details.mes_reasoning_details > summary … .mes_reasoning_header, .mes_reasoning
 │  ├─ .mes_text                     ← rendered message HTML
 │  ├─ .mes_media_wrapper, .mes_file_wrapper, .mes_bias
@@ -127,6 +128,7 @@ State classes: `.last_mes` sits on the last `.mes` (verified: `public/script.js:
 
 Lifecycle facts that break naive DOM code:
 - Only the last `chat_truncation` messages are in the DOM (default 100), plus a `#show_more_messages` div that is **not** a `.mes` (verified: `public/scripts/power-user.js:133`, `public/script.js:1483`). Do not assume `#chat > :first-child` is a message.
+- **Editing a message** empties its `.mes_text`, hides `.mes_buttons`, shows `.mes_edit_buttons` and appends `textarea#curEditTextarea` (class `edit_textarea mdHotkeys`) holding `mes` (verified: `public/script.js:8262-8280`). ST listens on `input` for it (`public/script.js:11862`) and treats it being visible as "editing" (`public/script.js:12330`).
 - `.mes_text` innerHTML is replaced on edit, swipe and re-render. Hook ST events (`CHARACTER_MESSAGE_RENDERED`, `USER_MESSAGE_RENDERED`, `MESSAGE_UPDATED`, `MESSAGE_SWIPED`, `MORE_MESSAGES_LOADED`, `CHAT_CHANGED`) rather than caching nodes (verified: `public/scripts/events.js:5-49`).
 - The chat style changes the layout. **Flat** is the default and adds no body class. **Bubbles** adds `body.bubblechat`. **Document** adds `body.documentstyle` (verified: `public/scripts/power-user.js:1042-1060`), and document style hides avatars, names, timestamps and the `.mes_buttons` of every message except the last (verified: `public/css/toggle-dependent.css:355-360`). Scope bubble-only rules as `body.bubblechat .mes`, because a bare `.mes` rule hits every style (community-reported, CSS thread 2024-04..2026-05). Slash commands: `/flat`, `/bubble`, `/single` (alias `/story`) (verified: `public/scripts/slash-commands.js:1472-1487`).
 - Markdown quotes are wrapped as `<q>` (verified: `public/script.js:1905`). Colours come from `.mes_text q { color: var(--SmartThemeQuoteColor) }` and `.mes_text em { color: var(--SmartThemeEmColor) }`. Italics inside quotes inherit the quote colour (verified: `public/style.css:530-542,557-559`), which was the Feb 2025 change. The revert is `.mes_text q em { color: var(--SmartThemeEmColor); }`.
