@@ -223,3 +223,17 @@ Regression rows (only if C5 passes): ≈ 45 min more, in a later window.
 - Deviation: the scheduler got a minimal edit in `dropSleepingForRam` only (spill hook before the drop, sweep hook
   after it); admission, light-sleep and gateway preemption code untouched; spawn/kill untouched (cleanup runs from
   `memberCache` sweeps and the controller's stop path).
+
+W0 upkeep 2026-10-30 (CPU only, worktree `C:\dev\so-spill`, no GPU):
+- Merged the updated `v3.0-a2-maxmem` twice (merge, not rebase; base stays a2, not 27): `27d94efe` (a2 with master
+  `a97af36c`) and `d9ac06de` (a2 with master `a7fa71fc`, the ctl follow-ups and plan 10 M5/H1/M4).
+- Conflicts: `scripts/local/controller.mjs` twice. Master replaced the SIGTERM handler with `guardTextOnExit`: the spill
+  sweep moved into its stop callback (`arbiter.stop()`, `sweepSpilled(null)`, `gateway.close()`); then master's
+  `createControllerStop` replaced the inline stop control, and the sweep rides its `afterStop` hook.
+  `broker/memberCache.mjs`: defaults carry `fitImageCacheRam` beside `spill`/`spillMaxMiB`, both validations kept, the
+  constructor takes `imageRamMiB`, `log` and `spillEnv`. `00-overview.md` table rows: took a2's (newer) wording.
+- `npm run gates -- --jobs=3` (no `--resume`) on `d9ac06de`: all green in 453.2 s, Storybook included (1025 passed). The
+  run before it on the same tree went red on two jest timing floors under 100 % CPU (`consequences.test.ts` C6 p95,
+  `patterns.test.ts` P5 p95); no code change between them.
+- GPU recipe (`bench-controller/28/run-gpu.sh`) paths and flags unchanged; its first `cli.mjs stop` now waits up to
+  15 s for active work, then stops anyway. Pushed `origin/v3.0-28-cache-spill`; not merged (GPU-gated, after 27).
