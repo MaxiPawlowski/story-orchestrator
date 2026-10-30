@@ -37,11 +37,11 @@ export const COACH_FLOWS: Record<TourView, CoachFlow> = {
   setup: {
     view: "setup",
     stops: [
-      stop("memory", at("orchestrator", "connections"), "#so-extraction-profile"),
-      stop("test", at("orchestrator", "connections"), "#so-self-test"),
-      stop("judge", at("orchestrator", "connections"), "#so-judge-key", "#so-judge"),
-      stop("defaults", at("orchestrator", "defaults"), "#so-feature-search"),
-      stop("feature", at("orchestrator", "defaults", "thinking"), "#so-feature-thinking-effort"),
+      stop("memory", at("orchestrator", "models"), "#so-extraction-profile"),
+      stop("test", at("orchestrator", "models"), "#so-self-test"),
+      stop("judge", at("orchestrator", "judge"), "#so-judge-key", "#so-judge"),
+      stop("defaults", at("orchestrator", "features"), "#so-feature-filter"),
+      stop("feature", at("orchestrator", "features", "thinking"), "#so-feature-thinking-effort"),
       stop("path", { kind: "guide", doc: "setup/setup-path.md" }, "#so-guide"),
     ],
   },

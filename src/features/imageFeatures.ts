@@ -8,7 +8,7 @@ export const IMAGE_FEATURES: readonly Feature[] = [
     oneLine: "A rigged close shot breathes, blinks, sways, gestures and talks as a reply streams.",
     what: "Import a rig for a member's look in Author view. Close shots animate in the page; missing rigs keep the static sprite. Reduced motion stops movement. "
       + "When the look has blink and talk frames, the head swaps in those drawn closed eyes and open mouths. Hair locks traced in the rig swing as it moves.",
-    where: settingsAt("#so-live-head-enabled", "Images › Sprite stage › Live close-shot head"),
+    where: settingsAt("#so-live-head-enabled", "Stage animation › Live close-shot head"),
     settings: [], doc: "setup/sprites.md", status: "experimental", needs: ["sprite-pack"],
     isOn: (settings) => settings.sprites.liveHead,
   },
@@ -79,14 +79,14 @@ export const IMAGE_FEATURES: readonly Feature[] = [
     id: "images", name: "Illustrations", area: "images", audience: "setup",
     oneLine: "Draws scenes and characters through your image service.",
     what: "Uses SillyTavern’s image service by default. Stories can ask for pictures, or you can draw by hand. An optional prompt model improves the scene description; a template works without it.",
-    where: settingsAt("#so-image-settings", "Images › Image service"),
+    where: settingsAt("#so-image-settings", "Illustrations"),
     settings: ["image"], guideTopic: "presentation", doc: "setup/images.md", status: "shipped", needs: ["group-chat"],
   },
   {
     id: "gpu-sharing", name: "One GPU for text and images", area: "images", audience: "setup",
     oneLine: "A local text model and local pictures share one graphics card.",
     what: "Replies wait while a picture renders, and the text model comes back after it.",
-    where: settingsAt("#so-gpu-broker", "Images › Image service › GPU sharing"),
+    where: settingsAt("#so-gpu-broker", "Illustrations › GPU sharing"),
     settings: [], doc: "setup/gpu-sharing.md", status: "off-by-default", needs: ["comfyui"],
   },
   {
@@ -100,14 +100,14 @@ export const IMAGE_FEATURES: readonly Feature[] = [
     id: "model-downloads", name: "Downloading models", area: "images", audience: "setup",
     oneLine: "Download a model from Civitai or Hugging Face into your model folders, verified.",
     what: "Store a token once, check a model, then confirm a card that shows its size, source, license and folder. Nothing downloads on its own.",
-    where: settingsAt("#so-model-sources", "Images › Image service › Model sources"),
+    where: settingsAt("#so-model-sources", "Model sources"),
     settings: [], doc: "setup/images.md", status: "experimental", needs: ["comfyui"],
   },
   {
     id: "sprites", name: "Sprite stage", area: "images", audience: "player",
     oneLine: "Character sprites that change expression as replies stream.",
     what: "The speaking characters stand on a small stage and change expression with the reply. A story can switch the stage on; you can switch it off everywhere.",
-    where: settingsAt("#so-sprite-enabled", "Images › Sprite stage"),
+    where: settingsAt("#so-sprite-enabled", "Sprite stage"),
     settings: ["sprites"], guideTopic: "presentation", doc: "player/drawer-and-hud.md", status: "shipped", needs: ["sprite-pack"],
   },
   {
@@ -135,6 +135,6 @@ export const IMAGE_FEATURES: readonly Feature[] = [
     oneLine: "Blink and talking-mouth frames give sprites movement.",
     what: "Packs with animation frames blink and move the speaker’s mouth with the words while replies stream, read from the English text. "
       + "Missing frames keep the static sprite. Reduced motion switches facial animation off.",
-    where: settingsAt("#so-sprite-mouth", "Images › Sprite stage › Mouth movement"), settings: [], doc: "setup/sprites.md", status: "experimental", needs: ["sprite-pack"],
+    where: settingsAt("#so-sprite-mouth", "Stage animation › Mouth movement"), settings: [], doc: "setup/sprites.md", status: "experimental", needs: ["sprite-pack"],
   },
 ];

@@ -86,7 +86,7 @@ export const HostedInAPanelHasNoSecondHeader: Story = {
     await expect(canvasElement.querySelector('[data-so="help-close"]')).toBeNull();
     await expect(within(canvasElement).queryByText("Help", { selector: "span.font-semibold" })).toBeNull();
     const stories = rowOf(canvasElement, "stories");
-    await expect(stories).toHaveTextContent("Orchestrator › Library › Playing › Story for this chat");
+    await expect(stories).toHaveTextContent("Settings › Library › Playing › Story for this chat");
   },
 };
 

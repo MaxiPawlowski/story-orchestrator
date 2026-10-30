@@ -97,10 +97,10 @@ describe("CR-U: player mode never shows ids, internals or raw errors", () => {
       mode: "scan", active: false, capability: { state: "error", detail: "SECRET-CAPABILITY" }, ledger: { books: 1, entries: 2 },
       drift: [{ lorebook: "Ruins", comment: "CP2 - SECRET ENTRY" }], missingKey: [], missing: [], unreadable: [], busy: false,
     } as const;
-    const player = html(createElement(WorldInfoGatingGroup, { status: status as never, authorView: false, onChoose: noop, onRenormalize: noop, scanMemory: false, onScanMemory: noop }));
+    const player = html(createElement(WorldInfoGatingGroup, { status: status as never, authorView: false, onChoose: noop, onRenormalize: noop }));
     expect(player).not.toContain("SECRET-CAPABILITY");
     expect(player).not.toContain("CP2 - SECRET ENTRY");
-    const author = html(createElement(WorldInfoGatingGroup, { status: status as never, authorView: true, onChoose: noop, onRenormalize: noop, scanMemory: false, onScanMemory: noop }));
+    const author = html(createElement(WorldInfoGatingGroup, { status: status as never, authorView: true, onChoose: noop, onRenormalize: noop }));
     expect(author).toContain("SECRET-CAPABILITY");
     expect(author).toContain("CP2 - SECRET ENTRY");
   });

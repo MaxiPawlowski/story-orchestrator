@@ -20,7 +20,7 @@ export const WIDGET_TEXT = {
   htmlUnsupported: "This panel needs a browser that shows embedded pages.",
   htmlNavigated: "This panel tried to leave its own page, so it was closed. Its plain version shows instead.",
   htmlNoActions: "This panel cannot put text in the box here.",
-  openHint: "Opens This story → Play.",
+  openHint: "Opens This chat → Play.",
   openRefused: "The story window cannot open here.",
   rollHint: "Puts your attempt in the box where you type. The story rolls when you send it.",
   provenance: "Where these values came from",

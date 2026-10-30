@@ -31,12 +31,12 @@ export const COACH_COPY: Readonly<Record<string, CoachStopCopy>> = {
   },
   "player.library": {
     title: "Find or import a story",
-    text: "Orchestrator → Library starts a story: import one, build one with the wizard, or continue a chat you already play.",
+    text: "Settings → Library starts a story: import one, build one with the wizard, or continue a chat you already play.",
     missing: "The Library did not open. Close any other window and try again.",
   },
   "player.play": {
     title: "The Play page",
-    text: "This story → Play shows where you are, what is still open and how to restart. It speaks for this chat only.",
+    text: "This chat → Play shows where you are, what is still open and how to restart. It speaks for this chat only.",
     missing: "The Play page did not open. Close any other window and try again.",
   },
   "player.memory": {
@@ -52,11 +52,11 @@ export const COACH_COPY: Readonly<Record<string, CoachStopCopy>> = {
   "player.hud": {
     title: "The strip above the chat box",
     text: "This strip shows the current scene and at most one state. Click it for the story card: your journal, ideas for your next move, what the story remembers, and More… for the Play page.",
-    missing: "The strip shows while a story plays in this chat. It can be switched off under Orchestrator → Interface.",
+    missing: "The strip shows while a story plays in this chat. It can be switched off under Settings → Display.",
   },
   "player.help": {
     title: "Help and these tours",
-    text: "Orchestrator → Help has the guide, Ask and these tours. You can also type /story tour in the chat box.",
+    text: "Settings → Help has the guide, Ask and these tours. You can also type /story tour in the chat box.",
     missing: "The Help page did not open. Close any other window and try again.",
   },
   "author.author-view": {
@@ -85,12 +85,12 @@ export const COACH_COPY: Readonly<Record<string, CoachStopCopy>> = {
   "author.studio-wizard": {
     title: "The wizard inside the Studio",
     text: "The Wizard tab builds or fixes a story step by step. Ask answers questions about how stories work.",
-    missing: "The Studio did not open. Open it from Orchestrator → Library → Open Studio.",
+    missing: "The Studio did not open. Open it from Settings → Library → Open Studio.",
   },
   "author.validation": {
     title: "Validation",
     text: "Validation lists what would stop the story or weaken it, with where to fix each one. Save once it is clear.",
-    missing: "The Studio did not open. Open it from Orchestrator → Library → Open Studio.",
+    missing: "The Studio did not open. Open it from Settings → Library → Open Studio.",
   },
   "setup.memory": {
     title: "The memory model",
@@ -100,12 +100,12 @@ export const COACH_COPY: Readonly<Record<string, CoachStopCopy>> = {
   "setup.test": {
     title: "Test the memory model",
     text: "Test memory model checks that the model can follow the story and keep track of who knows what. Pick a model first.",
-    missing: "The test button shows on Orchestrator → Connections, under the memory model.",
+    missing: "The test button shows on Settings → Models, under the memory model.",
   },
   "setup.judge": {
     title: "The judge (optional)",
     text: "The judge is a small, fast model for short choices, such as who speaks next. Type its key here; SillyTavern keeps it on the server.",
-    missing: "The judge settings show on Orchestrator → Connections.",
+    missing: "The judge settings show on Settings → Models.",
   },
   "setup.defaults": {
     title: "Feature defaults",
@@ -115,7 +115,7 @@ export const COACH_COPY: Readonly<Record<string, CoachStopCopy>> = {
   "setup.feature": {
     title: "Tune one feature",
     text: "Each card opens its own controls. Reply thinking, for example, sets how long characters think before they answer.",
-    missing: "The card did not open. Find it on Orchestrator → Defaults.",
+    missing: "The card did not open. Find it on Settings → Features.",
   },
   "setup.path": {
     title: "The setup path",

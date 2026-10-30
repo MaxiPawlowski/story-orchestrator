@@ -6,42 +6,95 @@
 #so-workspace-modal[data-context="story"] { --so-context-accent: var(--so-accent); }
 #so-workspace-modal[data-context="orchestrator"] { --so-context-accent: var(--so-fg-subtle); }
 #so-workspace-modal .so-workspace-header { border-bottom: 3px solid var(--so-context-accent); }
-#so-workspace-modal .so-workspace-context { display: flex; gap: .5rem; padding: .5rem 1rem; border-bottom: 1px solid var(--st-border); }
 #so-workspace-modal :where(button, input:not([type="checkbox"]), select, summary) { min-height: var(--so-control-h); }
 #so-workspace-modal button { cursor: pointer; }
 #so-workspace-modal input, #so-workspace-modal select { color: var(--so-fg); background-color: var(--so-field); }
-#so-workspace-modal .so-workspace-context button { border: 1px solid var(--st-border); border-radius: .5rem; padding: .5rem 1.5rem; background: transparent; color: inherit; }
-#so-workspace-modal .so-workspace-context button[aria-pressed="true"], #so-workspace-modal .so-workspace-nav button[aria-current] { background: color-mix(in srgb, var(--so-context-accent) 18%, transparent); border-color: var(--so-context-accent); }
+
+#so-workspace-modal .so-workspace-header .so-dialog-slot { flex-wrap: nowrap; gap: var(--so-space-3); }
+#so-workspace-modal .so-workspace-context { display: inline-flex; flex: none; gap: 2px; padding: 2px; border: 1px solid var(--so-btn-line); border-radius: var(--so-radius-sm); background: var(--so-field); }
+#so-workspace-modal .so-workspace-context-btn { margin: 0; padding: 0 var(--so-space-4); border: 0; border-radius: calc(var(--so-radius-sm) - 1px); background: transparent; color: var(--so-fg-muted); font: inherit; font-size: var(--so-text-sm); white-space: nowrap; }
+#so-workspace-modal .so-workspace-context-btn:hover { color: var(--so-fg); background: var(--so-surface-3); }
+#so-workspace-modal .so-workspace-context-btn[aria-pressed="true"] { color: var(--so-fg); background: color-mix(in srgb, var(--so-context-accent) 30%, var(--so-surface)); box-shadow: inset 0 0 0 1px var(--so-context-accent); font-weight: 600; }
+#so-workspace-modal .so-workspace-context-btn:focus-visible { outline: 2px solid var(--so-focus); outline-offset: 2px; }
+#so-workspace-modal .so-workspace-back { flex: none; order: -1; }
+
+#so-workspace-modal .so-settings-search { position: relative; flex: 1 1 16rem; max-width: 26rem; margin-left: auto; }
+#so-workspace-modal .so-settings-search-results {
+  position: absolute; z-index: var(--so-z-popover); top: calc(100% + var(--so-space-1)); right: 0; left: 0;
+  max-height: min(60dvh, 28rem); overflow-y: auto; padding: var(--so-space-1);
+  border: 1px solid var(--so-line); border-radius: var(--so-radius-sm); background-color: var(--so-surface); background-image: var(--so-surface-solid);
+  box-shadow: 0 8px 24px var(--so-shadow);
+}
+#so-workspace-modal .so-settings-search-results ul { display: flex; flex-direction: column; gap: 2px; margin: 0; padding: 0; list-style: none; }
+#so-workspace-modal .so-settings-search-results button { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; width: 100%; padding: var(--so-space-2) var(--so-space-3); border: 0; border-radius: var(--so-radius-sm); background: none; color: var(--so-fg); font: inherit; text-align: left; }
+#so-workspace-modal .so-settings-search-results button:hover, #so-workspace-modal .so-settings-search-results button:focus-visible { background: var(--so-surface-3); outline: none; }
+#so-workspace-modal .so-search-result-label { font-size: var(--so-text-sm); font-weight: 500; }
+#so-workspace-modal .so-search-result-crumb { color: var(--so-fg-muted); font-size: var(--so-text-xs); }
+#so-workspace-modal .so-settings-search-results > p { margin: 0; padding: var(--so-space-2) var(--so-space-3); }
+
 #so-workspace-modal .so-workspace-body { display: flex; flex: 1; min-height: 0; }
-#so-workspace-modal .so-workspace-nav { flex: 0 0 13rem; display: flex; flex-direction: column; gap: .25rem; padding: 1rem; border-right: 1px solid var(--st-border); overflow-y: auto; }
-#so-workspace-modal .so-workspace-nav button { border: 1px solid transparent; border-radius: .5rem; background: transparent; color: inherit; text-align: left; padding: .75rem; }
-#so-workspace-modal .so-workspace-content { min-width: 0; flex: 1; overflow: auto; padding: 1.25rem max(1.25rem, env(safe-area-inset-right)) max(1.25rem, env(safe-area-inset-bottom)) 1.25rem; }
-#so-workspace-modal .so-workspace-content > * { max-width: 72rem; margin-inline: auto; }
-#so-workspace-modal .so-mobile-back { display: none; }
+#so-workspace-modal .so-workspace-nav { flex: 0 0 12.5rem; padding: var(--so-space-3) var(--so-space-2); border-right: 1px solid var(--so-line); overflow-y: auto; }
+#so-workspace-modal .so-workspace-content { min-width: 0; flex: 1; overflow: auto; padding: var(--so-space-4) max(var(--so-space-4), env(safe-area-inset-right)) max(var(--so-space-4), env(safe-area-inset-bottom)) var(--so-space-4); }
+#so-workspace-modal .so-workspace-content > * { max-width: 64rem; }
+
+#so-workspace-modal .so-settings-page { display: flex; flex-direction: column; gap: var(--so-space-4); }
+#so-workspace-modal .so-page-head { display: flex; flex-direction: column; gap: var(--so-space-1); }
+#so-workspace-modal .so-page-head > h2 { margin: 0; font-size: var(--so-text-xl); }
+#so-workspace-modal .so-setting-group { display: flex; flex-direction: column; }
+#so-workspace-modal .so-setting-control { flex-wrap: wrap; justify-content: flex-end; }
+#so-workspace-modal .so-field-label { display: flex; flex-direction: column; gap: 2px; }
+#so-workspace-modal .so-check-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr)); gap: 0 var(--so-space-3); margin: 0 0 var(--so-space-2); padding: 0; border: 0; }
+#so-workspace-modal .so-fieldset { display: flex; flex-direction: column; gap: var(--so-space-2); margin: 0; padding: var(--so-space-3); border: 1px solid var(--so-line); border-radius: var(--so-radius-sm); }
+#so-workspace-modal .so-fieldset > legend { padding: 0 var(--so-space-1); font-weight: 600; }
+#so-workspace-modal .so-subpage-links { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr)); gap: var(--so-space-2); }
+#so-workspace-modal .so-device-chip .so-chip-main { min-height: 0; cursor: pointer; }
+#so-workspace-modal .so-revealed { animation: so-reveal 2s var(--so-ease); }
+
+#so-workspace-modal .so-feature-list { display: flex; flex-direction: column; gap: var(--so-space-4); }
+#so-workspace-modal .so-feature-filter { position: sticky; top: calc(-1 * var(--so-space-4)); z-index: 2; display: flex; flex-wrap: wrap; align-items: center; gap: var(--so-space-2); padding: var(--so-space-2) 0; background-color: var(--so-surface); background-image: var(--so-surface-solid); }
+#so-workspace-modal .so-feature-filter .so-search { flex: 1 1 14rem; max-width: 24rem; }
+#so-workspace-modal .so-feature-group { display: flex; flex-direction: column; }
+#so-workspace-modal .so-feature-group-title { margin: 0 0 var(--so-space-1); padding-bottom: var(--so-space-1); border-bottom: 1px solid var(--so-line); color: var(--so-fg-muted); font-size: var(--so-text-xs); font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; }
+#so-workspace-modal .so-feature-row + .so-feature-row { border-top: 1px solid var(--so-line); }
+#so-workspace-modal .so-feature-row .so-setting-desc { display: flex; flex-direction: column; gap: 2px; }
+#so-workspace-modal .so-feature-meta { color: var(--so-fg-subtle); font-size: var(--so-text-xs); }
+#so-workspace-modal .so-feature-row[data-state="off"] > .so-setting .so-setting-label { color: var(--so-fg-muted); }
+#so-workspace-modal .so-feature-more { margin: 0 0 var(--so-space-3) var(--so-space-4); padding-left: var(--so-space-3); border-left: 2px solid var(--so-line); }
+#so-workspace-modal .so-feature-notice { margin: 0 0 var(--so-space-2); font-size: var(--so-text-sm); }
+#so-workspace-modal .so-feature-notice > p { margin: 0; }
+
 #so-workspace-modal .so-play { display: flex; flex-direction: column; gap: 1rem; }
 #so-workspace-modal .so-play > h2 { margin: 0; }
-#so-workspace-modal .so-feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr)); gap: .75rem; }
-#so-workspace-modal .so-feature-card { display: flex; flex-direction: column; gap: .75rem; padding: 1rem; text-align: left; color: inherit; background: color-mix(in srgb, var(--st-bg-tint) 90%, transparent); border: 1px solid var(--st-border); border-radius: .75rem; }
-#so-workspace-modal .so-feature-card span { font-size: .875rem; }
-#so-workspace-modal .so-feature-state { color: var(--so-context-accent); }
-#so-workspace-modal .so-control-row { display: flex; align-items: center; flex-wrap: wrap; gap: .75rem; padding: .75rem 0; border-bottom: 1px solid var(--so-line); }
-#so-workspace-modal .so-control-field { display: flex; flex: 1; flex-direction: column; gap: .5rem; min-width: min(100%, 14rem); }
-#so-workspace-modal .so-control-field input, #so-workspace-modal .so-control-field select { width: 100%; }
-#so-workspace-modal .so-control-toggle { display: flex; flex: 1; gap: .75rem; align-items: center; min-height: 44px; }
 #so-workspace-modal .so-source-chip { border: 1px solid var(--st-border); border-radius: 2rem; padding: .25rem .625rem; font-size: .8rem; }
-#so-workspace-modal .so-feature-status { padding: 1rem; border-left: 3px solid var(--so-context-accent); background: color-mix(in srgb, var(--so-context-accent) 8%, transparent); }
-#so-workspace-modal .so-setting-timing { font-size: .875rem; opacity: .8; }
 #so-workspace-modal pre { white-space: pre-wrap; overflow-wrap: anywhere; }
 #so-workspace-modal .inline-drawer-content { display: flex !important; }
 
+@keyframes so-reveal {
+  from { background-color: color-mix(in srgb, var(--so-accent) 22%, transparent); }
+  to { background-color: transparent; }
+}
+
+@media (pointer: fine) and (min-width: 700px) {
+  #so-workspace-modal .so-setting { padding: var(--so-space-2) 0; }
+}
+
 @media (max-width: 699px) {
+  #so-workspace-modal .so-workspace-header .so-dialog-slot { flex-wrap: wrap; flex-basis: 100%; order: 3; }
+  #so-workspace-modal .so-settings-search { flex-basis: 100%; max-width: none; margin-left: 0; }
+  #so-workspace-modal[data-view="page"] .so-settings-search { display: none; }
   #so-workspace-modal .so-workspace-body { flex-direction: column-reverse; }
-  #so-workspace-modal .so-workspace-nav { flex: none; display: flex; flex-direction: row; gap: 0; padding: .25rem max(.25rem, env(safe-area-inset-right)) max(.25rem, env(safe-area-inset-bottom)) max(.25rem, env(safe-area-inset-left)); border-right: 0; border-top: 1px solid var(--st-border); }
-  #so-workspace-modal .so-workspace-nav button { flex: 1; min-width: 0; font-size: .75rem; text-align: center; padding: .4rem .15rem; }
-  #so-workspace-modal .so-workspace-content { padding: .75rem; }
-  #so-workspace-modal .so-mobile-back { display: block; margin: 0 0 .75rem; }
+  #so-workspace-modal[data-view="list"] .so-workspace-body { flex-direction: column; }
+  #so-workspace-modal .so-workspace-nav { flex: none; padding: var(--so-space-1) max(var(--so-space-1), env(safe-area-inset-right)) max(var(--so-space-1), env(safe-area-inset-bottom)) max(var(--so-space-1), env(safe-area-inset-left)); border-right: 0; border-top: 1px solid var(--so-line); }
+  #so-workspace-modal[data-view="list"] .so-workspace-nav { flex: 1; padding: var(--so-space-2) var(--so-space-3); border-top: 0; }
+  #so-workspace-modal .so-workspace-nav[data-mobile="stack"] .so-nav-item { min-height: 3rem; padding: 0 var(--so-space-3); font-size: var(--so-text); border-bottom: 1px solid var(--so-line); border-radius: 0; }
+  #so-workspace-modal .so-workspace-nav[data-mobile="stack"] .so-nav-item::after { content: "\203A"; margin-left: var(--so-space-2); color: var(--so-fg-muted); font-size: 1.25rem; }
+  #so-workspace-modal .so-workspace-nav[data-mobile="bar"] .so-nav-item { flex: 1; }
+  #so-workspace-modal .so-workspace-nav[data-mobile="bar"] ul { width: 100%; }
+  #so-workspace-modal .so-workspace-nav[data-mobile="bar"] li { flex: 1; }
+  #so-workspace-modal .so-workspace-content { padding: var(--so-space-3); }
   #so-workspace-modal table { display: block; overflow-x: auto; max-width: 100%; }
-  #so-workspace-modal .so-feature-controls { width: 100%; }
+  #so-workspace-modal .so-feature-filter { top: calc(-1 * var(--so-space-3)); }
+  #so-workspace-modal .so-feature-more { margin-left: var(--so-space-1); }
   #so-workspace-modal .so-card-table thead { display: none; }
   #so-workspace-modal .so-card-table tbody { display: grid; gap: .75rem; }
   #so-workspace-modal .so-card-table tr { display: block; padding: .75rem; border: 1px solid var(--st-border); border-radius: .5rem; }

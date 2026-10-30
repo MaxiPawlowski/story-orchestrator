@@ -16,9 +16,10 @@ const snapshot = (authorView: boolean): RuntimeSnapshot =>
     validationErrors: [],
     requirements: { ready: true, missingPersonas: [], missingMembers: [], missingLorebooks: [] },
     saveHealth: createSaveHealth(),
-    copilot: { enabled: true },
-    extraction: { settings: { enabled: true, profileId: "artemis", cadence: 3, stabilityLag: 0 } },
-    memory: { settings: { epistemicLedgerCapable: true } },
+    copilot: { enabled: true, ask: true },
+    extraction: { settings: { enabled: true, profileId: "artemis", cadence: 3, stabilityLag: 0, replyEffort: "medium" } },
+    memory: { settings: { epistemicLedgerCapable: true, chapters: {} } },
+    features: { memoryLore: { enabled: true }, lateLore: { enabled: true }, curator: { enabled: false } },
     roleRoutes: [],
     modelCallRing: [],
     wiGating: null,
@@ -56,6 +57,7 @@ const fakeManager = (): RuntimeManager =>
     setTalkChainSettings: fn(),
     setPacingSettings: fn(),
     setScanMemory: fn(),
+    notify: fn(),
     carry: { shelf: fn(async () => []) },
   }) as unknown as RuntimeManager;
 
@@ -76,103 +78,105 @@ const meta: Meta<typeof SettingsPanel> = {
   title: "Settings/SettingsPanel",
   component: SettingsPanel,
   decorators: [(Story) => <div id="so-workspace-modal"><Story /></div>],
+  args: { snapshot: snapshot(false), manager: fakeManager(), host: host(), navigate: fn() },
 };
 
 export default meta;
 
 type Story = StoryObj<typeof SettingsPanel>;
 
-const sectionIds = (root: HTMLElement) => [...root.querySelectorAll<HTMLDetailsElement>('[data-so="settings-area"]')].map((section) => section.id);
+const noAccordions = (root: HTMLElement) => expect(root.querySelector('[data-so="settings-area"], details.so-section details.so-section')).toBeNull();
 
-export const LibraryHoldsTheStoryAndItsEntryPoints: Story = {
-  args: { workspaceSection: "library", snapshot: snapshot(false), manager: fakeManager(), host: host() },
-  play: async ({ canvasElement, args }) => {
-    const canvas = within(canvasElement);
-    await expect(await canvas.findByLabelText("Story for this chat")).toHaveValue("sun-ruins");
-    await expect(sectionIds(canvasElement)).toEqual(["so-area-play"]);
-    await expect((canvasElement.querySelector("#so-area-play") as HTMLDetailsElement).open).toBe(true);
-    await expect(canvasElement.querySelector("#so-area-play > summary")?.textContent).toContain("Which story this chat plays");
-    await expect(canvasElement.querySelector("#so-entry-points")).not.toBeNull();
+export const LibraryHoldsTheEntryPointsOnly: Story = {
+  args: { page: "library" },
+  play: async ({ canvasElement }) => {
+    await waitFor(() => expect(canvasElement.querySelector("#so-entry-points")).not.toBeNull());
+    await expect(canvasElement.querySelector("#story-library-select")).toBeNull();
     await expect(canvasElement.querySelector("#so-copilot-enabled")).toBeNull();
-    await userEvent.click(canvas.getByRole("button", { name: "Open story and chat preferences" }));
-    await expect(args.host.openStory).toHaveBeenCalledTimes(1);
+    await userEvent.click(within(canvasElement).getByRole("button", { name: "Import a story" }));
+    await waitFor(() => expect(canvasElement.querySelector("#so-entry-import #so-import-text")).not.toBeNull());
+    noAccordions(canvasElement);
   },
 };
 
-export const ConnectionsHoldTheInstallServices: Story = {
-  args: { workspaceSection: "connections", snapshot: snapshot(false), manager: fakeManager(), host: host() },
-  play: async ({ canvasElement }) => {
+export const ModelsHoldsTheMemoryModelAndTasks: Story = {
+  args: { page: "models" },
+  play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
     await expect(await canvas.findByLabelText("Memory model")).toBeInTheDocument();
-    await expect(sectionIds(canvasElement)).toEqual(["so-area-memory", "so-area-world", "so-area-images", "so-area-judge", "so-area-setup"]);
-    await waitFor(() => expect(canvasElement.querySelector("#so-area-memory #so-extraction-profile")).not.toBeNull());
-    await waitFor(() => expect(canvasElement.querySelector("#so-area-images #so-image-settings")).not.toBeNull());
-    await expect(canvasElement.querySelector("#so-curator-enabled")).toBeNull();
-    await expect(canvasElement.querySelector("#so-warden-enabled")).toBeNull();
-    await expect(canvasElement.querySelector("#so-pacing-hint")).toBeNull();
+    await expect(canvasElement.querySelector("#so-reply-effort")).toBeNull();
+    await expect(canvasElement.querySelector("#so-extraction-cadence")).toBeNull();
+    await waitFor(() => expect(canvasElement.querySelector("#so-role-profiles")).not.toBeNull());
+    await expect(canvasElement.querySelector("#so-epistemic-capable")?.closest("details")).toBeNull();
+    await userEvent.click(canvas.getByRole("button", { name: "Change" }));
+    await expect(args.navigate).toHaveBeenCalledWith({ context: "orchestrator", page: "features", feature: "thinking" }, "so-feature-thinking-effort");
+    noAccordions(canvasElement);
+  },
+};
+
+export const JudgeIsTheOneEditableHomeOfItsUses: Story = {
+  args: { page: "judge" },
+  play: async ({ canvasElement }) => {
+    await waitFor(() => expect(canvasElement.querySelector("#so-judge")).not.toBeNull());
+    await expect(canvasElement.querySelector("#so-judge-status")).not.toBeNull();
+    await expect(canvasElement.querySelector("#so-judge-uses")?.tagName).toBe("SECTION");
+    await expect(canvasElement.querySelector("[data-so='lazy-failed']")).toBeNull();
+  },
+};
+
+export const WorldLinksToItsFeatureRows: Story = {
+  args: { page: "world" },
+  play: async ({ canvasElement, args }) => {
+    await expect(canvasElement.querySelector("#so-wi-gating-mode")).not.toBeNull();
+    await expect(canvasElement.querySelector("#so-wi-scan-memory")).toBeNull();
+    await userEvent.click(canvasElement.querySelector("#so-feature-link-lateLore") as HTMLElement);
+    await expect(args.navigate).toHaveBeenCalledWith({ context: "orchestrator", page: "features", feature: "lateLore" }, "so-feature-lateLore-enabled");
+  },
+};
+
+export const AuthoringHoldsTheWizardAskAndBudget: Story = {
+  args: { page: "authoring" },
+  play: async ({ canvasElement, args }) => {
+    await expect(canvasElement.querySelector("#so-copilot-enabled")).not.toBeNull();
+    await expect(canvasElement.querySelector("#so-copilot-ask")).not.toBeNull();
+    await waitFor(() => expect(canvasElement.querySelector("#so-chapter-budget")).not.toBeNull());
+    await userEvent.click(canvasElement.querySelector("#so-authoring-author-view") as HTMLElement);
+    await expect(args.navigate).toHaveBeenCalledWith({ context: "story", page: "features" }, "so-author-view-switch");
+  },
+};
+
+export const DiagnosticsHidesTheEngineFromThePlayer: Story = {
+  args: { page: "diagnostics" },
+  play: async ({ canvasElement }) => {
+    await waitFor(() => expect(canvasElement.querySelector("#so-capabilities")).not.toBeNull());
     await expect(canvasElement.querySelector("[data-so='engine-status']")).toBeNull();
-    const area = canvasElement.querySelector<HTMLElement>("#so-area-memory")?.closest(".so-settings-area") as HTMLElement;
-    const guide = area.querySelector<HTMLElement>("[data-so='settings-area-guide']") as HTMLElement;
-    await expect(getComputedStyle(guide).position).toBe("absolute");
-    await expect(getComputedStyle(area.querySelector(".so-settings-section") as HTMLElement).borderTopStyle).toBe("solid");
   },
 };
 
 export const AuthorViewShowsTheEngineStatus: Story = {
-  args: { workspaceSection: "connections", snapshot: snapshot(true), manager: fakeManager(), host: host() },
+  args: { page: "diagnostics", snapshot: snapshot(true) },
   play: async ({ canvasElement }) => {
     await waitFor(() => expect(canvasElement.querySelector("[data-so='engine-status']")).toHaveTextContent("Hydrated The Quest for the Sun Ruins"));
   },
 };
 
 export const HelpOpensTheFloatingPanel: Story = {
-  args: { workspaceSection: "help", snapshot: snapshot(false), manager: fakeManager(), host: host() },
+  args: { page: "help" },
   play: async ({ canvasElement, args }) => {
-    const canvas = within(canvasElement);
-    await expect(sectionIds(canvasElement)).toEqual(["so-area-authoring", "so-area-setup"]);
-    await expect(canvasElement.querySelector("#so-area-authoring #so-copilot-enabled")).not.toBeNull();
-    await userEvent.click(canvas.getByRole("button", { name: "Help and Ask" }));
+    await expect(canvasElement.querySelector("#so-copilot-enabled")).toBeNull();
+    await userEvent.click(within(canvasElement).getByRole("button", { name: "Help and Ask" }));
     await expect(args.host.openPanel).toHaveBeenCalledWith("help");
   },
 };
 
-export const JudgeGroupArrivesFromItsLazyChunk: Story = {
-  args: { workspaceSection: "connections", snapshot: snapshot(false), manager: fakeManager(), host: host() },
+export const DisplayHasOneHomePerSetting: Story = {
+  args: { page: "display" },
   play: async ({ canvasElement }) => {
-    await waitFor(() => expect(canvasElement.querySelector("#so-judge")).not.toBeNull());
-    await expect(canvasElement.querySelector("#so-judge-status")).not.toBeNull();
-    await expect(canvasElement.querySelector("[data-so='lazy-failed']")).toBeNull();
-  },
-};
-
-export const GuideButtonOpensTheAreaPage: Story = {
-  args: { workspaceSection: "connections", snapshot: snapshot(false), manager: fakeManager(), host: { ...host(), openGuide: fn() } },
-  play: async ({ canvasElement, args }) => {
-    const canvas = within(canvasElement);
-    await userEvent.click(canvas.getByRole("button", { name: "Read the guide: Memory" }));
-    await expect(args.host.openGuide).toHaveBeenCalledWith("setup/memory-model.md");
-    await expect((canvasElement.querySelector("#so-area-memory") as HTMLDetailsElement).open).toBe(false);
-  },
-};
-
-export const AdvancedFoldHoldsTheChatNote: Story = {
-  args: { workspaceSection: "library", snapshot: snapshot(false), manager: fakeManager(), host: host() },
-  play: async ({ canvasElement }) => {
-    const fold = canvasElement.querySelector("#so-area-play-advanced") as HTMLDetailsElement;
-    await expect(fold.open).toBe(false);
-    await expect(fold.querySelector("#so-announce-transitions")).not.toBeNull();
-    await userEvent.click(within(fold).getByText("Advanced"));
-    await expect(fold.open).toBe(true);
-  },
-};
-
-export const OpeningASectionIsRemembered: Story = {
-  args: { workspaceSection: "connections", snapshot: snapshot(false), manager: fakeManager(), host: host() },
-  play: async ({ canvasElement }) => {
-    const memory = canvasElement.querySelector("#so-area-memory") as HTMLDetailsElement;
-    await userEvent.click(memory.querySelector("summary") as HTMLElement);
-    await waitFor(() => expect(getGlobalSettings().help.openSections).toEqual(["play", "memory"]));
-    await userEvent.click(memory.querySelector("summary") as HTMLElement);
-    await waitFor(() => expect(getGlobalSettings().help.openSections).toEqual(["play"]));
+    await waitFor(() => expect(canvasElement.querySelector("#so-hud-enabled")).not.toBeNull());
+    await expect(canvasElement.querySelectorAll("#so-inline-level")).toHaveLength(1);
+    await expect(canvasElement.querySelector("#so-device-display-hud-enabled")).toHaveAttribute("aria-pressed");
+    await expect(canvasElement.querySelector("#so-announce-transitions")).not.toBeNull();
+    await expect(canvasElement.querySelector("[data-so='presence-controls']")).not.toBeNull();
+    noAccordions(canvasElement);
   },
 };

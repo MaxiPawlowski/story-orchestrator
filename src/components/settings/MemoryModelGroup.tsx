@@ -11,16 +11,19 @@ import { HARNESS_IDS, harnessKey, loginHint, parseHarnessKey } from "@utils/harn
 import { PASS_ROLES } from "@extraction/passRole";
 import type { ReasoningEffort } from "@utils/reasoningEffort";
 import type { PassRole } from "@extraction/passRole";
-import { GroupHeader } from "./GroupHeader";
-import { Advanced, CheckRow, FieldLabel } from "./Field";
+import { CheckRow, HelpText } from "./Field";
+import { SettingRow } from "@components/ui/SettingRow";
+import { Select } from "@components/ui/Field";
+import { Button } from "@components/ui/Button";
+import { Section } from "@components/ui/Section";
+import { settingCopy } from "@features/settingsCopy";
+import { DEFAULT_REPLY_EFFORT } from "@utils/reasoningEffort";
 import { RoleProfilesGroup, type HarnessOption, type RoleHarnessRoute } from "./RoleProfilesGroup";
 import { FallbackProfileField } from "./FallbackProfileField";
 import { ProfileOptions } from "./ProfileOptions";
-import { ReplyThinkingField } from "./ReplyThinkingField";
+import { REPLY_EFFORT_LABELS } from "./ReplyThinkingField";
 import { loreEligibility } from "@runtime/loreRoute";
 import { log } from "@utils/log";
-
-type Settings = RuntimeSnapshot["extraction"]["settings"];
 
 const METER_WINDOWS: Record<string, string> = { five_hour: "5h", seven_day: "7d" };
 
@@ -41,23 +44,6 @@ export const harnessOptions = (status: HarnessStatus | null): HarnessOption[] =>
     vendor: harnessVendor(harness, model.id),
   }));
 });
-
-const AdvancedReads = ({ settings, manager }: { settings: Settings; manager: RuntimeManager }) => (
-  <>
-    <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-      <div className="flex flex-col gap-1">
-        <FieldLabel htmlFor="so-extraction-cadence" setting="extraction.cadence" />
-        <input id="so-extraction-cadence" type="number" min={1} value={settings.cadence}
-          onChange={(event) => manager.setExtractionSettings({ cadence: Math.max(1, Number(event.target.value) || 1) })} />
-      </div>
-      <div className="flex flex-col gap-1">
-        <FieldLabel htmlFor="so-extraction-lag" setting="extraction.stabilityLag" />
-        <input id="so-extraction-lag" type="number" min={0} value={settings.stabilityLag}
-          onChange={(event) => manager.setExtractionSettings({ stabilityLag: Math.max(0, Number(event.target.value) || 0) })} />
-      </div>
-    </div>
-  </>
-);
 
 export const SELF_TEST_FAILED_TEXT = "The test could not finish. Check the memory model profile, then try again.";
 
@@ -90,8 +76,8 @@ const SelfTestResult = ({ report, onApply, authorView }: { report: SelfTestRepor
   </div>
 );
 
-export const MemoryModelGroup = ({ snapshot, manager, connectionsOnly = false }: {
-  snapshot: RuntimeSnapshot; manager: RuntimeManager; connectionsOnly?: boolean;
+export const MemoryModelGroup = ({ snapshot, manager, onOpenReplyThinking }: {
+  snapshot: RuntimeSnapshot; manager: RuntimeManager; onOpenReplyThinking?: () => void;
 }) => {
   const [selfTest, setSelfTest] = useState<SelfTestReport | null>(null);
   const [selfTestRunning, setSelfTestRunning] = useState(false);
@@ -165,52 +151,47 @@ export const MemoryModelGroup = ({ snapshot, manager, connectionsOnly = false }:
   };
 
   return (
-    <div className="flex flex-col gap-2 border-t border-solid border-[var(--so-line)] pt-2">
-      <GroupHeader title={connectionsOnly ? "Models and routing" : "Memory model"} scope="install" id="so-memory-model-header" />
-      {!connectionsOnly && <CheckRow id="so-extraction-enabled" setting="extraction.enabled" checked={settings.enabled}
-        onChange={(on) => manager.setExtractionSettings({ enabled: on })} />}
-      <div className="flex flex-col gap-1 text-sm">
-        <FieldLabel htmlFor="so-extraction-profile" setting="extraction.profileId" />
-        <select id="so-extraction-profile" value={settings.profileId ?? ""} onChange={(event) => manager.setExtractionSettings({ profileId: event.target.value || null })}>
+    <div id="so-models" className="so-setting-group">
+      <SettingRow label={settingCopy("extraction.profileId").label} htmlFor="so-extraction-profile" description={<HelpText text={settingCopy("extraction.profileId").help} />}
+        control={(describedBy) => <Select id="so-extraction-profile" size="lg" value={settings.profileId ?? ""} aria-describedby={describedBy}
+          onChange={(event) => manager.setExtractionSettings({ profileId: event.target.value || null })}>
           <option value="">No profile selected</option>
           <ProfileOptions profiles={profiles} />
-        </select>
-      </div>
+        </Select>} />
       <FallbackProfileField value={settings.fallbackProfileId ?? null} primary={settings.profileId} profiles={profiles}
         onChange={(fallbackProfileId) => manager.setExtractionSettings({ fallbackProfileId })} />
-      <ReplyThinkingField value={settings.replyEffort} onChange={(replyEffort) => manager.setExtractionSettings({ replyEffort })} />
       {settings.enabled && !settings.profileId && (
-        <div id="so-not-configured" className="text-xs so-warning-text">Not configured: pick a memory model profile above and every chat, including this one, starts advancing on its own.</div>
+        <div id="so-not-configured" className="so-warning-text">Not configured: pick a memory model profile above and every chat, including this one, starts advancing on its own.</div>
       )}
-      <div className="flex flex-wrap items-center gap-2">
-        <button id="so-self-test" type="button" className="menu_button" disabled={!settings.profileId} onClick={() => void runSelfTest()}>
-          {selfTestRunning ? "Cancel test" : "Test memory model"}
-        </button>
-        <span className="min-w-0 text-xs opacity-70">Runs fixed scenes through the real pipeline and reports what this model can actually do.</span>
-      </div>
+      <SettingRow label="Test memory model" description="Runs fixed scenes through the real pipeline and reports what this model can actually do."
+        control={<Button id="so-self-test" size="sm" disabled={!settings.profileId} onClick={() => void runSelfTest()}>{selfTestRunning ? "Cancel test" : "Test memory model"}</Button>} />
       {selfTest && <SelfTestResult report={selfTest} onApply={applySelfTestSuggestion} authorView={snapshot.ui.authorView} />}
-      <Advanced id="so-memory-advanced">
-      {!connectionsOnly && <AdvancedReads settings={settings} manager={manager} />}
-      <CheckRow id="so-epistemic-capable" setting="memory.epistemicLedgerCapable" checked={snapshot.memory.settings.epistemicLedgerCapable}
-        onChange={(on) => manager.setMemorySettings({ epistemicLedgerCapable: on })} />
-      <RoleProfilesGroup
-        routes={snapshot.roleRoutes ?? []}
-        assigned={settings.profiles ?? {}}
-        profiles={profiles}
-        testing={testingRole}
-        onAssign={assignRole}
-        onTest={(role) => void testRole(role)}
-        onEffort={setRoleEffort}
-        harnesses={harnessOptions(harnessStatus)}
-        harnessRoutes={harnessRoutes}
-        meters={routeMeters(snapshot.modelCallRing ?? [])}
-        onHarness={setRoleHarness}
-        onFallback={setRoleFallback}
-        onOpen={() => setAskHarness(true)}
-        authorView={connectionsOnly || snapshot.ui.authorView}
-        measurements={{ lore: loreEligibility() }}
-      />
-      </Advanced>
+      {onOpenReplyThinking && <SettingRow label={settingCopy("extraction.replyEffort").label}
+        description={`${REPLY_EFFORT_LABELS[settings.replyEffort ?? DEFAULT_REPLY_EFFORT]}. Set in Features › Reply thinking.`}
+        control={<Button id="so-reply-effort-open" variant="ghost" size="sm" icon="fa-arrow-right" onClick={onOpenReplyThinking}>Change</Button>} />}
+      <Section id="so-models-tasks" title="Models per task" level={3} description="Each task can use its own profile or harness. Left on the memory model, it follows it.">
+        <RoleProfilesGroup
+          routes={snapshot.roleRoutes ?? []}
+          assigned={settings.profiles ?? {}}
+          profiles={profiles}
+          testing={testingRole}
+          onAssign={assignRole}
+          onTest={(role) => void testRole(role)}
+          onEffort={setRoleEffort}
+          harnesses={harnessOptions(harnessStatus)}
+          harnessRoutes={harnessRoutes}
+          meters={routeMeters(snapshot.modelCallRing ?? [])}
+          onHarness={setRoleHarness}
+          onFallback={setRoleFallback}
+          onOpen={() => setAskHarness(true)}
+          authorView
+          measurements={{ lore: loreEligibility() }}
+        />
+      </Section>
+      <Section id="so-models-knowledge" title="Knowledge tracking" level={3}>
+        <CheckRow id="so-epistemic-capable" setting="memory.epistemicLedgerCapable" checked={snapshot.memory.settings.epistemicLedgerCapable}
+          onChange={(on) => manager.setMemorySettings({ epistemicLedgerCapable: on })} />
+      </Section>
     </div>
   );
 };

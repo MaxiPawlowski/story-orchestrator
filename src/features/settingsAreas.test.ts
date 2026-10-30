@@ -4,18 +4,24 @@ import { DEFAULT_OPEN_SECTIONS, TALK_CHAIN_FIXED, defaultGlobalSettings, sanitiz
 import { offeredJudgeUses } from "@judge/useRows";
 import { chapterSettings } from "@runtime/chapters";
 import { BUILT_JUDGE_USES, JUDGE_USES_OFF_BY_DEFAULT } from "@judge/settings";
-import { AREA_LABELS, FEATURE_AREAS, FEATURES } from "./registry";
+import { AREA_LABELS, FEATURE_AREAS, FEATURES, type FeatureArea } from "./registry";
+import type { WorkspacePage } from "@runtime/workspaceNavigation";
+import { WORKSPACE_PAGES } from "@runtime/workspaceRoutes";
 import { SETTINGS_AREA_COPY, SETTING_COPY, settingsGuideLabel } from "./settingsCopy";
 import { jargonIn } from "./jargon";
 
 const ROOT = resolve(__dirname, "../..");
 const read = (file: string) => readFileSync(join(ROOT, file), "utf-8");
 
-const ENTRY_POINTS = ["Start", "Continue", "Repair", "Author", "Help"];
-
-const SECTION_EXCEPTIONS: Record<string, string> = {
-  "private-knowledge": "Memory",
-  "road-ahead": "Judge",
+const AREA_PAGES: Record<FeatureArea, readonly WorkspacePage[]> = {
+  play: ["library", "display", "features"],
+  memory: ["models", "features", "authoring"],
+  characters: ["features", "models"],
+  world: ["world", "features"],
+  images: ["images"],
+  judge: ["judge"],
+  authoring: ["authoring", "library", "judge", "help"],
+  setup: ["diagnostics", "help", "library", "models", "authoring"],
 };
 
 describe("v2.7 plan 29 settings by area", () => {
@@ -35,21 +41,22 @@ describe("v2.7 plan 29 settings by area", () => {
     }
   });
 
-  it("renders one section per area, in registry order", () => {
+  it("renders one page per Settings section, with no area accordion left (v3.0 29 phase 2)", () => {
     const panel = read("src/components/settings/SettingsPanel.tsx");
-    expect([...panel.matchAll(/<SettingsArea \{\.\.\.area\("([a-z]+)"\)\}/g)].map((match) => match[1])).toEqual([...FEATURE_AREAS]);
-    expect(panel).not.toMatch(/so-general-setup|so-author-services|so-current-chat|so-diagnostics/);
+    const pages = WORKSPACE_PAGES.orchestrator.map((page) => page.id).filter((page) => page !== "features");
+    const table = panel.slice(panel.indexOf("const PAGES"), panel.indexOf("};", panel.indexOf("const PAGES")));
+    expect([...table.matchAll(/^  ([a-z]+): /gm)].map((match) => match[1])).toEqual(pages);
+    expect(panel).not.toMatch(/SettingsArea|so-area-|openSections/);
   });
 
-  it("places every settings feature in the section of its own area, or names why not", () => {
-    const labels = new Map(FEATURE_AREAS.map((area) => [area, SETTINGS_AREA_COPY[area].label]));
+  it("places every settings feature on a page of its own area, or names why not", () => {
     const misplaced = FEATURES.filter((feature) => feature.where.surface === "settings").flatMap((feature) => {
-      const [, page, rest] = feature.where.label.split(/ [›→] /);
-      const section = rest ?? page;
-      if (ENTRY_POINTS.includes(section) || ENTRY_POINTS.includes(page)) return [];
-      if (feature.id.startsWith("judge-use-")) return section === "Judge" ? [] : [`${feature.id}: ${section}`];
-      const expected = feature.where.workspace?.page === "interface" ? "Interface" : SECTION_EXCEPTIONS[feature.id] ?? labels.get(feature.area);
-      return (feature.where.workspace?.page === "interface" ? page : section) === expected ? [] : [`${feature.id}: ${section}, expected ${expected}`];
+      const page = feature.where.workspace?.page;
+      const context = feature.where.workspace?.context;
+      if (context === "story" && page === "features") return [];
+      if (feature.id.startsWith("judge-use-")) return page === "judge" ? [] : [`${feature.id}: ${page}`];
+      const expected = AREA_PAGES[feature.area];
+      return page && expected.includes(page) ? [] : [`${feature.id}: ${page}, expected one of ${expected.join(", ")}`];
     });
     expect(misplaced).toEqual([]);
   });
@@ -117,8 +124,7 @@ describe("one build (2026-10-07): the settings the release build used to strip a
     expect(offeredJudgeUses(BUILT_JUDGE_USES, true)).toEqual(expect.arrayContaining([...FORMERLY_STRIPPED_USES]));
   });
 
-  it("loads the inner voice and chapter record controls lazily, with no build flag", () => {
-    expect(read("src/components/settings/PlayGroups.tsx")).toContain('const InnerVoiceControls = lazyRetry(() => import("./InnerVoiceControls"));');
+  it("loads the chapter record controls lazily, with no build flag", () => {
     expect(read("src/components/settings/ChapterControls.tsx")).toContain('const ChapterRecordControls = lazyRetry(() => import("./ChapterRecordControls"));');
     expect(read("src/components/settings/ChapterControls.tsx")).not.toContain("so-chapter-seal");
   });

@@ -151,7 +151,7 @@ describe("v2.7 plan 01 feature registry", () => {
 
   it("points every settings and drawer feature at a workspace page", () => {
     const stale = FEATURES.filter((feature) => (feature.where.surface === "settings" || feature.where.surface === "drawer")
-      && (!feature.where.workspace || !/^(Orchestrator|This story) › /.test(feature.where.label)));
+      && (!feature.where.workspace || !/^(Settings|This chat) › /.test(feature.where.label)));
     expect(stale.map((feature) => `${feature.id}: ${feature.where.label}`)).toEqual([]);
   });
 
@@ -192,7 +192,7 @@ describe("v2.7 plan 01 settings help", () => {
   });
 
   it("names a settings key that exists in every setting= prop", () => {
-    const named = CONTROL_FILES.flatMap((file) => [...readFileSync(join(ROOT, file), "utf-8").matchAll(/setting="([^"]+)"/g)].map((match) => match[1]));
+    const named = CONTROL_FILES.flatMap((file) => [...readFileSync(join(ROOT, file), "utf-8").matchAll(/setting="([^"]+)"|settingCopy\("([^"]+)"\)/g)].map((match) => match[1] ?? match[2]));
     expect(named.length).toBeGreaterThan(30);
     expect(named.filter((key) => !(key in SETTING_COPY))).toEqual([]);
   });

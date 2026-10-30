@@ -192,7 +192,7 @@ describe("coach host actions", () => {
     let studio = false;
     const calls: string[] = [];
     const host = coachHost({ openStudio: () => { studio = true; calls.push("open"); }, closeStudio: () => { studio = false; calls.push("close"); }, studioOpen: () => studio });
-    host.run({ kind: "workspace", intent: { context: "orchestrator", page: "connections" } });
+    host.run({ kind: "workspace", intent: { context: "orchestrator", page: "models" } });
     host.run({ kind: "chat" });
     host.run({ kind: "guide", doc: "setup/setup-path.md" });
     host.run({ kind: "studio" });
@@ -200,7 +200,7 @@ describe("coach host actions", () => {
     host.run({ kind: "chat" });
     stopNav();
     stopGuide();
-    expect(intents).toEqual([{ context: "orchestrator", page: "connections" }, null, null, null]);
+    expect(intents).toEqual([{ context: "orchestrator", page: "models" }, null, null, null]);
     expect(guides).toEqual([{ id: "setup/setup-path" }]);
     expect(calls).toEqual(["open", "close"]);
   });
@@ -262,10 +262,12 @@ describe("guide Show me targets resolve", () => {
     expect(broken).toEqual([]);
   });
 
-  it("an open Show me names a real page, and a Defaults control opens its feature card", () => {
-    expect(guideShowOf("open:orchestrator.defaults.so-feature-sprites-enabled")).toEqual({ kind: "open",
-      intent: { context: "orchestrator", page: "defaults", feature: "sprites", control: "so-feature-sprites-enabled" } });
-    expect(guideShowOf("open:orchestrator.connections.so-capabilities")).toEqual({ kind: "open", intent: { context: "orchestrator", page: "connections", control: "so-capabilities" } });
+  it("an open Show me names a real page, and a Features control opens its feature row", () => {
+    expect(guideShowOf("open:orchestrator.features.so-feature-pacing-enabled")).toEqual({ kind: "open",
+      intent: { context: "orchestrator", page: "features", feature: "pacing", control: "so-feature-pacing-enabled" } });
+    expect(guideShowOf("open:orchestrator.diagnostics.so-capabilities")).toEqual({ kind: "open", intent: { context: "orchestrator", page: "diagnostics", control: "so-capabilities" } });
+    expect(guideShowOf("open:orchestrator.images.so-model-sources")).toEqual({ kind: "open", intent: { context: "orchestrator", page: "images", sub: "model-sources", control: "so-model-sources" } });
+    expect(guideShowOf("open:orchestrator.connections.so-capabilities")).toBeNull();
     expect(guideShowOf("open:orchestrator.nowhere.x")).toBeNull();
     expect(guideShowOf("open:somewhere.play")).toBeNull();
     expect(guideShowOf("setup:nowhere")).toEqual({ kind: "tour", request: { view: "setup", stop: "nowhere" } });

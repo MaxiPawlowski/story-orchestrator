@@ -19,7 +19,7 @@ const status = (overrides: Partial<WiGatingStatus> = {}): WiGatingStatus => ({
 const meta: Meta<typeof WorldInfoGatingGroup> = {
   title: "Settings/WorldInfoGatingGroup",
   component: WorldInfoGatingGroup,
-  args: { status: null, authorView: false, onChoose: fn(), onRenormalize: fn(), scanMemory: false, onScanMemory: fn() },
+  args: { status: null, authorView: false, onChoose: fn(), onRenormalize: fn() },
 };
 
 export default meta;
@@ -85,23 +85,11 @@ export const BusyLocksTheControl: Story = {
   },
 };
 
-export const ScanMemoryIsAnAdvancedAuthorSwitchAndOffByDefault: Story = {
-  args: { authorView: true },
-  play: async ({ canvasElement, args }) => {
-    const box = canvasElement.querySelector("#so-wi-scan-memory") as HTMLButtonElement;
-    await expect(box.closest("details")?.id).toBe("so-wi-gating-advanced");
-    await userEvent.click(within(canvasElement).getByText("Advanced"));
-    await expect(box).toHaveAttribute("aria-checked", "false");
-    await expect(canvasElement.querySelector('[data-so="wi-scan-memory"]')?.textContent).toMatch(/memory text can trigger lore/i);
-    await expect(canvasElement.querySelector('[data-so="wi-scan-memory"]')?.textContent).toMatch(/never/);
-    await userEvent.click(box);
-    await expect(args.onScanMemory).toHaveBeenCalledWith(true);
-  },
-};
-
-export const ScanMemoryHiddenFromThePlayer: Story = {
-  args: { authorView: false, scanMemory: true },
+export const ModeIsAVisibleRowNotHiddenInAdvanced: Story = {
   play: async ({ canvasElement }) => {
+    const select = canvasElement.querySelector("#so-wi-gating-mode") as HTMLSelectElement;
+    await expect(select.closest("details")).toBeNull();
     await expect(canvasElement.querySelector("#so-wi-scan-memory")).toBeNull();
+    await expect(within(canvasElement).getByText(/each chat sees its own story's entries/)).toBeInTheDocument();
   },
 };

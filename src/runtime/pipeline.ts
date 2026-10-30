@@ -46,7 +46,7 @@ export const HUD_COPY = {
   cardLabel: "Story card",
   cardClose: "Close the story card",
   cardMore: "More…",
-  cardMoreTitle: "Open This story → Play",
+  cardMoreTitle: "Open This chat → Play",
   cardMemory: "What the story remembers",
   cardMemoryEmpty: "Nothing remembered yet.",
   cardMemoryAll: "See all",

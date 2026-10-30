@@ -103,7 +103,7 @@ const brokenTargets = (read: Read = diskRead, features = FEATURES) => {
 describe("v2.7 plan 29 (finding 20): every Help \"Show me\" target exists in the UI it names", () => {
   it("each surface root renders a real component tree", () => {
     const settings = [...renderedFiles(SURFACE_ROOTS.settings).keys()];
-    expect(settings).toEqual(expect.arrayContaining(["src/components/settings/SettingsPanel.tsx", "src/components/settings/SettingsArea.tsx", "src/image/ImageGroup.tsx"]));
+    expect(settings).toEqual(expect.arrayContaining(["src/components/settings/SettingsPanel.tsx", "src/components/settings/DisplayPage.tsx", "src/image/ImageGroup.tsx", "src/components/ui/FeatureList.tsx"]));
     expect([...renderedFiles(SURFACE_ROOTS.drawer).keys()]).toEqual(expect.arrayContaining(["src/components/drawer/DrawerTabs.tsx", "src/components/drawer/PlayerOverview.tsx"]));
     expect([...renderedFiles(SURFACE_ROOTS.studio).keys()]).toEqual(expect.arrayContaining(["src/studio/StudioModal.tsx", "src/studio/components/GuideDisclosure.tsx"]));
     expect([...renderedFiles(SURFACE_ROOTS.chat).keys()]).toEqual(expect.arrayContaining(["src/components/drawer/HudStrip.tsx"]));
@@ -130,7 +130,7 @@ describe("v2.7 plan 29 (finding 20): every Help \"Show me\" target exists in the
     expect(definesSelector(settings, "#so-not-a-control")).toBe(false);
     expect(definesSelector(drawer, "#so-memory-search")).toBe(true);
     expect(definesSelector(settings, "#so-memory-search")).toBe(true);
-    expect(definesSelector(settings, "#so-area-setup")).toBe(true);
+    expect(definesSelector(settings, "#so-diagnostics")).toBe(true);
     expect(definesSelector(settings, "#so-judge-use-director")).toBe(true);
     expect(definesSelector(drawer, "[data-so=\"repetition\"]")).toBe(true);
     const files: Record<string, string> = {
