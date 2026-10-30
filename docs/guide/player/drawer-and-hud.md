@@ -8,7 +8,7 @@ everything about this story, and small **notes under messages**.
 A thin bar above the chat box shows the current scene, for example `◈ The Job Board · tension rising`. Click it to
 open the **story card** just above it: the scene, one line on what the story is doing, and buttons for **Open the
 journal** and **What could I do?** (when the story has them), **What the story remembers** (a short peek, with
-**See all**) and **More…**, which opens the story window at **This story → Play**. Escape, the close button or a
+**See all**) and **More…**, which opens the story window at **This chat → Play**. Escape, the close button or a
 click anywhere else closes the card; it never covers the box where you type. The bar can also show:
 
 | Chip | Meaning |
@@ -16,8 +16,8 @@ click anywhere else closes the card; it never covers the box where you type. The
 | `N updates next turn` | The story noticed something; it takes effect after the next reply. |
 | `catching up…` | The story is re-checking recent scenes. Keep playing. |
 | `catching up after your edit` | You edited the last reply: the story stepped back to before it and is re-reading the edited text (a few seconds). A reply sent before then is built from the pre-edit state. |
-| `fix setup (N)` | Something stops the story (for example no memory model is chosen). Click it to open the setup list on **This story → Play**. |
-| `check setup (N)` | Something weakens the story but it still plays. Click it to open the setup list on **This story → Play**. |
+| `fix setup (N)` | Something stops the story (for example no memory model is chosen). Click it to open the setup list on **This chat → Play**. |
+| `check setup (N)` | Something weakens the story but it still plays. Click it to open the setup list on **This chat → Play**. |
 | `not keeping up` | Something went wrong reading the scene. See [Troubleshooting](troubleshooting.md). |
 | `stepped back` | You swiped, edited or deleted a message and the story moved back to match. |
 | `branch — continue?` | This chat is a branch; click to pick the story up here. |
@@ -29,7 +29,7 @@ click anywhere else closes the card; it never covers the box where you type. The
 Slow action buttons, including Restart, Update to the latest, Import, Ask and asset creation, stay busy until their
 work settles. Clicking again while busy does not start another copy of that action.
 
-The bar can be switched off in **Orchestrator → Interface** (**Show story status above the chat input**), or for this
+The bar can be switched off in **Settings → Display** (**Show story status above the chat input**), or for this
 browser only under **This device**.
 
 <a id="the-drawer"></a>
@@ -40,13 +40,14 @@ in the extensions wand beside where you type, or from **Extensions → Story Orc
 (**Story setup and repair** there opens the setup list). It has two
 halves, switched at the top:
 
-- **This story**, the chat that is open: **Play**, **Features**, **Review** and **Author**.
-- **Orchestrator**, every chat on this install: **Library**, **Defaults**, **Connections**, **Interface** and **Help**.
+- **This chat**, the chat that is open: **Play** and **Settings** (plus **Review** and **Author** while Author view is on).
+- **Settings**, every chat on this install: **Library**, **Features**, **Models**, **Judge**, **Images & stage**,
+  **World & lore**, **Display**, **Authoring**, **Diagnostics** and **Help**, with **Search all settings** at the top.
 
-The header says which half you are in ("This chat · Player view", or "All chats · Install settings"). Escape or
-**Close** closes it; on a phone the pages sit in a bar at the bottom and **← Back** steps back.
+The header says which half you are in ("This chat · Player view", or "Settings · all chats"). Escape or **Close**
+closes it; on a phone Settings opens on its list of pages, and the one back button returns to it.
 
-### This story → Play
+### This chat → Play
 
 Everything a player needs, top to bottom:
 
@@ -69,7 +70,7 @@ Everything a player needs, top to bottom:
 - **The story so far** (or **This chapter**): a short summary.
 - **Noted**: things the story picked up that take effect on the next turn.
 - **Status**: what the extension is doing right now ("Following along.", "Reading the last few messages…"). When the
-  story needs a model, **Open story settings** takes you to **Orchestrator → Connections**.
+  story needs a model, **Open story settings** takes you to **Settings → Models**.
 - **Your character in this story**: who you play, once you chose at the start.
 - **Save this run as a story**: in a living story, keeps what you played as a new story in your library, leaving out
   turning points you never reached.
@@ -86,24 +87,24 @@ What you do on these pages answers on the page itself: "Moment flagged for the a
 a memory, or the reason a one-click fix did not work. Nothing hides behind the story window.
 
 With no story in the chat, Play says what is missing ("Open a group chat to play a story.", "Choose a story for this
-chat.") and **Open library** takes you to **Orchestrator → Library**.
+chat.") and **Open library** takes you to **Settings → Library**.
 
 **Flag this moment** marks the moment for the author ("What happened here?"). It does not change the story.
 
 The extensions wand beside where you type also offers **Story recap**, **Story briefing** (when the story has one),
 **Flag this moment** and **Open the story window** while a story plays.
 
-### This story → Features
+### This chat → Settings
 
 One card per feature (speaker direction, story reading, inner voice, illustrations and so on), each with its state:
 **Enabled**, **Off in this chat**, **Turned off by this story**, **Off on this install**, or for the character stage
 **Automatic: on when the story directs the stage**. Open a card to change it for this chat only; **Reset to
-story/default** drops your change. The same cards under **Orchestrator → Defaults** set the default for every chat.
+story/default** drops your change. The same cards under **Settings → Features** set the default for every chat.
 How the scopes combine: [Settings reference](../setup/settings-reference.md#where-settings-live).
 
 The **Tension and pacing** card also holds this chat's **Dramatic shape**.
 
-### This story → Review and Author
+### This chat → Review and Author
 
 Both belong to **Author view**, which spoils the story, so they ask before showing anything. **Review** lists
 proposals waiting for you (lorebook curator changes, continuity notes). **Author** holds the author tools below.
@@ -111,7 +112,7 @@ proposals waiting for you (lorebook curator changes, continuity notes). **Author
 <a id="author-view-tabs"></a>
 ## Author tools
 
-**This story → Author**, once Author view is on, is a run console for the chat it is turned on in. It spoils the
+**This chat → Author**, once Author view is on, is a run console for the chat it is turned on in. It spoils the
 story. **Return to player view** turns Author view off again. Everything a player sees stays on **Play**; Author holds
 only what the player view does not show.
 
@@ -136,7 +137,7 @@ Beside it, one section at a time, each named after the question it answers:
   in SillyTavern's order, its depth and size, lines marked private for the character drafted) and the blocks the story
   added to the last prompts.
 - **Proposals**: the lorebook curator's and the living story's proposals, the one place to accept or reject them. Its
-  tab shows how many wait. **This story → Review** opens this section.
+  tab shows how many wait. **This chat → Review** opens this section.
 - **Activity**: what the machine did behind each recent message, rolls included, with chips to show one kind; author
   moves, speaker direction, stall re-checks and a refused route. Each **#N** goes to its message.
 - **Pipeline**: the model calls, the chat reads, the road ahead (**Regenerate** a failed one), the inner voice and
@@ -158,7 +159,7 @@ and **State** shows the evidence each value was read from.
 
 ## Journal, stat sheet and story panels
 
-Some stories add panels. Open them from **Beside the chat** on **This story → Play** (which closes the story window),
+Some stories add panels. Open them from **Beside the chat** on **This chat → Play** (which closes the story window),
 from the story card or from the wand menu; each opens over the chat in its own panel you can move and resize. On a
 phone a panel sits at the bottom, just above the box where you type, and only the panel you opened last shows; close
 it to see the one before.
@@ -178,7 +179,7 @@ it to see the one before.
   the box. A page that tries to open another page is closed at once.
 
 A swipe or an edit of the reply that finished a quest takes the quest, and whatever it gave you, back with it.
-**Journal**, **Stat sheet**, **Story panels** and **Story-made panels** in **Orchestrator → Interface** turn each off
+**Journal**, **Stat sheet**, **Story panels** and **Story-made panels** in **Settings → Display** turn each off
 (Story-made panels off shows the plain panel instead), and an author can switch them off for one story.
 
 ## Notes under messages
@@ -200,12 +201,12 @@ When the story enters a new chapter, a title card with the chapter's name appear
 what changed in the chapter that just ended. When the story rolls a check it chose to show you, the roll sits under
 the reply it decided, for example "Climb: 15 + 4 vs 12, success"; a swipe or a reopened chat shows the same roll. In
 Author view at Behind the scenes or higher, every other dice roll and background draw also shows as a chip under its
-message. **Dice chips under messages** in **Orchestrator → Interface** turns them off.
+message. **Dice chips under messages** in **Settings → Display** turns them off.
 
 Inside a note: a spinner means in progress, a clock means waiting for the next turn, a check means applied, a
 crossed circle means refused.
 
-**Notes under messages** in **Orchestrator → Interface** (or **This device**, for this browser only) chooses how much
+**Notes under messages** in **Settings → Display** (or **This device**, for this browser only) chooses how much
 you see:
 
 | Level | Shows |

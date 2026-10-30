@@ -9,8 +9,8 @@ import { DRAWER_TAB_OF_CONTROL, MEMORY_SEARCH_FROM } from "./surfaceShown";
 import type { RuntimeSnapshot } from "./types";
 
 const SHOW_ME_ALWAYS = [
-  "#so-player-overview", "#so-open-activity", "#so-author-view",
-  "#so-area-setup", "#so-capabilities", "#so-epistemic-capable", "#so-extraction-profile", "#so-image-settings", "#so-judge-enabled",
+  "#so-player-overview", "#so-open-activity",
+  "#so-diagnostics", "#so-capabilities", "#so-epistemic-capable", "#so-extraction-profile", "#so-image-settings", "#so-judge-enabled",
   "#so-live-head-enabled", "#so-lorebooks-header", "#so-model-sources", "#so-role-profiles", "#so-self-test",
   "#so-sprite-mouth", "#so-wi-gating-mode", "#so-copilot-ask", "#so-help-open-guide", "#so-help-open-panel", "#so-help-tour",
   "#so-announce-transitions", "#so-briefing-draft", "#so-briefing-enabled", "#so-hud-enabled", "#so-inline-level", "#so-player-setup-enabled",
@@ -106,8 +106,10 @@ describe("Show me renders", () => {
   test("an author page target needs Author view, its placeholder needs player view", () => {
     expect(pageRenders(whereOf("#so-open-activity"), context(snap({}, false)))).toBe(false);
     expect(pageRenders(whereOf("#so-open-activity"), context(snap({}, true)))).toBe(true);
-    expect(pageRenders(whereOf("#so-author-view"), context(snap({}, true)))).toBe(false);
-    expect(pageRenders(whereOf("#so-author-view"), context(snap({}, false)))).toBe(true);
+    expect(pageRenders(whereOf("#so-author-view-switch"), context(snap({}, true)))).toBe(true);
+    expect(pageRenders(whereOf("#so-author-view-switch"), context(snap({}, false)))).toBe(true);
+    expect(pageRenders({ selector: "#so-author-view", label: "", surface: "drawer", workspace: { context: "story", page: "author" } }, context(snap({}, false)))).toBe(true);
+    expect(pageRenders({ selector: "#so-author-view", label: "", surface: "drawer", workspace: { context: "story", page: "author" } }, context(snap({}, true)))).toBe(false);
   });
 
   test("a Play target needs a loaded story", () => {
@@ -121,8 +123,8 @@ describe("Show me renders", () => {
     Object.keys(DRAWER_TAB_OF_CONTROL).forEach((control) => expect(whereOf(`#${control}`).workspace?.page).toBe("author"));
   });
 
-  test("the transition note and the getting-started list route to the library, where they render", () => {
-    expect(whereOf("#so-announce-transitions").workspace?.page).toBe("library");
+  test("the transition note routes to Display and the getting-started list to the library, where they render", () => {
+    expect(whereOf("#so-announce-transitions").workspace?.page).toBe("display");
     expect(whereOf("#so-getting-started").workspace?.page).toBe("library");
   });
 

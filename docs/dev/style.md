@@ -91,7 +91,7 @@ Taken from the code as it is; when the code and this page disagree, fix one of t
   and the tour's drift tests fail on a coach-mark anchor no component renders or a **Show me** that names no stop.
 - In-app extras ride in HTML comments, so the website shows a plain page: `<!-- so:check memory -->` ticks from real
   state in the reader, `<!-- so:show setup:memory -->` starts that tour stop, and
-  `<!-- so:show open:orchestrator.connections.so-capabilities -->` opens the workspace at that control.
+  `<!-- so:show open:orchestrator.diagnostics.so-capabilities -->` opens the workspace at that control.
 - Short paragraphs, tables for reference, one idea per bullet. Same location wording as the UI copy.
 - Screenshots and sketches go in `docs/guide/assets/` as png, jpg or webp under 150 KB, each with alt text, each used
   by a page. Capture them at the 1280px desktop and 390×844 phone viewports in ST's default theme, with no story,

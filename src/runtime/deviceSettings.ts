@@ -1,5 +1,5 @@
 import { isRecord } from "@utils/guards";
-import { readSettingPath, writeSettingPath } from "./featureResolve";
+import { writeSettingPath } from "./featureResolve";
 import type { GlobalSettings } from "./settingsModel";
 import { log } from "@utils/log";
 
@@ -10,6 +10,7 @@ export const DEVICE_SETTING_PATHS = [
 ] as const;
 export type DeviceSettingPath = typeof DEVICE_SETTING_PATHS[number];
 export type DeviceSettings = Partial<Record<DeviceSettingPath, unknown>>;
+export const deviceControlId = (path: string): string => `so-device-${path.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`).replace(/\./g, "-")}`;
 
 const valid = (path: DeviceSettingPath, value: unknown): boolean => {
   if (path === "display.inline.level") return typeof value === "number" && Number.isInteger(value) && value >= 0 && value <= 4;
@@ -49,7 +50,3 @@ export const applyDeviceSettings = (global: GlobalSettings, device: DeviceSettin
   for (const [path, value] of Object.entries(sanitizeDeviceSettings(device))) writeSettingPath(result, path, value);
   return result;
 };
-
-export const deviceSettingValue = (global: GlobalSettings, device: DeviceSettings, path: DeviceSettingPath) => ({
-  value: device[path] ?? readSettingPath(global, path), source: device[path] === undefined ? "install" as const : "device" as const,
-});

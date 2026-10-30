@@ -10,7 +10,7 @@ export const AUDIENCE_FEATURES: readonly Feature[] = [
       + "(speaking or named), and for a whispered or aside part only the speaker and the listener it names. A narrator who sees everything counts for its own lines only. "
       + "Nothing reads this record yet: it is measured first, before recall or rumors may use it. A swipe or edit takes the affected notes back. Adds nothing to the "
       + "story read's prompt. Measured offline, below its floor.",
-    where: drawerAt("#so-feature-witness-enabled", "Features › Who heard what"),
+    where: drawerAt("#so-feature-witness-enabled", "Who heard what"),
     settings: ["memory.witness"], doc: "player/memory.md", status: "shipped", needs: ["story", "group-chat", "memory-profile"],
   },
   {

@@ -328,9 +328,9 @@ export const MEMORY_TIER_LABELS: Record<MemoryTier, string> = {
   scene_history: "Scene history",
 };
 
-export const CP_AUTHOR_ONLY_TEXT = "/cp is an author tool and shows the story's internals. Turn on Author view under This story → Author to use it; /story recap shows where the story is.";
+export const CP_AUTHOR_ONLY_TEXT = "/cp is an author tool and shows the story's internals. Turn on Author view under This chat → Author to use it; /story recap shows where the story is.";
 
-export const SO_MEM_AUTHOR_ONLY_TEXT = "/so-mem backlog is an author tool. Turn on Author view under This story → Author to use it.";
+export const SO_MEM_AUTHOR_ONLY_TEXT = "/so-mem backlog is an author tool. Turn on Author view under This chat → Author to use it.";
 
 export const castChangeText = (name: string, left: boolean): string => `${name} ${left ? "left" : "joined"}`;
 

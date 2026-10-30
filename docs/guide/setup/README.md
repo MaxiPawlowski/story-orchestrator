@@ -68,24 +68,29 @@ lands in SillyTavern's `public/scripts/extensions/third-party/`.
 ## Where settings live
 
 Everything is in one window: **Extensions → Story Orchestrator → Open Story Orchestrator**. The route icon in
-SillyTavern's top bar opens the same window at **This story → Play**.
+SillyTavern's top bar opens the same window at **This chat → Play**.
 
 | Half | Page | What is there |
 |---|---|---|
-| **This story** (the open chat) | **Play** | Where you are, setup problems, what the story remembers, Restart story |
-| | **Features** | This chat's changes to each feature |
-| | **Review** | Proposals waiting for you (Author view) |
-| | **Author** | Author view: tracked values, activity, the story's internals |
-| **Orchestrator** (every chat) | **Library** | Start (New story, Import a story), Continue, Repair, Author; the story for this chat |
-| | **Defaults** | Every feature's install default; off here is a master switch |
-| | **Connections** | Memory model and models per task, lorebooks, images, the judge, host capabilities |
-| | **Interface** | The status strip, notes under messages, briefings, list marks, and **This device** |
-| | **Help** | **Take the tour** and **Setup path**, the Ask and wizard switches, and host capabilities |
+| **This chat** (the open chat) | **Play** | Where you are, setup problems, what the story remembers, Restart story |
+| | **Settings** | The story for this chat and for new chats in the group, this chat's change to each feature, the **Author view** switch |
+| | **Review**, **Author** | Only while Author view is on: proposals waiting for you, tracked values, activity, the story's internals |
+| **Settings** (every chat) | **Library** | Start (New story, Import a story), Continue, Repair, Author |
+| | **Features** | Every feature, on or off for all chats, each with its own controls; off here is a master switch |
+| | **Models** | Memory model, fallback, the model test, models per task |
+| | **Judge** | The judge key and switch, and the one list of judge checks |
+| | **Images & stage** | Picture service, when pictures are drawn, picture types, model sources, the sprite stage |
+| | **World & lore** | How story lorebooks are scanned, and story books still on for every chat |
+| | **Display** | Notes under messages, the status strip, briefings, panels and list marks |
+| | **Authoring** | The wizard, Ask, the chapter budget, a link to the Author view switch |
+| | **Diagnostics** | Host capabilities and a copy for bug reports |
+| | **Help** | **Take the tour**, **Setup path**, the guide and Help and Ask |
 
-Each section's **?** opens its page in this guide, and rarely changed settings sit under its **Advanced** fold. The
-guide itself opens with `/story guide`, and Ask with `/story ask <question>`.
+**Search all settings** at the top of the window finds any setting and jumps to it. Every setting has one home; other
+pages link to it with **Change**. A row marked **This device** can keep its own value in this browser. The guide opens
+with `/story guide`, and Ask with `/story ask <question>`.
 
-![Sketch of a settings page: one section per area, each with its ? guide button](../assets/settings-sections.png)
+![Sketch of a settings page: one row per setting, its control on the right](../assets/settings-sections.png)
 
 Settings have four scopes: **install** (every chat), **story** (what the author chose), **chat** (your change for the
 open chat) and **device** (display preferences kept in this browser). How they combine, with an example, and every
@@ -100,13 +105,13 @@ select them globally. Story Orchestrator adds a story's books to the lorebook sc
 and only those chats; a book selected globally reaches every chat, and Repair offers to deselect it.
 
 Inside a story's own books, entries a scene switches on or off rest off in their files, and each chat sees the ones its
-own path through the story has switched on. **Orchestrator → Connections → World → Lorebooks** can switch to file
+own path through the story has switched on. **Settings → World & lore → Lorebooks** can switch to file
 writes instead, where entries are switched on and off in the files as the chat moves; leave the default unless the
 setting's help says your host needs it.
 
 The **Lorebook curator** proposes edits to a story's lorebooks as the story moves (only the books the story allows,
-and nothing lands until you accept it in **This story → Review**). It is on by default; switch it off in
-**Orchestrator → Defaults → Lorebook curator** or for one chat in **This story → Features**. How authors set up story
+and nothing lands until you accept it in **This chat → Review**). It is on by default; switch it off in
+**Settings → Features → Lorebook curator** or for one chat in **This chat → Settings**. How authors set up story
 lore is in the author pages (in the in-app guide they show only in Author view).
 
 ## Costs and waiting
@@ -141,7 +146,7 @@ curator, the judge's after-reply checks, and illustrations.
 | Wizard | Only while you use it. |
 | Judge | One short call per use that applies, on the judge's provider. |
 
-The read cadence is **Read every … replies** under **Orchestrator → Defaults → Story reading**; lower reacts sooner and
+The read cadence is **Read every … replies** under **Settings → Features → Story reading**; lower reacts sooner and
 costs more calls. In a group, one message from you can draw several character replies, and each counts.
 
 ## Server plugins
@@ -178,7 +183,7 @@ The extension is exercised against one host at a time; this is the one it was la
 | Node.js | 22.22 with npm 10.9 |
 
 **Not tested on other SillyTavern versions.** The extension imports SillyTavern modules by path and hashes them at
-build time, so a version whose files differ is one nobody has run it against. **Orchestrator → Help → Setup → Host
+build time, so a version whose files differ is one nobody has run it against. **Settings → Help → Setup → Host
 capabilities** reports each feature it probes (`macros`, `slashCommands`, `backgrounds`, `vectors`, `judge`) as present,
 absent or error.
 

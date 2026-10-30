@@ -12,7 +12,7 @@ settings by the check (the author flow opens the Studio on the story in this cha
   player|author|setup  run /story tour <view>, walk every stop with real clicks on Next, record each stop's state
                        (found, hidden or missing), where the card sits, and a screenshot; Escape at the first
                        workspace stop after the first must close the tour and leave the workspace open.
-  help                 Orchestrator → Help → Take the tour opens the chooser; "Setting up" starts the setup tour;
+  help                 Settings → Help → Take the tour opens the chooser; "Setting up" starts the setup tour;
                        Setup path opens the setup path guide page.
   quick-start          /story guide quick-start: the checklist ticks from real state; a Show me starts its tour stop.
   all                  everything in order.

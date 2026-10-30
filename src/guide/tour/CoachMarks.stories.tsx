@@ -58,7 +58,7 @@ export const SetupFlow: Story = {
     await waitFor(() => expect(coach(canvasElement)).toHaveAttribute("data-state", "found"));
     await expect(canvasElement.ownerDocument.querySelector("[data-so=\"coach-ring\"]")).not.toBeNull();
     await waitFor(() => expect(body.getByRole("button", { name: "Next" })).toHaveFocus());
-    await expect(args.host.run).toHaveBeenCalledWith({ kind: "workspace", intent: { context: "orchestrator", page: "connections" } });
+    await expect(args.host.run).toHaveBeenCalledWith({ kind: "workspace", intent: { context: "orchestrator", page: "models" } });
     await expect(body.getByRole("button", { name: "Back" })).toBeDisabled();
     await userEvent.click(body.getByRole("button", { name: "Next" }));
     await expect(await body.findByRole("heading", { name: "Test the memory model" })).toBeInTheDocument();
