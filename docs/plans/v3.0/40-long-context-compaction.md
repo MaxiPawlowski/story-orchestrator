@@ -81,3 +81,22 @@ a state-format change would cut (not clean: changes persisted state and its roll
 - Pre-story rows (chat started before the story) are inside the compactable range once read coverage passes them; fine?
 - Should the next-turn preview (`foldPreview`) also count compacted rows? Not done (UI-rework zone).
 - 32K native corpus: rate again on the owner's first long chat, or accept the 8K stand-in?
+
+## Gate record 2026-10-30 (v3.0 40 build, branch v3.0-a3-compaction)
+
+- Base `v3.0-harvest-1030-fixes` @96e74c62; `npm run worktree:setup` run. Commits `0e9ade8d` (A3 product), `b2f86e5b`
+  (rating prep, plan, D6 record), this record.
+- `npm run gates:quick -- --base v3.0-harvest-1030-fixes` per slice: green (395.0 s, 286.0 s).
+- `npm run gates -- --no-storybook` (full, no `--resume`, waited for a free slot per the coordinator's two-run limit):
+  `gates: all green in 646.4s` (typecheck, typecheck:test, test, build, debug:typecheck, lint, test:replay, test:release,
+  test:debug, test:plugin).
+- Storybook alone on port 6235 (`npm run storybook:build`, then http-server + test-storybook `--maxWorkers 2`):
+  Test Suites 169 passed / 169, Tests 1025 passed / 1025.
+- Main bundle `dist/index.js` 1,267,640 B (budget 1,300,000); compaction code rides the chapter kit chunk (only
+  `readCoverageEnd` import and one call line in `wiring/talk.ts`).
+- Offline A3-R `arms` run: numbers in §Rating prep (CPU, recorded lane payloads, no model call).
+- NOT run: real-LLM live gate and the A3-R generation + Sol rating (no GPU, owner "resume" owed); lane check (no staging,
+  unmerged branch). D6 timings taken on a saturated machine: informational only.
+- Deviations: `memory.chapters.compact` default off (exception above); no `story-guide.md` paragraph (it is an install
+  setting, documented in the generated settings reference); no change to `ChapterRecordControls.tsx` (UI-rework zone): the
+  control appears through `featureControls.ts` on Story → Features / Defaults.
