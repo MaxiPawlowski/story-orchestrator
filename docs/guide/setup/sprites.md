@@ -5,10 +5,10 @@ Open a story in Studio and choose **Sprites**. The member picker contains instal
 ## When the stage shows
 
 On an untouched install the character stage is **Automatic**: it shows when the story directs the stage and stays off
-otherwise. Switch it on or off for every chat in **Orchestrator → Defaults → Character stage** (or under
-**Orchestrator → Connections → Images → Sprite stage**), or for one chat on **This story → Features → Character
+otherwise. Switch it on or off for every chat in **Settings → Features → Character stage** (or under
+**Settings → Images & stage → Sprite stage**), or for one chat on **This chat → Settings → Character
 stage**. Once you switch it in Defaults it is no longer automatic: off there is a master switch, and on shows it in
-every story that does not turn it off. **Orchestrator → Interface → This device** changes how this
+every story that does not turn it off. **Settings → Display → This device** changes how this
 browser shows it (stage visibility, dimming, breathing, blinking, mouth movement) without touching the other settings.
 
 ## Where the stage looks for sprites
@@ -161,7 +161,7 @@ Without a usable drawn mouth the head has only its closed lips to move, so it op
 smoothly, on vowels instead of stretching them. A rig whose mouth points have no width or fall
 outside the face keeps its mouth still; Author view says so when that rig is imported or previewed.
 
-In Author view, **Orchestrator → Connections → Images → Sprite stage** lists rig present or missing per member and selected look.
+In Author view, **Settings → Images & stage → Sprite stage** lists rig present or missing per member and selected look.
 Open **Import a live head rig**, paste the rig package JSON and select **Import rig**. The package
 must match that member, look and neutral artwork. Changed artwork requires a new rig. Creating
 a rig requires a calibrated vision authoring session; it does not happen during play.

@@ -68,7 +68,7 @@ lands in SillyTavern's `public/scripts/extensions/third-party/`.
 ## Where settings live
 
 Everything is in one window: **Extensions → Story Orchestrator → Open Story Orchestrator**. The route icon in
-SillyTavern's top bar opens the same window at **This story → Play**.
+SillyTavern's top bar opens the same window at **This chat → Play**.
 
 | Half | Page | What is there |
 |---|---|---|
@@ -100,13 +100,13 @@ select them globally. Story Orchestrator adds a story's books to the lorebook sc
 and only those chats; a book selected globally reaches every chat, and Repair offers to deselect it.
 
 Inside a story's own books, entries a scene switches on or off rest off in their files, and each chat sees the ones its
-own path through the story has switched on. **Orchestrator → Connections → World → Lorebooks** can switch to file
+own path through the story has switched on. **Settings → World & lore → Lorebooks** can switch to file
 writes instead, where entries are switched on and off in the files as the chat moves; leave the default unless the
 setting's help says your host needs it.
 
 The **Lorebook curator** proposes edits to a story's lorebooks as the story moves (only the books the story allows,
-and nothing lands until you accept it in **This story → Review**). It is on by default; switch it off in
-**Orchestrator → Defaults → Lorebook curator** or for one chat in **This story → Features**. How authors set up story
+and nothing lands until you accept it in **This chat → Review**). It is on by default; switch it off in
+**Settings → Features → Lorebook curator** or for one chat in **This chat → Settings**. How authors set up story
 lore is in the author pages (in the in-app guide they show only in Author view).
 
 ## Costs and waiting
@@ -141,7 +141,7 @@ curator, the judge's after-reply checks, and illustrations.
 | Wizard | Only while you use it. |
 | Judge | One short call per use that applies, on the judge's provider. |
 
-The read cadence is **Read every … replies** under **Orchestrator → Defaults → Story reading**; lower reacts sooner and
+The read cadence is **Read every … replies** under **Settings → Features → Story reading**; lower reacts sooner and
 costs more calls. In a group, one message from you can draw several character replies, and each counts.
 
 ## Server plugins
@@ -178,7 +178,7 @@ The extension is exercised against one host at a time; this is the one it was la
 | Node.js | 22.22 with npm 10.9 |
 
 **Not tested on other SillyTavern versions.** The extension imports SillyTavern modules by path and hashes them at
-build time, so a version whose files differ is one nobody has run it against. **Orchestrator → Help → Setup → Host
+build time, so a version whose files differ is one nobody has run it against. **Settings → Help → Setup → Host
 capabilities** reports each feature it probes (`macros`, `slashCommands`, `backgrounds`, `vectors`, `judge`) as present,
 absent or error.
 

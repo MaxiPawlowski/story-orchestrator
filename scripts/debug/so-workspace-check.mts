@@ -41,12 +41,12 @@ runCli(async (page) => {
     await page.evaluate(() => history.back());
     await modal.locator('#so-feature-search').waitFor();
     (report.checks as string[]).push('story decline, chat re-enable warning, authored isolation, reset, browser Back');
-    await modal.getByRole('button', { name: 'Orchestrator', exact: true }).click();
+    await modal.locator('#so-workspace-context-orchestrator').click();
     await modal.locator('#so-workspace-page-defaults').click();
     await modal.locator('button[data-feature="inner"]').click();
     const original = await modal.locator('#so-feature-inner-fanOut').inputValue();
     await modal.locator('#so-feature-inner-fanOut').selectOption(original === 'next' ? 'top2' : 'next');
-    await modal.getByRole('button', { name: 'This story', exact: true }).click();
+    await modal.locator('#so-workspace-context-story').click();
     await modal.locator('#so-workspace-page-features').click();
     await modal.locator('button[data-feature="inner"]').click();
     assert.equal(await modal.locator('#so-feature-inner-fanOut').inputValue(), original === 'next' ? 'top2' : 'next');
@@ -54,7 +54,7 @@ runCli(async (page) => {
     await modal.locator('#so-feature-inner-fanOut').selectOption(original);
     assert.equal(await modal.locator('#so-feature-inner-fanOut').locator('..').locator('..').locator('.so-source-chip').innerText(), 'This chat');
     await modal.getByRole('button', { name: 'Reset Prepare for to story/default' }).click();
-    await modal.getByRole('button', { name: 'Orchestrator', exact: true }).click();
+    await modal.locator('#so-workspace-context-orchestrator').click();
     await modal.locator('#so-workspace-page-defaults').click();
     await modal.locator('button[data-feature="inner"]').click();
     await modal.locator('#so-feature-inner-fanOut').selectOption(original);

@@ -10,7 +10,7 @@ nothing is remembered and the story does not move on its own.
 
 ## What the story remembers
 
-Open **This story → Play → What the story remembers**. It lists every memory in four groups: **Facts**, **Session
+Open **This chat → Play → What the story remembers**. It lists every memory in four groups: **Facts**, **Session
 details**, **Short-term** and **Scene history**.
 
 <a id="pinning"></a>
@@ -40,13 +40,13 @@ that does. You do not need to do anything for this.
 
 After each story read the extension also notes **who heard what**, in code and without adding to the read: for every
 message, the speaker and the group's enabled characters seen on stage, and for a whispered or aside part only the
-speaker and the character it names. Nothing uses this record yet; it is measured first. A swipe or edit takes the affected notes back. Switch it off in **This story → Features → Who heard
-what** (or for every chat in **Orchestrator → Defaults**).
+speaker and the character it names. Nothing uses this record yet; it is measured first. A swipe or edit takes the affected notes back. Switch it off in **This chat → Settings → Who heard
+what** (or for every chat in **Settings → Features**).
 
 ## Chapters
 
 Some stories end chapters as they go. When one ends, a **Previously** card shows its summary, and the chapter
-appears under **Your story** on **This story → Play**. Older memories are folded into the chapter summary so the prompt
+appears under **Your story** on **This chat → Play**. Older memories are folded into the chapter summary so the prompt
 stays small. A wrong summary can be flagged with the flag button on that chapter.
 
 ---

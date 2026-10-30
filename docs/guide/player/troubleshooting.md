@@ -7,21 +7,21 @@ Find the row that matches, check what it says, and look for the success signal b
 | You see | What to check | Is it normal? | What to do | It worked when |
 |---|---|---|---|---|
 | **No character reply at all** (your message posts, nothing answers) | SillyTavern's own connection: is the reply model running and selected? A popup waiting for you (Prompt Inspector)? A **check setup** row saying "Long chats will stop getting replies: lower the context size."? | No. The story does not write replies; your SillyTavern connection does. | Start the backend and re-select the connection profile. For the context row, see the last line of this table. | A reply appears. |
-| **Replies arrive, but the story never moves**, and the Status line says "The memory model is not answering — the story will catch up when it does." or "The story stopped keeping up — something went wrong reading the scene." | The memory model: **Orchestrator → Connections → Memory**, then **Test memory model**. | Briefly, yes: it retries on its own and catches up once the model answers. | Start the memory model's backend, then **Try again** on **This story → Play**. | Status reads "Following along." and the `not keeping up` chip is gone. |
+| **Replies arrive, but the story never moves**, and the Status line says "The memory model is not answering — the story will catch up when it does." or "The story stopped keeping up — something went wrong reading the scene." | The memory model: **Settings → Models**, then **Test memory model**. | Briefly, yes: it retries on its own and catches up once the model answers. | Start the memory model's backend, then **Try again** on **This chat → Play**. | Status reads "Following along." and the `not keeping up` chip is gone. |
 | **`N updates next turn`** on the story bar | Nothing: a read found something. | Yes. Findings apply after the next reply finishes, one scene change per reply. | Keep playing. | After the next reply the chip clears and the story bar shows the new scene. |
-| **The scene stays put**, Status says "Following along." (maybe "What happens next is yours to decide.") | Whether the chat shows what the scene is waiting for. Reads run every three character replies by default. | Yes, until the chat shows it. | Write it happening in the chat ("We leave the tavern and take the north road."), not only thinking it. To read straight away: **This story → Features → Story reading → Read now**. | A read lands: `N updates next turn`, then the new scene. |
-| **`check setup`** with "… is not answering, so … stands in until it answers again", "The story so far pauses until the model answers again." or "A model the story uses is not answering, so another one is standing in until it is back." | **Orchestrator → Connections → Memory → Models per task**: which task, and its **Test** button. | Yes for a short outage: it is retried on its own, and the chat stays playable. | Start that model's backend, or pick another profile for the task. | The row leaves the setup list. |
+| **The scene stays put**, Status says "Following along." (maybe "What happens next is yours to decide.") | Whether the chat shows what the scene is waiting for. Reads run every three character replies by default. | Yes, until the chat shows it. | Write it happening in the chat ("We leave the tavern and take the north road."), not only thinking it. To read straight away: **This chat → Settings → Story reading → Read now**. | A read lands: `N updates next turn`, then the new scene. |
+| **`check setup`** with "… is not answering, so … stands in until it answers again", "The story so far pauses until the model answers again." or "A model the story uses is not answering, so another one is standing in until it is back." | **Settings → Models → Models per task**: which task, and its **Test** button. | Yes for a short outage: it is retried on its own, and the chat stays playable. | Start that model's backend, or pick another profile for the task. | The row leaves the setup list. |
 | **`check setup`** with "Long chats will stop getting replies: lower the context size." | The reply connection asks for more context than its server holds. | No: long chats will stop getting replies. | Set the preset's context to what the server serves, or tick **Derive context size from backend** in SillyTavern's connection settings. | The row leaves the setup list, and long chats keep getting replies. |
 
-If none of these fit, open **This story → Play** and read the **Setup** list and the **Status** line.
+If none of these fit, open **This chat → Play** and read the **Setup** list and the **Status** line.
 
 ## How the setup list and Repair work
 
-**This story → Play → Setup** lists every problem at once: **Stops the story** first, then **Weakens the story**, then
+**This chat → Play → Setup** lists every problem at once: **Stops the story** first, then **Weakens the story**, then
 **Good to know**. Each says what it costs the story, with **Show me** and, where one exists, a one-click fix. The story
 bar's `fix setup (N)` and `check setup (N)` chips count the same list.
 
-**Repair** (in **Orchestrator → Library**, or **Extensions → Story Orchestrator → Story setup and repair**) shows only
+**Repair** (in **Settings → Library**, or **Extensions → Story Orchestrator → Story setup and repair**) shows only
 the single most important problem, so you fix them one at a time; when one is fixed, the next takes its place.
 
 **I know, keep it** hides a problem that only weakens the story, on this install. Hidden problems sit under **N
@@ -30,7 +30,7 @@ hidden.
 
 ## The story does not move
 
-The Status line on **This story → Play** says what the story is doing:
+The Status line on **This chat → Play** says what the story is doing:
 
 | You see | What it means | What to do |
 |---|---|---|
@@ -81,7 +81,7 @@ next save. **Do not reload yet**: reloading before a save lands can lose them.
 2. Once the server answers, carry on: the next reply saves everything that was waiting.
 3. The notice leaves the setup list when that save lands. Then it is safe to reload.
 
-If the server cannot be brought back, keep evidence before restarting it: **Orchestrator → Help → Setup → Host
+If the server cannot be brought back, keep evidence before restarting it: **Settings → Help → Setup → Host
 capabilities → Copy for a bug report**, and note the chat's name. SillyTavern also keeps dated copies of each chat in
 its data folder's `backups`.
 
@@ -92,13 +92,13 @@ messages stay.
 
 ## A character knows something they should not
 
-Flag the moment with **Flag this moment** on **This story → Play**, or `/story flag <what went wrong>`. Flags go to the
+Flag the moment with **Flag this moment** on **This chat → Play**, or `/story flag <what went wrong>`. Flags go to the
 session journal for the author.
 
 ## FAQ
 
 **Does it work in a one-on-one chat?** No: stories play in group chats. In a one-on-one chat the story stays off, and
-**Orchestrator → Library** offers **Make a group for this story**: it asks first, makes a new
+**Settings → Library** offers **Make a group for this story**: it asks first, makes a new
 group with the story's cast (nothing you already have is changed), sets it to start the story and opens it. A group of
 one character is fine. If a card the story needs is missing, it says which and offers **Fix with wizard** instead of
 making a partial group.
@@ -116,7 +116,7 @@ plays it, and are undone when you leave it.
 **Is anything sent to the internet?** Only to the models you configured. The optional judge sends short excerpts to
 its provider; see [Judge](../setup/judge.md).
 
-**Where do I report a bug?** **Orchestrator → Help → Setup → Host capabilities** has **Copy for a bug report**.
+**Where do I report a bug?** **Settings → Help → Setup → Host capabilities** has **Copy for a bug report**.
 
 ---
 

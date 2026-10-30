@@ -34,8 +34,8 @@ export async function openExtensionSettings(page) {
   if (await page.locator('#so-studio-modal[open]').count()) await closeCheckpointStudio(page);
   const workspace = page.locator('#so-workspace-modal[open]');
   if (await workspace.count()) {
-    await workspace.getByRole('button', { name: 'Orchestrator', exact: true }).click();
-    await workspace.locator('#so-workspace-page-connections').click();
+    await workspace.locator('#so-workspace-context-orchestrator').click();
+    await workspace.locator('#so-workspace-page-models').click();
     return { alreadyOpen: true, navWasOpen: true };
   }
 
@@ -52,7 +52,7 @@ export async function openExtensionSettings(page) {
   await launcher.waitFor({ state: 'visible', timeout: 5000 });
   await launcher.click();
   await workspace.waitFor({ state: 'visible', timeout: 10000 });
-  await workspace.locator('#so-workspace-page-connections').click();
+  await workspace.locator('#so-workspace-page-models').click();
   return { alreadyOpen: false, navWasOpen };
 }
 
@@ -116,8 +116,6 @@ export async function revealSettingsControl(page, selector: string, { timeoutMs 
   const deadline = Date.now() + timeoutMs;
   for (;;) {
     const state = await evaluateInST(page, (wanted) => {
-      const memory = document.querySelector('#so-area-memory') as HTMLDetailsElement | null;
-      if (memory && memory.tagName === 'DETAILS' && !memory.open) memory.open = true;
       const node = document.querySelector(wanted);
       if (!node) return { found: false, opened: 0 };
       let opened = 0;
@@ -154,11 +152,11 @@ export async function selectMemoryProfile(page, wanted = process.env.ST_DEBUG_PR
   const roles = await assignedRoleProfiles(page);
   const dangling = Object.entries(roles).filter(([, entry]) => entry.label === null);
   if (dangling.length) throw new Error(`Models per task: ${dangling.map(([role, entry]) => `${role} -> ${entry.id}`).join(', ')} is set to a profile the panel does not offer; every assigned role's profile has to be live.`);
-  await page.locator('#so-workspace-page-defaults').click();
-  await page.locator('[data-feature="reading"]').click();
-  const enable = page.locator('#so-feature-reading-enabled');
-  if (!(await enable.isChecked())) await enable.check();
-  const result = { profile: label, kept, previous: current || null, available: labels, enabled: await enable.isChecked(), roles };
+  await page.locator('#so-workspace-page-features').click();
+  await page.locator('#so-feature-reading-enabled').waitFor({ state: 'visible', timeout: 10000 });
+  const enable = await toggleSetting(page, '#so-feature-reading-enabled', true);
+  if (!enable.ok) throw new Error(`Story reading could not be switched on: ${enable.reason ?? 'unknown'}`);
+  const result = { profile: label, kept, previous: current || null, available: labels, enabled: enable.on === true, roles };
   await page.locator('#so-workspace-modal').getByRole('button', { name: 'Close Story Orchestrator' }).click();
   // Leave the nav as we found it: an open Extensions drawer hides #options_button and #send_but,
   // so anything that plays the chat afterwards would time out.
@@ -969,7 +967,7 @@ export const PLAYER_FORBIDDEN_SELECTORS = [
   '#so-inner-voice', '[data-so="inner-voice-row"]', '[data-so="inner-voice-beat"]', '#so-inner-voice-settings', '#so-inner-harvest', '#so-inner-beat', '#so-inner-fanout',
   '#so-inner-harvest-idle',
   // CR-U (v2.6 plan 15): the author half of every v2.6 surface.
-  '#so-inline-level option[value="3"]', '#so-inline-level option[value="4"]',
+  '#so-inline-level [data-value="3"]', '#so-inline-level [data-value="4"]',
   '#so-chapter-seal', '#so-chapter-fold', '#so-chapter-story-so-far', '#so-chapter-budget', '#so-chapters',
   '[data-so="chapters"]', '[data-so^="chapter-"]:not([data-so^="chapter-card"])',
   '[data-so="model-call-route"]', '[data-so="model-call-result"]',
@@ -1314,7 +1312,7 @@ export async function openStoryDrawer(page) {
   const alreadyOpen = await workspace.count() > 0;
   if (!alreadyOpen) await toggle.click();
   await workspace.waitFor({ state: 'visible', timeout: 10000 });
-  await workspace.getByRole('button', { name: 'This story', exact: true }).click();
+  await workspace.locator('#so-workspace-context-story').click();
   const author = await evaluateInST(page, () => globalThis.storyOrchestratorRuntime?.getCachedSnapshot().ui.authorView === true);
   if (author) await workspace.locator('#so-workspace-page-author').click();
   return { alreadyOpen };

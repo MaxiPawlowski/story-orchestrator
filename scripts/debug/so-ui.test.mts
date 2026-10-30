@@ -228,7 +228,7 @@ test('v2.6 plan 08: the inline sweep forbids the author half and flags a leak in
 });
 
 test('CR-U: the player-clean sweep forbids every v2.6 author surface and no longer lists the stale .so-inspect', () => {
-  for (const selector of ['#so-inline-level option[value="3"]', '#so-inline-level option[value="4"]', '#so-chapter-seal', '#so-chapter-fold', '#so-chapter-story-so-far',
+  for (const selector of ['#so-inline-level [data-value="3"]', '#so-inline-level [data-value="4"]', '#so-chapter-seal', '#so-chapter-fold', '#so-chapter-story-so-far',
     '#so-chapter-budget', '#so-chapters', '[data-so^="chapter-"]:not([data-so^="chapter-card"])', '#so-inner-harvest-idle', '[data-so="model-call-route"]', '[data-so="model-call-result"]',
     '[data-so="role-profile-detail"]', '#so-next-turn', '[data-so^="next-turn-"]', '[data-so="payload-folded"]', '[data-so="memory-lock"]', '[data-so^="conflict-"]',
     '[data-so="quarantined"]', '[data-so="effect-ledger"]', '#so-lore-fired', '[data-so="lore-lost"]', '[data-so="lore-constant-missed"]', '#so-scan-gate',
