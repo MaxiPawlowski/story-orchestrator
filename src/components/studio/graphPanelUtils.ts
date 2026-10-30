@@ -8,6 +8,7 @@ export interface StoryGraphTransitionDraft {
   _stableId?: string;
   to: string;
   label?: string;
+  raw?: string;
 }
 
 export interface StoryGraphCheckpointDraft {
@@ -84,7 +85,7 @@ export const buildGraphElements = (draft: StoryGraphDraft, selectedId: string | 
     .map((cp) => ({
       group: "nodes",
       data: {
-        id: cp.id, label: cp.name || cp.id, type: cp.type ?? "checkpoint",
+        id: cp.id, label: draft.start === cp.id ? `▶ Start\n${cp.name || cp.id}` : cp.name || cp.id, type: cp.type ?? "checkpoint",
         ...(cp.chapter && lanesUsed.has(cp.chapter) ? { parent: `${CHAPTER_LANE_PREFIX}${cp.chapter}` } : {}),
       },
       classes: [selectedId === cp.id ? "selected" : "", draft.start === cp.id ? "start" : ""].filter(Boolean).join(" ") || undefined,
@@ -94,8 +95,9 @@ export const buildGraphElements = (draft: StoryGraphDraft, selectedId: string | 
     .flatMap((cp) => (cp.transitions ?? []).map((transition) => ({ ...transition, from: cp.id })))
     .filter((edge) => (edge.id || edge._stableId) && nodeIds.has(edge.from) && nodeIds.has(edge.to))
     .map((edge) => {
-      const fullLabel = edge.label || "";
-      const label = fullLabel.length > 28 ? `${fullLabel.slice(0, 26)}…` : fullLabel;
+      const text = edge.label || "";
+      const fullLabel = edge.raw || text;
+      const label = text.length > 40 ? `${text.slice(0, 38)}…` : text;
       return {
         group: "edges" as const,
         data: { id: edge.id || edge._stableId, source: edge.from, target: edge.to, label, fullLabel },
@@ -109,20 +111,26 @@ export const createGraphStyles = (themeColors: GraphThemeColors) => ([
   {
     selector: "node",
     style: {
-      "background-color": themeColors.bgActive,
+      "background-color": themeColors.bgTint,
+      "background-opacity": "0.6",
       "border-color": themeColors.info,
-      "border-width": "1px",
+      "border-width": "2px",
       color: themeColors.text,
       label: "data(label)",
+      "text-valign": "center",
+      "text-halign": "center",
       "text-max-width": "140px",
       "text-wrap": "wrap",
-      "font-size": "11px",
-      padding: "8px",
+      "font-size": "13px",
+      width: "label",
+      height: "label",
+      padding: "12px",
+      shape: "round-rectangle",
     },
   },
-  { selector: "node[type = 'anchor']", style: { "background-color": themeColors.info, shape: "ellipse" } },
-  { selector: "node[type = 'intermediate']", style: { shape: "round-rectangle" } },
-  { selector: "node[type = 'stub']", style: { "background-color": themeColors.warning, shape: "diamond" } },
+  { selector: "node[type = 'anchor']", style: { "background-color": themeColors.info, "background-opacity": "0.85", "font-weight": "bold" } },
+  { selector: "node[type = 'intermediate']", style: { "background-opacity": "0.2" } },
+  { selector: "node[type = 'stub']", style: { "border-style": "dashed", "border-color": themeColors.warning, "background-opacity": "0.1" } },
   {
     selector: "node[type = 'chapter']",
     style: {
@@ -138,24 +146,36 @@ export const createGraphStyles = (themeColors: GraphThemeColors) => ([
       shape: "round-rectangle",
     },
   },
-  { selector: "node.start", style: { "border-width": "3px", "border-style": "double", "border-color": themeColors.info } },
-  { selector: "node.selected", style: { "border-width": "3px", "border-color": themeColors.warning } },
+  { selector: "node.start", style: { "border-width": "5px", "border-style": "double", "border-color": themeColors.info } },
+  { selector: "node.selected", style: { "border-width": "4px", "border-color": themeColors.warning } },
   {
     selector: "edge",
     style: {
       "curve-style": "bezier",
       "target-arrow-shape": "triangle",
-      "line-color": themeColors.border,
-      "target-arrow-color": themeColors.border,
+      "line-color": themeColors.text,
+      "line-opacity": "0.5",
+      "target-arrow-color": themeColors.text,
+      width: "2px",
       label: "data(label)",
       color: themeColors.text,
-      "font-size": "10px",
+      "font-size": "12px",
+      "text-wrap": "wrap",
+      "text-max-width": "180px",
       "text-background-color": themeColors.bgTint,
       "text-background-opacity": "0.8",
       "text-background-padding": "4px",
     },
   },
 ]);
+
+export const MAX_FIT_ZOOM = 1;
+
+export const capFitZoom = (cy: Core): void => {
+  if (cy.zoom() <= MAX_FIT_ZOOM || cy.elements().length === 0) return;
+  cy.zoom(MAX_FIT_ZOOM);
+  cy.center();
+};
 
 export const NARROW_GRAPH_WIDTH = 480;
 export const READABLE_ZOOM = 0.6;
@@ -185,6 +205,7 @@ export const runGraphLayout = (cy: Core, name: LayoutName, dagreReady: boolean):
   }
   try {
     cy.fit(undefined, 32);
+    capFitZoom(cy);
     readableOnNarrow(cy);
   } catch (err) {
     log.warn("graph panel: Failed to fit cytoscape view", err);
@@ -195,6 +216,7 @@ export const resizeAndFitGraph = (cy: Core): void => {
   try {
     cy.resize();
     cy.fit(undefined, 32);
+    capFitZoom(cy);
     readableOnNarrow(cy);
   } catch (err) {
     log.warn("graph panel: Failed to resize/fit cytoscape", err);

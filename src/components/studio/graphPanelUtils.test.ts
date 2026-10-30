@@ -1,4 +1,26 @@
-import { buildGraphElements, CHAPTER_LANE_PREFIX, holdTapGate } from "./graphPanelUtils";
+import type { Core } from "cytoscape";
+import { buildGraphElements, capFitZoom, CHAPTER_LANE_PREFIX, holdTapGate } from "./graphPanelUtils";
+
+describe("graph readability (v3.0 29 WP-S2)", () => {
+  const draft = { start: "a", checkpoints: [{ id: "a", name: "A", transitions: [{ id: "t0", to: "b", label: "Trust ≥ 2 and a very long readable condition text", raw: "trust >= 2" }] }, { id: "b", name: "B" }] };
+
+  it("badges the start node and keeps the raw gate for the edge hover", () => {
+    const elements = buildGraphElements(draft, null);
+    expect(elements.find((element) => element.data.id === "a")?.data.label).toBe("▶ Start\nA");
+    const edge = elements.find((element) => element.group === "edges");
+    expect(edge?.data.fullLabel).toBe("trust >= 2");
+    expect(String(edge?.data.label).length).toBeLessThanOrEqual(39);
+  });
+
+  it("never fits a small graph above 1x", () => {
+    let zoom = 3;
+    let centered = false;
+    const cy = { zoom: (value?: number) => { if (value !== undefined) zoom = value; return zoom; }, center: () => { centered = true; }, elements: () => ({ length: 2 }) } as unknown as Core;
+    capFitZoom(cy);
+    expect(zoom).toBe(1);
+    expect(centered).toBe(true);
+  });
+});
 
 describe("graph chapter lanes (v2.6 plan 07 D13)", () => {
   const draft = {
