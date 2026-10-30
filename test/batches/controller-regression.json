@@ -9,6 +9,7 @@
     "gpu: true on a script row = it needs the GPU (or ComfyUI) whatever the class.",
     "new: true = a check written for F3 (scripts/debug/so-controller-checks.mts or a v30-f3 scenario); missing: true = named by the audit, not written yet.",
     "branch = the row's target lives on that branch until it merges.",
+    "args (journey rows only) = the journey arm flags (--judge-uses, --warden-mode) the row runs with; the batch item becomes \"<target> <args>\".",
     "Mocked (none) rows never reach the controller; they stay in a list as no-model sanity for the same feature, never as controller evidence."
   ],
   "lists": {
@@ -30,7 +31,7 @@
         { "id": "a02-stopped-reply", "kind": "scenario", "target": "test/scenarios/v29-a02-stopped-reply.json", "model": "any", "controller": true, "note": "abort forwarded through the gateway; partial state parked" },
         { "id": "v24-01-stopped", "kind": "scenario", "target": "test/scenarios/v24-01-stopped.json", "model": "none", "controller": false },
         { "id": "reply-effort", "kind": "scenario", "target": "test/scenarios/live-v28-24-reply-effort.json", "model": "any", "controller": true, "note": "thinking budget keys parsed by the server binary" },
-        { "id": "j13-judged", "kind": "journey", "target": "J13", "model": "judged", "controller": true },
+        { "id": "j13-judged", "kind": "journey", "target": "J13", "args": ["--judge-uses", "houseRules", "--warden-mode", "auto"], "model": "judged", "controller": true, "note": "on arm (J13 refuses to run without one); the off control arm is --judge-uses off, needed only for so-judge reply-effect" },
         { "id": "effects-preset", "kind": "scenario", "target": "test/scenarios/effects-preset.json", "model": "none", "controller": false },
         { "id": "t8-read-quality", "kind": "script", "target": "node scripts/debug/so-prompt-batch.mts send --out <frozen t8 dir> --base-url http://127.0.0.1:18888 && node scripts/debug/so-prompt-batch.mts score --out <frozen t8 dir> --expect-count 4", "model": "judged", "controller": true, "gpu": true, "note": "class M, no browser; stop rules built in" },
         { "id": "payload-goldens", "kind": "script", "target": "node scripts/debug/so-payload-golden.mts capture --label <change> --out <dir> && node scripts/debug/so-payload-golden.mts diff <baseline> <dir>", "model": "none", "controller": false, "gpu": false, "note": "prompts byte-identical: the controller cannot have altered layout" },
