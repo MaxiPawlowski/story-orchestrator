@@ -1,4 +1,6 @@
+import { useState } from "react";
 import type { RuntimeManager } from "@runtime/index";
+import { devicePreferences } from "@runtime/featureSettingsHost";
 import type { RuntimeSnapshot } from "@runtime/types";
 import { Section } from "@components/ui/Section";
 import { CheckRow } from "./Field";
@@ -12,7 +14,8 @@ export interface DisplayPageProps {
   deviceStore?: DeviceStore;
 }
 
-export const DisplayPage = ({ snapshot, manager, deviceStore }: DisplayPageProps) => {
+export const DisplayPage = ({ snapshot, manager, deviceStore: injected }: DisplayPageProps) => {
+  const [deviceStore] = useState(() => injected ?? devicePreferences());
   const notify = () => manager.notify();
   const hud = useDeviceSetting<boolean>("display.hudEnabled", snapshot.ui.hudEnabled, (on) => manager.setUiSettings({ hudEnabled: on }), notify, deviceStore);
   const yourMove = useDeviceSetting<boolean>("display.yourMove", snapshot.ui.yourMove !== false, (on) => manager.setUiSettings({ yourMove: on }), notify, deviceStore);

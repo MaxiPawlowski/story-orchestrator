@@ -15,9 +15,10 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { DEBUG_DIR, PROJECT_ROOT } from './lib/connection.mts';
+import { DEBUG_DIR, PROJECT_ROOT, DEFAULT_ST_URL, DEFAULT_CDP_PORT, SESSION_PATH } from './lib/connection.mts';
+import { ownerStRefusal } from './lib/ownerStGuard.mts';
 import { evaluateInST } from './lib/evaluate.mts';
-import { runCli, hasHelpFlag, stripCommonArgs } from './lib/cli.mts';
+import { runCli, hasHelpFlag, stripCommonArgs, commonConnectOptions } from './lib/cli.mts';
 import { readLivePresets } from './lib/sessionPageReads.mts';
 import type { LivePresets } from './lib/presetOverlay.mts';
 import { laneHeaderField } from './lib/lanePods.mts';
@@ -48,6 +49,9 @@ const USAGE = `Usage: node scripts/debug/so-run-header.mts <capture|diff|show> [
 
   show
       Capture and print without writing a file.
+
+  Every command refuses to read the owner's ST (:8000) or the shared CDP browser (:9222) (D-EB6):
+  run it through st-lanes.mts run <n> --, or pass --owner-st when the owner asked for it.
 
 Fields: build.head/manifest (dist), campaign.pinCommit/pinBranch (adolion-fresh pin) and
 campaign.installed.commit/sha256 (this lane's adolion-fresh inventory, null off an adolion-fresh lane),
@@ -657,6 +661,14 @@ export async function writeHeader(header: unknown, label: string, out: string | 
   return path;
 }
 
+function sessionEndpoint(): string | null {
+  try {
+    return existsSync(SESSION_PATH) ? JSON.parse(readFileSync(SESSION_PATH, 'utf-8'))?.cdpEndpoint ?? null : null;
+  } catch {
+    return null;
+  }
+}
+
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const args = stripCommonArgs(process.argv.slice(2));
   const command = args[0];
@@ -677,7 +689,19 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     process.exit(1);
   }
 
-  runCli(async (page) => {
+  const rawArgs = process.argv.slice(2);
+  const refusedBefore = ownerStRefusal({ tool: 'so-run-header.mts', stUrls: [commonConnectOptions().stUrl ?? DEFAULT_ST_URL], cdpEndpoints: [`http://127.0.0.1:${DEFAULT_CDP_PORT}`, sessionEndpoint()], args: rawArgs });
+  if (refusedBefore) {
+    console.error(`ERROR: ${refusedBefore}`);
+    process.exit(2);
+  }
+
+  runCli(async (page, conn) => {
+    const refused = ownerStRefusal({ tool: 'so-run-header.mts', stUrls: [page.url(), conn.session?.stUrl], cdpEndpoints: [conn.session?.cdpEndpoint], args: rawArgs });
+    if (refused) {
+      console.error(`ERROR: ${refused}`);
+      return { ok: false };
+    }
     const header = await captureHeader(page, label);
 
     if (command === 'show') {

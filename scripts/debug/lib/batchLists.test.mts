@@ -69,7 +69,25 @@ test('selectList picks journey and scenario rows of the filtered classes once ea
   assert.match(lines, /run separately \(no-model\): node scripts\/debug\/so-payload-golden.mts/);
   assert.match(lines, /not batchable \(other-branch on v3.0-09-controller-r3\): full-length/);
   const judged = selectList(file, 'controller-regression:base', ['base'], 'judged');
-  assert.deepEqual(judged.items, ['GS1', 'J5', 'J13']);
+  assert.deepEqual(judged.items, ['GS1', 'J5', 'J13 --judge-uses houseRules --warden-mode auto']);
   assert.throws(() => selectList(file, 'x', ['nope'], null), /unknown list/);
   assert.throws(() => parseListSpec('../etc'), /--list takes/);
+});
+
+test('C-H3: J13 runs on its on arm from the list, and the census refuses arm flags it cannot pass', () => {
+  const file = loadBatchLists(REPO_ROOT, 'controller-regression');
+  const j13 = file.lists.base.rows.find((entry) => entry.id === 'j13-judged');
+  assert.deepEqual(j13?.args, ['--judge-uses', 'houseRules', '--warden-mode', 'auto']);
+  const planted: BatchListsFile = {
+    format: 'so-batch-lists/1', title: 't', source: 's', rules: [],
+    lists: { one: { why: 'w', rows: [
+      row({ id: 'scenario-args', target: 'test/scenarios/effects-preset.json', model: 'none', controller: false, args: ['--judge-uses', 'off'] }),
+      row({ id: 'odd-args', kind: 'journey', target: 'J13', model: 'judged', args: ['--judge-uses'] }),
+      row({ id: 'foreign-flag', kind: 'journey', target: 'J13', model: 'judged', args: ['--no-config', 'x'] }),
+    ] } },
+  };
+  const problems = batchListProblems(planted, REPO_ROOT).join(' | ');
+  assert.match(problems, /scenario-args: args are journey arm flags/);
+  assert.match(problems, /odd-args: args must be flag\/value pairs/);
+  assert.match(problems, /foreign-flag: args: "--no-config" is not one of --judge-uses, --warden-mode/);
 });

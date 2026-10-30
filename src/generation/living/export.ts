@@ -9,7 +9,7 @@ export interface LivingExportOptions {
   includeUnreached: boolean;
   id: string;
   title: string;
-  scrub?: (text: string) => string;
+  scrub: (text: string) => string;
 }
 
 export type LivingExport = { ok: true; raw: Story; excluded: string[]; stubbed: string[] } | { ok: false; reason: string; errors: ValidationError[] };
@@ -59,7 +59,7 @@ const qualityReferences = (checkpoints: readonly Checkpoint[], transitions: read
 ]);
 
 export function projectLivingExport(raw: Record<string, unknown>, story: NormalizedStory, options: LivingExportOptions): LivingExport {
-  const scrub = options.scrub ?? ((text: string) => text);
+  const { scrub } = options;
   const excluded = excludedCheckpoints(story, options.reached, options.includeUnreached);
   const source: Partial<Story> = clone(raw);
   const opening = story.checkpointById[LIVING_OPENING_ID];

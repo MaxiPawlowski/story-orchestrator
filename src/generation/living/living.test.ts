@@ -263,7 +263,7 @@ describe("Save as story", () => {
 
   it("drops the unreached anchor and what names it, and ends the reached anchor in a stub (R3-12)", () => {
     const { raw, story } = build(2);
-    const out = projectLivingExport(raw, story, { reached: new Set(["liv_open", "liv_1"]), includeUnreached: false, id: "coast-run", title: "Coast run" });
+    const out = projectLivingExport(raw, story, { reached: new Set(["liv_open", "liv_1"]), includeUnreached: false, id: "coast-run", title: "Coast run", scrub: (text) => text });
     expect(out.ok).toBe(true);
     if (!out.ok) return;
     const ids = out.raw.checkpoints.map((checkpoint) => checkpoint.id);
@@ -280,7 +280,7 @@ describe("Save as story", () => {
 
   it("keeps unreached anchors when the author asks", () => {
     const { raw, story } = build(2);
-    const out = projectLivingExport(raw, story, { reached: new Set(["liv_open"]), includeUnreached: true, id: "x", title: "x" });
+    const out = projectLivingExport(raw, story, { reached: new Set(["liv_open"]), includeUnreached: true, id: "x", title: "x", scrub: (text) => text });
     expect(out.ok && out.raw.checkpoints.map((checkpoint) => checkpoint.id)).toContain("liv_2");
   });
 
@@ -295,7 +295,7 @@ describe("Save as story", () => {
     const path = ["liv_open", ...Array.from({ length: 6 }, (_, index) => `liv_${index + 1}`)];
     for (let cut = 1; cut <= path.length; cut += 1) {
       const reached = new Set(path.slice(0, cut));
-      const out = projectLivingExport(raw, story, { reached, includeUnreached: false, id: "x", title: "x" });
+      const out = projectLivingExport(raw, story, { reached, includeUnreached: false, id: "x", title: "x", scrub: (text) => text });
       expect({ cut, ok: out.ok }).toEqual({ cut, ok: true });
       if (!out.ok) continue;
       const excluded = excludedCheckpoints(story, reached, false);

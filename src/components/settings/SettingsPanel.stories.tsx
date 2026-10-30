@@ -129,6 +129,7 @@ export const WorldLinksToItsFeatureRows: Story = {
   play: async ({ canvasElement, args }) => {
     await expect(canvasElement.querySelector("#so-wi-gating-mode")).not.toBeNull();
     await expect(canvasElement.querySelector("#so-wi-scan-memory")).toBeNull();
+    await expect(canvasElement.querySelector("#so-wi-lore-pins")).toBeNull();
     await userEvent.click(canvasElement.querySelector("#so-feature-link-lateLore") as HTMLElement);
     await expect(args.navigate).toHaveBeenCalledWith({ context: "orchestrator", page: "features", feature: "lateLore" }, "so-feature-lateLore-enabled");
   },
@@ -142,6 +143,33 @@ export const AuthoringHoldsTheWizardAskAndBudget: Story = {
     await waitFor(() => expect(canvasElement.querySelector("#so-chapter-budget")).not.toBeNull());
     await userEvent.click(canvasElement.querySelector("#so-authoring-author-view") as HTMLElement);
     await expect(args.navigate).toHaveBeenCalledWith({ context: "story", page: "features" }, "so-author-view-switch");
+  },
+};
+
+export const AuthorViewAddsPromptTrialsAndLorePins: Story = {
+  args: { page: "authoring", snapshot: snapshot(true) },
+  play: async ({ canvasElement, args }) => {
+    await expect(canvasElement.querySelector("#so-prompt-trials")).not.toBeNull();
+    const before = getGlobalSettings().talk.swipeContrast;
+    await userEvent.click(canvasElement.querySelector("#so-swipe-contrast") as HTMLElement);
+    await expect(getGlobalSettings().talk.swipeContrast).toBe(!before);
+    await userEvent.click(canvasElement.querySelector("#so-history-notes") as HTMLElement);
+    await expect(args.manager.setMemorySettings).toHaveBeenCalledWith({ historyNotes: true });
+    await userEvent.click(canvasElement.querySelector("#so-swipe-contrast") as HTMLElement);
+  },
+};
+
+export const PlayerSeesNoPromptTrials: Story = {
+  args: { page: "authoring" },
+  play: async ({ canvasElement }) => {
+    await expect(canvasElement.querySelector("#so-prompt-trials")).toBeNull();
+  },
+};
+
+export const AuthorViewWorldHasLorePins: Story = {
+  args: { page: "world", snapshot: snapshot(true) },
+  play: async ({ canvasElement }) => {
+    await expect(canvasElement.querySelector("#so-wi-lore-pins")).not.toBeNull();
   },
 };
 

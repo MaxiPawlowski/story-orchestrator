@@ -155,7 +155,7 @@ export const readCheckpointEffects = (value: unknown, path: string, errors: Vali
   return effects;
 };
 
-const AGENCY_KEYS = ["protect_player_choice", "never_narrate_player_action", "objective_kind", "alternate", "player_attempts_only"] as const;
+const AGENCY_KEYS = ["protect_player_choice", "never_narrate_player_action", "objective_kind", "alternate", "player_attempts_only", "skip"] as const;
 
 // An unknown objective_kind is an error rather than a silent default: the whole
 // point of the field is that the author said which objective this is.
@@ -184,6 +184,10 @@ const readAgency = (value: unknown, path: string, errors: ValidationError[]): Pa
   if (value.player_attempts_only !== undefined) {
     if (typeof value.player_attempts_only !== "boolean") addError(errors, `${path}.player_attempts_only`, "must be a boolean");
     else agency.player_attempts_only = value.player_attempts_only;
+  }
+  if (value.skip !== undefined) {
+    if (typeof value.skip !== "boolean") addError(errors, `${path}.skip`, "must be a boolean");
+    else agency.skip = value.skip;
   }
   return agency;
 };

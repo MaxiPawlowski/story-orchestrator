@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, writeFileSync, appendFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
-import { cardArtPlan, cardArtProblems, laneServerLog, leakNames, markServerLog, takeServerLog, SHOWCASE_AVATARS } from './pocCardArt.mts';
+import { cardArtPlan, cardArtProblems, cardTextProblems, laneServerLog, leakNames, markServerLog, takeServerLog, SHOWCASE_AVATARS } from './pocCardArt.mts';
 import { journeyCast, poseCast } from './pocDrivers.mts';
 import { testTempDirSync } from '../../lib/testTemp.mjs';
 
@@ -12,6 +12,12 @@ test('cardArtPlan gives each member one showcase avatar in cast order and refuse
   assert.deepEqual(plan.map((row) => row.file), SHOWCASE_AVATARS.map((file) => resolve('C:/art', file)));
   assert.equal(new Set(cardArtPlan(poseCast(), 'C:/art').map((row) => row.file)).size, 3);
   assert.throws(() => cardArtPlan([...poseCast(), { name: 'SO-PL Extra' }]), /only 3 showcase avatars/);
+});
+
+test('C-H5: the p41 cast card text describes the showcase art each card is given, and a drifted text is named', () => {
+  assert.deepEqual(cardTextProblems(journeyCast()), []);
+  const drifted = journeyCast().map((member, at) => (at === 1 ? { ...member, description: 'Bram is a grey-bearded keeper in a knitted blue sweater.' } : member));
+  assert.deepEqual(cardTextProblems(drifted), ['SO-P41 Bram: card text does not describe its showcase art garrick-avatar.png (missing black hair, plate armour, blue cape)']);
 });
 
 test('cardArtProblems names every card left on the default picture or not attached', () => {

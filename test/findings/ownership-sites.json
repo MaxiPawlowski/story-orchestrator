@@ -513,6 +513,14 @@
       "status": "checked",
       "note": "v2.3 plan 03: the only effect that SPEAKS — fireReply posts a message into whatever chat is open, so a late fire is visible in the transcript. One await per reply, so the check is inside the loop. Limit: beginRun mints at entry, so it detects the world moving DURING the sequence, not before; the caller owns that decision. Live-proven 2026-09-20: plan02-runtime scenario green twice against a group with the required cast, npcFired=1 — the guard does not suppress a real scripted reply. The trigger (generating) branch is still unproven live. v2.4 follow-up (2026-09-25): the row said checked while the write after the LAST reply's await (`extras.lastSelfInjectionMessageId = lastMessageId()`, the open chat's id into the entry chat's extras) had no check after it, because the loop-top check guards only the NEXT reply; a check now sits between the await and that write (npcRepliesOwnership.review.test.ts, generating-reply case + control). v2.5 plan 02 C1 step 2 (2026-09-25): an llm reply now goes through EffectsApplier.speak, which stops the in-flight /trigger generation when the world moves while it streams, only when it is provably the trigger's own (see that row). Built ahead of its live step 0; the generating branch is still unproven live."
     },
+    "src/runtime/skipRuntime.ts#runSkip": {
+      "status": "checked",
+      "note": "v3.0 32: the player's Skip ahead. One awaited narrator reply (speakGenerated, its own row); after the await `stillOwns` (a RunToken minted in skipRuntimeHost.runSkipOnHost from the manager's ownership) is checked before the cue, journal and persist writes; a lapsed run only settles its speech reservation empty (the budget records nothing after a chat switch). Test: skip.review.test.ts \"a run that lapsed while the reply was written\"."
+    },
+    "src/runtime/skipPort.ts#createSkipPort.run": {
+      "status": "local",
+      "note": "v3.0 32: after the awaited skip it only clears its own in-closure `running` flag and calls notify (subscribers re-read the snapshot); every chat or store write is runSkip's, which checks its run token."
+    },
     "src/runtime/npcSpeak.ts#speakGenerated": {
       "status": "checked",
       "note": "v2.5 plan 02 C1 step 2: one NPC reply, awaited. `fireReply` is the reply itself (its caller, fireNpcReplies, checks the run before it and after it); after the await it removes its own abort listener and releases its stream guard. v2.5 C1 fix (D1): an llm reply arms guardHostStream(openChatId()) (stHost/streamGuard.ts), which wraps the streaming processor's onProgressStreaming, the one write path for every tick and for the finish (script.js:3886-3896, :3756, :3808-3815), and refuses any write whose open chat id or chat[messageId] object is not the one the stream started in: it marks the stream stopped+finished and aborts its fetch, so onFinishStreaming never runs and nothing is saved (npcStreamLanding.review.test.ts). release() then gives the send button back (activateSendButtons) only when it halted a stream, because the halted Generate never unblocks by itself; that host call after the await is deliberate, the halted stream belongs to no chat. On lapse, halt() stops the live stream through the guard; only when no streaming processor exists (non-streaming, or before the request) does the old stop run, and only if exactly one outermost generation opened since the trigger and ST still generates (npcTriggerStop.review.test.ts). v2.6 plan 04 C1r: the same stop (once, via a `stopped` flag) also runs from watchHostChatMove the moment the open chat id stops matching the reply's, before CHAT_CHANGED, so a non-streaming reply or late headers cannot land in the loaded next chat (npcLateLanding.review.test.ts); unwatch runs in the finally with the other releases. v3.0 19 (2026-10-26): moved to npcSpeak.ts speakGenerated (the file budget); it also arms the reply's one-shot direction before the /trigger and releases it in the same finally (pacing state, nothing that outlives the call). v3.0 19 stage 3: the /trigger is now the guarded voice starter (npcVoice.ts startNpcVoice -> startVoice); a run token minted at the top is checked (with the open chat id) after every wait poll and before the start, so a reply whose chat moved while it waited for the floor never starts (effectsApplier.test.ts stage 3, npcVoice.test.ts)."
@@ -1057,7 +1065,7 @@
       "status": "checked",
       "note": "Plan 33: RunGuard and current-stage checks precede renders, saves and application. Tests: sprites/poses/bodyRenderer.test.ts."
     },
-    "src/sprites/SpriteGroup.tsx#SpriteGroup>anonymous": {
+    "src/sprites/RemoveStorySprites.tsx#RemoveStorySprites.run": {
       "status": "local",
       "note": "v2.8 review fixes (2026-10-14), census widened to .tsx: the author's confirmed removal of one story's generated sprite files (install-wide media, keyed by the story id named in the confirm), then the component's own notice. Not chat- or draft-scoped, so no run token applies (releaseGlobalStoryLore precedent)."
     },
@@ -1240,6 +1248,18 @@
     "src/runtime/openingSequence.ts#OpeningSequence.post": {
       "status": "delegate",
       "note": "v3.0 19 (replaces EffectsApplier.openNewChat): posts the chat's opening lines. `posting` is in-memory state of this object, reset in the finally; it awaits EffectsApplier.fireNpcReplies, which checks the run before and after each reply."
+    },
+    "src/runtime/lorePins.ts#pinLore": {
+      "status": "checked",
+      "note": "v3.0 34 S2: mints a run before loading the scannable entries and checks it (plus the story identity) after the await and again immediately before the one host effect, the force for the next scan. Nothing is written to a lorebook. Tests: runtime/lorePins.test.ts \"a run that lapses while the entries load forces nothing\"."
+    },
+    "src/runtime/wiring/lore.ts#startLore.pin": {
+      "status": "local",
+      "note": "After pinLore (which owns its run) it records the forced picks in the in-memory lore evidence ring for the current generation slot; nothing reaches a chat, a store or the host."
+    },
+    "src/runtime/wiring/talk.ts#armSwipeContrast": {
+      "status": "local",
+      "note": "v3.0 31 S2: caches the lazily loaded swipe-contrast host after the chunk import; the stop flag is checked after the await. The arm itself runs synchronously inside the interceptor, in the chat that is generating. Tests: runtime/swipeContrast.test.ts."
     }
   }
 }

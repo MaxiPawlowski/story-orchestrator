@@ -26,6 +26,8 @@ const ABSENT_DEFAULTS: Record<string, string> = {
   "extraction.replyEffort": "Medium",
   "extraction.profiles": "Same as memory model",
   "memory.innerFanOut": "Next speaker only",
+  "extraction.readLayout": "Off (today's order)",
+  "extraction.promiseAddressee": "Off",
 };
 
 const EFFECTIVE_DEFAULTS: Record<string, string> = {

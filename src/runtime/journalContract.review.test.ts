@@ -50,7 +50,7 @@ describe("V20e: the journal contract", () => {
       getState: () => ({ activeCheckpointId: "cp1", boundary: 3 }),
       getExtraction: () => ({ audits: [], reconciliationEvents: [], judgedReads: [] }),
       model: testModel("p1"),
-      memory: { enabled: false, capable: false, applyEntries: async () => {}, recordVerifyDrops: () => {}, applyArcSignals: () => [], applyEpistemic: () => {}, applyLedger: () => {}, updateInjection: () => {} },
+      memory: { enabled: false, capable: false, applyEntries: async () => {}, recordVerifyDrops: () => {}, applyArcSignals: () => ({ arcs: [], opened: [], resolved: [], deferred: [], reopened: [], refused: [] }), applyEpistemic: () => {}, applyLedger: () => {}, updateInjection: () => {} },
       getFiredTransitions: () => [],
       getExpansionGateSources: () => [],
       enqueueExtractorDeltas: (_accepted: unknown, _window: unknown, origin: string) => { origins.push(origin); },

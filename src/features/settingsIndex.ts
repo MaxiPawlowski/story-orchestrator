@@ -59,7 +59,13 @@ export const SETTING_CONTROLS: Record<string, string> = {
   "sprites.stage": "so-sprite-stage",
   "talk.keepLastQuestion": "so-keep-last-question",
   "worldInfo.gatingMode": "so-wi-gating-mode",
+  "worldInfo.lorePins": "so-wi-lore-pins",
+  "memory.historyNotes": "so-history-notes",
+  "memory.outwardNarration": "so-outward-narration",
+  "talk.swipeContrast": "so-swipe-contrast",
 };
+
+const AUTHOR_SETTINGS: ReadonlySet<string> = new Set(["worldInfo.lorePins", "memory.historyNotes", "memory.outwardNarration", "talk.swipeContrast"]);
 
 const firstSentence = (text: string): string => /^(.+?[.!?])(\s|$)/.exec(text)?.[1] ?? text;
 const copyOf = (key: string): SettingCopy | undefined => (SETTING_COPY as Record<string, SettingCopy>)[key];
@@ -84,7 +90,7 @@ export const buildSettingsIndex = (authorView: boolean): SettingsSearchEntry[] =
         intent, control.field === "enabled" ? config.name : `${config.name} › ${control.label}`);
     });
   });
-  const settings = Object.entries(SETTING_CONTROLS).filter(([key]) => !featurePaths.has(key)).flatMap(([key, control]) => {
+  const settings = Object.entries(SETTING_CONTROLS).filter(([key]) => !featurePaths.has(key) && (authorView || !AUTHOR_SETTINGS.has(key))).flatMap(([key, control]) => {
     const copy = copyOf(key);
     return copy ? [entry(`setting:${key}`, copy.label, firstSentence(copy.help), settingIntent(control))] : [];
   });

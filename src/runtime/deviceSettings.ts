@@ -1,5 +1,5 @@
 import { isRecord } from "@utils/guards";
-import { readSettingPath, writeSettingPath } from "./featureResolve";
+import { writeSettingPath } from "./featureResolve";
 import type { GlobalSettings } from "./settingsModel";
 import { log } from "@utils/log";
 
@@ -49,7 +49,3 @@ export const applyDeviceSettings = (global: GlobalSettings, device: DeviceSettin
   for (const [path, value] of Object.entries(sanitizeDeviceSettings(device))) writeSettingPath(result, path, value);
   return result;
 };
-
-export const deviceSettingValue = (global: GlobalSettings, device: DeviceSettings, path: DeviceSettingPath) => ({
-  value: device[path] ?? readSettingPath(global, path), source: device[path] === undefined ? "install" as const : "device" as const,
-});

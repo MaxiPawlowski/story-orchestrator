@@ -13,7 +13,7 @@ import { CheckRow, HelpText } from "./Field";
 interface GroupProps {
   snapshot: RuntimeSnapshot;
   manager: RuntimeManager;
-  deviceStore?: DeviceStore;
+  deviceStore: DeviceStore;
 }
 
 export const InlineControls = ({ snapshot, manager, deviceStore }: GroupProps) => {

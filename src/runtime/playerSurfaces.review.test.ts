@@ -4,6 +4,7 @@ import { HudStrip } from "../components/drawer/HudStrip";
 import { MemoryTab } from "../components/drawer/tabs/MemoryTab";
 import { PlayerOverview } from "../components/drawer/PlayerOverview";
 import { InlineControls } from "../components/settings/InlineControls";
+const deviceStore = { read: () => ({}), set: () => ({}) };
 import { ChapterControls } from "../components/settings/ChapterControls";
 import { ChapterRecordControls } from "../components/settings/ChapterRecordControls";
 import { RoleProfilesGroup } from "../components/settings/RoleProfilesGroup";
@@ -81,11 +82,12 @@ describe("CR-U: player mode never shows ids, internals or raw errors", () => {
   });
 
   it("H5: player mode offers inline levels 0-2 only and shows the effective level", () => {
-    const page = html(createElement(InlineControls, { snapshot: snapshot(false, { ui: { authorView: false, inline: { ...defaultInlineSettings(), level: 4 } } }), manager }));
-    expect(page).not.toMatch(/<option value="3"/);
-    expect(page).not.toMatch(/<option value="4"/);
-    const author = html(createElement(InlineControls, { snapshot: snapshot(true, { ui: { authorView: true, inline: { ...defaultInlineSettings(), level: 4 } } }), manager }));
-    expect(author).toMatch(/<option value="4" selected/);
+    const page = html(createElement(InlineControls, { snapshot: snapshot(false, { ui: { authorView: false, inline: { ...defaultInlineSettings(), level: 4 } } }), manager, deviceStore }));
+    expect(page).not.toMatch(/data-value="3"/);
+    expect(page).not.toMatch(/data-value="4"/);
+    expect(page).toMatch(/aria-checked="true" data-value="2"/);
+    const author = html(createElement(InlineControls, { snapshot: snapshot(true, { ui: { authorView: true, inline: { ...defaultInlineSettings(), level: 4 } } }), manager, deviceStore }));
+    expect(author).toMatch(/aria-checked="true" data-value="4"/);
   });
 
   it("M3: a role route's failure detail and the scan capability detail are author-only", () => {
@@ -130,11 +132,11 @@ describe("CR-U: player mode never shows ids, internals or raw errors", () => {
     expect(author).toContain("so-entry-fix-with-wizard");
   });
 
-  it("1/2: a checkbox's label never contains its help button", () => {
+  it("1/2: a checkbox's label never contains its help text", () => {
     const row = html(createElement(CheckRow, { id: "x", checked: false, onChange: noop, label: "Continuity warden", help: "Help text" }));
     const label = row.slice(row.indexOf("<label"), row.indexOf("</label>"));
     expect(label).toContain("Continuity warden");
     expect(label).not.toContain("Help text");
-    expect(row).toContain("Help: Help text");
+    expect(row).toContain("<span>Help text</span>");
   });
 });

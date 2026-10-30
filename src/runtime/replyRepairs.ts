@@ -1,8 +1,8 @@
 import { log } from "@utils/log";
 
-export type ReplyRepairId = "thought-leak" | "keep-last";
+export type ReplyRepairId = "thought-leak" | "history-note" | "keep-last";
 
-export const REPLY_REPAIR_ORDER: readonly ReplyRepairId[] = ["thought-leak", "keep-last"];
+export const REPLY_REPAIR_ORDER: readonly ReplyRepairId[] = ["thought-leak", "history-note", "keep-last"];
 
 export type ReplyRepair = (messageId: number) => void;
 

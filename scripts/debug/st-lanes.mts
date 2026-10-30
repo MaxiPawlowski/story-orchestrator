@@ -20,6 +20,7 @@ import { batchReplayPlan, LANE_REPLAY_FILE, readLaneReplay, replayProfiles, repl
 import { beginSession, DEFAULT_REPLAY_URL, endSession, laneSession, replayEnv, replayRowVerdict, replayStatus } from './lib/replayClient.mts';
 import { REPLAY_PORT, type SessionStats } from './lib/replayStore.mts';
 import { listPlanLines, loadBatchLists, parseListSpec, selectList, type ListSelection } from './lib/batchLists.mts';
+import { journeyArmProblems, splitJourneyItem } from './lib/journeyArm.mts';
 
 const USAGE = `Usage: node scripts/debug/st-lanes.mts <command> [...]
 
@@ -485,9 +486,15 @@ export function runRowName(stamp: string, script: string[]): string {
   return `${stamp}-${name}${verb}`;
 }
 
-export const isJourneyItem = (item: string) => /^(J|GS)\d+$/i.test(item);
+export const isJourneyItem = (item: string) => /^(J|GS)\d+$/i.test(splitJourneyItem(item).id);
+export function journeyItemParts(item: string): string[] {
+  const { id, args } = splitJourneyItem(item);
+  const problems = journeyArmProblems(args.length ? args : undefined);
+  if (problems.length) throw new Error(`batch item ${JSON.stringify(item)}: ${problems.join('; ')}`);
+  return [id.toUpperCase(), ...args];
+}
 export const itemArgs = (item: string, strict: boolean, group: string | null, wiGating: string | null = null, model: string | null = null) => (isJourneyItem(item)
-  ? ['scripts/debug/so-journey.mts', 'run', item.toUpperCase(), ...(strict ? ['--strict'] : []), ...(wiGating ? ['--wi-gating', wiGating] : []), ...(model ? ['--model', model] : [])]
+  ? ['scripts/debug/so-journey.mts', 'run', ...journeyItemParts(item), ...(strict ? ['--strict'] : []), ...(wiGating ? ['--wi-gating', wiGating] : []), ...(model ? ['--model', model] : [])]
   : ['scripts/debug/so-scenario.mts', 'run', item, '--sandbox', ...(group ? ['--group', group] : []), ...(model ? ['--model', model] : [])]);
 
 export const BETWEEN_RUNS_SETTLE_MS = 10_000;
@@ -645,6 +652,7 @@ async function main() {
     const items = [...named, ...(listed?.items ?? [])];
     if (listed) printListPlan(listed);
     if (!items.length) throw new Error('batch: no item to run');
+    for (const item of items) if (isJourneyItem(item)) journeyItemParts(item);
     const refused = lanePreflight();
     if (refused) throw new Error(`batch refused: ${refused}`);
     const counted = lanesNow.map((entry) => (replay && !replay.usesModel && entry.replay ? { ...entry, noModel: true } : entry));

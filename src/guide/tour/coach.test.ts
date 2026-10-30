@@ -6,7 +6,7 @@ import { join, resolve } from "node:path";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { STORY_FEATURE_IDS } from "@engine/featurePolicy";
-import { FEATURE_CONTROLS } from "@runtime/featureControls";
+import { FEATURE_CONTROLS, OFF_UNTIL_RATED } from "@runtime/featureControls";
 import { resolveFeatures } from "@runtime/featureResolve";
 import { defaultGlobalSettings } from "@runtime/settingsModel";
 import { workspaceNavigation } from "@runtime/workspaceNavigation";
@@ -307,7 +307,7 @@ describe("setup path page", () => {
     expect(doc()).not.toMatch(/`so-[a-z-]+`/);
     const defaults = defaultGlobalSettings();
     const resolved = resolveFeatures(defaults, null);
-    expect(STORY_FEATURE_IDS.filter((id) => !resolved[id].enabled)).toEqual([]);
+    expect(STORY_FEATURE_IDS.filter((id) => !resolved[id].enabled)).toEqual([...OFF_UNTIL_RATED]);
     expect(STORY_FEATURE_IDS.filter((id) => resolved[id].automatic)).toEqual(["sprites"]);
     expect([defaults.extraction.profileId, defaults.extraction.cadence, DEFAULT_REPLY_EFFORT, defaults.worldInfo.gatingMode]).toEqual([null, 3, "medium", "scan"]);
     expect([defaults.copilot.enabled, defaults.copilot.ask]).toEqual([true, true]);

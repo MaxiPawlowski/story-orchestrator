@@ -21,7 +21,7 @@ import { executeSlashCommand, waitForIdle, deleteMessage } from './st-actions.mt
 import { dismissBriefing } from './lib/briefingHarness.mts';
 import { removeStory } from './so-library.mts';
 import { cleanResidue, laneUserDir, residueLeaks } from './lib/p41Residue.mts';
-import { CARD_ART_DEVIATION, cardArtPlan, cardArtProblems, giveCardArt, leakNames, markServerLog, takeServerLog } from './lib/pocCardArt.mts';
+import { CARD_ART_DEVIATION, cardArtPlan, cardArtProblems, cardTextProblems, giveCardArt, leakNames, markServerLog, takeServerLog } from './lib/pocCardArt.mts';
 import {
   FLOORS_DATE, JOURNEY_FLOORS, JOURNEY_STEPS, P41_MARKER, PLAYER_LINES, countCalls, evidenceDirName, gpuIdleProblems, journeyCast, journeyGpuMinutes, journeyGroupName,
   journeyStory, laneProblem, parseAuthoringRoute, plumbingProblems, sampleSummary, skeletonProblems, staleFindings, staleInputFrom, stepVerdict, wizardGoal, wizardScript,
@@ -176,7 +176,7 @@ async function stepStory(ctx: Ctx): Promise<StepResult> {
 
 async function stepCardArt(ctx: Ctx): Promise<StepResult> {
   const rows = await giveCardArt(ctx.page, cardArtPlan(ctx.cast));
-  const problems = cardArtProblems(rows);
+  const problems = [...cardTextProblems(ctx.cast), ...cardArtProblems(rows)];
   return { outcome: problems.length ? 'fail' : 'pass', detail: problems.join('; ') || undefined, data: { deviation: CARD_ART_DEVIATION, rows } };
 }
 

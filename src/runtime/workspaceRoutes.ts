@@ -71,7 +71,7 @@ const SETTINGS_PAGES: Array<[RegExp, WorkspacePage, string?]> = [
   [/^so-model-source/, "images", "model-sources"],
   [/^(so-image-|so-sprite-|so-live-head|so-gpu-broker|so-stage-|so-device-sprites)/, "images"],
   [/^(so-wi-|so-lorebooks|so-story-lore|so-world-)/, "world"],
-  [/^(so-copilot-|so-chapter-budget|so-authoring-)/, "authoring"],
+  [/^(so-copilot-|so-chapter-budget|so-authoring-|so-prompt-trials|so-history-notes|so-outward-narration|so-swipe-contrast)/, "authoring"],
   [/^(so-capabilities|so-host-|so-engine-status|so-diagnostics|so-copy-diagnostics|so-context-limit)/, "diagnostics"],
   [/^so-help-/, "help"],
 ];

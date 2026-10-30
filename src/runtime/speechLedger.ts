@@ -1,6 +1,6 @@
 import type { SourceRevision } from "@memory/audience";
 
-export const SPEECH_ORIGINS = ["chain", "npc", "entry", "spotlight", "address", "reaction"] as const;
+export const SPEECH_ORIGINS = ["chain", "npc", "entry", "spotlight", "address", "reaction", "skip"] as const;
 export type SpeechOrigin = (typeof SPEECH_ORIGINS)[number];
 
 export interface SpeechRequest {

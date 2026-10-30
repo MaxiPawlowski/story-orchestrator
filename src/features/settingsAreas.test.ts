@@ -16,7 +16,7 @@ const read = (file: string) => readFileSync(join(ROOT, file), "utf-8");
 const AREA_PAGES: Record<FeatureArea, readonly WorkspacePage[]> = {
   play: ["library", "display", "features"],
   memory: ["models", "features", "authoring"],
-  characters: ["features", "models"],
+  characters: ["features", "models", "authoring"],
   world: ["world", "features"],
   images: ["images"],
   judge: ["judge"],

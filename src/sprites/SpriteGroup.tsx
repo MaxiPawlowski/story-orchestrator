@@ -4,6 +4,7 @@ import type { SpriteStage } from "./stage";
 import { listConnectionProfiles } from "@services/STAPI";
 import type { RuntimeManager } from "@runtime/runtimeManager";
 import type { DeviceSettingPath } from "@runtime/deviceSettings";
+import { devicePreferences } from "@runtime/featureSettingsHost";
 import { DeviceChip, useDeviceSetting, type DeviceSetting } from "@components/settings/DeviceSetting";
 import { storySpriteChoice, userSpriteChoice } from "./activation";
 import { startSprites } from "./start";
@@ -19,8 +20,9 @@ const DEVICE_LABELS: Record<SpriteDeviceKey, string> = {
 
 const useSpriteDevice = (stage: SpriteStage | null, manager: RuntimeManager): Record<SpriteDeviceKey, DeviceSetting<unknown>> => {
   const settings = stage?.view().settings;
+  const [store] = useState(devicePreferences);
   const write = (key: SpriteDeviceKey) => (value: unknown) => stage?.updateSettings({ [key]: value } as Partial<SpriteSettings>);
-  const useKey = (key: SpriteDeviceKey) => useDeviceSetting<unknown>(`sprites.${key}` as DeviceSettingPath, settings?.[key], write(key), () => manager.notify());
+  const useKey = (key: SpriteDeviceKey) => useDeviceSetting<unknown>(`sprites.${key}` as DeviceSettingPath, settings?.[key], write(key), () => manager.notify(), store);
   return {
     stage: useKey("stage"), focus: useKey("focus"), breathing: useKey("breathing"), blink: useKey("blink"), mouth: useKey("mouth"),
     liveHead: useKey("liveHead"), liveHeadFrames: useKey("liveHeadFrames"),

@@ -217,7 +217,7 @@ describe("v2.8 48 S1 rollback ≡ replay of scene tests and the director line", 
 });
 
 const UNEXPECTED_CHAT = (() => {
-  const candidates = focusCandidates({ arcs: boundaryInputs(3).openThreads, unknownNames: [] });
+  const candidates = focusCandidates({ arcs: boundaryInputs(3).openThreads, unknownNames: [], resting: (text) => text });
   const story = { living: { premise: "p", scene_test: { chaos: { from: "tension" as const } } } };
   for (let index = 0; index < 200; index += 1) {
     const record = planSceneTest({ story, ids: { chatId: `c${index}`, storyId: "s1" }, frontierId: "liv_1", frontierName: "Turn 1", plannedAt: 3, messageId: 6, tension: boundaryInputs(3).tension, candidates, prior: [] });
@@ -355,7 +355,7 @@ describe("v2.8 49 C4 focus is spoiler-safe by information (through the director'
     });
     const run = (filtered: boolean) => {
       const story = { living: { premise: "p", scene_test: { chaos: { from: "tension" as const }, min_gap: 0 } } };
-      const candidates = focusCandidates({ arcs: sources(filtered).openThreads, unknownNames: filtered ? [unmet] : [] });
+      const candidates = focusCandidates({ arcs: sources(filtered).openThreads, unknownNames: filtered ? [unmet] : [], resting: (text) => text });
       const lines: string[] = [];
       const picks = new Map<string, number>();
       for (let index = 0; index < 10_000; index += 1) {
@@ -377,7 +377,7 @@ describe("v2.8 49 C4 focus is spoiler-safe by information (through the director'
 
 const chatDrawing = (outcome: "altered" | "interrupt", threads: readonly string[], plannedAt = 3): string => {
   const story = { living: { premise: "p", scene_test: { chaos: { from: "tension" as const } } } };
-  const candidates = focusCandidates({ arcs: threads, unknownNames: [] });
+  const candidates = focusCandidates({ arcs: threads, unknownNames: [], resting: (text) => text });
   for (let index = 0; index < 500; index += 1) {
     const record = planSceneTest({ story, ids: { chatId: `p${index}`, storyId: "s1" }, frontierId: "liv_1", frontierName: "Turn 1", plannedAt, messageId: 6, tension: "peak", candidates, prior: [] });
     if (record?.applied === outcome) return `p${index}`;
@@ -469,7 +469,7 @@ describe("v2.8 48 C6 history compaction keeps what a frontier still needs", () =
   it("widely spaced frontiers with min_gap 2: the earlier interrupt still spaces the next one after compaction", async () => {
     const SECOND = 3 + 2 + LONG;
     const story = { living: { premise: "p", scene_test: { chaos: { from: "tension" as const }, min_gap: 2 } } };
-    const candidates = focusCandidates({ arcs: ["the dark lanterns"], unknownNames: [] });
+    const candidates = focusCandidates({ arcs: ["the dark lanterns"], unknownNames: [], resting: (text) => text });
     const draw = (chatId: string, frontierId: string, plannedAt: number) =>
       planSceneTest({ story, ids: { chatId, storyId: "s1" }, frontierId, frontierName: "F", plannedAt, messageId: 0, tension: "peak", candidates, prior: [] });
     const chatId = Array.from({ length: 2000 }, (_, index) => `w${index}`)

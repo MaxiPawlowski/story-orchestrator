@@ -45,6 +45,7 @@ export const INJECTION_REGISTRY = {
   checkOutcome: { carry: WITHHOLD, key: "story_orchestrator_check_outcome", depth: 0, writer: "runtime/checkOutcomeHost", label: "Outcomes the story decided" },
   awayNotice: { carry: WITHHOLD, key: "story_orchestrator_away_notice", depth: 0, writer: "runtime/awayNotice", label: "Who is not here" },
   previously: { carry: WITHHOLD, key: "story_orchestrator_previously", depth: 4, writer: "runtime/carryPort", label: "Previously" },
+  swipeContrast: { carry: WITHHOLD, key: "story_orchestrator_swipe_contrast", depth: 0, writer: "runtime/swipeContrastHost", label: "The reply the player swiped away" },
 } as const satisfies Record<string, InjectionSpec>;
 
 export const INJECTION_DEPTH_COLLISION_ALLOWLIST: ReadonlyArray<ReadonlySet<string>> = [
@@ -52,7 +53,7 @@ export const INJECTION_DEPTH_COLLISION_ALLOWLIST: ReadonlyArray<ReadonlySet<stri
     INJECTION_REGISTRY.ledger.key, INJECTION_REGISTRY.checkpointGuidance.key, INJECTION_REGISTRY.storySoFar.key, INJECTION_REGISTRY.playerRole.key, INJECTION_REGISTRY.previously.key]),
   new Set([INJECTION_REGISTRY.memoryShortTerm.key, INJECTION_REGISTRY.pacing.key]),
   new Set([INJECTION_REGISTRY.sceneTracker.key, INJECTION_REGISTRY.chapterBridge.key, INJECTION_REGISTRY.cardOverlay.key]),
-  new Set([INJECTION_REGISTRY.continuityNote.key, INJECTION_REGISTRY.checkOutcome.key, INJECTION_REGISTRY.awayNotice.key]),
+  new Set([INJECTION_REGISTRY.continuityNote.key, INJECTION_REGISTRY.checkOutcome.key, INJECTION_REGISTRY.awayNotice.key, INJECTION_REGISTRY.swipeContrast.key]),
 ];
 
 const NEVER_SCANNABLE: ReadonlySet<string> = new Set(["epistemic", "ledger"]);

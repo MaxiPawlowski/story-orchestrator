@@ -94,7 +94,7 @@ test('the forced record equals the shipped planSceneTest record wherever its nat
   for (let plannedAt = 0; plannedAt < 400 && seen.size < 3; plannedAt += 1) {
     const natural = mod.planSceneTest({
       story, ids: frontier.ids, frontierId: frontier.frontierId, frontierName: story.checkpointById[frontier.frontierId].name, plannedAt, messageId: plannedAt * 2,
-      tension: 'peak', candidates: mod.focusCandidates({ arcs: frontier.inputs.openThreads, unknownNames: [] }), prior: [],
+      tension: 'peak', candidates: mod.focusCandidates({ arcs: frontier.inputs.openThreads, unknownNames: [], resting: (text: string) => text }), prior: [],
     });
     if (seen.has(natural.applied)) continue;
     seen.add(natural.applied);

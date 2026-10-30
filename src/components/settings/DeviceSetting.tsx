@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { devicePreferences } from "@runtime/featureSettingsHost";
 import { deviceControlId, type DeviceSettingPath, type DeviceSettings } from "@runtime/deviceSettings";
 import { Icon } from "@components/ui/Button";
 import { log } from "@utils/log";
@@ -20,7 +19,7 @@ export interface DeviceSetting<T> {
 export const DEVICE_SAVE_ERROR = "This browser could not save its device preferences.";
 
 export const useDeviceSetting = <T,>(path: DeviceSettingPath, effective: T, writeInstall: (value: T) => void, notify: () => void,
-  store: DeviceStore = devicePreferences()): DeviceSetting<T> => {
+  store: DeviceStore): DeviceSetting<T> => {
   const [device, setDevice] = useState<DeviceSettings>(() => store.read());
   const [error, setError] = useState<string | null>(null);
   const overridden = device[path] !== undefined;

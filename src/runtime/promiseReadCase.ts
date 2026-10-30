@@ -1,5 +1,6 @@
 import { runSharedRead } from "@extraction/sharedRead";
 import type { ModelCall } from "@extraction/modelRoute";
+import type { ReadPromptOptions } from "@extraction/types";
 import type { RequestBudget } from "@extraction/tokenMeter";
 import { windowOf } from "@extraction/chatRows";
 import { parseStoryOrThrow, StoryEngine } from "@engine/index";
@@ -37,9 +38,10 @@ export interface PromiseReadResult extends PromiseReadOutcome {
 export interface PromiseReadDeps {
   model: ModelCall;
   budget: () => RequestBudget;
+  readPrompt?: ReadPromptOptions;
 }
 
-export async function runPromiseReadCase(spec: PromiseReadSpec, { model, budget: budgetFor }: PromiseReadDeps): Promise<PromiseReadResult> {
+export async function runPromiseReadCase(spec: PromiseReadSpec, { model, budget: budgetFor, readPrompt }: PromiseReadDeps): Promise<PromiseReadResult> {
   await loadGameLayer();
   const story = parseStoryOrThrow(spec.story);
   const engine = new StoryEngine();
@@ -60,6 +62,7 @@ export async function runPromiseReadCase(spec: PromiseReadSpec, { model, budget:
   const budget = budgetFor();
   const { audit } = await runSharedRead({
     story, state: engine.serialize(), priority: 0, reason: "p47-suite", window: windowOf(spec.chat, spec.from, spec.to), openPromises: on ? openPromises : null,
+    ...(readPrompt ? { readPrompt } : {}),
     model: tracked, ask: { role: "read", pass: "read", budget, ...(spec.debugResponse !== undefined ? { debugResponse: spec.debugResponse } : {}) },
   });
   const promiseLines = audit.promiseLines ?? [];

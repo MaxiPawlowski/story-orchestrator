@@ -25,6 +25,7 @@ type EvalJobOutcome = { state: 'pending' } | { state: 'ok'; value: unknown } | {
 
 const isAsyncFunction = (fn: unknown) => typeof fn === 'function' && fn.constructor?.name === 'AsyncFunction';
 const isPlaywrightPage = (page: unknown) => typeof (page as { mainFrame?: unknown })?.mainFrame === 'function';
+export const evalJobsOn = (env: NodeJS.ProcessEnv = process.env): boolean => env.SO_EVAL_JOBS !== 'off';
 
 export function startEvalJob({ source, arg, id, slot }: { source: string; arg: unknown; id: string; slot: string }): boolean {
   let fn: (value: unknown) => unknown;
@@ -70,7 +71,7 @@ async function evaluateAsJob<R>(page: Page, fn: (arg: any) => Promise<R>, arg: u
 
 export async function evaluateInST<R = unknown>(page: Page, fn: (arg: any) => R | Promise<R>, arg?: any): Promise<R> {
   try {
-    if (isAsyncFunction(fn) && isPlaywrightPage(page)) {
+    if (isAsyncFunction(fn) && isPlaywrightPage(page) && evalJobsOn()) {
       const job = await evaluateAsJob(page, fn as (arg: any) => Promise<R>, arg);
       if (job.started) return job.value;
     }

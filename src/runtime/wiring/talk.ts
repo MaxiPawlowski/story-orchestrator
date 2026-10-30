@@ -16,6 +16,8 @@ import { speechRows } from "@talk/index";
 import { entryKey } from "../effectsApplierHost";
 import { consequenceSince } from "../speechConsequence";
 import { isThoughtOnlyReply, residueTags } from "../emptyReply";
+import { withholds } from "../generationLifecycle";
+import { readCoverageEnd } from "@extraction/readCursor";
 
 const talkHost = (live: LiveParts, judgeRuntime: JudgeRuntime, { chatLastId, recentTurns }: WindowAccess): TalkControlHost => ({
   isGroupChat: () => Boolean(getActiveGroup()),
@@ -79,6 +81,45 @@ export const startKeepLastQuestion = (disposers: Disposers) => {
   void import("../keepLastQuestionLive").then(({ startLiveKeepLastQuestion }) => { if (!pass.disposed) pass.stop = startLiveKeepLastQuestion(); });
 };
 
+const trials = {
+  disposed: false,
+  contrast: null as { arm: (type: string, withheld: boolean) => boolean; dispose: () => void } | null,
+  notes: null as ((rows: Array<Record<string, unknown>>, type: string, withheld: boolean) => number) | null,
+  stopEcho: null as (() => void) | null,
+};
+
+export const startPromptTrials = (disposers: Disposers) => {
+  trials.disposed = false;
+  disposers.push(() => {
+    trials.disposed = true;
+    trials.contrast?.dispose();
+    trials.stopEcho?.();
+    trials.contrast = null;
+    trials.stopEcho = null;
+  });
+  void import("../historyNotesLive").then(({ applyLiveHistoryNotes, startLiveHistoryNotes }) => {
+    if (trials.disposed) return;
+    trials.notes = applyLiveHistoryNotes;
+    trials.stopEcho = startLiveHistoryNotes();
+  });
+};
+
+const armSwipeContrast = async (type: string) => {
+  if (type !== "swipe" || trials.disposed || runtimeManager.getEffectiveSettings().talk.swipeContrast !== true) return;
+  if (!trials.contrast) {
+    const { startSwipeContrast } = await import("../swipeContrastHost");
+    if (trials.disposed) return;
+    trials.contrast ??= startSwipeContrast();
+  }
+  trials.contrast.arm(type, withholds(type));
+};
+
+const noteHistory = (chat: unknown[], type: string) => {
+  if (runtimeManager.getEffectiveSettings().memory.historyNotes !== true || !trials.notes) return;
+  const added = trials.notes(chat.filter((row): row is Record<string, unknown> => Boolean(row) && typeof row === "object"), type, withholds(type));
+  if (added) log.debug("history notes", added);
+};
+
 export const startTalk = (live: LiveParts, judgeRuntime: JudgeRuntime, window: WindowAccess, onLoreIntercept: (type: string, aborted: boolean) => Promise<void>) => {
   live.talk = new TalkController(talkHost(live, judgeRuntime, window));
   globalThis.talkControlInterceptor = gatedInterceptor(live.loudGate, () => Boolean(getActiveGroup()), async (chat, contextSize, abort, type) => {
@@ -87,10 +128,13 @@ export const startTalk = (live: LiveParts, judgeRuntime: JudgeRuntime, window: W
     promptCost.noteGenerationBudget(contextSize);
     let aborted = false;
     await live.talk?.intercept((immediate) => { aborted = true; abort(immediate); }, type);
+    if (!aborted) await armSwipeContrast(type);
     await live.draftedBeat.settle();
     await onLoreIntercept(type, aborted);
     if (!aborted && Array.isArray(chat)) await runtimeManager.chapters.recall(chat, type);
     const folded = !aborted && Array.isArray(chat) ? runtimeManager.chapters.fold(chat, type, getContext().chat ?? []) : null;
     if (folded) runtimeManager.noteFolded(folded.folded);
+    if (!aborted && Array.isArray(chat)) runtimeManager.chapters.compact(chat, type, getContext().chat ?? [], contextSize, readCoverageEnd(runtimeManager.getExtractionAudits()));
+    if (!aborted && Array.isArray(chat)) noteHistory(chat, type);
   }, () => log.warn("speaker direction: a second reply started while one was already being written; it was stopped so the model is asked once"), holdForChat);
 };

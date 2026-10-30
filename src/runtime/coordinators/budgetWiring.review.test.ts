@@ -69,7 +69,7 @@ function harness(options: { lastSceneEnd?: number; shortTermEnd?: number; limit?
     getEntities: () => [],
     applyEntries: async () => {},
     recordVerifyDrops: () => {},
-    applyArcSignals: () => [],
+    applyArcSignals: () => ({ arcs: [], opened: [], resolved: [], deferred: [], reopened: [], refused: [] }),
     applyEpistemic: () => {},
     applyLedger: () => {},
     updateInjection: () => {},

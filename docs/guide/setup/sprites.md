@@ -122,7 +122,7 @@ read or an author edit wins; a swipe or edit of the reply restores the earlier v
 
 Illustrations read the applied public visual fields. Pre-rendered sprite rules may select a set using
 `when.card: {"hair": ["red"]}`. **Current character state in replies** is a separate switch, on by default, under
-Characters › Added to the reply prompt.
+Settings › Features › Current character state.
 Private knowledge belongs in the knowledge system, never in a public card field.
 The local Artemis comparison did not show a repeatable benefit: both tested placements agreed with every changed colour,
 but the memory-only baseline was equally good in one of the two runs. It is on by default all the same (2026-10-09).

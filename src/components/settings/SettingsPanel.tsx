@@ -30,6 +30,7 @@ import type { CapabilitiesGroupProps } from "./CapabilitiesGroup";
 import EntryPoints from "./EntryPoints";
 import type { JudgeSettingsGroupProps, JudgeSettingsPatch } from "./JudgeSettingsGroup";
 import { CheckRow } from "./Field";
+import type { SettingCopyKey } from "@features/settingsCopy";
 import StoryLoreGlobal from "./StoryLoreGlobal";
 import WorldInfoGatingGroup from "./WorldInfoGatingGroup";
 import { log } from "@utils/log";
@@ -219,6 +220,8 @@ const WorldPage = ({ snapshot, manager, navigate }: PageProps) => {
         onKeep={() => { keepGlobalStoryLore(); manager.notify(); }} />
       <WorldInfoGatingGroup status={snapshot.wiGating ?? null} authorView={snapshot.ui.authorView}
         onChoose={(mode) => void (mode === "scan" ? wiGating()?.requestScan() : wiGating()?.requestFile())} onRenormalize={() => void wiGating()?.renormalize()} />
+      {snapshot.ui.authorView && <GlobalCheck id="so-wi-lore-pins" setting="worldInfo.lorePins" manager={manager}
+        read={(settings) => settings.worldInfo.lorePins} write={(on) => setGlobalSettings({ worldInfo: { lorePins: on } })} />}
     </Section>
     <Section title="Lore features" level={3}>
       <FeatureLinkRow feature="memoryLore" snapshot={snapshot} navigate={navigate} />
@@ -226,6 +229,12 @@ const WorldPage = ({ snapshot, manager, navigate }: PageProps) => {
       <FeatureLinkRow feature="curator" snapshot={snapshot} navigate={navigate} />
     </Section>
   </div>;
+};
+
+const GlobalCheck = ({ id, setting, manager, read, write }: { id: string; setting: SettingCopyKey; manager: RuntimeManager;
+  read: (settings: ReturnType<typeof getGlobalSettings>) => boolean; write: (on: boolean) => void }) => {
+  const [on, setOn] = useState(() => read(getGlobalSettings()));
+  return <CheckRow id={id} setting={setting} checked={on} onChange={(next) => { write(next); setOn(read(getGlobalSettings())); manager.notify(); }} />;
 };
 
 const AuthoringPage = ({ snapshot, manager, navigate }: PageProps) => (
@@ -241,6 +250,15 @@ const AuthoringPage = ({ snapshot, manager, navigate }: PageProps) => (
       description={`${snapshot.ui.authorView ? "On" : "Off"} in this chat. Shows what the story hides, so it is set per chat.`}
       control={<Button id="so-authoring-author-view" variant="ghost" size="sm" icon="fa-arrow-right"
         onClick={() => navigate({ context: "story", page: "features" }, "so-author-view-switch")}>Change</Button>} />
+    {snapshot.ui.authorView && <Section id="so-prompt-trials" title="Prompt trials" level={3}
+      description="Off until a blind rating of the replies passes. Each changes what the characters are given in every chat.">
+      <GlobalCheck id="so-history-notes" setting="memory.historyNotes" manager={manager}
+        read={(settings) => settings.memory.historyNotes === true} write={(on) => manager.setMemorySettings({ historyNotes: on })} />
+      <GlobalCheck id="so-outward-narration" setting="memory.outwardNarration" manager={manager}
+        read={(settings) => settings.memory.outwardNarration === true} write={(on) => manager.setMemorySettings({ outwardNarration: on })} />
+      <GlobalCheck id="so-swipe-contrast" setting="talk.swipeContrast" manager={manager}
+        read={(settings) => settings.talk.swipeContrast} write={(on) => setGlobalSettings({ talk: { swipeContrast: on } })} />
+    </Section>}
   </div>
 );
 

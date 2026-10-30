@@ -7,6 +7,7 @@ jest.mock("@services/STAPI", () => ({
   subscribeToHostEvents: (entries: Array<{ eventName: string; handler: (...args: unknown[]) => unknown }>) => { mockEntries.push(...entries); return () => undefined; },
   getContext: () => ({ chat: mockChat }),
   readReasoningTags: () => ({}),
+  rearmHostMacros: () => 0,
   noteHostSettingsLoaded: () => undefined,
   EXTENSION_SETTINGS_LOADED_EVENT: "EXTENSION_SETTINGS_LOADED",
 }));
