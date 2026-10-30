@@ -115,7 +115,7 @@ export const PayloadTab = ({ snapshot, manager, onOpenOwner }: { snapshot: Runti
         <div className="opacity-70">No captures yet. Blocks are recorded when a generation starts.</div>
       ) : (
         captures.map((capture, index) => (
-          <div key={capture.at} className="border-t border-solid border-white/10 pt-1">
+          <div key={capture.at} className="border-t border-solid border-[var(--so-line)] pt-1">
             <div className="opacity-100">
               {index === 0 ? "Latest" : capture.at} · boundary {capture.boundary} · {capture.reason} · {capture.blocks.length} blocks
               {capture.folded ? <span data-so="payload-folded"> · {capture.folded} messages folded</span> : null}

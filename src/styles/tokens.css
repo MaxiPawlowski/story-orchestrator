@@ -1,0 +1,30 @@
+:root {
+  --so-fg: var(--SmartThemeBodyColor);
+  --so-fg-muted: color-mix(in srgb, var(--SmartThemeBodyColor) 72%, transparent);
+  --so-fg-subtle: var(--SmartThemeEmColor);
+  --so-accent: var(--SmartThemeQuoteColor);
+  --so-link: var(--SmartThemeUnderlineColor);
+  --so-surface: var(--SmartThemeBlurTintColor);
+  --so-surface-2: color-mix(in srgb, var(--SmartThemeBodyColor) 5%, var(--SmartThemeBlurTintColor));
+  --so-surface-3: color-mix(in srgb, var(--SmartThemeBodyColor) 9%, var(--SmartThemeBlurTintColor));
+  --so-surface-solid: linear-gradient(var(--so-surface), var(--so-surface)), linear-gradient(var(--so-surface), var(--so-surface)), linear-gradient(var(--so-surface), var(--so-surface));
+  --so-field: var(--black30a);
+  --so-line: color-mix(in srgb, var(--SmartThemeBodyColor) 14%, transparent);
+  --so-line-strong: var(--SmartThemeBorderColor);
+  --so-blur: var(--SmartThemeBlurStrength);
+  --so-shadow: var(--SmartThemeShadowColor);
+  --so-backdrop: var(--black70a);
+  --so-ok: color-mix(in oklab, #3fae6a 60%, var(--SmartThemeBodyColor));
+  --so-warn: color-mix(in oklab, #d39a2c 60%, var(--SmartThemeBodyColor));
+  --so-error: color-mix(in oklab, #e0524d 60%, var(--SmartThemeBodyColor));
+  --so-info: var(--SmartThemeQuoteColor);
+  --so-on-image: var(--white100);
+  --so-on-image-halo: var(--black100);
+  --so-here: var(--golden);
+  --so-sprite-glow: rgba(255, 240, 200, 0.35);
+  --so-dur: var(--animation-duration);
+}
+
+body.reduced-motion {
+  --so-dur: 0ms;
+}

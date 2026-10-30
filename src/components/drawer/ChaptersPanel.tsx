@@ -45,7 +45,7 @@ const RecordCard = ({ record, newest, busy, act, confirm, manager }: CardProps) 
     if (await confirm(`Unseal "${record.title}"? Its memories go back to the live stores and the record is deleted.`)) await manager.chapters.unseal(record.id);
   });
   return (
-    <div data-so="chapter-record" className="border-t border-solid border-white/10 mt-1 pt-1 flex flex-col gap-1">
+    <div data-so="chapter-record" className="border-t border-solid border-[var(--so-line)] mt-1 pt-1 flex flex-col gap-1">
       <div className="opacity-100">
         <b>{record.title}</b>{record.part > 1 ? ` (part ${record.part})` : ""} · <span data-so="chapter-status">{STATUS_COPY[record.status]}</span>
       </div>

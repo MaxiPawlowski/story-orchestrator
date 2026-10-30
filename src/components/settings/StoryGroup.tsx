@@ -159,7 +159,7 @@ export const StoryGroup = ({ snapshot, manager, busy, setBusy, importOpen }: Sto
         </div>
       )}
       {snapshot.validationErrors.length > 0 && (
-        <div className="text-xs text-red-400">
+        <div className="text-xs text-[var(--so-error)]">
           {snapshot.validationErrors.map((error) => <div key={`${error.path}:${error.message}`}>{error.path}: {error.message}</div>)}
         </div>
       )}

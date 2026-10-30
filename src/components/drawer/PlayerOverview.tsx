@@ -4,6 +4,7 @@ import type { RuntimeSnapshot } from "@runtime/types";
 import { shownCarry, shownPromises } from "@runtime/surfaceShown";
 import { Lazy } from "@components/Lazy";
 import { lazyRetry } from "@utils/lazyRetry";
+import { StatusIcon } from "./StatusDot";
 
 const PlayerChapters = lazyRetry(() => import("./PlayerChapters"));
 const PlayerPromises = lazyRetry(() => import("./PlayerPromises"));
@@ -37,7 +38,7 @@ const MissingRequirements = ({ snapshot }: { snapshot: RuntimeSnapshot }) => {
       <div className="font-medium">{PLAYER_COPY.requirementsHeading}</div>
       {items.map((item) => (
         <div key={item.kind} className="flex items-center gap-2 text-xs">
-          <span className="status-indicator status-error" aria-hidden="true" />
+          <StatusIcon tone="error" />
           <span>{requirementNotReadyText(item.kind)}</span>
         </div>
       ))}
