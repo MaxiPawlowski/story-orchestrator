@@ -44,7 +44,7 @@ export const INLINE_STATE_LABELS: Record<InlineItem["state"], string> = {
 };
 
 export const INLINE_LEGEND_COPY = {
-  heading: "Notes under messages",
+  heading: "What the notes under messages mean",
   levels: "Levels",
 } as const;
 

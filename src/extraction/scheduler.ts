@@ -1,4 +1,4 @@
-import { READ_WAIT_BOUND_MS, YieldGate, unrefTimer } from "./yieldGate";
+import { YieldGate } from "./yieldGate";
 import type { EngineState, NormalizedStory, NormalizedTransition } from "@engine/index";
 import type { ParsedArcSignal, ParsedEpistemicSignal, ParsedLedgerSignal, ParsedMemoryLine } from "@memory/index";
 import type { ExtraGateSource, TypedJudge } from "./types";
@@ -121,8 +121,6 @@ export class ExtractionScheduler {
   private readonly profileProblems = new Map<string, string>();
   private readonly heavyQueue: SchedulerJob[] = [];
   private inFlight = false;
-  private inFlightSince: number | null = null;
-  private boundTimer: ReturnType<typeof setTimeout> | null = null;
   private running: SchedulerJob | null = null;
   private heavyInFlight = false;
   private lastError: string | null = null;
@@ -157,9 +155,7 @@ export class ExtractionScheduler {
     this.host.onSchedulerChange();
   }
 
-  private sameWorld(startedEpoch: number): boolean {
-    return (this.host.epoch?.() ?? 0) === startedEpoch;
-  }
+  private sameWorld(startedEpoch: number): boolean { return (this.host.epoch?.() ?? 0) === startedEpoch; }
 
   private underPressure(): boolean {
     const threshold = this.host.getExtractionSettings().pressureThreshold ?? PRESSURE_DEFAULT_THRESHOLD;
@@ -242,9 +238,7 @@ export class ExtractionScheduler {
     this.queue.sort((left, right) => left.priority - right.priority);
   }
 
-  private readProfile(): string | null {
-    return this.host.getExtractionSettings().profileId;
-  }
+  private readProfile(): string | null { return this.host.getExtractionSettings().profileId; }
 
   breakerOpen(profileId: string | null = this.readProfile()): boolean {
     return Boolean(profileId && this.breaker.isOpen(profileId) && !this.failover.fallbackFor(profileId));
@@ -366,13 +360,7 @@ export class ExtractionScheduler {
     this.probeTimers.delete(profileId);
   }
 
-  private clearBound() {
-    if (this.boundTimer !== null) globalThis.clearTimeout(this.boundTimer);
-    this.boundTimer = null;
-  }
-
   dispose() {
-    this.clearBound();
     for (const profileId of [...this.probeTimers.keys()]) this.clearProbeTimer(profileId);
   }
 
@@ -463,7 +451,6 @@ export class ExtractionScheduler {
       queueDepth: this.queue.length,
       held: held(this.queue, this.readProfile()),
       inFlight: this.inFlight,
-      inFlightSince: this.inFlightSince,
       yielding: this.beat.isWaiting(),
       lastError: this.lastError,
       rereadReason: [this.running, ...this.queue].find((job) => job?.reason.startsWith(ROLLBACK_REREAD_PREFIX))?.reason ?? null,
@@ -478,15 +465,8 @@ export class ExtractionScheduler {
     if (read.ownership.lapsed?.() === "window" && this.sameWorld(startedEpoch)) this.rereadAfterMutation(read.window, startedEpoch);
   }
 
-  private yields(): boolean {
-    const before = this.beat.isWaiting();
-    const holds = this.beat.holds();
-    if (holds !== before) this.host.onSchedulerChange();
-    return holds;
-  }
-
   private async pump() {
-    if (this.inFlight || this.settling || this.breakerOpen() || this.yields()) return;
+    if (this.inFlight || this.settling || this.breakerOpen() || this.beat.holdsNoting(() => this.host.onSchedulerChange())) return;
     const index = this.runnable(this.queue);
     if (index < 0) return;
     const [job] = this.queue.splice(index, 1);
@@ -501,9 +481,6 @@ export class ExtractionScheduler {
       return;
     }
     this.inFlight = true;
-    this.inFlightSince = Date.now();
-    this.boundTimer = globalThis.setTimeout(() => this.host.onSchedulerChange(), READ_WAIT_BOUND_MS + 50);
-    unrefTimer(this.boundTimer);
     this.running = job;
     this.host.onSchedulerChange();
     let read: LapsedRead | null = null;
@@ -546,8 +523,6 @@ export class ExtractionScheduler {
     } finally {
       read?.ownership.release?.();
       this.inFlight = false;
-      this.inFlightSince = null;
-      this.clearBound();
       this.running = null;
       this.host.onSchedulerChange();
       void this.pump();

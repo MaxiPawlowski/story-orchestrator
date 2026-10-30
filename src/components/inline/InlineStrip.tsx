@@ -50,10 +50,10 @@ export const InlineStrip = ({ messageId, items, level, expanded, onToggle, actio
       {expanded && (
         <div id={panel} data-so="inline-expanded" className="so-inline-panel">
           {inlineGroups(items).map((group) => (
-            <section key={group.category} data-so="inline-group" data-category={group.category} className="so-inline-group"
+            <div key={group.category} role="group" data-so="inline-group" data-category={group.category} className="so-inline-group"
               aria-label={parts.find((part) => part.category === group.category)?.label}>
               <InlineDetail items={group.items} showDetail={author} detailLevel={INLINE_DETAIL_LEVEL} showActions={author} actions={actions} />
-            </section>
+            </div>
           ))}
         </div>
       )}

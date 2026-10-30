@@ -17,8 +17,6 @@ const firstPage = (codex: CodexView, wanted: PeoplePage | undefined): PeoplePage
   return codex.people.length ? "people" : "places";
 };
 
-export const peopleTabEmpty = (codex: CodexView | undefined): boolean => !codex || (!codex.people.length && !codex.places.length);
-
 export function PeopleTab({ codex, page }: PeopleTabProps) {
   const [picked, setPicked] = useState<PeoplePage | undefined>(() => peekJournalPage()?.page ?? page);
   useEffect(() => {
