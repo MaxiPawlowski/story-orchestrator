@@ -26,7 +26,9 @@ const Demo = ({ size = "window" }: { size?: DialogSize }) => {
 const meta = {
   title: "Kit/Dialog",
   component: Demo,
-  parameters: { docs: { description: { component: "Native <dialog> opened with showModal() (top layer, so ST's translateZ containing block does not apply). One header: title, subtitle, close IconButton. full = viewport with a centred ~1200px frame; window = centred card; sheet = right dock. All three go full-screen or bottom-docked under 700px." } } },
+  parameters: { docs: { description: { component: "Native <dialog> opened with showModal() (top layer, so ST's translateZ containing block does not apply). "
+    + "One header: title, subtitle, close IconButton. "
+    + "full = viewport with a centred ~1200px frame; window = centred card; sheet = right dock. All three go full-screen or bottom-docked under 700px." } } },
 } satisfies Meta<typeof Demo>;
 export default meta;
 type Story = StoryObj<typeof meta>;

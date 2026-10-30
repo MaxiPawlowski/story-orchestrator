@@ -23,7 +23,15 @@ export const Interactive: Story = {
   },
 };
 
-export const Toned: Story = { render: () => <div className="so-task-grid"><Card tone="ok" title="Persona">Ready</Card><Card tone="warn" title="Lore">1 book missing</Card><Card selected title="Selected">Chosen</Card></div> };
+export const Toned: Story = {
+  render: () => (
+    <div className="so-task-grid">
+      <Card tone="ok" title="Persona">Ready</Card>
+      <Card tone="warn" title="Lore">1 book missing</Card>
+      <Card selected title="Selected">Chosen</Card>
+    </div>
+  ),
+};
 
 const Composed = () => {
   const [reading, setReading] = useState(false);

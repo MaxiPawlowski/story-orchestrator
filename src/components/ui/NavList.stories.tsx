@@ -4,7 +4,10 @@ import { expect, userEvent, within } from "@storybook/test";
 import { NavList, type NavGroup } from "./NavList";
 
 const GROUPS: NavGroup[] = [
-  { label: "This chat", items: [{ id: "play", label: "Play", icon: "fa-play" }, { id: "features", label: "Features", count: 12 }, { id: "review", label: "Review", badge: { text: "2 waiting", tone: "warn" } }] },
+  {
+    label: "This chat",
+    items: [{ id: "play", label: "Play", icon: "fa-play" }, { id: "features", label: "Features", count: 12 }, { id: "review", label: "Review", badge: { text: "2 waiting", tone: "warn" } }],
+  },
   { label: "Settings", items: [{ id: "library", label: "Library" }, { id: "connections", label: "Connections" }, { id: "help", label: "Help" }] },
 ];
 
@@ -16,7 +19,8 @@ const Demo = () => {
 const meta = {
   title: "Kit/NavList",
   component: Demo,
-  parameters: { docs: { description: { component: "Vertical nav with aria-current. Under 700px the default mobile=\"bar\" turns it into one scrolling row (group headings hidden); mobile=\"stack\" keeps the column." } } },
+  parameters: { docs: { description: { component: "Vertical nav with aria-current. Under 700px the default mobile=\"bar\" turns it into one scrolling row (group headings hidden); "
+    + "mobile=\"stack\" keeps the column." } } },
 } satisfies Meta<typeof Demo>;
 export default meta;
 type Story = StoryObj<typeof meta>;
