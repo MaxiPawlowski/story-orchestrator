@@ -111,7 +111,7 @@ setting's help says your host needs it.
 
 The **Lorebook curator** proposes edits to a story's lorebooks as the story moves (only the books the story allows,
 and nothing lands until you accept it in **This chat → Review**). It is on by default; switch it off in
-**Settings → Features → Lorebook curator** or for one chat in **This chat → Settings**. How authors set up story
+**Settings → Features → Lorebook curator** or for one chat in **This chat → Story settings**. How authors set up story
 lore is in the author pages (in the in-app guide they show only in Author view).
 
 ## Costs and waiting

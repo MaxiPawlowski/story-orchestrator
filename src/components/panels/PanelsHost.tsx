@@ -6,7 +6,7 @@ import type { RuntimeManager } from "@runtime/index";
 import type { RuntimeSnapshot } from "@runtime/types";
 import type { WidgetDrawerTab } from "@engine/index";
 import type { SheetTab } from "@runtime/storySheet";
-import { dockInset, panelGeometry, shownPanels, type Viewport } from "@runtime/panelGeometry";
+import { dockInset, panelFits, panelGeometry, shownPanels, type Viewport } from "@runtime/panelGeometry";
 import { readPanels, savePanel } from "@runtime/panelStore";
 import { hasOpenGroup } from "@runtime/persistence";
 import type { FeatureWhere } from "@features/registry";
@@ -70,7 +70,8 @@ const usePanelViewport = () => {
 };
 
 const Panel = ({ id, title, inset, setPanel, children }: { id: PanelId; title: string; inset: number; setPanel: PanelsHostProps["setPanel"]; children: ReactNode }) => (
-  <PanelFrame id={id} title={title} geometry={panelGeometry(readPanels(), id, viewport())} dockInset={inset} onChange={(geometry) => savePanel(id, geometry)} onClose={() => setPanel(id, false)}>
+  <PanelFrame id={id} title={title} geometry={panelGeometry(readPanels(), id, viewport())} fit={panelFits(readPanels(), id)} dockInset={inset}
+    onChange={(geometry) => savePanel(id, geometry)} onClose={() => setPanel(id, false)}>
     {children}
   </PanelFrame>
 );

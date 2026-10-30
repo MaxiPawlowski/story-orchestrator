@@ -3,9 +3,6 @@ import type { QuestStatus } from "@engine/index";
 export const GAME_TEXT = {
   journalTitle: "Journal",
   statSheetTitle: "Stat sheet",
-  journalLaunch: "Open the journal",
-  statSheetLaunch: "Open the stat sheet",
-  widgetsLaunch: "Open the story panels",
   mainLine: "Main line",
   mainLineDone: "Reached",
   mainLineNow: "Now",

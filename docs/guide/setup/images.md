@@ -10,7 +10,7 @@ The optional **Image-prompt model** picker uses Connection Manager. Leave it emp
 current public scene and appearance details. It never switches your reply profile.
 
 New installs draw automatically only at story-authored moments. Every-N automation is opt-in
-(**Settings → Features → Illustrations → When to draw**, or for one chat on **This chat → Settings**). While no image service
+(**Settings → Features → Illustrations → When to draw**, or for one chat on **This chat → Story settings**). While no image service
 is ready (ST's Image Generation is not set up, or its ComfyUI is stopped), automatic pictures are skipped without an
 error and Setup says why; Test render explains which step is missing.
 

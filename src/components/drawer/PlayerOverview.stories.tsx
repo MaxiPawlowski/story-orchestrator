@@ -5,7 +5,8 @@ import type { NormalizedStory } from "@engine/index";
 import type { ExtractionHealth } from "@extraction/index";
 import { derivePipelineStatus } from "@runtime/pipeline";
 import type { ExtractionRuntimeState, RuntimeSnapshot } from "@runtime/types";
-import { PlayerOverview } from "./PlayerOverview";
+import { PlayerOverview, SETUP_COVERS_TEXT } from "./PlayerOverview";
+import { PlayerNow } from "./PlayerNow";
 
 const extraction = (overrides: Partial<ExtractionRuntimeState> = {}): ExtractionRuntimeState => ({
   settings: { enabled: true, profileId: "p1", cadence: 3, stabilityLag: 0 },
@@ -63,7 +64,7 @@ const meta: Meta<typeof PlayerOverview> = {
   title: "Drawer/PlayerOverview",
   component: PlayerOverview,
   args: { onOpenSettings: fn() },
-  render: (args) => <div style={{ maxWidth: 360 }}><PlayerOverview {...args} /></div>,
+  render: (args) => <div style={{ maxWidth: 360 }}><PlayerOverview {...args} /><PlayerNow snapshot={args.snapshot} /></div>,
 };
 
 export default meta;
@@ -146,7 +147,7 @@ export const ModelNotAnswering: Story = {
   },
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.getByText("The memory model is not answering — the story will catch up when it does.")).toBeInTheDocument();
+    await expect(canvas.getByText(/^The memory model is not answering — the story will catch up when it does\./)).toBeInTheDocument();
     await expect(canvas.queryByText(/Response not OK/)).toBeNull();
     await expect(canvas.queryByRole("button", { name: "Open story settings" })).toBeNull();
     await userEvent.click(canvas.getByRole("button", { name: "Try again" }));
@@ -308,5 +309,14 @@ export const SaveNotConfirmed: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await expect(canvas.getByText("changes not saved yet — they go with the next save")).toBeInTheDocument();
+  },
+};
+
+export const SetupBelowCoversTheStatus: Story = {
+  args: { snapshot: snapshot({ extraction: extraction({ settings: { enabled: true, profileId: null, cadence: 3, stabilityLag: 0 } }) }), setupCovers: true },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText(SETUP_COVERS_TEXT)).toBeInTheDocument();
+    await expect(canvas.queryByRole("button", { name: "Open story settings" })).toBeNull();
   },
 };

@@ -89,7 +89,7 @@ export const HostedInAPanelHasNoSecondHeader: Story = {
     await expect(canvasElement.querySelector('[data-so="help-close"]')).toBeNull();
     await expect(within(canvasElement).queryByText("Help", { selector: "span.font-semibold" })).toBeNull();
     const stories = rowOf(canvasElement, "stories");
-    await expect(stories).toHaveTextContent("This chat › Settings › Story › Story for this chat");
+    await expect(stories).toHaveTextContent("This chat › Story settings › Story › Story for this chat");
   },
 };
 

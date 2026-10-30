@@ -6,7 +6,7 @@ Open a story in Studio and choose **Sprites**. The member picker contains instal
 
 On an untouched install the character stage is **Automatic**: it shows when the story directs the stage and stays off
 otherwise. Switch it on or off for every chat in **Settings → Features → Character stage** (or under
-**Settings → Images & stage → Sprite stage**), or for one chat on **This chat → Settings → Character
+**Settings → Images & stage → Sprite stage**), or for one chat on **This chat → Story settings → Character
 stage**. Once you switch it in Defaults it is no longer automatic: off there is a master switch, and on shows it in
 every story that does not turn it off. **Settings → Display → This device** changes how this
 browser shows it (stage visibility, dimming, breathing, blinking, mouth movement) without touching the other settings.

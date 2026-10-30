@@ -47,6 +47,7 @@ export const TabList = ({ label, variant = "underline", orientation = "horizonta
 
 export interface TabProps {
   value: string;
+  id?: string;
   children: ReactNode;
   controls?: string;
   count?: number;
@@ -59,11 +60,11 @@ export interface TabProps {
 
 export const tabId = (prefix: string, value: string) => `${prefix}${value}`;
 
-export const Tab = ({ value, children, controls, count, disabled, className, ref, "data-so": dataSo, "data-tab": dataTab }: TabProps) => {
+export const Tab = ({ value, id, children, controls, count, disabled, className, ref, "data-so": dataSo, "data-tab": dataTab }: TabProps) => {
   const tabs = useTabs();
   const selected = tabs.value === value;
   return (
-    <button ref={ref} type="button" role="tab" id={tabId(tabs.idPrefix, value)} aria-selected={selected} aria-controls={controls} tabIndex={selected ? 0 : -1}
+    <button ref={ref} type="button" role="tab" id={id ?? tabId(tabs.idPrefix, value)} aria-selected={selected} aria-controls={controls} tabIndex={selected ? 0 : -1}
       disabled={disabled} data-so={dataSo} data-tab={dataTab} className={cx("so-tab", className)} onClick={() => { if (!selected) tabs.onChange(value); }}>
       {children}
       {count !== undefined && <span className="so-tab-count">{count}</span>}
@@ -73,15 +74,16 @@ export const Tab = ({ value, children, controls, count, disabled, className, ref
 
 export interface TabPanelProps {
   id: string;
+  labelledBy?: string;
   children: ReactNode;
   className?: string;
   "data-so"?: string;
   "data-tab"?: string;
 }
 
-export const TabPanel = ({ id, children, className, "data-so": dataSo, "data-tab": dataTab }: TabPanelProps) => {
+export const TabPanel = ({ id, labelledBy, children, className, "data-so": dataSo, "data-tab": dataTab }: TabPanelProps) => {
   const tabs = useTabs();
-  return <div id={id} role="tabpanel" tabIndex={-1} aria-labelledby={tabId(tabs.idPrefix, tabs.value)} data-so={dataSo} data-tab={dataTab} className={className}>{children}</div>;
+  return <div id={id} role="tabpanel" tabIndex={-1} aria-labelledby={labelledBy ?? tabId(tabs.idPrefix, tabs.value)} data-so={dataSo} data-tab={dataTab} className={className}>{children}</div>;
 };
 
 export default Tabs;

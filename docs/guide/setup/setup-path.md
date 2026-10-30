@@ -190,7 +190,7 @@ without an error and the repair card says why. More: [Illustrations](images.md),
 ## Level 5: feature defaults
 
 **Settings → Features** holds one card per feature. Each switch is the default for every chat, and off there is a
-master switch. A story can turn a feature off for itself, and **This chat → Settings** can change it for one chat.
+master switch. A story can turn a feature off for itself, and **This chat → Story settings** can change it for one chat.
 Every feature is on by default; the character stage is on in its automatic form. <!-- so:show setup:defaults -->
 
 | Feature | What it does | Cost | Turn it off when |
@@ -246,14 +246,14 @@ Author view spoils the story it is turned on in, so it asks first. More: [Writin
 - **What it does:** each story runs with the features it was written for.
 - **Cost:** none.
 - **Where:** **Settings → Library → Open Studio**, the story's [feature policies](../author/fields/story.md#feature-policies).
-- **How to check:** **This chat → Settings** says "Turned off by this story" on a declined feature.
+- **How to check:** **This chat → Story settings** says "Turned off by this story" on a declined feature.
   <!-- so:show author:studio -->
 
 ### One chat's preferences
 
 - **What it does:** tries a setting in one chat without touching the install or the story.
 - **Cost:** whatever the feature costs.
-- **Where:** **This chat → Settings**, any feature row. A feature off in **Settings → Features** cannot be turned on for one
+- **Where:** **This chat → Story settings**, any feature row. A feature off in **Settings → Features** cannot be turned on for one
   chat.
 - **How to check:** the source chip says **This chat**; **Reset to story/default** puts it back.
 

@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useRef } from "react";
-import { HUD_COPY, pipelineAction } from "@runtime/pipeline";
+import { HUD_COPY, statusSentence } from "@runtime/pipeline";
 import { PLAYER_COPY } from "@runtime/narrative";
 import type { RuntimeSnapshot } from "@runtime/types";
 import type { SheetTab, SheetTabEntry } from "@runtime/storySheet";
@@ -45,7 +45,6 @@ export const cardTabs = (tabs: readonly SheetTabEntry[]): SheetTabEntry[] => {
 export const HudCard = ({ snapshot, tabs, openTab, onRetry, onOpenSettings, setLevel, skip, onMore, onClose }: HudCardProps) => {
   const card = useRef<HTMLElement>(null);
   const now = snapshot.narrative?.sections.find((section) => section.id === "now")?.lines ?? [];
-  const action = pipelineAction(snapshot.pipeline);
   const notices = cardNotices(snapshot);
   const level = snapshot.ui.inline.level;
 
@@ -89,7 +88,7 @@ export const HudCard = ({ snapshot, tabs, openTab, onRetry, onOpenSettings, setL
       </div>
       {now[1] ? <p className="so-hud-card-line">{now[1]}</p> : null}
       <div id="so-hud-card-status" className="so-hud-card-status" data-state={snapshot.pipeline.state}>
-        <span>{snapshot.pipeline.text}{action ? ` ${action}` : ""}</span>
+        <span>{statusSentence(snapshot.pipeline)}</span>
         {snapshot.pipeline.retryable && onRetry && (
           <Button id="so-hud-card-retry" size="sm" icon="fa-rotate" work={onRetry}>{PLAYER_COPY.retryButton}</Button>
         )}

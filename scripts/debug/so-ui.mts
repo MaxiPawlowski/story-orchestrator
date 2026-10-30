@@ -1253,7 +1253,19 @@ export async function assertPlayerClean(page) {
     const recovery = await evaluateInST(page, collect, { surfaces: PLAYER_SELECTOR_SURFACES, selectors: PLAYER_RECOVERY_CONTROLS });
     for (const control of recovery ?? []) recoveryControls.push({ tab, ...control });
     records.push(await recordPlayerSurfaces(page, tab));
-    if (tab === 'Settings') {
+    if (tab === 'Play') {
+      const storyTabs = page.locator('#so-workspace-modal #so-story-tabs [role="tab"]');
+      for (let index = 0; index < await storyTabs.count(); index += 1) {
+        const storyTab = storyTabs.nth(index);
+        const label = `Play/${((await storyTab.textContent()) ?? '').trim()}`;
+        await storyTab.click();
+        await page.waitForTimeout(300);
+        const tabHits = await evaluateInST(page, collect, { surfaces: PLAYER_SELECTOR_SURFACES, selectors: PLAYER_FORBIDDEN_SELECTORS });
+        for (const hit of tabHits ?? []) findings.push({ tab: label, needle: `${hit.selector} reachable in ${hit.surface}` });
+        records.push(await recordPlayerSurfaces(page, label));
+      }
+    }
+    if (tab === 'Settings' || tab === 'Story settings') {
       const toggles = page.locator('#so-workspace-modal [data-so="feature-row"] button[aria-expanded="false"][id$="-toggle"]');
       for (let left = await toggles.count(); left > 0; left = await toggles.count()) await toggles.first().click();
       const hits = await evaluateInST(page, collect, { surfaces: PLAYER_SELECTOR_SURFACES, selectors: PLAYER_FORBIDDEN_SELECTORS });
@@ -1460,7 +1472,7 @@ pipeline: print the pipeline state (snapshot + status line + HUD chip).
 briefing: read the "Before you start" briefing modal (open, title, sections, blocks, onboarding) and the chat's pending flag.
 briefing-dismiss [--dont-show]: close the open briefing with its start button, optionally ticking "Don't show briefings".
 player-setup: read the "Who you are in this story" pane (role, current persona, choices, pending) and the chat's persona lock.
-player-setup-choose keep|pick <name>|create [name]|skip: make that choice in the pane (skip = the start button); every choice leaves the chat locked.
+player-setup-choose keep|pick <name>|create [name]|skip: pick that mode in the pane and press Start (skip = close the page); every choice leaves the chat locked.
 assert-player-clean: walk the player-mode drawer and fail on anything the spoiler checklist forbids, or on raw error text on a player surface.
 wizard: print the wizard state (stage, pending questions, provisioning cards, created assets).
 open-wizard: open the Studio on the Wizard tab for the story this chat plays.

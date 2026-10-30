@@ -148,7 +148,7 @@ const moreLink = (doc: string) => (doc.startsWith("author/")
 const SCOPE_INTRO = [
   "## Where settings live",
   "",
-  "Open **Extensions → Story Orchestrator → Open Story Orchestrator**. The window has two halves: **This chat** (Play and Settings, plus",
+  "Open **Extensions → Story Orchestrator → Open Story Orchestrator**. The window has two halves: **This chat** (Play and Story settings, plus",
   "Review and Author in Author view) for the chat that is open, and **Settings** (Library, Features, Models, Judge, Images & stage,",
   "World & lore, Display, Authoring, Diagnostics, Help) for the whole install. **Search all settings** at the top finds any setting and",
   "jumps to it. The route icon in SillyTavern's top bar opens **This chat → Play**.",
@@ -157,7 +157,7 @@ const SCOPE_INTRO = [
   "|---|---|---|",
   "| Install | Model connections, the judge, images, and every feature's default | **Settings → Models**, **Settings → Features** |",
   "| Story | What the story's author chose for a feature (on, off or tuned) | The story itself, in the Studio |",
-  "| Chat | Your change to a feature for this chat only | **This chat → Settings** |",
+  "| Chat | Your change to a feature for this chat only | **This chat → Story settings** |",
   "| Device | Display and animation preferences, kept in this browser for your SillyTavern account | The **This device** chip on the row "
     + "(**Settings → Display**, **Settings → Images & stage**) |",
   "",
@@ -165,7 +165,7 @@ const SCOPE_INTRO = [
   "switch: no story or chat can turn that feature back on. A device preference changes only how this browser shows things.",
   "",
   "Worked example: **Speaker direction** is on in **Settings → Features**. A story turns it off for its own chats. In one of those chats",
-  "you open **This chat → Settings → Speaker direction** and switch it on: that chat now uses it, the story's other chats do not, and the",
+  "you open **This chat → Story settings → Speaker direction** and switch it on: that chat now uses it, the story's other chats do not, and the",
   "feature page says this chat re-enables something the story turned off. **Reset to story/default** on the same page drops your change, and",
   "the chat follows the story again.",
   "",

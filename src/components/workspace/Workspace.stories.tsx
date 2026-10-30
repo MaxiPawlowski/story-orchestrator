@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { expect, fn, userEvent, within } from "@storybook/test";
 import Workspace from "./Workspace";
+import { clockWidget } from "../widgets/gameViewFixtures";
 import { resolveFeatures } from "@runtime/featureResolve";
 import { defaultGlobalSettings } from "@runtime/settingsModel";
 import { buildNarrativeStatus } from "@runtime/narrative";
@@ -10,7 +11,7 @@ import type { ExtractionRuntimeState, RuntimeSnapshot } from "@runtime/types";
 import type { RuntimeManager } from "@runtime/runtimeManager";
 import type { SettingsHost } from "@components/settings/SettingsPanel";
 import type { DrawerTabsProps } from "@components/drawer/DrawerTabs";
-import { PLAYER_COPY } from "@runtime/narrative";
+import { PLAY_COPY } from "@features/playCopy";
 import { SETUP_COPY } from "@components/drawer/SetupSection";
 import { VIEWPORTS } from "../../../.storybook/fit";
 
@@ -32,14 +33,15 @@ const pipeline = derivePipelineStatus(extraction, undefined, null);
 const playSnapshot = {
   ...snapshot, storyId: "quest", boundary: 4, extraction, pipeline, saveHealth: createSaveHealth(),
   requirements: { ready: true, missingPersonas: [], missingMembers: [], missingLorebooks: [] },
-  libraryLost: { stories: ["Old tale"], sessions: [], changed: [] },
+  libraryLost: { stories: ["Old tale"], sessions: [], changed: [] }, thinkingSilent: true,
   narrative: buildNarrativeStatus({
     storyTitle: "Test story", checkpointName: "The Ruined Gate", objective: "Breach the sanctum.", lastTransition: { fromName: "Camp", toName: "The Ruined Gate" },
     openThreads: ["Who left the gate open"], canon: "The party crossed the dunes and reached the gate at dusk.", tensionLevel: "tense", pendingCount: 0, pipeline,
     sceneLocation: null, consequences: null,
   }),
   memory: { settings: global.memory, entries: [{ id: "m1", text: "The sun-key opens the inner sanctum.", tier: "facts", status: "live" }] },
-  game: { journal: [{ id: "q1", title: "The ferry", status: "active", steps: [] }], milestones: [], codex: null, statSheet: { id: "sheet", rows: [] }, widgets: [{ id: "road", title: "The road" }] },
+  game: { journal: [{ id: "q1", title: "The ferry", status: "active", steps: [] }], milestones: [], codex: null, statSheet: { id: "sheet", rows: [] },
+    widgets: [{ ...clockWidget, id: "road", title: "The road" }] },
   presence: { shown: { journal: true, statSheet: true, widgets: true, suggestions: true }, continueRows: [] },
 } as unknown as RuntimeSnapshot;
 
@@ -91,28 +93,30 @@ const playPage = (viewport: { width: number; height: number }, maxLines: number)
   },
   parameters: { testViewport: viewport, a11y: { element: "#so-workspace-modal" } },
   play: async ({ canvasElement, args }) => {
-    const page = within(canvasElement.ownerDocument.body);
+    const doc = canvasElement.ownerDocument;
+    const page = within(doc.body);
     await page.findByRole("dialog", { name: "Test story" });
-    const setup = canvasElement.ownerDocument.querySelector<HTMLElement>("#so-setup");
-    await expect(setup).not.toBeNull();
-    await expect(Number.parseFloat(getComputedStyle(setup as HTMLElement).paddingLeft)).toBeGreaterThanOrEqual(12);
-    const fix = await page.findByRole("button", { name: PLAYER_COPY.libraryLostAcknowledge });
-    const dismiss = await page.findByRole("button", { name: SETUP_COPY.dismiss });
-    await expect(lineCount(fix)).toBeLessThanOrEqual(maxLines);
-    await expect(lineCount(dismiss)).toBe(1);
-    const now = canvasElement.ownerDocument.querySelector(".st-checkpoint-row") as HTMLElement;
-    await expect(Number.parseFloat(getComputedStyle(now).paddingLeft)).toBeGreaterThanOrEqual(8);
-    for (const name of ["Open the journal", "Open the stat sheet", "Open the story panels", "What could I do?"]) {
-      await expect(await page.findByRole("button", { name })).toBeVisible();
-    }
-    await expect(canvasElement.ownerDocument.querySelector("#so-open-suggestions")?.closest("details")).toBeNull();
-    await expect(canvasElement.ownerDocument.querySelector("#so-open-memory")?.closest("details")).not.toBeNull();
-    await userEvent.click(await page.findByRole("button", { name: "Open the journal" }));
-    await expect(args.settingsHost.openPanel).toHaveBeenCalledWith("journal");
-    await userEvent.click(await page.findByRole("button", { name: "What could I do?" }));
-    await expect(args.settingsHost.openPanel).toHaveBeenCalledWith("suggestions");
-    const root = canvasElement.ownerDocument.documentElement;
-    const modal = canvasElement.ownerDocument.querySelector("#so-workspace-content") as HTMLElement;
+    await expect(await page.findByRole("heading", { name: "The Ruined Gate", level: 2 })).toBeVisible();
+    const toggle = await page.findByRole("button", { name: new RegExp(SETUP_COPY.count(1)) });
+    await expect(toggle).toHaveAttribute("aria-expanded", "false");
+    await expect(doc.querySelector('[data-so="setup-row"][data-check="library-lost-to-tab"]')).toBeNull();
+    await userEvent.click(toggle);
+    await expect(lineCount(await page.findByRole("button", { name: SETUP_COPY.dismiss }))).toBe(1);
+    const tabs = within(await page.findByRole("tablist", { name: PLAY_COPY.tabsLabel }));
+    for (const name of [PLAY_COPY.now, "Journal", "Stats", "The road", PLAY_COPY.memory]) await expect(tabs.getByRole("tab", { name })).toBeVisible();
+    await expect(doc.querySelector("#so-open-memory")?.getAttribute("role")).toBe("tab");
+    await expect(doc.querySelector("#so-chat-side")).toBeNull();
+    const ideas = await page.findByRole("button", { name: "What could I do?" });
+    await expect(ideas.closest("details")).toBeNull();
+    await expect(lineCount(await page.findByRole("button", { name: PLAY_COPY.restart }))).toBeLessThanOrEqual(maxLines);
+    await userEvent.click(tabs.getByRole("tab", { name: "Journal" }));
+    await expect(await page.findByRole("button", { name: PLAY_COPY.popOut("Journal") })).toHaveAttribute("id", "so-open-journal");
+    await userEvent.click(page.getByRole("button", { name: PLAY_COPY.restart }));
+    const confirm = await page.findByRole("dialog", { name: PLAY_COPY.restartTitle });
+    await userEvent.click(within(confirm).getAllByRole("button", { name: PLAY_COPY.restartKeep })[1]);
+    await expect(args.manager.restartStory).not.toHaveBeenCalled();
+    const root = doc.documentElement;
+    const modal = doc.querySelector("#so-workspace-content") as HTMLElement;
     await expect(modal.scrollWidth).toBeLessThanOrEqual(modal.clientWidth);
     await expect(root.scrollWidth).toBeLessThanOrEqual(root.clientWidth);
   },

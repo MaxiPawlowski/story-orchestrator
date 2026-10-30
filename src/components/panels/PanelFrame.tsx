@@ -12,6 +12,7 @@ export interface PanelFrameProps {
   viewport?: Viewport;
   dockInset?: number;
   actions?: ReactNode;
+  fit?: boolean;
 }
 
 const windowViewport = (): Viewport => ({ width: window.innerWidth, height: window.innerHeight });
@@ -22,7 +23,9 @@ const dragged = (kind: DragKind, from: PanelGeometry, dx: number, dy: number): P
   ? { ...from, x: from.x + dx, y: from.y + dy }
   : { ...from, w: from.w + dx, h: from.h + dy });
 
-export const PanelFrame = ({ id, title, geometry, onChange, onClose, children, viewport, dockInset = 0, actions }: PanelFrameProps) => {
+export const PanelFrame = ({ id, title, geometry, onChange, onClose, children, viewport, dockInset = 0, actions, fit = false }: PanelFrameProps) => {
+  const frame = useRef<HTMLElement>(null);
+  const [fitted, setFitted] = useState(fit);
   const [view, setView] = useState<Viewport>(() => viewport ?? windowViewport());
   const [geom, setGeom] = useState<PanelGeometry>(() => clampPanel(geometry, viewport ?? windowViewport()));
   const stop = useRef<(() => void) | null>(null);
@@ -54,7 +57,9 @@ export const PanelFrame = ({ id, title, geometry, onChange, onClose, children, v
     event.preventDefault();
     const startX = event.clientX;
     const startY = event.clientY;
-    const from = latest.current;
+    const measured = kind === "resize" && fitted && frame.current ? { ...latest.current, h: Math.round(frame.current.getBoundingClientRect().height) } : null;
+    if (measured) setFitted(false);
+    const from = measured ?? latest.current;
     let last = from;
     const move = (next: PointerEvent) => {
       last = clampPanel(dragged(kind, from, next.clientX - startX, next.clientY - startY), view);
@@ -91,13 +96,16 @@ export const PanelFrame = ({ id, title, geometry, onChange, onClose, children, v
     onClose();
   };
 
-  const style: CSSProperties = isDocked ? { ["--so-dock-inset" as string]: `${dockInset}px` } : { left: geom.x, top: geom.y, width: geom.w, height: geom.h };
+  const style: CSSProperties = isDocked ? { ["--so-dock-inset" as string]: `${dockInset}px` }
+    : fitted ? { left: geom.x, top: geom.y, width: geom.w, maxHeight: geom.h } : { left: geom.x, top: geom.y, width: geom.w, height: geom.h };
   return (
     <section
+      ref={frame}
       id={`so-panel-${id}`}
       data-so="panel"
       data-panel={id}
       data-docked={isDocked}
+      data-fit={fitted && !isDocked ? true : undefined}
       role="dialog"
       aria-modal="false"
       aria-label={title}
