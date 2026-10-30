@@ -349,7 +349,7 @@ const CheckpointEditor: React.FC<{ backgroundNames?: string[]; compact?: boolean
               <div className="so-cp-head">
                 <div className="so-cp-head-title">
                   <span className="font-semibold">{selected.name || selected.id}</span>
-                  <span className="text-xs st-muted">{selected.id} · {selected.start ? "start · " : ""}{selected.type}</span>
+                  <span className="text-xs st-muted">id {selected.id} · {selected.start ? "start · " : ""}{selected.type}</span>
                   {isStub ? <span className="st-pill px-2 py-0.5">stub</span> : null}
                 </div>
                 <SectionIndex labelled={selected.name || selected.id} />

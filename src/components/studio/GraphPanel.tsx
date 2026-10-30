@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import cytoscape, { Core, EventObject, StylesheetJson } from "cytoscape";
-import HelpTooltip from "./HelpTooltip";
 import {
   buildGraphElements,
   createGraphStyles,
@@ -203,7 +202,7 @@ interface ToolbarProps {
 
 const GraphToolbar = ({ layout, dagreReady, disabled, canAddTransition, onAddCheckpoint, onAddTransition, onRelayout, onLayout }: ToolbarProps) => (
   <div className="st-panel-header flex flex-wrap items-center justify-between gap-2 px-3 py-2">
-    <div className="font-semibold">Graph <HelpTooltip title="Click a Checkpoint to configure it" /></div>
+    <div className="font-semibold">Graph</div>
     <div className="flex flex-wrap items-center gap-2">
       <button
         type="button"

@@ -51,7 +51,7 @@ const OffersEditor = ({ checkpoint, qualities }: { checkpoint: Checkpoint; quali
         <JsonField label="Offers as JSON" hint={OFFERS_HINT} value={checkpoint.offers}
           onChange={(value) => mutate((current) => setOffers(current, checkpoint.id, Array.isArray(value) ? (value as CheckpointOffer[]) : undefined))} />
       ) : (
-        <ul className="flex flex-col gap-2" aria-label="Offers">
+        <ul className="m-0 flex list-none flex-col gap-2 p-0" aria-label="Offers">
           {offers.map((offer, index) => <OfferRow key={offer.id} checkpoint={checkpoint} offer={offer} index={index} count={offers.length} qualities={qualities} />)}
         </ul>
       )}

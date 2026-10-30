@@ -128,7 +128,7 @@ export const createGraphStyles = (themeColors: GraphThemeColors) => ([
       shape: "round-rectangle",
     },
   },
-  { selector: "node[type = 'anchor']", style: { "background-color": themeColors.info, "background-opacity": "0.85", "font-weight": "bold" } },
+  { selector: "node[type = 'anchor']", style: { "background-color": themeColors.info, "background-opacity": "0.35", "border-width": "3px", "font-weight": "bold" } },
   { selector: "node[type = 'intermediate']", style: { "background-opacity": "0.2" } },
   { selector: "node[type = 'stub']", style: { "border-style": "dashed", "border-color": themeColors.warning, "background-opacity": "0.1" } },
   {
