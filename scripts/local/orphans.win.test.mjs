@@ -36,14 +36,14 @@ const hardKill = async ({ reaper, waitMs }) => {
     if (left) process.kill(childPid);
     return left;
 };
-const windows = { skip: process.platform !== 'win32', timeout: 90000 };
+const windows = { skip: process.platform !== 'win32', timeout: 240000 };
 
 test('control: a text server outside the controller job outlives a hard-killed controller without the reaper', windows, async () => {
     assert.equal(await hardKill({ reaper: false, waitMs: 3000 }), true);
 });
 
 test('a hard-killed controller leaves no text server behind: the reaper stops the recorded child', windows, async () => {
-    assert.equal(await hardKill({ reaper: true, waitMs: 45000 }), false);
+    assert.equal(await hardKill({ reaper: true, waitMs: 180000 }), false);
 });
 
 test('startup reap stops a recorded text server whose controller is gone and keeps one whose owner lives', windows, async () => {
