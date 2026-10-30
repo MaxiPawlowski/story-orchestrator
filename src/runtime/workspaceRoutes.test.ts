@@ -1,6 +1,6 @@
 import { FEATURES } from "@features/registry";
 import { drawerAt, settingsAt } from "@features/where";
-import { judgeIntent, settingIntent, settingsLocationOf, visiblePages, WORKSPACE_CONTEXT_LABELS, WORKSPACE_PAGES, workspaceCrumb } from "./workspaceRoutes";
+import { judgeIntent, lastPageValue, resumeIntent, settingIntent, settingsLocationOf, visiblePages, WORKSPACE_CONTEXT_LABELS, WORKSPACE_PAGES, workspaceCrumb } from "./workspaceRoutes";
 
 describe("workspace breadcrumbs", () => {
   it("name the context and page from the route table, never twice", () => {
@@ -16,7 +16,7 @@ describe("workspace breadcrumbs", () => {
     const stale = FEATURES.filter((feature) => feature.where.workspace)
       .filter((feature) => !pages.has(feature.where.label.split(" › ").slice(0, 2).join(" › ")));
     expect(stale.map((feature) => `${feature.id}: ${feature.where.label}`)).toEqual([]);
-    expect(FEATURES.find((feature) => feature.id === "stories")?.where.label).toBe("This chat › Settings › Story › Story for this chat");
+    expect(FEATURES.find((feature) => feature.id === "stories")?.where.label).toBe("This chat › Story settings › Story › Story for this chat");
   });
 
   it("the crumb's page is the page the Show me link opens", () => {
@@ -28,9 +28,9 @@ describe("workspace breadcrumbs", () => {
     expect(wrong.map((feature) => feature.id)).toEqual([]);
   });
 
-  it("a drawer link to a feature control opens This chat → Settings on that feature", () => {
+  it("a drawer link to a feature control opens This chat → Story settings on that feature", () => {
     expect(drawerAt("#so-feature-speakers-enabled", "Speaker direction")).toMatchObject({
-      label: "This chat › Settings › Speaker direction", workspace: { context: "story", page: "features", feature: "speakers" },
+      label: "This chat › Story settings › Speaker direction", workspace: { context: "story", page: "features", feature: "speakers" },
     });
     expect(settingsAt("#so-hud-enabled", "Display › Show story status").label).toBe("Settings › Display › Show story status");
   });
@@ -54,17 +54,29 @@ describe("one home per setting (v3.0 29 phase 2)", () => {
     expect(settingsLocationOf("so-capabilities")).toEqual({ page: "diagnostics" });
   });
 
-  it("sends story choice, the Author view switch and per-chat features to This chat → Settings", () => {
+  it("sends story choice, the Author view switch and per-chat features to This chat → Story settings", () => {
     expect(settingIntent("story-library-select")).toEqual({ context: "story", page: "features", control: "story-library-select" });
     expect(settingIntent("so-author-view-switch")).toEqual({ context: "story", page: "features", control: "so-author-view-switch" });
     expect(settingIntent("so-feature-pacing-enabled")).toEqual({ context: "story", page: "features", feature: "pacing", control: "so-feature-pacing-enabled" });
     expect(settingIntent("so-keep-last-question")).toEqual({ context: "orchestrator", page: "features", feature: "speakers", control: "so-keep-last-question" });
   });
 
-  it("a player's This chat nav is Play and Settings; Author view adds Review and Author", () => {
-    expect(visiblePages("story", false).map((page) => page.label)).toEqual(["Play", "Settings"]);
-    expect(visiblePages("story", true).map((page) => page.label)).toEqual(["Play", "Settings", "Review", "Author"]);
+  it("a player's This chat nav is Play and Story settings; Author view adds Review and Author", () => {
+    expect(visiblePages("story", false).map((page) => page.label)).toEqual(["Play", "Story settings"]);
+    expect(visiblePages("story", true).map((page) => page.label)).toEqual(["Play", "Story settings", "Review", "Author"]);
     expect(visiblePages("orchestrator", false).map((page) => page.label)).toEqual(["Library", "Features", "Models", "Judge", "Images & stage", "World & lore", "Display",
       "Authoring", "Diagnostics", "Help"]);
+  });
+});
+
+describe("launchers reopen the last workspace page", () => {
+  it("resumes a stored page, falls back to Play, and never resumes an author page in player view", () => {
+    expect(resumeIntent(null, false)).toEqual({ context: "story", page: "play" });
+    expect(resumeIntent(lastPageValue({ context: "story", page: "features" }), false)).toEqual({ context: "story", page: "features" });
+    expect(resumeIntent(lastPageValue({ context: "orchestrator", page: "images", sub: "model-sources" }), false)).toEqual({ context: "orchestrator", page: "images", sub: "model-sources" });
+    expect(resumeIntent("orchestrator/images/bogus", false)).toEqual({ context: "orchestrator", page: "images" });
+    expect(resumeIntent("story/author", false)).toEqual({ context: "story", page: "play" });
+    expect(resumeIntent("story/author", true)).toEqual({ context: "story", page: "author" });
+    expect(resumeIntent("nowhere/at-all", true)).toEqual({ context: "story", page: "play" });
   });
 });

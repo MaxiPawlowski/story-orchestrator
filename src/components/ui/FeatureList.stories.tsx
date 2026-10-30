@@ -54,6 +54,14 @@ export const ExpandedOnArrivalForADeepLink: Story = {
   },
 };
 
+export const ExpandsAFeatureWithAnInstallOnlyControl: Story = {
+  args: { expanded: "chapters" },
+  play: async ({ canvasElement }) => {
+    await expect(canvasElement.querySelector("#so-feature-chapters-toggle")).toHaveAttribute("aria-expanded", "true");
+    await expect(canvasElement.querySelector("#so-feature-chapters-recap")).not.toBeNull();
+  },
+};
+
 export const ChatScopeShowsWhereEachValueComesFrom: Story = {
   args: { scope: "chat", resolved: chat, expanded: "reading" },
   play: async ({ canvasElement, args }) => {

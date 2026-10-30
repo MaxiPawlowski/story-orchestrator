@@ -5,6 +5,7 @@ import {
 import { stripReasoningBlocks } from "@extraction/parse";
 import { isRecord } from "@utils/guards";
 import { normalizeJsonText } from "@utils/json";
+import { repairJsonObject } from "@utils/jsonRepair";
 import type { DirectorDraft } from "./types";
 
 export type DirectorParse = { ok: true; draft: DirectorDraft } | { ok: false; issues: string[] };
@@ -30,16 +31,22 @@ const isPrimitive = (value: unknown): value is PrimitiveValue => typeof value ==
 
 const KEY = /^[a-z][a-z0-9_]{0,31}$/;
 
-const jsonObject = (raw: string): unknown => {
-  const text = normalizeJsonText(stripReasoningBlocks(raw));
+const sliced = (text: string): unknown => {
   const start = text.indexOf("{");
   const end = text.lastIndexOf("}");
-  if (start < 0 || end <= start) return null;
+  if (start < 0 || end <= start) return undefined;
   try {
     return JSON.parse(text.slice(start, end + 1));
   } catch {
-    return null;
+    return undefined;
   }
+};
+
+const jsonObject = (raw: string): { value: unknown; fixes: string[] } => {
+  const text = normalizeJsonText(stripReasoningBlocks(raw));
+  const value = sliced(text);
+  if (isRecord(value)) return { value, fixes: [] };
+  return repairJsonObject(text) ?? { value: null, fixes: [] };
 };
 
 const text = (value: unknown, path: string, max: number, issues: string[]): string => {
@@ -98,11 +105,11 @@ const readChanged = (value: unknown): string[] | undefined => {
 };
 
 export function parseDirectorDraft(raw: string, story: NormalizedStory): DirectorParse {
-  const parsed = jsonObject(raw);
+  const { value: parsed, fixes } = jsonObject(raw);
   if (!isRecord(parsed)) return { ok: false, issues: ["the answer was not one JSON object"] };
   const issues: string[] = [];
   const name = text(parsed.name, "name", LIVING_MAX_NAME_CHARS, issues);
-  const repaired: string[] = [];
+  const repaired: string[] = fixes.length ? [`JSON syntax repaired locally: ${fixes.join(", ")}`] : [];
   const written = typeof parsed.objective === "string" ? parsed.objective.trim() : parsed.objective;
   const cut = typeof written === "string" && written.length > LIVING_MAX_OBJECTIVE_CHARS ? trimToSentences(written, LIVING_MAX_OBJECTIVE_CHARS) : null;
   if (cut && typeof written === "string") repaired.push(`objective trimmed at a sentence boundary from ${written.length} to ${cut.length} characters`);

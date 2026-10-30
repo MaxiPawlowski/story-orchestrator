@@ -137,6 +137,11 @@ export async function readPlayerSetup(page): Promise<PlayerSetupPaneState> {
   return evaluateInST(page, () => {
     const pane = document.querySelector('#so-player-setup');
     const text = (selector: string) => pane?.querySelector(selector)?.textContent?.trim() ?? null;
+    const modes = (root: Element | null) => {
+      const radios = Array.from(root?.querySelectorAll('[data-so="player-setup-mode"] [role="radio"]') ?? []).map((node) => `player-setup-${node.getAttribute('data-value')}`);
+      if (radios.length) return radios;
+      return ['keep', 'pick-row', 'create-form'].filter((id) => root?.querySelector(`[data-so="player-setup-${id}"]`)).map((id) => `player-setup-${id.split('-')[0]}`);
+    };
     const host = globalThis as unknown as { SillyTavern?: { getContext?: () => { chatMetadata?: Record<string, unknown> } } };
     const lock = host.SillyTavern?.getContext?.()?.chatMetadata?.persona;
     return {
@@ -144,8 +149,8 @@ export async function readPlayerSetup(page): Promise<PlayerSetupPaneState> {
       role: text('[data-so="player-setup-role"]'),
       current: text('[data-so="player-setup-current"]'),
       done: text('[data-so="player-setup-done"]'),
-      canCreate: Boolean(pane?.querySelector('[data-so="player-setup-create"]')),
-      choices: Array.from(pane?.querySelectorAll('[data-so^="player-setup-"]') ?? []).map((node) => node.getAttribute('data-so') ?? '').filter((id) => /-(keep|pick|create)$/.test(id)),
+      canCreate: Boolean(pane?.querySelector('[data-so="player-setup-mode"] [data-value="create"], [data-so="player-setup-create-form"]')),
+      choices: modes(pane),
       pending: globalThis.storyOrchestratorRuntime?.getSnapshot?.()?.playerSetup?.pending ?? null,
       chatLock: typeof lock === 'string' && lock ? lock : null,
     };
@@ -158,18 +163,22 @@ export type PlayerSetupChoiceArg = (typeof PLAYER_SETUP_CHOICES)[number];
 export async function choosePlayerSetup(page, choice: PlayerSetupChoiceArg, name = '', { timeoutMs = 10000 } = {}) {
   const before = await readPlayerSetup(page);
   if (!before.open) throw new Error('no start-setup pane is open (#so-player-setup)');
-  if (choice === 'skip') await page.locator('#so-briefing-start').click();
-  if (choice === 'keep') await page.locator('[data-so="player-setup-keep"]').click();
+  const mode = async (value: string) => {
+    const radio = page.locator(`[data-so="player-setup-mode"] [data-value="${value}"]`);
+    if (await radio.count()) await radio.click();
+  };
+  if (choice === 'skip') await page.locator('dialog#so-briefing[open] [data-so="briefing-close"]').click();
+  if (choice === 'keep') await mode('keep');
   if (choice === 'pick') {
     if (!name) throw new Error('player-setup-choose pick needs a persona name');
+    await mode('pick');
     await page.locator('#so-player-setup-pick').selectOption({ label: name });
-    await page.locator('[data-so="player-setup-pick"]').click();
   }
   if (choice === 'create') {
-    await page.locator('[data-so="player-setup-create-form"] summary').click();
+    await mode('create');
     if (name) await page.locator('#so-player-setup-name').fill(name);
-    await page.locator('[data-so="player-setup-create"]').click();
   }
+  if (choice !== 'skip') await page.locator('#so-briefing-start').click();
   await page.waitForFunction(() => globalThis.storyOrchestratorRuntime?.getSnapshot?.()?.playerSetup?.pending === false, null, { timeout: timeoutMs });
   const after = await readPlayerSetup(page);
   return { before, after, locked: Boolean(after.chatLock) };

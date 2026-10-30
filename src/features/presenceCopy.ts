@@ -26,6 +26,4 @@ export const PRESENCE_TEXT = {
   suggestionsHint: "Pick one to put it in the box where you type. Nothing is sent until you send it.",
   suggestionsFilled: "It is in the box where you type. Change it or send it.",
   suggestionsAgain: "Other ideas",
-  chatSideHeading: "Beside the chat",
-  chatSideHint: "Each of these closes this window and opens over the chat.",
 };

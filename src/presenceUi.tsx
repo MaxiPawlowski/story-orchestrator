@@ -4,7 +4,7 @@ import { lazyRetry } from "@utils/lazyRetry";
 import { BADGE_REFRESH_EVENTS, fillChatInput, mountStoryBadges, mountStoryWand, openStoryGroupChat, showTextPopup, subscribeToHostEvents } from "@services/STAPI";
 import type { RuntimeManager } from "@runtime/index";
 import type { RuntimeSnapshot } from "@runtime/types";
-import { chatPanelsShown, type ChatPanel } from "@runtime/chatPanels";
+import type { ChatPanel } from "@runtime/chatPanels";
 import { sheetTabForPanel, sheetTabs, type SheetTab } from "@runtime/storySheet";
 import type { WidgetDrawerTab } from "@engine/index";
 import { onPlaysChanged, readBadgeMaps } from "@runtime/playsIndexHost";
@@ -13,7 +13,6 @@ import { renderNarrativeNode } from "@runtime/narrative";
 import type { MountRegistry } from "@utils/mountRegistry";
 import type { FeatureWhere } from "@features/registry";
 import { PRESENCE_TEXT } from "@features/presenceCopy";
-import { GAME_TEXT } from "@features/gameCopy";
 import { SHEET_TEXT } from "@features/sheetCopy";
 import { BRIEFING_COPY, HELP_COPY } from "@features/helpCopy";
 import { requestBriefing } from "@runtime/briefingRequest";
@@ -78,6 +77,7 @@ export interface PresenceUiDeps {
   useSnapshot: () => RuntimeSnapshot;
   showFeature: (where: FeatureWhere) => void;
   openDrawer: (tab?: WidgetDrawerTab) => void;
+  openLast?: () => void;
   jumpToMessage?: (messageId: number) => void;
   inspectActions?: InlineActions;
   onOpenAuthor?: () => void;
@@ -85,41 +85,12 @@ export interface PresenceUiDeps {
 
 export const openChatPanel = (panel: ChatPanel, snapshot: RuntimeSnapshot) => openSheet(sheetTabForPanel(panel, sheetTabs(snapshot)));
 
-const LAUNCHERS: Record<ChatPanel, { id: string; icon: string; label: string }> = {
-  journal: { id: "so-open-journal", icon: "fa-book", label: GAME_TEXT.journalLaunch },
-  "stat-sheet": { id: "so-open-stat-sheet", icon: "fa-list-check", label: GAME_TEXT.statSheetLaunch },
-  widgets: { id: "so-open-widgets", icon: "fa-table-columns", label: GAME_TEXT.widgetsLaunch },
-  suggestions: { id: "so-open-suggestions", icon: "fa-lightbulb", label: PRESENCE_TEXT.suggestionsOpen },
-};
-
-export const ChatPanelLaunchers = ({ snapshot, onLaunch }: { snapshot: RuntimeSnapshot; onLaunch: (panel: ChatPanel) => void }) => {
-  const shown = chatPanelsShown(snapshot);
-  if (!shown.length) return null;
-  return (
-    <section id="so-chat-side" aria-labelledby="so-chat-side-heading" className="so-task-card">
-      <h3 id="so-chat-side-heading" className="so-card-heading">{PRESENCE_TEXT.chatSideHeading}</h3>
-      <p className="so-card-hint">{PRESENCE_TEXT.chatSideHint}</p>
-      <div className="so-actions">
-        {shown.map((panel) => {
-          const { id, icon, label } = LAUNCHERS[panel];
-          return (
-            <button key={panel} id={id} type="button" data-so={id.slice(3)} className="menu_button so-launcher" onClick={() => onLaunch(panel)}>
-              <i className={`fa-solid ${icon}`} aria-hidden="true" />
-              <span>{label}</span>
-            </button>
-          );
-        })}
-      </div>
-    </section>
-  );
-};
-
 export const openPlay = async (row: ContinueRow) => {
   const opened = await openStoryGroupChat(row.groupId, row.chatId);
   if (!opened.ok) window.toastr?.info?.(opened.reason, "Story Orchestrator");
 };
 
-export function createPresenceUi({ manager, useSnapshot, showFeature, openDrawer, jumpToMessage, inspectActions, onOpenAuthor }: PresenceUiDeps) {
+export function createPresenceUi({ manager, useSnapshot, showFeature, openDrawer, openLast, jumpToMessage, inspectActions, onOpenAuthor }: PresenceUiDeps) {
   const requestSuggestions = async (again: number) => (await suggestionsHost()).askSuggestions(manager, again);
   let host: Awaited<ReturnType<typeof suggestionsHost>> | null = null;
   void suggestionsHost().then((loaded) => { host = loaded; });
@@ -177,7 +148,7 @@ export function createPresenceUi({ manager, useSnapshot, showFeature, openDrawer
       { id: "so-wand-recap", icon: "fa-clock-rotate-left", label: PRESENCE_TEXT.wandRecap, run: showRecap },
       { id: "so-wand-briefing", icon: "fa-scroll", label: BRIEFING_COPY.reopen, run: () => void requestBriefing(), shown: () => Boolean(manager.getCachedSnapshot().briefing?.view) },
       { id: "so-wand-flag", icon: "fa-flag", label: PRESENCE_TEXT.wandFlag, run: () => void flag() },
-      { id: "so-wand-drawer", icon: "fa-route", label: PRESENCE_TEXT.wandDrawer, run: () => openDrawer() },
+      { id: "so-wand-drawer", icon: "fa-route", label: PRESENCE_TEXT.wandDrawer, run: () => (openLast ?? openDrawer)() },
       { id: "so-wand-help", icon: "fa-circle-question", label: HELP_COPY.heading, run: () => setPanel("help", true) },
     ]);
     ui.add(() => wand.dispose());

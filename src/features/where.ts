@@ -8,7 +8,7 @@ const placed = (selector: string, leaf: string, surface: FeatureWhere["surface"]
 
 export const settingsAt = (selector: string, label: string): FeatureWhere =>
   placed(selector, label, "settings", settingIntent(selector.replace(/^#/, "")));
-const PLAY_TARGETS = /so-player-overview|so-player-promises|so-memory-search|so-carry-|so-living-save|so-your-character|so-image-chat|so-open-(suggestions|journal|widgets|stat)/;
+const PLAY_TARGETS = /so-player-overview|so-player-promises|so-memory-search|so-carry-|so-living-save|so-your-character|so-image-quick|so-story-tab|so-open-(suggestions|journal|widgets|stat)/;
 
 export const drawerAt = (selector: string, label: string): FeatureWhere => {
   const control = selector.replace(/^#/, "");

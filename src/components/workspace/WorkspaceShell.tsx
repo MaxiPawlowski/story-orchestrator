@@ -2,7 +2,8 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import type { StoryFeatureId } from "@engine/featurePolicy";
 import type { WorkspaceContext, WorkspaceIntent, WorkspacePage } from "@runtime/workspaceNavigation";
-import { defaultPage, SETTINGS_SUBPAGES, visiblePages, WORKSPACE_CONTEXT_LABELS, WORKSPACE_PAGES } from "@runtime/workspaceRoutes";
+import { defaultPage, lastPageValue, SETTINGS_SUBPAGES, visiblePages, WORKSPACE_CONTEXT_LABELS, WORKSPACE_PAGES } from "@runtime/workspaceRoutes";
+import { writeLastPage } from "@runtime/lastPage";
 import { Dialog, DialogHeader } from "@components/ui/Dialog";
 import { NavList } from "@components/ui/NavList";
 import { IconButton } from "@components/ui/IconButton";
@@ -88,6 +89,8 @@ export const WorkspaceShell = ({ intent, storyTitle, authorView, onClose, badges
     history.pushState({ soWorkspace: token.current, depth: ++depth.current, location: next }, "");
     if (!control) document.getElementById("so-workspace-content")?.scrollTo(0, 0);
   };
+  const lastPage = lastPageValue(location);
+  useEffect(() => { writeLastPage(lastPage); }, [lastPage]);
   useEffect(() => {
     setLocation(initial(intent));
     if (intent.control) setReveal({ control: intent.control, at: Date.now() });

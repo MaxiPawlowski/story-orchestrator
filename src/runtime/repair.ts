@@ -135,8 +135,15 @@ export interface SetupCounts {
   degrades: number;
 }
 
-export function setupCounts(snapshot: RuntimeSnapshot, checks: readonly Check[] = CHECKS): SetupCounts {
+export function playFindings(snapshot: RuntimeSnapshot, checks: readonly Check[] = CHECKS): SetupFindings {
   const findings = setupFindings(snapshot, checks);
+  const install = new Set(checks.filter((check) => check.scope === "install").map((check) => check.id));
+  const here = (steps: RepairStep[]) => steps.filter((step) => !install.has(step.check));
+  return { blocks: findings.blocks, degrades: here(findings.degrades), info: here(findings.info), dismissed: here(findings.dismissed) };
+}
+
+export function setupCounts(snapshot: RuntimeSnapshot, checks: readonly Check[] = CHECKS): SetupCounts {
+  const findings = playFindings(snapshot, checks);
   const counted = (steps: RepairStep[]) => steps.filter((step) => !SURFACED_ELSEWHERE.has(step.area)).length;
   return { blocks: counted(findings.blocks), degrades: counted(findings.degrades) };
 }

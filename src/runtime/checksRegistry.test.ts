@@ -1,5 +1,5 @@
 import { CHECKS, isDismissed, runCheck, withDismissal, type Check } from "./checks";
-import { beforeYouStart, installFindings, nextRepairStep, repairSteps, setupAlert, setupCounts, setupFindings, viewerRepairStep } from "./repair";
+import { beforeYouStart, installFindings, nextRepairStep, playFindings, repairSteps, setupAlert, setupCounts, setupFindings, viewerRepairStep } from "./repair";
 import { createSaveHealth } from "./saveHealth";
 import { loopbackUrl } from "./imageHealth";
 import { hudSetupText, hudSetupTitle } from "./pipeline";
@@ -201,12 +201,21 @@ describe("v2.7 plan 04 C: dismissal (decision 4, F34)", () => {
 });
 
 describe("v2.7 plan 04 C: one surface", () => {
-  it("the HUD counts by severity, leaving the save row to its own line", () => {
+  it("the HUD counts by severity, leaving the save row to its own line and install-scope rows to Settings", () => {
     const counts = setupCounts(everything({ ui: { authorView: true } }));
-    expect(counts).toEqual({ blocks: 14, degrades: 27 });
-    expect(hudSetupText(counts)).toBe("fix setup (41)");
+    expect(counts).toEqual({ blocks: 14, degrades: 17 });
+    expect(hudSetupText(counts)).toBe("fix setup (31)");
     expect(hudSetupText({ blocks: 0, degrades: 2 })).toBe("check setup (2)");
     expect(hudSetupTitle({ blocks: 1, degrades: 2 })).toBe("1 thing stops the story. 2 things weaken it.");
+  });
+
+  it("Play keeps blocks but leaves install-scope degrades and info rows to Settings", () => {
+    const snapshot = everything({ ui: { authorView: true } });
+    const install = new Set(installFindings(snapshot).map((step) => step.check));
+    const play = playFindings(snapshot);
+    expect(install.size).toBeGreaterThan(0);
+    expect([...play.degrades, ...play.info].some((step) => install.has(step.check))).toBe(false);
+    expect(play.blocks).toEqual(setupFindings(snapshot).blocks);
   });
 
   it("Before you start lists this story's blocks findings in player copy", () => {

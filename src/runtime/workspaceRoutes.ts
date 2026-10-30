@@ -10,7 +10,7 @@ export interface WorkspacePageEntry {
 
 export const WORKSPACE_CONTEXT_LABELS: Record<WorkspaceContext, string> = { story: "This chat", orchestrator: "Settings" };
 export const WORKSPACE_PAGES: Record<WorkspaceContext, WorkspacePageEntry[]> = {
-  story: [{ id: "play", label: "Play" }, { id: "features", label: "Settings" },
+  story: [{ id: "play", label: "Play" }, { id: "features", label: "Story settings" },
     { id: "review", label: "Review", authorOnly: true }, { id: "author", label: "Author", authorOnly: true }],
   orchestrator: [
     { id: "library", label: "Library", description: "Start, continue or repair a story, or open the Studio." },
@@ -45,6 +45,16 @@ export const workspaceCrumb = (intent: WorkspaceIntent, leaf: string): string =>
 export const SETUP_CONTROL = "so-setup";
 
 export const storyPlayIntent = (): WorkspaceIntent => ({ context: "story", page: "play" });
+export const LAST_PAGE_KEY = "so-workspace-last-page";
+export const resumeIntent = (stored: string | null, authorView: boolean): WorkspaceIntent => {
+  const [context, page, sub] = (stored ?? "").split("/");
+  const entry = context === "story" || context === "orchestrator" ? visiblePages(context, authorView).find((item) => item.id === page) : undefined;
+  if (!entry) return storyPlayIntent();
+  const subOk = sub && SETTINGS_SUBPAGES[entry.id]?.[sub];
+  return { context: context as WorkspaceContext, page: entry.id, ...(subOk ? { sub } : {}) };
+};
+export const lastPageValue = (location: { context: WorkspaceContext; page: WorkspacePage; sub?: string }): string =>
+  [location.context, location.page, location.sub].filter(Boolean).join("/");
 export const repairIntent = (): WorkspaceIntent => ({ context: "story", page: "play", control: SETUP_CONTROL });
 export const modelsIntent = (): WorkspaceIntent => ({ context: "orchestrator", page: "models" });
 export const judgeIntent = (control?: string): WorkspaceIntent => ({ context: "orchestrator", page: "judge", ...(control ? { control } : {}) });

@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { expect, userEvent, within } from "@storybook/test";
+import { expect, within } from "@storybook/test";
 import { PLAYER_SETUP_COPY } from "@features/playerSetupCopy";
 import type { RuntimeSnapshot } from "@runtime/types";
 import { YourCharacter } from "./YourCharacter";
@@ -26,8 +26,10 @@ type Story = StoryObj<typeof YourCharacter>;
 export const Locked: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(canvas.getByText(PLAYER_SETUP_COPY.yourCharacter));
-    await expect(canvas.getByText("Playing as Max.")).toBeVisible();
+    await expect(canvas.getByRole("heading", { name: PLAYER_SETUP_COPY.youHeading })).toBeVisible();
+    await expect(canvas.getByText("Max")).toBeVisible();
+    await expect(canvas.getByText("a hired courier")).toBeVisible();
+    await expect(canvas.getByText("can ride")).toBeVisible();
     await expect(canvasElement.querySelectorAll("button")).toHaveLength(0);
   },
 };
