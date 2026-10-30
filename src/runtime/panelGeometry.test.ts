@@ -39,6 +39,8 @@ describe("v3.0 29 IC5/IC6: the story sheet docks right of the chat and, on a pho
     expect(snaps.peek).toBe(SHEET_PEEK);
     expect(sheetSnaps(844, 700, 60, 2000).half).toBe(320);
     expect(sheetSnaps(844, 170, 60, 80).half).toBe(SHEET_PEEK);
+    expect(SHEET_PEEK).toBe(56);
+    expect(sheetSnaps(600, 300, 60, 150).half).toBe(120);
   });
 
   it("snaps a dragged height to the nearest point and cycles on press", () => {

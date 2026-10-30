@@ -74,7 +74,7 @@ export const isPanelKey = (key: string): key is PanelKey => key === "ArrowLeft" 
 export const SHEET_DOCK_KEY = "sheet-dock";
 export const SHEET_WINDOW_KEY = "sheet";
 export const SHEET_WIDTH = { min: 300, max: 640, initial: 380 };
-export const SHEET_PEEK = 120;
+export const SHEET_PEEK = 56;
 
 export interface SheetDock {
   width: number;
