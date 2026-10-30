@@ -51,6 +51,7 @@ export interface RequiresFacts {
   profileNames?: string[];
   briefingDraft?: boolean;
   innerBeat?: boolean;
+  remoteAuthoring?: string[];
 }
 
 export const REQUIRES_KEYS = new Set(['lane', 'group', 'members', 'authorView', 'judge', 'briefingDraft', 'innerBeat', 'mainApi', 'roleProfiles', 'macroEngine', 'vectorsWorldInfo', 'comfy', 'imageHarness', 'viewport', 'plugins', 'prior', 'why']);
@@ -137,6 +138,7 @@ export function requiresProblems(requires: ScenarioRequires, facts: RequiresFact
   if (typeof requires.macroEngine === 'boolean' && facts.macroEngine !== requires.macroEngine) problems.push(`needs experimental_macro_engine ${requires.macroEngine ? 'on' : 'off'} (it is read at startup: switch it and reload), it is ${facts.macroEngine ? 'on' : 'off'}`);
   if (typeof requires.vectorsWorldInfo === 'boolean' && facts.vectorsWorldInfo !== requires.vectorsWorldInfo) problems.push(`needs Vectors > World Info ${requires.vectorsWorldInfo ? 'on' : 'off'}, it is ${facts.vectorsWorldInfo ? 'on' : 'off'}`);
   if (requires.lane === 'no-model' && facts.modelReachable !== false) problems.push(`needs a no-model lane (st-lanes.mts no-model <n>: keys removed, judge off), and the memory profile ${facts.modelReachable ? 'answered' : 'could not be probed'}${facts.modelProbe ? ` (${facts.modelProbe})` : ''}`);
+  if (requires.lane === 'no-model' && facts.remoteAuthoring?.length) problems.push(`needs a no-model lane with remote authoring off (st-lanes.mts no-model <n> switches it off), and these would still call a remote model: ${facts.remoteAuthoring.join(', ')}`);
   if (requires.lane === 'model' && facts.modelReachable !== true) problems.push(`needs a lane with a live model, and the memory profile did not answer${facts.modelProbe ? ` (${facts.modelProbe})` : ''}`);
   for (const id of requires.plugins ?? []) if (facts.plugins?.[id] !== 'present') problems.push(`needs the ${id} server plugin (an offline lane, SO_LANE_OFFLINE=1, runs without server plugins), and /api/plugins/${id}/status reads ${facts.plugins?.[id] ?? 'unprobed'}`);
   if (requires.comfy) problems.push(...comfyProblems(facts.comfy ?? null));

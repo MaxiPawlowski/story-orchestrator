@@ -21,6 +21,7 @@ import { composeActivity } from "@runtime/activityFeed";
 import FlagControl from "@components/drawer/FlagControl";
 import { requestBriefing } from "@runtime/briefingRequest";
 import { BusyButton } from "@components/BusyButton";
+import { playEmptyState } from "@runtime/noGroup";
 
 const SettingsPanel = lazyRetry(() => import("../settings/SettingsPanel"));
 const DrawerTabs = lazyRetry(() => import("../drawer/DrawerTabs"));
@@ -28,6 +29,7 @@ const StagecraftPanel = lazyRetry(() => import("../drawer/StagecraftPanel"));
 const MemoryTab = lazyRetry(() => import("../drawer/tabs/MemoryTab").then((module) => ({ default: module.MemoryTab })));
 const ActivityPanel = lazyRetry(() => import("../panels/ActivityPanel"));
 const YourCharacter = lazyRetry(() => import("../drawer/YourCharacter"));
+const MakeGroupCard = lazyRetry(() => import("../settings/MakeGroupCard"));
 const LivingSave = lazyRetry(() => import("../drawer/LivingSave"));
 
 export interface WorkspaceProps {
@@ -55,8 +57,9 @@ export default function Workspace({ intent, snapshot, manager, settingsHost, dra
         <Lazy><SettingsPanel snapshot={installSnapshot} manager={manager} host={settingsHost}
           workspaceSection={location.page === "connections" ? "connections" : location.page === "interface" ? "interface" : location.page === "help" ? "help" : "library"} /></Lazy>
       </>;
-      if (location.page === "play") return <section className="so-play">
-        <h2>Playing this story</h2>
+      const empty = playEmptyState(snapshot);
+      if (location.page === "play") return <section className="so-play" data-so="play-page" data-state={empty?.kind ?? "playing"}>
+        <h2>{empty?.heading ?? "Playing this story"}</h2>
         {snapshot.chatIdentity?.kind === "branch" && onContinueBranch && <BranchNotice identity={snapshot.chatIdentity} onContinue={onContinueBranch} />}
         <SetupSection findings={setupFindings(snapshot)} authorView={snapshot.ui.authorView} beforeStart={snapshot.boundary === 0} onShowMe={drawerProps.onShowMe} onFix={drawerProps.onFix}
           onDismiss={(id, dismissed) => manager.setCheckDismissed(id, dismissed)} />
@@ -80,7 +83,9 @@ export default function Workspace({ intent, snapshot, manager, settingsHost, dra
             <FlagControl manager={manager} />
           </div>
         </> : <div className="so-task-card">
-          <p>{snapshot.noChat ? "Open a group chat to play a story." : snapshot.noGroup ? "Stories run in group chats. Create or open the story's group." : "Choose a story for this chat."}</p>
+          {snapshot.noGroup && settingsHost.makeGroup ? <Lazy fallback={null}><MakeGroupCard id="so-play-make-group" view={snapshot.noGroup} wizardOn={snapshot.copilot.enabled}
+            onMakeGroup={settingsHost.makeGroup} onFixWithWizard={(storyId, missing) => settingsHost.fixGroupWithWizard?.(storyId, missing)} /></Lazy>
+            : <p>{empty?.text}</p>}
           <div className="so-actions"><button className="st-button primary" onClick={() => navigate({ context: "orchestrator", page: "library" })}>Open library</button></div>
         </div>}
       </section>;

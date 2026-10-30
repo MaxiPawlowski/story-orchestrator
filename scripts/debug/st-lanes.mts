@@ -9,7 +9,7 @@ import { lanesRootFor, requireStRoot } from './../lib/stRoot.mjs';
 import { swipesOn } from './lib/adolionFresh.mts';
 import { isLaneNumber, laneIssue, lanePortIssue, lanePorts } from './lib/laneRange.mts';
 import { holderSummary, portHolder, portOwnership } from './lib/lanePortOwner.mts';
-import { firewalledServerEnv, laneExtraPorts, judgeEnabledIn, NO_MODEL_BACKUP, OFFLINE_ENV, offlineProblems, offlineSettings, stripModelSecrets, withJudgeEnabled } from './lib/laneModel.mts';
+import { firewalledServerEnv, laneExtraPorts, judgeEnabledIn, NO_MODEL_BACKUP, NO_MODEL_SETTINGS_BACKUP, OFFLINE_ENV, offlineProblems, offlineSettings, remoteAuthoringOn, stripModelSecrets, withJudgeEnabled, withRemoteAuthoringOff, withRemoteAuthoringRestored } from './lib/laneModel.mts';
 import { judgeShareEnv, LANE_POD_FILE, parsePodArg, podLoadProblem, podPortsIn, podTunnelPort, readLanePod, retargetPodUrls, retargetProfiles } from './lib/lanePods.mts';
 import { ROW_DIR_ENV } from './lib/pageCapture.mts';
 import { ramGateBytes, waitForFreeRam, type RamPause } from './lib/ramGate.mts';
@@ -54,8 +54,11 @@ is shared: llama-server serves LLM_PARALLEL requests at once and queues the rest
                                (so-replay.mts, 127.0.0.1:${REPLAY_PORT}/lane/<n>), recorded in <lane>/${LANE_REPLAY_FILE}; off puts the old URLs
                                back. start then lets the lane's firewall reach the replay port
   no-model <n>                 make stopped lane n a no-model lane: api keys removed from its secrets.json
-                               copy (backup kept), judge off; the no-LLM scenarios with requires.lane no-model
-  restore-model <n>            put stopped lane n's secrets back from that backup and switch the judge on
+                               copy (backup kept), judge off, and the features that call remote authoring
+                               models on their own (living director, branching, prefetch, create, briefing
+                               draft, reply polish) off, read back (prior values kept in so-no-model-settings.json;
+                               re-running it on a no-model lane re-applies the settings); the no-LLM scenarios with requires.lane no-model
+  restore-model <n>            put stopped lane n's secrets back from that backup, switch the judge on and restore those features
   pod <n> <k|cloud> [--pod-id <id>]
                                point stopped lane n's pod-tunnel profiles (loopback 18080-18089) at pod k's
                                tunnel port 18080+k and record it in <lane>/pod.json; cloud points them at a
@@ -341,9 +344,9 @@ async function setModelAccess(n: number, on: boolean) {
   if (!existsSync(settingsPath)) throw new Error(`lane ${n} is not seeded: ${settingsPath} is missing`);
   let removed: string[] = [];
   let restored = false;
+  const alreadyNoModel = !on && existsSync(backupPath);
   if (!on) {
-    if (existsSync(backupPath)) throw new Error(`lane ${n} already holds ${NO_MODEL_BACKUP}: run restore-model ${n} first, or the real keys in it would be overwritten`);
-    if (existsSync(secretsPath)) {
+    if (!alreadyNoModel && existsSync(secretsPath)) {
       const raw = await readFile(secretsPath, 'utf-8');
       const stripped = stripModelSecrets(JSON.parse(raw));
       await writeFile(backupPath, raw, 'utf-8');
@@ -355,11 +358,31 @@ async function setModelAccess(n: number, on: boolean) {
     await rm(backupPath, { force: true });
     restored = true;
   }
+  const remote = await setRemoteAuthoring(user, settingsPath, on);
   const settings = withJudgeEnabled(JSON.parse(await readFile(settingsPath, 'utf-8')), on);
   await writeFile(settingsPath, JSON.stringify(settings, null, 4), 'utf-8');
-  const judge = judgeEnabledIn(JSON.parse(await readFile(settingsPath, 'utf-8')));
+  const readBack = JSON.parse(await readFile(settingsPath, 'utf-8'));
+  const judge = judgeEnabledIn(readBack);
   if (judge !== on) throw new Error(`lane ${n}: judge.enabled reads ${judge} after writing ${on}`);
-  return { lane: n, model: on ? 'restored' : 'removed', removedKeys: removed.length, secretsRestored: restored, judgeEnabled: judge };
+  const stillOn = remoteAuthoringOn(readBack);
+  if (!on && stillOn.length) throw new Error(`lane ${n}: ${stillOn.join(', ')} still on after switching remote authoring off`);
+  return { lane: n, model: on ? 'restored' : 'removed', ...(alreadyNoModel ? { alreadyNoModel } : {}), removedKeys: removed.length, secretsRestored: restored, judgeEnabled: judge, remoteAuthoring: remote };
+}
+
+async function setRemoteAuthoring(user: string, settingsPath: string, on: boolean) {
+  const backupPath = resolve(user, NO_MODEL_SETTINGS_BACKUP);
+  const current = JSON.parse(await readFile(settingsPath, 'utf-8'));
+  if (!on) {
+    const { next, backup } = withRemoteAuthoringOff(current);
+    if (!existsSync(backupPath)) await writeFile(backupPath, JSON.stringify(backup, null, 2), 'utf-8');
+    await writeFile(settingsPath, JSON.stringify(next, null, 4), 'utf-8');
+    return { off: Object.keys(backup), backup: NO_MODEL_SETTINGS_BACKUP };
+  }
+  if (!existsSync(backupPath)) return { restored: false };
+  const backup = JSON.parse(await readFile(backupPath, 'utf-8'));
+  await writeFile(settingsPath, JSON.stringify(withRemoteAuthoringRestored(current, backup), null, 4), 'utf-8');
+  await rm(backupPath, { force: true });
+  return { restored: true, values: backup };
 }
 
 async function setLaneReplay(n: number, on: boolean) {

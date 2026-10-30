@@ -2,13 +2,8 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import type { StoryFeatureId } from "@engine/featurePolicy";
 import type { WorkspaceContext, WorkspaceIntent, WorkspacePage } from "@runtime/workspaceNavigation";
+import { WORKSPACE_CONTEXT_LABELS, WORKSPACE_PAGES as PAGES } from "@runtime/workspaceRoutes";
 import { Dialog, DialogHeader } from "@components/ui/Dialog";
-
-const PAGES: Record<WorkspaceContext, Array<{ id: WorkspacePage; label: string }>> = {
-  story: [{ id: "play", label: "Play" }, { id: "features", label: "Features" }, { id: "review", label: "Review" }, { id: "author", label: "Author" }],
-  orchestrator: [{ id: "library", label: "Library" }, { id: "defaults", label: "Defaults" }, { id: "connections", label: "Connections" },
-    { id: "interface", label: "Interface" }, { id: "help", label: "Help" }],
-};
 
 export interface WorkspaceLocation {
   context: WorkspaceContext;
@@ -105,8 +100,8 @@ export const WorkspaceShell = ({ intent, storyTitle, authorView, onClose, render
         subtitle={location.context === "story" ? `This chat · ${authorView ? "Author view" : "Player view"}` : "All chats · Install settings"}
         onClose={onClose} closeLabel="Close Story Orchestrator" />
       <div className="so-workspace-context" aria-label="Workspace context">
-        <button ref={first} aria-pressed={location.context === "story"} onClick={() => navigate({ context: "story", page: "play" })}>This story</button>
-        <button aria-pressed={location.context === "orchestrator"} onClick={() => navigate({ context: "orchestrator", page: "library" })}>Orchestrator</button>
+        <button ref={first} aria-pressed={location.context === "story"} onClick={() => navigate({ context: "story", page: "play" })}>{WORKSPACE_CONTEXT_LABELS.story}</button>
+        <button aria-pressed={location.context === "orchestrator"} onClick={() => navigate({ context: "orchestrator", page: "library" })}>{WORKSPACE_CONTEXT_LABELS.orchestrator}</button>
       </div>
       <div className="so-workspace-body">
         <nav className="so-workspace-nav" aria-label={`${location.context === "story" ? "Story" : "Orchestrator"} sections`}>

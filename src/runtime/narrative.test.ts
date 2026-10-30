@@ -1,4 +1,4 @@
-import { buildNarrativeStatus, renderNarrativeNode, type NarrativeInput } from "./narrative";
+import { buildNarrativeStatus, renderNarrativeNode, sceneHeadline, type NarrativeInput } from "./narrative";
 import { fakeDocument } from "../../test/support/fakeDocument";
 import { derivePipelineStatus } from "./pipeline";
 import type { ExtractionRuntimeState } from "./types";
@@ -22,6 +22,20 @@ const input = (overrides: Partial<NarrativeInput> = {}): NarrativeInput => ({
   pendingCount: 2,
   pipeline: pipeline(),
   ...overrides,
+});
+
+describe("sceneHeadline", () => {
+  it("falls back from the public scene name to the chapter title to the story title, and only then to Current scene", () => {
+    expect(sceneHeadline({ playerName: "The Gate", chapterTitle: "Part One", storyTitle: "Sun Ruins" })).toBe("The Gate");
+    expect(sceneHeadline({ playerName: "  ", chapterTitle: "Part One", storyTitle: "Sun Ruins" })).toBe("Part One");
+    expect(sceneHeadline({ playerName: undefined, chapterTitle: null, storyTitle: "Sun Ruins" })).toBe("Sun Ruins");
+    expect(sceneHeadline({})).toBe("Current scene");
+  });
+
+  it("the headline is the scene line, or the story title when no checkpoint is active", () => {
+    expect(buildNarrativeStatus(input()).headline).toBe("The Ruined Gate");
+    expect(buildNarrativeStatus(input({ checkpointName: null })).headline).toBe("Quest for the Sun Ruins");
+  });
 });
 
 describe("buildNarrativeStatus", () => {
