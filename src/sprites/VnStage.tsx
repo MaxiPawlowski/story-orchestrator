@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import React, { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { Lazy } from "@components/Lazy";
 import { lazyRetry } from "@utils/lazyRetry";
 import type { SpriteStage, StageActor } from "./stage";
@@ -8,9 +8,64 @@ import "./styles.css";
 import { AnimatedFace } from "./AnimatedFace";
 import { frameBudget } from "./faceFrames";
 import { StreamActivity } from "./animation";
+import type { MotionBudget } from "./motion/budget";
+import { nextExpiry, stagePhases, type Placed, type StagePhase } from "./motion/roster";
 
 const inactiveActivity = new StreamActivity();
 const LiveHead = lazyRetry(() => import("./liveHead/LiveHead").then((module) => ({ default: module.LiveHead })));
+type MotionKit = typeof import("./motion/lazy");
+const loadMotion = (): Promise<MotionKit> => import("./motion/lazy");
+const StageEffects = lazyRetry(() => loadMotion().then((module) => ({ default: module.StageEffects })));
+const REACTION_GAP_MS = 900;
+const IDLE_TICK_MS = 1000;
+
+function useMotionKit(enabled: boolean): MotionKit | null {
+  const [kit, setKit] = useState<MotionKit | null>(null);
+  useEffect(() => {
+    if (!enabled || kit) return;
+    let live = true;
+    loadMotion().then((module) => { if (live) setKit(module); }, (error: unknown) => log.warn("Sprite motion: the effects chunk did not load; the stage stays still.", error));
+    return () => { live = false; };
+  }, [enabled, kit]);
+  return enabled ? kit : null;
+}
+
+interface SpriteMotionDeps { kit: MotionKit | null; gate: InstanceType<MotionKit["MotionGate"]> | null }
+
+interface SpriteMotionState { speaking: boolean; talking: boolean; headActive: boolean; still: boolean; boundary: () => number }
+
+function useSpriteMotion(act: React.RefObject<HTMLDivElement | null>, { kit, gate }: SpriteMotionDeps, motion: MotionBudget, actor: StageActor,
+  { speaking, talking, headActive, still, boundary }: SpriteMotionState) {
+  const label = useRef(actor.label);
+  const wasSpeaking = useRef(speaking);
+  useEffect(() => {
+    const started = speaking && !wasSpeaking.current;
+    wasSpeaking.current = speaking;
+    if (!started || !kit || !gate || !motion.hop || still) return;
+    if (gate.once(`hop:${actor.avatar}:${boundary()}`)) kit.playHop(act.current);
+  }, [act, actor.avatar, boundary, gate, kit, motion.hop, speaking, still]);
+  useEffect(() => {
+    const changed = actor.label !== label.current;
+    label.current = actor.label;
+    if (!changed || !kit || !gate || !motion.reactions || headActive || still) return;
+    if (gate.allow(`react:${actor.avatar}`, Date.now(), REACTION_GAP_MS)) kit.playReaction(act.current, actor.label);
+  }, [act, actor.avatar, actor.label, gate, kit, motion.reactions, headActive, still]);
+  const resting = !speaking && !talking && !headActive && !still;
+  useEffect(() => {
+    if (!kit || !motion.idle || !resting) return;
+    const began = Date.now();
+    let lastSlot = -1;
+    const timer = setInterval(() => {
+      const elapsed = Date.now() - began, slot = Math.floor(elapsed / kit.IDLE_SLOT_MS);
+      if (slot === lastSlot) return;
+      const beat = kit.idleBeat(actor.avatar, slot);
+      if (!beat || elapsed < beat.startMs || elapsed >= beat.startMs + beat.motion.ms) return;
+      lastSlot = slot;
+      kit.playMotion(act.current, beat.motion);
+    }, IDLE_TICK_MS);
+    return () => clearInterval(timer);
+  }, [act, actor.avatar, kit, motion.idle, resting]);
+}
 
 interface Layer {
   key: number;
@@ -86,8 +141,26 @@ function useVisibleShare(active: boolean): number {
   return share;
 }
 
-function Sprite({ actor, index, count, speaking, talking, focus, breathing, crossfadeMs, reducedMotion, framing, share, budget, stage, liveHead }: {
-  actor: StageActor; index: number; count: number; speaking: boolean; talking: boolean; focus: boolean; breathing: boolean; crossfadeMs: number; reducedMotion: boolean;
+function useStageRoster(actors: StageActor[], session: string, exitMs: number): Placed<StageActor>[] {
+  const memory = useRef<{ session: string; placed: Placed<StageActor>[]; seeded: boolean }>({ session, placed: [], seeded: false });
+  const [, setTick] = useState(0);
+  const same = memory.current.session === session;
+  const previous = same ? memory.current.placed : [];
+  const seeded = same && memory.current.seeded;
+  const placed = stagePhases(previous, actors, (actor) => actor.avatar, Date.now(), exitMs, !seeded);
+  memory.current = { session, placed, seeded: seeded || placed.length > 0 };
+  const expiry = nextExpiry(placed);
+  useEffect(() => {
+    if (expiry === null) return;
+    const timer = setTimeout(() => setTick((tick) => tick + 1), Math.max(0, expiry - Date.now()) + 16);
+    return () => clearTimeout(timer);
+  }, [expiry]);
+  return placed;
+}
+
+function Sprite({ actor, index, left, width, phase, motion, kit, speaking, talking, focus, breathing, crossfadeMs, reducedMotion, framing, share, budget, stage, liveHead }: {
+  actor: StageActor; index: number; left: number; width: number; phase: StagePhase; motion: MotionBudget; kit: SpriteMotionDeps; speaking: boolean; talking: boolean; focus: boolean;
+  breathing: boolean; crossfadeMs: number; reducedMotion: boolean;
   framing: Framing; share: number; budget: number;
   stage: SpriteStage;
   liveHead: boolean;
@@ -108,15 +181,20 @@ function Sprite({ actor, index, count, speaking, talking, focus, breathing, cros
     media.addEventListener("change", change);
     return () => media.removeEventListener("change", change);
   }, []);
-  const width = Math.min(34, 92 / Math.max(count, 1));
-  const left = count <= 1 ? 50 : 50 + (index - (count - 1) / 2) * Math.min(width * 0.8, 88 / (count - 1));
+  const act = useRef<HTMLDivElement | null>(null);
+  const headActive = liveHead && Boolean(actor.liveHead);
+  const still = reducedMotion || mediaMotion || phase === "exit";
+  useSpriteMotion(act, kit, motion, actor, { speaking, talking, headActive, still, boundary: stage.boundary });
+  const swaying = motion.idle && !still && !headActive;
+  const entering = phase === "enter" && motion.enter !== "none";
   const classes = ["so-sprite", focus ? (speaking ? "so-speaking" : talking ? "so-talking" : "so-idle") : "", breathing && !reducedMotion && !mediaMotion ? "so-breathing" : "",
-    actor.spotlight ? "so-spotlight" : "", framed ? `so-framed so-frame-${framing}` : ""].filter(Boolean).join(" ");
+    actor.spotlight ? "so-spotlight" : "", framed ? `so-framed so-frame-${framing}` : "", entering ? "so-enter" : "", phase === "exit" ? "so-exit" : ""].filter(Boolean).join(" ");
   const imageStyle: React.CSSProperties | undefined = framed ? { height: `${slice.scale * share * 100}%`, top: `${-slice.offset * share * 100}%` } : undefined;
   return (
-    <div className={classes} data-name={actor.name} data-label={actor.label} data-set={actor.set}
-      style={{ left: `${left}%`, width: `${width}%`, zIndex: speaking ? 3 : actor.spotlight ? 2 : 1, "--so-breath-delay": `${-(index * 1.3) % 4}s`, "--so-fade": `${fade}ms` } as React.CSSProperties}>
-      <div className="so-sprite-breath">
+    <div className={classes} data-name={actor.name} data-label={actor.label} data-set={actor.set} data-phase={phase} data-enter={motion.enter === "rise" ? "rise" : "fade"}
+      style={{ left: `${left}%`, width: `${width}%`, zIndex: speaking ? 3 : actor.spotlight ? 2 : 1, "--so-breath-delay": `${-(index * 1.3) % 4}s`, "--so-fade": `${fade}ms`,
+        "--so-enter-ms": `${motion.enterMs}ms`, "--so-exit-ms": `${motion.exitMs}ms`, "--so-sway-delay": `${-((index * 2.3) % 7)}s` } as React.CSSProperties}>
+      <div className={swaying ? "so-sprite-sway so-swaying" : "so-sprite-sway"}><div ref={act} className="so-sprite-act"><div className="so-sprite-breath">
         {layers.map((layer, position) => (
           <img key={layer.key} src={layer.src} alt={`${actor.name} (${actor.label})`} draggable={false} style={imageStyle}
             className={position === layers.length - 1 ? "so-sprite-top" : "so-sprite-under"}
@@ -128,7 +206,7 @@ function Sprite({ actor, index, count, speaking, talking, focus, breathing, cros
           beginRun={stage.beginHeadRun} activity={stage.activity ?? inactiveActivity} name={actor.name} label={actor.label}
           motion={!reducedMotion && !mediaMotion} breathing={breathing} blink={stage.view().settings.blink}
           mouth={stage.view().settings.mouth !== "off"} drawn={actor.headFrames} expressions={actor.headLooks} style={imageStyle} /></Lazy>}
-      </div>
+      </div></div></div>
     </div>
   );
 }
@@ -136,15 +214,22 @@ function Sprite({ actor, index, count, speaking, talking, focus, breathing, cros
 export function VnStage({ stage }: { stage: SpriteStage }) {
   const view = useSyncExternalStore(stage.subscribe, stage.view);
   const share = useVisibleShare(view.visible);
+  const placed = useStageRoster(view.visible ? view.actors : [], view.headSession, view.motion.exitMs);
+  const kit = useMotionKit(view.visible && (view.motion.hop || view.motion.reactions || view.motion.idle));
+  const gate = useMemo(() => (kit ? new kit.MotionGate() : null), [kit]);
+  const motionDeps = useMemo(() => ({ kit, gate }), [kit, gate]);
   if (!view.visible) return null;
   const { settings } = view;
   const budget = frameBudget(view.actors.filter((actor) => actor.frames).length);
   const closeActors = view.actors.filter((actor) => (actor.framing ?? view.framing) === "close");
   const headActor = closeActors.find((actor) => actor.spotlight) ?? closeActors.find((actor) => actor.name === view.speaking) ?? closeActors[0];
   return (
-    <div id="so-vn-stage" aria-hidden="true" data-framing={view.framing} data-placement={view.placement}>
-      {view.actors.map((actor, index) => (
-        <Sprite key={actor.avatar} actor={actor} index={index} count={view.actors.length} speaking={view.speaking === actor.name}
+    <div id="so-vn-stage" aria-hidden="true" data-framing={view.framing} data-placement={view.placement} data-motion={view.motion.mode}
+      data-blur={settings.focus && view.motion.blurOthers && view.actors.length > 1 ? "true" : undefined} data-motion-kit={kit ? "ready" : undefined}
+      style={{ "--so-move-ms": `${view.motion.moveMs}ms` } as React.CSSProperties}>
+      {view.motion.mode !== "off" && <Lazy quiet><StageEffects stage={stage} motion={view.motion} /></Lazy>}
+      {placed.map(({ actor, index, left, width, phase }) => (
+        <Sprite key={actor.avatar} actor={actor} index={index} left={left} width={width} phase={phase} motion={view.motion} kit={motionDeps} speaking={view.speaking === actor.name}
           talking={view.talker === actor.name} budget={budget} stage={stage}
           liveHead={settings.liveHead && (actor.framing ?? view.framing) === "close" && actor === headActor}
           framing={actor.framing ?? (view.framing === "close" && view.actors.length > 1 && actor !== headActor ? "thigh" : view.framing)} share={share}

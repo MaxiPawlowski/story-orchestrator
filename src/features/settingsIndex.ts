@@ -48,6 +48,7 @@ export const SETTING_CONTROLS: Record<string, string> = {
   "memory.epistemicLedgerCapable": "so-epistemic-capable",
   "sprites.blink": "so-sprite-blink",
   "sprites.breathing": "so-sprite-breathing",
+  "sprites.effects": "so-sprite-effects",
   "sprites.enabled": "so-sprite-enabled",
   "sprites.focus": "so-sprite-focus",
   "sprites.liveHead": "so-live-head-enabled",

@@ -134,6 +134,7 @@ export interface CheckpointEffects {
   cast_changes?: unknown;
   npc_replies?: NpcReplyEffect[];
   background?: BackgroundEffect;
+  transition?: TransitionEffect;
   reasoning?: CheckpointReasoning;
   scenario?: string | null;
   card?: Record<string, Record<string, string>>;
@@ -156,6 +157,17 @@ export interface CheckpointIllustrations {
 export const CHECKPOINT_REASONING = ["off", "low", "medium", "high"] as const;
 
 export type CheckpointReasoning = (typeof CHECKPOINT_REASONING)[number];
+
+export const TRANSITION_EFFECT_KINDS = ["dissolve", "fade", "wipe", "iris", "cut"] as const;
+export type TransitionEffectKind = (typeof TRANSITION_EFFECT_KINDS)[number];
+export const TRANSITION_EFFECT_MAX_MS = 5000;
+export const TRANSITION_EFFECT_COLOR = "#000000";
+
+export interface TransitionEffect {
+  kind: TransitionEffectKind;
+  ms?: number;
+  color?: string;
+}
 
 export interface BackgroundEffect {
   name: string;

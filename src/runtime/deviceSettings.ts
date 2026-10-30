@@ -6,7 +6,7 @@ import { log } from "@utils/log";
 export const DEVICE_SETTING_PATHS = [
   "display.hudEnabled", "display.inline.level", "display.inline.window", "display.inline.categories",
   "sprites.stage", "sprites.focus", "sprites.breathing", "sprites.blink", "sprites.mouth", "sprites.liveHead", "sprites.liveHeadFrames",
-  "display.yourMove",
+  "display.yourMove", "sprites.effects",
 ] as const;
 export type DeviceSettingPath = typeof DEVICE_SETTING_PATHS[number];
 export type DeviceSettings = Partial<Record<DeviceSettingPath, unknown>>;
@@ -18,6 +18,7 @@ const valid = (path: DeviceSettingPath, value: unknown): boolean => {
   if (path === "display.inline.categories") return isRecord(value) && Object.values(value).every((entry) => typeof entry === "boolean");
   if (path === "sprites.stage") return value === "vn" || value === "always" || value === "off";
   if (path === "sprites.mouth") return value === "off" || value === "simple" || value === "smooth";
+  if (path === "sprites.effects") return value === "full" || value === "calm" || value === "off";
   return typeof value === "boolean";
 };
 

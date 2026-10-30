@@ -94,7 +94,9 @@ const ownerLocation = (owner: Feature | null): string => {
   if (!owner) return CONTEXT_LABELS.orchestrator;
   const intent = owner.where.workspace;
   if (intent?.context === "story" && intent.page === "features" && intent.feature) {
-    return trail(CONTEXT_LABELS.orchestrator, featuresPageLabel, FEATURE_CONTROLS[intent.feature].name);
+    const home = FEATURE_INSTALL_HOMES[intent.feature];
+    return home ? trail(CONTEXT_LABELS.orchestrator, pageLabel("orchestrator", home.page))
+      : trail(CONTEXT_LABELS.orchestrator, featuresPageLabel, FEATURE_CONTROLS[intent.feature].name);
   }
   return trail(...owner.where.label.split(" › ").filter((part) => part !== "Overview"));
 };

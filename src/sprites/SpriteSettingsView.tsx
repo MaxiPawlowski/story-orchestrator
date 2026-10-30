@@ -8,10 +8,10 @@ import { Select } from "@components/ui/Field";
 import { SegmentedControl } from "@components/ui/SegmentedControl";
 import { Button } from "@components/ui/Button";
 import { settingCopy } from "@features/settingsCopy";
-import type { SpriteActivation, SpriteSettings, StageMode } from "./settings";
+import type { EffectsLevel, SpriteActivation, SpriteSettings, StageMode } from "./settings";
 import { CheckRow, HelpText } from "@components/settings/Field";
 
-export type SpriteDeviceKey = "stage" | "focus" | "breathing" | "blink" | "mouth" | "liveHead" | "liveHeadFrames";
+export type SpriteDeviceKey = "stage" | "effects" | "focus" | "breathing" | "blink" | "mouth" | "liveHead" | "liveHeadFrames";
 
 export interface SpriteSettingsViewProps {
   settings: SpriteSettings;
@@ -38,6 +38,7 @@ const ANIMATION_COPY = { focus: "sprites.focus", breathing: "sprites.breathing",
 
 const MOUTHS = [{ value: "off", label: "Off" }, { value: "simple", label: "Simple" }, { value: "smooth", label: "Smooth", title: "Half-open frames; falls back to simple" }] as const;
 const STAGES = [{ value: "vn", label: "With Visual Novel mode (/vn)" }, { value: "always", label: "Always" }] as const;
+const EFFECTS: ReadonlyArray<{ value: EffectsLevel; label: string }> = [{ value: "full", label: "Full" }, { value: "calm", label: "Calm" }, { value: "off", label: "Off" }];
 
 export function SpriteSettingsView({
   settings, activation, waitsForVn, capability, profiles, onStage, onChange, onSwitch, onStoryDecides, deviceChip, deviceScope,
@@ -48,7 +49,7 @@ export function SpriteSettingsView({
     if (next && settings.stage === "off") onChange({ stage: "vn" });
     onSwitch(next);
   };
-  const animation = (key: Exclude<SpriteDeviceKey, "stage" | "mouth">, id: string) => (
+  const animation = (key: Exclude<SpriteDeviceKey, "stage" | "mouth" | "effects">, id: string) => (
     <CheckRow id={id} setting={ANIMATION_COPY[key]} checked={settings[key]} scope={deviceScope?.(key)} extra={deviceChip?.(key)}
       onChange={(value) => onChange({ [key]: value })} />
   );
@@ -64,6 +65,9 @@ export function SpriteSettingsView({
         <SettingRow label={settingCopy("sprites.stage").label} description={<HelpText text={settingCopy("sprites.stage").help} />} scope={deviceScope?.("stage")}
           control={<>{deviceChip?.("stage")}<SegmentedControl id="so-sprite-stage" label={settingCopy("sprites.stage").label} size="sm" value={stage} disabled={!on}
             options={STAGES} onChange={(value: StageMode) => onChange({ stage: value })} /></>} />
+        <SettingRow data-so="sprite-effects" label={settingCopy("sprites.effects").label} description={<HelpText text={settingCopy("sprites.effects").help} />}
+          scope={deviceScope?.("effects")} control={<>{deviceChip?.("effects")}<SegmentedControl id="so-sprite-effects" label={settingCopy("sprites.effects").label} size="sm"
+            value={settings.effects} options={EFFECTS} onChange={(effects: EffectsLevel) => onChange({ effects })} /></>} />
         <CheckRow id="so-sprite-poses" setting="sprites.poses" checked={settings.poses} onChange={(poses) => onChange({ poses })} />
         <CheckRow id="so-sprite-on-demand" setting="sprites.onDemand" checked={settings.onDemand} onChange={(onDemand) => onChange({ onDemand })} />
         <SettingRow label={settingCopy("sprites.profileId").label} htmlFor="so-sprite-profile" description={<HelpText text={settingCopy("sprites.profileId").help} />}

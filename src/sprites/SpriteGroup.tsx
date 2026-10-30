@@ -14,7 +14,7 @@ import { LiveHeadAuthor } from "./liveHead/LiveHeadAuthor";
 import { liveHeadKey } from "./liveHeadRefs";
 
 const DEVICE_LABELS: Record<SpriteDeviceKey, string> = {
-  stage: "Show stage", focus: "Dim non-speakers", breathing: "Breathing", blink: "Blinking", mouth: "Mouth movement",
+  stage: "Show stage", effects: "Stage effects", focus: "Dim non-speakers", breathing: "Breathing", blink: "Blinking", mouth: "Mouth movement",
   liveHead: "Live close-shot head", liveHeadFrames: "Drawn eyes and mouth on the live head",
 };
 
@@ -24,7 +24,7 @@ const useSpriteDevice = (stage: SpriteStage | null, manager: RuntimeManager): Re
   const write = (key: SpriteDeviceKey) => (value: unknown) => stage?.updateSettings({ [key]: value } as Partial<SpriteSettings>);
   const useKey = (key: SpriteDeviceKey) => useDeviceSetting<unknown>(`sprites.${key}` as DeviceSettingPath, settings?.[key], write(key), () => manager.notify(), store);
   return {
-    stage: useKey("stage"), focus: useKey("focus"), breathing: useKey("breathing"), blink: useKey("blink"), mouth: useKey("mouth"),
+    stage: useKey("stage"), effects: useKey("effects"), focus: useKey("focus"), breathing: useKey("breathing"), blink: useKey("blink"), mouth: useKey("mouth"),
     liveHead: useKey("liveHead"), liveHeadFrames: useKey("liveHeadFrames"),
   };
 };

@@ -27,7 +27,7 @@ Where the guide says "the reading model" it means the memory model that reads th
 
 ## Story fields
 
-Every field a story can carry: 76 topics on 8 pages, from the story as a whole down to the game layer.
+Every field a story can carry: 77 topics on 8 pages, from the story as a whole down to the game layer.
 
 - [The story as a whole](fields/story.md)
   - [Story feature policies](fields/story.md#feature-policies) (`feature-policies`)
@@ -74,6 +74,7 @@ Every field a story can carry: 76 topics on 8 pages, from the story as a whole d
   - [Beat lore](fields/scene-effects.md#world-info) (`world-info`)
   - [Preset](fields/scene-effects.md#preset) (`preset`)
   - [Background](fields/scene-effects.md#background) (`background`)
+  - [Stage transition](fields/scene-effects.md#stage-transition) (`stage-transition`)
   - [Scenario](fields/scene-effects.md#scenario) (`scenario`)
   - [Cast changes](fields/scene-effects.md#cast-changes) (`cast-changes`)
   - [NPC replies](fields/scene-effects.md#npc-replies) (`npc-replies`)
