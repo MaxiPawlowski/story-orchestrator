@@ -55,9 +55,7 @@ const Field: React.FC<{ label: string; hint?: string; desc?: string; children: R
 );
 
 const RequirementList: React.FC<{
-  label: string;
-  hint?: string;
-  desc?: string;
+  label: string; hint?: string; desc?: string;
   values: string[];
   options: string[];
   listId: string;
