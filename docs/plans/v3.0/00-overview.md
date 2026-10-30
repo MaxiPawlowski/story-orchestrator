@@ -506,6 +506,29 @@ J6 under `st-lanes batch --lanes 45 --repeat 2 --strict --fresh-page J6` (lane 4
   - Evidence: `C:/dev/so-lanes/45/debug/batch/2026-10-30T20-15-42-386Z/J6-run{1,2}/`, batch log
     `C:/dev/so-lanes/45/debug/g1-j6x2-batch.log`, summary `C:/dev/so-lanes/batch-2026-10-30T20-15-42-386Z.json`.
 
+### Gate record: harness J6 fixes 2026-10-31 (branch `v3.0-harness-j6-1031`, CPU only)
+
+- J6.1: goal is "a boundary commits and a gate latches", not "parked at cp2"; expect is now `activeCheckpointIn` (same list as
+  the wait) + `approached_board: true`.
+- J6.7 (lane 45 run 2): J6.6 ran its sends, the read resumed after its reload and the edit's re-read unpinned, and ended
+  without a scheduler-idle wait. Fix (fixture): J6.6 pins `SCENE_NONE` at its start and again after the reload, waits
+  `schedulerIdle` before the reload and at its end; J6.7 ends on `schedulerIdle` (J6.8 scripts passes too); J6.7 picks
+  its scripted belief by text (`/ferryman/`), not the first Arin belief (a real-model belief could be first); the stamp
+  check and its message stay.
+- Guard: `scriptedPassesUnpinned` also checks the check before a scripted one: every chat move (send, send_generate,
+  edit, delete, swipe, host_delete, cut, reload; a reload drops the pin) pinned, and a `schedulerIdle` wait after the last
+  one. Pre-fix J6 fires on J6.6 steps 1/3/6/8, J6.6's end and J6.7's end; corpus clean. Tests in `scenarioSchema.test.mts`.
+- `so-ui.mts player-setup-choose` (lane 45 "no pane"): selectors were already current (272ca1bf). Cause: lane 45 holds
+  `display.playerSetup: false` (`test/sessions/baseline-settings.json`), so the identity step settles itself and never
+  shows. The verb now waits up to 8 s for the lazy step inside `dialog#so-briefing[open]`, scopes its clicks there, and
+  names why when absent (`setupPaneMissing`: setting off, no player profile, already settled + choice/lock, dialog
+  closed); `current` reads the snapshot. Tests in `briefingHarness.test.mts` (fake page).
+- `npm run gates:quick` green (216.2 s). `npm run gates` (no `--resume`, master `a26fe086` merged) all green in 511.0 s:
+  jest 11053 passed / 1 skipped, test:debug 1733/1733, Storybook 1134 passed, build, typecheck, typecheck:test,
+  debug:typecheck, lint, test:replay, test:plugin, test:release ok. Record written after the run (docs only).
+- Owed (model lane): J6 x2, `node scripts/debug/st-lanes.mts batch --lanes <n> --repeat 2 --strict --fresh-page J6` after
+  `npm run build && npm run stage`.
+
 ## Rules
 
 1. **Inherited.** v2.6, v2.7 (`v2.7/00-overview.md` §Rules) and v2.8 (`v2.8/00-overview.md` §Rules) rules and every

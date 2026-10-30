@@ -243,17 +243,41 @@ export function scriptedPassesUnpinned(doc: unknown, where = 'fixture'): string[
     ? doc.checks.filter(isRecord).map((check) => ({ id: `${where}:${String(check.id)}`, model: check.model, steps: check.steps }))
     : [{ id: where, model: doc.model, steps: doc.steps }];
   const broken: string[] = [];
-  for (const unit of units) {
-    if (unit.model === 'none' || lane === 'no-model' || !Array.isArray(unit.steps)) continue;
+  units.forEach((unit, at) => {
+    if (unit.model === 'none' || lane === 'no-model' || !Array.isArray(unit.steps)) return;
     let pinned = false;
+    let scripts = false;
     unit.steps.forEach((step, index) => {
       if (!isRecord(step)) return;
       if ('reload' in step) pinned = false;
       if (typeof step.eval !== 'string') return;
       if (READ_PIN.test(step.eval)) pinned = true;
-      if (SCRIPTED_PASS.test(step.eval) && !pinned) broken.push(`${unit.id} step ${index}: scripts an epistemic/ledger response with background reads unpinned`);
+      if (!SCRIPTED_PASS.test(step.eval)) return;
+      scripts = true;
+      if (!pinned) broken.push(`${unit.id} step ${index}: scripts an epistemic/ledger response with background reads unpinned`);
     });
-  }
+    const before = at > 0 ? units[at - 1] : null;
+    if (scripts && before && before.model !== 'none' && Array.isArray(before.steps)) broken.push(...carriedReads(before.id, before.steps, unit.id));
+  });
+  return broken;
+}
+
+const CHAT_MOVES = ['send', 'send_generate', 'edit', 'delete', 'swipe', 'host_delete', 'cut', 'reload'];
+const waitsSchedulerIdle = (step: unknown) => isRecord(step) && isRecord(step.wait) && step.wait.schedulerIdle === true;
+
+function carriedReads(id: string, steps: unknown[], after: string): string[] {
+  const broken: string[] = [];
+  let pinned = false;
+  let lastMove = -1;
+  steps.forEach((step, index) => {
+    if (!isRecord(step)) return;
+    if (typeof step.eval === 'string' && READ_PIN.test(step.eval)) pinned = true;
+    if (!CHAT_MOVES.some((verb) => verb in step)) return;
+    lastMove = index;
+    if (!pinned) broken.push(`${after} follows ${id}, whose step ${index} moves the chat with background reads unpinned`);
+    if ('reload' in step) pinned = false;
+  });
+  if (lastMove >= 0 && !steps.slice(lastMove + 1).some(waitsSchedulerIdle)) broken.push(`${after} follows ${id}, which ends without a schedulerIdle wait after its last chat move (step ${lastMove})`);
   return broken;
 }
 

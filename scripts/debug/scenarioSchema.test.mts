@@ -202,8 +202,35 @@ test('the scripted-pass guard fires on the pre-fix J6.7 and J6.8 shape, and a re
   ] };
   assert.deepEqual(scriptedPassesUnpinned(journey, 'j'), [
     'j:A step 1: scripts an epistemic/ledger response with background reads unpinned',
+    'j:B follows j:A, whose step 0 moves the chat with background reads unpinned',
+    'j:B follows j:A, which ends without a schedulerIdle wait after its last chat move (step 0)',
     'j:D step 2: scripts an epistemic/ledger response with background reads unpinned',
   ]);
   assert.deepEqual(scriptedPassesUnpinned({ model: 'any', steps: [scripted] }, 's'), ['s step 0: scripts an epistemic/ledger response with background reads unpinned']);
   assert.deepEqual(scriptedPassesUnpinned({ requires: { lane: 'no-model' }, steps: [scripted] }, 's'), []);
+});
+
+// J6.7 (lane 45, 2026-10-30): J6.6 ran its sends, the reload's resumed read and the edit's re-read unpinned, and a pass
+// they queued left an Arin belief stamped at message 7 before J6.7's scripted window (9). The check before a scripted
+// pass moves the chat only while pinned and ends on an idle scheduler.
+test('the check before a scripted pass moves the chat pinned and ends on an idle scheduler', () => {
+  const scripted = { eval: 'globalThis.storyOrchestratorDebugEpistemicResponse = `[knows] Arin | x`; return 1;' };
+  const pin = { eval: "globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; return 1;" };
+  const idle = { wait: { schedulerIdle: true, quietMs: 2000 } };
+  const send = { send_generate: { text: 'x' } };
+  const after = { id: 'Z', model: 'any', steps: [pin, scripted] };
+  const run = (before: object) => scriptedPassesUnpinned({ checks: [before, after] }, 'j');
+  assert.deepEqual(run({ id: 'Y', model: 'any', steps: [send, { reload: {} }, { edit: { messageId: 0 } }] }), [
+    'j:Z follows j:Y, whose step 0 moves the chat with background reads unpinned',
+    'j:Z follows j:Y, whose step 1 moves the chat with background reads unpinned',
+    'j:Z follows j:Y, whose step 2 moves the chat with background reads unpinned',
+    'j:Z follows j:Y, which ends without a schedulerIdle wait after its last chat move (step 2)',
+  ]);
+  assert.deepEqual(run({ id: 'Y', model: 'any', steps: [pin, send, { reload: {} }, { edit: { messageId: 0 } }, idle] }), [
+    'j:Z follows j:Y, whose step 3 moves the chat with background reads unpinned',
+  ]);
+  assert.deepEqual(run({ id: 'Y', model: 'any', steps: [pin, send, idle, { reload: {} }, pin, { edit: { messageId: 0 } }, idle] }), []);
+  assert.deepEqual(run({ id: 'Y', model: 'any', steps: [pin, send] }), ['j:Z follows j:Y, which ends without a schedulerIdle wait after its last chat move (step 1)']);
+  assert.deepEqual(run({ id: 'Y', model: 'none', steps: [send] }), []);
+  assert.deepEqual(scriptedPassesUnpinned({ checks: [{ id: 'Y', model: 'any', steps: [send] }, { id: 'Z', model: 'any', steps: [pin] }] }, 'j'), []);
 });
