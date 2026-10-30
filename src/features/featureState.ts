@@ -41,6 +41,7 @@ export const FEATURE_STATE: Readonly<Record<string, FeatureStateRow>> = {
   "story-patterns": master("patterns"),
   "reactive-cues": master("cues"),
   "delayed-echoes": master("echoes"),
+  "skip-ahead": master("skip"),
 };
 
 export const UNMAPPED_STORY_FEATURES: Readonly<Partial<Record<StoryFeatureId, string>>> = {

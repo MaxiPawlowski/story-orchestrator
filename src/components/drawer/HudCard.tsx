@@ -4,6 +4,7 @@ import { HUD_COPY, pipelineAction } from "@runtime/pipeline";
 import type { RuntimeSnapshot } from "@runtime/types";
 import { GAME_TEXT } from "@features/gameCopy";
 import { PRESENCE_TEXT } from "@features/presenceCopy";
+import { SKIP_COPY } from "@runtime/skipGate";
 
 export type HudCardPanel = "journal" | "suggestions";
 
@@ -11,6 +12,7 @@ export interface HudCardActions {
   panels: readonly HudCardPanel[];
   openPanel: (panel: HudCardPanel) => void;
   openMemory: () => void;
+  skip?: () => void;
 }
 
 export interface HudCardProps extends HudCardActions {
@@ -40,7 +42,7 @@ const PANEL_LABELS: Record<HudCardPanel, { label: string; icon: string; id: stri
   suggestions: { label: PRESENCE_TEXT.suggestionsOpen, icon: "fa-lightbulb", id: "so-hud-card-suggestions" },
 };
 
-export const HudCard = ({ snapshot, panels, openPanel, openMemory, onMore, onClose }: HudCardProps) => {
+export const HudCard = ({ snapshot, panels, openPanel, openMemory, skip, onMore, onClose }: HudCardProps) => {
   const card = useRef<HTMLElement>(null);
   const [peek, setPeek] = useState(false);
   const now = snapshot.narrative?.sections.find((section) => section.id === "now")?.lines ?? [];
@@ -102,6 +104,12 @@ export const HudCard = ({ snapshot, panels, openPanel, openMemory, onMore, onClo
             <i className={`fa-solid ${PANEL_LABELS[panel].icon}`} aria-hidden="true" /><span>{PANEL_LABELS[panel].label}</span>
           </button>
         ))}
+        {skip && snapshot.skip && (
+          <button type="button" id="so-hud-card-skip" className="menu_button so-launcher" disabled={!snapshot.skip.enabled} title={snapshot.skip.reason ?? SKIP_COPY.title}
+            onClick={() => { onClose(false); skip(); }}>
+            <i className="fa-solid fa-forward" aria-hidden="true" /><span>{SKIP_COPY.label}</span>
+          </button>
+        )}
         <button type="button" id="so-hud-card-memory" className="menu_button so-launcher" aria-expanded={peek} aria-controls="so-hud-card-peek" onClick={() => setPeek((open) => !open)}>
           <i className="fa-solid fa-brain" aria-hidden="true" /><span>{HUD_COPY.cardMemory}</span>
         </button>
