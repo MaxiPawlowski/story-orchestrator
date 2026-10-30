@@ -70,13 +70,22 @@ library, setup/repair, author/inspect, long reference. A dialog control that tar
 (`components/ActionStatus.tsx`), never as a toast behind it.
 
 - **Launchers**: top-bar route icon `#so-drawer .drawer-toggle` (a launcher, not a drawer) and the wand's
-  `#so-wand-drawer` open the story window on This story → Play; Extensions settings holds `#so-open-workspace` (Orchestrator)
+  `#so-wand-drawer` open the story window on This chat → Play; Extensions settings holds `#so-open-workspace` (Settings)
   and `#so-open-setup` (Play at `#so-setup`). Routes live in `runtime/workspaceRoutes.ts` and `runtime/drawerTab.ts` `storyPageFor`.
-- **Workspace** `#so-workspace-modal` (lazy native dialog, `components/workspace/`): Story → Play, Features, Review,
-  Author; Orchestrator → Library, Defaults, Connections, Interface, Help. `workspaceNavigation.open({context,page,feature,control})`
-  owns deep links; Back traverses details before closing. Feature controls are `#so-feature-<id>-<field>` (Story = chat
-  overrides, Defaults = install, authored policies in Studio); device display/motion rows in Interface.
-  - **Play** (player-safe): Setup `#so-setup`, `PlayerOverview` (`#so-player-overview`, Open story settings → Connections),
+- **Workspace** `#so-workspace-modal` (lazy native dialog, kit `Dialog` translucent + blur, `components/workspace/`): contexts
+  **This chat** (`story`: Play, Settings = page `features`; Review, Author only in Author view) and **Settings** (`orchestrator`: Library,
+  Features, Models, Judge, Images & stage (sub-pages `picture-types`, `model-sources`), World & lore, Display, Authoring, Diagnostics,
+  Help), switch `#so-workspace-context-story|orchestrator`, left `NavList` `#so-workspace-nav` (`#so-workspace-page-<id>`), global
+  search `#so-settings-search` (lazy `features/settingsIndex.ts`, jumps + highlights). Pages/labels in `runtime/workspaceRoutes.ts`
+  (`settingIntent`/`settingsLocationOf` = one home per control). `workspaceNavigation.open({context,page,sub,feature,control})` owns
+  deep links; Back traverses details before closing; under 700px Settings is master/detail (`data-view="list|page"`, one back
+  `#so-workspace-back`). Features use the shared `components/ui/FeatureList.tsx` (`[data-so="feature-row"][data-feature]`, inline
+  switch, `#so-feature-<id>-toggle` expands in place, scope install/story/chat; judge uses are a link to Judge, the one home);
+  install values of illustrations/sprites/poses live on Images & stage. Device overrides are a **This device** chip on the row
+  (`#so-device-<path-slug>`, Display and Images & stage).
+  - **This chat → Settings** (`ChatSettingsPage`): story for this chat `#story-library-select` + restart/export, group default
+    `#so-group-story-select`, per-chat FeatureList, Author view switch `#so-author-view-switch`.
+  - **Play** (player-safe): Setup `#so-setup`, `PlayerOverview` (`#so-player-overview`, Open story settings → Settings › Models),
     Your character `#so-your-character`, Save this run `#so-living-save`, Beside the chat `#so-chat-side` (labelled
     launchers that close the workspace), Illustrations `#so-image-chat` (pause automatic images in this chat), memory
     `#so-open-memory` (Exclude has an inline Undo `#so-memory-undo`), Restart / Story briefing / Flag (`#so-flag-status`).
@@ -84,9 +93,9 @@ library, setup/repair, author/inspect, long reference. A dialog control that tar
     `#so-author-overview` with engine, requirements, history floor, `#so-author-story-controls`: New story / Edit story / Update to the latest;
     Blackboard, Memory (author), Scheduler, Payload, DriverPanel), Illustrate prepared cast `#so-cast-scene`. An author chip
     under a message opens this page with `#so-inspector` on top (`inspectorIntent`).
-  - **Library** (`SettingsPanel` `workspaceSection="library"`): entry points `#so-entry-points` — Start (`#so-new-story-wizard`,
+  - **Library** (`SettingsPanel` `page="library"`): entry points `#so-entry-points` — Start (`#so-new-story-wizard`,
     import `#so-entry-import-toggle`/`#so-entry-import`), Continue (`#so-entry-continue`, Continue list closes the workspace
-    before switching chat), Repair (`#so-entry-repair`, `[data-so="repair-step"]`, `#so-entry-fix-with-wizard`), Author (`#so-open-studio`); story select.
+    before switching chat), Repair (`#so-entry-repair`, `[data-so="repair-step"]`, `#so-entry-fix-with-wizard`), Author (`#so-open-studio`).
   - **Help**: guide, tours, **Help and Ask** (`#so-help-open-panel`) and the guide reader (`#so-help-open-guide`) open as floating panels.
 - **HUD** `#so-hud` above the chat input (`HudStrip.tsx`, font follows `--mainFontSize`): left the scene button `#so-hud-main`
   (headline + tension dots `[data-so=hud-tension]`), right `#so-hud-turn`, at most one status chip (`#so-hud-pipeline`, `data-waiting-on`

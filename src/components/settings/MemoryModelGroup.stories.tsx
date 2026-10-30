@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { expect, fn, userEvent, within } from "@storybook/test";
+import { expect, fn, within } from "@storybook/test";
 import type { RuntimeManager } from "@runtime/index";
 import type { RuntimeSnapshot } from "@runtime/types";
 import { MemoryModelGroup } from "./MemoryModelGroup";
@@ -26,19 +26,14 @@ type Story = StoryObj<typeof MemoryModelGroup>;
 
 export const NotConfigured: Story = {
   args: { snapshot: snapshot(), manager: fakeManager() },
-  play: async ({ canvasElement, args }) => {
+  play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const profile = canvas.getByLabelText("Memory model");
     await expect(profile).toHaveAttribute("id", "so-extraction-profile");
     await expect(profile.tagName).toBe("SELECT");
-    const enabled = canvas.getByRole("switch", { name: "Let the story move forward on its own" });
-    await expect(enabled).toBeChecked();
     await expect(canvasElement.querySelector("#so-not-configured")).not.toBeNull();
     await expect(canvas.getByRole("button", { name: "Test memory model" })).toBeDisabled();
-    await userEvent.click(enabled);
-    await expect(args.manager.setExtractionSettings).toHaveBeenCalledWith({ enabled: false });
-    await userEvent.selectOptions(canvas.getByLabelText("Reply thinking"), "high");
-    await expect(args.manager.setExtractionSettings).toHaveBeenCalledWith({ replyEffort: "high" });
+    await expect(canvasElement.querySelector("#so-reply-effort-open")).not.toBeNull();
   },
 };
 
@@ -46,7 +41,7 @@ export const ExtractionOff: Story = {
   args: { snapshot: snapshot({ enabled: false }), manager: fakeManager() },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.getByRole("switch", { name: "Let the story move forward on its own" })).not.toBeChecked();
+    await expect(canvas.queryByRole("switch", { name: "Let the story move forward on its own" })).toBeNull();
     await expect(canvasElement.querySelector("#so-not-configured")).toBeNull();
   },
 };

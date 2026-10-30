@@ -56,7 +56,7 @@ export const HUD_COPY = {
   cardLabel: "Story card",
   cardClose: "Close the story card",
   cardMore: "Story window",
-  cardMoreTitle: "Open This story → Play",
+  cardMoreTitle: "Open This chat → Play",
   cardTabs: "Open the story sheet on a page",
   cardLevel: "Notes under messages",
   sheet: "Story sheet",

@@ -8,7 +8,7 @@ import {
   type InlineHostSet,
 } from "@services/STAPI";
 import { workspaceNavigation } from "@runtime/workspaceNavigation";
-import { connectionsIntent, inspectorIntent, repairIntent, storyPlayIntent } from "@runtime/workspaceRoutes";
+import { inspectorIntent, modelsIntent, repairIntent, storyPlayIntent } from "@runtime/workspaceRoutes";
 import { revealSetting } from "@runtime/settingReveal";
 import { storyPageFor } from "@runtime/drawerTab";
 import type { WidgetDrawerTab } from "@engine/index";
@@ -276,6 +276,7 @@ const settingsHost: SettingsHost = {
   openGroup,
   openStory: () => openStoryWindow(),
   openAuthorView: () => void toggleAuthorView(true).then(() => openStoryWindow()),
+  setAuthorView: (on) => void toggleAuthorView(on),
   showFeature: (where) => showFeature(where),
   makeGroup,
   fixGroupWithWizard: (storyId, missing) => void openStudio({ tab: "copilot", stage: "provisioning", missing: { personas: [], members: missing, lorebooks: [] } }, storyId),
@@ -361,7 +362,7 @@ const openInlinePanel = (panel: HTMLElement | null, block: ScrollLogicalPosition
   window.setTimeout(() => panel?.scrollIntoView({ block, behavior: "smooth" }), 100);
 };
 
-const openStorySettings = () => workspaceNavigation.open(connectionsIntent());
+const openStorySettings = () => workspaceNavigation.open(modelsIntent());
 
 const showFeature = (where: FeatureWhere) => {
   if (where.workspace) { workspaceNavigation.open(where.workspace); return; }

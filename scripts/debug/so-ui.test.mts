@@ -228,7 +228,7 @@ test('v2.6 plan 08: the inline sweep forbids the author half and flags a leak in
 });
 
 test('CR-U: the player-clean sweep forbids every v2.6 author surface and no longer lists the stale .so-inspect', () => {
-  for (const selector of ['#so-inline-level option[value="3"]', '#so-inline-level option[value="4"]', '#so-chapter-seal', '#so-chapter-fold', '#so-chapter-story-so-far',
+  for (const selector of ['#so-inline-level [data-value="3"]', '#so-inline-level [data-value="4"]', '#so-chapter-seal', '#so-chapter-fold', '#so-chapter-story-so-far',
     '#so-chapter-budget', '#so-chapters', '[data-so^="chapter-"]:not([data-so^="chapter-card"])', '#so-inner-harvest-idle', '[data-so="model-call-route"]', '[data-so="model-call-result"]',
     '[data-so="role-profile-detail"]', '#so-next-turn', '[data-so^="next-turn-"]', '[data-so="payload-folded"]', '[data-so="memory-lock"]', '[data-so^="conflict-"]',
     '[data-so="quarantined"]', '[data-so="effect-ledger"]', '#so-lore-fired', '[data-so="lore-lost"]', '[data-so="lore-constant-missed"]', '#so-scan-gate',
@@ -386,10 +386,10 @@ async function sweepPlanted(plant: { panels?: PlantedSpec[]; message?: PlantedSp
     getElementById: (id: string) => root.querySelector(`#${id}`) };
   const snapshot = () => ({ ui: { authorView: false }, inline: null });
   g.storyOrchestratorRuntime = { getSnapshot: snapshot, getCachedSnapshot: snapshot, getStory: () => null };
-  const page = { evaluate: async (fn: (arg?: unknown) => unknown, arg?: unknown) => fn(arg), waitForFunction: async () => undefined,
-    locator: (selector: string) => ({ count: async () => root.querySelectorAll(selector).length, click: async () => undefined,
-      waitFor: async () => undefined, getByRole: () => ({ click: async () => undefined }),
-      allTextContents: async () => root.querySelectorAll(selector).map((node) => node.innerText) }) };
+  const locator = (selector: string): Record<string, unknown> => ({ count: async () => root.querySelectorAll(selector).length, click: async () => undefined,
+    waitFor: async () => undefined, getByRole: () => ({ click: async () => undefined }), locator: (inner: string) => locator(`${selector} ${inner}`),
+    allTextContents: async () => root.querySelectorAll(selector).map((node) => node.innerText) });
+  const page = { evaluate: async (fn: (arg?: unknown) => unknown, arg?: unknown) => fn(arg), waitForFunction: async () => undefined, locator };
   try {
     return (await assertPlayerClean(page)).findings.map((finding: { needle: string }) => finding.needle);
   } finally {

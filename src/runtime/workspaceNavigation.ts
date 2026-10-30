@@ -1,10 +1,12 @@
 import type { StoryFeatureId } from "@engine/featurePolicy";
 
 export type WorkspaceContext = "story" | "orchestrator";
-export type WorkspacePage = "play" | "features" | "review" | "author" | "library" | "defaults" | "connections" | "interface" | "help";
+export type WorkspacePage = "play" | "features" | "review" | "author"
+  | "library" | "models" | "judge" | "images" | "world" | "display" | "authoring" | "diagnostics" | "help";
 export interface WorkspaceIntent {
   context: WorkspaceContext;
   page?: WorkspacePage;
+  sub?: string;
   feature?: StoryFeatureId;
   control?: string;
 }
