@@ -1,4 +1,5 @@
 import { evaluateGate, gateLeaves, renderGateText, type GateNode, type NormalizedStory, type PrimitiveValue } from "@engine/index";
+import { labelForKey, type KeyLabelSource } from "@engine/keyLabel";
 
 export interface GateLeafRow {
   key: string;
@@ -25,9 +26,9 @@ const shown = (value: PrimitiveValue | PrimitiveValue[] | undefined): string => 
   return String(value);
 };
 
-export const qualityLabel = (story: Pick<NormalizedStory, "qualityByKey"> | null, key: string): string => story?.qualityByKey[key]?.display?.label ?? key;
+export const qualityLabel = (story: KeyLabelSource | null, key: string): string => labelForKey(story, key);
 
-export const gateLeafRows = (story: Pick<NormalizedStory, "qualityByKey"> | null, gate: GateNode, values: Record<string, PrimitiveValue>): GateLeafRow[] => {
+export const gateLeafRows = (story: KeyLabelSource | null, gate: GateNode, values: Record<string, PrimitiveValue>): GateLeafRow[] => {
   const reader = { get: (key: string) => values[key] };
   return gateLeaves(gate).map((leaf) => ({
     key: leaf.q, label: qualityLabel(story, leaf.q), op: OP_TEXT[leaf.op] ?? leaf.op, want: shown(leaf.v), now: shown(values[leaf.q]), met: evaluateGate(leaf, reader),

@@ -1,13 +1,9 @@
 import type { GateNode, PrimitiveValue } from "@engine/index";
+import { keyLabeler, type KeyLabelSource } from "@engine/keyLabel";
 
 const OP_TEXT: Record<string, string> = { ">=": "≥", "<=": "≤", "==": "is", "!=": "is not", ">": ">", "<": "<", in: "is one of" };
 
-const humanKey = (key: string): string => key.replace(/_+/g, " ").trim();
-
-export const qualityLabelOf = (qualities: ReadonlyArray<{ key: string; display?: { label?: string } }>) => {
-  const byKey = new Map(qualities.map((quality) => [quality.key, quality.display?.label?.trim()]));
-  return (key: string): string => byKey.get(key) || humanKey(key);
-};
+export const qualityLabelOf = (source: KeyLabelSource): ((key: string) => string) => keyLabeler(source);
 
 const valueText = (value: PrimitiveValue | PrimitiveValue[]): string => (Array.isArray(value) ? value.map(String).join(", ") : String(value));
 
