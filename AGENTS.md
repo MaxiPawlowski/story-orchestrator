@@ -43,7 +43,7 @@ Current work: **v3.0**. GPU and CPU queue: `docs/plans/v3.0/gpu-queue-2026-10-30
   - Locally it runs on the 3090 through the local controller, at 32,768 context at most.
   - On a pod it runs on the RTX PRO 4500.
 - **Authoring, the wizard, Ask, rating:** opencode `openai/gpt-6.1-sol`, the owner's subscription and the default. Never use
-  a `-fast` variant, Terra or Astra. DeepSeek is pay-per-token past its quota and is the fallback only. Never use Artemis
+  a `-fast` variant or Astra; Terra (`openai/gpt-6.1-terra`) only where the owner names it (2026-10-30: the HF-FOLD Chat Completion check, instead of DeepSeek). DeepSeek is pay-per-token past its quota and is the fallback only. Never use Artemis
   for the wizard.
 - **Judge:** TypeSafe (Jev) through `plugins/story-orchestrator-judge`, key in ST secrets. The local judge (decider-4b) is
   calibrated for memory-pairs only and is not routed by default.
