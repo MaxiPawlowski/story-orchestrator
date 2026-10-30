@@ -7,7 +7,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { globalsReadButNeverWritten, RUNNER_SET_GLOBALS, validateSteps, validateFixture } from './lib/scenarioSchema.mts';
+import { globalsReadButNeverWritten, RUNNER_SET_GLOBALS, scriptedPassesUnpinned, validateSteps, validateFixture } from './lib/scenarioSchema.mts';
 import { validateJourneyExtraction } from './lib/configRestore.mts';
 
 const ROOT = join(import.meta.dirname, '..', '..');
@@ -179,4 +179,31 @@ test('an ext_setting that replaces the whole story-orchestrator settings object 
     { ext_setting: { extension: 'st-stepped-thinking', key: 'settings', value: {} } },
   ]);
   assert.deepEqual(problems.map((problem) => problem.split(':')[0]), ['steps[0].ext_setting', 'steps[1].ext_setting']);
+});
+
+// J6.7 (v3.0 end batch 2, 1 of 6 runs): a background read on the real model confirmed a scene break,
+// its epistemic pass took the scripted response first and stamped the belief at the read's window
+// end, so the edit rightly dropped it. A model check that scripts an epistemic/ledger response pins
+// every other read to SCENE_NONE first, inside the same check (it must stand alone under --only).
+test('every model check that scripts an epistemic/ledger response pins background reads first', () => {
+  const files = [...corpus('test/scenarios'), ...corpus('test/journeys'), ...corpus('test/journeys/spikes')];
+  const broken = files.flatMap((file) => scriptedPassesUnpinned(file.doc, file.name));
+  assert.deepEqual(broken, []);
+});
+
+test('the scripted-pass guard fires on the pre-fix J6.7 and J6.8 shape, and a reload drops the pin', () => {
+  const scripted = { eval: 'globalThis.storyOrchestratorDebugEpistemicResponse = `[knows] Arin | x`; return 1;' };
+  const pin = { eval: "globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; return 1;" };
+  const journey = { checks: [
+    { id: 'A', model: 'any', steps: [{ send_generate: { text: 'x' } }, scripted] },
+    { id: 'B', model: 'any', steps: [pin, scripted] },
+    { id: 'C', model: 'none', steps: [scripted] },
+    { id: 'D', model: 'any', steps: [pin, { reload: {} }, scripted] },
+  ] };
+  assert.deepEqual(scriptedPassesUnpinned(journey, 'j'), [
+    'j:A step 1: scripts an epistemic/ledger response with background reads unpinned',
+    'j:D step 2: scripts an epistemic/ledger response with background reads unpinned',
+  ]);
+  assert.deepEqual(scriptedPassesUnpinned({ model: 'any', steps: [scripted] }, 's'), ['s step 0: scripts an epistemic/ledger response with background reads unpinned']);
+  assert.deepEqual(scriptedPassesUnpinned({ requires: { lane: 'no-model' }, steps: [scripted] }, 's'), []);
 });

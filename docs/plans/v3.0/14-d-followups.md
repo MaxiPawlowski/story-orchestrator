@@ -1,7 +1,7 @@
 # Plan 14 — Track D follow-ups (offline parts)
 
 **Status 2026-10-28 (current): MERGED to master with `v3.0-wave1-integration` (§Gate record: merge 2026-10-28). Open: D6 P5
-still a miss (not retuned), D8 passive-modifier scope finding, D1 rerun (GPU + Sol rating), J6 x2 on a model lane, SP1 count
+still a miss (not retuned), D8 fixed 2026-10-29 (`cb5b036b`), D1 rerun (GPU + Sol rating), J6 x2 on a model lane, SP1 count
 after the owner's play.** Earlier status (2026-10-26, history): offline parts built on branch `v3.0-d-followups`; GPU and
 model-lane rows deferred to the end batch.
 Source: `00-overview.md` §Replan 2026-10-26 track D and E/SP1, §Owner decisions 2026-10-26 (12, 13). Each item: one change,
@@ -46,6 +46,14 @@ floors unchanged (v2.9 11 stop rules). No GPU, no model lane was used for this p
   `when` keys), so the warning on such a quality is true, and the modifier reads its start value. Checks get their
   modifier keys while live (`a368991a`); observations do not. Candidate for a v3.0 row if an authored story uses passive
   modifiers on extractor qualities (the O4 story has 0 passive observations).
+- **Fixed 2026-10-29** (`2b8d1633`, branch `v3.0-d8-passive-scope`), mirroring `a368991a` for checks: `observationScopeUnits`
+  puts each unsettled observation's `passive.modifiers[].q` in its discovery unit beside its `when` keys (also for a
+  `reached` gate, which has no keys of its own: the roll reads the modifiers the turn it lands); a noticed or missed
+  observation leaves, modifiers too. Studio `scopedKeys` counts passive modifier keys, so `quality-never-in-scope` no
+  longer warns on a modifier-only quality. Guide sentence updated (`npm run docs:guide`). Tests: "a passive modifier key
+  joins its observation's discovery unit while unsettled; noticed or missed it leaves" (`src/engine/observations.test.ts`),
+  "does not warn for a quality read only by an observation's passive modifier" (`src/studio/diagnostics.test.ts`).
+  `npm run gates` (no `--resume`): all green in 620.1s (test 10,811 passed / 1 skipped, test-storybook:ci 167/167).
 - End batch: none.
 
 ## D5 — J6.8 flake
@@ -157,8 +165,7 @@ floors unchanged (v2.9 11 stop rules). No GPU, no model lane was used for this p
   10-26 lane 33 manifest, controls included: master prompts changed since. s08 and s12 (both arms) fail "offline-rebuilt
   suggestions prompt is not inside the request body" on master's staged build with master's harness too (same `current`
   shas): pre-existing on master, not this merge; to diagnose before the D1 rerun.
-- Still open: D6 P5 misses its 2 ms floor by 0.03-0.19 ms (recorded, not retuned); D8 finding (a quality used only as an
-  observation's passive modifier is outside the runtime read scope, so the modifier reads its start value); D1 rerun
+- Still open: D6 P5 misses its 2 ms floor by 0.03-0.19 ms (recorded, not retuned); D8 fixed (`2b8d1633`, gates 620.1s); D1 rerun
   (send + Sol rating), J6 x2 on a model lane, SP1 count after the owner's play.
 
 ## D1 capture: s08/s12 self-check (2026-10-28, branch `v3.0-d1-capture`)

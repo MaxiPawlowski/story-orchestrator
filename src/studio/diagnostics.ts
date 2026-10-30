@@ -15,6 +15,7 @@ import { TALK_PACING_CONSEQUENCES, checkTalkPacing } from "./talkDiagnostics";
 import { LIFE_CONSEQUENCES, checkAgendaPace } from "./lifeDiagnostics";
 import { FACTION_CONSEQUENCES, checkFactionDiagnostics } from "./factionDiagnostics";
 import { factionQualities } from "@engine/validate/factions";
+import { compiledQualities } from "./compiledQualities";
 import { DIAGNOSTIC_CODES } from "./diagnosticCodes";
 import { STAGE_CONSEQUENCES, checkStageSprites, type StageInventory } from "./stageDiagnostics";
 import { WIDGET_CONSEQUENCES, checkWidgets, scopedKeys, widgetGateKeys } from "./widgetDiagnostics";
@@ -128,7 +129,7 @@ const buildQualityMap = (draft: Story): Map<string, Quality> => {
     if (!map.has(key)) map.set(key, { key, type: "float", source: "code", monotonic: true, rubric: "" });
   });
   if (!map.has(TENSION_CURRENT_KEY)) map.set(TENSION_CURRENT_KEY, { key: TENSION_CURRENT_KEY, type: "float", source: "extractor", rubric: "" });
-  factionQualities(draft.factions ?? [], draft.roster).forEach((quality) => { if (!map.has(quality.key)) map.set(quality.key, quality); });
+  [...factionQualities(draft.factions ?? [], draft.roster), ...compiledQualities(draft)].forEach((quality) => { if (!map.has(quality.key)) map.set(quality.key, quality); });
   return map;
 };
 

@@ -126,6 +126,19 @@ describe("v2.9 08 O1: deterministic reveal over the frozen corpus", () => {
     expect(left).toEqual(["lost", "lost"]);
   });
 
+  test("a passive modifier key joins its observation's discovery unit while unsettled; noticed or missed it leaves", () => {
+    const story = parseStoryOrThrow(observationLabRaw({
+      qualities: [...(observationLabRaw().qualities as unknown[]), { key: "lamp", type: "bool", source: "extractor", rubric: "Do they carry a lamp?" }],
+      observations: [
+        { id: "mark", text: "A scratch on the door.", when: { q: "lost", op: "==", v: true }, passive: { roll: { sides: 20, target: 11 }, modifiers: [{ q: "lamp", v: true, add: 4 }] } },
+        { id: "soot", text: "Soot on the hearth.", when: { reached: "start" }, passive: { roll: { sides: 20, target: 11 }, modifiers: [{ q: "lamp", v: true, add: 2 }] } },
+      ],
+    }));
+    expect(observationScopeUnits(story, {}).facts).toEqual([["lost", "lamp"], ["lamp"]]);
+    expect(observationScopeUnits(story, { [observationKey("mark")]: 2 }).facts).toEqual([["lamp"]]);
+    expect(observationScopeUnits(story, { [observationMissedKey("mark")]: 2, [observationKey("soot")]: 1 }).facts).toEqual([]);
+  });
+
   test("resolveRoll is the roll half of resolveCheck", () => {
     const check = { id: "c", quality: "q", narrate: "hidden" as const, roll: { sides: 6, target: 7, dice: 2 }, modifiers: [{ q: "m", v: true, add: 2 }], outcome: { quality: "o", bands: "margin" as const, partial_margin: 2 } };
     const units = [0.5, 0.9];

@@ -1165,7 +1165,7 @@ export const MemorizePreparing: Story = {
     await openMemoryTab(canvas);
     const button = canvas.getByRole("button", { name: "Preparing…" });
     await expect(button).toBeDisabled();
-    await expect(button).not.toHaveClass("text-red-300");
+    await expect(button).not.toHaveClass("so-error-text");
     await expect(canvas.queryByRole("button", { name: "Memorize chat" })).toBeNull();
     await expect(canvas.queryByText(/Memorizing:/)).toBeNull();
     await expect(canvasElement.querySelector("#so-memorize-error")).toBeNull();
@@ -1215,7 +1215,7 @@ export const MemorizeStopped: Story = {
     await expect(canvas.queryByRole("button", { name: "Stop" })).toBeNull();
     const note = canvas.getByText(/Stopped after 1 of 3 parts/);
     await expect(note).toHaveAttribute("id", "so-memorize-note");
-    await expect(note).not.toHaveClass("text-red-300");
+    await expect(note).not.toHaveClass("so-error-text");
     await expect(canvasElement.querySelector("#so-memorize-error")).toBeNull();
     await expect(canvas.queryByText(/Memorizing:/)).toBeNull();
     await userEvent.click(canvas.getByRole("button", { name: "Memorize chat" }));

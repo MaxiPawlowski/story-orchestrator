@@ -43,7 +43,7 @@ const ConflictQueue = ({ snapshot, manager }: { snapshot: RuntimeSnapshot; manag
   const quarantinedLedger: LedgerEntry[] = (snapshot.memory.ledger ?? []).filter((entry) => isQuarantined(entry) && !paired.has(entry.id));
   if (!conflicts.length && !quarantined.length && !quarantinedEpistemic.length && !quarantinedLedger.length) return null;
   return (
-    <div data-so="reconciliation" className="border-t border-solid border-white/10 mt-1 pt-1">
+    <div data-so="reconciliation" className="border-t border-solid border-[var(--so-line)] mt-1 pt-1">
       <div className="font-medium opacity-100">Needs your decision ({conflicts.length})</div>
       <div className="opacity-70">Nothing here steers a reply until you decide. Keep a side, lock a fact as canon, re-read the window, or dismiss and let both stand.</div>
       {refused && (
@@ -54,7 +54,7 @@ const ConflictQueue = ({ snapshot, manager }: { snapshot: RuntimeSnapshot; manag
         </div>
       )}
       {conflicts.map((pair) => (
-        <div key={pair.key} data-so="conflict-pair" data-key={pair.key} className="mt-1 border-l-2 border-solid border-yellow-500/60 pl-2">
+        <div key={pair.key} data-so="conflict-pair" data-key={pair.key} className="mt-1 border-l-2 border-solid border-[var(--so-warn)] pl-2">
           {pair.sides.map((side) => (
             <div key={side.id} className="flex items-start gap-2">
               <div className="flex-1">

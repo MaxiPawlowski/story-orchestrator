@@ -33,6 +33,25 @@ export const Desktop: Story = {
   },
 };
 export const Mobile: Story = { ...Desktop, parameters: { viewport: { defaultViewport: "mobile1" } } };
+export const ChatJudgeUsesReadOnly: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(await canvas.findByRole("button", { name: /Speaker direction|Who speaks/ }));
+    const section = canvasElement.querySelector('[data-so="feature-judge-uses"]');
+    await expect(section).not.toBeNull();
+    await expect(section?.querySelectorAll('input[type="checkbox"]').length).toBe(0);
+    await expect(section).toHaveTextContent("this chat cannot change them");
+    await expect(canvas.getByRole("button", { name: "Change judge checks" })).toBeInTheDocument();
+  },
+};
+export const InstallJudgeUsesEditable: Story = {
+  render: () => <div id="so-workspace-modal"><FeaturePages snapshot={snapshot} manager={manager} install selected="speakers"
+    onSelect={fn()} onConnections={fn()} /></div>,
+  play: async ({ canvasElement }) => {
+    const section = canvasElement.querySelector('[data-so="feature-judge-uses"]');
+    await expect(section?.querySelectorAll('input[type="checkbox"]').length).toBe(1);
+  },
+};
 export const InnerVoiceModelNotThinking: Story = {
   render: () => <Host shown={{ ...snapshot, thinkingSilent: true, memory: { settings: { harvestReasoning: true, epistemicLedgerCapable: true } } } as unknown as RuntimeSnapshot} />,
   play: async ({ canvasElement }) => {

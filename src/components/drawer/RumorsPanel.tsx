@@ -10,7 +10,7 @@ const hopText = (row: RumorAuthorRow) => `${row.rumorId}: ${row.from} → ${row.
 export const RumorsPanel = ({ rows }: { rows: RumorAuthorRow[] }) => {
   if (!rows.length) return null;
   return (
-    <details id="so-rumors" data-so="rumors" className="border-t border-solid border-white/10 mt-1 pt-1">
+    <details id="so-rumors" data-so="rumors" className="border-t border-solid border-[var(--so-line)] mt-1 pt-1">
       <summary className="opacity-100 cursor-pointer">Rumors ({count(rows, "landed")} heard, {count(rows, "pending")} on the way)</summary>
       <ul className="list-none p-0 m-0">
         {rows.map((row, index) => (

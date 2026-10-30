@@ -140,7 +140,7 @@ export const STORY_NEEDS_GROUP_CHECK: Check = {
   feature: "stories",
   detect: (snapshot) => {
     const view = snapshot.noGroup;
-    if (!view) return null;
+    if (!view?.storyId) return null;
     return {
       consequence: "This story does not play here: stories play in group chats, and this is a one-on-one chat.",
       detail: `${view.storyTitle ? `"${view.storyTitle}"` : `The story "${view.storyId}"`} is selected in a one-on-one chat, so nothing runs: `

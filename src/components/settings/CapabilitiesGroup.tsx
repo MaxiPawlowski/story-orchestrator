@@ -57,7 +57,7 @@ export function CapabilitiesGroup({ reports, facts = null, memoryModel = null, o
   };
 
   return (
-    <div id="so-capabilities" className="flex flex-col gap-2 border-t border-solid border-white/10 pt-2">
+    <div id="so-capabilities" className="flex flex-col gap-2 border-t border-solid border-[var(--so-line)] pt-2">
       {/* The label plus two buttons is wider than ST's extensions drawer on a phone, and a
           non-wrapping row spilled outside the panel (measured at 24 viewports, 2026-09-22). */}
       <div className="flex flex-wrap items-center gap-2">

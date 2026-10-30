@@ -13,6 +13,7 @@ import { JUDGE_USE_COPY } from "@judge/useCopy";
 import { isArcTemplateName } from "@pacing/index";
 import type { ResolvedFeatures } from "@runtime/featureResolve";
 import { workspaceNavigation } from "@runtime/workspaceNavigation";
+import { judgeIntent } from "@runtime/workspaceRoutes";
 
 const JUDGE_USES: Partial<Record<StoryFeatureId, JudgeUseKey[]>> = {
   reading: ["typedExtraction", "stallCheck", "sceneTrigger", "sceneTracker"],
@@ -109,19 +110,22 @@ export const FeaturePages = ({ snapshot, manager, install, selected, onSelect, o
       <p>{config.name}: {role?.state === "fallback" ? "Inherited model" : role?.state ?? "Not checked"}</p>
       <button className="st-button secondary" onClick={onConnections}>Configure model connections</button>
     </div>}
-    {Boolean(JUDGE_USES[selected]?.length) && <section><h3>Judge checks</h3>
-      <p>These install-wide checks support this feature. Their settings apply to every chat.</p>
-      {JUDGE_USES[selected]?.map((use) => <div className="so-control-row" key={use}>
-        <label className="so-control-toggle"><input type="checkbox" checked={getGlobalSettings().judge.uses[use]}
+    {Boolean(JUDGE_USES[selected]?.length) && <section data-so="feature-judge-uses"><h3>Judge checks</h3>
+      <p>{install ? "These install-wide checks support this feature. Their settings apply to every chat."
+        : "These checks are install-wide, so this chat cannot change them. Change them in Orchestrator → Connections → Judge."}</p>
+      {JUDGE_USES[selected]?.map((use) => <div className="so-control-row" key={use} data-judge-use={use}>
+        {install ? <label className="so-control-toggle"><input type="checkbox" checked={getGlobalSettings().judge.uses[use]}
           onChange={(event) => {
             const judge = getGlobalSettings().judge;
             setGlobalSettings({ judge: { ...judge, uses: { ...judge.uses, [use]: event.target.checked } } });
             manager.notify();
           }} />{JUDGE_USE_COPY[use].label}</label>
+          : <span>{JUDGE_USE_COPY[use].label}</span>}
         <span className="so-source-chip">Install</span>
         <span>{judgeUseActive(getGlobalSettings().judge, use) ? "Enabled" : "Off or waiting for its prerequisite"}</span>
       </div>)}
-      <button className="st-button secondary" onClick={onConnections}>Judge connections and measurements</button>
+      {install ? <button className="st-button secondary" onClick={onConnections}>Judge connections and measurements</button>
+        : <button className="st-button secondary" data-so="feature-judge-open" onClick={() => workspaceNavigation.open(judgeIntent())}>Change judge checks</button>}
     </section>}
     {!install && selected === "reading" && <button className="st-button secondary" disabled={!feature.enabled || !snapshot.ready} onClick={() => void manager.runExtractionNow()}>Read now</button>}
     {!install && selected === "curator" && <p>Permitted scope: {snapshot.stagecraftScope.length} lorebooks. Review content is available in Author view.</p>}

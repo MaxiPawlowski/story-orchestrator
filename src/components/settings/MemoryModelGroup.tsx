@@ -165,7 +165,7 @@ export const MemoryModelGroup = ({ snapshot, manager, connectionsOnly = false }:
   };
 
   return (
-    <div className="flex flex-col gap-2 border-t border-solid border-white/10 pt-2">
+    <div className="flex flex-col gap-2 border-t border-solid border-[var(--so-line)] pt-2">
       <GroupHeader title={connectionsOnly ? "Models and routing" : "Memory model"} scope="install" id="so-memory-model-header" />
       {!connectionsOnly && <CheckRow id="so-extraction-enabled" setting="extraction.enabled" checked={settings.enabled}
         onChange={(on) => manager.setExtractionSettings({ enabled: on })} />}

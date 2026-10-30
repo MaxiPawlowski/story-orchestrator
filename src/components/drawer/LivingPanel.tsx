@@ -28,7 +28,7 @@ const ProposalCard = ({ row, actions }: { row: LivingProposalRow; actions?: Livi
   const [objective, setObjective] = useState(row.objective);
   const waiting = row.status === "proposed" && !row.stale;
   return (
-    <div data-so="living-proposal" data-id={row.id} data-status={row.status} data-kind={row.branch ? "branch" : "next"} className="border-t border-solid border-white/10 mt-1 pt-1">
+    <div data-so="living-proposal" data-id={row.id} data-status={row.status} data-kind={row.branch ? "branch" : "next"} className="border-t border-solid border-[var(--so-line)] mt-1 pt-1">
       <div className="opacity-100">
         {row.branch ? "Branch: " : "Next: "}{row.name || "(nothing written)"}{" "}
         <span className="opacity-70">· {row.stale ? "out of date" : STATUS_COPY[row.status]} · after {row.frontierId}</span>

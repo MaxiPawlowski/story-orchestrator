@@ -20,6 +20,7 @@ import { captureHeader, diffHeaders, describe } from './so-run-header.mts';
 import { executeSlashCommand, waitForIdle, deleteMessage } from './st-actions.mts';
 import { dismissBriefing } from './lib/briefingHarness.mts';
 import { removeStory } from './so-library.mts';
+import { cleanResidue, laneUserDir, residueLeaks } from './lib/p41Residue.mts';
 import { CARD_ART_DEVIATION, cardArtPlan, cardArtProblems, giveCardArt, leakNames, markServerLog, takeServerLog } from './lib/pocCardArt.mts';
 import {
   FLOORS_DATE, JOURNEY_FLOORS, JOURNEY_STEPS, P41_MARKER, PLAYER_LINES, countCalls, evidenceDirName, gpuIdleProblems, journeyCast, journeyGpuMinutes, journeyGroupName,
@@ -427,9 +428,14 @@ async function cleanup(page: Page, baseline: Awaited<ReturnType<typeof snapshotA
   }, P41_MARKER);
   await saveSoon(page);
   const restored = await restoreSettings(page, settings).catch((error) => ({ error: String(error) }));
+  const removedGroupIds = removed.found.groups.filter((group: { id: unknown; name: string }) => removed.removed.groups.includes(group.name)).map((group: { id: unknown }) => String(group.id));
+  const residue = await cleanResidue(page, { marker: P41_MARKER, storyId: journeyStory(journeyCast()).id, removedGroupIds,
+    baselineGroupIds: baseline?.groups ?? [], userDir: laneUserDir(process.env, DEBUG_DIR), save: saveSoon }).catch((error) => ({ error: String(error) }));
+  const residueLeaked = 'error' in residue ? [`residue cleanup failed: ${residue.error}`] : residueLeaks(residue);
   const found = await listMarkedAssets(page, P41_MARKER, { baseline });
   return { recovery, removed: { characters: removed.removed.characters.length, groups: removed.removed.groups.length,
-    errors: [...removed.removed.errors, ...removed.removed.sprites.errors, ...removed.removed.spriteReferences.errors] }, scrub, library, restored, leaked: leakCount(found), leakedAssets: leakNames(found) };
+    errors: [...removed.removed.errors, ...removed.removed.sprites.errors, ...removed.removed.spriteReferences.errors] }, scrub, library, restored, residue,
+    leaked: leakCount(found) + residueLeaked.length, leakedAssets: [...leakNames(found), ...residueLeaked] };
 }
 
 async function runJourney(page: Page) {
