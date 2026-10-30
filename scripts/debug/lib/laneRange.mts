@@ -4,7 +4,7 @@ export const LANE_ST_BASE = 8100;
 export const LANE_CDP_BASE = 9300;
 
 export const RESERVED_PORTS: Readonly<Record<number, string>> = {
-  6006: 'Storybook',
+  6006: 'Storybook dev (npm run storybook)',
   8000: "the owner's SillyTavern",
   8095: 'the local judge',
   8096: 'the local landmarks server',
