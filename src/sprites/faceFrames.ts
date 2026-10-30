@@ -1,5 +1,5 @@
 import { log } from "@utils/log";
-import { blinkGap } from "./animation";
+import { blinkGap, blinkTwice } from "./animation";
 import { FRAME_KEYS, type AnimationFrames, type MouthFrameKey } from "./frameKeys";
 import { MouthStepper, type MouthSample } from "./mouthShape";
 import { DEFAULT_MOUTH_CONFIG, type MouthConfig } from "./mouthConfig";
@@ -9,6 +9,7 @@ export const FRAME_BYTES_PER_ACTOR = 24 * MB;
 const MIN_FRAME_BUDGET = 64 * MB;
 const MAX_FRAME_BUDGET = 256 * MB;
 const BLINK_MS = 140;
+const DOUBLE_GAP_MS = 110;
 const MOUTH_MS = 110;
 const VISEME_TICK_MS = 30;
 
@@ -77,11 +78,16 @@ interface Faded { style: { opacity: string } }
 export function startBlink(target: Faded, seed: string): () => void {
   let cycle = 0;
   let timer: ReturnType<typeof setTimeout>;
+  const blink = (after: () => void) => {
+    target.style.opacity = "1";
+    timer = setTimeout(() => { target.style.opacity = "0"; after(); }, BLINK_MS);
+  };
   const schedule = () => {
-    timer = setTimeout(() => {
-      target.style.opacity = "1";
-      timer = setTimeout(() => { target.style.opacity = "0"; schedule(); }, BLINK_MS);
-    }, blinkGap(seed, cycle++));
+    const current = cycle++;
+    timer = setTimeout(() => blink(() => {
+      if (blinkTwice(seed, current)) timer = setTimeout(() => blink(schedule), DOUBLE_GAP_MS);
+      else schedule();
+    }), blinkGap(seed, current));
   };
   schedule();
   return () => { clearTimeout(timer); target.style.opacity = "0"; };

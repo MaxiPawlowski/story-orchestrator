@@ -1,5 +1,6 @@
 import {
-  CHECKPOINT_REASONING, NPC_REPLY_KINDS, NPC_REPLY_TRIGGERS, ROSTER_VIEWS, TALK_CHAIN_MAX_CAP, TENSION_LEVELS, type BackgroundEffect, type AgencyPolicy, type Checkpoint,
+  CHECKPOINT_REASONING, NPC_REPLY_KINDS, NPC_REPLY_TRIGGERS, ROSTER_VIEWS, TALK_CHAIN_MAX_CAP, TENSION_LEVELS, TRANSITION_EFFECT_KINDS, TRANSITION_EFFECT_MAX_MS,
+  type BackgroundEffect, type TransitionEffect, type AgencyPolicy, type Checkpoint,
   type CheckpointEffects, type PrimitiveValue, type Story, type TalkControl, type TalkControlChain, type TalkControlSpeaker,
   type ValidationError,
 } from "../schema";
@@ -80,6 +81,27 @@ const readBackground = (value: unknown, path: string, errors: ValidationError[])
   return { name: name.trim() };
 };
 
+const HEX_COLOR = /^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/i;
+
+const readTransition = (value: unknown, path: string, errors: ValidationError[]): TransitionEffect | undefined => {
+  const record: Record<string, unknown> | null = typeof value === "string" ? { kind: value.trim().toLowerCase() } : isRecord(value) ? value : null;
+  if (!record || !isOneOf(record.kind, TRANSITION_EFFECT_KINDS)) {
+    addError(errors, record && typeof value !== "string" ? `${path}.kind` : path, "transition must be dissolve, fade, wipe, iris or cut, or { kind, ms, color }");
+    return undefined;
+  }
+  rejectUnknownKeys(record, ["kind", "ms", "color"], path, errors);
+  const transition: TransitionEffect = { kind: record.kind };
+  if (record.ms !== undefined) {
+    if (typeof record.ms === "number" && Number.isInteger(record.ms) && record.ms >= 0 && record.ms <= TRANSITION_EFFECT_MAX_MS) transition.ms = record.ms;
+    else addError(errors, `${path}.ms`, `transition ms must be a whole number of milliseconds from 0 to ${TRANSITION_EFFECT_MAX_MS}`);
+  }
+  if (record.color !== undefined) {
+    if (typeof record.color === "string" && HEX_COLOR.test(record.color.trim())) transition.color = record.color.trim().toLowerCase();
+    else addError(errors, `${path}.color`, "transition color must be a hex color such as #000 or #1a1a2e");
+  }
+  return transition;
+};
+
 export const readCheckpointEffects = (value: unknown, path: string, errors: ValidationError[]): CheckpointEffects | null => {
   if (!isRecord(value)) return null;
   const effects: CheckpointEffects = { ...value };
@@ -88,6 +110,11 @@ export const readCheckpointEffects = (value: unknown, path: string, errors: Vali
     const background = readBackground(value.background, `${path}.background`, errors);
     if (background) effects.background = background;
     else delete effects.background;
+  }
+  if (value.transition !== undefined) {
+    const transition = readTransition(value.transition, `${path}.transition`, errors);
+    if (transition) effects.transition = transition;
+    else delete effects.transition;
   }
   if (value.reasoning !== undefined) {
     const reasoning = typeof value.reasoning === "string" ? value.reasoning.trim().toLowerCase() : null;

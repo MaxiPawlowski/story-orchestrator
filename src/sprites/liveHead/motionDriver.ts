@@ -24,6 +24,7 @@ SOFTWARE.
 import { fnv1a } from "@runtime/hash";
 import type { HeadParameters } from "./drivers";
 import { IDLE_MOTIONS, REACTION_MOTIONS, type MotionDef, type MotionTrack } from "./motionTracks";
+import { reactionFor } from "../reactionMap";
 
 export type Presence = "talking" | "listening" | "idle";
 type Key = keyof HeadParameters;
@@ -71,14 +72,7 @@ export const IDLES = compileAll(IDLE_MOTIONS);
 const byId = new Map([...REACTIONS, ...IDLES].map((motion) => [motion.id, motion]));
 export const motionById = (id: string): Motion | undefined => byId.get(id);
 
-const LABEL_REACTION: Readonly<Record<string, string>> = {
-  joy: "nod", happy: "nod", love: "nod", approval: "nod", admiration: "nod", gratitude: "nod", caring: "nod",
-  amusement: "giggle", surprise: "surprise", surprised: "surprise", fear: "surprise", realization: "surprise", excitement: "surprise",
-  sad: "sigh", sadness: "sigh", grief: "sigh", remorse: "sigh", disappointment: "sigh",
-  anger: "no", angry: "no", annoyance: "no", disgust: "no", disapproval: "no",
-  embarrassment: "shy", nervousness: "shy", curiosity: "tilt", confusion: "tilt", thinking: "think", desire: "shy",
-};
-export const reactionFor = (label: string): string | undefined => LABEL_REACTION[label.toLowerCase()];
+export { reactionFor };
 
 const tangent = (keys: MotionTrack, j: number, n: number): number => j <= 0 || j >= n ? 0 : (keys[j + 1][1] - keys[j - 1][1]) / (keys[j + 1][0] - keys[j - 1][0]);
 

@@ -8,11 +8,18 @@ import { startDefaultRecipe } from "./defaultRecipeHost";
 import { VnStage } from "./VnStage";
 import { ROOT_OPTIONS } from "@utils/mountRegistry";
 import { log } from "@utils/log";
+import { Lazy } from "@components/Lazy";
+import { lazyRetry } from "@utils/lazyRetry";
+
+const BackgroundFade = lazyRetry(() => import("./motion/lazy").then((module) => ({ default: module.BackgroundFade })));
 
 function StageMount({ stage }: { stage: SpriteStage }) {
   const view = useSyncExternalStore(stage.subscribe, stage.view);
   const strip = view.visible && view.placement === "strip" ? spriteStripHost() : null;
-  return strip ? createPortal(<VnStage stage={stage} />, strip) : <VnStage stage={stage} />;
+  return <>
+    {view.active && view.motion.transitions !== "none" && <Lazy quiet><BackgroundFade stage={stage} /></Lazy>}
+    {strip ? createPortal(<VnStage stage={stage} />, strip) : <VnStage stage={stage} />}
+  </>;
 }
 
 let stage: SpriteStage | null = null;

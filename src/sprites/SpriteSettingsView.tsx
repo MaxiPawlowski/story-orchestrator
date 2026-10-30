@@ -1,7 +1,12 @@
 import type { CapabilityState } from "@services/STAPI";
 import { PLAYER_COPY } from "@runtime/narrative";
-import type { SpriteActivation, SpriteSettings, StageMode } from "./settings";
+import type { EffectsLevel, SpriteActivation, SpriteSettings, StageMode } from "./settings";
 import { Advanced, CheckRow, FieldLabel } from "@components/settings/Field";
+import { SettingRow } from "@components/ui/SettingRow";
+import { SegmentedControl } from "@components/ui/SegmentedControl";
+import { settingCopy } from "@features/settingsCopy";
+
+const EFFECT_OPTIONS: ReadonlyArray<{ value: EffectsLevel; label: string }> = [{ value: "full", label: "Full" }, { value: "calm", label: "Calm" }, { value: "off", label: "Off" }];
 
 export interface SpriteSettingsViewProps {
   settings: SpriteSettings;
@@ -48,6 +53,9 @@ export function SpriteSettingsView({
         <option value="vn">With Visual Novel mode (/vn)</option>
         <option value="always">Always</option>
       </select>
+      <SettingRow label={settingCopy("sprites.effects").label} help={settingCopy("sprites.effects").help} data-so="sprite-effects"
+        control={<SegmentedControl id="so-sprite-effects" label={settingCopy("sprites.effects").label} size="sm" value={settings.effects} options={EFFECT_OPTIONS}
+          onChange={(effects) => onChange({ effects })} />} />
       <CheckRow id="so-sprite-poses" setting="sprites.poses" checked={settings.poses} onChange={(poses) => onChange({ poses })} />
       <Advanced id="so-sprite-advanced">
         <FieldLabel htmlFor="so-sprite-profile" setting="sprites.profileId" />

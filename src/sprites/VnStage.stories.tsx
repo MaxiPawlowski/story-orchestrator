@@ -4,6 +4,8 @@ import { defaultSpriteSettings } from "./settings";
 import type { SpriteStage, StageActor, StageView } from "./stage";
 import { VnStage } from "./VnStage";
 import { StreamActivity } from "./animation";
+import { stageMotion } from "./motion/budget";
+import { MotionFeed } from "./motion/feed";
 import { expectFits, VIEWPORTS } from "../../.storybook/fit";
 
 const swatch = (color: string) =>
@@ -30,11 +32,14 @@ const view = (patch: Partial<StageView> = {}): StageView => ({
   activation: "user-on",
   capability: "present",
   reducedMotion: false,
+  motion: stageMotion({ effects: "full", hostReduced: false, osReduced: false, storyMotion: true }),
+  active: true,
   headSession: "synthetic",
   ...patch,
 });
 
-const stage = (current: StageView, activity?: StreamActivity): SpriteStage => ({ subscribe: () => () => {}, view: () => current, activity }) as unknown as SpriteStage;
+const stage = (current: StageView, activity?: StreamActivity): SpriteStage =>
+  ({ subscribe: () => () => {}, view: () => current, activity, boundary: () => 0, motionFeed: new MotionFeed() }) as unknown as SpriteStage;
 
 const scripted = new StreamActivity();
 const SCRIPT = "Hello there, friend. I see you made it through the old gate at last.";

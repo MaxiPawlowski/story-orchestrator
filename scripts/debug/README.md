@@ -63,6 +63,18 @@ holding the kept p41 cast and chat (`run --group <g> --chat <id>`, lane cleared 
 then `pack <runDir>` writes a blind folder (shuffled `img-NN.png`, `ref-X.png`, `items.txt`, `brief.md`, about 10% hidden
 duplicates) with `key.json` beside it, outside the blind folder.
 
+`so-cast-presentation.mts --group <name|id> [--members "A,B"] [--set <id>] [--only ...] [--front] [--allow ...]` (lane >= 1, cleared
+for ComfyUI; a long GPU job, not a UI probe) prepares base, bust, three expressions, blink/talk frames and a rig for an existing
+group's members through Studio › Sprites. The cast is read from the group (`--members` filters by name); it runs in a new sandbox
+chat with a temporary workshop story, then deletes the chat (`deleteSandboxChats` + `settleReapPrompts`), removes the story,
+restores the install-wide sprite settings and diffs the run header (`--allow` declares expected paths); any gap exits 1
+(`lib/castPresentation.mts`, node:test). `--front` retries up to 4 seeds for a front-facing base the rig accepts.
+
+`so-sprite-copy.mts --lane <n> [--set <id>] [--members "Folder A,B"] [--confirm]` lists (dry run, the default) the prepared set's
+files on lane `<n>` (`characters/<folder>/<set>/`, `anim-<set>/`, `--front` variants, local rig assets) against the owner's install;
+`--confirm` copies only files the owner lacks, never overwrites a conflict and never deletes. The live-head refs those rigs need
+go to `rig-settings.json` in the report for the owner to apply. Only the owner runs `--confirm` (`lib/spriteCopy.mts`, node:test).
+
 `so-sprite-builder.mts setup --story <file>` imports a story into the explicitly opened group, disables extraction on
 the isolated lane, selects Author view and opens Studio › Sprites. Never run setup against a user's playing chat.
 
