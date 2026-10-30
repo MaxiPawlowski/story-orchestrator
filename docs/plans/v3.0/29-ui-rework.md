@@ -157,3 +157,60 @@ the controller and docs).
   Earlier full runs: one architecture red (Studio kit import, fixed), one max-len red (stories, fixed), one `PosesList`
   color-contrast play that passed on rerun, and three different process-timing flakes in untouched tests (`sessionsArchive`,
   controller startup reap, `childTree`) while the machine sat at 100% CPU.
+
+## Phase 2 inchat gate record
+
+2026-10-30, branch `v3.0-29-ui-p2-inchat` (IC3/IC4 `64c6b8c3`, IC8 `f69d3754`, IC1/2/5/6/7/9 `5f1b0b9c`, fixes `3a5978c0` `90a94082`;
+master merged in twice, last at `ee9f75f7` with the harvest wave `435a614b`).
+
+- IC1 HUD two zones: left the scene button (location icon, `sceneHeadline` from 0b, Author checkpoint span kept), tension as 5 dots
+  + word (`[data-so=hud-tension]`, `--so-accent`); right `#so-hud-turn`, at most one status chip, pending, sheet button `#so-hud-sheet`.
+  Font `calc(var(--mainFontSize) * 0.85)`; no ◈; kit tokens only.
+- Harvest read-wait (37 S1/S2 folded): scheduler snapshot `yielding` (inner-beat yield gate, notified on both edges), `inFlightSince`
+  stamped by `readWaitClock` in the scheduler wiring (re-publishes at `READ_WAIT_BOUND_MS` 120 s, unref'd timer). `derivePipelineStatus`
+  names `waitingOn: "inner-beat"` ("waiting for a character" chip) only while the gate holds; a read in flight past the bound becomes
+  `stalled-rechecking` + `retryable` (never cancels). Retryable/waiting chips open the story card; Try again = `retryExtraction`
+  (scheduler `probe` → `pumpAll`, joins an in-flight read). Only the inner beat is observable today; judge/GPU queue/image not named.
+- IC2/IC9 story card: anchored left above the scene button, 22rem, solid surface, kit IconButton close; status row with
+  `#so-hud-card-retry` / `#so-hud-card-settings`; notices kept; one button per sheet page `[data-so=hud-card-tab][data-tab]` (aliases
+  `#so-hud-card-journal|suggestions|memory`); plan 32 Skip ahead `#so-hud-card-skip` kept; Story window `#so-hud-card-more`; Author view
+  only `#so-hud-card-level` (SegmentedControl, `setInlineSettings`). Memory peek moved into the sheet (`#so-hud-card-peek` gone).
+- IC5/IC6/IC7 story sheet (decision 5): `#so-sheet` (lazy `components/sheet/StorySheet.tsx` inside `#so-panels-root`, state
+  `presenceUi.tsx` `openSheet/closeSheet/toggleSheet`), tabs from `runtime/storySheet.ts` `sheetTabs` (journal, here, people, stats,
+  `widget-<id>`, ideas, memory), panel `#so-sheet-<tab>`. Desktop dock right of `#sheld` (width 300–640, remembered as `sheet-dock`;
+  overlay when the room is < 300), pop-out `[data-so=sheet-pop]` → `PanelFrame` `#so-panel-sheet` (new `actions` slot) and back.
+  Under 768px a bottom sheet positioned by `top` above `#form_sheld` (fixed `bottom` breaks under ST's collapsed html containing block),
+  snaps peek/half/full by grip drag or press, half = `min(40vh, area - min(lastReply, area/2))`, floor 120. Sheet and floating panels
+  exclude each other on a phone. Wand: Story sheet, recap, briefing, flag, story window, Help (`#so-wand-help`);
+  `#so-wand-journal|stat-sheet|suggestions` gone. `#so-open-*` launchers kept, each opens its tab.
+- Shared tab bodies `components/sheet/tabs/*` (Play can embed them): JournalTab (no message ids, log rows jump via `[data-so=log-jump]`),
+  HereNowTab (`sceneView`, "Nobody else is here."), PeopleTab (codex, `#so-journal-tab-people|places` kept), StatsTab (value-first
+  `[data-so=sheet-value]`), WidgetTab, IdeasTab, MemoryTab (`memoryPeek`, `#so-sheet-memory-all`). Body CSS in `styles/sheet.css`
+  scoped to `#so-panels-root, #so-workspace-modal, #drawer-manager`.
+- Here now (35 S1): `composeGame` sets `scene` from an authored scene widget, else `sceneView` (time on, standing off — allegiance
+  can be a surprise) for stories with codex people, labelled relationships or factions; portraits always passed. `hereNow.test.ts`
+  (offering, 300 seeds 0 unrevealed secret labels). Plan 35 keeps only the story-time spans.
+- IC3/IC4 inline (decision 6): one quiet line `[data-so=inline-line]` of parts `[data-so=inline-part][data-category]` (icon + word),
+  expands to `[data-so=inline-group]` lists; Inspect text link at 3–4, raw counts at 4; `?` toggle gone, legend `#so-inline-legend`
+  under `#so-inline-level` and in Help. 0.85x font, no opacity on text.
+- IC8 Help: SearchField, flat list grouped by audience (`[data-so=help-group][data-audience]`), plain Where line, no `<details>`,
+  inline legend section; guide nav column visible (`max-md:hidden` instead of ST's `.hidden`).
+- Harness/fixtures: v28-04, v27-36, v28-23 (+followups, tab switching), v28-61b, v29-06 (3), v28-65 (+scene-lines) moved to
+  `#so-sheet`/`#so-sheet-ideas`/`#so-here-now`; frozen v2.9 06-lt corpus left untouched (hash-pinned); `so-ui.mts` inline reader.
+  Privacy reviews render `components/sheet/sheetMarkup.ts` (journal + both people pages + Here now).
+- Docs: story-guide (in-chat surfaces, Scene card default), `docs:guide`, `docs:settings`, CLAUDE.md UI entry points.
+- Live: lane 32 (no-model; living + extraction switched off on the lane copy, images/sprites/judge off, read back), worktree `dist/`
+  routed into the lane browser (nothing staged), SO-UI cards + group + `factions.story.json` as `SO-UI In-chat lab` (+ public `coins`),
+  desktop 1920x1080 + 390x844, dark + light: HUD font 12.75px, no ◈, card left 427 vs scene 438, sheet docked 380px right of chat,
+  no message ids, tabs journal/here/stats/ideas/memory, popped window and back, author level pick → 3, wand 5 entries, Help panel,
+  `assertPlayerClean` ok on both viewports; cleanup leaked 0, library 0, 0 remote model calls (10 local completions blocked), lane
+  stopped. On this lane's short chat column the phone half snap falls to its 120px floor and covers the last reply (cap works, the
+  room does not). `C:\dev\so-lanes\ui-review\p2-inchat\` (driver kept as `.mts.txt`).
+- Bundle: main `dist/index.js` 1,289,766 B (budget 1,300,000; +6,147 over master 1,283,619: sheet state, `storySheet.ts`, sheet copy,
+  HUD meter in main; bodies, sheet, card, Help lazy).
+- `npm run gates:quick` green during the work. Full `npm run gates` (no `--resume`, Storybook on its own port): first run red on code
+  health (scheduler over its file budget, a dead export), a frozen-corpus hash and three Storybook plays (duplicate label, landmark);
+  fixed, then all green in 1000.5s (jest 10,854 passed / 1 skipped, Storybook 191 suites / 1,095 tests). After merging the harvest wave:
+  red on two load flakes (`patterns.test.ts` p95, `startupWiring` timer) that pass alone; rerun on the same tree `ee9f75f7` (no `--resume`) all green in 1010.5s (jest 10,980 passed / 1 skipped, Storybook 191 suites / 1,098 tests, test:debug, replay, release, plugin, lint, typechecks).
+- Not done / owner: wand's "Illustrate story scene" still shows greyed when images are off (lives in `stHost/imageSurface.ts`, image
+  module); GPU-queue/judge/image waits not named (not observable yet); stats "changed N replies ago" stays a visible muted line.
