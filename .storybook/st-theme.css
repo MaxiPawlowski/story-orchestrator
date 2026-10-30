@@ -98,6 +98,35 @@
   --animation-duration-slow: var(--animation-duration-3x);
 }
 
+:root[data-so-theme="light"] {
+  --SmartThemeBodyColor: rgb(30, 30, 35);
+  --SmartThemeEmColor: rgb(90, 90, 100);
+  --SmartThemeUnderlineColor: rgb(30, 100, 160);
+  --SmartThemeQuoteColor: rgb(150, 75, 15);
+  --SmartThemeBlurTintColor: rgba(244, 243, 238, 0.94);
+  --SmartThemeChatTintColor: rgba(244, 243, 238, 0.94);
+  --SmartThemeUserMesBlurTintColor: rgba(230, 230, 225, 0.9);
+  --SmartThemeBotMesBlurTintColor: rgba(236, 236, 232, 0.9);
+  --SmartThemeBorderColor: rgba(0, 0, 0, 0.25);
+  --SmartThemeShadowColor: rgba(0, 0, 0, 0.2);
+  --SmartThemeCheckboxBgColorR: 30;
+  --SmartThemeCheckboxBgColorG: 30;
+  --SmartThemeCheckboxBgColorB: 35;
+}
+
+:root[data-so-theme="macaron"] {
+  --SmartThemeBodyColor: rgba(229, 175, 162, 1);
+  --SmartThemeEmColor: rgba(146, 147, 161, 1);
+  --SmartThemeUnderlineColor: rgba(157, 215, 198, 1);
+  --SmartThemeQuoteColor: rgba(197, 202, 206, 1);
+  --SmartThemeBlurTintColor: rgba(23, 36, 55, 0.9);
+  --SmartThemeChatTintColor: rgba(18, 26, 40, 0.9);
+  --SmartThemeUserMesBlurTintColor: rgba(51, 67, 90, 0.7);
+  --SmartThemeBotMesBlurTintColor: rgba(23, 36, 55, 0.75);
+  --SmartThemeBorderColor: rgba(60, 74, 110, 0.93);
+  --SmartThemeShadowColor: rgba(0, 0, 0, 0.3);
+}
+
 *,
 *::before,
 *::after {

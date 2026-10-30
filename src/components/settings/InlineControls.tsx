@@ -29,7 +29,7 @@ export const InlineControls = ({ snapshot, manager }: GroupProps) => {
           <div className="flex flex-wrap gap-x-3 gap-y-1">
             {INLINE_CATEGORIES.map((category) => (
               <span key={category} data-so="inline-category" data-category={category}>
-                <CheckRow className="text-xs" checked={inline.categories[category] !== false} label={INLINE_CATEGORY_LABELS[category]} help={INLINE_CATEGORY_HELP[category]}
+                <CheckRow kind="checkbox" checked={inline.categories[category] !== false} label={INLINE_CATEGORY_LABELS[category]} help={INLINE_CATEGORY_HELP[category]}
                   onChange={(on) => manager.setInlineSettings({ categories: { ...inline.categories, [category]: on } })} />
               </span>
             ))}

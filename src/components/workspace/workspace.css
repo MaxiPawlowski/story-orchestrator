@@ -1,28 +1,13 @@
 #so-workspace-modal {
-  position: fixed;
-  inset: var(--so-viewport-top, 0px) 0 auto;
-  width: 100dvw;
-  max-width: none;
-  height: var(--so-viewport-height, 100dvh);
-  max-height: none;
-  margin: 0;
-  padding: 0;
-  border: 0;
   color: var(--so-fg);
-  background-color: var(--so-surface);
-  background-image: var(--so-surface-solid);
   font-size: 1rem;
 }
 
-#so-workspace-modal::backdrop { background: var(--so-backdrop); }
 #so-workspace-modal[data-context="story"] { --so-context-accent: var(--so-accent); }
 #so-workspace-modal[data-context="orchestrator"] { --so-context-accent: var(--so-fg-subtle); }
-#so-workspace-modal .so-workspace-frame { display: flex; flex-direction: column; height: 100%; overflow: hidden; }
-#so-workspace-modal .so-workspace-header { display: flex; gap: 1rem; justify-content: space-between; align-items: center; padding: max(.75rem, env(safe-area-inset-top)) max(1rem, env(safe-area-inset-right)) .75rem max(1rem, env(safe-area-inset-left)); border-bottom: 3px solid var(--so-context-accent); }
-#so-workspace-modal h1 { margin: 0; font-size: 1.25rem; }
-#so-workspace-modal .so-workspace-scope { font-size: .875rem; opacity: .8; }
+#so-workspace-modal .so-workspace-header { border-bottom: 3px solid var(--so-context-accent); }
 #so-workspace-modal .so-workspace-context { display: flex; gap: .5rem; padding: .5rem 1rem; border-bottom: 1px solid var(--st-border); }
-#so-workspace-modal button, #so-workspace-modal input:not([type="checkbox"]), #so-workspace-modal select, #so-workspace-modal summary { min-height: 44px; }
+#so-workspace-modal :where(button, input:not([type="checkbox"]), select, summary) { min-height: var(--so-control-h); }
 #so-workspace-modal button { cursor: pointer; }
 #so-workspace-modal input, #so-workspace-modal select { color: var(--so-fg); background-color: var(--so-field); }
 #so-workspace-modal .so-workspace-context button { border: 1px solid var(--st-border); border-radius: .5rem; padding: .5rem 1.5rem; background: transparent; color: inherit; }
@@ -54,8 +39,6 @@
   #so-workspace-modal .so-workspace-nav { flex: none; display: flex; flex-direction: row; gap: 0; padding: .25rem max(.25rem, env(safe-area-inset-right)) max(.25rem, env(safe-area-inset-bottom)) max(.25rem, env(safe-area-inset-left)); border-right: 0; border-top: 1px solid var(--st-border); }
   #so-workspace-modal .so-workspace-nav button { flex: 1; min-width: 0; font-size: .75rem; text-align: center; padding: .4rem .15rem; }
   #so-workspace-modal .so-workspace-content { padding: .75rem; }
-  #so-workspace-modal .so-workspace-header { gap: .5rem; }
-  #so-workspace-modal h1 { font-size: 1rem; overflow-wrap: anywhere; }
   #so-workspace-modal .so-mobile-back { display: block; margin: 0 0 .75rem; }
   #so-workspace-modal table { display: block; overflow-x: auto; max-width: 100%; }
   #so-workspace-modal .so-feature-controls { width: 100%; }

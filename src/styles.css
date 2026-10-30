@@ -1,4 +1,5 @@
 @import "./styles/tokens.css";
+@import "./styles/kit.css";
 @reference "tailwindcss";
 @source "./";
 
@@ -295,30 +296,6 @@
   }
 }
 
-dialog#so-studio-modal {
-  position: fixed;
-  inset: 0;
-  z-index: 4100;
-  margin: 0;
-  padding: 1rem;
-  border: none;
-  outline: none;
-  width: auto;
-  height: auto;
-  max-width: none;
-  max-height: none;
-  color: inherit;
-  background: var(--black30a);
-  backdrop-filter: blur(calc(var(--SmartThemeBlurStrength, 5px) * 2));
-  -webkit-backdrop-filter: blur(calc(var(--SmartThemeBlurStrength, 5px) * 2));
-}
-
-dialog#so-studio-modal[open] {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
 dialog#so-studio-guide-reader {
   position: fixed;
   inset: 0;
@@ -342,17 +319,6 @@ dialog#so-studio-guide-reader[open] {
 
 dialog#so-studio-guide-reader::backdrop {
   background: transparent;
-}
-
-
-dialog#so-studio-modal::backdrop {
-  background: transparent;
-}
-
-body.no-blur dialog#so-studio-modal {
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-  background: var(--black70a);
 }
 
 #so-studio-modal [role="tabpanel"],
@@ -498,26 +464,6 @@ body.no-blur dialog#so-studio-modal {
   }
 }
 
-dialog#so-briefing {
-  position: fixed;
-  inset: 0;
-  z-index: 4200;
-  margin: auto;
-  padding: 0;
-  width: min(40rem, calc(100vw - 2rem));
-  max-height: calc(100dvh - 2rem);
-  overflow-y: auto;
-  color: var(--st-text-active);
-  background: var(--so-surface);
-  border: 1px solid var(--st-border);
-  border-radius: 12px;
-  box-shadow: 0 0 24px var(--so-shadow);
-}
-
-dialog#so-briefing::backdrop {
-  background: var(--black50a);
-}
-
 #so-briefing .so-briefing-panel {
   padding: 1rem;
   text-align: left;
@@ -528,11 +474,6 @@ dialog#so-briefing::backdrop {
   width: fit-content;
   max-width: 100%;
   overflow-wrap: break-word;
-}
-
-#so-briefing .so-briefing-title {
-  margin: 0;
-  font-size: 1.4em;
 }
 
 #so-briefing .so-briefing-heading,
@@ -756,15 +697,15 @@ dialog#so-briefing::backdrop {
 
 #so-panels-root .so-panel {
   position: fixed;
-  z-index: 3500;
+  z-index: var(--so-z-panel);
   display: flex;
   flex-direction: column;
   min-width: 0;
   color: var(--st-text-active);
   background: var(--SmartThemeBlurTintColor, var(--st-bg-tint));
   backdrop-filter: blur(var(--SmartThemeBlurStrength, 0px));
-  border: 1px solid var(--st-border);
-  border-radius: 8px;
+  border: 1px solid var(--so-line);
+  border-radius: var(--so-radius);
   box-shadow: 0 6px 24px var(--so-shadow);
   text-align: left;
 }
@@ -780,12 +721,7 @@ dialog#so-briefing::backdrop {
 }
 
 #so-panels-root .so-panel-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-  padding: 4px 8px;
-  border-bottom: 1px solid var(--st-border);
+  flex-wrap: nowrap;
   cursor: move;
   touch-action: none;
   user-select: none;
@@ -798,10 +734,6 @@ dialog#so-briefing::backdrop {
 #so-panels-root .so-panel-bar:focus-visible {
   outline: 2px solid var(--st-hover);
   outline-offset: -2px;
-}
-
-#so-panels-root .so-panel-title {
-  font-weight: 600;
 }
 
 #so-panels-root .so-panel-body {

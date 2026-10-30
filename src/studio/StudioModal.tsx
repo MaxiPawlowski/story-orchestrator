@@ -29,6 +29,8 @@ import { resolveAgentHarness } from "./agentHost";
 import { studioAssist, studioTopicTarget } from "./studioAssist";
 import type { KnowledgeShowMe } from "@copilot/knowledge/types";
 import type { StudioAskRunner } from "./components/StudioAsk";
+import { Dialog, DialogHeader } from "@components/ui/Dialog";
+import { Badge } from "@components/ui/Badge";
 import "./mobile.css";
 
 export type StudioTab = "graph" | "story" | "features" | "qualities" | "checkpoints" | "transitions" | "roster" | "game"
@@ -159,24 +161,18 @@ const StudioHeader = ({ titleRef, onRequestClose }: HeaderProps) => {
   const issueCount = diagnostics.filter((entry) => entry.severity !== "info").length;
   const errorWord = errors.length === 1 ? "error" : "errors";
   return (
-    <div className="st-panel-header flex flex-wrap items-center gap-x-3 gap-y-1 px-3 py-2">
-      <h2 id="so-studio-heading" className="m-0 text-base font-semibold whitespace-nowrap">Checkpoint Studio</h2>
+    <DialogHeader titleId="so-studio-heading" title="Checkpoint Studio" onClose={onRequestClose} closeLabel="Close studio">
       <input
         ref={titleRef}
-        className="text_pole st-input min-w-0 flex-1"
+        className="text_pole so-field min-w-0 flex-1"
         aria-label="Story title"
         value={draft.title}
         onChange={(event) => mutate((current) => setStoryField(current, "title", event.target.value))}
       />
-      {dirty ? <span className="st-pill px-2 py-0.5 text-[11px]" aria-label="Unsaved changes">Unsaved</span> : null}
-      {errors.length > 0 ? (
-        <span className="st-alert-error rounded px-2 py-0.5 text-[11px]" aria-label={`${errors.length} validation ${errorWord}`}>{errors.length} {errorWord}</span>
-      ) : null}
-      {issueCount > 0 ? (
-        <span className="st-pill px-2 py-0.5 text-[11px]" aria-label={`${issueCount} diagnostics`}>{issueCount} {issueCount === 1 ? "issue" : "issues"}</span>
-      ) : null}
-      <button type="button" className="st-button secondary" onClick={onRequestClose} aria-label="Close studio">Close</button>
-    </div>
+      {dirty ? <Badge tone="info" icon="fa-pen" aria-label="Unsaved changes">Unsaved</Badge> : null}
+      {errors.length > 0 ? <Badge tone="error" aria-label={`${errors.length} validation ${errorWord}`}>{errors.length} {errorWord}</Badge> : null}
+      {issueCount > 0 ? <Badge tone="warn" aria-label={`${issueCount} diagnostics`}>{issueCount} {issueCount === 1 ? "issue" : "issues"}</Badge> : null}
+    </DialogHeader>
   );
 };
 
@@ -367,9 +363,10 @@ const StudioModal: React.FC<Props> = ({ onClose, copilotEnabled = true, runCopil
   };
 
   return createPortal(
-    <dialog
+    <Dialog
       ref={dialogRef}
       id="so-studio-modal"
+      size="full"
       aria-labelledby="so-studio-heading"
       onKeyDown={handleKeyDown}
       onCancel={(event) => { event.preventDefault(); void requestClose(); }}
@@ -378,7 +375,7 @@ const StudioModal: React.FC<Props> = ({ onClose, copilotEnabled = true, runCopil
       // open to everything that only counts the node (live finding run).
       onClose={onClose}
     >
-      <div ref={panelRef} className="so-studio-frame st-panel flex flex-col overflow-hidden shadow-lg">
+      <div ref={panelRef} className="so-studio-frame so-dialog-frame">
         <StudioHeader titleRef={titleRef} onRequestClose={() => void requestClose()} />
         <StudioTabList tabs={tabs} activeTab={activeTab} onSelect={setTab} />
         <div id="so-studio-tabpanel" className="flex-1 overflow-auto p-3" role="tabpanel" tabIndex={-1} aria-labelledby={`so-studio-tab-${activeTab}`}>
@@ -404,7 +401,7 @@ const StudioModal: React.FC<Props> = ({ onClose, copilotEnabled = true, runCopil
         <StudioFooter onSaved={onSaved} onRekeySession={wizardHost?.rekeySession} />
       </div>
       {guideDoc && <StudioGuideDialog doc={guideDoc} onClose={() => setGuideDoc(null)} />}
-    </dialog>,
+    </Dialog>,
     document.body,
   );
 };

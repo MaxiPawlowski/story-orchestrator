@@ -23,14 +23,15 @@ export default meta;
 
 type Story = StoryObj<typeof SpriteSettingsView>;
 
-const box = (root: HTMLElement) => root.querySelector<HTMLInputElement>("#so-sprite-enabled");
+const box = (root: HTMLElement) => root.querySelector<HTMLButtonElement>("#so-sprite-enabled");
+const on = (root: HTMLElement) => box(root)?.getAttribute("aria-checked") === "true";
 
 export const OffByDefault: Story = {
   play: async ({ canvasElement, args }) => {
-    await expect(box(canvasElement)?.checked).toBe(false);
+    await expect(on(canvasElement)).toBe(false);
     await expect(canvasElement.querySelector("#so-sprite-activation")?.getAttribute("data-activation")).toBe("off");
     await expect(canvasElement.querySelector("#so-sprite-story-decides")).toBeNull();
-    await userEvent.click(box(canvasElement) as HTMLInputElement);
+    await userEvent.click(box(canvasElement) as HTMLButtonElement);
     await expect(args.onSwitch).toHaveBeenCalledWith(true);
   },
 };
@@ -38,9 +39,9 @@ export const OffByDefault: Story = {
 export const StoryTurnsItOn: Story = {
   args: { activation: "story", onStage: "On stage: Belle (default, smirk)" },
   play: async ({ canvasElement, args }) => {
-    await expect(box(canvasElement)?.checked).toBe(true);
+    await expect(on(canvasElement)).toBe(true);
     await expect(canvasElement.querySelector("#so-sprite-activation")?.textContent).toContain("its story directs a stage");
-    await userEvent.click(box(canvasElement) as HTMLInputElement);
+    await userEvent.click(box(canvasElement) as HTMLButtonElement);
     await expect(args.onSwitch).toHaveBeenCalledWith(false);
   },
 };
@@ -48,7 +49,7 @@ export const StoryTurnsItOn: Story = {
 export const WaitsForVisualNovelMode: Story = {
   args: { activation: "story", waitsForVn: true, onStage: "On stage: Belle" },
   play: async ({ canvasElement }) => {
-    await expect(box(canvasElement)?.checked).toBe(true);
+    await expect(on(canvasElement)).toBe(true);
     await expect(canvasElement.querySelector("#so-sprite-vn-hint")?.textContent).toContain("/vn");
   },
 };
@@ -63,7 +64,7 @@ export const NoStoryStageSaysHowToGetOne: Story = {
 export const UserSwitchedOffWinsOverTheStory: Story = {
   args: { activation: "user-off", settings: { ...defaultSpriteSettings(), explicit: true } },
   play: async ({ canvasElement, args }) => {
-    await expect(box(canvasElement)?.checked).toBe(false);
+    await expect(on(canvasElement)).toBe(false);
     await userEvent.click(canvasElement.querySelector("#so-sprite-story-decides") as HTMLButtonElement);
     await expect(args.onStoryDecides).toHaveBeenCalledTimes(1);
   },

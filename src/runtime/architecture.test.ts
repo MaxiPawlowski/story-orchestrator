@@ -72,7 +72,7 @@ describe("architecture guards", () => {
 
   it("lets the studio reach components only through the shared primitives", () => {
     for (const path of walk(join(SRC, "studio"))) {
-      const offenders = importsOf(path).filter((specifier) => specifier.includes("components") && /@components|\.\.\/components/.test(specifier) && !specifier.startsWith("@components/studio/"));
+      const offenders = importsOf(path).filter((specifier) => specifier.includes("components") && /@components|\.\.\/components/.test(specifier) && !specifier.startsWith("@components/studio/") && !specifier.startsWith("@components/ui/"));
       expect({ path, offenders }).toEqual({ path, offenders: [] });
     }
   });

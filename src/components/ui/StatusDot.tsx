@@ -1,7 +1,7 @@
-export type StatusTone = "ok" | "warn" | "error";
+export type StatusTone = "ok" | "warn" | "error" | "info";
 
-const TONE_CLASS: Record<StatusTone, string> = { ok: "status-success", warn: "status-warning", error: "status-error" };
-const TONE_ICON: Record<StatusTone, string> = { ok: "fa-check", warn: "fa-exclamation", error: "fa-xmark" };
+const TONE_CLASS: Record<StatusTone, string> = { ok: "status-success", warn: "status-warning", error: "status-error", info: "status-info" };
+const TONE_ICON: Record<StatusTone, string> = { ok: "fa-check", warn: "fa-exclamation", error: "fa-xmark", info: "fa-info" };
 
 export const StatusIcon = ({ tone }: { tone: StatusTone }) => (
   <span aria-hidden="true" data-tone={tone} className={`status-indicator ${TONE_CLASS[tone]}`}>

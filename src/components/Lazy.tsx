@@ -1,6 +1,7 @@
 import { Component, Suspense, type ErrorInfo, type ReactNode } from "react";
 import { resetFailedLazies } from "@utils/lazyRetry";
 import { log } from "@utils/log";
+import { Skeleton } from "@components/ui/Skeleton";
 
 export const LAZY_FAILED_TEXT = "Couldn't load — reload SillyTavern";
 
@@ -39,9 +40,9 @@ export class LazyBoundary extends Component<BoundaryProps, { failed: boolean }> 
   }
 }
 
-export const Lazy = ({ children, fallback = null, onError, quiet }: { children: ReactNode; fallback?: ReactNode; onError?: (error: unknown) => void; quiet?: boolean }) => (
+export const Lazy = ({ children, fallback, onError, quiet }: { children: ReactNode; fallback?: ReactNode; onError?: (error: unknown) => void; quiet?: boolean }) => (
   <LazyBoundary onError={onError} quiet={quiet}>
-    <Suspense fallback={fallback}>{children}</Suspense>
+    <Suspense fallback={fallback === undefined ? (quiet ? null : <Skeleton />) : fallback}>{children}</Suspense>
   </LazyBoundary>
 );
 

@@ -1,6 +1,5 @@
-import { useRef, useState, type ButtonHTMLAttributes } from "react";
-import { busyWork } from "@runtime/busy";
-import { log } from "@utils/log";
+import type { ButtonHTMLAttributes } from "react";
+import { useBusyWork } from "@components/ui/useBusyWork";
 
 export interface BusyButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, "onClick"> {
   work: () => Promise<unknown> | unknown;
@@ -8,18 +7,6 @@ export interface BusyButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonEle
 }
 
 export function BusyButton({ work, chatId = null, disabled, children, ...props }: BusyButtonProps) {
-  const lock = useRef(false);
-  const [busy, setBusy] = useState(false);
-  const run = async () => {
-    if (lock.current || disabled) return;
-    lock.current = true;
-    setBusy(true);
-    const job = busyWork.begin("action", chatId);
-    try { await work(); } catch (error) { log.warn("an action failed", error); } finally {
-      lock.current = false;
-      setBusy(false);
-      job.end();
-    }
-  };
+  const { busy, run } = useBusyWork(work, chatId, disabled);
   return <button type="button" {...props} disabled={disabled || busy} aria-busy={busy} onClick={() => void run()}>{children}</button>;
 }

@@ -31,7 +31,7 @@ export const NotConfigured: Story = {
     const profile = canvas.getByLabelText("Memory model");
     await expect(profile).toHaveAttribute("id", "so-extraction-profile");
     await expect(profile.tagName).toBe("SELECT");
-    const enabled = canvas.getByRole("checkbox", { name: "Let the story move forward on its own" });
+    const enabled = canvas.getByRole("switch", { name: "Let the story move forward on its own" });
     await expect(enabled).toBeChecked();
     await expect(canvasElement.querySelector("#so-not-configured")).not.toBeNull();
     await expect(canvas.getByRole("button", { name: "Test memory model" })).toBeDisabled();
@@ -46,7 +46,7 @@ export const ExtractionOff: Story = {
   args: { snapshot: snapshot({ enabled: false }), manager: fakeManager() },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.getByRole("checkbox", { name: "Let the story move forward on its own" })).not.toBeChecked();
+    await expect(canvas.getByRole("switch", { name: "Let the story move forward on its own" })).not.toBeChecked();
     await expect(canvasElement.querySelector("#so-not-configured")).toBeNull();
   },
 };

@@ -23,6 +23,41 @@
   --so-here: var(--golden);
   --so-sprite-glow: rgba(255, 240, 200, 0.35);
   --so-dur: var(--animation-duration);
+  --so-ease: ease-out;
+  --so-radius-sm: 4px;
+  --so-radius: 8px;
+  --so-radius-lg: 12px;
+  --so-radius-pill: 999px;
+  --so-space-1: 4px;
+  --so-space-2: 8px;
+  --so-space-3: 12px;
+  --so-space-4: 16px;
+  --so-space-6: 24px;
+  --so-text-xs: 0.8125rem;
+  --so-text-sm: 0.875rem;
+  --so-text: 1rem;
+  --so-text-lg: 1.125rem;
+  --so-text-xl: 1.375rem;
+  --so-leading: 1.4;
+  --so-control-h: 2.25rem;
+  --so-icon-h: 2.25rem;
+  --so-dialog-w: 75rem;
+  --so-z-panel: 3500;
+  --so-z-popover: 3600;
+  --so-z-dialog: 4100;
+}
+
+@media (pointer: coarse), (max-width: 699px) {
+  :root {
+    --so-control-h: 2.75rem;
+    --so-icon-h: 2.75rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --so-dur: 0ms;
+  }
 }
 
 body.reduced-motion {
