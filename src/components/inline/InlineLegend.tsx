@@ -1,32 +1,18 @@
-import { useId, useState } from "react";
 import { INLINE_CATEGORY_LABELS } from "@runtime/messageInspector";
 import { INLINE_CATEGORIES, INLINE_LEVELS, PLAYER_LEVEL_CAP, type InlineLevel } from "@runtime/settingsModel";
 import { INLINE_CATEGORY_HELP, INLINE_LEGEND_COPY, INLINE_LEVEL_HELP, INLINE_LEVEL_LABELS } from "@features/inlineCopy";
 import { INLINE_ICONS } from "./inlineIcons";
+import "./inline.css";
 
 export interface InlineLegendProps {
   level: InlineLevel;
+  id?: string;
 }
 
-export const InlineLegendToggle = ({ open, panel, onToggle }: { open: boolean; panel: string; onToggle: () => void }) => (
-  <button
-    type="button"
-    data-so="inline-legend-toggle"
-    className="so-inline-chip"
-    aria-expanded={open}
-    aria-controls={panel}
-    aria-label={INLINE_LEGEND_COPY.toggle}
-    title={INLINE_LEGEND_COPY.toggle}
-    onClick={onToggle}
-  >
-    <i className="fa-solid fa-circle-question" aria-hidden="true" />
-  </button>
-);
-
-export const InlineLegendPanel = ({ level, id }: { level: InlineLevel; id: string }) => {
+export const InlineLegendPanel = ({ level, id }: InlineLegendProps) => {
   const levels = INLINE_LEVELS.filter((entry) => entry > 0 && (level > PLAYER_LEVEL_CAP || entry <= PLAYER_LEVEL_CAP));
   return (
-    <div id={id} data-so="inline-legend" role="note" className="so-inline-panel so-inline-legend">
+    <div id={id} data-so="inline-legend" role="note" aria-label={INLINE_LEGEND_COPY.heading} className="so-inline-panel so-inline-legend">
       <ul className="so-inline-list">
         {INLINE_CATEGORIES.map((category) => (
           <li key={category} className="so-inline-line">
@@ -45,15 +31,4 @@ export const InlineLegendPanel = ({ level, id }: { level: InlineLevel; id: strin
   );
 };
 
-export const InlineLegend = ({ level }: InlineLegendProps) => {
-  const [open, setOpen] = useState(false);
-  const panel = useId();
-  return (
-    <>
-      <InlineLegendToggle open={open} panel={panel} onToggle={() => setOpen(!open)} />
-      {open && <InlineLegendPanel level={level} id={panel} />}
-    </>
-  );
-};
-
-export default InlineLegend;
+export default InlineLegendPanel;

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { GUIDE_COPY } from "@features/helpCopy";
+import { IconButton } from "@components/ui/IconButton";
 import { GuideMarkdown, headingDomId } from "./GuideMarkdown";
 import { groupPages, indexPages, searchGuide, visiblePages } from "./search";
 import type { GuideNavSection, GuidePage, GuideTarget } from "./types";
@@ -62,9 +63,9 @@ export function GuideReader({ pages, nav: sections, authorView, homePage, target
   return (
     <section id="so-guide" aria-label={GUIDE_COPY.title} className="so-guide flex h-full min-h-0 flex-col gap-2 text-sm">
       <div className="flex flex-wrap items-center gap-1">
-        <button type="button" data-so="guide-back" className="menu_button fa-solid fa-arrow-left" aria-label={GUIDE_COPY.back} title={GUIDE_COPY.back}
+        <IconButton size="sm" icon="fa-arrow-left" data-so="guide-back" label={GUIDE_COPY.back}
           disabled={position === 0} onClick={() => { setQuery(""); setNav((state) => ({ ...state, position: Math.max(0, state.position - 1) })); }} />
-        <button type="button" data-so="guide-forward" className="menu_button fa-solid fa-arrow-right" aria-label={GUIDE_COPY.forward} title={GUIDE_COPY.forward}
+        <IconButton size="sm" icon="fa-arrow-right" data-so="guide-forward" label={GUIDE_COPY.forward}
           disabled={position >= history.length - 1} onClick={() => { setQuery(""); setNav((state) => ({ ...state, position: Math.min(state.history.length - 1, state.position + 1) })); }} />
         <input id="so-guide-search" type="search" className="text_pole min-w-0 flex-1" aria-label={GUIDE_COPY.search} placeholder={GUIDE_COPY.searchPlaceholder}
           value={query} onChange={(event) => setQuery(event.target.value)} />
@@ -79,7 +80,7 @@ export function GuideReader({ pages, nav: sections, authorView, homePage, target
         )))}
       </select>
       <div className="flex min-h-0 flex-1 gap-3">
-        <nav data-so="guide-nav" aria-label={GUIDE_COPY.pages} className="so-guide-nav hidden w-52 shrink-0 flex-col gap-2 overflow-y-auto md:flex">
+        <nav data-so="guide-nav" aria-label={GUIDE_COPY.pages} className="so-guide-nav flex w-52 max-md:hidden shrink-0 flex-col gap-2 overflow-y-auto">
           {groups.map((group) => (
             <div key={group.audience} data-audience={group.audience} className="flex flex-col gap-1">
               <div className="text-xs font-medium uppercase opacity-80">{GUIDE_COPY.audience[group.audience]}</div>

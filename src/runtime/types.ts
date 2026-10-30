@@ -339,7 +339,7 @@ export interface ExtractionRuntimeState {
   audits: SharedReadAudit[];
   reconciliationEvents: ReconciliationEvent[];
   lastReadBoundary: number;
-  scheduler: { queueDepth: number; inFlight: boolean; lastError: string | null; rereadReason?: string | null };
+  scheduler: { queueDepth: number; inFlight: boolean; lastError: string | null; rereadReason?: string | null; inFlightSince?: number | null; yielding?: boolean };
   judgedReads: JudgedReadRecord[];
 }
 

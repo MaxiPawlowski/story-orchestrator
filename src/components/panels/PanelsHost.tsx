@@ -4,16 +4,14 @@ import { Lazy } from "@components/Lazy";
 import { lazyRetry } from "@utils/lazyRetry";
 import type { RuntimeManager } from "@runtime/index";
 import type { RuntimeSnapshot } from "@runtime/types";
-import { gamePanels } from "@runtime/chatPanels";
 import type { WidgetDrawerTab } from "@engine/index";
+import type { SheetTab } from "@runtime/storySheet";
 import { dockInset, panelGeometry, shownPanels, type Viewport } from "@runtime/panelGeometry";
 import { readPanels, savePanel } from "@runtime/panelStore";
 import { hasOpenGroup } from "@runtime/persistence";
 import type { FeatureWhere } from "@features/registry";
-import { PRESENCE_TEXT } from "@features/presenceCopy";
-import { GAME_TEXT } from "@features/gameCopy";
 import { GUIDE_COPY, HELP_COPY } from "@features/helpCopy";
-import type { SuggestionAsk } from "@runtime/suggestionsHost";
+import type { SuggestionAsk, SuggestionOutcome } from "@runtime/suggestionsHost";
 import type { WriteResult } from "@utils/writeResult";
 import { requestGuide } from "@guide/request";
 import type { GuideTarget } from "@guide/types";
@@ -23,17 +21,22 @@ import { setInspectTarget, useInspectTarget } from "../drawer/inspectTarget";
 
 const HelpHost = lazyRetry(() => import("../help/HelpHost"));
 const GuideHost = lazyRetry(() => import("../../guide/GuideHost"));
-const SuggestionsPanel = lazyRetry(() => import("./SuggestionsPanel"));
-const JournalPanel = lazyRetry(() => import("./JournalPanel"));
-const StatSheetPanel = lazyRetry(() => import("./StatSheetPanel"));
-const WidgetPanel = lazyRetry(() => import("./WidgetPanel"));
+const StorySheet = lazyRetry(() => import("../sheet/StorySheet"));
 const MessageInspector = lazyRetry(() => import("../drawer/MessageInspector"));
 
-export type PanelId = "help" | "guide" | "suggestions" | "journal" | "stat-sheet" | "inspector" | `widget-${string}`;
+export type PanelId = "help" | "guide" | "inspector";
+
+export interface SheetControl {
+  setTab: (tab: SheetTab) => void;
+  setPopped: (popped: boolean) => void;
+  close: () => void;
+}
 
 export interface PanelsHostProps {
   panels: readonly PanelId[];
   setPanel: (id: PanelId, open: boolean) => void;
+  sheet: { open: boolean; tab: SheetTab | null; popped: boolean };
+  sheetControl: SheetControl;
   manager: RuntimeManager;
   useSnapshot: () => RuntimeSnapshot;
   showFeature: (where: FeatureWhere) => void;
@@ -41,7 +44,7 @@ export interface PanelsHostProps {
   jumpToMessage?: (messageId: number) => void;
   guideTarget: () => GuideTarget | null;
   clearGuideTarget: () => void;
-  requestSuggestions: Parameters<typeof SuggestionsPanel>[0]["request"];
+  requestSuggestions: (again: number) => Promise<SuggestionOutcome>;
   fillSuggestion: (ask: SuggestionAsk, text: string) => WriteResult;
   fill: (text: string) => WriteResult;
   htmlHost: { journal: (summary: string, detail: string) => void };
@@ -72,34 +75,30 @@ const Panel = ({ id, title, inset, setPanel, children }: { id: PanelId; title: s
   </PanelFrame>
 );
 
+const sheetStore = { read: readPanels, save: savePanel };
+
 const PanelsHost = ({
-  panels, setPanel, manager, useSnapshot, showFeature, openDrawer, jumpToMessage, guideTarget, clearGuideTarget, requestSuggestions, fillSuggestion, fill, htmlHost, inspectActions, onOpenAuthor,
+  panels, setPanel, sheet, sheetControl, manager, useSnapshot, showFeature, openDrawer, jumpToMessage, guideTarget, clearGuideTarget, requestSuggestions, fillSuggestion, fill, htmlHost,
+  inspectActions, onOpenAuthor,
 }: PanelsHostProps) => {
   const snapshot = useSnapshot();
   const inspecting = useInspectTarget();
   const { view, inset } = usePanelViewport();
-  const suggestions = panels.includes("suggestions") && snapshot.ready && snapshot.presence?.shown.suggestions === true;
-  const game = gamePanels(snapshot);
-  const author = snapshot.ui.authorView ? snapshot.gameAuthor ?? null : null;
   const bodies = new Map<PanelId, { title: string; body: ReactNode }>();
   if (panels.includes("help")) bodies.set("help", { title: HELP_COPY.heading, body: <Lazy fallback={null}><HelpHost authorView={snapshot.ui.authorView} snapshot={snapshot} onShowMe={showFeature}
     onOpenDoc={requestGuide} onClose={() => setPanel("help", false)} hosted ask={async (question) => (await askHost()).askInChat(manager, question)} /></Lazy> });
   if (panels.includes("guide")) bodies.set("guide", { title: GUIDE_COPY.title, body: <Lazy fallback={null}><GuideHost authorView={snapshot.ui.authorView} target={guideTarget()}
     onTargetSeen={clearGuideTarget} snapshot={snapshot} groupOpen={hasOpenGroup()} onShowMe={() => setPanel("guide", false)} /></Lazy> });
-  if (suggestions) bodies.set("suggestions", { title: PRESENCE_TEXT.suggestionsTitle, body: <Lazy fallback={null}><SuggestionsPanel request={requestSuggestions} fill={fillSuggestion} /></Lazy> });
-  if (game.game && game.journal && panels.includes("journal")) {
-    bodies.set("journal", { title: GAME_TEXT.journalTitle, body: <Lazy fallback={null}><JournalPanel game={game.game} author={author} onJump={jumpToMessage} /></Lazy> });
-  }
-  if (game.statSheet && panels.includes("stat-sheet")) bodies.set("stat-sheet", { title: GAME_TEXT.statSheetTitle, body: <Lazy fallback={null}><StatSheetPanel
-    sheet={game.game?.statSheet ?? null} provenance={author?.provenance?.[game.game?.statSheet?.id ?? ""]} onAction={fill} openDrawer={openDrawer} /></Lazy> });
   if (panels.includes("inspector") && snapshot.ui.authorView && inspecting !== null) bodies.set("inspector", { title: "Inspector", body: <Lazy fallback={null}><MessageInspector
     view={snapshot.inline} messageId={inspecting} onStep={setInspectTarget} actions={inspectActions} onOpenAuthor={onOpenAuthor} /></Lazy> });
-  for (const widget of game.widgets) {
-    if (panels.includes(`widget-${widget.id}`)) bodies.set(`widget-${widget.id}`, { title: widget.title, body: <Lazy fallback={null}><WidgetPanel widget={widget} onAction={fill}
-      html={snapshot.ui.presence?.htmlWidgets === false ? null : htmlHost} openDrawer={openDrawer} provenance={author?.provenance?.[widget.id]} /></Lazy> });
-  }
   return (
     <>
+      {sheet.open && snapshot.ready && (
+        <Lazy fallback={null}>
+          <StorySheet snapshot={snapshot} tab={sheet.tab} popped={sheet.popped} onTab={sheetControl.setTab} onPop={sheetControl.setPopped} onClose={sheetControl.close} store={sheetStore}
+            actions={{ onJump: jumpToMessage, openDrawer, openMemory: () => openDrawer("memory"), fill, requestSuggestions, fillSuggestion, htmlHost }} />
+        </Lazy>
+      )}
       {shownPanels(panels.filter((id) => bodies.has(id)), view).map((id) => {
         const entry = bodies.get(id);
         return entry ? <Panel key={id} id={id} title={entry.title} inset={inset} setPanel={setPanel}>{entry.body}</Panel> : null;

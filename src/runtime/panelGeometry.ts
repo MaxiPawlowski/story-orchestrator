@@ -68,3 +68,37 @@ export const movedBy = (geometry: PanelGeometry, key: PanelKey, viewport: Viewpo
 };
 
 export const isPanelKey = (key: string): key is PanelKey => key === "ArrowLeft" || key === "ArrowRight" || key === "ArrowUp" || key === "ArrowDown";
+
+export const SHEET_DOCK_KEY = "sheet-dock";
+export const SHEET_WINDOW_KEY = "sheet";
+export const SHEET_WIDTH = { min: 300, max: 640, initial: 380 };
+export const SHEET_PEEK = 120;
+
+export interface SheetDock {
+  width: number;
+  overlay: boolean;
+}
+
+export const sheetDock = (viewportWidth: number, chatRight: number, wanted: number): SheetDock => {
+  const room = Math.max(0, Math.round(viewportWidth - chatRight));
+  const want = Math.max(SHEET_WIDTH.min, Math.min(SHEET_WIDTH.max, Math.round(wanted)));
+  if (room >= SHEET_WIDTH.min) return { width: Math.min(want, room), overlay: false };
+  return { width: Math.min(want, Math.max(SHEET_WIDTH.min, viewportWidth)), overlay: true };
+};
+
+export type SheetSnap = "peek" | "half" | "full";
+
+export const SHEET_SNAPS: readonly SheetSnap[] = ["peek", "half", "full"];
+
+export const sheetSnaps = (viewportHeight: number, formTop: number, chatTop: number, lastReplyHeight: number): Record<SheetSnap, number> => {
+  const area = Math.max(0, Math.round(formTop - chatTop));
+  const full = Math.max(SHEET_PEEK, area);
+  const keep = Math.min(Math.max(0, lastReplyHeight), area / 2);
+  const half = Math.max(SHEET_PEEK, Math.min(full, Math.round(viewportHeight * 0.4), Math.round(area - keep)));
+  return { peek: Math.min(SHEET_PEEK, full), half, full };
+};
+
+export const nearestSnap = (height: number, snaps: Record<SheetSnap, number>): SheetSnap =>
+  SHEET_SNAPS.reduce((best, snap) => (Math.abs(snaps[snap] - height) < Math.abs(snaps[best] - height) ? snap : best), "half" as SheetSnap);
+
+export const nextSnap = (snap: SheetSnap): SheetSnap => SHEET_SNAPS[(SHEET_SNAPS.indexOf(snap) + 1) % SHEET_SNAPS.length];
