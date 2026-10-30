@@ -1,7 +1,10 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import net from 'node:net';
 import { brokerAddress, managedControllerUrl, mountManagedRoutes } from './managed.mjs';
 import { start, exit } from './index.mjs';
+
+const freePort = () => new Promise((resolve) => { const server = net.createServer().listen(0, '127.0.0.1', () => { const { port } = server.address(); server.close(() => resolve(port)); }); });
 
 test('the broker address comes from config.json; 18888 is only the documented listen default, no controller is assumed', () => {
     assert.deepEqual(brokerAddress({}), { listenHost: '127.0.0.1', listenPort: 18888, controllerUrl: null });
@@ -55,7 +58,7 @@ test('the managed adapter is refused at init without a controllerUrl, and never 
 test('the none adapter passes images through on the configured port', async () => {
     const handlers = new Map();
     const router = { get: (route, fn) => handlers.set(route, fn), post: (route, fn) => handlers.set(route, fn) };
-    const listenPort = 20000 + Math.floor(Math.random() * 20000);
+    const listenPort = await freePort();
     await start(router, { adapter: 'none', listenPort });
     try {
         const res = { data: null, json(data) { this.data = data; } };
