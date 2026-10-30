@@ -14,6 +14,7 @@ export interface SkipRunInput {
 }
 
 export interface SkipRunDeps {
+  stillOwns: () => boolean;
   source: () => SpeechRequest["source"];
   reserve: (request: SpeechRequest) => SpeechReservation | null;
   settle: (reservation: SpeechReservation | null, messageId: number | null) => void;
@@ -43,6 +44,10 @@ export async function runSkip(input: SkipRunInput, deps: SkipRunDeps): Promise<S
   catch (error) {
     deps.settle(reservation, null);
     throw error;
+  }
+  if (!deps.stillOwns()) {
+    deps.settle(reservation, null);
+    return { ok: false, reason: SKIP_COPY.moved, plan };
   }
   const messageId = fired.ok ? deps.rendered(input.teller.name) : null;
   deps.settle(reservation, messageId);

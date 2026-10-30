@@ -36,6 +36,7 @@ export const SKIP_COPY = {
     busy: "Already skipping ahead.",
   } satisfies Record<SkipBlock, string>,
   journal: "Skipped ahead (player)",
+  moved: "The chat changed before the skip finished, so nothing was kept.",
 } as const;
 
 export const skipBlock = (input: SkipGateInput): SkipBlock | null => {

@@ -2,7 +2,7 @@ import type { NormalizedStory } from "@engine/index";
 import { chatSettle } from "./chatSettle";
 import { hostChat, lastMessageId, lastSpeakerName, speakGenerated } from "./npcSpeak";
 import { rosterIdForName } from "./roster";
-import type { RunOwnership } from "./runToken";
+import { beginRun, type RunOwnership } from "./runToken";
 import { runSkip, type SkipOutcome, type SkipRunInput } from "./skipRuntime";
 import type { SpeechPort } from "./speechWiring";
 import { messageRevision } from "./yourMove";
@@ -17,7 +17,8 @@ export interface SkipHost {
   persist: () => void;
 }
 
-export const runSkipOnHost = (input: SkipRunInput, host: SkipHost): Promise<SkipOutcome> => runSkip(input, {
+export const runSkipOnHost = (input: SkipRunInput, host: SkipHost, run = beginRun(host.ownership)): Promise<SkipOutcome> => runSkip(input, {
+  stillOwns: () => run.stillOwns(),
   source: () => ({ messageId: lastMessageId(), revision: messageRevision(hostChat().at(-1)) }),
   reserve: (request) => host.speech.reserve(request),
   settle: (reservation, messageId) => host.speech.settle(reservation, messageId),

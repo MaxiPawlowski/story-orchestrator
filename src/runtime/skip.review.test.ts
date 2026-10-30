@@ -60,7 +60,8 @@ interface World {
 
 const world = (story: NormalizedStory): World => ({ story, host: pacingFor(story), chat: ["opening", "player", "reply"], cued: [], speech: [], journal: [], promptDuring: [] });
 
-const depsFor = (w: World, cut: Cut): SkipRunDeps => ({
+const depsFor = (w: World, cut: Cut, owns = true): SkipRunDeps => ({
+  stillOwns: () => owns,
   source: () => ({ messageId: w.chat.length - 1, revision: null }),
   reserve: (request) => { w.speech.push({ request, messageId: null }); return { id: w.speech.length, send: 1, request }; },
   settle: (reservation, messageId) => { if (reservation) w.speech[reservation.id - 1].messageId = messageId; },
@@ -136,6 +137,16 @@ describe("v3.0 32 S4: the skip is one narrator reply through the 19 one-shot dir
       expect(w.journal).toEqual([]);
       expect(stale).toBe(false);
     }
+  });
+
+  it("a run that lapsed while the reply was written keeps no cue, journal row or speech row", async () => {
+    const story = STORIES.clocked;
+    const w = world(story);
+    const outcome = await runSkip({ story, values: values(story), boundary: 3, events: [], teller: { rosterId: "narrator", name: "Narrator" }, entry: "a@skip" }, depsFor(w, "none", false));
+    expect(outcome).toMatchObject({ ok: false, reason: SKIP_COPY.moved });
+    expect(w.speech.map((row) => row.messageId)).toEqual([null]);
+    expect([w.cued, w.journal]).toEqual([[], []]);
+    expect(w.host.drafted("narrator")).not.toContain(MARK);
   });
 
   it("floor D: 40 cuts leave 0 stale directions, 0 forced transitions and 0 time moves; a swipe re-arms, a delete does not", async () => {
