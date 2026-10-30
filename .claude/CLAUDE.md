@@ -26,7 +26,7 @@ Status lives in tables, not prose (v2.3 process rule 15). One line per version; 
 | v2.7 | WRAPPED 2026-10-09, symbolic (owner: private plugin, one user); NOT accepted, Phase C INCOMPLETE; every built feature on by default, below its floor too; open rows → v2.8 24 | `docs/plans/v2.7/39-test-from-zero.md` §Wrap record 2026-10-14, `src/runtime/settingsModel.ts` |
 | v2.8 | CLOSING (v2.9 13 close-out, 2026-10-25): lean suite on G/H/I; 45 seal PASS (13 C2), GS6.8 promise row = model miss (13 C3), T8 4/4 (13 C4); 42 W4 FAIL → v3.0; 55-59 → v3.0 | `docs/plans/v2.8/70-final-suite.md`, `docs/plans/v2.9/13-close-out.md` |
 | v2.9 | CLOSING (plan 13, 2026-10-25): 06 LT F1/F2/F3/F5 pass, F4 miss; C6/C7/C9/C10 done; C8 suite:nomodel 188/188 green once (second run at freeze); owed: owner playtest (C1, 08 O4), image journey rerun, A02 x2 + J6 on GPU, freeze; NOT accepted | `docs/plans/v2.9/13-close-out.md` §Status, `00-overview.md` §Close-out split |
-| v3.0 | REPLANNED 2026-10-26: tracks A controller/perf, B images, C witness, D v2.9 misses, E deferred features on triggers, F test economy; 09 MTP + patched llama.cpp RAM member cache LIVE (warm switch 8.55 → 3.8 s); 10-12 stubs; 14 owner questions open | `docs/plans/v3.0/00-overview.md` §Replan 2026-10-26, `09-controller-round-3.md` |
+| v3.0 | IN BUILD 2026-10-30: 09 RAM member cache LIVE; 10 (A2), 27, 28 built on branches, unmerged until the GPU window; 29 UI rework in build (owner decisions 2026-10-30); harvest fixes + plans 30+ in the extensions session; GPU queue W0-W4 waits for the owner's "resume" | `docs/plans/v3.0/00-overview.md`, `gpu-queue-2026-10-30.md`, `29-ui-rework.md` |
 
 Older status paragraphs: `docs/plans/v2.3/status-history.md` (history only).
 
