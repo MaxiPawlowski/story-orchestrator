@@ -214,3 +214,51 @@ master merged in twice, last at `ee9f75f7` with the harvest wave `435a614b`).
   red on two load flakes (`patterns.test.ts` p95, `startupWiring` timer) that pass alone; rerun on the same tree `ee9f75f7` (no `--resume`) all green in 1010.5s (jest 10,980 passed / 1 skipped, Storybook 191 suites / 1,098 tests, test:debug, replay, release, plugin, lint, typechecks).
 - Not done / owner: wand's "Illustrate story scene" still shows greyed when images are off (lives in `stHost/imageSurface.ts`, image
   module); GPU-queue/judge/image waits not named (not observable yet); stats "changed N replies ago" stays a visible muted line.
+
+## Phase 2 settings gate record
+
+2026-10-30, branch `v3.0-29-ui-p2-settings` (worktree `C:\dev\so-ui-settings`), lane 30 (no-model).
+
+- Built S3-S9 (S1/S2 were phase 0a): contexts "This chat" (Play, Settings; Review/Author in Author view) and "Settings"
+  (internal ids `story`/`orchestrator` kept); Settings left nav `#so-workspace-nav` (Library, Features, Models, Judge, Images &
+  stage with sub-pages Picture types / Model sources, World & lore, Display, Authoring, Diagnostics, Help; `#so-workspace-page-<id>`);
+  one global search `#so-settings-search` (lazy `features/settingsIndex.ts`: feature controls, setting copy, judge uses, device rows;
+  jump + highlight `so-revealed`; author-only rows filtered in player mode); one home per setting (`workspaceRoutes.ts`
+  `settingIntent` / `SETTINGS_PAGES`, `FEATURE_INSTALL_HOMES`), other pages link with read-only Change (`#so-feature-link-<id>`);
+  device overrides as a This device chip on the row (`#so-device-<path-kebab>`, `useDeviceSetting`), DevicePreferences removed;
+  expert rows on sub-pages, no expert switch; mobile master/detail with one back `#so-workspace-back`; workspace on kit Dialog,
+  translucent + blur.
+- Shared `components/ui/FeatureList.tsx` (flat grouped rows `[data-so=feature-row]`, inline Switch `#so-feature-<id>-<field>`,
+  in-place expansion `#so-feature-<id>-toggle`, labelled values, scope install/story/chat, judge rows read-only in chat scope, filter
+  `#so-feature-filter`): props API ready for Studio reuse. Each row names its model and what it writes (`FEATURE_WRITES`).
+- This chat > Settings (`ChatSettingsPage`): story choice, make-a-group, chat feature overrides, pacing shape, Read now, Author view
+  switch `#so-author-view-switch`.
+- Harvest wave settings (master 435a614b): skip ahead, threads put off (+ out of prompt), chunked compaction = feature rows;
+  `worldInfo.lorePins` on World & lore and the prompt trials (`memory.historyNotes`, `memory.outwardNarration`, `talk.swipeContrast`,
+  section `#so-prompt-trials`) on Authoring, both Author view only; search entries for each. `extraction.readLayout` and
+  `extraction.promiseAddressee` have no control by design. Sprite motion (cc86db08): `sprites.effects` segmented
+  `#so-sprite-effects` with a This device chip on Images & stage.
+- Selector changes (consumers updated: harness, scenarios, journeys, stories, tests, docs): `#so-workspace-page-defaults|connections|interface`
+  -> `features|models|display` (+ judge/images/world/authoring/diagnostics); `#so-area-*` removed; `.so-feature-card` ->
+  `[data-so=feature-row]`; `#so-feature-search` -> `#so-settings-search` / `#so-feature-filter`; `#so-device-<n>` -> `#so-device-<slug>`;
+  context buttons `#so-workspace-context-story|orchestrator`; `#so-inline-level` is a radiogroup; `#so-diagnostics`; `judgeIntent`
+  takes a control, `JUDGE_AREA_CONTROL` and `connectionsIntent` (-> `modelsIntent`) gone.
+- Guards: raw buttons 396 -> 367 (`test/findings/rawButtons.json`); ownership, errorCopy and codeHealth lists follow the moved code
+  (GroupHeader, SETTINGS_ADVANCED_LABEL, deviceSettingValue removed as dead).
+- Live, lane 30 no-model, worktree `dist/` routed into the lane browser (nothing staged): desktop 1920x1080 and 390x844, dark + light,
+  every Settings page, search, This chat > Settings; screenshots and driver in `C:\dev\so-lanes\ui-review\p2-settings\`.
+  `assert-player-clean` ok (tabs Play, Settings, 0 findings); chat settings 29 rows, 0 judge switches; translucent bg + blur(26px),
+  frame 1200 (390 on phone), no horizontal scroll; phone home list with 10 entries, one back per page. 0 model calls, cleanup leaked 0,
+  library 0, theme kept; lane stopped. The lane's install had extraction on (calls blocked). Shots predate the harvest/sprite-motion
+  merges; `so-workspace-check.mts` was not run live.
+- Bundle: main `dist/index.js` 1,295,296 B (budget 1,300,000).
+- Gates on final tree `2a8c9dc3` (master cc86db08 merged): `npm run gates` (no `--resume`): build, typecheck, typecheck:test, test
+  (11,013 passed, 1 skipped), test:debug, test:replay, debug:typecheck, test:release, lint, test-storybook:ci (1,108/1,108) green;
+  test:plugin red on one timing test in the untouched judge plugin (`F-B1c-2 control`, 3 !== 2). `npm run gates -- --resume` reran
+  test:plugin alone: green. Earlier full runs on earlier trees: one PosesList colour-contrast play and `switchAttribution` /
+  `laneLoadAndStops` timeouts under load, each green on rerun; real reds (stories on the new pages, guide image, D4 marker) fixed.
+- Deviations: the This chat features page is labelled "Settings" (same word as the context); chapter budget lives on Authoring; judge
+  uses have one home (Judge page), read-only in chat scope.
+- Owner answers 2026-10-30: read-layout and promise-addressee settings stay off until the W2 measurement; the phone sheet floor is
+  lowered to the tab row (Player agent); Here now faction standing stays off.
+- Open: This chat page "Settings" vs the Settings context naming; whether the route icon should reopen the last page.
