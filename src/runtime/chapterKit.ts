@@ -142,8 +142,10 @@ export async function recall(port: ChapterPort, chat: readonly unknown[], type: 
   const candidates = shown(memory.entries);
   if (!candidates.length) return 0;
   const run = beginRun(host.deps.ownership);
-  const semantic = await recallBand(host.deps.hosts.vectors, text, candidates);
+  const bandKey = JSON.stringify([story.id, host.deps.hosts.vectors.source, text, candidates.map((entry) => [entry.id, entry.text])]);
+  const semantic = port.recallBand?.key === bandKey ? port.recallBand.band : await recallBand(host.deps.hosts.vectors, text, candidates);
   if (!run.stillOwns()) return 0;
+  port.recallBand = { key: bandKey, band: semantic };
   const live = host.memory();
   const context: ScoreContext = {
     boundary: state.boundary, lastMessageId: state.lastMessageId, turnText: text, turnEntities: recallMentions(live.entries, text),
@@ -279,12 +281,12 @@ export interface StorySoFarInput {
   chapterTitle: string | null;
   threads: readonly ArcEntry[];
   settings: ChapterSettings;
-  resting?: Resting;
+  resting: Resting;
 }
 
 export function storySoFarText(input: StorySoFarInput): string {
   const { settings } = input;
-  const resting = input.resting ?? ((text: string) => text);
+  const { resting } = input;
   const parts: string[] = [];
   const chronicle = input.records.length ? resting(renderChronicle(input.records, input.eras, settings.chronicleTokens).text) : "";
   if (chronicle) parts.push(`[The story so far]\n${chronicle}`);
