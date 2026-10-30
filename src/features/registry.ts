@@ -145,7 +145,8 @@ const CORE_FEATURES: readonly Feature[] = [
   {
     id: "inline-notes", name: "Notes under messages", area: "play", audience: "player",
     oneLine: "Small icons under replies: where the story moved, what it remembered, which lore it used.",
-    what: "Each reply can carry a row of icons. Click one to read what happened behind that reply. The legend button explains each icon. Story and Behind the scenes never show spoilers.",
+    what: "A reply can carry one quiet line saying what happened behind it, such as \"The story moved on · Remembered 2 things\". "
+      + "Click the line to read the notes. Story and Behind the scenes never show spoilers.",
     where: settingsAt("#so-inline-level", "Interface › Notes under messages"),
     settings: ["display.inline"], doc: "player/drawer-and-hud.md", status: "shipped", needs: ["story"],
     isOn: (settings) => settings.display.inline.level > 0,

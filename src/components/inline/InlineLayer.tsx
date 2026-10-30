@@ -2,7 +2,6 @@ import { useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { inlineMessageIds, visibleInlineItems, type InlineView } from "@runtime/inlineTimeline";
 import type { InlinePresence } from "@runtime/presence";
-import type { InlineCategory } from "@runtime/settingsModel";
 import { InlineStrip } from "./InlineStrip";
 import { ChapterCard } from "./ChapterCard";
 import { RollChips } from "./RollChips";
@@ -29,15 +28,18 @@ export const InlineLayer = ({ view, hosts, actions, presence = NO_PRESENCE }: In
   const ids = useMemo(() => [...new Set([...stripIds, ...presenceIds(presence)])].sort((left, right) => left - right), [stripIds, presence]);
   const key = ids.join(",");
   const [rebuilds, setRebuilds] = useState(0);
-  const [expanded, setExpanded] = useState<Record<number, InlineCategory | null>>({});
+  const [expansion, setExpansion] = useState<{ level: number; open: Record<number, boolean> }>({ level: view.level, open: {} });
+  const expanded = expansion.level === view.level ? expansion.open : {};
   useEffect(() => hosts.onRebuild(() => setRebuilds((count) => count + 1)), [hosts]);
   const [targets, setTargets] = useState<ReadonlyMap<number, HTMLElement>>(() => new Map());
   useLayoutEffect(() => {
     setTargets(hosts.sync(key ? key.split(",").map(Number) : []));
   }, [hosts, key, rebuilds]);
-  const toggle = (messageId: number, category: InlineCategory) =>
-    setExpanded((current) => ({ ...current, [messageId]: current[messageId] === category ? null : category }));
-  const lastStrip = stripIds[stripIds.length - 1];
+  const toggle = (messageId: number) =>
+    setExpansion((current) => {
+      const open = current.level === view.level ? current.open : {};
+      return { level: view.level, open: { ...open, [messageId]: !open[messageId] } };
+    });
   return (
     <>
       {ids.map((messageId) => {
@@ -50,10 +52,9 @@ export const InlineLayer = ({ view, hosts, actions, presence = NO_PRESENCE }: In
               messageId={messageId}
               items={visibleInlineItems(view, messageId)}
               level={view.level}
-              expanded={expanded[messageId] ?? null}
-              onToggle={(category) => toggle(messageId, category)}
+              expanded={expanded[messageId] === true}
+              onToggle={() => toggle(messageId)}
               actions={actions}
-              legend={messageId === lastStrip}
             />
             <RollChips messageId={messageId} rolls={presence.rolls[messageId] ?? []} />
           </>,
