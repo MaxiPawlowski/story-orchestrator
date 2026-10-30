@@ -2,14 +2,14 @@ import { spawn } from 'node:child_process';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-const [onDump, offDump, frozenPath, outDir] = process.argv.slice(2);
+const [onDump, offDump, frozenPath, outDir, prefix = 'so-v29-c2'] = process.argv.slice(2);
 const read = (path) => { const raw = JSON.parse(readFileSync(path, 'utf8')); return raw.value ?? raw; };
 const frozen = JSON.parse(readFileSync(frozenPath, 'utf8'));
 const cues = frozen.opportunities.filter((o) => o.cue);
 const arms = { on: read(onDump), off: read(offDump) };
 const items = [];
 for (const arm of ['on', 'off']) for (const o of cues) {
-  const row = arms[arm][`so-v29-c2${arm}-${o.id}`];
+  const row = arms[arm][`${prefix}${arm}-${o.id}`];
   if (!row) throw new Error(`missing ${arm} ${o.id}`);
   items.push({ arm, id: o.id, member: o.member, cue: o.cue, mes: row.mes, offered: row.offered ?? null });
 }

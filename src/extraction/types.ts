@@ -48,6 +48,14 @@ export interface SharedReadWindow {
   ooc?: number[];
 }
 
+export const READ_LAYOUTS = ["stable-first"] as const;
+export type ReadLayout = (typeof READ_LAYOUTS)[number];
+
+export interface ReadPromptOptions {
+  readLayout?: ReadLayout;
+  promiseAddressee?: boolean;
+}
+
 export interface SharedReadContract {
   storyTitle: string;
   activeCheckpointId: string;
@@ -57,6 +65,9 @@ export interface SharedReadContract {
   openArcs?: string[];
   openPromises?: OpenPromiseRef[] | null;
   promiseSection?: string;
+  promiseOpen?: string;
+  promiseAddressee?: boolean;
+  layout?: ReadLayout;
   witnessSection?: string;
   hearsay?: boolean;
   epistemicLedgerCapable?: boolean;

@@ -9,7 +9,7 @@ import { compactableEnd, readCoverageEnd } from "@extraction/readCursor";
 import { reconciliationKeySet, reconciliationTargets, type ReconciliationPlan } from "@extraction/reconcile";
 import { deriveScope } from "@extraction/scope";
 import type { ScopeSourceContext } from "@extraction/scopeSources";
-import { runSharedRead, sharedReadWindow } from "@extraction/sharedReadEntry";
+import { readPromptOptions, runSharedRead, sharedReadWindow } from "@extraction/sharedReadEntry";
 import { createTokenMeter } from "@extraction/tokenMeter";
 import type {
   ExtraGateSource, ModelCall, ParsedDelta, ParsedFact, ReadOwnership, RequestBudget, PassRole, SchedulerJob,
@@ -350,6 +350,7 @@ export class ExtractionCoordinator {
       witnessPresent: this.deps.witness?.present() ?? null,
       epistemicLedgerCapable: memory.capable,
       entities: memory.getEntities(),
+      ...readPromptOptions(this.state.settings),
       model: this.deps.model,
       ask: { role: "read", pass: "read", budget: this.budget(), signal: read.signal, debugResponse: debugResponse ?? null },
     }).catch((error: unknown) => { if (isLapse(error)) return null; throw error; }).finally(() => read.release());

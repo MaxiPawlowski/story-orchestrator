@@ -42,6 +42,18 @@ export const SETTING_COPY = {
       + "Left on \"Same as memory model\", it uses the memory model; the wizard's task uses opencode gpt-6.1-sol when the harness plugin offers it, else a DeepSeek profile when there is one."
       + " Claude Code claude-sonnet-5-5 is the other wizard route.",
   ),
+  "extraction.readLayout": copy(
+    "Story read line order",
+    "A measurement arm: the story read lists its fixed instructions first and the lines that change from read to read (the current scene, what happened, "
+      + "open threads and promises, known names, the questions) after them, so a local server can reuse the start of each read. The same lines in a new order. "
+      + "Off, today's order, until a live test on the GPU shows the read scores within 0.02 of today's: an exception to every feature being on by default. "
+      + "No control yet: a measurement run switches it on.",
+  ),
+  "extraction.promiseAddressee": copy(
+    "Name who a promise to \"you\" is for",
+    "A measurement arm: adds one line to each story read, saying that a promise said to \"you\" right after a character spoke is for that character. "
+      + "Off until a GPU run shows it helps: an exception to every feature being on by default. No control yet: a measurement run switches it on.",
+  ),
   "extraction.routes.*.route.options.effort": copy(
     "Thinking for this task",
     "How long the model may think on this task. Default sends nothing extra; higher can be more careful and costs time and tokens.",

@@ -187,7 +187,7 @@ const CORE_FEATURES: readonly Feature[] = [
       + "met. What it remembers rides the prompt, so characters keep track of what happened.",
     where: settingsAt("#so-extraction-profile", "Memory › Memory model"),
     settings: [
-      "extraction.enabled", "extraction.profileId", "extraction.fallbackProfileId", "extraction.cadence", "extraction.stabilityLag",
+      "extraction.enabled", "extraction.profileId", "extraction.fallbackProfileId", "extraction.cadence", "extraction.stabilityLag", "extraction.readLayout",
       "memory.enabled", "memory.injectionDepths", "memory.tierBudgets", "memory.tierTokenBudgets", "memory.scoreWeights",
     ],
     doc: "player/memory.md", status: "shipped", needs: ["memory-profile"],

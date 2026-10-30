@@ -5,6 +5,7 @@ import { TALK_CHAIN_MAX_CAP, TALK_CHAIN_MAX_DEFAULT } from "@engine/index";
 import { defaultJudgeSettings, sanitizeJudgeSettings, type JudgeSettings } from "@judge/settings";
 import { sanitizePassProfiles, sanitizeRoleRoutes } from "./passProfiles";
 import { isReplyEffort, sanitizeReasoningBudget } from "@utils/reasoningEffort";
+import { sanitizeReadPrompt } from "@extraction/sharedReadEntry";
 import type { CopilotRuntimeSettings, ExtractionRuntimeSettings, MemoryRuntimeSettings, PacingSettings, StagecraftSettings } from "./types";
 import { isRecord } from "@utils/guards";
 import { DEFAULT_MEANWHILE_ACCEPT_MODE, isMeanwhileAcceptMode } from "./agendaProposals";
@@ -295,7 +296,8 @@ export const sanitizeGlobalSettings = (value: unknown): GlobalSettings => {
   const defaults = defaultGlobalSettings();
   if (!isRecord(value)) return defaults;
   const {
-    profiles: rawProfiles, routes: rawRoutes, reasoningBudget: rawBudget, fallbackProfileId: rawFallback, replyEffort, reconciliationMultiplier: _fixedReconciliation, ...extraction
+    profiles: rawProfiles, routes: rawRoutes, reasoningBudget: rawBudget, fallbackProfileId: rawFallback, replyEffort, reconciliationMultiplier: _fixedReconciliation,
+    readLayout, promiseAddressee, ...extraction
   }: Record<string, unknown> =
     isRecord(value.extraction) ? value.extraction : {};
   const fallbackProfileId = typeof rawFallback === "string" ? rawFallback.trim() : "";
@@ -321,6 +323,7 @@ export const sanitizeGlobalSettings = (value: unknown): GlobalSettings => {
       ...(reasoningBudget ? { reasoningBudget } : {}),
       ...(fallbackProfileId ? { fallbackProfileId } : {}),
       ...(isReplyEffort(replyEffort) ? { replyEffort } : {}),
+      ...sanitizeReadPrompt({ readLayout, promiseAddressee }),
     },
     pacing: { hintEnabled: pacing.hintEnabled !== false },
     display: {
