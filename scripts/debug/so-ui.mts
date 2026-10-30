@@ -245,8 +245,8 @@ export async function saveStudioDraft(page, choice = null, options: { title?: st
   // from two steps earlier and reported "expected invalidating, got compatible" while the product
   // had classified it correctly (2026-09-20).
   const lastUpdateAt = await evaluateInST(page, () => globalThis.storyOrchestratorRuntime?.getLastStoryUpdate?.()?.at ?? null).catch(() => null);
-  const save = modal.locator('button', { hasText: /^Save$/ });
-  if (!(await save.count())) throw new Error('Studio Save button not found.');
+  const save = modal.locator('#so-studio-save');
+  if (!(await save.count())) throw new Error('Studio Save button (#so-studio-save) not found.');
   await save.first().click();
   if (choice) {
     const popup = page.locator('dialog[open]:not(#so-studio-modal)');
@@ -749,7 +749,7 @@ export async function getStudioState(page) {
     if (!container) return { open: false };
     const title = (container.querySelector('input[aria-label="Story title"]') as HTMLInputElement | null)?.value ?? '';
     const activeTab = container.querySelector('[role="tab"][aria-selected="true"]')?.textContent?.trim() ?? '';
-    const footer = container.querySelector('.st-panel-header:last-child')?.textContent ?? '';
+    const footer = container.querySelector('.so-studio-tools')?.textContent ?? '';
     const errorsBadge = Array.from(container.querySelectorAll('span')).find((s) => /\d+ errors/.test(s.textContent ?? ''))?.textContent?.trim() ?? null;
     const issuesBadge = Array.from(container.querySelectorAll('span')).find((s) => /\d+ issues/.test(s.textContent ?? ''))?.textContent?.trim() ?? null;
     return { open: true, title, activeTab, footer: footer.trim().slice(0, 120), errorsBadge, issuesBadge };
@@ -774,16 +774,30 @@ export async function getStudioDiagnostics(page) {
   });
 }
 
+export const STUDIO_TAB_ALIASES: Record<string, string> = {
+  story: 'story', graph: 'graph', checkpoints: 'checkpoints', transitions: 'transitions', chapters: 'chapters', qualities: 'qualities', game: 'game',
+  'story rules': 'rules', rules: 'rules', roster: 'roster', characters: 'roster', sprites: 'sprites', world: 'world', presentation: 'presentation',
+  'story features': 'features', features: 'features', wizard: 'copilot', assistant: 'copilot', diagnostics: 'diagnostics', validation: 'diagnostics', flow: 'graph',
+};
+
+export const studioTabTarget = (label: string): { tab: string } | { text: string } => {
+  const tab = STUDIO_TAB_ALIASES[label.trim().toLowerCase()];
+  return tab ? { tab } : { text: label.trim() };
+};
+
 export async function switchStudioTab(page, label) {
   const modal = page.locator('#so-studio-modal');
   if (!(await modal.count())) throw new Error('Studio modal is not open.');
-  const task = { Story: 'Story setup', Graph: 'Flow', Checkpoints: 'Flow', Transitions: 'Flow', Chapters: 'Flow',
-    Qualities: 'State and rules', Game: 'State and rules', 'Story rules': 'State and rules', Roster: 'Characters', Sprites: 'Characters',
-    World: 'World', Presentation: 'Presentation', 'Story features': 'Story features', Wizard: 'Assistant', Diagnostics: 'Validation' }[label];
-  if (task) await modal.locator('nav[aria-label="Studio tasks"]').getByRole('button', { name: task, exact: true }).click();
-  const tab = modal.locator('[role="tab"]', { hasText: label });
+  const target = studioTabTarget(label);
+  const tab = 'tab' in target ? modal.locator(`#so-studio-tab-${target.tab}`) : modal.locator('[role="tab"][data-member]', { hasText: target.text });
   if (!(await tab.count())) throw new Error(`Studio tab "${label}" not found.`);
-  await tab.first().click();
+  if (await tab.first().isVisible()) {
+    await tab.first().click();
+  } else {
+    const select = modal.locator('#so-studio-section');
+    const value = 'tab' in target ? target.tab : `roster:${await tab.first().getAttribute('data-member')}`;
+    await select.selectOption(value);
+  }
   return { tab: label };
 }
 
@@ -1465,7 +1479,7 @@ open-drawer: open the Story Orchestrator top-bar drawer.
 open-settings: expand the settings panel.
 open-studio: open Checkpoint Studio modal.
 studio: print Checkpoint Studio modal state (title, active tab, error/issue badges).
-studio-tab <Graph|Story|Qualities|Checkpoints|Transitions|Roster|Diagnostics>: switch the studio tab.
+studio-tab <Graph|Story|Qualities|Checkpoints|Transitions|Roster|Diagnostics|...|character name>: switch the studio page (sidebar tab, or the section select on a narrow screen).
 studio-save [keep|restart|cancel]: click Save and answer the invalidation popup if one appears.
 drawer-tab <Health|State|Memory|Prompt|Proposals|Activity|Pipeline>: switch the Author console section (old Overview/Blackboard/Payload/Scheduler/Review are aliases).
 pipeline: print the pipeline state (snapshot + status line + HUD chip).

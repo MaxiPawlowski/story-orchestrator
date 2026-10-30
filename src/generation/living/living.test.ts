@@ -330,6 +330,25 @@ describe("runDirector", () => {
     expect(outcome.status === "ok" && outcome.anchorId).toBe("liv_1");
   });
 
+  it("repairs JSON syntax locally before spending a retry, and still retries an unrepairable answer", async () => {
+    const run = { story, raw, frontierId: "liv_open", values: {}, latched: {}, sealsOn: true, input, guard: { playerNames: [], restatesSecret: () => false }, critic: false };
+    const broken = `Here is the anchor:\n\`\`\`json\n${good.slice(0, -1)},\n\`\`\`\nDone {ok}`;
+    const repairable = scripted([broken]);
+    const fixed = await runDirector(run, repairable, { role: "authoring", pass: "living" });
+    expect(fixed.status).toBe("ok");
+    expect(repairable.prompts).toHaveLength(1);
+    expect(fixed.status === "ok" && fixed.draft.repaired?.[0]).toMatch(/^JSON syntax repaired locally: /);
+    const truncated = scripted([good.slice(0, 40), good]);
+    const retried = await runDirector(run, truncated, { role: "authoring", pass: "living" });
+    expect(retried.status).toBe("ok");
+    expect(truncated.prompts).toHaveLength(2);
+    expect(truncated.prompts[1]).toContain("the answer was not one JSON object");
+    const guarded = scripted([`${good.slice(0, -1)},`, good]);
+    const refusedByGuard = await runDirector({ ...run, guard: { playerNames: [], restatesSecret: (value: string) => value.includes("harbourmaster") } }, guarded, { role: "authoring", pass: "living" });
+    expect(guarded.prompts).toHaveLength(2);
+    expect(refusedByGuard.status).toBe("refused");
+  });
+
   it("returns refused after the attempts, and capped without a model call when the chapter cap is reached", async () => {
     const model = scripted(["{}", "{}"]);
     const refused = await runDirector({ story, raw, frontierId: "liv_open", values: {}, latched: {}, sealsOn: true, input, guard: { playerNames: [], restatesSecret: () => false }, critic: false },

@@ -702,3 +702,15 @@ Date 2026-10-27, branch `v3.0-talk-fixes-c` (worktree `C:\dev\so-talkfixc`; `C:\
   2. Harness: 6 attach timeouts deleted the lane's `session.json` (restored before the next call; every beat checked at 5 player lines in both arms); one end-of-beat probe ran on a page without the runtime and was rebuilt from the chat file.
 - Cleanup: library restored; `so-run-header diff --served-identity --owned <11 chats>` differs only in the owned chats and the open chat/group/story (baseline had none open). Lane 34 stopped, left seeded at campaign `6d82dea`. Controller left running as found.
 - Evidence (private): `so-evidence.mts archive --label camps2-r2` + the rating dir and the 11 chats under `evidence/phase-c/camps2-r2/lane-34/camps2r2/` in so-sessions (`npm run sessions:archive`, pushed `6bc85d6a`). Working copy `C:/dev/so-lanes/34/debug/camps2r2/`.
+
+### Live re-run on master, keep-last hook (GPU queue G1, 2026-10-30)
+
+Master `1e3a938d` as staged (served `dist/index.js` sha256 `7793a8b80ccc`, 1,232,693 B); lane 45 at campaign pin `c5723c5`, local controller on the owner config (Artemis 31B v1.1, thinking on, 32,768); images and sprites off. Instrument and probe of §Live recheck, defects 4 and 5 (same `instrument.js`/`awaits.js`/`probe.js`, 45 s quiet).
+
+- 8 fresh opens, one per hook group: 2 lines before the first send in 8 of 8.
+- Trim with a dropped question (the row's first owed case): 3 hooks asked twice, each posted with one question, the last kept, 5-10 words removed, no other sentence lost, `extra.reasoning`, `swipes[swipe_id]` and the saved chat equal, next extraction read holds the trimmed hook and none of the dropped text: 3 of 3. The `afterSpeak` check (`awaitsPlayer`) read the **trimmed** text in 3 of 3 (187-346 ms after the reply arrived) and the generated text in the 4 one-question hooks (untouched, 4 of 4). Non-asking replies untouched 9 of 9.
+- Empty first hook (the row's second owed case): 1 of 8 opens came back thought-only; its repair swipe was thought-only too (second empty kept, as designed), so a repair swipe asking twice was **not exercised** here. It stands on the 2026-10-27 recheck (2 of 2 trimmed, `b170f25a`).
+- Harness drift: `so-ui.mts player-setup-choose keep` now fails ("no start-setup pane is open (#so-player-setup)") in 8 of 8; the opens and hooks ran regardless (identity kept by the lane's default persona).
+- Cleanup: `so-run-header diff --served-identity --owned <8 chats>` differs only in the page's open chat/group/story and the 8 owned chats in `inventory.groupChats`; no settings, library, lorebook or wizard drift. Lane 45 left up for the next G1 row.
+- Evidence (counts only): `C:/dev/so-lanes/45/debug/keeplast/g1/` (`r*-open.summary.json`, `r*-open.awaits.json`, `owned.txt`, `header-diff.log`); hook texts and scripts (private) `C:/dev/so-lanes/reviews/keeplast-g1-2026-10-31/`.
+- Verdict: **trim + `afterSpeak` green on master 3 of 3**; empty-hook repair swipe asking twice unexercised in this run (green 2 of 2 on 2026-10-27).

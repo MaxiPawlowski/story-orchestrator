@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { within, userEvent, expect } from "@storybook/test";
+import { fn, within, userEvent, expect, waitFor } from "@storybook/test";
 import RosterEditor from "./RosterEditor";
 import { useDraftStore } from "../draft";
 import { sampleStory, seedDraft, seedEmptyDraft } from "../stories/fixtures";
@@ -7,7 +7,7 @@ import { sampleStory, seedDraft, seedEmptyDraft } from "../stories/fixtures";
 const meta: Meta<typeof RosterEditor> = {
   title: "Studio/RosterEditor",
   component: RosterEditor,
-  args: { memberNames: ["Arin", "Ponticius", "Luke"] },
+  args: { memberNames: ["Arin", "Ponticius", "Luke"], onNavigate: fn() },
   beforeEach: () => {
     seedDraft(sampleStory());
   },
@@ -18,6 +18,7 @@ export default meta;
 type Story = StoryObj<typeof RosterEditor>;
 
 export const Populated: Story = {
+  args: { memberId: "guide" },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await expect(canvas.getByLabelText("Member 1 id")).toHaveValue("guide");
@@ -32,13 +33,14 @@ export const EmptyThenAdd: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await expect(canvas.getByText(/No cast yet/)).toBeInTheDocument();
-    await userEvent.click(canvas.getByRole("button", { name: "+ Member" }));
+    await userEvent.click(canvas.getByRole("button", { name: "Member" }));
     await userEvent.type(canvas.getByLabelText("Member 1 name"), "Arin");
     await expect(useDraftStore.getState().draft.roster).toEqual([{ id: "member", name: "Arin" }]);
   },
 };
 
 export const AuthorsADriveAndNarratorView: Story = {
+  args: { memberId: "guide" },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await userEvent.type(canvas.getByLabelText("Member 1 drive"), "find the lost map");
@@ -51,6 +53,7 @@ export const AuthorsADriveAndNarratorView: Story = {
 };
 
 export const RemoveMember: Story = {
+  args: { memberId: "guide" },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await userEvent.click(canvas.getByRole("button", { name: "Remove member 1" }));
@@ -59,6 +62,7 @@ export const RemoveMember: Story = {
 };
 
 export const AuthorsARole: Story = {
+  args: { memberId: "guide" },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await userEvent.type(canvas.getByLabelText("Member 1 role"), "keeper of the ruin maps");
@@ -69,6 +73,7 @@ export const AuthorsARole: Story = {
 };
 
 export const AuthorsAliases: Story = {
+  args: { memberId: "guide" },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const field = canvas.getByLabelText("Member 1 aliases");
@@ -84,6 +89,7 @@ export const AuthorsAliases: Story = {
 };
 
 export const BindsACardFieldToAQuality: Story = {
+  args: { memberId: "guide" },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await userEvent.click(canvas.getAllByRole("button", { name: "+ Card field" })[0]);
@@ -109,9 +115,31 @@ export const RolesHintOnlyForDirectedStories: Story = {
     seedDraft({ ...story, checkpoints: story.checkpoints.map((checkpoint, index) => (index === 0 ? { ...checkpoint, talk_control: { lead: "guide" } } : checkpoint)) });
   },
   play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
     await expect(canvasElement.querySelector("[data-so=roster-roles-hint]")?.textContent).toContain("Missing: The Guide");
-    await userEvent.type(canvas.getByLabelText("Member 1 role"), "keeper of the ruin maps");
-    await expect(canvasElement.querySelector("[data-so=roster-roles-hint]")).toBeNull();
+    useDraftStore.getState().mutate((draft) => ({ ...draft, roster: draft.roster.map((member) => ({ ...member, role: "keeper of the ruin maps" })) }));
+    await waitFor(() => expect(canvasElement.querySelector("[data-so=roster-roles-hint]")).toBeNull());
+  },
+};
+
+export const CharacterPageListsMotivesAndOpensTheCheckpoint: Story = {
+  args: { memberId: "guide" },
+  beforeEach: () => {
+    const story = sampleStory();
+    seedDraft({ ...story, checkpoints: story.checkpoints.map((checkpoint, index) => (index === 1 ? { ...checkpoint, motives: { guide: "keep the party off the east stair" } } : checkpoint)) });
+  },
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText("keep the party off the east stair")).toBeInTheDocument();
+    await userEvent.click(canvasElement.querySelector("[data-so=motive-link]") as HTMLElement);
+    await expect(args.onNavigate).toHaveBeenCalledWith({ tab: "checkpoints" });
+    await expect(useDraftStore.getState().selectedCheckpointId).toBe(useDraftStore.getState().draft.checkpoints[1].id);
+  },
+};
+
+export const OverviewOpensACharacter: Story = {
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getAllByRole("button", { name: "Open" })[0]);
+    await expect(args.onNavigate).toHaveBeenCalledWith({ tab: "roster", member: "guide" });
   },
 };

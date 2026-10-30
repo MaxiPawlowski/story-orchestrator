@@ -64,8 +64,9 @@ const RelationshipRow = ({ member, relationship }: { member: RosterMember; relat
   );
 };
 
-const RelationshipLabelsEditor: React.FC = () => {
-  const roster = useDraftStore((state) => state.draft.roster);
+const RelationshipLabelsEditor: React.FC<{ memberId?: string }> = ({ memberId }) => {
+  const cast = useDraftStore((state) => state.draft.roster);
+  const roster = memberId ? cast.filter((member) => member.id === memberId) : cast;
   const rows = roster.flatMap((member) => (member.relationships ?? []).map((relationship) => ({ member, relationship })));
   if (!rows.length) return null;
   return (

@@ -27,7 +27,6 @@ export const Seeded: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement.ownerDocument.body);
     await expect(await canvas.findByLabelText("Story title")).toHaveValue("The Ruins Heist");
-    await userEvent.click(await canvas.findByRole("button", { name: "State and rules" }));
     await userEvent.click(await canvas.findByRole("tab", { name: "Qualities" }));
     await expect(await canvas.findByText("trust")).toBeInTheDocument();
   },
@@ -74,7 +73,6 @@ export const WizardTabEnabled: Story = {
   args: { copilotEnabled: true },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement.ownerDocument.body);
-    await userEvent.click(await canvas.findByRole("button", { name: "Assistant" }));
     await userEvent.click(await canvas.findByRole("tab", { name: "Wizard" }));
     await expect(await canvas.findByLabelText("Wizard unavailable")).toBeInTheDocument();
   },
@@ -188,7 +186,7 @@ const tabTo = async (doc: Document, matches: (element: Element | null) => boolea
   throw new Error(`focus never reached the control; it stopped on ${doc.activeElement?.outerHTML.slice(0, 120)}`);
 };
 
-const isButton = (name: string) => (element: Element | null) => element instanceof HTMLButtonElement && element.textContent?.trim() === name;
+const isButton = (name: string) => (element: Element | null) => element instanceof HTMLButtonElement && (element.textContent?.trim() === name || element.getAttribute("aria-label") === name);
 
 export const KeyboardOnlyAuthoring: Story = {
   render: () => <KeyboardHost />,
@@ -210,19 +208,23 @@ export const KeyboardOnlyAuthoring: Story = {
       // The graph tab's canvas is walked with real key presses live (so-studio-keyboard.mts); user-event's
       // simulated Tab does not walk it the way a browser does, so this pass moves to the Story tab the
       // way the tablist is meant to be used (APG: one tab stop, arrows move).
-      await step("open Story setup from the keyboard", async () => {
-        await tabTo(doc, isButton("Story setup"));
-        await userEvent.keyboard("{Enter}");
+      await step("open Story from the sidebar with the keyboard", async () => {
+        await tabTo(doc, (element) => element?.getAttribute("role") === "tab");
+        await userEvent.keyboard("{Home}");
         await expect(await body.findByRole("tab", { name: "Story" })).toHaveAttribute("aria-selected", "true");
-        await expect(doc.activeElement?.textContent).toBe("Story setup");
+        await expect(doc.activeElement?.textContent).toBe("Story");
       });
       await step("save with Enter on Save", async () => {
         await tabTo(doc, isButton("Save"));
         await userEvent.keyboard("{Enter}");
         await expect(await body.findByText(/Saved .Keyboard Heist. to the library\./)).toBeInTheDocument();
       });
-      await step("export with Enter on Export JSON", async () => {
-        await tabTo(doc, isButton("Export JSON"));
+      await step("export from the overflow menu with the keyboard", async () => {
+        await tabTo(doc, isButton("More studio actions"));
+        await userEvent.keyboard("{Enter}");
+        await waitFor(() => expect(doc.activeElement?.getAttribute("role")).toBe("menuitem"));
+        for (let hop = 0; hop < 6 && doc.activeElement?.textContent?.trim() !== "Export JSON"; hop += 1) await userEvent.keyboard("{ArrowDown}");
+        await expect(doc.activeElement?.textContent?.trim()).toBe("Export JSON");
         await userEvent.keyboard("{Enter}");
         await waitFor(() => expect(created).toHaveLength(1));
         await expect(created[0]).toContain("Keyboard Heist");
@@ -249,12 +251,11 @@ export const WizardKeepsItsModeAcrossTabs: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement.ownerDocument.body);
-    await userEvent.click(await canvas.findByRole("button", { name: "Assistant" }));
     await userEvent.click(await canvas.findByRole("tab", { name: "Wizard" }));
     await userEvent.click(await canvas.findByRole("button", { name: "Agent" }));
     await expect(await canvas.findByLabelText("What should the agent build")).toBeInTheDocument();
-    await userEvent.click(await canvas.findByRole("button", { name: "Flow" }));
-    await userEvent.click(await canvas.findByRole("button", { name: "Assistant" }));
+    await userEvent.click(await canvas.findByRole("tab", { name: "Graph" }));
+    await userEvent.click(await canvas.findByRole("tab", { name: "Wizard" }));
     await expect(await canvas.findByRole("button", { name: "Agent" })).toHaveAttribute("aria-pressed", "true");
     await expect(await canvas.findByLabelText("What should the agent build")).toBeInTheDocument();
   },
@@ -269,6 +270,26 @@ const topmostAt = (element: Element) => {
   return element.ownerDocument.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2);
 };
 
+export const SidebarGoesToEachCharacterAndValidationGoesTo: Story = {
+  play: async ({ canvasElement }) => {
+    const doc = canvasElement.ownerDocument;
+    const body = within(doc.body);
+    const roster = await body.findByRole("tab", { name: "Roster" });
+    const member = required(doc.querySelector<HTMLButtonElement>("#so-studio-modal [role=tab][data-member]"), "a character tab");
+    await userEvent.click(member);
+    await expect(member).toHaveAttribute("aria-selected", "true");
+    await expect(await body.findByLabelText(/Member \d+ role/)).toBeInTheDocument();
+    await userEvent.click(roster);
+    await expect(await body.findByRole("list", { name: "Roster members" })).toBeInTheDocument();
+    await userEvent.click(await body.findByRole("tab", { name: "Diagnostics" }));
+    const goTo = doc.querySelector<HTMLButtonElement>('[data-so="diagnostic-goto"]');
+    if (goTo) {
+      await userEvent.click(goTo);
+      await waitFor(() => expect(body.getByRole("tab", { name: "Diagnostics" })).toHaveAttribute("aria-selected", "false"));
+    }
+  },
+};
+
 export const GuideOpensAboveTheStudioFromEveryTab: Story = {
   play: async ({ canvasElement, step }) => {
     const doc = canvasElement.ownerDocument;
@@ -278,13 +299,9 @@ export const GuideOpensAboveTheStudioFromEveryTab: Story = {
       const topic = required(STUDIO_TAB_GUIDE[tab]?.[0], `${tab} guide topic`);
       const byPointer = index % 2 === 1;
       await step(`${label}: open ${topic} in the guide above the Studio, close it by ${byPointer ? "pointer" : "keyboard"}`, async () => {
-        const task = tab === "story" ? "Story setup" : tab === "qualities" || tab === "game" ? "State and rules" : tab === "roster" ? "Characters" : "Flow";
-        await userEvent.click(await body.findByRole("button", { name: task }));
         await userEvent.click(await body.findByRole("tab", { name: label }));
-        const disclosure = required(doc.querySelector<HTMLDetailsElement>("#so-studio-guide"), "guide disclosure");
-        disclosure.open = true;
-        const entry = required(disclosure.querySelector<HTMLDetailsElement>(`[data-so="guide-topic"][data-topic="${topic}"]`), "guide topic");
-        entry.open = true;
+        await userEvent.click(required(doc.querySelector<HTMLButtonElement>("#so-studio-guide"), "guide button"));
+        const entry = required(doc.querySelector<HTMLElement>(`[data-so="guide-topic"][data-topic="${topic}"]`), "guide topic");
         await userEvent.click(await within(entry).findByRole("button", { name: `${GUIDE_COPY.openInGuide}: ${GUIDE_TOPICS[topic].title}` }));
         const reader = await body.findByRole("dialog", { name: GUIDE_COPY.title });
         await expect(reader).toHaveAttribute("open");

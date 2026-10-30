@@ -22,6 +22,7 @@ import StudioAsk, { type StudioAskRunner } from "./StudioAsk";
 import ProposalReview from "./ProposalReview";
 import ProvisioningCard from "./ProvisioningCard";
 import WizardQuestions from "./WizardQuestions";
+import "../mobile.css";
 
 // Grant and revoke cards share the results map with the model's proposal, which counts up from 0.
 // Addressing the derived cards by name keeps their keys stable when the other list changes under
@@ -96,23 +97,27 @@ type ProvisioningResults = Record<string | number, { ok: boolean; message: strin
 
 const WizardStepBar = ({ stage, onSelect }: { stage: CopilotStage; onSelect: (stage: CopilotStage) => void }) => {
   const currentStep = stepForStage(stage);
+  const currentIndex = WIZARD_STEPS.findIndex((entry) => entry.id === currentStep.id);
   return (
     <div className="flex flex-col gap-1">
-      <div className="flex flex-wrap items-center gap-1" role="group" aria-label="Wizard step">
-        {WIZARD_STEPS.map((entry) => (
-          <button
-            key={entry.id}
-            type="button"
-            data-so="wizard-step"
-            data-step={entry.id}
-            className={`st-tab rounded px-3 py-1 text-sm ${currentStep.id === entry.id ? "st-tab-active" : ""}`}
-            aria-pressed={currentStep.id === entry.id}
-            onClick={() => onSelect(entry.stages[0])}
-          >
-            {entry.label}
-          </button>
+      <ol className="so-wizard-stepper" aria-label="Wizard step">
+        {WIZARD_STEPS.map((entry, index) => (
+          <li key={entry.id} data-state={index < currentIndex ? "done" : index === currentIndex ? "current" : "next"}>
+            <button
+              type="button"
+              data-so="wizard-step"
+              data-step={entry.id}
+              className="so-wizard-step"
+              aria-pressed={currentStep.id === entry.id}
+              aria-current={currentStep.id === entry.id ? "step" : undefined}
+              onClick={() => onSelect(entry.stages[0])}
+            >
+              <span className="so-wizard-step-number" aria-hidden="true">{index < currentIndex ? <i className="fa-solid fa-check" /> : index + 1}</span>
+              <span>{entry.label}</span>
+            </button>
+          </li>
         ))}
-      </div>
+      </ol>
       <div className="text-[11px] st-muted">{currentStep.blurb}</div>
       <div className="text-[11px] st-muted">{STAGE_HINTS[stage]}</div>
       {/* The stage names are the machine's, not the author's: they are here for the author who wants
@@ -279,20 +284,22 @@ const stageSummary = (stageResult: ProposalResult) => (stageResult.status === "q
     : `Could not produce a valid proposal: ${stageResult.issues[0] ?? "unknown error"}`);
 
 const WizardModeSwitch = ({ mode, modes, onSelect }: { mode: WizardMode; modes: readonly WizardMode[]; onSelect: (mode: WizardMode) => void }) => (
-  <div className="flex flex-wrap items-center gap-1" role="group" aria-label="Wizard mode">
-    {modes.map((entry) => (
-      <button
-        key={entry}
-        type="button"
-        data-so="wizard-mode"
-        data-mode={entry}
-        aria-pressed={mode === entry}
-        className={`st-tab rounded px-2 py-1 text-xs ${mode === entry ? "st-tab-active" : ""}`}
-        onClick={() => onSelect(entry)}
-      >
-        {WIZARD_MODE_LABELS[entry]}
-      </button>
-    ))}
+  <div className="so-wizard-head">
+    <span className="so-wizard-head-title">Wizard</span>
+    <div className="so-segmented so-wizard-modes" role="group" aria-label="Wizard mode" data-size="sm">
+      {modes.map((entry) => (
+        <button
+          key={entry}
+          type="button"
+          data-so="wizard-mode"
+          data-mode={entry}
+          aria-pressed={mode === entry}
+          onClick={() => onSelect(entry)}
+        >
+          {WIZARD_MODE_LABELS[entry]}
+        </button>
+      ))}
+    </div>
   </div>
 );
 

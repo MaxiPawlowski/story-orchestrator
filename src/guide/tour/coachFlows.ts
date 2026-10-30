@@ -31,7 +31,7 @@ export const COACH_FLOWS: Record<TourView, CoachFlow> = {
       stop("wizard", at("orchestrator", "library"), "#so-new-story-wizard"),
       stop("studio", at("orchestrator", "library"), "#so-open-studio", { selector: "#so-entry-author-view", alt: true }),
       stop("studio-wizard", { kind: "studio" }, "#so-studio-tab-copilot"),
-      stop("validation", { kind: "studio" }, "#so-studio-task-validation"),
+      stop("validation", { kind: "studio" }, "#so-studio-tab-diagnostics"),
     ],
   },
   setup: {

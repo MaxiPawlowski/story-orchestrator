@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import {
-  TENSION_LEVELS, type ArcBridge, type Checkpoint, type CheckpointOffer, type CheckpointEffects, type PrimitiveValue, type RosterMember, type TalkControl, type TensionLevel,
+  TENSION_LEVELS, type ArcBridge, type Checkpoint, type CheckpointEffects, type PrimitiveValue, type RosterMember, type TalkControl, type TensionLevel,
 } from "@engine/index";
 import { useDraftStore } from "../draft";
 import { addCheckpoint, clearStartCheckpoint, removeCheckpoint, setArcBridges, setStartCheckpoint, updateCheckpoint } from "../mutations";
@@ -14,8 +14,10 @@ import TalkControlEditor from "./TalkControlEditor";
 import GuidanceEditor from "./GuidanceEditor";
 import StretchEditor from "./StretchEditor";
 import { stretchExits } from "../stretchDraft";
-import { JsonField } from "./GameFields";
+import OffersEditor from "./OffersEditor";
 import { rosterMemberIsPlayer } from "../playerRole";
+import { CHECKPOINT_SECTIONS, type CheckpointSection } from "../diagnosticTarget";
+import "../mobile.css";
 
 const Field: React.FC<{ label: string; children: React.ReactNode }> = ({ label, children }) => (
   <label className="flex flex-col gap-1 text-sm">
@@ -24,7 +26,25 @@ const Field: React.FC<{ label: string; children: React.ReactNode }> = ({ label, 
   </label>
 );
 
-const OFFERS_HINT = '[{"id", "text", "visible_when"?, "needs"?: {"when", "reason"}}], at most 8; a failing needs greys the offer with your reason';
+const Sec: React.FC<{ id: CheckpointSection; title: string; hint?: string; children: React.ReactNode }> = ({ id, title, hint, children }) => (
+  <section data-so-section={id} id={`so-cp-${id}`} className="so-cp-section" aria-labelledby={`so-cp-${id}-title`}>
+    <h4 id={`so-cp-${id}-title`} className="so-cp-section-title">{title}</h4>
+    {hint && <p className="so-cp-section-hint">{hint}</p>}
+    {children}
+  </section>
+);
+
+const SectionIndex = ({ labelled }: { labelled: string }) => (
+  <nav className="so-cp-index" aria-label={`Sections of ${labelled}`} data-so="checkpoint-sections">
+    {CHECKPOINT_SECTIONS.map((section) => (
+      <button key={section.id} type="button" className="so-cp-index-link" data-section={section.id}
+        onClick={(event) => {
+          const target = event.currentTarget.closest(".so-editor-detail")?.querySelector<HTMLElement>(`[data-so-section="${section.id}"]`);
+          target?.scrollIntoView({ block: "start", behavior: "smooth" });
+        }}>{section.label}</button>
+    ))}
+  </nav>
+);
 
 const optionalInt = (raw: string): number | undefined => {
   const parsed = parseInt(raw, 10);
@@ -125,16 +145,15 @@ const CheckpointList = ({ checkpoints, selectedId, onAdd, onSelect }: { checkpoi
 
 const CheckpointBasics = ({ selected, roster, patch, onStart }: { selected: Checkpoint; roster: RosterMember[]; patch: Patch; onStart: (checked: boolean) => void }) => (
   <>
+    <Sec id="basics" title="Basics">
     <Field label="Name">
       <input className="text_pole st-input" value={selected.name} onChange={(event) => patch({ name: event.target.value })} />
     </Field>
     <Field label="Objective">
       <textarea className="text_pole st-input min-h-[3rem]" value={selected.objective} onChange={(event) => patch({ objective: event.target.value })} />
     </Field>
-    <div className="st-subpanel flex flex-col gap-2 p-2">
-      <div className="text-sm font-medium">What the player sees</div>
-      <div className="text-xs st-muted">Only these fields appear in the player recap. Leave them empty for a neutral “Current scene”.
-        The objective above stays author-only.</div>
+    </Sec>
+    <Sec id="player" title="What the player sees" hint="Only these fields appear in the player recap. Leave them empty for a neutral “Current scene”. The objective stays author-only.">
       <Field label="Public scene name"><input className="text_pole st-input" value={selected.player_name ?? ""} onChange={(event) => patch({ player_name: event.target.value || undefined })} /></Field>
       <Field label="Public situation">
         <textarea className="text_pole st-input min-h-[3rem]" value={selected.player_text ?? ""}
@@ -145,7 +164,8 @@ const CheckpointBasics = ({ selected, roster, patch, onStart }: { selected: Chec
           onChange={(event) => patch({ illustrate: event.target.checked ? undefined : false })} />
         Automatic pictures while here (when the story asks for illustrations)
       </label>
-    </div>
+    </Sec>
+    <Sec id="pacing" title="Pacing">
     <div className="grid grid-cols-2 gap-3">
       <Field label="Type">
         <select aria-label="Checkpoint type" className="text_pole st-input" value={selected.type} onChange={(event) => patch({ type: event.target.value as Checkpoint["type"] })}>
@@ -173,6 +193,7 @@ const CheckpointBasics = ({ selected, roster, patch, onStart }: { selected: Chec
       </Field>
     </div>
     <GuidanceEditor guidance={selected.guidance} roster={roster} onChange={(guidance) => patch({ guidance })} />
+    </Sec>
   </>
 );
 
@@ -200,17 +221,15 @@ const MotivesEditor = ({ selected, draft }: { selected: Checkpoint; draft: Draft
 
 const CheckpointBehaviour = ({ selected, draft, backgroundNames, patch }: { selected: Checkpoint; draft: Draft; backgroundNames: string[]; patch: Patch }) => (
   <>
-    <div className="flex flex-col gap-1">
-      <span className="text-xs st-muted">State snapshot</span>
+    <Sec id="state" title="State on arrival" hint="Values the story sets when it reaches this checkpoint.">
       <SnapshotEditor
         snapshot={selected.state_snapshot ?? {}}
         qualities={draft.qualities}
         onChange={(next: Record<string, PrimitiveValue>) => patch({ state_snapshot: Object.keys(next).length ? next : undefined })}
       />
-    </div>
+    </Sec>
 
-    <div className="flex flex-col gap-1">
-      <span className="text-xs st-muted">Effects</span>
+    <Sec id="effects" title="Effects" hint="What changes when the story arrives here.">
       <EffectsEditor
         effects={selected.effects ?? {}}
         roster={draft.roster}
@@ -219,10 +238,9 @@ const CheckpointBehaviour = ({ selected, draft, backgroundNames, patch }: { sele
         cardFields={declaredCardFields(draft.roster, draft.player, draft.qualities)}
         onChange={(next: CheckpointEffects) => patch({ effects: Object.keys(next).length ? next : undefined })}
       />
-    </div>
+    </Sec>
 
-    <div className="flex flex-col gap-1">
-      <span className="text-xs st-muted">Talk control</span>
+    <Sec id="cast" title="Cast" hint="Who speaks here, and what each character wants in this beat (each is told only their own motive).">
       <TalkControlEditor
         control={selected.talk_control}
         roster={draft.roster}
@@ -230,15 +248,10 @@ const CheckpointBehaviour = ({ selected, draft, backgroundNames, patch }: { sele
         defaults={draft.talk_defaults}
         activeReplies={(selected.effects?.npc_replies ?? []).some((reply) => reply.trigger !== "onEnter" && reply.enabled !== false)}
       />
-    </div>
-
-    <div className="flex flex-col gap-1">
-      <span className="text-xs st-muted">Motives (each character is told only their own)</span>
       <MotivesEditor selected={selected} draft={draft} />
-    </div>
+    </Sec>
 
-    <div className="flex flex-col gap-1">
-      <span className="text-xs st-muted">{selected.type === "anchor" ? "Open opening" : "Open stretch"}</span>
+    <Sec id="stretch" title={selected.type === "anchor" ? "Open opening" : "Open stretch"}>
       <StretchEditor
         anchor={selected.type === "anchor"}
         stretch={selected.stretch}
@@ -246,26 +259,23 @@ const CheckpointBehaviour = ({ selected, draft, backgroundNames, patch }: { sele
         hasPlayerText={Boolean(selected.player_text)}
         onChange={(next) => patch({ stretch: next })}
       />
-    </div>
+    </Sec>
 
-    <div data-so="offers-editor" className="flex flex-col gap-1">
-      <JsonField label="Offers in What could I do?" hint={OFFERS_HINT} value={selected.offers}
-        onChange={(offers) => patch({ offers: Array.isArray(offers) && offers.length ? (offers as CheckpointOffer[]) : undefined })} />
-    </div>
+    <Sec id="offers" title="Offers">
+      <OffersEditor checkpoint={selected} qualities={draft.qualities} />
+    </Sec>
 
-    <div className="flex flex-col gap-1">
-      <span className="text-xs st-muted">Agency</span>
+    <Sec id="agency" title="Agency">
       <AgencyEditor
         policy={selected.agency}
         checkpoints={draft.checkpoints.filter((checkpoint) => checkpoint.id !== selected.id)}
         onChange={(next) => patch({ agency: next })}
       />
-    </div>
+    </Sec>
 
-    <div className="flex flex-col gap-1">
-      <span className="text-xs st-muted">Extraction scope preview</span>
+    <Sec id="scope" title="Extraction scope preview">
       <ScopePreview checkpointId={selected.id} />
-    </div>
+    </Sec>
   </>
 );
 
@@ -335,10 +345,14 @@ const CheckpointEditor: React.FC<{ backgroundNames?: string[]; compact?: boolean
           {!selected ? (
             <div className="st-subpanel p-4 text-sm st-muted">Select or add a checkpoint.</div>
           ) : (
-            <div className="st-subpanel flex flex-col gap-3 p-3">
-              <div className="flex items-center gap-2 text-xs st-muted">
-                <span>ID: {selected.id}</span>
-                {isStub ? <span className="st-pill px-2 py-0.5">stub</span> : null}
+            <div className="st-subpanel flex flex-col gap-3 p-3" data-so-focus>
+              <div className="so-cp-head">
+                <div className="so-cp-head-title">
+                  <span className="font-semibold">{selected.name || selected.id}</span>
+                  <span className="text-xs st-muted">id {selected.id} · {selected.start ? "start · " : ""}{selected.type}</span>
+                  {isStub ? <span className="st-pill px-2 py-0.5">stub</span> : null}
+                </div>
+                <SectionIndex labelled={selected.name || selected.id} />
               </div>
               <CheckpointBasics selected={selected} roster={draft.roster} patch={patch} onStart={setStart} />
               <CheckpointBehaviour selected={selected} draft={draft} backgroundNames={backgroundNames} patch={patch} />
