@@ -176,9 +176,9 @@ export const RoleProfilesGroup = ({
                       {`${ROLE_EGRESS[route.role]} to ${option?.vendor ?? "the harness's vendor"} via ${option?.label ?? harness.key}, from the machine running SillyTavern.`}
                     </div>
                   )}
-                  <div className="flex items-center gap-2 text-xs">
+                  <div className="flex flex-wrap items-center gap-2 text-xs">
                     <FieldLabel htmlFor={`so-role-fallback-${route.role}`} setting="extraction.routes.*.onFailure.profileId" />
-                    <select id={`so-role-fallback-${route.role}`} value={harness.fallback ?? ""} onChange={(event) => onFallback?.(route.role, event.target.value || null)}>
+                    <select id={`so-role-fallback-${route.role}`} className="min-w-0 max-w-full" value={harness.fallback ?? ""} onChange={(event) => onFallback?.(route.role, event.target.value || null)}>
                       <option value="">Pause this task</option>
                       <ProfileOptions profiles={profiles} text={(profile) => `Use ${profile.name}`} />
                     </select>
@@ -186,7 +186,7 @@ export const RoleProfilesGroup = ({
                   {meter && <div data-so="role-meter" className="text-xs opacity-70">{meterText(meter)}</div>}
                 </>
               )}
-              <div className="flex items-center gap-2 text-xs">
+              <div className="flex flex-wrap items-center gap-2 text-xs">
                 <FieldLabel htmlFor={`so-role-effort-${route.role}`} setting="extraction.routes.*.route.options.effort" />
                 <select
                   id={`so-role-effort-${route.role}`}
