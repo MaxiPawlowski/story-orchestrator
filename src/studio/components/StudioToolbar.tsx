@@ -1,14 +1,17 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { isValidationErrorList } from "@engine/index";
 import { availableStoryId, confirmLibrarySave, saveStoryRecord } from "@runtime/storyLibrary";
 import { chatSaveHalf, librarySaveSentence, type ChatSaveAnswer, type LibrarySaveEvidence } from "@runtime/librarySave";
 import type { StoryLibraryRecord } from "@runtime/types";
-import Toolbar from "@components/studio/Toolbar";
 import FeedbackAlert from "@components/studio/FeedbackAlert";
+import { Button } from "@components/ui/Button";
+import { IconButton } from "@components/ui/IconButton";
 import { draftKeyFor, useDraftStore } from "../draft";
 import { exportDraft, importDraft } from "../io";
+import { toMermaid } from "../graphAdapter";
 import { slugifyStoryId } from "@engine/index";
 import { log } from "@utils/log";
+import "../mobile.css";
 
 type Feedback = { type: "success" | "error"; message: string; blocked?: boolean } | null;
 
@@ -35,6 +38,43 @@ interface Props {
   onRekeySession?: (from: string, to: string) => void;
   confirmSave?: (record: StoryLibraryRecord) => Promise<LibrarySaveEvidence>;
 }
+
+interface MenuEntry { id: string; label: string; icon: string; disabled?: boolean; run: () => void }
+
+const OverflowMenu = ({ entries }: { entries: MenuEntry[] }) => {
+  const [open, setOpen] = useState(false);
+  const rootRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    if (!open) return undefined;
+    const outside = (event: PointerEvent) => { if (!rootRef.current?.contains(event.target as Node)) setOpen(false); };
+    document.addEventListener("pointerdown", outside, true);
+    rootRef.current?.querySelector<HTMLButtonElement>("[role=menuitem]:not(:disabled)")?.focus();
+    return () => document.removeEventListener("pointerdown", outside, true);
+  }, [open]);
+  const choose = (entry: MenuEntry) => {
+    setOpen(false);
+    rootRef.current?.querySelector<HTMLButtonElement>("#so-studio-more")?.focus();
+    entry.run();
+  };
+  const onKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key === "Escape" && open) { event.stopPropagation(); event.preventDefault(); setOpen(false); rootRef.current?.querySelector<HTMLButtonElement>("#so-studio-more")?.focus(); return; }
+    if (event.key !== "ArrowDown" && event.key !== "ArrowUp") return;
+    const items = [...(rootRef.current?.querySelectorAll<HTMLButtonElement>("[role=menuitem]:not(:disabled)") ?? [])];
+    if (!items.length) return;
+    event.preventDefault();
+    const at = items.indexOf(document.activeElement as HTMLButtonElement);
+    items[(at + (event.key === "ArrowDown" ? 1 : -1) + items.length) % items.length].focus();
+  };
+  return (
+    <div ref={rootRef} className="so-studio-menu" onKeyDown={onKeyDown}>
+      <IconButton id="so-studio-more" icon="fa-ellipsis" label="More studio actions" aria-haspopup="menu" aria-expanded={open} onClick={() => setOpen(!open)} />
+      {open && <div role="menu" aria-label="More studio actions" className="so-studio-menu-list">
+        {entries.map((entry) => <button key={entry.id} id={entry.id} type="button" role="menuitem" className="so-studio-menu-item" disabled={entry.disabled}
+          onClick={() => choose(entry)}><i aria-hidden="true" className={`fa-solid ${entry.icon}`} />{entry.label}</button>)}
+      </div>}
+    </div>
+  );
+};
 
 const StudioToolbar: React.FC<Props> = ({ onSaved, onRekeySession, confirmSave = confirmLibrarySave }) => {
   const draft = useDraftStore((state) => state.draft);
@@ -84,6 +124,15 @@ const StudioToolbar: React.FC<Props> = ({ onSaved, onRekeySession, confirmSave =
     setPending(false);
   };
 
+  const handleCopyMermaid = async () => {
+    try {
+      await navigator.clipboard?.writeText(toMermaid(useDraftStore.getState().draft));
+      setFeedback({ type: "success", message: "Copied the Mermaid source of the graph." });
+    } catch {
+      setFeedback({ type: "error", message: "The clipboard refused the Mermaid source here." });
+    }
+  };
+
   const handleFile = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     event.target.value = "";
@@ -97,22 +146,25 @@ const StudioToolbar: React.FC<Props> = ({ onSaved, onRekeySession, confirmSave =
     setFeedback({ type: "success", message: "Imported story into the draft." });
   };
 
+  const shown = feedback?.blocked && !blocked ? null : feedback;
+  const entries: MenuEntry[] = [
+    { id: "so-studio-save-as", label: "Save As", icon: "fa-copy", disabled: pending, run: () => void handleSave() },
+    { id: "so-studio-export", label: "Export JSON", icon: "fa-file-export", disabled: draft.checkpoints.length === 0,
+      run: () => download(`${draft.id ?? slugifyStoryId(draft.title)}.json`, exportDraft(draft)) },
+    { id: "so-studio-import", label: "Import JSON", icon: "fa-file-import", run: () => fileRef.current?.click() },
+    { id: "so-studio-mermaid", label: "Copy Mermaid source", icon: "fa-diagram-project", disabled: draft.checkpoints.length === 0, run: () => void handleCopyMermaid() },
+    { id: "so-studio-reset", label: "Reset draft", icon: "fa-rotate-left", disabled: !dirty, run: reset },
+  ];
   return (
-    <div className="flex flex-1 flex-wrap items-center gap-2">
-      <Toolbar
-        hasChanges={dirty}
-        savePending={pending}
-        canAddTransition={draft.checkpoints.length > 0}
-        onExport={() => download(`${draft.id ?? slugifyStoryId(draft.title)}.json`, exportDraft(draft))}
-        onImportPick={() => fileRef.current?.click()}
-        onReset={reset}
-        onSave={() => void handleSave()}
-        onSaveAs={() => void handleSave()}
-      />
+    <div className="so-studio-actions">
+      {dirty && <span id="so-draft-unsaved" className="so-studio-unsaved" role="status">Unsaved</span>}
+      <Button id="so-studio-save" variant="primary" icon="fa-floppy-disk" aria-busy={pending || undefined} onClick={() => void handleSave()}>{pending ? "Saving..." : "Save"}</Button>
+      <OverflowMenu entries={entries} />
       <input ref={fileRef} type="file" accept="application/json,.json" className="hidden" aria-label="Import story file" onChange={handleFile} />
-      <div data-so="studio-feedback" className="min-w-0 basis-full whitespace-normal break-words">
-        <FeedbackAlert feedback={feedback?.blocked && !blocked ? null : feedback} />
-      </div>
+      {shown && <div data-so="studio-feedback" className="so-studio-feedback">
+        <FeedbackAlert feedback={shown} />
+        <IconButton icon="fa-xmark" size="sm" label="Dismiss" onClick={() => setFeedback(null)} />
+      </div>}
     </div>
   );
 };

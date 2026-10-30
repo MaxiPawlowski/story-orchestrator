@@ -1,5 +1,5 @@
 import type { GuideTopicId } from "@copilot/guideTopics";
-import type { StudioTab } from "./StudioModal";
+import type { StudioTab } from "./studioNav";
 
 export const STUDIO_TAB_GUIDE: Partial<Record<StudioTab, readonly GuideTopicId[]>> = {
   features: ["feature-policies", "codex", "codex-returns", "observations"],

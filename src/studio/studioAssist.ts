@@ -8,7 +8,7 @@ import { FEATURES } from "@features/registry";
 import type { StudioAskRunner } from "./components/StudioAsk";
 import type { WizardHost } from "./components/StudioCopilot";
 import { STUDIO_TAB_GUIDE } from "./guideTabs";
-import type { StudioTab } from "./StudioModal";
+import type { StudioTab } from "./studioNav";
 
 export interface StudioAssist {
   ask: StudioAskRunner;

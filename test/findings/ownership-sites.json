@@ -1137,9 +1137,9 @@
       "status": "delegate",
       "note": "awaits provisionOwned, which re-checks draftOwnership after applyProvisioning and before the follow-up ops; the environment refresh runs only when it still owns. Tests: studio/components/ownedProvisioning.test.ts."
     },
-    "src/studio/components/StudioGraph.tsx#StudioGraph.handleCopyMermaid": {
+    "src/studio/components/StudioToolbar.tsx#StudioToolbar.handleCopyMermaid": {
       "status": "local",
-      "note": "Copies the graph text to the clipboard and sets the component's copied flag; no draft, chat or host state."
+      "note": "Copies the graph text to the clipboard and sets toolbar feedback; no draft, chat or host state."
     },
     "src/studio/components/StudioToolbar.tsx#StudioToolbar.handleFile": {
       "status": "local",
