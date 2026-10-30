@@ -8,11 +8,14 @@ import { RECAP_FEATURES } from "./recapFeatures";
 import { LIFE_FEATURES } from "./lifeFeatures";
 import { LIVING_FEATURES } from "./livingFeatures";
 import { PROMISE_FEATURES } from "./promiseFeatures";
+import { THREAD_FEATURES } from "./threadFeatures";
 import { DELIVERY_FEATURES } from "./deliveryFeatures";
 import { POLISH_FEATURES } from "./polishFeatures";
 import { AUDIENCE_FEATURES } from "./audienceFeatures";
 import { START_FEATURES } from "./startFeatures";
 import { CARRY_FEATURES } from "./carryFeatures";
+import { GROUNDING_FEATURES } from "./groundingFeatures";
+import { SKIP_FEATURES } from "./skipFeatures";
 import { chatAt, drawerAt, featureAt, settingsAt, studioAt } from "./where";
 import { IMAGE_FEATURES } from "./imageFeatures";
 import { authorGuideDoc } from "./guideLinks";
@@ -187,7 +190,7 @@ const CORE_FEATURES: readonly Feature[] = [
       + "met. What it remembers rides the prompt, so characters keep track of what happened.",
     where: settingsAt("#so-extraction-profile", "Memory › Memory model"),
     settings: [
-      "extraction.enabled", "extraction.profileId", "extraction.fallbackProfileId", "extraction.cadence", "extraction.stabilityLag",
+      "extraction.enabled", "extraction.profileId", "extraction.fallbackProfileId", "extraction.cadence", "extraction.stabilityLag", "extraction.readLayout",
       "memory.enabled", "memory.injectionDepths", "memory.tierBudgets", "memory.tierTokenBudgets", "memory.scoreWeights",
     ],
     doc: "player/memory.md", status: "shipped", needs: ["memory-profile"],
@@ -463,12 +466,14 @@ const POLICY_TARGETS: Record<string, [import("@engine/featurePolicy").StoryFeatu
   "curator-create": ["curator", "create"], "curator-markers": ["curator", "acceptMode"], sprites: ["sprites", "enabled"],
   "meanwhile-proposals": ["meanwhile", "acceptMode"], "living-story": ["living", "enabled"], "story-branching": ["branching", "enabled"],
   "witness-record": ["witness", "enabled"], rumors: ["rumors", "enabled"], "story-patterns": ["patterns", "enabled"],
-  "reactive-cues": ["cues", "enabled"], "delayed-echoes": ["echoes", "enabled"],
+  "reactive-cues": ["cues", "enabled"], "delayed-echoes": ["echoes", "enabled"], "threads-put-off": ["deferrals", "enabled"],
+  "skip-ahead": ["skip", "enabled"],
 };
 
 export const SOURCE_FEATURES: readonly Feature[] = [
   ...CORE_FEATURES, ...PRESENCE_FEATURES, ...GAME_FEATURES, ...LIFE_FEATURES, ...LIVING_FEATURES, ...JUDGE_USE_KEYS.map(judgeUseFeature),
-  ...RECAP_FEATURES, ...PROMISE_FEATURES, ...DELIVERY_FEATURES, ...POLISH_FEATURES, ...AUDIENCE_FEATURES,
+  ...RECAP_FEATURES, ...PROMISE_FEATURES, ...THREAD_FEATURES, ...DELIVERY_FEATURES, ...POLISH_FEATURES, ...AUDIENCE_FEATURES,
+  ...GROUNDING_FEATURES, ...SKIP_FEATURES,
 ];
 
 export const FEATURES: readonly Feature[] = SOURCE_FEATURES.map((feature) => {

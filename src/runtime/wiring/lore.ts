@@ -18,9 +18,24 @@ import { startScanGating } from "../worldInfoScanHost";
 import { startStoryLore } from "../storyLoreHost";
 import { stagedPath } from "../worldInfoGates";
 import type { Disposers, WindowAccess } from "./types";
+import type { LorePinDeps } from "../lorePins";
 import { log } from "@utils/log";
 
 const chatId = () => getContext().chatId ?? null;
+
+const lorePinDeps = (): LorePinDeps => ({
+  enabled: () => runtimeManager.getEffectiveSettings().worldInfo.lorePins,
+  chatId,
+  ownedChat: () => runtimeManager.getLoadedChatId(),
+  story: () => runtimeManager.getStory(),
+  values: () => runtimeManager.getEngineState()?.blackboard.values ?? null,
+  log: () => runtimeManager.getBoundaryLog(),
+  rows: () => getContext().chat ?? [],
+  scannable: getScannableEntries,
+  force: forceActivateEntries,
+  restatesSecret: (text) => text.trim() !== "" && runtimeManager.memoryActions.restingText(text).trim() !== text.trim(),
+  ownership: runtimeManager.getOwnership(),
+});
 
 const innermostType = (generation: GenerationLifecycle) => {
   const open = generation.snapshot();
@@ -134,11 +149,25 @@ export const startLore = (disposers: Disposers, judgeRuntime: JudgeRuntime, gene
     selection: () => lore.completeSelection(),
   });
 
+  const forcedThisRun = { picks: [] as Array<{ world: string; uid: number; comment: string }> };
   const select = (trigger: LoreSelectTrigger, generationType?: string) => lore.select(trigger, generationType)
-    .then((selection) => { if (selection) loreWatch.forced(selection.picks); })
+    .then((selection) => { if (selection) { forcedThisRun.picks = selection.picks; loreWatch.forced(selection.picks); } })
     .catch((error) => log.warn("lore-select failed", error));
-  const { onGenerationStarted, onIntercept, onMessageSent } = loreSelectTiming({ active: () => lore.active(), willAddUserMessage, select });
-  return { loreWatch, scanGating, storyLore, onGenerationStarted, onIntercept, onMessageSent };
+  const timing = loreSelectTiming({ active: () => lore.active(), willAddUserMessage, select });
+  const pin = async (type: string) => {
+    const { pinLore } = await import("../lorePins");
+    const plan = await pinLore(lorePinDeps(), withholds(type));
+    if (plan?.pinned.length) loreWatch.forced([...forcedThisRun.picks, ...plan.pinned]);
+  };
+  const onGenerationStarted: typeof timing.onGenerationStarted = async (type, params, dryRun) => {
+    if (!dryRun) forcedThisRun.picks = [];
+    await timing.onGenerationStarted(type, params, dryRun);
+  };
+  const onIntercept = async (type: string, aborted: boolean) => {
+    await timing.onIntercept(type, aborted);
+    if (!aborted) await pin(type).catch((error) => log.warn("lore pins failed", error));
+  };
+  return { loreWatch, scanGating, storyLore, onGenerationStarted, onIntercept, onMessageSent: timing.onMessageSent };
 };
 
 export type LoreWiring = ReturnType<typeof startLore>;

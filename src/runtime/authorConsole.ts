@@ -2,7 +2,7 @@ import type { BoundaryLogEntry, EngineState, NormalizedStory } from "@engine/ind
 import { gateKeys } from "@engine/index";
 import { lastChanges, type KeyChange } from "./boundaryDigest";
 import { outgoingGateRows, qualityLabel, type GateRow } from "./gateReadout";
-import type { SecretGridView } from "./whoKnows";
+import { buildSecretGrid, type SecretGridInputs, type SecretGridView } from "./whoKnows";
 
 export const AUTHOR_SECTIONS = ["health", "state", "memory", "prompt", "proposals", "activity", "pipeline"] as const;
 export type AuthorSectionId = (typeof AUTHOR_SECTIONS)[number];
@@ -54,8 +54,11 @@ export interface ConsoleAuthorView {
 export interface ConsoleSources {
   boundaryLog: readonly BoundaryLogEntry[];
   extras: { ui: { authorView: boolean } };
-  secretGrid?: SecretGridView | null;
+  secretGrid?: SecretGridInputs | null;
 }
+
+const grid = (inputs: SecretGridInputs | null | undefined): SecretGridView | null =>
+  (inputs ? buildSecretGrid(inputs.secrets, inputs.knowledge, inputs.members) : null);
 
 export function consoleAuthorSlice(story: NormalizedStory | null, state: EngineState | null, sources: ConsoleSources): ConsoleAuthorView | null {
   if (!sources.extras.ui.authorView || !story || !state) return null;
@@ -66,7 +69,7 @@ export function consoleAuthorSlice(story: NormalizedStory | null, state: EngineS
   const keys = Object.fromEntries([...new Set([...Object.keys(values), ...gates])].map((key) => [key, {
     label: qualityLabel(story, key), group: stateGroupOf(key, gates), ...(changes[key] ? { changedAt: changes[key] } : {}),
   }]));
-  return { gates: outgoingGateRows(story, active, values), keys, secrets: sources.secretGrid ?? null };
+  return { gates: outgoingGateRows(story, active, values), keys, secrets: grid(sources.secretGrid) };
 }
 
 export interface ProposalCounts {

@@ -9,8 +9,9 @@ import { addError, asString, isOneOf, rejectUnknownKeys } from "./common";
 import { readStoryIllustrations } from "./illustrations";
 import { gameLayer } from "./gameLayer";
 import { readBriefing } from "./briefing";
+import { readLoreBindings } from "./loreBindings";
 
-const REQUIREMENT_KEYS = ["personas", "members", "lorebooks"] as const;
+const REQUIREMENT_KEYS = ["personas", "members", "lorebooks", "place_lore", "people_lore"] as const;
 
 const STAGECRAFT_KEYS = ["lorebooks", "exclude", "createCap"] as const;
 
@@ -33,10 +34,14 @@ const readRequirements = (value: unknown, errors: ValidationError[]): StoryRequi
   const personas = readRequirementList(value.personas);
   const members = readRequirementList(value.members);
   const lorebooks = readRequirementList(value.lorebooks);
+  const placeLore = readLoreBindings(value.place_lore, "requirements.place_lore", lorebooks, errors);
+  const peopleLore = readLoreBindings(value.people_lore, "requirements.people_lore", lorebooks, errors);
   return {
     ...(personas.length ? { personas } : {}),
     ...(members.length ? { members } : {}),
     ...(lorebooks.length ? { lorebooks } : {}),
+    ...(placeLore ? { place_lore: placeLore } : {}),
+    ...(peopleLore ? { people_lore: peopleLore } : {}),
   };
 };
 

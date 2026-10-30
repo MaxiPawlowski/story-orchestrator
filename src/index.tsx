@@ -370,6 +370,7 @@ const HudMount = () => {
     panels: chatPanelsShown(snapshot).filter((panel): panel is "journal" | "suggestions" => panel === "journal" || panel === "suggestions"),
     openPanel: (panel: "journal" | "suggestions") => openChatPanel(panel, manager.getCachedSnapshot()),
     openMemory: () => openStoryWindow("memory"),
+    skip: () => { void manager.skipAhead(); },
   };
   return <HudStrip snapshot={snapshot} onOpenStory={() => openStoryWindow()} onOpenSettings={openRepairStep} card={card} />;
 };

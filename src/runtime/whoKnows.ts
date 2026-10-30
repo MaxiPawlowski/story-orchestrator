@@ -31,6 +31,12 @@ export interface GridMemberInput extends SecretGridMember {
   names: readonly string[];
 }
 
+export interface SecretGridInputs {
+  secrets: readonly HeldSecret[];
+  knowledge: readonly EpistemicEntry[];
+  members: readonly GridMemberInput[];
+}
+
 export function buildSecretGrid(secrets: readonly HeldSecret[], knowledge: readonly EpistemicEntry[], members: readonly GridMemberInput[]): SecretGridView {
   const byId = new Map(knowledge.map((entry) => [entry.id, entry]));
   const rows = secrets.flatMap((secret): SecretGridRow[] => {

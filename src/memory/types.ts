@@ -1,3 +1,4 @@
+import type { SourceSpan } from "./audience";
 import type { Provenance } from "./provenance";
 
 export const MEMORY_TIERS = ["facts", "session_details", "short_term", "scene_history"] as const;
@@ -29,8 +30,22 @@ export const ARC_STATUSES = ["open", "resolved"] as const;
 export type ArcStatus = typeof ARC_STATUSES[number];
 
 export interface ParsedArcSignal {
-  kind: "open" | "resolved";
+  kind: "open" | "resolved" | "deferred";
   text: string;
+  messageId?: number;
+  quote?: string;
+  source?: SourceSpan;
+}
+
+export const ARC_EVENT_KINDS = ["deferred", "reopened"] as const;
+export type ArcEventKind = typeof ARC_EVENT_KINDS[number];
+
+export interface ArcEvent {
+  kind: ArcEventKind;
+  boundary: number;
+  messageId: number;
+  span: SourceSpan;
+  quote: string;
 }
 
 export interface ArcEntry {
@@ -48,6 +63,7 @@ export interface ArcEntry {
   originChapter?: string;
   resolvedBy?: string;
   foldedInto?: string;
+  history?: ArcEvent[];
 }
 
 export const CHAPTER_DISPOSITIONS = ["carry", "closed-offscreen", "abandoned"] as const;

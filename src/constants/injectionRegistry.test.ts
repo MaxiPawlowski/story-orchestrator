@@ -36,7 +36,7 @@ describe("injection registry", () => {
       expect(carriesInto(INJECTION_REGISTRY.epistemic, "quiet")).toBe(false);
       expect(carriesInto(INJECTION_REGISTRY.playerRole, "impersonate")).toBe(true);
       const withheld = (Object.entries(INJECTION_REGISTRY) as Array<[string, InjectionSpec]>).filter(([, spec]) => !carriesInto(spec, "quiet")).map(([name]) => name).sort();
-      expect(withheld).toEqual(["awayNotice", "chapterBridge", "checkOutcome", "checkpointGuidance", "continuityNote", "epistemic", "pacing", "previously"]);
+      expect(withheld).toEqual(["awayNotice", "chapterBridge", "checkOutcome", "checkpointGuidance", "continuityNote", "epistemic", "pacing", "previously", "swipeContrast"]);
     });
   });
 

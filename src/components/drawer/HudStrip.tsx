@@ -44,7 +44,7 @@ export const HudStrip = ({ snapshot, onOpenStory, onOpenSettings, card }: HudStr
       {snapshot.busy?.some((job) => job.kind === "image" || job.kind === "sprite") && <Lazy fallback={null}><MediaPending jobs={snapshot.busy} /></Lazy>}
       {card && open && (
         <Lazy fallback={null}>
-          <HudCard snapshot={snapshot} panels={card.panels} openPanel={card.openPanel} openMemory={card.openMemory} onMore={onOpenStory} onClose={close} />
+          <HudCard snapshot={snapshot} panels={card.panels} openPanel={card.openPanel} openMemory={card.openMemory} skip={card.skip} onMore={onOpenStory} onClose={close} />
         </Lazy>
       )}
       <div id="so-hud">

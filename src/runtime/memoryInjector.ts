@@ -16,7 +16,7 @@ import { activeSpeakerId, enabledCharacterIds, nameForRosterId, namesForRosterId
 import type { MemoryRuntimeState } from "./types";
 import type { InjectorHosts } from "./hostPorts";
 import { hasNarratedSheet } from "./narratorSheetPort";
-import { buildSecretGrid, type SecretGridView } from "./whoKnows";
+import type { SecretGridInputs } from "./whoKnows";
 
 const storyKey = (story: NormalizedStory): string => story.id ?? story.title;
 
@@ -132,7 +132,7 @@ export class MemoryInjector {
     const scope = render && voices.find((voice) => voice.id === id)?.omniscient
       ? render.narratorScope(story, this.deps.getState()?.activeCheckpointId ?? null, enabledCharacterIds(story, this.hosts.roster), this.hosts.chat.chatRows())
       : undefined;
-    const block = render ? render.memberAimsBlock(voices, id, beat, known, privateBlock, scope) : privateBlock;
+    const block = render ? render.memberAimsBlock(voices, id, beat, known, privateBlock, scope, this.deps.memory().settings.outwardNarration === true) : privateBlock;
     return [block, this.lifeLines(story, id), this.sourcedLines(story, id)].filter(Boolean).join("\n\n");
   }
 
@@ -228,14 +228,14 @@ export class MemoryInjector {
     return [...(this.deps.ledgerFocus?.() ?? []), ...(speaker ? namesForRosterId(story, speaker) : [])];
   }
 
-  secretGrid(): SecretGridView | null {
+  secretGridInputs(): SecretGridInputs | null {
     const story = this.deps.getStory();
     if (!story) return null;
     const enabled = new Set(enabledCharacterIds(story, this.hosts.roster));
     const members = story.roster.map((member) => ({
       id: member.id, name: nameForRosterId(story, member.id), names: namesForRosterId(story, member.id), onStage: enabled.has(member.id),
     }));
-    return buildSecretGrid(this.secrets(story), this.knowledge(), members);
+    return { secrets: this.secrets(story), knowledge: this.knowledge(), members };
   }
 
   private secrets(story: NormalizedStory): HeldSecret[] {

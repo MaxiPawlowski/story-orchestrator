@@ -184,7 +184,7 @@ export function parseSharedReadResponse(raw: string, story: Pick<NormalizedStory
       continue;
     }
 
-    if (/^\[(arc|resolved)\]/i.test(line)) {
+    if (/^\[(arc|resolved|deferred)\]/i.test(line)) {
       const arc = parseArcLine(line);
       if (arc) result.arcs.push(arc);
       else result.rejected.push({ line, reason: "invalid arc line" });

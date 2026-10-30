@@ -1,0 +1,126 @@
+{
+  "_note": "v3.0 A1 payload case group-story-read: the planted story read (no model call) in today's order and in extraction.readLayout stable-first, at two boundaries. Stable-first reads share every rule line (divergence at or after 'Active checkpoint:'); today's order diverges before the rules. Captures carry sideKey side:read-<layout>, so `prefix` pairs each layout with itself and reports (not gates) side pairs unless --side-fails. Run ONLY through `node scripts/debug/so-payload-golden.mts capture` (see group-opening.json for the probe and the tripwire). Capture owed: needs a staged lane (v3.0 cpu-memory-2026-10-30).",
+  "requires": {
+    "authorView": true,
+    "briefingDraft": "off",
+    "innerBeat": "off",
+    "group": "Group: Arin, DM Narrator",
+    "members": [
+      "DM Narrator",
+      "Arin"
+    ],
+    "judge": "off",
+    "why": "a fixed cast state at the start of every capture and no judge request"
+  },
+  "steps": [
+    {
+      "eval": "if (!globalThis.__soPayloadGolden?.captureRead) throw new Error('this fixture runs only through node scripts/debug/so-payload-golden.mts capture (the capture probe is not installed)'); globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; globalThis.storyOrchestratorDebugCuratorResponse = 'NONE'; globalThis.storyOrchestratorDebugLivingResponse = JSON.stringify({ ops: [] }); return { pinned: ['read', 'curator', 'living'] };"
+    },
+    {
+      "import_story": {
+        "id": "so-v30-a1-payload",
+        "title": "SO-V30-A1 Story read payload",
+        "description": "v3.0 A1 payload case: the story read prompt in both line orders.",
+        "roster": [
+          {
+            "id": "arin",
+            "name": "Arin",
+            "role": "a guide who knows the river"
+          },
+          {
+            "id": "narrator",
+            "name": "DM Narrator",
+            "role": "narrator",
+            "view": "omniscient"
+          }
+        ],
+        "qualities": [
+          {
+            "key": "ferry_paid",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Has the party paid the ferry toll?"
+          },
+          {
+            "key": "coins_spent",
+            "type": "int",
+            "source": "extractor",
+            "monotonic": true,
+            "rubric": "How many coins has the party spent in total?"
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "dock",
+            "name": "The dock",
+            "type": "anchor",
+            "start": true,
+            "objective": "Hire the ferry."
+          }
+        ],
+        "transitions": [],
+        "requirements": {
+          "members": [
+            "Arin",
+            "DM Narrator"
+          ]
+        }
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.setExtractionSettings({ cadence: 0 }); const story = rt.getStory(); if (story?.id !== 'so-v30-a1-payload') throw new Error('the story did not load: ' + story?.id); return { story: story.id };"
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 1500,
+        "timeoutMs": 30000
+      }
+    },
+    {
+      "send": "Arin, is the ferry still running tonight?"
+    },
+    {
+      "slash": "/sendas name=Arin raw=false Arin points at the ferryman. \"Two coins and he takes us.\""
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 1500,
+        "timeoutMs": 30000
+      }
+    },
+    {
+      "eval": "globalThis.storyOrchestratorRuntime.setExtractionSettings({ readLayout: null }); return await globalThis.__soPayloadGolden.captureRead('read-1-classic');"
+    },
+    {
+      "eval": "globalThis.storyOrchestratorRuntime.setExtractionSettings({ readLayout: 'stable-first' }); return await globalThis.__soPayloadGolden.captureRead('read-1-stable');"
+    },
+    {
+      "send": "I hand the ferryman two coins."
+    },
+    {
+      "slash": "/sendas name=Arin raw=false Arin steps onto the ferry and holds the rope."
+    },
+    {
+      "slash": "/cp set coins_spent 2"
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 1500,
+        "timeoutMs": 30000
+      }
+    },
+    {
+      "eval": "globalThis.storyOrchestratorRuntime.setExtractionSettings({ readLayout: null }); return await globalThis.__soPayloadGolden.captureRead('read-2-classic');"
+    },
+    {
+      "eval": "globalThis.storyOrchestratorRuntime.setExtractionSettings({ readLayout: 'stable-first' }); return await globalThis.__soPayloadGolden.captureRead('read-2-stable');"
+    },
+    {
+      "log": true,
+      "eval": "const P = (label) => { const entry = globalThis.__soPayloadGolden.captures.find((row) => row.label === label); if (!entry) throw new Error('no capture ' + label); return entry.prompt; }; const lcp = (a, b) => { let i = 0; while (i < a.length && a[i] === b[i]) i += 1; return i; }; const stable = lcp(P('read-1-stable'), P('read-2-stable')); const classic = lcp(P('read-1-classic'), P('read-2-classic')); const head = P('read-2-stable').indexOf('\\nActive checkpoint:'); const rules = P('read-2-classic').indexOf('Read only the transcript'); globalThis.storyOrchestratorRuntime.setExtractionSettings({ readLayout: null }); if (head < 0 || stable < head) throw new Error('stable-first reads diverge above the variable lines: ' + stable + ' < ' + head); if (classic >= rules) throw new Error('control: the current order no longer diverges before the rules: ' + classic); const lines = (text) => text.split('\\n').filter((line) => line.trim()).map((line) => line.replace('not already listed under EXISTING OPEN ARCS', 'not already listed above')).sort().join('\\n'); if (lines(P('read-2-stable')) !== lines(P('read-2-classic'))) throw new Error('stable-first is not a reorder of the same lines'); return { stableShared: stable, classicShared: classic, head, length: P('read-2-stable').length };"
+    }
+  ]
+}

@@ -1,0 +1,70 @@
+unreachable {"ok":0,"collected":3,"other":0,"timeout":0,"sample":"page.evaluate: Execution context was destroyed, most likely because of a navigation."}
+unreachable+reconnect {"ok":0,"collected":3,"other":0,"timeout":0,"sample":"page.evaluate: Execution context was destroyed, most likely because of a navigation."}
+heldTimer {"ok":20,"collected":0,"other":0,"timeout":0,"sample":null}
+heldTimer+reconnect {"ok":20,"collected":0,"other":0,"timeout":0,"sample":null}
+plainTimer {"ok":20,"collected":0,"other":0,"timeout":0,"sample":null}
+plainTimer+reconnect {"ok":20,"collected":0,"other":0,"timeout":0,"sample":null}
+unrefWorker {"ok":20,"collected":0,"other":0,"timeout":0,"sample":null}
+unrefWorker+reconnect {"ok":20,"collected":0,"other":0,"timeout":0,"sample":null}
+{
+  "chromium": "145.0.7632.6",
+  "N": 20,
+  "results": {
+    "unreachable": {
+      "ok": 0,
+      "collected": 3,
+      "other": 0,
+      "timeout": 0,
+      "sample": "page.evaluate: Execution context was destroyed, most likely because of a navigation."
+    },
+    "unreachable+reconnect": {
+      "ok": 0,
+      "collected": 3,
+      "other": 0,
+      "timeout": 0,
+      "sample": "page.evaluate: Execution context was destroyed, most likely because of a navigation."
+    },
+    "heldTimer": {
+      "ok": 20,
+      "collected": 0,
+      "other": 0,
+      "timeout": 0,
+      "sample": null
+    },
+    "heldTimer+reconnect": {
+      "ok": 20,
+      "collected": 0,
+      "other": 0,
+      "timeout": 0,
+      "sample": null
+    },
+    "plainTimer": {
+      "ok": 20,
+      "collected": 0,
+      "other": 0,
+      "timeout": 0,
+      "sample": null
+    },
+    "plainTimer+reconnect": {
+      "ok": 20,
+      "collected": 0,
+      "other": 0,
+      "timeout": 0,
+      "sample": null
+    },
+    "unrefWorker": {
+      "ok": 20,
+      "collected": 0,
+      "other": 0,
+      "timeout": 0,
+      "sample": null
+    },
+    "unrefWorker+reconnect": {
+      "ok": 20,
+      "collected": 0,
+      "other": 0,
+      "timeout": 0,
+      "sample": null
+    }
+  }
+}

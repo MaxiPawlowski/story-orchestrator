@@ -76,3 +76,77 @@
 tavernos-hud, stat-tab, simply-loreandtracker, castward, lattice, dooms-enhancement-suite, scene-archivist, st-memory-books,
 vectfox, bb-interactive-map (+ bb-enhance-gen), bb-visual-novel-engine, nemopresetext, small-updates (characterbench,
 languagetool, danganronpa).
+
+## Defect check 2026-10-30
+
+Branch `v3.0-harvest-1030-fixes` (from `29c1267d`). Offline only: no GPU, no model call, no lane, nothing staged, so no
+live or real-LLM gate ran for any item below (each ST-facing or model-consuming change is NOT live-green).
+
+1. **Regenerate after a trailing system row: CONFIRMED (host source), not fixed, owner decision.**
+   - SO plays only in groups, and there the path differs from the report: `#option_regenerate` in a group calls
+     `regenerateGroup()` (`script.js:11629-11637`), which stops at the first `is_system` row from the end and deletes nothing
+     (`group-chats.js:167-188`), then runs a fresh `generateGroupWrapper(false, 'normal')` round. The old reply stays and a
+     new round lands under the trailing row; TurnBridge commits it as a new boundary. (Solo `Generate('regenerate')` deletes
+     the row instead, `script.js:4402-4409`.)
+   - Both SO rows are `is_system`: image placement `"message"` (`stHost/image.ts:123-133`) and `/comment`
+     (`slash-commands.js:6118`). ST's own image extension posts hidden images the same way (`stable-diffusion/index.js:4985`,
+     default hidden), so plain ST has the same trap.
+   - Exposure: both are opt-in (`image.placement` default `inline`; `#so-announce-transitions` default off).
+   - Not built: the only fix that keeps both features is a DOM-level Regenerate intercept (capture the menu click in a group,
+     delete SO's own marked trailing rows awaited, then let ST regenerate), which needs a live gate. Alternatives: refuse
+     `"message"` placement and the note in groups, or accept. Reproduction owed: a no-model lane scenario that posts a
+     message-placement image, clicks `#option_regenerate`, and asserts the reply count and boundary count.
+2. **`{{story_*}}` macros dead after a macro-engine flip: CONFIRMED, fixed.**
+   - `MacrosParser.registerMacro` writes only the engine on at the time (`macros.js:82`, `:205-214`); substitution follows
+     the live flag (`script.js:2837`); the toggle flips it at once (`power-user.js:3874-3875`).
+   - Fix: `stHost/macroEngine.ts` `plainMacroSeam` remembers each live plain macro and the engine it went to;
+     `rearmHostMacros()` re-registers through ST when the flag differs, on every `GENERATION_STARTED` (before card fields
+     are substituted, `script.js:4299` vs `:4470`), with a warn line. No new check needed. Known residue: a key
+     unregistered while the new engine is on stays in the legacy map (ST offers no way to reach it).
+   - Test: `src/services/stHost/macroEngineFlip.test.ts`. Commits `96906af8`, `a0c085ca` (mocks), `d2cb6f10` (probe without a silent catch).
+3. **Chapter-fold IGNORE interior hole on Chat Completion (M05) + VectFox copier keys (M06): CONFIRMED, fixed.**
+   - `setOpenAIMessages` skips an ignored row without assigning its slot (`openai.js:578-647`); two sealed chapters folded
+     two ranges and left chapter 1's tail between them, so `[...messages].reverse()` (`:948`) carried `undefined`.
+   - Fix: `foldRange` returns one block from the oldest record through the newest contiguous foldable record minus its
+     `keep_tail` (stops at a coverage gap or a `fold_messages: false` chapter; an older chapter's tail now folds once a
+     later one seals); `foldRows` folds only a leading run of rows (an unplaceable row folds only between folded rows).
+     Consequence: a story started mid-chat (`storyStart` > 0) now folds nothing, since folding after a kept prefix is
+     itself a hole; owner may want pre-story rows folded too.
+   - M06: `transcriptCopiers.ts` `copierName` maps the `3_vectfox` prefix to VectFox (no `checks.ts` change).
+   - Guide: `keep_tail` sentence in `story-guide.md`, `npm run docs:guide`.
+   - Tests: `src/runtime/chapterFoldHole.review.test.ts` (models `setOpenAIMessages`), `secretLeak.test.ts` "names VectFox
+     by its block prefix". Commit `04244384`.
+4. **Archive recall on the reply path: CONFIRMED (call count), fixed for reuse within a round; timing not measured.**
+   - The generate interceptor awaits `chapters.recall` once per drafted member (`wiring/talk.ts:92`); each built a temp
+     vector collection (inserts in chunks of 4, each behind the up-to-15 s judge-quiet wait, `vectorYield.ts`), queried and
+     purged it, for the same turn text and candidates.
+   - Fix: `ChapterPort.recallBand` keeps the last band keyed by story id, vector source, query text and every candidate's
+     id + text; a matching key reuses it, anything else asks again. Selection, the resting filter and the RunGuard stay.
+   - Test: `chapterRetained.review.test.ts` "vectorfox P0: one round's drafted members share one vector band" (insert and
+     query once for two members; a new turn or a new archive row asks again). Commit `0f03a849`. No latency claim.
+5. **Display-only qualities never in extraction scope: CONFIRMED, fixed (extraction read changes; real-LLM gate owed).**
+   - An extractor quality with only `display.public` was pulled by no source (`extraction/scope.ts`), so the sheet stayed
+     empty; Studio only warned.
+   - Fix: `DISPLAY_SOURCE` in `scopeSources.ts` (cap 3, budgeted after the other tiers, unset first then rotating, skips keys
+     another pull already holds, latched and non-extractor keys); `quality-never-in-scope` no longer fires for public
+     display stats. Evidence contract unchanged. Guide paragraph updated.
+   - Test: `src/extraction/scopeDisplay.test.ts`. Commit `3ef24c17` (+ diagnostics line budget in `a0c085ca`).
+   - Owed: a real-LLM read on a story with public stats (Adolion) before calling it green; the extraction prompt now asks
+     up to 3 more questions per read.
+6. **Optional held-secret filter params: NOT A BUG (no leak), hardened.**
+   - Every production caller already passed a filter or pre-filtered text (`livingInputs.ts` filters `openThreads`;
+     `storySoFar` passes `restingFilter()`; the living export passes `scrub`).
+   - Made required: `FocusSources.resting`, `focusSafe(resting)`, `LivingExportOptions.scrub`, `StorySoFarInput.resting`;
+     `livingCoordinator` now passes `resting: inputs.scrub` to `focusCandidates`. Tests pass identity filters explicitly.
+     Commits `0f03a849`, `d2cb6f10` (`scripts/debug/lib/sceneReplay.mts` caller).
+
+Gates:
+- `npm run gates:quick` green after each fix (last: 181.9 s).
+- Full `npm run gates` run 1 (no `--resume`): RED at test (errorCopy silent catch), test:debug (scene replay caller),
+  test-storybook:ci (EADDRINUSE 6006: a peer's Storybook from `C:\dev\so-ctl-cpu` holds the port; not stopped). Fixed in `d2cb6f10`.
+- Full `npm run gates -- --no-storybook` run 2 (no `--resume`) on `d2cb6f10`: 9 of 10 green (typecheck, build, typecheck:test,
+  debug:typecheck, lint, test, test:replay, test:release, test:plugin); test:debug RED on one timing test under load
+  (`childTree.test.mts` "a driver whose wrapper shell is killed…", 124 s). Rerun alone: `node --test
+  scripts/debug/lib/childTree.test.mts` pass 2/2; `npm run test:debug` alone: 1674/1674 pass.
+- Storybook (port moved only): `npm run storybook:build` + http-server on 6016 + test-runner: 169 suites, 1025 tests pass.
+- Not run: any lane, live, or real-LLM gate (owner constraint). Not merged.

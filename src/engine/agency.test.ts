@@ -74,6 +74,15 @@ describe("agency policy (v2.3 plan 07, C4)", () => {
     expect(Array.isArray(wrongType) && wrongType.some((error) => error.path.endsWith("agency.player_attempts_only"))).toBe(true);
   });
 
+  it("v3.0 32: skip is allowed unless a checkpoint says skip: false, and adds no clause", () => {
+    expect(agencyFor(undefined).skip).toBeUndefined();
+    const built = parsed({ agency: { skip: false } });
+    expect(agencyForCheckpoint(built, "next").skip).toBe(false);
+    expect(agencyClauses(agencyForCheckpoint(built, "next"))).toEqual(agencyClauses(agencyFor(undefined)));
+    const wrongType = parseStory(story({ agency: { skip: "no" } }));
+    expect(Array.isArray(wrongType) && wrongType.some((error) => error.path.endsWith("agency.skip"))).toBe(true);
+  });
+
   it("offers exactly the two objective kinds", () => {
     expect([...OBJECTIVE_KINDS]).toEqual(["world_pressure", "player_action"]);
   });

@@ -11,6 +11,7 @@ export const REL_AXES_PER_READ = 12;
 export const REL_ROTATION_READS = 4;
 export const CARD_MIN_SHARE = 1;
 export const DISCOVERY_SCOPE_CAP = 6;
+export const DISPLAY_SCOPE_CAP = 3;
 
 export interface ScopeSourceContext {
   owners?: string[];
@@ -18,6 +19,7 @@ export interface ScopeSourceContext {
   present?: string[];
   drafted?: string | null;
   rotation?: number;
+  pulled?: ReadonlySet<string>;
 }
 
 export interface ScopeSourceRead {
@@ -26,7 +28,7 @@ export interface ScopeSourceRead {
 }
 
 export interface ScopeSource {
-  kind: Extract<ScopePull["kind"], "card" | "quest" | "relationship" | "discovery">;
+  kind: Extract<ScopePull["kind"], "card" | "quest" | "relationship" | "discovery" | "display">;
   detail: string;
   cap: number | null;
   keys: (story: NormalizedStory, blackboard: BlackboardSnapshot, context: ScopeSourceContext) => string[];
@@ -93,7 +95,20 @@ export const DISCOVERY_SOURCE: ScopeSource = {
   },
 };
 
-export const SCOPE_SOURCES: readonly ScopeSource[] = [CARD_SOURCE, QUEST_SOURCE, RELATIONSHIP_SOURCE, DISCOVERY_SOURCE];
+export const displayScopeKeys = (story: NormalizedStory, blackboard: BlackboardSnapshot, context: ScopeSourceContext): string[] => {
+  const shown = story.qualities.filter((quality) => quality.display?.public && !context.pulled?.has(quality.key)).map((quality) => quality.key).filter(readable(story, blackboard));
+  const turn = (keys: string[]) => rotated(keys, keys.length ? Math.max(0, Math.floor(context.rotation ?? context.cursor ?? 0)) % keys.length : 0);
+  return [...turn(shown.filter((key) => blackboard.values[key] === undefined)), ...turn(shown.filter((key) => blackboard.values[key] !== undefined))];
+};
+
+export const DISPLAY_SOURCE: ScopeSource = {
+  kind: "display",
+  detail: "a stat the player's sheet shows that nothing else reads",
+  cap: DISPLAY_SCOPE_CAP,
+  keys: displayScopeKeys,
+};
+
+export const SCOPE_SOURCES: readonly ScopeSource[] = [CARD_SOURCE, QUEST_SOURCE, RELATIONSHIP_SOURCE, DISCOVERY_SOURCE, DISPLAY_SOURCE];
 
 export const readScopeSource = (
   source: ScopeSource, story: NormalizedStory, blackboard: BlackboardSnapshot, context: ScopeSourceContext, admits: (key: string) => boolean = () => true,
@@ -107,7 +122,7 @@ export interface ScopeSourceResult extends ScopeSourceRead {
   cap: number | null;
 }
 
-const BUDGETED: ReadonlySet<ScopeSource["kind"]> = new Set(["quest", "relationship", "discovery"]);
+const BUDGETED: ReadonlySet<ScopeSource["kind"]> = new Set(["quest", "relationship", "discovery", "display"]);
 
 export interface LifeUnit {
   keys: string[];
@@ -157,7 +172,7 @@ export const readScopeSources = (
   sources: readonly ScopeSource[], story: NormalizedStory, blackboard: BlackboardSnapshot, context: ScopeSourceContext, free: ReadonlySet<string> = new Set(),
   admits: (key: string) => boolean = () => true,
 ): ScopeSourceResult[] => {
-  const reads: Read[] = sources.map((source) => ({ source, kind: source.kind, cap: source.cap, ...readScopeSource(source, story, blackboard, context, admits) }));
+  const reads: Read[] = sources.map((source) => ({ source, kind: source.kind, cap: source.cap, ...readScopeSource(source, story, blackboard, { ...context, pulled: free }, admits) }));
   if (!reads.some((read) => BUDGETED.has(read.kind) && read.keys.some((key) => !free.has(key)))) return reads.map(({ source: _source, ...read }) => read);
   const rotation = Math.max(0, Math.floor(context.rotation ?? context.cursor ?? 0));
   const ofKind = (kind: ScopeSource["kind"]) => reads.filter((read) => read.kind === kind);
@@ -209,6 +224,7 @@ export const readScopeSources = (
     ...discovery.map((entry) => entry.facts),
     ...ofKind("card").map((read) => ({ read, tier: { units: single(rotated(read.keys, rotation)) } })),
     ...relationships.map((relationship) => relationship.rest),
+    ...ofKind("display").map((read, at) => ({ read, tier: { units: single([...read.keys, ...read.dropped]), ...capped(read, `display:${at}`) } })),
   ];
   const cost = questionCost(story);
   const stepped = (key: string) => {

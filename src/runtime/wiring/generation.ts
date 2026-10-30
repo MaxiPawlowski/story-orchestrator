@@ -9,12 +9,14 @@ import {
   readExtensionPromptBlocks,
   readPromptBudget,
   readReasoningTags,
+  rearmHostMacros,
   setStoryExtensionPrompt,
   subscribeToHostEvents,
   tokenizerIdentity,
   EXTENSION_SETTINGS_LOADED_EVENT,
   type HostSubscriptionEntry,
 } from "@services/STAPI";
+import { log } from "@utils/log";
 import { runtimeManager } from "../runtimeManager";
 import { busyWork } from "../busy";
 import { WITHHOLD_CAP_MS, withholds, type GenerationIntent, type GenerationLifecycle } from "../generationLifecycle";
@@ -134,6 +136,8 @@ export const subscribeGenerationEvents = (live: LiveParts, generation: Generatio
     lore.loreWatch.reassert();
     lore.scanGating.reassert();
     lore.storyLore.reassert();
+    const rearmed = rearmHostMacros();
+    if (rearmed) log.warn(`SillyTavern's macro engine changed; ${rearmed} story macros were registered with the engine now in use`);
     apply(generation.started(args, chatLastId() + 1));
     await lore.onGenerationStarted(typeof args[0] === "string" ? args[0] : undefined, args[1] as Record<string, unknown> | undefined, args[2] === true);
   };

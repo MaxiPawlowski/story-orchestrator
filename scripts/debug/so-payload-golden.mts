@@ -141,6 +141,23 @@ export async function installPayloadProbe(page) {
       state.captures.push(entry);
       return { label, member, promptChars: (prompt as string).length, blocks: blocks.length };
     };
+    state.captureRead = async (label: string) => {
+      const ctx = g.SillyTavern.getContext();
+      const rt = g.storyOrchestratorRuntime;
+      if (!/^[a-z0-9][a-z0-9._-]*$/.test(label)) throw new Error(`${label}: a capture label is lower-case [a-z0-9._-]`);
+      if (state.captures.some((entry) => entry.label === label)) throw new Error(`${label}: captured twice in one case`);
+      if (state.modelCalls.length) throw new Error(`${label}: a model call happened before this capture: ${JSON.stringify(state.modelCalls.slice(0, 3))}`);
+      if (ctx.chatId && !state.chatIds.includes(String(ctx.chatId))) state.chatIds.push(String(ctx.chatId));
+      const before = rt.getExtractionAudits().length;
+      const ran = await rt.runExtractionNow('SCENE_NONE', `payload-read:${label}`);
+      const audits = rt.getExtractionAudits();
+      const audit = audits[audits.length - 1];
+      if (!ran || !audit || (audits.length === before && audit.reason !== `payload-read:${label}`)) throw new Error(`${label}: the planted story read did not land an audit`);
+      const layout = rt.getExtractionSettings().readLayout ?? 'classic';
+      const entry = { label, member: null, mainApi: ctx.mainApi ?? null, promptKind: 'read', checkpoint: rt.getActiveCheckpointInfo?.()?.id ?? null, prompt: audit.prompt, blocks: [], sideKey: `side:read-${layout}` };
+      state.captures.push(entry);
+      return { label, layout, promptChars: audit.prompt.length };
+    };
     return { installed: true };
   });
 }

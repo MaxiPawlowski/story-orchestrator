@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { evaluateInST, readEvalJob, startEvalJob } from './evaluate.mts';
+import { evalJobsOn, evaluateInST, readEvalJob, startEvalJob } from './evaluate.mts';
 
 const SLOT = '__soEvalJobs';
 const fakePage = (overrides: Record<string, unknown> = {}) => {
@@ -42,6 +42,21 @@ test('a synchronous function and a page without a main frame keep the plain eval
   const bare = fakePage({ mainFrame: undefined });
   assert.equal(await evaluateInST(bare.page, async (n: number) => n + 1, 1), 2);
   assert.deepEqual(bare.calls, ['anonymous']);
+});
+
+test('C-H1: SO_EVAL_JOBS=off restores the plain awaited evaluate, for a D-EB3 reproduction run', async () => {
+  const previous = process.env.SO_EVAL_JOBS;
+  process.env.SO_EVAL_JOBS = 'off';
+  try {
+    const { page, calls } = fakePage();
+    assert.equal(await evaluateInST(page, async (n: number) => n + 1, 1), 2);
+    assert.deepEqual(calls, ['anonymous']);
+  } finally {
+    if (previous === undefined) delete process.env.SO_EVAL_JOBS;
+    else process.env.SO_EVAL_JOBS = previous;
+  }
+  assert.equal(evalJobsOn({}), true);
+  assert.equal(evalJobsOn({ SO_EVAL_JOBS: 'off' }), false);
 });
 
 test('a source the page cannot parse falls back to the plain evaluate', () => {

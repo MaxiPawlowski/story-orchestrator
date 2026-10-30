@@ -18,6 +18,8 @@ export interface ExtractionSettingsSnapshot {
   stabilityLag: number;
   profileId: string | null;
   profiles: Record<string, string>;
+  readLayout?: string;
+  promiseAddressee?: true;
 }
 
 export async function readExtractionSettings(page): Promise<ExtractionSettingsSnapshot | null> {
@@ -25,7 +27,8 @@ export async function readExtractionSettings(page): Promise<ExtractionSettingsSn
     const runtime = globalThis.storyOrchestratorRuntime;
     const settings = runtime?.getGlobalSettings?.()?.extraction ?? runtime?.getSnapshot?.()?.extraction?.settings ?? null;
     return settings
-      ? { enabled: settings.enabled, cadence: settings.cadence, stabilityLag: settings.stabilityLag, profileId: settings.profileId ?? null, profiles: settings.profiles ?? {} }
+      ? { enabled: settings.enabled, cadence: settings.cadence, stabilityLag: settings.stabilityLag, profileId: settings.profileId ?? null, profiles: settings.profiles ?? {},
+        ...(settings.readLayout ? { readLayout: settings.readLayout } : {}), ...(settings.promiseAddressee === true ? { promiseAddressee: true } : {}) }
       : null;
   });
 }
@@ -35,7 +38,7 @@ export async function restoreExtractionSettings(page, before: ExtractionSettings
   const after = await readExtractionSettings(page);
   if (after && JSON.stringify(after) === JSON.stringify(before)) return { restored: false, unchanged: true, settings: before };
   await evaluateInST(page, async (settings) => {
-    globalThis.storyOrchestratorRuntime?.setExtractionSettings(settings);
+    globalThis.storyOrchestratorRuntime?.setExtractionSettings({ readLayout: null, promiseAddressee: false, ...settings });
     return true;
   }, before);
   // Persist, or the restore lives only until the page reloads.
