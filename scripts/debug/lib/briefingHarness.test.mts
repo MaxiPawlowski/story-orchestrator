@@ -108,3 +108,72 @@ test('B1b H2: journey setup closes a story-start dialog left open on its chat, a
   assert.deepEqual(clicks, ['#so-briefing-start'], 'control: nothing is clicked when no dialog is open');
   delete (globalThis as Record<string, unknown>).document;
 });
+
+const setupPage = ({ paneAfterPolls = 0, setup, enabled = true, lock = null as string | null }: { paneAfterPolls?: number; setup: Record<string, unknown> | null; enabled?: boolean; lock?: string | null }) => {
+  let polls = 0;
+  const radios = ['keep', 'pick', 'create'].map((value) => ({ getAttribute: (name: string) => (name === 'data-value' ? value : null) }));
+  const pane = {
+    querySelector: (selector: string) => (selector.includes('data-value="create"') ? {} : null),
+    querySelectorAll: (selector: string) => (selector === '[data-so="player-setup-mode"] [role="radio"]' ? radios : []),
+  };
+  const dialog = { open: true, querySelector: (selector: string) => (selector === '#so-player-setup' && polls > paneAfterPolls ? pane : null) };
+  const metadata: Record<string, unknown> = lock ? { persona: lock } : {};
+  (globalThis as Record<string, unknown>).document = { querySelector: (selector: string) => (selector === 'dialog#so-briefing' ? dialog : null) };
+  (globalThis as Record<string, unknown>).SillyTavern = { getContext: () => ({ chatMetadata: metadata }) };
+  (globalThis as Record<string, unknown>).storyOrchestratorRuntime = {
+    getSnapshot: () => ({ playerSetup: setup }),
+    getGlobalSettings: () => ({ display: { playerSetup: enabled } }),
+  };
+  const clicks: string[] = [];
+  const page = {
+    evaluate: async (fn: (arg: unknown) => unknown, arg: unknown) => { polls += 1; return fn(arg); },
+    waitForTimeout: async () => undefined,
+    waitForFunction: async (fn: () => boolean) => { if (!fn()) throw new Error('still pending'); },
+    locator: (selector: string) => ({
+      count: async () => 1,
+      click: async () => {
+        clicks.push(selector);
+        if (selector.endsWith('#so-briefing-start') && setup) { setup.pending = false; setup.record = { pending: false, choice: 'keep', locked: true }; metadata.persona = 'me.png'; }
+      },
+      selectOption: async () => undefined,
+      fill: async () => undefined,
+    }),
+  };
+  return { page, clicks };
+};
+
+const clearSetupGlobals = () => {
+  for (const key of ['document', 'SillyTavern', 'storyOrchestratorRuntime']) delete (globalThis as Record<string, unknown>)[key];
+};
+
+test('v3.0 29 P-6: player-setup-choose waits for the lazy identity step inside the open start dialog, picks the mode, then Start', async () => {
+  const { choosePlayerSetup } = await import('./briefingHarness.mts');
+  const { page, clicks } = setupPage({ paneAfterPolls: 2, setup: { storyId: 'road', pending: true, needsPane: true, record: { pending: true } } });
+  const result = await choosePlayerSetup(page, 'keep', '', { openWithinMs: 5000 });
+  assert.deepEqual(clicks, [
+    'dialog#so-briefing[open] [data-so="player-setup-mode"] [data-value="keep"]',
+    'dialog#so-briefing[open] #so-briefing-start',
+  ]);
+  assert.equal(result.before.open, true);
+  assert.deepEqual(result.before.choices, ['player-setup-keep', 'player-setup-pick', 'player-setup-create']);
+  assert.equal(result.locked, true);
+  const skip = setupPage({ setup: { storyId: 'road', pending: true, needsPane: true, record: { pending: true } } });
+  await assert.rejects(choosePlayerSetup(skip.page, 'skip', '', { openWithinMs: 0, timeoutMs: 0 }), /still pending/);
+  assert.deepEqual(skip.clicks, ['dialog#so-briefing[open] [data-so="briefing-close"]'], 'skip is the header close, never Start');
+  clearSetupGlobals();
+});
+
+test('v3.0 29 P-6: a missing identity step names why (lane 45 2026-10-30: display.playerSetup off, chat already locked)', async () => {
+  const { choosePlayerSetup, setupPaneMissing } = await import('./briefingHarness.mts');
+  const { page, clicks } = setupPage({ paneAfterPolls: Infinity, enabled: false, lock: 'user-default.png', setup: { storyId: 'road', pending: false, needsPane: false, record: { pending: false, choice: 'skip', locked: true } } });
+  await assert.rejects(choosePlayerSetup(page, 'keep', '', { openWithinMs: 5000 }), /no start-setup pane is open \(#so-player-setup\): the identity step is already settled \(choice skip, locked\); display\.playerSetup is off/);
+  assert.deepEqual(clicks, [], 'control: nothing is clicked without a pane');
+  clearSetupGlobals();
+  const base = { open: false, dialogOpen: false, role: null, current: null, done: null, canCreate: false, choices: [], pending: true, needsPane: true, enabled: true, storyId: 'road', choice: null, locked: null, chatLock: null };
+  assert.equal(setupPaneMissing({ ...base, pending: null, storyId: null }), 'no story has a start setup in this chat');
+  assert.match(setupPaneMissing({ ...base, enabled: false }), /^display\.playerSetup is off/);
+  assert.equal(setupPaneMissing({ ...base, needsPane: false }), 'this story has no player profile or fixed name, so the start pane asks nothing');
+  assert.equal(setupPaneMissing(base), 'the start dialog (dialog#so-briefing) is not open');
+  assert.equal(setupPaneMissing({ ...base, dialogOpen: true }), 'the start dialog is open without the identity step');
+  assert.equal(setupPaneMissing({ ...base, pending: false, choice: 'keep', locked: false }), 'the identity step is already settled (choice keep, unlocked)');
+});

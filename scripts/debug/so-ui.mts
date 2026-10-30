@@ -1472,7 +1472,7 @@ pipeline: print the pipeline state (snapshot + status line + HUD chip).
 briefing: read the "Before you start" briefing modal (open, title, sections, blocks, onboarding) and the chat's pending flag.
 briefing-dismiss [--dont-show]: close the open briefing with its start button, optionally ticking "Don't show briefings".
 player-setup: read the "Who you are in this story" pane (role, current persona, choices, pending) and the chat's persona lock.
-player-setup-choose keep|pick <name>|create [name]|skip: pick that mode in the pane and press Start (skip = close the page); every choice leaves the chat locked.
+player-setup-choose keep|pick <name>|create [name]|skip: wait up to 8 s for the identity step in the open start dialog, pick that mode and press Start (skip = the header close); every choice leaves the chat locked. No step: says why (display.playerSetup off, no player profile, already settled).
 assert-player-clean: walk the player-mode drawer and fail on anything the spoiler checklist forbids, or on raw error text on a player surface.
 wizard: print the wizard state (stage, pending questions, provisioning cards, created assets).
 open-wizard: open the Studio on the Wizard tab for the story this chat plays.
