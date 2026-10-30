@@ -14,6 +14,14 @@ const dropTrailingComma = (out: string): { out: string; dropped: boolean } => {
   return trimmed.endsWith(",") ? { out: trimmed.slice(0, -1), dropped: true } : { out, dropped: false };
 };
 
+const stringStep = (char: string, escaped: boolean): { text: string; escaped: boolean; inString: boolean; control: boolean } => {
+  if (escaped) return { text: char, escaped: false, inString: true, control: false };
+  if (char === "\\") return { text: char, escaped: true, inString: true, control: false };
+  if (char === "\"") return { text: char, escaped: false, inString: false, control: false };
+  if (char.charCodeAt(0) < 0x20) return { text: escapeControl(char), escaped: false, inString: true, control: true };
+  return { text: char, escaped: false, inString: true, control: false };
+};
+
 export function repairJsonObject(raw: string): JsonRepair | null {
   const start = raw.indexOf("{");
   if (start < 0) return null;
@@ -27,15 +35,11 @@ export function repairJsonObject(raw: string): JsonRepair | null {
   for (let index = start; index < raw.length; index += 1) {
     const char = raw[index];
     if (inString) {
-      if (escaped) escaped = false;
-      else if (char === "\\") escaped = true;
-      else if (char === "\"") inString = false;
-      else if (char.charCodeAt(0) < 0x20) {
-        out += escapeControl(char);
-        fixes.add("raw control character escaped");
-        continue;
-      }
-      out += char;
+      const step = stringStep(char, escaped);
+      escaped = step.escaped;
+      inString = step.inString;
+      if (step.control) fixes.add("raw control character escaped");
+      out += step.text;
       continue;
     }
     if (char === "\"") inString = true;
