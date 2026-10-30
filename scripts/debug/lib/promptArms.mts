@@ -422,7 +422,12 @@ export function scoreArms({ fixture, fixtureHash, frozenHash, records, key, labe
     const label = stored?.label ?? null;
     if (!label) { incomplete.push(`${id}: no valid label`); continue; }
     const sideOf = (arm: PromptArm): Side => ((secret.A === arm) ? 'A' : 'B');
-    const armOf = (side: Side | 'tie' | null): PromptArm | 'tie' | null => (side === null || side === 'tie' ? side : side === 'A' ? secret.A : secret.A === 'on' ? 'off' : 'on');
+    const armOf = (side: Side | 'tie' | null): PromptArm | 'tie' | null => {
+      if (side === null) return null;
+      if (side === 'tie') return 'tie';
+      if (side === 'A') return secret.A;
+      return secret.A === 'on' ? 'off' : 'on';
+    };
     rows.push({ id, caseId: secret.caseId, on: label[sideOf('on')], off: label[sideOf('off')], prefer: armOf(label.prefer) as PromptArm | 'tie', differs: armOf(label.differs), rater: stored?.rater ?? null });
   }
   const categories = Object.fromEntries(CATEGORIES.map((category) => {
@@ -458,8 +463,8 @@ export function scoreArms({ fixture, fixtureHash, frozenHash, records, key, labe
   }
   const plumbing = records.some((record) => record.plumbing || record.capture?.plumbing) || rows.some((row) => row.rater === 'plumbing');
   const allOk = Object.values(checks).every((check) => {
-    const value = check as { ok?: boolean } & Record<string, { ok?: boolean }>;
-    return typeof value.ok === 'boolean' ? value.ok : Object.values(value).every((inner) => inner.ok !== false);
+    const value = check as Record<string, unknown>;
+    return typeof value.ok === 'boolean' ? value.ok : Object.values(value).every((inner) => (inner as { ok?: boolean }).ok !== false);
   });
   const verdict = plumbing ? 'PLUMBING' : incomplete.length ? 'INCOMPLETE' : allOk ? 'PASS' : 'FAIL';
   return {
