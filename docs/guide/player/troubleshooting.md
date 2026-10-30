@@ -71,6 +71,10 @@ entries by itself** shows for a story that uses exclusive lore selection while V
 Info** is on, because exclusive lore stays off then. Untick it under Vector Storage's World Info settings (**Show me**
 opens them), or dismiss the note.
 
+Another note shows in player mode too and never raises the count: **"TavernOS HUD changes every message sent to the model, …"**.
+TavernOS HUD rewrites every request to the model, the story's own memory reads included, so the story can read a history
+that differs from the chat you see. Disable it in SillyTavern's extensions (and reload) while the story plays, or dismiss the note.
+
 ## "changes not saved yet"
 
 SillyTavern did not confirm the last save of the story's progress. The changes are kept in this page and go with the
