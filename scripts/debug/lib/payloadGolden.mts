@@ -317,5 +317,5 @@ export function describeReport(report: PayloadDiffReport, declarations: Declared
 export const CAPTURE_LABEL = /^[a-z0-9][a-z0-9._-]*$/;
 
 export function fixtureCaptureLabels(text: string): string[] {
-  return [...text.matchAll(/__soPayloadGolden\.capture\(\s*\\?['"]([^'"\\]+)\\?['"]/g)].map((match) => match[1]);
+  return [...text.matchAll(/__soPayloadGolden\.capture(?:Read)?\(\s*\\?['"]([^'"\\]+)\\?['"]/g)].map((match) => match[1]);
 }
