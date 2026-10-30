@@ -26,6 +26,7 @@ import ExtensionsBlock from "./components/settings/ExtensionsBlock";
 import { DEFAULT_MAX_TOKENS, inputBudget } from "@extraction/index";
 import { startRuntime, stopRuntime } from "@runtime/index";
 import { loadGameLayer } from "@engine/validate/gameLayer";
+import { loadStoryParser } from "@engine/storyParser";
 import { loadRecapKit } from "@runtime/recapPort";
 import { loadPatternsKit } from "@runtime/patternsPort";
 import { loadStylesheet } from "@runtime/stylesheet";
@@ -48,10 +49,12 @@ import { buildReplaySource, type GateReplaySource } from "./studio/replaySource"
 import type { FeatureWhere } from "@features/registry";
 import { log } from "@utils/log";
 
+const storyParser = loadStoryParser().catch((error) => log.warn("the story reader did not load", error));
 await loadStylesheet(() => import("./styles.css" as string), (message, error) => log.warn(message, error));
 await loadGameLayer().catch((error) => log.warn("quests, checks and story panels did not load", error));
 await loadRecapKit().catch((error) => log.warn("the consequences recap did not load", error));
 await loadPatternsKit().catch((error) => log.warn("story patterns did not load", error));
+await storyParser;
 const manager = startRuntime();
 const loadDraft = () => import("./studio/draft");
 const ui = createMountRegistry();

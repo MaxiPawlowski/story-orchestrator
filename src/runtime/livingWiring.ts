@@ -1,4 +1,5 @@
-import { isValidationErrorList, parseStory, type EngineState, type NormalizedStory, type StoryEngine } from "@engine/index";
+import { parseStory } from "@engine/storyParser";
+import { isValidationErrorList, type EngineState, type NormalizedStory, type StoryEngine } from "@engine/index";
 import type { ModelCall } from "@extraction/index";
 import { getPlayerName } from "@services/STAPI";
 import { announceChanceDraw } from "./chance";
