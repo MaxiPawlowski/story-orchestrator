@@ -4,7 +4,7 @@ import {
   checkAttempted, checkRolledKey, checksAt, evaluateGate, isClosed, questStatus, stepStatus, valueReader,
   type CheckpointOffer, type EngineState, type NormalizedStory, type PrimitiveValue,
 } from "@engine/index";
-import { openArcs, withoutExcludedThreads, type ArcEntry, type DerivedRecord } from "@memory/index";
+import { arcDeferred, openArcs, withoutExcludedThreads, type ArcEntry, type DerivedRecord } from "@memory/index";
 import type { PlayerPromise } from "@memory/promises/types";
 import { termPresent } from "@utils/termPresent";
 import type { GameView } from "./gameTypes";
@@ -150,7 +150,7 @@ const threadAnchors = (sources: AnchorSources): SuggestionAnchor[] => {
   const current = new Set(currentThreads(kept, state.checkpointStartedBoundary, state.boundary));
   const resurfaced = sources.arcs.some((arc) => arc.status === "resolved" && (arc.resolvedAt ?? -1) > state.boundary - RESURFACE_BOUNDARIES)
     || closedSince(sources.story, sources.valuesThen, state.blackboard.values as Values);
-  return openArcs(kept).filter((arc) => !arc.foldedInto).map((arc) => (current.has(arc.text)
+  return openArcs(kept).filter((arc) => !arc.foldedInto).map((arc) => (current.has(arc.text) && !arcDeferred(arc)
     ? anchor("thread", arc.id, arc.text, [`arc ${arc.id}`])
     : anchor("dormant-thread", arc.id, arc.text, [`arc ${arc.id}, opened at boundary ${arc.openedAt}`], ANCHOR_WEIGHTS["dormant-thread"] + (resurfaced ? RESURFACE_BONUS : 0))));
 };

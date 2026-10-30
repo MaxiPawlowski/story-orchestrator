@@ -83,7 +83,7 @@ function harness() {
     capable: true,
     applyEntries: async () => { writes.push("applyEntries"); memoryGate.onApplyEntries?.(); },
     recordVerifyDrops: () => { writes.push("recordVerifyDrops"); },
-    applyArcSignals: () => { writes.push("applyArcSignals"); return []; },
+    applyArcSignals: () => { writes.push("applyArcSignals"); return ({ arcs: [], opened: [], resolved: [], deferred: [], reopened: [], refused: [] }); },
     applyEpistemic: () => { writes.push("applyEpistemic"); },
     applyLedger: () => { writes.push("applyLedger"); },
     activeEpistemic: () => [],

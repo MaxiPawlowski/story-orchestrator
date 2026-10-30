@@ -48,7 +48,7 @@ function harness(emitSceneBreak: (audit: unknown, collect?: SceneJob[]) => void 
     getEntities: () => [],
     applyEntries: async (entries: Array<{ text: string }>) => { stored.push(...entries.map((entry) => entry.text)); },
     recordVerifyDrops: () => {},
-    applyArcSignals: () => [],
+    applyArcSignals: () => ({ arcs: [], opened: [], resolved: [], deferred: [], reopened: [], refused: [] }),
     applyEpistemic: () => {},
     applyLedger: () => {},
     updateInjection: () => {},

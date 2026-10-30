@@ -98,6 +98,17 @@ describe("v2.9 06 slice 1: anchors from what the player already sees", () => {
     ]);
   });
 
+  it("v3.0 33 S4: a current thread the player put off stays a suggestion, as a dormant thread at the dormant weight", () => {
+    const putOff = arc("a1", "Who rang the bell at midnight", 9, { history: [{
+      kind: "deferred", boundary: 9, messageId: 9, quote: "Later.", span: { chatId: "c", messageId: 8, revision: { swipeId: null, hash: "h" }, speaker: "Max", isUser: true, span: [0, 6] },
+    }] });
+    const threads = anchorCandidates(sources({ arcs: [putOff, arc("a0", "The drowned lighthouse keeper", 0)] }), open).filter((entry) => entry.kind.endsWith("thread"));
+    expect(threads.map((entry) => [entry.kind, entry.text, entry.weight])).toEqual([
+      ["dormant-thread", "Who rang the bell at midnight", 1],
+      ["dormant-thread", "The drowned lighthouse keeper", 1],
+    ]);
+  });
+
   it("a quest with no open visible step anchors on its title; a hidden quest never anchors", () => {
     const done = anchorCandidates(sources({ state: stateOf({ ...VALUES, found_lodgings: true, has_rope: true }) }), open);
     expect(done.filter((entry) => entry.kind.startsWith("quest"))).toEqual([]);

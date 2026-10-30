@@ -92,8 +92,14 @@ export function parseMemoryLine(line: string): MemoryLineParseResult {
 }
 
 const arcPattern = /^\[(arc|resolved)\]\s+(.+)$/i;
+const deferredPattern = /^\[deferred\]\s+(.+?)\s*\|\s*(?:m\s*=\s*)?(\d+)\s*\|\s*["“](.+?)["”]\s*$/i;
+const bareDeferredPattern = /^\[deferred\]\s+([^|]+?)\s*(?:\|.*)?$/i;
 
 export function parseArcLine(line: string): ParsedArcSignal | null {
+  const deferred = line.match(deferredPattern);
+  if (deferred) return { kind: "deferred", text: deferred[1].trim(), messageId: Number(deferred[2]), quote: deferred[3] };
+  const bare = line.match(bareDeferredPattern);
+  if (bare) return bare[1].trim() ? { kind: "deferred", text: bare[1].trim() } : null;
   const match = line.match(arcPattern);
   if (!match) return null;
   const text = match[2].trim();

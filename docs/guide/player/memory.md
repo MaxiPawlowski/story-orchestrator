@@ -43,6 +43,17 @@ message, the speaker and the group's enabled characters seen on stage, and for a
 speaker and the character it names. Nothing uses this record yet; it is measured first. A swipe or edit takes the affected notes back. Switch it off in **This story → Features → Who heard
 what** (or for every chat in **Orchestrator → Defaults**).
 
+## Threads you put off
+
+The story keeps a list of open threads: unresolved conflicts, mysteries, goals still in motion. When you put one off in
+your own words ("later", "not now", "let's leave that"), the next story read marks it as **put off**, with your exact
+words as the evidence. It is then no longer offered as the current thread, your thread list shows it as "(put off)",
+and **What could I do?** can still suggest it as an older thread. It is picked up again as soon as you mention it
+yourself; nothing brings it back on a timer. A character saying "later" never counts, and a swipe or edit takes the
+change back. The characters still see a put-off thread for now: leaving it out of their prompt is a separate control
+(**Leave put-off threads out of the prompt**), off until its replies are rated. Switch the feature off in **This story →
+Features → Threads you put off** (or for every chat in **Orchestrator → Defaults**).
+
 ## Chapters
 
 Some stories end chapters as they go. When one ends, a **Previously** card shows its summary, and the chapter

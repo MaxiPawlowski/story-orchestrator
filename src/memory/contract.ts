@@ -18,8 +18,15 @@ export function renderArcContractSection(openArcs: string[] = [], promisesTracke
     "[resolved] <brief description of an existing open arc that this window explicitly closed>",
     "Only mark [resolved] when the window directly closes the thread (promise kept, mystery answered, conflict ended); a related revelation is not a resolution.",
     ...(promisesTracked ? [PROMISE_ARC_RULE] : []),
+    ...(openArcs.length ? DEFERRED_ARC_LINES : []),
   ].join("\n");
 }
+
+export const DEFERRED_ARC_LINES = [
+  "[deferred] <an existing open arc the player put off> | m=<message index> | \"<the player's exact words, copied character for character>\"",
+  "Only write [deferred] when a line the player wrote in this window puts that topic off for now (\"later\", \"not now\", \"let's leave that\"); "
+    + "a cast member saying later is not a deferral, and neither is the player simply not mentioning it.",
+];
 
 export const EPISTEMIC_MAX_ENTRIES = 20;
 export const EPISTEMIC_MAX_RETIRES = 12;

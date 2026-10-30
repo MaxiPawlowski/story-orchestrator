@@ -3,7 +3,7 @@ import { estimateTokens } from "@memory/budget";
 import { renderChronicle } from "@memory/chronicle";
 import type { ArcEntry, ChapterRecord, EraLine, MemoryEntry } from "@memory/types";
 import { recallCandidates, recallMentions, renderRecall, selectRecall } from "@memory/archiveRecall";
-import { ARC_OPEN_INJECT_LIMIT, DEFAULT_DEDUP_THRESHOLDS, labelMemoryBlock, memoryExtensionKey, openArcTexts, withoutExcludedThreads, type ScoreContext } from "@memory/index";
+import { ARC_OPEN_INJECT_LIMIT, DEFAULT_DEDUP_THRESHOLDS, injectedThreads, labelMemoryBlock, memoryExtensionKey, openArcTexts, withoutExcludedThreads, type ScoreContext } from "@memory/index";
 import { buildChapterView, chapterNumber, chapterOf, chapterSettings, eraTarget, isEraId, jumpSeal, liveSkip, playerTitleOf, sealTarget, type ChapterSettings, type SealSkip } from "./chapters";
 import { sealAtState, type ChapterHost, type ChapterPort } from "./chapterPort";
 import { withholds } from "./generationLifecycle";
@@ -196,7 +196,7 @@ export function storySoFar(host: ChapterHost): string {
   const resting = host.coordinator.injector.restingFilter();
   const canon = memory.canon && !memory.canon.stale ? resting(memory.canon.text) : "";
   return story ? storySoFarText({ records: recordsOf(host), eras: memory.chronicle?.eras ?? [], canon, resting,
-    chapterTitle: chapter ? playerTitleOf(chapter) : null, threads: withoutExcludedThreads(memory.arcs, memory.derived).filter((arc) => arc.status === "open"), settings: settingsOf(host) }) : "";
+    chapterTitle: chapter ? playerTitleOf(chapter) : null, threads: injectedThreads(withoutExcludedThreads(memory.arcs, memory.derived), memory.settings), settings: settingsOf(host) }) : "";
 }
 
 export function inject(port: ChapterPort, prompt: PromptHost, on: boolean): Map<string, string> {

@@ -218,6 +218,16 @@ export const SETTING_COPY = {
     "When you promise a character something, the story keeps your exact words and reminds only that character, when the scene touches it. "
       + "Adds a few lines to each story read. Not measured yet.",
   ),
+  "memory.deferrals": copy(
+    "Notice threads you put off",
+    "When you put a topic off in your own words (\"later\", \"not now\"), the story marks that thread as put off: it is no longer offered as the current thread, "
+      + "your thread list says so, and it is picked up again as soon as you mention it. A character saying later never counts. Adds two lines to each story read. Not measured yet.",
+  ),
+  "memory.deferredOutOfPrompt": copy(
+    "Leave put-off threads out of the prompt",
+    "Also leaves a thread you put off out of the open threads the characters are given, until you mention it again. "
+      + "Off until a blind rating of the replies passes: it changes what the characters see.",
+  ),
   "memory.witness": copy(
     "Note who heard each message",
     "Each story read also names the characters who heard or saw each message, and says unknown when it cannot tell. Nothing uses the record until it is measured. "
