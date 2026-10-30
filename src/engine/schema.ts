@@ -161,6 +161,7 @@ export type CheckpointReasoning = (typeof CHECKPOINT_REASONING)[number];
 export const TRANSITION_EFFECT_KINDS = ["dissolve", "fade", "wipe", "iris", "cut"] as const;
 export type TransitionEffectKind = (typeof TRANSITION_EFFECT_KINDS)[number];
 export const TRANSITION_EFFECT_MAX_MS = 5000;
+export const TRANSITION_EFFECT_COLOR = "#000000";
 
 export interface TransitionEffect {
   kind: TransitionEffectKind;

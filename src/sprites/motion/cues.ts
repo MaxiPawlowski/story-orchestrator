@@ -1,11 +1,11 @@
-import { TRANSITION_EFFECT_KINDS, type TransitionEffect, type TransitionEffectKind } from "@engine/schema";
+import { TRANSITION_EFFECT_COLOR, TRANSITION_EFFECT_KINDS, type TransitionEffect, type TransitionEffectKind } from "@engine/schema";
 import type { MotionBudget } from "./budget";
 
 type StageTransitionKind = TransitionEffectKind;
 type StageTransitionSpec = TransitionEffect;
 
 export const DEFAULT_TRANSITION_MS: Record<StageTransitionKind, number> = { dissolve: 600, fade: 1000, wipe: 900, iris: 1000, cut: 0 };
-export const DEFAULT_TRANSITION_COLOR = "#000000";
+export const DEFAULT_TRANSITION_COLOR = TRANSITION_EFFECT_COLOR;
 export const HEX_COLOR = /^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/i;
 
 const TENSION_ORDER = ["calm", "stirring", "tense", "critical", "peak"] as const;

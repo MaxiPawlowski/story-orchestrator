@@ -1,15 +1,13 @@
 export const HOLD_MS = 800;
 export const RELEASE_MS = 150;
 
-const decoded = (value: string): string => {
-  try { return decodeURIComponent(value); } catch { return value; }
-};
+const stem = (file: string): string => file.replace(/\.[^.]+$/, "");
 
 export function layerNamesAuthored(image: string, authored: readonly string[]): boolean {
-  const url = decoded(image).toLowerCase();
-  const file = url.replace(/^url\((['"]?)/, "").replace(/(['"]?)\)$/, "").split("/").pop() ?? "";
+  const file = (image.replace(/^url\((['"]?)/, "").replace(/(['"]?)\)$/, "").split("/").pop() ?? "").toLowerCase();
   return authored.some((name) => {
     const wanted = name.trim().toLowerCase();
-    return Boolean(wanted) && (file === wanted || file.replace(/\.[^.]+$/, "") === wanted.replace(/\.[^.]+$/, ""));
+    if (!wanted) return false;
+    return [wanted, encodeURIComponent(wanted).toLowerCase()].some((form) => file === form || stem(file) === stem(form));
   });
 }

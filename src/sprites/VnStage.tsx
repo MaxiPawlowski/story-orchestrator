@@ -225,7 +225,7 @@ export function VnStage({ stage }: { stage: SpriteStage }) {
   const headActor = closeActors.find((actor) => actor.spotlight) ?? closeActors.find((actor) => actor.name === view.speaking) ?? closeActors[0];
   return (
     <div id="so-vn-stage" aria-hidden="true" data-framing={view.framing} data-placement={view.placement} data-motion={view.motion.mode}
-      data-blur={settings.focus && view.motion.blurOthers && view.actors.length > 1 ? "true" : undefined}
+      data-blur={settings.focus && view.motion.blurOthers && view.actors.length > 1 ? "true" : undefined} data-motion-kit={kit ? "ready" : undefined}
       style={{ "--so-move-ms": `${view.motion.moveMs}ms` } as React.CSSProperties}>
       {view.motion.mode !== "off" && <Lazy quiet><StageEffects stage={stage} motion={view.motion} /></Lazy>}
       {placed.map(({ actor, index, left, width, phase }) => (

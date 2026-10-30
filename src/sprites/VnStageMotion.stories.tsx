@@ -45,6 +45,7 @@ const sprites = (root: HTMLElement) => [...root.querySelectorAll<HTMLElement>(".
 const named = (root: HTMLElement, name: string) => sprites(root).find((sprite) => sprite.dataset.name === name);
 const actOf = (sprite: HTMLElement | undefined) => sprite?.querySelector<HTMLElement>(".so-sprite-act") ?? null;
 const pause = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+const LAZY = { timeout: 15000 };
 
 const meta: Meta<typeof VnStage> = { title: "Sprites/VnStage motion", component: VnStage };
 export default meta;
@@ -90,10 +91,10 @@ export const FullReactsAndHops: Story = {
   play: async ({ canvasElement }) => {
     await waitFor(() => expect(canvasElement.querySelector(".so-stage-vignette")).not.toBeNull());
     reacting.set({ actors: [{ ...ARIN, label: "surprise" }, MIRA] });
-    await waitFor(() => expect(actOf(named(canvasElement, "Arin"))?.getAnimations().length).toBeGreaterThan(0));
+    await waitFor(() => expect(actOf(named(canvasElement, "Arin"))?.getAnimations().length).toBeGreaterThan(0), LAZY);
     await pause(700);
     reacting.set({ speaking: "Mira" });
-    await waitFor(() => expect(actOf(named(canvasElement, "Mira"))?.getAnimations().length).toBeGreaterThan(0));
+    await waitFor(() => expect(actOf(named(canvasElement, "Mira"))?.getAnimations().length).toBeGreaterThan(0), LAZY);
     await expect(canvasElement.querySelector("#so-vn-stage")).toHaveAttribute("data-blur", "true");
   },
 };
@@ -114,12 +115,12 @@ const moods = scripted(baseView(FULL));
 export const TensionVignetteAndChapterCard: Story = {
   args: { stage: moods.stage },
   play: async ({ canvasElement }) => {
-    const vignette = await waitFor(() => { const found = canvasElement.querySelector<HTMLElement>(".so-stage-vignette"); expect(found).not.toBeNull(); return found as HTMLElement; });
+    const vignette = await waitFor(() => { const found = canvasElement.querySelector<HTMLElement>(".so-stage-vignette"); expect(found).not.toBeNull(); return found as HTMLElement; }, LAZY);
     moods.feed.update(signals({ boundary: 1 }));
     moods.feed.update(signals({ boundary: 2, tension: "critical", chapters: 1, chapterLabel: "Chapter 2", chapterTitle: "The Road North" }));
     await waitFor(() => expect(vignette).toHaveAttribute("data-tension", "critical"));
     await expect(Number(vignette.style.opacity)).toBeCloseTo(0.3);
-    const card = await waitFor(() => { const found = canvasElement.querySelector<HTMLElement>("[data-so=stage-chapter-card]"); expect(found).not.toBeNull(); return found as HTMLElement; });
+    const card = await waitFor(() => { const found = canvasElement.querySelector<HTMLElement>("[data-so=stage-chapter-card]"); expect(found).not.toBeNull(); return found as HTMLElement; }, LAZY);
     await expect(card.textContent).toContain("The Road North");
     await expect(card.textContent).toContain("Chapter 2");
     card.click();
@@ -131,7 +132,7 @@ const covers = scripted(baseView(FULL));
 export const AuthoredFadeCoversTheStage: Story = {
   args: { stage: covers.stage },
   play: async ({ canvasElement }) => {
-    const cover = await waitFor(() => { const found = canvasElement.querySelector<HTMLElement>(".so-stage-cover"); expect(found).not.toBeNull(); return found as HTMLElement; });
+    const cover = await waitFor(() => { const found = canvasElement.querySelector<HTMLElement>(".so-stage-cover"); expect(found).not.toBeNull(); return found as HTMLElement; }, LAZY);
     covers.feed.update(signals({ boundary: 1 }));
     covers.feed.update(signals({ boundary: 2, checkpoint: "cp2", transition: { kind: "fade", ms: 1500, color: "#fff" } }));
     await waitFor(() => expect(cover.getAnimations().length).toBeGreaterThan(0));

@@ -9,7 +9,7 @@ import type { DeclaredCardField } from "@engine/cardFields";
 import { isRecord } from "@utils/guards";
 import type { WorkflowMap } from "@engine/schema";
 import WorkflowMapEditor, { useWorkflowNames } from "./WorkflowMapEditor";
-import { TRANSITION_EFFECT_KINDS, TRANSITION_EFFECT_MAX_MS, type TransitionEffect, type TransitionEffectKind } from "@engine/schema";
+import { TRANSITION_EFFECT_COLOR, TRANSITION_EFFECT_KINDS, TRANSITION_EFFECT_MAX_MS, type TransitionEffect, type TransitionEffectKind } from "@engine/schema";
 import { Select, TextInput } from "@components/ui/Field";
 
 const StageTransitionFields: React.FC<{ value: TransitionEffect; onChange: (next: TransitionEffect) => void }> = ({ value, onChange }) => (
@@ -27,7 +27,7 @@ const StageTransitionFields: React.FC<{ value: TransitionEffect; onChange: (next
     </label>
     <label className="flex flex-col gap-1 text-sm">
       <span className="text-xs st-muted">Color</span>
-      <TextInput aria-label="Transition color" size="xs" type="color" value={value.color ?? "#000000"} onChange={(event) => onChange({ ...value, color: event.target.value })} />
+      <TextInput aria-label="Transition color" size="xs" type="color" value={value.color ?? TRANSITION_EFFECT_COLOR} onChange={(event) => onChange({ ...value, color: event.target.value })} />
     </label>
   </div>
 );
