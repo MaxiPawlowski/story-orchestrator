@@ -82,3 +82,29 @@
   font-size: var(--so-text-xs);
   text-decoration: underline;
 }
+
+:is(#drawer-manager, #story-orchestrator-settings, #so-panels-root) .so-help-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+:is(#drawer-manager, #story-orchestrator-settings, #so-panels-root) .so-help-panel {
+  padding: 0.5rem;
+  border: 1px solid var(--st-border);
+  border-radius: 0.5rem;
+  background: color-mix(in srgb, var(--st-bg-tint) 50%, transparent);
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+:is(#drawer-manager, #story-orchestrator-settings, #so-panels-root) .so-help-feature {
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--st-border) 40%, transparent);
+}
+
+#so-panels-root .so-panel-body .so-help-panel {
+  max-height: none;
+  border: none;
+  padding: 0;
+}

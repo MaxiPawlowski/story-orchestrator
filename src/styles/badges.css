@@ -1,0 +1,44 @@
+/* The one exception to the mount-root scope (v2.7 06 B): marks inside ST's own lists, never touching .avatar. */
+.so-story-badge {
+  margin-left: 0.35em;
+  font-size: 0.8em;
+  color: var(--so-badge-story);
+  opacity: 0.9;
+}
+
+.so-story-badge--saga {
+  color: var(--so-badge-saga);
+}
+
+.so-story-badge:focus-visible {
+  outline: 2px solid var(--st-hover);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.so-story-card {
+  position: fixed;
+  z-index: 3600;
+  max-width: 18rem;
+  padding: 6px 10px;
+  font-size: 0.85em;
+  line-height: 1.4;
+  color: var(--st-text-active);
+  background: var(--SmartThemeBlurTintColor, var(--st-bg-tint));
+  border: 1px solid var(--st-border);
+  border-radius: 6px;
+  box-shadow: 0 4px 16px var(--so-shadow);
+  pointer-events: none;
+}
+
+.so-story-card--saga {
+  border-color: var(--so-badge-saga);
+}
+
+.so-story-card-title {
+  font-weight: 600;
+}
+
+.so-story-card-kind {
+  opacity: 0.75;
+}

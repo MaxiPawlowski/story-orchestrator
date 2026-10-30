@@ -7,6 +7,7 @@ import {
 import type { WidgetDrawerTab } from "@engine/index";
 import type { WriteResult } from "@utils/writeResult";
 import { WIDGET_TEXT } from "@features/widgetCopy";
+import "./game.css";
 
 export interface HtmlWidgetFrameProps {
   widget: WidgetView;

@@ -1,0 +1,77 @@
+#so-hud-root .so-hud-card {
+  position: absolute;
+  bottom: calc(100% + 4px);
+  left: 0;
+  z-index: var(--so-z-popover);
+  display: flex;
+  flex-direction: column;
+  gap: var(--so-space-2);
+  width: min(100%, 22rem);
+  max-height: min(60vh, 28rem, var(--so-hud-card-room, 100vh));
+  padding: var(--so-space-3);
+  overflow-x: hidden;
+  overflow-y: auto;
+  white-space: normal;
+  font-size: var(--so-text-sm);
+  line-height: var(--so-leading);
+  text-align: left;
+  color: var(--so-fg);
+  background: var(--so-surface-solid);
+  backdrop-filter: blur(var(--so-blur, 0px));
+  -webkit-backdrop-filter: blur(var(--so-blur, 0px));
+  border: 1px solid var(--so-line-strong);
+  border-radius: var(--so-radius);
+  box-shadow: 0 6px 24px var(--so-shadow);
+}
+
+#so-hud-root .so-hud-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--so-space-2);
+}
+
+#so-hud-root .so-hud-card-title {
+  margin: 0;
+  font-size: var(--so-text);
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+#so-hud-root .so-hud-card-line {
+  margin: 0;
+  color: var(--so-fg-muted);
+}
+
+#so-hud-root .so-hud-card-line ul {
+  margin: 2px 0 0;
+  padding-left: 1.1rem;
+}
+
+#so-hud-root .so-hud-card-line p {
+  margin: 2px 0 0;
+}
+
+#so-hud-root .so-hud-card-status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--so-space-2);
+  color: var(--so-fg-muted);
+}
+
+#so-hud-root .so-hud-card-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--so-space-1);
+}
+
+#so-hud-root .so-hud-card-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--so-space-2);
+  padding-top: var(--so-space-2);
+  border-top: 1px solid var(--so-line);
+}

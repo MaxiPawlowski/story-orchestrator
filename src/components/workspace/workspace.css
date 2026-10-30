@@ -95,9 +95,4 @@
   #so-workspace-modal table { display: block; overflow-x: auto; max-width: 100%; }
   #so-workspace-modal .so-feature-filter { top: calc(-1 * var(--so-space-3)); }
   #so-workspace-modal .so-feature-more { margin-left: var(--so-space-1); }
-  #so-workspace-modal .so-card-table thead { display: none; }
-  #so-workspace-modal .so-card-table tbody { display: grid; gap: .75rem; }
-  #so-workspace-modal .so-card-table tr { display: block; padding: .75rem; border: 1px solid var(--st-border); border-radius: .5rem; }
-  #so-workspace-modal .so-card-table td { display: block; overflow-wrap: anywhere; padding: .25rem 0; }
-  #so-workspace-modal .so-card-table td::before { content: attr(data-label) ": "; font-weight: bold; }
 }

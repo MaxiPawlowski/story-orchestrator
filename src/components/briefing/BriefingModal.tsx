@@ -10,6 +10,7 @@ import type { PlayerSetupView } from "@runtime/playerSetup";
 import type { ChooseIdentity, StartCommit } from "./PlayerSetupPane";
 import { Button } from "@components/ui/Button";
 import type { CarryPaneProps } from "@components/carry/CarryPane";
+import "./briefing.css";
 
 const PlayerSetupPane = lazyRetry(() => import("./PlayerSetupPane"));
 const CarryPane = lazyRetry(() => import("@components/carry/CarryPane"));

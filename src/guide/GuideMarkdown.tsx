@@ -2,6 +2,8 @@ import type { ReactNode } from "react";
 import { parseMarkdown, type Block, type Inline, type ListBlock } from "./markdown";
 import { resolveAsset, resolveLink, slugger } from "./links";
 import type { GuideTarget } from "./types";
+import { Button } from "@components/ui/Button";
+import "./guide.css";
 
 export interface GuideMarkdownProps {
   doc: string;
@@ -58,12 +60,12 @@ export function GuideMarkdown({ doc, body, homePage, onNavigate, hrefFor, assetS
       case "action": {
         if (!actionLabels) return null;
         if (node.name === "show") {
-          return onShow ? <button key={id} type="button" className="menu_button so-guide-show" data-so="guide-show" data-show={node.value}
-            onClick={() => onShow(node.value)}>{actionLabels.showMe}</button> : null;
+          return onShow ? <Button key={id} type="button" className="so-guide-show" data-so="guide-show" data-show={node.value}
+            onClick={() => onShow(node.value)}>{actionLabels.showMe}</Button> : null;
         }
         if (!checks || !(node.value in checks)) return null;
         const done = checks[node.value];
-        return <span key={id} className={`so-guide-check ${done ? "so-success-text" : ""}`} data-so="guide-check" data-check={node.value} data-done={done}>
+        return <span key={id} className={`so-guide-check ${done ? "text-[var(--so-ok)]" : ""}`} data-so="guide-check" data-check={node.value} data-done={done}>
           <i className={done ? "fa-solid fa-circle-check" : "fa-regular fa-circle"} aria-hidden="true" /> {done ? actionLabels.checkDone : actionLabels.checkTodo}</span>;
       }
       default: return null;
