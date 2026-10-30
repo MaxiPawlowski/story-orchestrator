@@ -439,7 +439,7 @@ export const Overview: Story = {
     await expect(canvasElement.querySelector("#so-author-overview")).not.toBeNull();
     await expect(canvasElement.querySelector("#so-player-overview")).toBeNull();
     await expect(canvasElement.querySelector("#so-setup")).toBeNull();
-    await expect(canvas.queryByLabelText("Flag this moment")).toBeNull();
+    await expect(canvas.queryByRole("button", { name: "Flag a moment" })).toBeNull();
   },
 };
 
@@ -1490,11 +1490,11 @@ export const FlagMoment: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(canvas.getByLabelText("Flag this moment"));
+    await userEvent.click(canvas.getByRole("button", { name: "Flag a moment" }));
     const note = canvas.getByPlaceholderText("What happened here? (optional)");
     await userEvent.type(note, "recap was useless");
     await userEvent.click(canvas.getByRole("button", { name: "Flag" }));
-    await expect(canvas.getByLabelText("Flag this moment")).toBeInTheDocument();
+    await expect(canvas.getByRole("button", { name: "Flag a moment" })).toBeInTheDocument();
     await expect(await canvas.findByRole("status")).toHaveTextContent(PLAYER_COPY.flagged);
   },
 };

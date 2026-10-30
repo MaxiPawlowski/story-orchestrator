@@ -55,6 +55,8 @@ export const sanitizePanels = (value: unknown): Record<string, PanelGeometry> =>
   }))
   : {});
 
+export const panelFits = (stored: Record<string, PanelGeometry>, id: string): boolean => !stored[id] || stored[id].h === (PANEL_DEFAULTS[id] ?? fallback).h;
+
 export const panelGeometry = (stored: Record<string, PanelGeometry>, id: string, viewport: Viewport): PanelGeometry =>
   clampPanel(stored[id] ?? PANEL_DEFAULTS[id] ?? fallback, viewport);
 

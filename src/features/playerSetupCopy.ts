@@ -18,6 +18,7 @@ export const PLAYER_SETUP_COPY = {
   closeKeeps: (name: string) => `Closing this page keeps ${name} as your persona.`,
   oldName: "Earlier messages in this chat keep the old name.",
   yourCharacter: "Your character in this story",
+  youHeading: "You",
   lockedHint: "Chosen when the story started. To play someone else, start the story again.",
   lockFailed: "SillyTavern did not keep this persona for this chat, so the story waits to start.",
   retryLock: "Try again",

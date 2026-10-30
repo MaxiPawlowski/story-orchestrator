@@ -4,7 +4,7 @@ import { lazyRetry } from "@utils/lazyRetry";
 import { BADGE_REFRESH_EVENTS, fillChatInput, mountStoryBadges, mountStoryWand, openStoryGroupChat, showTextPopup, subscribeToHostEvents } from "@services/STAPI";
 import type { RuntimeManager } from "@runtime/index";
 import type { RuntimeSnapshot } from "@runtime/types";
-import { chatPanelsShown, type ChatPanel } from "@runtime/chatPanels";
+import type { ChatPanel } from "@runtime/chatPanels";
 import { sheetTabForPanel, sheetTabs, type SheetTab } from "@runtime/storySheet";
 import type { WidgetDrawerTab } from "@engine/index";
 import { onPlaysChanged, readBadgeMaps } from "@runtime/playsIndexHost";
@@ -13,7 +13,6 @@ import { renderNarrativeNode } from "@runtime/narrative";
 import type { MountRegistry } from "@utils/mountRegistry";
 import type { FeatureWhere } from "@features/registry";
 import { PRESENCE_TEXT } from "@features/presenceCopy";
-import { GAME_TEXT } from "@features/gameCopy";
 import { SHEET_TEXT } from "@features/sheetCopy";
 import { BRIEFING_COPY, HELP_COPY } from "@features/helpCopy";
 import { requestBriefing } from "@runtime/briefingRequest";
@@ -81,35 +80,6 @@ export interface PresenceUiDeps {
 }
 
 export const openChatPanel = (panel: ChatPanel, snapshot: RuntimeSnapshot) => openSheet(sheetTabForPanel(panel, sheetTabs(snapshot)));
-
-const LAUNCHERS: Record<ChatPanel, { id: string; icon: string; label: string }> = {
-  journal: { id: "so-open-journal", icon: "fa-book", label: GAME_TEXT.journalLaunch },
-  "stat-sheet": { id: "so-open-stat-sheet", icon: "fa-list-check", label: GAME_TEXT.statSheetLaunch },
-  widgets: { id: "so-open-widgets", icon: "fa-table-columns", label: GAME_TEXT.widgetsLaunch },
-  suggestions: { id: "so-open-suggestions", icon: "fa-lightbulb", label: PRESENCE_TEXT.suggestionsOpen },
-};
-
-export const ChatPanelLaunchers = ({ snapshot, onLaunch }: { snapshot: RuntimeSnapshot; onLaunch: (panel: ChatPanel) => void }) => {
-  const shown = chatPanelsShown(snapshot);
-  if (!shown.length) return null;
-  return (
-    <section id="so-chat-side" aria-labelledby="so-chat-side-heading" className="so-task-card">
-      <h3 id="so-chat-side-heading" className="so-card-heading">{PRESENCE_TEXT.chatSideHeading}</h3>
-      <p className="so-card-hint">{PRESENCE_TEXT.chatSideHint}</p>
-      <div className="so-actions">
-        {shown.map((panel) => {
-          const { id, icon, label } = LAUNCHERS[panel];
-          return (
-            <button key={panel} id={id} type="button" data-so={id.slice(3)} className="menu_button so-launcher" onClick={() => onLaunch(panel)}>
-              <i className={`fa-solid ${icon}`} aria-hidden="true" />
-              <span>{label}</span>
-            </button>
-          );
-        })}
-      </div>
-    </section>
-  );
-};
 
 export const openPlay = async (row: ContinueRow) => {
   const opened = await openStoryGroupChat(row.groupId, row.chatId);

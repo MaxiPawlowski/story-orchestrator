@@ -25,7 +25,7 @@ const many = {
 const meta: Meta<typeof SetupSection> = {
   title: "Drawer/SetupSection",
   component: SetupSection,
-  args: { authorView: false, onShowMe: fn(), onFix: fn(), onDismiss: fn() },
+  args: { authorView: false, open: true, onShowMe: fn(), onFix: fn(), onDismiss: fn() },
 };
 
 export default meta;
@@ -87,6 +87,29 @@ export const InfoFinding: Story = {
     const canvas = within(canvasElement);
     await expect(canvas.getByText(SETUP_COPY.info)).toBeInTheDocument();
     await expect(canvas.getByRole("button", { name: SETUP_COPY.dismiss })).toBeInTheDocument();
+  },
+};
+
+export const CollapsedUntilOpened: Story = {
+  args: { open: false, findings: setupFindings(snapshot({ thinkingSilent: true })) },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    const toggle = canvas.getByRole("button", { name: new RegExp(SETUP_COPY.count(1)) });
+    await expect(toggle).toHaveAttribute("aria-expanded", "false");
+    await expect(canvas.queryByRole("button", { name: SETUP_COPY.dismiss })).toBeNull();
+    await userEvent.click(toggle);
+    await userEvent.click(canvas.getByRole("button", { name: SETUP_COPY.dismiss }));
+    await expect(args.onDismiss).toHaveBeenCalledWith("model-not-thinking", true);
+    await userEvent.click(canvas.getByRole("button", { name: SETUP_COPY.undo }));
+    await expect(args.onDismiss).toHaveBeenLastCalledWith("model-not-thinking", false);
+  },
+};
+
+export const BlockersOpenByThemselves: Story = {
+  args: { open: false, findings: setupFindings(snapshot({ extraction: { settings: { enabled: true, profileId: null } } })) },
+  play: async ({ canvasElement }) => {
+    await expect(canvasElement.querySelector("#so-setup-toggle")).toHaveAttribute("aria-expanded", "true");
+    await expect(canvasElement.querySelector('[data-so="setup-row"][data-check="memory-model"]')).toBeVisible();
   },
 };
 
@@ -201,7 +224,7 @@ const repairCard = (viewport: { width: number; height: number }, maxLines: numbe
   parameters: { testViewport: viewport },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    const card = canvasElement.querySelector("#so-setup") as HTMLElement;
+    const card = canvasElement.querySelector("#so-setup-rows") as HTMLElement;
     await expect(Number.parseFloat(getComputedStyle(card).paddingLeft)).toBeGreaterThanOrEqual(12);
     const fix = canvas.getByRole("button", { name: "I have dealt with it, stop reporting these" });
     const dismiss = canvas.getByRole("button", { name: SETUP_COPY.dismiss });

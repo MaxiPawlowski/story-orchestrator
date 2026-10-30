@@ -1,6 +1,16 @@
 import { useState } from "react";
 import type { RuntimeManager } from "@runtime/index";
 import { PLAYER_COPY } from "@runtime/narrative";
+import { Button } from "@components/ui/Button";
+import { IconButton } from "@components/ui/IconButton";
+
+export const FLAG_COPY = {
+  label: "Flag a moment",
+  title: "Flag this moment: it lands in the session journal for review",
+  placeholder: "What happened here? (optional)",
+  submit: "Flag",
+  cancel: "Cancel flag",
+} as const;
 
 export const FlagControl = ({ manager }: { manager: Pick<RuntimeManager, "flagMoment"> }) => {
   const [open, setOpen] = useState(false);
@@ -15,22 +25,17 @@ export const FlagControl = ({ manager }: { manager: Pick<RuntimeManager, "flagMo
   };
 
   if (!open) return <>
-    <button
-      id="so-flag-moment"
-      className="menu_button opacity-70"
-      title="Flag this moment — it lands in the session journal for review"
-      aria-label="Flag this moment"
-      onClick={() => { setFlagged(false); setOpen(true); }}
-    >⚑</button>
-    {flagged && <span id="so-flag-status" role="status" className="text-xs so-success-text">{PLAYER_COPY.flagged}</span>}
+    <Button id="so-flag-moment" icon="fa-flag" title={FLAG_COPY.title} onClick={() => { setFlagged(false); setOpen(true); }}>{FLAG_COPY.label}</Button>
+    {flagged && <span id="so-flag-status" role="status" className="so-play-meta so-success-text">{PLAYER_COPY.flagged}</span>}
   </>;
   return (
-    <div className="flex items-center gap-1 flex-1">
+    <div className="so-flag-form">
       <input
         id="so-flag-note"
-        className="text_pole flex-1"
+        className="text_pole"
         autoFocus
-        placeholder="What happened here? (optional)"
+        aria-label={FLAG_COPY.placeholder}
+        placeholder={FLAG_COPY.placeholder}
         value={note}
         onChange={(event) => setNote(event.target.value)}
         onKeyDown={(event) => {
@@ -38,8 +43,8 @@ export const FlagControl = ({ manager }: { manager: Pick<RuntimeManager, "flagMo
           if (event.key === "Escape") { event.stopPropagation(); event.preventDefault(); setOpen(false); }
         }}
       />
-      <button id="so-flag-submit" className="menu_button" onClick={() => void submit()}>Flag</button>
-      <button className="menu_button opacity-70" aria-label="Cancel flag" onClick={() => { setNote(""); setOpen(false); }}>✕</button>
+      <Button id="so-flag-submit" variant="primary" onClick={() => void submit()}>{FLAG_COPY.submit}</Button>
+      <IconButton icon="fa-xmark" label={FLAG_COPY.cancel} onClick={() => { setNote(""); setOpen(false); }} />
     </div>
   );
 };

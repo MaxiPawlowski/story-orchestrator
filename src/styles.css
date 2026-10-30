@@ -1,6 +1,7 @@
 @import "./styles/tokens.css";
 @import "./styles/kit.css";
 @import "./styles/sheet.css";
+@import "./styles/play.css";
 @reference "tailwindcss";
 @source "./";
 

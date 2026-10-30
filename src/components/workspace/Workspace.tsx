@@ -10,27 +10,16 @@ import { FeaturePages } from "./FeaturePages";
 import { WorkspaceShell } from "./WorkspaceShell";
 import { DevicePreferences } from "./DevicePreferences";
 import { setupFindings } from "@runtime/repair";
-import PlayerOverview from "@components/drawer/PlayerOverview";
-import SetupSection from "@components/drawer/SetupSection";
-import { ChatPanelLaunchers } from "../../presenceUi";
-import { livingSaveShown } from "@runtime/surfaceShown";
+import { openSheet } from "../../presenceUi";
 import "./workspace.css";
 import { getGlobalSettings } from "@runtime/settingsStore";
-import BranchNotice from "@components/drawer/BranchNotice";
 import { composeActivity } from "@runtime/activityFeed";
-import FlagControl from "@components/drawer/FlagControl";
-import { requestBriefing } from "@runtime/briefingRequest";
-import { BusyButton } from "@components/BusyButton";
-import { playEmptyState } from "@runtime/noGroup";
 
 const SettingsPanel = lazyRetry(() => import("../settings/SettingsPanel"));
 const DrawerTabs = lazyRetry(() => import("../drawer/DrawerTabs"));
 const StagecraftPanel = lazyRetry(() => import("../drawer/StagecraftPanel"));
-const MemoryTab = lazyRetry(() => import("../drawer/tabs/MemoryTab").then((module) => ({ default: module.MemoryTab })));
 const ActivityPanel = lazyRetry(() => import("../panels/ActivityPanel"));
-const YourCharacter = lazyRetry(() => import("../drawer/YourCharacter"));
-const MakeGroupCard = lazyRetry(() => import("../settings/MakeGroupCard"));
-const LivingSave = lazyRetry(() => import("../drawer/LivingSave"));
+const PlayPage = lazyRetry(() => import("./PlayPage"));
 
 export interface WorkspaceProps {
   intent: WorkspaceIntent;
@@ -57,38 +46,9 @@ export default function Workspace({ intent, snapshot, manager, settingsHost, dra
         <Lazy><SettingsPanel snapshot={installSnapshot} manager={manager} host={settingsHost}
           workspaceSection={location.page === "connections" ? "connections" : location.page === "interface" ? "interface" : location.page === "help" ? "help" : "library"} /></Lazy>
       </>;
-      const empty = playEmptyState(snapshot);
-      if (location.page === "play") return <section className="so-play" data-so="play-page" data-state={empty?.kind ?? "playing"}>
-        <h2>{empty?.heading ?? "Playing this story"}</h2>
-        {snapshot.chatIdentity?.kind === "branch" && onContinueBranch && <BranchNotice identity={snapshot.chatIdentity} onContinue={onContinueBranch} />}
-        <SetupSection findings={setupFindings(snapshot)} authorView={snapshot.ui.authorView} beforeStart={snapshot.boundary === 0} onShowMe={drawerProps.onShowMe} onFix={drawerProps.onFix}
-          onDismiss={(id, dismissed) => manager.setCheckDismissed(id, dismissed)} />
-        {snapshot.ready ? <>
-          <div className="so-task-card">
-            <PlayerOverview snapshot={snapshot} onOpenSettings={drawerProps.onOpenSettings} onReread={() => void manager.runExtractionNow(undefined, "recovery")}
-              onRetry={() => void manager.retryExtraction()} onRestart={() => void manager.restartStory()} onDismissPreviously={() => void manager.carry.dismiss()}
-              onFlagChapter={(title) => void manager.flagMoment(`chapter summary looks wrong: ${title}`)} />
-            {snapshot.playerSetup && <Lazy fallback={null}><YourCharacter snapshot={snapshot} /></Lazy>}
-            {livingSaveShown(snapshot) && <Lazy fallback={null}><LivingSave onSave={() => manager.living.saveAsStory({ includeUnreached: false })} /></Lazy>}
-          </div>
-          {settingsHost.openPanel && <ChatPanelLaunchers snapshot={snapshot} onLaunch={settingsHost.openPanel} />}
-          {imagePanel && <div className="so-task-card">{imagePanel}</div>}
-          <details className="so-task-card so-card-disclosure">
-            <summary id="so-open-memory" className="so-card-heading">What the story remembers</summary>
-            <Lazy><MemoryTab snapshot={snapshot} manager={manager} authorView={false} /></Lazy>
-          </details>
-          <div className="so-actions">
-            <BusyButton className="st-button secondary" work={() => manager.restartStory()}>Restart story</BusyButton>
-            {snapshot.briefing?.view && <button id="so-story-briefing" className="st-button secondary" onClick={() => requestBriefing()}>Story briefing</button>}
-            <FlagControl manager={manager} />
-          </div>
-        </> : <div className="so-task-card">
-          {snapshot.noGroup && settingsHost.makeGroup ? <Lazy fallback={null}><MakeGroupCard id="so-play-make-group" view={snapshot.noGroup} wizardOn={snapshot.copilot.enabled}
-            onMakeGroup={settingsHost.makeGroup} onFixWithWizard={(storyId, missing) => settingsHost.fixGroupWithWizard?.(storyId, missing)} /></Lazy>
-            : <p>{empty?.text}</p>}
-          <div className="so-actions"><button className="st-button primary" onClick={() => navigate({ context: "orchestrator", page: "library" })}>Open library</button></div>
-        </div>}
-      </section>;
+      if (location.page === "play") return <Lazy><PlayPage snapshot={snapshot} manager={manager} settingsHost={settingsHost} drawerProps={drawerProps} control={intent.control}
+        onClose={onClose} onLibrary={() => navigate({ context: "orchestrator", page: "library" })} onPopOut={(tab) => { onClose(); openSheet(tab); }}
+        onContinueBranch={onContinueBranch} imageQuick={imagePanel} /></Lazy>;
       if (!snapshot.ui.authorView) return <section><h2>{location.page === "review" ? "Review proposals" : "Author view"}</h2>
         <p>This area can reveal private character knowledge, lore and future routes. Feature configuration is available without revealing them.</p>
         <button id="so-author-view" className="st-button secondary" onClick={() => settingsHost.openAuthorView?.()}>Show author view</button>

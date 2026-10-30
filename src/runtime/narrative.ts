@@ -142,6 +142,8 @@ export const excerpt = (value: string, max = CANON_EXCERPT_CHARS): string => {
   return `${(word || head).trimEnd()}…`;
 };
 
+export const midSentence = (name: string): string => name.replace(/^(The|A|An) (?=\S)/, (article) => article.toLowerCase());
+
 export const sceneHeadline = (parts: { playerName?: string | null; chapterTitle?: string | null; storyTitle?: string | null }): string =>
   [parts.playerName, parts.chapterTitle, parts.storyTitle].map((value) => value?.trim()).find(Boolean) ?? PLAYER_COPY.currentScene;
 
@@ -163,7 +165,7 @@ export function buildNarrativeStatus(input: NarrativeInput): NarrativeStatus {
 
   const moved = input.lastTransition;
   const recently = [
-    ...(moved ? [moved.fromName ? `You left ${moved.fromName} behind and moved into ${moved.toName}.` : `You moved into ${moved.toName}.`] : []),
+    ...(moved ? [moved.fromName ? `You left ${midSentence(moved.fromName)} behind and moved into ${midSentence(moved.toName)}.` : `You moved into ${midSentence(moved.toName)}.`] : []),
     ...(input.latestScene ? [input.latestScene.text] : []),
   ];
   if (recently.length) sections.push({ id: "recently", label: "Recently", lines: recently });

@@ -132,8 +132,7 @@ export const MemoryTab = ({ snapshot, manager, authorView, focusFact }: { snapsh
   };
 
   return (
-    <div data-so="memory-tab" className="text-xs opacity-80">
-      <div className="font-medium opacity-100">{PLAYER_COPY.memoryHeading}</div>
+    <div data-so="memory-tab" className="so-memory-tab">
       {excluded && (
         <div id="so-memory-excluded" data-so="memory-excluded" data-state={excluded.state} role="status" className="flex flex-wrap items-center gap-2 mt-1">
           <span className={excluded.state === "refused" ? "so-warning-text" : ""}>

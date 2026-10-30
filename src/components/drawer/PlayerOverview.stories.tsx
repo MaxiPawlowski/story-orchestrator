@@ -6,6 +6,7 @@ import type { ExtractionHealth } from "@extraction/index";
 import { derivePipelineStatus } from "@runtime/pipeline";
 import type { ExtractionRuntimeState, RuntimeSnapshot } from "@runtime/types";
 import { PlayerOverview } from "./PlayerOverview";
+import { PlayerNow } from "./PlayerNow";
 
 const extraction = (overrides: Partial<ExtractionRuntimeState> = {}): ExtractionRuntimeState => ({
   settings: { enabled: true, profileId: "p1", cadence: 3, stabilityLag: 0 },
@@ -63,7 +64,7 @@ const meta: Meta<typeof PlayerOverview> = {
   title: "Drawer/PlayerOverview",
   component: PlayerOverview,
   args: { onOpenSettings: fn() },
-  render: (args) => <div style={{ maxWidth: 360 }}><PlayerOverview {...args} /></div>,
+  render: (args) => <div style={{ maxWidth: 360 }}><PlayerOverview {...args} /><PlayerNow snapshot={args.snapshot} /></div>,
 };
 
 export default meta;
