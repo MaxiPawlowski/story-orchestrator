@@ -23,7 +23,7 @@ const ForeignGroup = ({ snapshot }: { snapshot: RuntimeSnapshot }) => {
   if (!rows.length) return null;
   const total = snapshot.nextTurnCost.foreignTokens;
   return (
-    <details data-so="next-turn-foreign" className="border-t border-solid border-white/10 pt-1">
+    <details data-so="next-turn-foreign" className="border-t border-solid border-[var(--so-line)] pt-1">
       <summary className="cursor-pointer opacity-100">Other extensions ({rows.length} block{rows.length === 1 ? "" : "s"}{total === null ? "" : `, ${total} tokens`}) · read-only</summary>
       {rows.map((row) => (
         <div key={row.key} data-so="next-turn-foreign-row" data-key={row.key} className="pt-1">
@@ -81,7 +81,7 @@ export const NextTurnPanel = ({ snapshot, actions, onOpenOwner }: { snapshot: Ru
       {rows.length === 0 ? (
         <div className="opacity-70">Nothing is injected into the next reply.</div>
       ) : rows.map((row) => (
-        <div key={`${row.key}:${row.target ?? ""}`} data-so="next-turn-row" data-key={row.key} className="border-t border-solid border-white/10 pt-1">
+        <div key={`${row.key}:${row.target ?? ""}`} data-so="next-turn-row" data-key={row.key} className="border-t border-solid border-[var(--so-line)] pt-1">
           <div className="flex flex-wrap items-center gap-2">
             <span className="opacity-100">{row.label}</span>
             <span data-so="next-turn-tokens" className="opacity-70">depth {row.depth} · {row.characters} chars · {tokenText(row.tokens, row.tokenSource, row.share)}</span>

@@ -9,7 +9,7 @@ export const EchoesPanel = ({ view }: { view: EchoAuthorView }) => {
   if (!view.rows.length && !view.gaps.length) return null;
   const open = view.rows.filter((row) => row.state === "scheduled" || row.state === "due" || row.state === "waiting").length;
   return (
-    <details id="so-echoes" data-so="echoes" className="border-t border-solid border-white/10 mt-1 pt-1">
+    <details id="so-echoes" data-so="echoes" className="border-t border-solid border-[var(--so-line)] mt-1 pt-1">
       <summary className="opacity-100 cursor-pointer">Echoes ({view.rows.length - open} handed over or ended, {open} on the way)</summary>
       <ul className="list-none p-0 m-0">
         {view.rows.map((row) => (

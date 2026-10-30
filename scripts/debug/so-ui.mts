@@ -46,7 +46,10 @@ export async function openExtensionSettings(page) {
     await navContent.waitFor({ state: 'visible', timeout: 5000 }).catch(() => undefined);
   }
 
-  await root.locator('#so-open-workspace').click();
+  const launcher = root.locator('#so-open-workspace');
+  if (!(await launcher.isVisible().catch(() => false))) await root.locator('.inline-drawer-toggle').first().click();
+  await launcher.waitFor({ state: 'visible', timeout: 5000 });
+  await launcher.click();
   await workspace.waitFor({ state: 'visible', timeout: 10000 });
   await workspace.locator('#so-workspace-page-connections').click();
   return { alreadyOpen: false, navWasOpen };

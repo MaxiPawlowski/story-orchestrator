@@ -24,7 +24,7 @@ const SEVERITY_LABEL: Record<RepairStep["severity"], string> = { blocks: SETUP_C
 const SetupRow = ({ step, authorView, handlers }: { step: RepairStep; authorView: boolean; handlers: SetupHandlers }) => {
   const status = useActionStatus();
   return (
-  <div data-so="setup-row" data-check={step.check} data-severity={step.severity} className="flex flex-col gap-2 border-t border-solid border-white/10 pt-2">
+  <div data-so="setup-row" data-check={step.check} data-severity={step.severity} className="flex flex-col gap-2 border-t border-solid border-[var(--so-line)] pt-2">
     <div className="text-xs opacity-70">{SEVERITY_LABEL[step.severity]}</div>
     <div className={`text-sm ${step.severity === "blocks" ? "so-warning-text" : ""}`}>{step.consequence}</div>
     {authorView && step.detail !== step.consequence && <div data-so="setup-detail" className="text-xs opacity-70">{step.detail}</div>}

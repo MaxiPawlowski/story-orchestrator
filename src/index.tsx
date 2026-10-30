@@ -20,6 +20,7 @@ import { onTourRequest } from "@guide/tour/request";
 import { contextLimitInvalidators, createContextLimitCache } from "@runtime/contextLimitCache";
 import { getGlobalSettings, setGlobalSettings } from "@runtime/settingsStore";
 import { type SettingsHost } from "./components/settings/SettingsPanel";
+import ExtensionsBlock from "./components/settings/ExtensionsBlock";
 import { DEFAULT_MAX_TOKENS, inputBudget } from "@extraction/index";
 import { startRuntime, stopRuntime } from "@runtime/index";
 import { loadGameLayer } from "@engine/validate/gameLayer";
@@ -287,11 +288,8 @@ const settingsHost: SettingsHost = {
 
 const SettingsRoot = () => {
   const snapshot = useRuntimeSnapshot();
-  return <div id="story-orchestrator-settings" className="p-3 flex flex-col gap-2">
-    <strong>Story Orchestrator</strong>
-    <span>{snapshot.ready ? "A story is active in this chat." : "Open a story to begin."}</span>
-    <button id="so-open-workspace" className="menu_button" onClick={() => workspaceNavigation.open({ context: "orchestrator" })}>Open Story Orchestrator</button>
-    <button id="so-open-setup" className="menu_button" onClick={openRepairStep}>Story setup and repair</button>
+  return <div id="story-orchestrator-settings">
+    <ExtensionsBlock active={snapshot.ready} onOpenWorkspace={() => workspaceNavigation.open({ context: "orchestrator" })} onOpenSetup={openRepairStep} />
   </div>;
 };
 

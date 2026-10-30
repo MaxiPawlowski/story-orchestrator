@@ -57,8 +57,8 @@
   height: 92%;
   transform: translateX(-50%);
   transition: filter 400ms ease, transform 400ms ease;
-  -webkit-mask-image: linear-gradient(to bottom, #000 78%, transparent 100%);
-  mask-image: linear-gradient(to bottom, #000 78%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, var(--black100) 78%, transparent 100%);
+  mask-image: linear-gradient(to bottom, var(--black100) 78%, transparent 100%);
 }
 
 :is(#so-vn-root, #so-stage-strip) .so-sprite.so-speaking {
@@ -107,7 +107,7 @@
 }
 
 :is(#so-vn-root, #so-stage-strip) .so-sprite.so-spotlight:not(.so-idle) {
-  filter: drop-shadow(0 0 12px rgba(255, 240, 200, 0.35));
+  filter: drop-shadow(0 0 12px var(--so-sprite-glow));
 }
 
 :is(#so-vn-root, #so-stage-strip) .so-sprite img.so-sprite-top {

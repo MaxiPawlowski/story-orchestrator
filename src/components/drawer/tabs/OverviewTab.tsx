@@ -3,12 +3,13 @@ import { provisionableMissing } from "@runtime/repair";
 import { competingSummary } from "@runtime/storyScenario";
 import ScenePanel from "../ScenePanel";
 import { PatternsPanel } from "../PatternsPanel";
+import { StatusDot } from "../StatusDot";
 
 const extractionReady = (snapshot: RuntimeSnapshot): boolean => snapshot.extraction.settings.enabled && Boolean(snapshot.extraction.settings.profileId);
-
-export const StatusDot = ({ ok, label }: { ok: boolean; label: string }) => (
-  <span role="img" aria-label={`${label}: ${ok ? "ready" : "missing"}`} className={`status-indicator status-${ok ? "success" : "error"}`} />
-);
+const extractionWord = (snapshot: RuntimeSnapshot): string => {
+  if (!snapshot.extraction.settings.enabled) return "off";
+  return snapshot.extraction.settings.profileId ? "ready" : "no model";
+};
 
 const SOURCE_LABELS: Record<LoreSource, string> = { global: "selected globally", chat: "chat lorebook", persona: "persona lorebook", character: "every member's card",
   story: "loaded with this story" };
@@ -55,7 +56,7 @@ const AuthorRequirements = ({ snapshot, onFixWithWizard }: { snapshot: RuntimeSn
     <div className="flex flex-col gap-1">
       {items.map((item) => (
         <div key={item.label} className="flex flex-col gap-1">
-          <div className="flex items-center gap-2"><StatusDot ok={item.missing.length === 0} label={item.label} /><span>{item.label}</span></div>
+          <div className="flex items-center gap-2"><StatusDot tone={item.missing.length ? "error" : "ok"} label={item.label} word={item.missing.length ? "missing" : "ready"} /></div>
           {item.missing.length > 0 && <div className="text-xs opacity-80">Missing: {item.missing.join(", ")}</div>}
         </div>
       ))}
@@ -70,7 +71,7 @@ const AuthorRequirements = ({ snapshot, onFixWithWizard }: { snapshot: RuntimeSn
         >Fix with wizard</button>
       )}
       <div className="flex flex-col gap-1">
-        <div className="flex items-center gap-2"><StatusDot ok={ready} label="Extraction" /><span>Extraction</span></div>
+        <div className="flex items-center gap-2"><StatusDot tone={ready ? "ok" : "error"} label="Extraction" word={extractionWord(snapshot)} /></div>
         {!ready && <div className="text-xs opacity-80">Off — the story will not advance on its own. Enable it and pick a model profile in settings.</div>}
       </div>
     </div>
@@ -130,11 +131,11 @@ const AuthorOverview = ({ snapshot, onFixWithWizard, onBranchFromOldest }: { sna
         {snapshot.convergence.map((entry) => {
           const pct = entry.threshold > 0 ? Math.min(100, Math.round((entry.progress / entry.threshold) * 100)) : 100;
           return (
-            <div key={entry.anchorId} className="border-t border-solid border-white/10 mt-1 pt-1">
+            <div key={entry.anchorId} className="border-t border-solid border-[var(--so-line)] mt-1 pt-1">
               <div>{entry.anchorName}{entry.visited ? " · visited" : ""}{entry.reached ? " ✔" : ""}</div>
               <div className="flex items-center gap-2">
-                <div className="flex-1 h-1.5 bg-white/10 rounded">
-                  <div className="h-full bg-white/60 rounded" style={{ width: `${pct}%` }} />
+                <div className="flex-1 h-1.5 bg-[var(--so-line)] rounded">
+                  <div className="h-full bg-[var(--so-fg-muted)] rounded" style={{ width: `${pct}%` }} />
                 </div>
                 <span>{entry.progress}/{entry.threshold}</span>
               </div>

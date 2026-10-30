@@ -72,7 +72,7 @@ const AuthorStoryControls = ({ snapshot, manager, onEditStory, onNewStory }: {
   const [updated, setUpdated] = useState<string | null>(null);
   if (!snapshot.ui.authorView) return null;
   return (
-  <div id="so-author-story-controls" className="so-actions border-t border-solid border-white/10 pt-2">
+  <div id="so-author-story-controls" className="so-actions border-t border-solid border-[var(--so-line)] pt-2">
     {onNewStory && (
       <button id="so-author-new-story" type="button" className="menu_button opacity-80" disabled={!snapshot.copilot.enabled}
         title={snapshot.copilot.enabled ? "Start a new story with the wizard." : "Turn on the wizard under Authoring first."} onClick={onNewStory}>New story</button>
@@ -154,7 +154,7 @@ export const DrawerTabs = ({
       {/* The driver steers the story — Suggest/Probe/Advance/Nudge are author tools by D1, never
           part of the player surface, whatever the copilot setting says. */}
       {snapshot.copilot.enabled && authorView && (
-        <div className="border-t border-solid border-white/10 pt-2">
+        <div className="border-t border-solid border-[var(--so-line)] pt-2">
           <Lazy fallback={null}>
             <DriverPanel
               context={driver.context}
