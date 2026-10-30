@@ -40,7 +40,8 @@ const playSnapshot = {
     sceneLocation: null, consequences: null,
   }),
   memory: { settings: global.memory, entries: [{ id: "m1", text: "The sun-key opens the inner sanctum.", tier: "facts", status: "live" }] },
-  game: { journal: [{ id: "q1", title: "The ferry", status: "active", steps: [] }], milestones: [], codex: null, statSheet: { id: "sheet", rows: [] }, widgets: [{ ...clockWidget, id: "road", title: "The road" }] },
+  game: { journal: [{ id: "q1", title: "The ferry", status: "active", steps: [] }], milestones: [], codex: null, statSheet: { id: "sheet", rows: [] },
+    widgets: [{ ...clockWidget, id: "road", title: "The road" }] },
   presence: { shown: { journal: true, statSheet: true, widgets: true, suggestions: true }, continueRows: [] },
 } as unknown as RuntimeSnapshot;
 

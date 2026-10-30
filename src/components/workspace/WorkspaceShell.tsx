@@ -89,7 +89,8 @@ export const WorkspaceShell = ({ intent, storyTitle, authorView, onClose, badges
     history.pushState({ soWorkspace: token.current, depth: ++depth.current, location: next }, "");
     if (!control) document.getElementById("so-workspace-content")?.scrollTo(0, 0);
   };
-  useEffect(() => { writeLastPage(lastPageValue(location)); }, [location.context, location.page, location.sub]);
+  const lastPage = lastPageValue(location);
+  useEffect(() => { writeLastPage(lastPage); }, [lastPage]);
   useEffect(() => {
     setLocation(initial(intent));
     if (intent.control) setReveal({ control: intent.control, at: Date.now() });
