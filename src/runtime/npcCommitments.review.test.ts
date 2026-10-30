@@ -1,7 +1,5 @@
 import { readFileSync } from "fs";
 import { join } from "path";
-import { createElement } from "react";
-import { renderToStaticMarkup } from "react-dom/server";
 import { StoryEngine, commitKey, parseStory, parseStoryOrThrow, type EngineState, type NormalizedStory, type PrimitiveValue, type ValidationError } from "@engine/index";
 import { COMMITMENT_COPY, commitmentDiscoveryUnits, commitmentHooks, commitmentLines, commitmentState, heldCommitments, keptCommitments } from "@engine/life/commitments";
 import { gameLayer, loadGameLayer } from "@engine/validate/gameLayer";
@@ -9,7 +7,7 @@ import { EPISTEMIC_INJECTION_KEY } from "@constants/defaults";
 import { composeGame } from "./widgets";
 import { gameSlices, loadGameComposer, storyHasGame } from "./gameSnapshot";
 import { MemoryInjector } from "./memoryInjector";
-import { JournalPanel } from "../components/panels/JournalPanel";
+import { playerSheetMarkup } from "../components/sheet/sheetMarkup";
 import type { GameView } from "./gameTypes";
 import type { MemoryRuntimeState } from "./types";
 import type { InjectorHosts } from "./hostPorts";
@@ -50,7 +48,7 @@ const randomTurns = (next: () => number, length = 1 + Math.floor(next() * 12)): 
 const compose = (story: NormalizedStory, engine: StoryEngine, state: EngineState = engine.serialize()): GameView =>
   composeGame({ story, state, boundaryLog: engine.stateLog, checks: [], threads: { open: [], resolved: [] }, chat: [], castNames: CAST, enabled: ENABLED }).player;
 
-const surfaces = (game: GameView): string => [JSON.stringify(game), renderToStaticMarkup(createElement(JournalPanel, { game }))].join("\n");
+const surfaces = (game: GameView): string => [JSON.stringify(game), playerSheetMarkup(game)].join("\n");
 
 const errorsOf = (raw: Record<string, unknown>): string[] => {
   const parsed = parseStory(raw);

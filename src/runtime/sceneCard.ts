@@ -67,4 +67,7 @@ export const sceneView = (sources: SceneSources, options: SceneOptions = {}): Sc
   location: sources.location ?? null, time: sceneTime(sources, options.time === true), present: scenePresent(sources, options),
 });
 
+export const hereNowOffered = (story: NormalizedStory): boolean =>
+  Boolean(story.codex?.people?.length) || labelledRelationships(story).length > 0 || Boolean(story.factions?.length);
+
 export const sceneEmpty = (view: SceneView): boolean => !view.location && !view.time && !view.present.length;

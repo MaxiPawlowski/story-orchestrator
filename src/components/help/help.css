@@ -1,0 +1,84 @@
+:is(#drawer-manager, #story-orchestrator-settings, #so-panels-root, #so-workspace-modal) .so-help-flat {
+  display: flex;
+  flex-direction: column;
+  gap: var(--so-space-3);
+  font-size: var(--so-text-sm);
+}
+
+:is(#drawer-manager, #story-orchestrator-settings, #so-panels-root, #so-workspace-modal) .so-help-flat p {
+  margin: 0;
+}
+
+:is(#drawer-manager, #story-orchestrator-settings, #so-panels-root, #so-workspace-modal) .so-help-row-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--so-space-2);
+}
+
+:is(#drawer-manager, #story-orchestrator-settings, #so-panels-root, #so-workspace-modal) .so-help-header {
+  justify-content: space-between;
+}
+
+:is(#drawer-manager, #story-orchestrator-settings, #so-panels-root, #so-workspace-modal) .so-help-title {
+  font-size: var(--so-text);
+  font-weight: 600;
+}
+
+:is(#drawer-manager, #story-orchestrator-settings, #so-panels-root, #so-workspace-modal) .so-help-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--so-space-2);
+}
+
+:is(#drawer-manager, #story-orchestrator-settings, #so-panels-root, #so-workspace-modal) .so-help-group-title {
+  margin: 0;
+  color: var(--so-fg-muted);
+  font-size: var(--so-text-xs);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+:is(#drawer-manager, #story-orchestrator-settings, #so-panels-root, #so-workspace-modal) .so-help-flat .so-help-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--so-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+:is(#drawer-manager, #story-orchestrator-settings, #so-panels-root, #so-workspace-modal) .so-help-flat .so-help-feature {
+  display: flex;
+  flex-direction: column;
+  gap: var(--so-space-1);
+  padding-bottom: var(--so-space-2);
+  border-bottom: 1px solid var(--so-line);
+}
+
+:is(#drawer-manager, #story-orchestrator-settings, #so-panels-root, #so-workspace-modal) .so-help-name {
+  font-weight: 600;
+}
+
+:is(#drawer-manager, #story-orchestrator-settings, #so-panels-root, #so-workspace-modal) .so-help-state {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--so-space-1);
+  font-size: var(--so-text-xs);
+}
+
+:is(#drawer-manager, #story-orchestrator-settings, #so-panels-root, #so-workspace-modal) .so-help-small {
+  font-size: var(--so-text-xs);
+}
+
+:is(#drawer-manager, #story-orchestrator-settings, #so-panels-root, #so-workspace-modal) .so-help-muted {
+  color: var(--so-fg-muted);
+}
+
+:is(#drawer-manager, #story-orchestrator-settings, #so-panels-root, #so-workspace-modal) .so-help-link {
+  color: var(--so-link);
+  font-size: var(--so-text-xs);
+  text-decoration: underline;
+}

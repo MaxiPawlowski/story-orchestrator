@@ -1,23 +1,23 @@
 #chat .so-inline-host {
   margin-top: 4px;
-  font-size: calc(var(--mainFontSize, 1rem) * 0.8);
+  font-size: calc(var(--mainFontSize, 1rem) * 0.85);
   color: var(--SmartThemeEmColor, inherit);
 }
 
-:is(#chat .so-inline-host, #so-inspector) .so-inline-strip {
+:is(#chat .so-inline-host, #so-inspector, #so-panels-root, #so-workspace-modal) .so-inline-strip {
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
 
-:is(#chat .so-inline-host, #so-inspector) .so-inline-chips {
+:is(#chat .so-inline-host, #so-inspector, #so-panels-root, #so-workspace-modal) .so-inline-chips {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 4px;
 }
 
-:is(#chat .so-inline-host, #so-inspector) .so-inline-chip {
+:is(#chat .so-inline-host, #so-inspector, #so-panels-root, #so-workspace-modal) .so-inline-chip {
   display: flex;
   align-items: center;
   gap: 4px;
@@ -27,22 +27,16 @@
   border: 1px solid color-mix(in srgb, var(--st-border) 40%, transparent);
   color: inherit;
   font: inherit;
-  cursor: pointer;
-  opacity: 0.7;
 }
 
-:is(#chat .so-inline-host, #so-inspector) .so-inline-chip[aria-expanded="true"] {
-  opacity: 1;
-}
-
-:is(#chat .so-inline-host, #so-inspector) .so-inline-panel {
+:is(#chat .so-inline-host, #so-inspector, #so-panels-root, #so-workspace-modal) .so-inline-panel {
   padding: 4px 8px;
   border-radius: 4px;
   background: color-mix(in srgb, var(--st-bg-tint) 60%, transparent);
   border: 1px solid color-mix(in srgb, var(--st-border) 30%, transparent);
 }
 
-:is(#chat .so-inline-host, #so-inspector) .so-inline-list {
+:is(#chat .so-inline-host, #so-inspector, #so-panels-root, #so-workspace-modal) .so-inline-list {
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -51,43 +45,43 @@
   list-style: none;
 }
 
-:is(#chat .so-inline-host, #so-inspector) .so-inline-row {
+:is(#chat .so-inline-host, #so-inspector, #so-panels-root, #so-workspace-modal) .so-inline-row {
   display: flex;
   flex-direction: column;
   gap: 2px;
 }
 
-:is(#chat .so-inline-host, #so-inspector) .so-inline-line {
+:is(#chat .so-inline-host, #so-inspector, #so-panels-root, #so-workspace-modal) .so-inline-line {
   display: flex;
   align-items: flex-start;
   gap: 4px;
 }
 
-:is(#chat .so-inline-host, #so-inspector) .so-inline-state {
+:is(#chat .so-inline-host, #so-inspector, #so-panels-root, #so-workspace-modal) .so-inline-state {
   flex-shrink: 0;
   margin-top: 2px;
   opacity: 0.6;
 }
 
-:is(#chat .so-inline-host, #so-inspector) .so-inline-text {
+:is(#chat .so-inline-host, #so-inspector, #so-panels-root, #so-workspace-modal) .so-inline-text {
   min-width: 0;
   overflow-wrap: anywhere;
 }
 
-:is(#chat .so-inline-host, #so-inspector) .so-inline-more {
+:is(#chat .so-inline-host, #so-inspector, #so-panels-root, #so-workspace-modal) .so-inline-more {
   padding-left: 16px;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
 
-:is(#chat .so-inline-host, #so-inspector) .so-inline-actions {
+:is(#chat .so-inline-host, #so-inspector, #so-panels-root, #so-workspace-modal) .so-inline-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 4px;
   padding-left: 16px;
 }
 
-:is(#chat .so-inline-host, #so-inspector) .so-inline-actions .menu_button {
+:is(#chat .so-inline-host, #so-inspector, #so-panels-root, #so-workspace-modal) .so-inline-actions .menu_button {
   font-size: inherit;
 }
 
@@ -149,7 +143,6 @@
 
 #chat .so-inline-host .so-roll-chip {
   cursor: default;
-  opacity: 0.85;
 }
 
 #chat .so-inline-host .so-roll-chip[data-outcome="failure"] {
@@ -158,4 +151,74 @@
 
 #chat .so-inline-host .so-roll-chip[data-outcome="success"] {
   border-color: color-mix(in srgb, var(--st-success) 50%, transparent);
+}
+
+:is(#chat .so-inline-host, #so-inspector) .so-inline-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--so-space-2);
+}
+
+:is(#chat .so-inline-host, #so-inspector) .so-inline-line-button {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--so-space-1);
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+:is(#chat .so-inline-host, #so-inspector) .so-inline-line-button:hover .so-inline-part > span:last-of-type,
+:is(#chat .so-inline-host, #so-inspector) .so-inline-line-button[aria-expanded="true"] .so-inline-part > span:last-of-type {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+:is(#chat .so-inline-host, #so-inspector) :is(.so-inline-line-button, .so-inline-link):focus-visible {
+  outline: 2px solid var(--so-accent);
+  outline-offset: 2px;
+  border-radius: var(--so-radius-sm);
+}
+
+:is(#chat .so-inline-host, #so-inspector) .so-inline-part {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--so-space-1);
+}
+
+:is(#chat .so-inline-host, #so-inspector) .so-inline-sep {
+  padding: 0 var(--so-space-1);
+}
+
+:is(#chat .so-inline-host, #so-inspector) .so-inline-raw {
+  font-variant-numeric: tabular-nums;
+  color: var(--so-fg-subtle);
+}
+
+:is(#chat .so-inline-host, #so-inspector) .so-inline-link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--so-link);
+  font: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+:is(#chat .so-inline-host, #so-inspector) .so-inline-panel .so-inline-group + .so-inline-group {
+  margin-top: var(--so-space-1);
+  padding-top: var(--so-space-1);
+  border-top: 1px solid var(--so-line);
+}
+
+:is(#so-panels-root, #so-workspace-modal) .so-inline-legend {
+  font-size: var(--so-text-sm);
 }

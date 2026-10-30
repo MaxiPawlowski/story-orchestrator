@@ -8,48 +8,51 @@ import { runtimeManager } from "../runtimeManager";
 import { beginRun } from "../runToken";
 import { spikeSeams } from "../spikeSeams";
 import { droppedReadEnd } from "@extraction/readCursor";
+import { readWaitClock } from "@extraction/yieldGate";
 import type { Disposers, LiveParts } from "./types";
 
-const schedulerHost = (live: LiveParts): SchedulerHost => ({
-  getStory: () => runtimeManager.getStory(),
-  getEngineState: () => runtimeManager.getEngineState(),
-  getExtractionSettings: (): SchedulerSettings => ({
-    ...runtimeManager.getExtractionSettings(),
-    profileId: routedProfileId("read"),
-    budget: requestBudget(routedProfileId("read")),
-  }),
-  model: runtimeManager.model,
-  getFacts: () => runtimeManager.getExtractionFacts(),
-  getFiredTransitions: () => runtimeManager.getFiredTransitions(),
-  getExpansionGateSources: () => runtimeManager.getExpansionGateSources(),
-  cardScope: () => runtimeManager.getCardReadScope(),
-  getOpenArcs: () => runtimeManager.getOpenArcs(),
-  getOpenPromises: () => runtimeManager.promises.open(),
-  witness: { present: () => runtimeManager.witness.present(), outage: (window) => runtimeManager.witness.outage(window) },
-  getEpistemicLedgerCapable: () => runtimeManager.getEpistemicLedgerCapable(),
-  getEntities: () => runtimeManager.getEntities(),
-  applyExtractionAudit: (audit, facts, memory, arcs, epistemic, ledger, read) => runtimeManager.applyExtractionAudit(audit, facts, memory, arcs, epistemic, ledger, read),
-  beginRead: (window) => beginRun(runtimeManager.getOwnership(), window),
-  readsOpenChat: () => {
-    const loaded = runtimeManager.getLoadedChatId();
-    return loaded === null || currentChatOwner()?.chatId === loaded;
-  },
-  onSchedulerChange: () => {
-    if (live.scheduler) runtimeManager.setSchedulerSnapshot(live.scheduler.getSnapshot());
-  },
-  noteLapse: (summary, detail) => runtimeManager.noteRecap(summary, detail),
-  noteHealth: (summary, detail) => runtimeManager.noteRecap(summary, detail),
-  probeModel,
-  profileExists,
-  profileName: (id) => listConnectionProfiles().find((profile) => profile.id === id)?.name ?? id,
-  heavyRouteKey: () => routedProfileId("synthesis"),
-  mutationSettled: () => runtimeManager.rollbackSettled(),
-  epoch: () => runtimeManager.getRunContext().sessionEpoch,
-  judgeTyped: () => live.typedJudge,
-  holdCadence: () => runtimeManager.isExtractionHeld(),
-  readCursorSeed: () => runtimeManager.getReadCursorSeed(),
-  yieldTo: () => runtimeManager.innerBeatPending(),
-});
+const schedulerHost = (live: LiveParts): SchedulerHost => {
+  const publish = () => { if (live.scheduler) runtimeManager.setSchedulerSnapshot(readWait(live.scheduler.getSnapshot())); };
+  const readWait = readWaitClock(publish);
+  return {
+    getStory: () => runtimeManager.getStory(),
+    getEngineState: () => runtimeManager.getEngineState(),
+    getExtractionSettings: (): SchedulerSettings => ({
+      ...runtimeManager.getExtractionSettings(),
+      profileId: routedProfileId("read"),
+      budget: requestBudget(routedProfileId("read")),
+    }),
+    model: runtimeManager.model,
+    getFacts: () => runtimeManager.getExtractionFacts(),
+    getFiredTransitions: () => runtimeManager.getFiredTransitions(),
+    getExpansionGateSources: () => runtimeManager.getExpansionGateSources(),
+    cardScope: () => runtimeManager.getCardReadScope(),
+    getOpenArcs: () => runtimeManager.getOpenArcs(),
+    getOpenPromises: () => runtimeManager.promises.open(),
+    witness: { present: () => runtimeManager.witness.present(), outage: (window) => runtimeManager.witness.outage(window) },
+    getEpistemicLedgerCapable: () => runtimeManager.getEpistemicLedgerCapable(),
+    getEntities: () => runtimeManager.getEntities(),
+    applyExtractionAudit: (audit, facts, memory, arcs, epistemic, ledger, read) => runtimeManager.applyExtractionAudit(audit, facts, memory, arcs, epistemic, ledger, read),
+    beginRead: (window) => beginRun(runtimeManager.getOwnership(), window),
+    readsOpenChat: () => {
+      const loaded = runtimeManager.getLoadedChatId();
+      return loaded === null || currentChatOwner()?.chatId === loaded;
+    },
+    onSchedulerChange: publish,
+    noteLapse: (summary, detail) => runtimeManager.noteRecap(summary, detail),
+    noteHealth: (summary, detail) => runtimeManager.noteRecap(summary, detail),
+    probeModel,
+    profileExists,
+    profileName: (id) => listConnectionProfiles().find((profile) => profile.id === id)?.name ?? id,
+    heavyRouteKey: () => routedProfileId("synthesis"),
+    mutationSettled: () => runtimeManager.rollbackSettled(),
+    epoch: () => runtimeManager.getRunContext().sessionEpoch,
+    judgeTyped: () => live.typedJudge,
+    holdCadence: () => runtimeManager.isExtractionHeld(),
+    readCursorSeed: () => runtimeManager.getReadCursorSeed(),
+    yieldTo: () => runtimeManager.innerBeatPending(),
+  };
+};
 
 const scheduleSceneBreak = (live: LiveParts) => runtimeManager.onSceneBreakConfirmed((audit, collect) => {
   const place = (job: SchedulerJob) => (collect ? collect.push(job) : live.scheduler?.schedule(job));

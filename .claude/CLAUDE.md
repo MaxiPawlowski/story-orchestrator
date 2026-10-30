@@ -97,13 +97,20 @@ library, setup/repair, author/inspect, long reference. A dialog control that tar
     import `#so-entry-import-toggle`/`#so-entry-import`), Continue (`#so-entry-continue`, Continue list closes the workspace
     before switching chat), Repair (`#so-entry-repair`, `[data-so="repair-step"]`, `#so-entry-fix-with-wizard`), Author (`#so-open-studio`).
   - **Help**: guide, tours, **Help and Ask** (`#so-help-open-panel`) and the guide reader (`#so-help-open-guide`) open as floating panels.
-- **HUD** `#so-hud` above the chat input (`HudStrip.tsx`): scene, tension, `#so-hud-turn`, pending chip, `#so-hud-pipeline`,
-  `#so-hud-setup` (opens Play at `#so-setup`). The scene button `#so-hud-main` opens the **story card** `#so-hud-card`
-  (lazy `HudCard.tsx`, anchored above the HUD, never over the input): scene, status line, journal / What could I do? when
-  shown, memory peek (`memoryShown` only), **More…** (Play). Escape, close or an outside click closes it.
-- **Floating panels** `#so-panels-root` (`presenceUi.tsx`, `PanelFrame`): Help and Ask, guide reader, journal, stat sheet,
-  story panels, What could I do?. Under 768px a panel docks above `#form_sheld` (`dockInset`) and only the last-opened one shows (`shownPanels`).
-- **Inline timeline**: chips under each message (`#so-inline-<mesid>` hosts from `stHost/inlineMount.ts`, `components/inline/`), level `#so-inline-level` 0 Off / 1 Story (default) / 2 Behind the scenes / 3 Author / 4 Raw (3–4 need Author view); author chip opens `#so-inspector` on the Author page. The `/comment` transition note is opt-in (`#so-announce-transitions`, default off).
+- **HUD** `#so-hud` above the chat input (`HudStrip.tsx`, font follows `--mainFontSize`): left the scene button `#so-hud-main`
+  (headline + tension dots `[data-so=hud-tension]`), right `#so-hud-turn`, at most one status chip (`#so-hud-pipeline`, `data-waiting-on`
+  when a read waits on the inner beat; retryable states open the card) or `#so-hud-setup` (Play at `#so-setup`), pending chip, sheet
+  button `#so-hud-sheet`. The scene opens the **story card** `#so-hud-card` (lazy `HudCard.tsx`, anchored left above the HUD): status
+  with `#so-hud-card-retry` / `#so-hud-card-settings`, notices, `[data-so=hud-card-tab][data-tab]` (aliases `#so-hud-card-journal|suggestions|memory`),
+  Story window `#so-hud-card-more`, Author view only the notes level `#so-hud-card-level`. Escape, close or an outside click closes it.
+- **Story sheet** `#so-sheet` (lazy `components/sheet/StorySheet.tsx` in `#so-panels-root`, state in `presenceUi.tsx` `openSheet`): tabs
+  `[data-so=sheet-tab][data-tab=journal|here|people|stats|widget-<id>|ideas|memory]` from `runtime/storySheet.ts` `sheetTabs`, panel
+  `#so-sheet-<tab>`; bodies `components/sheet/tabs/*` (shared with Play). Docks right of `#sheld` (`data-mode=dock`, width remembered,
+  pop-out `[data-so=sheet-pop]` → `#so-panel-sheet`); under 768px a bottom sheet above `#form_sheld` (`data-snap` peek/half/full, half
+  capped to keep the last reply visible). Launchers (`#so-open-*`, card tabs, `#so-wand-sheet`) all call `openSheet(tab)`.
+- **Floating panels** `#so-panels-root` (`PanelFrame`): Help and Ask (`#so-wand-help`) and the guide reader. Under 768px a panel docks
+  above `#form_sheld` and opening it closes the sheet (and the other way round).
+- **Inline timeline**: one quiet line of words under each message (`[data-so=inline-line]`, parts `[data-so=inline-part][data-category]`, click expands `[data-so=inline-expanded]`; hosts `#so-inline-<mesid>` from `stHost/inlineMount.ts`, `components/inline/`), level `#so-inline-level` 0 Off / 1 Story (default) / 2 Behind the scenes / 3 Author / 4 Raw (3–4 need Author view; legend `#so-inline-legend` beside it and in Help); the Inspect link opens `#so-inspector` on the Author page. The `/comment` transition note is opt-in (`#so-announce-transitions`, default off).
 - **Start pane** `#so-briefing` (Before you start + identity + briefing).
 - **Checkpoint Studio** (`src/studio/`): `StudioModal` (`#so-studio-modal`, native `<dialog>` in its own `#so-studio-root`), zustand draft (`draft.ts`), all edits through typed `mutations.ts`. The **Wizard** tab (tab id `copilot`): four author steps (`[data-so="wizard-step"]`) over five stages, interview (`#so-wizard-questions`), create-only provisioning cards applied one at a time; modes **Ask** (`#so-studio-ask`) and **Build a character** (`#so-character-tutorial`). "How to write this" disclosure `#so-studio-guide`. Editors are grouped into Story setup, Flow, State and rules, Characters, World, Presentation, Story features, Assistant and Validation; mobile graph sheets and checkpoint/transition drill-down keep editing enabled. Its gate replay jump closes the Studio before scrolling the chat. Saving hands the record back via `onSaved`; the runtime decides whether this chat takes it. Every UI part has a `.stories.tsx` (`test-storybook:ci`).
 - **Ask**: Help panel `#so-help-ask`, Studio Ask, `/story ask <question>`; switch `copilot.ask` (`#so-copilot-ask`). Debug: `globalThis.storyOrchestratorAsk.ask(question, persona?)`; live Q&A `node scripts/debug/so-ask-qa.mts run --group <name>`.

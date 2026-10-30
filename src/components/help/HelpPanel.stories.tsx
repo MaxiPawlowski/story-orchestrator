@@ -7,6 +7,7 @@ import { resolveFeatures } from "@runtime/featureResolve";
 import { helpFeatureState, type HelpStateSnapshot } from "@runtime/helpFeatureState";
 import { defaultGlobalSettings } from "@runtime/settingsModel";
 import type { Feature } from "@features/registry";
+import { InlineLegendPanel } from "../inline/InlineLegend";
 import { HelpPanel, type HelpGuideTopic } from "./HelpPanel";
 
 const HOME = "https://github.com/MaxiPawlowski/story-orchestrator";
@@ -44,7 +45,8 @@ export const PlayerMode: Story = {
     const canvas = within(canvasElement);
     await expect(canvasElement.querySelector('[data-so="help-feature"][data-audience="author"]')).toBeNull();
     await expect(canvasElement.querySelector('[data-so="help-guide-topics"]')).toBeNull();
-    await expect(canvas.getByText("Playing a story")).toBeInTheDocument();
+    await expect(canvas.getByRole("heading", { name: "For playing" })).toBeInTheDocument();
+    await expect(canvasElement.querySelectorAll("details")).toHaveLength(0);
     const memory = canvasElement.querySelector('[data-so="help-feature"][data-feature="memory"]') as HTMLElement;
     await expect(within(memory).getByText("Story reading:")).toBeInTheDocument();
     await expect(within(memory).getAllByText("Enabled")).toHaveLength(2);
@@ -64,6 +66,7 @@ export const Search: Story = {
     const shown = [...canvasElement.querySelectorAll('[data-so="help-feature"]')].map((row) => row.getAttribute("data-feature"));
     await expect(shown).toContain("sprites");
     await expect(shown).not.toContain("memory");
+    await expect(canvasElement.querySelector('[data-so="help-feature"][data-feature="sprites"] [data-so="help-what"]')).not.toBeNull();
     await userEvent.clear(canvas.getByLabelText("Search features"));
     await userEvent.type(canvas.getByLabelText("Search features"), "zzzz-nothing");
     await expect(canvasElement.querySelector('[data-so="help-empty"]')).not.toBeNull();
@@ -87,6 +90,37 @@ export const HostedInAPanelHasNoSecondHeader: Story = {
     await expect(within(canvasElement).queryByText("Help", { selector: "span.font-semibold" })).toBeNull();
     const stories = rowOf(canvasElement, "stories");
     await expect(stories).toHaveTextContent("This chat › Settings › Story › Story for this chat");
+  },
+};
+
+export const WhereIsAPlainLine: Story = {
+  play: async ({ canvasElement }) => {
+    const memory = rowOf(canvasElement, "memory");
+    await expect(memory.querySelector('[data-so="help-where"]')).toHaveTextContent(/^Where: /);
+    await expect(memory.querySelector('[data-so="help-what"]')).toBeNull();
+    const groups = [...canvasElement.querySelectorAll('[data-so="help-group"]')].map((group) => group.getAttribute("data-audience"));
+    await expect(groups).toEqual(["player", "setup"]);
+  },
+};
+
+export const InlineNotesLegend: Story = {
+  args: { legend: <InlineLegendPanel level={1} id="help-legend-story" /> },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const legend = canvasElement.querySelector('[data-so="help-legend"]') as HTMLElement;
+    await expect(within(legend).getByRole("heading", { name: "Notes under messages" })).toBeInTheDocument();
+    await expect(legend.querySelector('[data-so="inline-legend"]')).not.toBeNull();
+    await userEvent.type(canvas.getByLabelText("Search features"), "memory");
+    await expect(canvasElement.querySelector('[data-so="help-legend"]')).toBeNull();
+  },
+};
+
+export const EmptySearch: Story = {
+  play: async ({ canvasElement }) => {
+    await userEvent.type(within(canvasElement).getByLabelText("Search features"), "zzzz-nothing");
+    const empty = canvasElement.querySelector('[data-so="help-empty"]') as HTMLElement;
+    await expect(within(empty).getByText("Nothing matches. Try another word.")).toBeInTheDocument();
+    await expect(canvasElement.querySelector('[data-so="help-feature"]')).toBeNull();
   },
 };
 

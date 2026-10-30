@@ -1028,7 +1028,7 @@ export function rawValueFindings(texts: Array<{ tab: string; surface: string; te
   });
 }
 
-// v2.6 plan 08: the inline timeline's author half. Player levels (1-2) render chips, counts and player
+// v2.6 plan 08: the inline timeline's author half. Player levels (1-2) render one line of words and player
 // copy only; details, actions, the inspector button and any level-3/4 row are author view.
 export const INLINE_PLAYER_FORBIDDEN_SELECTORS = [
   '[data-so="inline-inspect"]', '[data-so="inline-action"]', '[data-so="inline-item-detail"]', '[data-so="roll-chip"][data-source="quality"]', '[data-so="roll-chip"][data-source="npc"]', '[data-so="roll-chip"][data-source="talk"]',
@@ -1042,8 +1042,9 @@ export function inlineTextFindings(texts: Array<{ mesid: string; text: string }>
   ]);
 }
 
-// Reads every strip under the chat, opening each chip in turn so the rows a player would see are
-// read, then closes what it opened. `nodes` is the strip's element count (the ≤30 per message floor at L1).
+// Reads every strip under the chat, opening its one line so the rows a player would see are read
+// (grouped per category, reported as `chips` for older callers), then closes what it opened.
+// `nodes` is the strip's element count before opening (the ≤30 per message floor at L1).
 export async function getInlineState(page, { messageId = null as number | null } = {}) {
   return evaluateInST(page, async (wanted) => {
     const settle = () => new Promise((resolve) => setTimeout(resolve, 30));
@@ -1051,18 +1052,19 @@ export async function getInlineState(page, { messageId = null as number | null }
       .filter((strip) => wanted === null || strip.getAttribute('data-mesid') === String(wanted));
     const rows = [];
     for (const strip of strips) {
-      const chips = [];
       const nodes = strip.querySelectorAll('*').length;
-      for (const chip of Array.from(strip.querySelectorAll('[data-so="inline-chip"]')) as HTMLElement[]) {
-        const opened = chip.getAttribute('aria-expanded') !== 'true';
-        if (opened) { chip.click(); await settle(); }
-        const items = Array.from(strip.querySelectorAll('[data-so="inline-expanded"] [data-so="inline-item"]')).map((item) => ({
+      const line = strip.querySelector('[data-so="inline-line"]') as HTMLElement | null;
+      const opened = Boolean(line) && line?.getAttribute('aria-expanded') !== 'true';
+      if (opened) { line?.click(); await settle(); }
+      const chips = Array.from(strip.querySelectorAll('[data-so="inline-part"]')).map((part) => {
+        const category = part.getAttribute('data-category');
+        const items = Array.from(strip.querySelectorAll(`[data-so="inline-expanded"] [data-so="inline-group"][data-category="${category}"] [data-so="inline-item"]`)).map((item) => ({
           state: item.getAttribute('data-state'), level: Number(item.getAttribute('data-level')), text: (item as HTMLElement).innerText.trim(),
         }));
-        chips.push({ category: chip.getAttribute('data-category'), label: chip.getAttribute('aria-label'), items });
-        if (opened) { chip.click(); await settle(); }
-      }
-      rows.push({ mesid: strip.getAttribute('data-mesid'), level: Number(strip.getAttribute('data-level')), nodes, inspect: Boolean(strip.querySelector('[data-so="inline-inspect"]')), chips });
+        return { category, label: `${part.getAttribute('title')}: ${part.getAttribute('data-count')}`, text: (part as HTMLElement).innerText.trim(), items };
+      });
+      if (opened) { line?.click(); await settle(); }
+      rows.push({ mesid: strip.getAttribute('data-mesid'), level: Number(strip.getAttribute('data-level')), nodes, line: line?.innerText.trim() ?? null, inspect: Boolean(strip.querySelector('[data-so="inline-inspect"]')), chips });
     }
     const view = globalThis.storyOrchestratorRuntime?.getSnapshot?.().inline ?? null;
     const times = globalThis.storyOrchestratorInline?.attachTimes?.() ?? [];
@@ -1087,7 +1089,7 @@ export async function setInlineLevel(page, level: number) {
 
 async function inlinePlayerSweep(page, tokens: string[] = []) {
   const state = await getInlineState(page);
-  const texts = state.strips.map((strip) => ({ mesid: String(strip.mesid), text: strip.chips.flatMap((chip) => chip.items.map((item) => item.text)).join('\n') }));
+  const texts = state.strips.map((strip) => ({ mesid: String(strip.mesid), text: [strip.line ?? '', ...strip.chips.flatMap((chip) => chip.items.map((item) => item.text))].join('\n') }));
   const hits = await evaluateInST(page, (selectors) => selectors.flatMap((selector) => Array.from(document.querySelectorAll(`#chat ${selector}`)).map(() => selector)), INLINE_PLAYER_FORBIDDEN_SELECTORS);
   const raw = rawValueFindings(texts.map(({ mesid, text }) => ({ tab: `inline ${mesid}`, surface: 'inline', text })), tokens);
   return [...inlineTextFindings(texts), ...raw, ...(hits ?? []).map((selector) => ({ tab: 'inline', needle: `${selector} reachable under a message` }))];

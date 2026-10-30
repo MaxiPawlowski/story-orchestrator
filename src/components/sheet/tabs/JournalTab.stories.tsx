@@ -1,18 +1,18 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { expect, fn, userEvent, within } from "@storybook/test";
-import { JournalPanel } from "./JournalPanel";
-import { emptyGame, noticedLines, noticingGame, sampleAuthor, sampleGame } from "../widgets/gameViewFixtures";
-import { fitsAt, VIEWPORTS } from "../../../.storybook/fit";
+import { JournalTab } from "./JournalTab";
+import { emptyGame, noticedLines, noticingGame, sampleAuthor, sampleGame } from "../../widgets/gameViewFixtures";
+import { fitsAt, VIEWPORTS } from "../../../../.storybook/fit";
 
-const meta: Meta<typeof JournalPanel> = {
-  title: "Panels/JournalPanel",
-  component: JournalPanel,
+const meta: Meta<typeof JournalTab> = {
+  title: "Panels/Sheet/JournalTab",
+  component: JournalTab,
   args: { game: sampleGame() },
 };
 
 export default meta;
 
-type Story = StoryObj<typeof JournalPanel>;
+type Story = StoryObj<typeof JournalTab>;
 
 export const PlayerJournal: Story = {
   play: async ({ canvasElement }) => {

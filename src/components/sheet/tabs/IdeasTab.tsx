@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { WriteResult } from "@utils/writeResult";
+import { Button } from "@components/ui/Button";
 import { PRESENCE_TEXT } from "@features/presenceCopy";
 import { SUGGESTION_SIDE_TEXT } from "@features/suggestionCopy";
 import type { SuggestionAsk, SuggestionOutcome, SuggestionSide } from "@runtime/suggestionsHost";
 import type { SuggestionLine } from "@runtime/suggestions";
 
-export interface SuggestionsPanelProps {
+export interface IdeasTabProps {
   request: (again: number) => Promise<SuggestionOutcome>;
   fill: (ask: SuggestionAsk, text: string) => WriteResult;
 }
@@ -44,7 +45,7 @@ const AuthorRow = ({ side }: { side: SuggestionSide }) => (side.author ? (
   </div>
 ) : null);
 
-export function SuggestionsPanel({ request, fill }: SuggestionsPanelProps) {
+export function IdeasTab({ request, fill }: IdeasTabProps) {
   const [view, setView] = useState<View>({ kind: "loading" });
   const [side, setSide] = useState<SuggestionSide | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
@@ -94,10 +95,10 @@ export function SuggestionsPanel({ request, fill }: SuggestionsPanelProps) {
       {view.kind !== "loading" && side && <AuthorRow side={side} />}
       {notice && <div data-so="suggestions-notice" className="text-xs">{notice}</div>}
       {view.kind !== "loading" && (
-        <button type="button" data-so="suggestions-again" className="menu_button self-start" onClick={() => { again.current += 1; ask(); }}>{PRESENCE_TEXT.suggestionsAgain}</button>
+        <Button size="sm" icon="fa-rotate" data-so="suggestions-again" className="self-start" onClick={() => { again.current += 1; ask(); }}>{PRESENCE_TEXT.suggestionsAgain}</Button>
       )}
     </div>
   );
 }
 
-export default SuggestionsPanel;
+export default IdeasTab;

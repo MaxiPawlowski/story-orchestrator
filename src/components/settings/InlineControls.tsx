@@ -9,6 +9,7 @@ import { SegmentedControl } from "@components/ui/SegmentedControl";
 import { TextInput } from "@components/ui/Field";
 import { DeviceChip, useDeviceSetting, type DeviceStore } from "./DeviceSetting";
 import { CheckRow, HelpText } from "./Field";
+import { InlineLegendPanel } from "../inline/InlineLegend";
 
 interface GroupProps {
   snapshot: RuntimeSnapshot;
@@ -36,6 +37,7 @@ export const InlineControls = ({ snapshot, manager, deviceStore }: GroupProps) =
             options={offered.map((entry) => ({ value: String(entry), label: INLINE_LEVEL_LABELS[entry], title: INLINE_LEVEL_HELP[entry] }))}
             onChange={(next) => levelSetting.write(Number(next) as InlineLevel)} />
         </>} />
+      {snapshot.inline.level > 0 && <InlineLegendPanel level={snapshot.inline.level} id="so-inline-legend" />}
       {inline.level > 0 && <>
         <SettingRow label={settingCopy("display.inline.categories").label} description={<HelpText text={settingCopy("display.inline.categories").help} />}
           scope={categories.overridden ? "device" : undefined}
