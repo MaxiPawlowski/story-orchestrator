@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto';
 import fsDefault from 'node:fs/promises';
 import path from 'node:path';
+import { PrefixDivergence } from './prefixDivergence.mjs';
 
 export const MEMBER_CACHE_DEFAULTS = Object.freeze({ headChars: 2000, budgetMiB: 6144, minPromptChars: 16000, minCutChars: 8000, minTailChars: 1200,
     cutMarker: '<|turn>system\n', rewind: true, ramHeadroomMiB: 0, ctxCheckpoints: 3, store: 'file', park: true, erase: true, serverKeys: false, idlePrefill: false, idleDelayMs: 3000, idleMembers: 4, pinSlots: false, checkpointAt: false, serverRewind: false, keepAcrossImages: false, lightSleep: false, lightSleepFreesMiB: 2900 });
@@ -51,7 +52,7 @@ const MiB = 1048576;
 const FILE = /^m-[0-9a-f]{16}\.bin$/;
 
 export class MemberCache {
-    constructor(options, { fetch: fetchImpl = fetch, baseUrl, fs = fsDefault, snapshot = null, reserves = () => ({}), now = () => Date.now() } = {}) {
+    constructor(options, { fetch: fetchImpl = fetch, baseUrl, fs = fsDefault, snapshot = null, reserves = () => ({}), now = () => Date.now(), log = (line) => console.log(`[member-cache] ${line}`) } = {}) {
         Object.assign(this, MEMBER_CACHE_DEFAULTS, options);
         this.fetch = fetchImpl;
         this.baseUrl = typeof baseUrl === 'function' ? baseUrl : () => baseUrl;
@@ -59,6 +60,7 @@ export class MemberCache {
         this.snapshot = snapshot;
         this.reserves = typeof reserves === 'function' ? reserves : () => reserves;
         this.now = now;
+        this.divergence = new PrefixDivergence({ log, now });
         this.entries = new Map();
         this.owner = new Map();
         this.lastError = null;
@@ -107,6 +109,7 @@ export class MemberCache {
         const plan = this.plan(body);
         if (!plan) { this.noteOther(slot); return null; }
         this.stats.planned += 1;
+        this.divergence.note(plan.key, body.prompt, plan.cut);
         const timing = { restoreMs: null, prefillMs: null, restored: false, resident: false };
         const ram = this.store === 'ram';
         if (this.owner.get(slot) === plan.key) { this.stats.resident += 1; timing.resident = true; }
@@ -291,6 +294,6 @@ export class MemberCache {
     status() {
         return { store: this.store, ...(this.store === 'ram' ? { nativeCacheMiB: this.budgetMiB, occupancy: 'held by llama-server, not reported', serverKeys: this.serverKeys, erase: this.erase } : {}), dir: this.dir, budgetMiB: this.budgetMiB, rewind: this.rewind, park: this.park, entries: this.entries.size, sizeMiB: Math.round(this.bytes() / MiB), ...this.stats, parkMsP50: median(this.times.parkMs),
             restoreMsP50: median(this.times.restoreMs), prefillMsP50: median(this.times.prefillMs), rewindMsP50: median(this.times.rewindMs), saveMsP50: median(this.times.saveMs),
-            saveMsMax: this.times.saveMs.length ? Math.max(...this.times.saveMs) : null, idlePrefillMsP50: median(this.times.idlePrefillMs), idleMembersKnown: this.heads.size, lastError: this.lastError };
+            saveMsMax: this.times.saveMs.length ? Math.max(...this.times.saveMs) : null, idlePrefillMsP50: median(this.times.idlePrefillMs), idleMembersKnown: this.heads.size, divergence: this.divergence.status(), lastError: this.lastError };
     }
 }

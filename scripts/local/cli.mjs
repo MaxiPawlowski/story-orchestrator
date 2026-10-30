@@ -2,8 +2,11 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { controlError, controlLine } from './controlLine.mjs';
 
-const [action = 'status', profile] = process.argv.slice(2);
+const [action = 'status', argument] = process.argv.slice(2);
+const force = argument === '--force';
+const profile = force ? undefined : argument;
 const configFile = process.env.SO_LOCAL_CONFIG ?? 'C:/dev/tools/story-orchestrator-local/config.json';
 const config = JSON.parse(await fs.readFile(configFile, 'utf8'));
 const url = `http://127.0.0.1:${config.gatewayPort}`;
@@ -75,10 +78,10 @@ if (action === 'mode' || action === 'mode-probe') {
     process.exit(0);
 }
 const routes = { load: 'load', unload: 'unload', automatic: 'automatic', restore: 'restore', 'cache-mode': 'cache-mode', 'start-comfy': 'start-comfy', 'free-images': 'free-images', stop: 'stop' };
-const response = await fetch(action === 'status' ? `${url}/status` : `${url}/control/${routes[action] ?? 'unknown'}`, action === 'status' ? { signal: AbortSignal.timeout(15000) } : { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(profile ? { profile } : {}), signal: AbortSignal.timeout(300000) });
+const response = await fetch(action === 'status' ? `${url}/status` : `${url}/control/${routes[action] ?? 'unknown'}`, action === 'status' ? { signal: AbortSignal.timeout(15000) } : { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(profile ? { profile } : force ? { force: true } : {}), signal: AbortSignal.timeout(300000) });
 const data = await response.json();
-if (!response.ok) throw new Error(JSON.stringify(data));
+if (!response.ok) throw new Error(controlError(action, data, force));
 if (action === 'status') {
     console.log(`${data.phase}; ${data.text.profile ?? 'text unloaded'}; GPU free ${Math.round(data.telemetry.gpus[0].freeMiB)} MiB; RAM free ${Math.round(data.telemetry.host.availableMiB)} MiB; queue ${data.waitingText}`);
     if (process.argv.includes('--json')) console.log(JSON.stringify(data, null, 2));
-} else console.log(`${action}: ${data.phase ?? 'done'}`);
+} else console.log(controlLine(action, data));
