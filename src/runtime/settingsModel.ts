@@ -231,6 +231,8 @@ export const defaultMemorySettings = (): MemoryRuntimeSettings => ({
   witness: true,
   rumors: true,
   patterns: true,
+  deferrals: true,
+  deferredOutOfPrompt: false,
 });
 
 export const defaultStagecraftSettings = (): StagecraftSettings => ({
@@ -265,6 +267,8 @@ const sanitizeInnerVoice = (memory: MemoryRuntimeSettings, defaults: MemoryRunti
   if (typeof memory.witness !== "boolean") memory.witness = defaults.witness;
   if (typeof memory.rumors !== "boolean") memory.rumors = defaults.rumors;
   if (typeof memory.patterns !== "boolean") memory.patterns = defaults.patterns;
+  if (typeof memory.deferrals !== "boolean") memory.deferrals = defaults.deferrals;
+  if (typeof memory.deferredOutOfPrompt !== "boolean") memory.deferredOutOfPrompt = defaults.deferredOutOfPrompt;
   return memory;
 };
 

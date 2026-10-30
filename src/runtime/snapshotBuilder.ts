@@ -4,7 +4,7 @@ import {
   type ApplyQueueEntry, type BoundaryLogEntry, type EngineState, type NormalizedStory, type StoryEngine, type ValidationError,
 } from "@engine/index";
 import type { DriverContext } from "@copilot/index";
-import { castVoices, sceneFieldsInConflict, shownRows, withoutExcludedThreads, type LedgerView, type MemoryInjectionView } from "@memory/index";
+import { arcDeferred, castVoices, PUT_OFF_LABEL, sceneFieldsInConflict, shownRows, withoutExcludedThreads, type LedgerView, type MemoryInjectionView } from "@memory/index";
 import { curatorLorebooks, mineRepetition, replyTexts } from "@stagecraft/index";
 import { judgeRouteGaps } from "@judge/readiness";
 import { confirmedSceneFacts, isSceneStale } from "@judge/scene";
@@ -284,9 +284,10 @@ export const chapterParts = (sources: SnapshotSources, story: NormalizedStory | 
   const origins = new Map(records.map((record) => [record.id, record.playerTitle]));
   const playerThreads = sources.openThreads.length ? currentThreads(withoutExcludedThreads(memory.arcs, memory.derived), state?.checkpointStartedBoundary ?? 0, state?.boundary ?? 0) : [];
   const openThreads = playerThreads.flatMap((text) => {
-    const origin = memory.arcs.find((arc) => arc.status === "open" && arc.text === text)?.originChapter;
+    const arc = memory.arcs.find((entry) => entry.status === "open" && entry.text === text);
     const shown = resting(text);
-    return !shown ? [] : [origin && origins.has(origin) ? `${shown} (since ${origins.get(origin)})` : shown];
+    const since = arc?.originChapter && origins.has(arc.originChapter) ? ` (since ${origins.get(arc.originChapter)})` : "";
+    return !shown ? [] : [`${shown}${since}${arc && arcDeferred(arc) ? PUT_OFF_LABEL : ""}`];
   });
   const now = chapters.current && !chapters.ended ? [`Now: ${chapters.current.playerTitle}`] : [];
   const chapterLines = chapters.records.length ? [...chapters.records.map((record) => `${record.playerTitle} — ${record.short}`), ...now] : [];

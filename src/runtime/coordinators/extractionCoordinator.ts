@@ -40,6 +40,7 @@ import { buildVerifyRequest, readVerify, verifyVerdict } from "@judge/memory";
 import { STALL_TIMEOUT_MS, VERIFY_MAX_LINES_PER_CALL, VERIFY_TIMEOUT_MS } from "@judge/policy";
 import { log } from "@utils/log";
 import { withoutStaleReasoning } from "../reasoningRevision";
+import { arcReadOf } from "../arcRead";
 
 export const TYPED_READ_WINDOW = 3;
 
@@ -281,12 +282,16 @@ export class ExtractionCoordinator {
     if (!run.stillOwns()) return;
     memory.recordVerifyDrops(verified.dropped);
     const arcs = this.deps.promises?.apply(audit, arcSignals) ?? arcSignals;
-    const resolvedArcs = memoryEnabled && arcs.length ? memory.applyArcSignals(arcs, audit.window.to) : [];
+    const arcRead = () => arcReadOf(this.deps.hosts.chat, this.deps.getStory()?.id, audit.window);
+    const threads = memoryEnabled && (arcs.length || memory.deferredOpen) ? memory.applyArcSignals(arcs, audit.window.to, arcRead) : null;
+    if (threads?.refused.length) audit.rejected = [...audit.rejected, ...threads.refused];
+    const resolvedArcs = threads?.resolved ?? [];
     if (memory.capable && ledgerSignals.length) memory.applyLedger(ledgerSignals, audit.window.to);
     if (!this.state.audits.some((entry) => entry.id === audit.id)) this.state.audits = [...this.state.audits, audit].slice(-20);
     if (audit.reason.startsWith("reconcile:")) this.resolveReconciliation(audit);
     this.state.lastReadBoundary = boundary;
-    if (memoryEnabled && (newMemoryEntries.length || arcs.length || epistemicSignals.length || ledgerSignals.length || audit.promiseLines?.length)) memory.updateInjection();
+    const touched = newMemoryEntries.length || arcs.length || threads?.reopened.length || epistemicSignals.length || ledgerSignals.length;
+    if (memoryEnabled && (touched || audit.promiseLines?.length)) memory.updateInjection();
     if (resolvedArcs.length) this.deps.emitArcsResolved(resolvedArcs);
     await this.save();
     if (memoryEnabled && audit.sceneBreak) this.deps.emitSceneBreak(audit, sceneWork);

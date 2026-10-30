@@ -68,6 +68,8 @@
       "witness": true,
       "rumors": true,
       "patterns": true,
+      "deferrals": true,
+      "deferredOutOfPrompt": false,
       "injectionDepths": {
         "facts": 4,
         "session_details": 3,

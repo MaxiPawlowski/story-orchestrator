@@ -27,6 +27,7 @@ export const FEATURE_POLICY_FIELDS = {
   polish: { enabled: toggle, mode: choice("shadow", "off") },
   cues: { enabled: toggle },
   promises: { enabled: toggle },
+  deferrals: { enabled: toggle, outOfPrompt: toggle },
   witness: { enabled: toggle },
   rumors: { enabled: toggle },
   echoes: { enabled: toggle },

@@ -13,6 +13,7 @@ import {
   reverseMemoryState, dropCommonKnowledge, capOpenArcs, capResolvedArcs, CONSOLIDATION_MIN_GROUP, consolidateTier,
   editEntryText, expireScoped, matchArcBridges, openArcTexts, withoutExcludedThreads, removeArc, removeEpistemic,
   removeLedger, restoreEntry, setArcPinned, setLocked, setArcSummary, setEpistemicPinned, setLedgerPinned, setPinned,
+  arcDeferred, type ApplyArcSignalsResult, type ArcRead,
   type ArcEntry, type DerivedRecord, type EpistemicEntry, type LedgerBinding, type LedgerView, type MemoryEntry,
   type MemoryTier, type ParsedArcSignal, type ParsedEpistemicSignal, type ParsedLedgerSignal, type UncertainPair,
   consolidateTierJudged, clearContradicted, sceneRangeFrom, rollingShortTerm, type ShortTermPlacement, innerRender,
@@ -256,14 +257,13 @@ export class MemoryCoordinator {
     this.updateInjection();
   }
 
-  // --- arcs --------------------------------------------------------------
-
-  applyArcSignals(signals: ParsedArcSignal[], messageId: number): ArcEntry[] {
-    const applied = applyArcSignals(this.state.arcs, signals, { boundary: this.boundaryStamp(), messageId });
+  applyArcSignals(signals: ParsedArcSignal[], messageId: number, read?: () => ArcRead | undefined): ApplyArcSignalsResult {
+    const applied = applyArcSignals(this.state.arcs, signals, { boundary: this.boundaryStamp(), messageId, read, deferrals: this.state.settings.deferrals !== false });
     this.patch({ arcs: capOpenArcs(capResolvedArcs(applied.arcs)) });
-    return applied.resolved;
+    return applied;
   }
 
+  get deferredOpen(): boolean { return this.state.arcs.some(arcDeferred); }
   getArcs(): ArcEntry[] {
     return this.state.arcs;
   }
@@ -276,8 +276,6 @@ export class MemoryCoordinator {
 
   async removeArc(id: string) { await this.commit(() => ({ arcs: removeArc(this.state.arcs, id) })); }
 
-  // Resolved arcs matching an authored bridge keyword increment their anchor's progress quality
-  // through the normal apply queue — code-side, so the write lands at the next boundary.
   enqueueArcBridges(): ArcEntry[] {
     const story = this.deps.getStory();
     const bridges = story?.arc_bridges ?? [];

@@ -193,6 +193,8 @@ export interface MemoryRuntimeSettings {
   witness?: boolean;
   rumors?: boolean;
   patterns?: boolean;
+  deferrals?: boolean;
+  deferredOutOfPrompt?: boolean;
   chapters?: Partial<ChapterSettings>;
 }
 
