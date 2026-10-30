@@ -50,7 +50,7 @@
     {
       "ui": {
         "action": "drawer-tab",
-        "label": "Overview"
+        "label": "Health"
       }
     },
     {
@@ -69,7 +69,7 @@
     {
       "ui": {
         "action": "drawer-tab",
-        "label": "Overview"
+        "label": "Health"
       }
     },
     {

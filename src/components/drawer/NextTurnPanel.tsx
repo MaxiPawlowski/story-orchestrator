@@ -10,7 +10,7 @@ export interface NextTurnActions {
   rerunScene: () => Promise<void>;
 }
 
-const OWNER_LABELS: Record<NextTurnOwnerTab, string> = { memory: "Open Memory", scheduler: "Open Scheduler", config: "Open settings", payload: "" };
+const OWNER_LABELS: Record<NextTurnOwnerTab, string> = { memory: "Open Memory", state: "Open State", proposals: "Open Proposals", config: "Open settings", payload: "" };
 
 const tokenText = (tokens: number | null, source: "host" | "estimate" | null, share: number | null): string => {
   if (tokens === null) return "counting…";

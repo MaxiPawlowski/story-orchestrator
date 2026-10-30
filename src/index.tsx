@@ -8,7 +8,8 @@ import {
   type InlineHostSet,
 } from "@services/STAPI";
 import { workspaceNavigation } from "@runtime/workspaceNavigation";
-import { inspectorIntent, modelsIntent, repairIntent, storyPlayIntent } from "@runtime/workspaceRoutes";
+import { modelsIntent, repairIntent, storyPlayIntent } from "@runtime/workspaceRoutes";
+import { setInspectTarget } from "./components/drawer/inspectTarget";
 import { revealSetting } from "@runtime/settingReveal";
 import { storyPageFor } from "@runtime/drawerTab";
 import type { WidgetDrawerTab } from "@engine/index";
@@ -190,16 +191,6 @@ const readReplaySource = (): GateReplaySource | null => {
   return source ? { ...source, jump: (messageId) => { setStudioOpen(false); void jumpToChatMessage(messageId); } } : null;
 };
 
-const inspectListeners = new Set<() => void>();
-let inspectTarget: number | null = null;
-const setInspectTarget = (messageId: number | null) => {
-  inspectTarget = messageId;
-  inspectListeners.forEach((listener) => listener());
-};
-const useInspectTarget = () => useSyncExternalStore(
-  (listener) => { inspectListeners.add(listener); return () => { inspectListeners.delete(listener); }; },
-  () => inspectTarget,
-);
 
 const inlineActions: InlineActions = {
   run: (action) => {
@@ -211,7 +202,7 @@ const inlineActions: InlineActions = {
   },
   inspect: (messageId) => {
     setInspectTarget(messageId);
-    workspaceNavigation.open(inspectorIntent());
+    setPanel("inspector", true);
   },
 };
 
@@ -322,7 +313,6 @@ const Workspace = lazyRetry(() => import("./components/workspace/Workspace"));
 const WorkspaceHost = () => {
   const intent = useSyncExternalStore(workspaceNavigation.subscribe, workspaceNavigation.read);
   const snapshot = useRuntimeSnapshot();
-  const inspecting = useInspectTarget();
   if (!intent) return null;
   return <Lazy quiet><Workspace intent={intent} snapshot={snapshot} manager={manager} settingsHost={settingsHost} onClose={workspaceNavigation.close}
     onContinueBranch={continueBranch}
@@ -334,7 +324,6 @@ const WorkspaceHost = () => {
       onFixWithWizard: launch(openWizardForRequirements), onOpenRepair: openRepairStep, onNewStory: launch(openWizard),
       onShowMe: showSetupTarget, onFix: (action) => fixSetup(action),
       onBranchFromOldest: (messageId) => { workspaceNavigation.close(); void branchAtFloor(messageId); }, onJumpToMessage: (messageId) => void jumpToChatMessage(messageId),
-      inspect: inspecting === null ? null : { messageId: inspecting, onClose: () => setInspectTarget(null), actions: inlineActions },
     }} /></Lazy>;
 };
 
@@ -435,6 +424,7 @@ const InlineMount = ({ hosts }: { hosts: InlineHostSet }) => {
 const presenceUi = createPresenceUi({
   manager, useSnapshot: useRuntimeSnapshot, showFeature: (where) => showFeature(where), openDrawer: openStoryWindow,
   jumpToMessage: (messageId) => void jumpToChatMessage(messageId),
+  inspectActions: inlineActions, onOpenAuthor: () => workspaceNavigation.open({ context: "story", page: "author" }),
 });
 
 const mountInline = () => {

@@ -16,6 +16,7 @@ import { activeSpeakerId, enabledCharacterIds, nameForRosterId, namesForRosterId
 import type { MemoryRuntimeState } from "./types";
 import type { InjectorHosts } from "./hostPorts";
 import { hasNarratedSheet } from "./narratorSheetPort";
+import type { SecretGridInputs } from "./whoKnows";
 
 const storyKey = (story: NormalizedStory): string => story.id ?? story.title;
 
@@ -225,6 +226,16 @@ export class MemoryInjector {
   private ledgerFocusNames(story: NormalizedStory): string[] {
     const speaker = activeSpeakerId(story, this.hosts.roster);
     return [...(this.deps.ledgerFocus?.() ?? []), ...(speaker ? namesForRosterId(story, speaker) : [])];
+  }
+
+  secretGridInputs(): SecretGridInputs | null {
+    const story = this.deps.getStory();
+    if (!story) return null;
+    const enabled = new Set(enabledCharacterIds(story, this.hosts.roster));
+    const members = story.roster.map((member) => ({
+      id: member.id, name: nameForRosterId(story, member.id), names: namesForRosterId(story, member.id), onStage: enabled.has(member.id),
+    }));
+    return { secrets: this.secrets(story), knowledge: this.knowledge(), members };
   }
 
   private secrets(story: NormalizedStory): HeldSecret[] {

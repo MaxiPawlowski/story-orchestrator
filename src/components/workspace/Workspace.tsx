@@ -21,17 +21,15 @@ import { livingSaveShown } from "@runtime/surfaceShown";
 import "./workspace.css";
 import { getGlobalSettings } from "@runtime/settingsStore";
 import BranchNotice from "@components/drawer/BranchNotice";
-import { composeActivity } from "@runtime/activityFeed";
 import FlagControl from "@components/drawer/FlagControl";
 import { requestBriefing } from "@runtime/briefingRequest";
 import { BusyButton } from "@components/BusyButton";
 import { playEmptyState } from "@runtime/noGroup";
+import { Button } from "@components/ui/Button";
 
 const SettingsPanel = lazyRetry(() => import("../settings/SettingsPanel"));
 const DrawerTabs = lazyRetry(() => import("../drawer/DrawerTabs"));
-const StagecraftPanel = lazyRetry(() => import("../drawer/StagecraftPanel"));
 const MemoryTab = lazyRetry(() => import("../drawer/tabs/MemoryTab").then((module) => ({ default: module.MemoryTab })));
-const ActivityPanel = lazyRetry(() => import("../panels/ActivityPanel"));
 const YourCharacter = lazyRetry(() => import("../drawer/YourCharacter"));
 const MakeGroupCard = lazyRetry(() => import("../settings/MakeGroupCard"));
 const LivingSave = lazyRetry(() => import("../drawer/LivingSave"));
@@ -114,12 +112,11 @@ export default function Workspace({ intent, snapshot, manager, settingsHost, dra
         <p>This area can reveal private character knowledge, lore and future routes. Feature configuration is available without revealing them.</p>
         <button id="so-author-view" className="st-button secondary" onClick={() => settingsHost.openAuthorView?.()}>Show author view</button>
       </section>;
-      if (location.page === "review") return <section><h2>Review proposals</h2><Lazy><StagecraftPanel snapshot={snapshot} manager={manager} /></Lazy>
-        <button className="st-button secondary" onClick={() => navigate({ context: "story", page: "author" })}>Character-life and living-story proposals</button></section>;
-      return <section><h2>Author tools</h2><button className="st-button secondary" onClick={() => manager.setUiSettings({ authorView: false })}>Return to player view</button>
-        <details><summary id="so-open-activity">Recent activity</summary><Lazy><ActivityPanel rows={composeActivity(snapshot.inline, snapshot.rolls ?? [])}
-          onJump={drawerProps.onJumpToMessage ?? (() => undefined)} checks={Object.values(setupFindings(snapshot)).flat()} /></Lazy></details>
-        <div id="drawer-manager"><Lazy><DrawerTabs {...drawerProps} snapshot={snapshot} manager={manager} /></Lazy></div>
+      return <section className="so-author-page" data-so="author-page">
+        <header className="so-author-head"><h2>Author tools</h2>
+          <Button size="sm" variant="ghost" icon="fa-eye-slash" onClick={() => manager.setUiSettings({ authorView: false })}>Return to player view</Button></header>
+        <div id="drawer-manager"><Lazy><DrawerTabs key={location.page} {...drawerProps} snapshot={snapshot} manager={manager}
+          section={location.page === "review" ? "proposals" : undefined} /></Lazy></div>
         {castPanel && <div className="so-task-card">{castPanel}</div>}
         {snapshot.storyId && <Lazy fallback={null}><RemoveStorySprites storyId={snapshot.storyId} storyTitle={snapshot.storyTitle} /></Lazy>}</section>;
     }} />;

@@ -73,9 +73,9 @@ export const PRESENCE_FEATURES: readonly Feature[] = [
   {
     id: "repetition-readout", name: "Repetition readout", area: "play", audience: "author",
     oneLine: "Author view names phrases the latest reply repeats from the five before it.",
-    what: "A short line in the Scheduler tab lists phrases, openers and stock constructions the newest reply shares with at least two of the five replies before it. "
+    what: "A short line in the Author page's Proposals section lists phrases, openers and stock constructions the newest reply shares with at least two of the five replies before it. "
       + "Counted in code, with no model call. It only reports; nothing reaches the prompt.",
-    where: drawerAt("[data-so=\"repetition\"]", "Scheduler › Repetition"),
+    where: drawerAt("[data-so=\"repetition\"]", "Proposals › Repetition"),
     settings: [], doc: "player/drawer-and-hud.md", status: "experimental", needs: ["story", "author-view"],
   },
   {

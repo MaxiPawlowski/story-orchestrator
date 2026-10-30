@@ -18,6 +18,7 @@ import type { JournalRecord } from "./journal";
 import { EMPTY_REPLY_PLAYER_TEXT } from "./emptyReply";
 import { gameLayer } from "@engine/validate/gameLayer";
 import type { SceneTestRecord } from "@generation/living/sceneTest";
+import { boundaryDigests, type BoundaryDigest } from "./boundaryDigest";
 
 export type InlineState = "live" | "pending" | "applied" | "refused";
 
@@ -47,6 +48,13 @@ export interface InlineView {
   categories: Partial<Record<InlineCategory, boolean>>;
   newestMessageId: number;
   byMessage: Record<number, InlineItem[]>;
+  boundaries?: Record<number, BoundaryDigest[]>;
+  prompts?: Record<number, MessagePrompt>;
+}
+
+export interface MessagePrompt {
+  reason: string;
+  blocks: Array<{ key: string; depth: number; chars: number }>;
 }
 
 export interface InlineSources {
@@ -455,6 +463,15 @@ function healthItems(sources: InlineSources, newest: number): Draft[] {
   return drafts;
 }
 
+const messagePrompts = (captures: PayloadCapture[], from: number, to: number): Record<number, MessagePrompt> => {
+  const out: Record<number, MessagePrompt> = {};
+  for (const capture of captures) {
+    if (typeof capture.messageId !== "number" || capture.messageId < from || capture.messageId > to || out[capture.messageId]) continue;
+    out[capture.messageId] = { reason: capture.reason, blocks: capture.blocks.map((block) => ({ key: block.key, depth: block.depth, chars: block.value.length })) };
+  }
+  return out;
+};
+
 export function composeInlineTimeline(sources: InlineSources): InlineView {
   const newest = sources.chatLength - 1;
   const oldest = newest - Math.max(1, sources.settings.window) + 1;
@@ -478,6 +495,10 @@ export function composeInlineTimeline(sources: InlineSources): InlineView {
     categories: sources.settings.categories,
     newestMessageId: newest,
     byMessage,
+    ...(sources.authorView ? {
+      boundaries: boundaryDigests(sources.story, sources.boundaryLog, Math.max(0, oldest), newest),
+      prompts: messagePrompts(sources.payloadCaptures, Math.max(0, oldest), newest),
+    } : {}),
   };
 }
 

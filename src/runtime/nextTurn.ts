@@ -26,7 +26,7 @@ export interface NextTurnContributor {
   label: string;
   /** The module that writes it — what "open the owning editor" navigates to. */
   owner: string;
-  ownerTab: "scheduler" | "memory" | "payload" | "config";
+  ownerTab: "state" | "proposals" | "memory" | "payload" | "config";
   depth: number;
   role: number;
   characters: number;
@@ -106,8 +106,8 @@ const OWNER_TABS: Record<string, NextTurnContributor["ownerTab"]> = {
   "memory/inject.applyEpistemicInjection": "memory",
   "memory/inject.applyLedgerInjection": "memory",
   "runtime/runtimeManager.setCopilotNudge": "payload",
-  "runtime/coordinators/sceneCoordinator": "scheduler",
-  "runtime/coordinators/stagecraftCoordinator": "scheduler",
+  "runtime/coordinators/sceneCoordinator": "state",
+  "runtime/coordinators/stagecraftCoordinator": "proposals",
 };
 
 const PREVIEW_CHARS = 240;
