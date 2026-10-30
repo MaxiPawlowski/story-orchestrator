@@ -43,6 +43,7 @@ export const InlineStrip = ({ messageId, items, level, expanded, onToggle, actio
             onClick={() => onToggle(group.category)}
           >
             <i className={INLINE_ICONS[group.category]} aria-hidden="true" />
+            {author && <span className="so-inline-chip-label">{INLINE_CATEGORY_LABELS[group.category]}</span>}
             {group.items.length > 1 && <span>{group.items.length}</span>}
           </button>
         ))}
@@ -56,6 +57,7 @@ export const InlineStrip = ({ messageId, items, level, expanded, onToggle, actio
             onClick={() => actions.inspect(messageId)}
           >
             <i className="fa-solid fa-magnifying-glass" aria-hidden="true" />
+            <span className="so-inline-chip-label">Inspect</span>
           </button>
         )}
         {legend && <InlineLegendToggle open={legendOpen} panel={legendPanel} onToggle={() => setLegendOpen(!legendOpen)} />}

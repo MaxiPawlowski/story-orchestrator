@@ -31,6 +31,13 @@
   opacity: 0.7;
 }
 
+:is(#chat .so-inline-host, #so-inspector) .so-inline-strip:is([data-level="3"], [data-level="4"]) .so-inline-chip {
+  min-height: calc(var(--mainFontSize, 1rem) * 1.4);
+  padding: 3px 8px;
+  color: var(--so-fg, inherit);
+  opacity: 1;
+}
+
 :is(#chat .so-inline-host, #so-inspector) .so-inline-chip[aria-expanded="true"] {
   opacity: 1;
 }

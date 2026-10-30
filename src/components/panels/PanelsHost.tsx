@@ -18,6 +18,8 @@ import type { WriteResult } from "@utils/writeResult";
 import { requestGuide } from "@guide/request";
 import type { GuideTarget } from "@guide/types";
 import { PanelFrame } from "./PanelFrame";
+import type { InlineActions } from "../inline/InlineDetail";
+import { setInspectTarget, useInspectTarget } from "../drawer/inspectTarget";
 
 const HelpHost = lazyRetry(() => import("../help/HelpHost"));
 const GuideHost = lazyRetry(() => import("../../guide/GuideHost"));
@@ -25,8 +27,9 @@ const SuggestionsPanel = lazyRetry(() => import("./SuggestionsPanel"));
 const JournalPanel = lazyRetry(() => import("./JournalPanel"));
 const StatSheetPanel = lazyRetry(() => import("./StatSheetPanel"));
 const WidgetPanel = lazyRetry(() => import("./WidgetPanel"));
+const MessageInspector = lazyRetry(() => import("../drawer/MessageInspector"));
 
-export type PanelId = "help" | "guide" | "suggestions" | "journal" | "stat-sheet" | `widget-${string}`;
+export type PanelId = "help" | "guide" | "suggestions" | "journal" | "stat-sheet" | "inspector" | `widget-${string}`;
 
 export interface PanelsHostProps {
   panels: readonly PanelId[];
@@ -42,6 +45,8 @@ export interface PanelsHostProps {
   fillSuggestion: (ask: SuggestionAsk, text: string) => WriteResult;
   fill: (text: string) => WriteResult;
   htmlHost: { journal: (summary: string, detail: string) => void };
+  inspectActions?: InlineActions;
+  onOpenAuthor?: () => void;
 }
 
 const viewport = (): Viewport => ({ width: window.innerWidth, height: window.innerHeight });
@@ -68,9 +73,10 @@ const Panel = ({ id, title, inset, setPanel, children }: { id: PanelId; title: s
 );
 
 const PanelsHost = ({
-  panels, setPanel, manager, useSnapshot, showFeature, openDrawer, jumpToMessage, guideTarget, clearGuideTarget, requestSuggestions, fillSuggestion, fill, htmlHost,
+  panels, setPanel, manager, useSnapshot, showFeature, openDrawer, jumpToMessage, guideTarget, clearGuideTarget, requestSuggestions, fillSuggestion, fill, htmlHost, inspectActions, onOpenAuthor,
 }: PanelsHostProps) => {
   const snapshot = useSnapshot();
+  const inspecting = useInspectTarget();
   const { view, inset } = usePanelViewport();
   const suggestions = panels.includes("suggestions") && snapshot.ready && snapshot.presence?.shown.suggestions === true;
   const game = gamePanels(snapshot);
@@ -86,6 +92,8 @@ const PanelsHost = ({
   }
   if (game.statSheet && panels.includes("stat-sheet")) bodies.set("stat-sheet", { title: GAME_TEXT.statSheetTitle, body: <Lazy fallback={null}><StatSheetPanel
     sheet={game.game?.statSheet ?? null} provenance={author?.provenance?.[game.game?.statSheet?.id ?? ""]} onAction={fill} openDrawer={openDrawer} /></Lazy> });
+  if (panels.includes("inspector") && snapshot.ui.authorView && inspecting !== null) bodies.set("inspector", { title: "Inspector", body: <Lazy fallback={null}><MessageInspector
+    view={snapshot.inline} messageId={inspecting} onStep={setInspectTarget} actions={inspectActions} onOpenAuthor={onOpenAuthor} /></Lazy> });
   for (const widget of game.widgets) {
     if (panels.includes(`widget-${widget.id}`)) bodies.set(`widget-${widget.id}`, { title: widget.title, body: <Lazy fallback={null}><WidgetPanel widget={widget} onAction={fill}
       html={snapshot.ui.presence?.htmlWidgets === false ? null : htmlHost} openDrawer={openDrawer} provenance={author?.provenance?.[widget.id]} /></Lazy> });

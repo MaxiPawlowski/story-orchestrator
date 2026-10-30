@@ -4,7 +4,7 @@ import { StoryEngine, gatedWorldInfo, parseStoryOrThrow, type BoundaryLogEntry, 
 import type { SharedReadAudit } from "@extraction/index";
 import { heldSecrets, provenance, withoutSecretLines, type EpistemicEntry, type MemoryEntry } from "@memory/index";
 import { composeInlineTimeline, inlineMessageIds, visibleInlineItems, type InlineSources, type InlineView } from "./inlineTimeline";
-import { inspectMessage } from "./messageInspector";
+import { inspectableIds, inspectMessage, stepMessage } from "./messageInspector";
 import type { EffectLedgerRow, EffectLedgerStatus } from "./types";
 import { firstLines } from "./castInPlay";
 import { defaultInlineSettings, effectiveInlineLevel, INLINE_WINDOW_MAX, sanitizeGlobalSettings, sanitizeInlineSettings, type InlineLevel } from "./settingsModel";
@@ -207,10 +207,38 @@ describe("inline timeline composer (v2.6 plan 08 D3/D4)", () => {
     expect(inspection.sections.map((section) => section.category)).toEqual(["progress", "memory", "lore", "cast", "pacing", "calls"]);
     expect(inspection.sections.find((section) => section.category === "lore")?.items.some((item) => item.id.startsWith("lore:count"))).toBe(false);
     expect(inspectMessage(view, 0).sections).toEqual([]);
-    const kinds = (messageId: number) => inspectMessage(view, messageId).sections.flatMap((section) => section.items.map((item) => item.id.split(":").slice(0, 2).join(":")));
+    const kinds = (messageId: number) => { const inspection = inspectMessage(view, messageId); return [...inspection.sections.flatMap((section) => section.items), ...inspection.raw, ...inspection.health].map((item) => item.id.split(":").slice(0, 2).join(":")); };
     expect(["progress:gate", "cast:talk"].filter((kind) => !kinds(3).includes(kind))).toEqual([]);
     expect(kinds(2)).toContain("memory:delta");
     expect(["memory:raw", "calls:read"].filter((kind) => !kinds(5).includes(kind))).toEqual([]);
+  });
+
+  it("the inspector says what changed and why at a boundary, the prompt sent, and keeps raw items for level 4", () => {
+    const view = composeInlineTimeline(sources(SUN));
+    const key = Object.keys(SUN.qualityByKey)[0];
+    const inspection = inspectMessage(view, 3);
+    expect(inspection.boundaries).toHaveLength(1);
+    expect(inspection.boundaries[0].changes).toEqual([expect.objectContaining({ key, before: "unset", after: "true", by: "read" })]);
+    expect(inspection.boundaries[0].fired?.to).toBe(transitionOf(SUN).transition.to);
+    expect(inspection.boundaries[0].gates.every((row) => row.to === transitionOf(SUN).transition.to)).toBe(true);
+    expect(inspection.rawShown).toBe(true);
+    expect(inspection.raw.map((item) => item.id.split(":").slice(0, 2).join(":"))).toContain("progress:evaluated");
+    expect(inspectMessage(view, 4).prompt).toEqual({ reason: "generation", blocks: [] });
+    const level3 = composeInlineTimeline(sources(SUN, { settings: { ...defaultInlineSettings(), level: 3 } }));
+    expect(inspectMessage(level3, 3).raw).toEqual([]);
+    expect(inspectMessage(level3, 3).sections.flatMap((section) => section.items).some((item) => item.level >= 4)).toBe(false);
+  });
+
+  it("the inspector steps through inspectable messages and the player view carries no boundary digest", () => {
+    const view = composeInlineTimeline(sources(SUN));
+    const ids = inspectableIds(view);
+    expect(ids).toEqual([...ids].sort((left, right) => left - right));
+    expect(stepMessage(view, 3, 1)).toBe(ids[ids.indexOf(3) + 1]);
+    expect(stepMessage(view, 3, -1)).toBe(ids[ids.indexOf(3) - 1]);
+    expect(stepMessage(view, ids[0], -1)).toBeNull();
+    const player = composeInlineTimeline(sources(SUN, { authorView: false }));
+    expect(player.boundaries).toBeUndefined();
+    expect(player.prompts).toBeUndefined();
   });
 
   it("returns the requested level alongside the effective one", () => {
