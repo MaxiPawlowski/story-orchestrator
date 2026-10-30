@@ -491,6 +491,20 @@ J6 under `st-lanes batch --lanes 45 --repeat 2 --strict --fresh-page J6` (lane 4
 - Owed (model/GPU, not run today): J6 x2 under `st-lanes batch --repeat 2 --strict --fresh-page J6` on a model lane (J6.7
   cannot run on a no-model lane: it is a model check and the race needs a real background read); `so-p41-journey run` +
   `cleanup` on an image lane to see `cleanup.residue` remove the folders and rows live.
+- J6 x2 run 2026-10-30 (GPU queue G1, REG-3; master `1e3a938d` staged, served `dist/index.js` sha256 `7793a8b80ccc`,
+  1,232,693 B; lane 45, local controller on the owner config, Artemis 31B v1.1, thinking on): `st-lanes batch --lanes 45
+  --repeat 2 --strict --fresh-page J6`. **Not green: 1 of 2.**
+  - Run 1 GREEN 11/11 (838 s). Run 2 RED 9/11 (922 s), both fixture races, no product fault found:
+  - J6.1: `wait checkpointIn [cp2, cp3, …]` then `expect activeCheckpoint: cp2`; the real model's second send moved the
+    story to cp3 (the J6 wait-vs-exact gotcha). Fix (CPU): expect `activeCheckpointIn` or drop cp3+ from the wait.
+  - J6.7: the new early check fired: "a background pass took the scripted response first: the belief is stamped message
+    7, the scripted window ends at 9". J6.7 continues J6.6's chat; J6.6 sends real turns with unpinned reads, so a
+    scene-break epistemic pass from J6.6 (window end 7) can still be queued (or held, which `schedulerIdle` counts as
+    idle) when J6.7 scripts the epistemic global. Not verified by trace. Fix candidates (CPU): pin `SCENE_NONE` in
+    J6.6 too, or have J6.7 wait for an empty heavy queue (held included) before scripting; extend
+    `scriptedPassesUnpinned` to the previous check on the same chat.
+  - Evidence: `C:/dev/so-lanes/45/debug/batch/2026-10-30T20-15-42-386Z/J6-run{1,2}/`, batch log
+    `C:/dev/so-lanes/45/debug/g1-j6x2-batch.log`, summary `C:/dev/so-lanes/batch-2026-10-30T20-15-42-386Z.json`.
 
 ## Rules
 
