@@ -27,6 +27,8 @@ import type { ArcEntry, ChapterDisposition, ChapterRecord, ChronicleState, Epist
 import { foldChapter, foldEpistemic } from "./chapterFold";
 import { commitRecordBridge, markRecapSeen, pendingBridge, pushSealSkip, unfoldAt } from "./chapterUnfold";
 import { eraCandidates, eraMessageId, fallbackEraText } from "./chronicle";
+import { arcDeferred, deferArc, withArcEvent } from "./arcThreads";
+import type { SourceSpan } from "./audience";
 
 const ITERATIONS = 400;
 const SEEDS = [1, 7, 20260921, 424242];
@@ -45,7 +47,7 @@ const FIELDS = ["condition", "location"];
 const TAGS = ["knows", "believes", "suspects", "intends"] as const;
 
 interface Op {
-  kind: "read" | "ledger" | "epistemic" | "intend" | "beat" | "consolidate" | "exclude" | "compact" | "seal" | "arc" | "resolve" | "bridge" | "skip" | "recap" | "hide";
+  kind: "read" | "ledger" | "epistemic" | "intend" | "beat" | "consolidate" | "exclude" | "compact" | "seal" | "arc" | "resolve" | "bridge" | "skip" | "recap" | "hide" | "defer" | "reopen";
   messageId: number;
   index: number;
 }
@@ -262,12 +264,11 @@ const expectWorldsEqual = (where: string, rolled: World, replayed: World, full: 
   expect({ where, skip: rolled.chapterSealSkip ?? null }).toEqual({ where, skip: replayed.chapterSealSkip ?? null });
 };
 
-const randomCuts = (seed: number, step: (world: World, op: Op) => World) => {
+const randomCuts = (seed: number, step: (world: World, op: Op) => World, kinds: Op["kind"][] = INNER_KINDS) => {
   {
     const random = rng(seed);
     const ops: Op[] = [];
     const full = emptyWorld();
-    const kinds = INNER_KINDS;
 
     for (let index = 0; index < 60; index += 1) {
       // Message ids ascend, so every op has a position on the timeline a mutation could reach.
@@ -359,5 +360,34 @@ describe("v2.6 plan 07: rollback is replay across chapter seals", () => {
     expect(worlds.some((world) => world.chapterSealSkip)).toBe(true);
     expect(all((world) => world.epistemic).some((entry) => entry.foldedInto)).toBe(true);
     expect(all((world) => world.chapters).some((record) => record.chapterId.startsWith("era-"))).toBe(true);
+  });
+});
+
+const playerSpan = (messageId: number): SourceSpan => ({ chatId: "c", messageId, revision: { swipeId: null, hash: `h${messageId}` }, speaker: "Player", isUser: true, span: [0, 5] });
+
+const threadStep = (world: World, op: Op): World => {
+  if (op.kind !== "defer" && op.kind !== "reopen") return step(world, op);
+  const at = { boundary: op.messageId, messageId: op.messageId };
+  const target = world.arcs.find((arc) => arc.status === "open" && (op.kind === "defer" ? !arcDeferred(arc) : arcDeferred(arc)));
+  if (!target) return world;
+  const next = op.kind === "defer"
+    ? deferArc(target, playerSpan(op.messageId), "later", at)
+    : withArcEvent(target, { kind: "reopened", ...at, span: playerSpan(op.messageId), quote: `thread ${op.index}` });
+  return "reason" in next ? world : { ...world, arcs: world.arcs.map((arc) => (arc === target ? next : arc)) };
+};
+
+const THREAD_KINDS: Op["kind"][] = ["read", "arc", "arc", "defer", "defer", "reopen", "reopen", "resolve", "seal", "bridge", "recap", "skip"];
+
+describe("v3.0 33: rollback is replay across put-off and picked-up threads", () => {
+  it.each(SEEDS)("holds across random defer and reopen cycles (seed %i)", (seed) => randomCuts(seed, threadStep, THREAD_KINDS));
+
+  it("control: the generator defers, reopens and defers again, and seals over a put-off thread", () => {
+    const worlds = SEEDS.map((seed) => {
+      const random = rng(seed);
+      return Array.from({ length: 60 }, (_, index): Op => ({ kind: THREAD_KINDS[Math.floor(random() * THREAD_KINDS.length)], messageId: index, index })).reduce(threadStep, emptyWorld());
+    });
+    const histories = worlds.flatMap((world) => world.arcs).map((arc) => (arc.history ?? []).map((event) => event.kind).join(","));
+    expect(histories.some((kinds) => kinds.startsWith("deferred,reopened,deferred"))).toBe(true);
+    expect(worlds.flatMap((world) => world.arcs).some((arc) => arc.status === "resolved" && arc.history?.length)).toBe(true);
   });
 });

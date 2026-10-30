@@ -161,6 +161,10 @@ export const setRequirements = (draft: StoryDraft, requirements: StoryRequiremen
     const values = requirements[key] ?? [];
     if (values.length) kept[key] = values;
   });
+  (["place_lore", "people_lore"] as const).forEach((key) => {
+    const bindings = requirements[key] ?? draft.requirements?.[key];
+    if (bindings && Object.keys(bindings).length) kept[key] = bindings;
+  });
   const { requirements: _dropped, ...rest } = draft;
   return Object.keys(kept).length ? { ...rest, requirements: kept } : rest;
 };

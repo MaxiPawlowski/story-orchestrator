@@ -3,6 +3,7 @@ export * from "./provenance";
 export * from "./similarity";
 export * from "./stores";
 export * from "./arcs";
+export * from "./arcThreads";
 export * from "./derived";
 export * from "./excludedThreads";
 export * from "./entities";

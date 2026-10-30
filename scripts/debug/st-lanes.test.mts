@@ -51,6 +51,13 @@ test('v2.5 plan 01: --wi-gating reaches a journey and never a scenario', () => {
   assert.deepEqual(itemArgs('test/scenarios/x.json', true, 'g1', 'scan'), ['scripts/debug/so-scenario.mts', 'run', 'test/scenarios/x.json', '--sandbox', '--group', 'g1']);
 });
 
+test('C-H3: an armed journey item passes its arm flags to so-journey, and a bad arm is refused before any row runs', () => {
+  assert.deepEqual(itemArgs('J13 --judge-uses houseRules --warden-mode auto', true, null, null, 'judged'), ['scripts/debug/so-journey.mts', 'run', 'J13', '--judge-uses', 'houseRules', '--warden-mode', 'auto', '--strict', '--model', 'judged']);
+  assert.deepEqual(itemArgs('j13 --judge-uses off', false, null), ['scripts/debug/so-journey.mts', 'run', 'J13', '--judge-uses', 'off']);
+  assert.throws(() => itemArgs('J13 --warden-mode auto', true, null), /needs --judge-uses/);
+  assert.throws(() => itemArgs('J13 --strict', true, null), /pairs/);
+});
+
 test('a lane batch refuses a missing dist/ before any lane runs; the one build passes', () => {
   const root = testTempDirSync('so-lane-preflight-');
   try {

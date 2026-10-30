@@ -168,7 +168,7 @@ describe("the story-so-far block (v2.6 plan 07 task 12)", () => {
   ] as ArcEntry[];
 
   it("composes chronicle, this chapter's canon without its fact list, and open threads, pinned first", () => {
-    const text = storySoFarText({ records: [arrival], eras: [], canon: "the walls are manned.\nESTABLISHED FACTS:\n- secret", chapterTitle: "The Siege", threads, settings: chapterSettings({}) });
+    const text = storySoFarText({ records: [arrival], eras: [], canon: "the walls are manned.\nESTABLISHED FACTS:\n- secret", chapterTitle: "The Siege", threads, settings: chapterSettings({}), resting: (text) => text });
     expect(text).toBe([
       "[The story so far]\nArrival: they reached the gate at dusk.",
       "[This chapter: The Siege]\nthe walls are manned.",

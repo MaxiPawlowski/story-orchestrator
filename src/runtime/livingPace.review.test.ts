@@ -141,13 +141,13 @@ describe("v2.8 22 L1 pace: a premise story reaches its written turning points", 
   it("Save as story from inside the stub or a bridge beat keeps the turning point the player is heading into (L1 run 1: no saved line)", () => {
     const { raw, story } = written();
     for (const where of ["liv_1_way", "gen_liv_1_way_2"]) {
-      const out = projectLivingExport(raw, story, { reached: new Set(["liv_open", where]), includeUnreached: false, id: "x", title: "x" });
+      const out = projectLivingExport(raw, story, { reached: new Set(["liv_open", where]), includeUnreached: false, id: "x", title: "x", scrub: (text) => text });
       expect({ where, ok: out.ok }).toEqual({ where, ok: true });
       if (!out.ok) continue;
       expect(out.raw.checkpoints.map((checkpoint) => checkpoint.id)).toEqual(["liv_open", "liv_1_way", "liv_1"]);
       expect(() => parseStoryOrThrow(out.raw)).not.toThrow();
     }
-    const atOpening = projectLivingExport(raw, story, { reached: new Set(["liv_open"]), includeUnreached: false, id: "x", title: "x" });
+    const atOpening = projectLivingExport(raw, story, { reached: new Set(["liv_open"]), includeUnreached: false, id: "x", title: "x", scrub: (text) => text });
     expect(atOpening.ok && atOpening.raw.checkpoints.map((checkpoint) => checkpoint.id)).toEqual(["liv_open", "liv_next_1_way", "liv_next_1"]);
   });
 });

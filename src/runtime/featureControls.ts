@@ -18,6 +18,8 @@ const control = (field: string, path: string, label: string): FeatureControl => 
 const enabled = (path: string) => control("enabled", path, "Enabled");
 const mode = (path: string) => control("acceptMode", path, "Application policy");
 
+export const OFF_UNTIL_RATED: readonly StoryFeatureId[] = ["skip"];
+
 export const FEATURE_CONTROLS: Record<StoryFeatureId, FeatureControls> = {
   reading: { name: "Story reading",
     area: "Memory",
@@ -38,7 +40,8 @@ export const FEATURE_CONTROLS: Record<StoryFeatureId, FeatureControls> = {
     controls: [enabled("memory.chapters.seal"),
       control("recap", "memory.chapters.recap", "Show a recap when returning"),
       control("storySoFar", "memory.chapters.storySoFar", "Include the story so far"),
-      control("fold", "memory.chapters.fold", "Represent ended chapters by their records")] },
+      control("fold", "memory.chapters.fold", "Represent ended chapters by their records"),
+      control("compact", "memory.chapters.compact", "Drop old messages in chunks near the limit")] },
   continuity: { name: "Continuity",
     area: "Memory",
     description: "Restates established facts when a reply contradicts them.",
@@ -67,6 +70,10 @@ export const FEATURE_CONTROLS: Record<StoryFeatureId, FeatureControls> = {
     description: "Allows several characters to answer before returning to you.",
     controls: [enabled("talk.chain.enabled"),
       control("max", "talk.chain.max", "Maximum voices per turn")] },
+  skip: { name: "Skip ahead",
+    area: "Story direction",
+    description: "Lets you skip travel, waiting or routine: the narrator tells the time passing in one reply and stops where you are needed.",
+    controls: [enabled("talk.skipAhead")] },
   inner: { name: "Private inner voice",
     area: "Characters",
     description: "Prepares private intent for the next speaker and reads reply reasoning.",
@@ -93,6 +100,11 @@ export const FEATURE_CONTROLS: Record<StoryFeatureId, FeatureControls> = {
     description: "Remembers promises you make to a character in your own words, and reminds only that character when it matters.",
     role: "read",
     controls: [enabled("memory.promises")] },
+  deferrals: { name: "Threads you put off",
+    area: "Memory",
+    description: "Notices when you put a thread off in your own words, stops it being pushed, and picks it up again when you mention it.",
+    role: "read",
+    controls: [enabled("memory.deferrals"), control("outOfPrompt", "memory.deferredOutOfPrompt", "Leave put-off threads out of the prompt")] },
   witness: { name: "Who heard what",
     area: "Characters",
     description: "After each story read, notes in code which characters heard each message; nothing uses it until it is measured.",

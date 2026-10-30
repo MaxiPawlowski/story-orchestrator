@@ -42,6 +42,7 @@ export abstract class CoordinatorDelegates {
   get rumors() { return this.co.rumors; }
   get cues() { return this.co.cues; }
   get echoes() { return this.co.echoes; }
+  skipAhead() { return this.co.skip.run(); }
   get carry() { return this.co.carry; }
   protected noticeHolds = 0;
   async holdingRollbackNotice<T>(work: () => Promise<T>): Promise<T> {

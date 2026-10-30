@@ -1,5 +1,6 @@
 import type { EffectTarget, RuntimeSnapshot } from "@runtime/types";
 import type { RuntimeManager } from "@runtime/index";
+import { arcDeferred, arcHistoryLines } from "@memory/arcThreads";
 import { MessageCitation } from "../MessageCitation";
 import { RumorsPanel } from "../RumorsPanel";
 import { EchoesPanel } from "../EchoesPanel";
@@ -120,15 +121,18 @@ export const ArcCanonPanel = ({ snapshot, manager }: { snapshot: RuntimeSnapshot
   const arcs = snapshot.memory.arcs ?? [];
   const openArcs = arcs.filter((arc) => arc.status === "open");
   const resolvedArcs = arcs.filter((arc) => arc.status === "resolved");
+  const putOff = openArcs.filter(arcDeferred).length;
   const canon = snapshot.memory.canon;
   if (!arcs.length && !canon) return null;
   return (
     <div className="border-t border-solid border-[var(--so-line)] mt-1 pt-1">
-      <div className="opacity-100">Arcs (open {openArcs.length} · resolved {resolvedArcs.length})</div>
+      <div className="opacity-100">Arcs (open {openArcs.length}{putOff ? ` · put off ${putOff}` : ""} · resolved {resolvedArcs.length})</div>
       {arcs.map((arc) => (
         <div key={arc.id} className="mt-1">
           <div className={arc.status === "resolved" ? "opacity-70" : ""}>{arc.status === "resolved" ? "✓ " : "◦ "}{arc.text}{arc.pinned ? " 📌" : ""}</div>
           {arc.summary && <div className="opacity-70 italic">{arc.summary}</div>}
+          {arcDeferred(arc) && <div className="opacity-80" data-so="arc-put-off">Put off by the player</div>}
+          {arcHistoryLines(arc).map((line, index) => <div key={index} className="opacity-70" data-so="arc-history">{line}</div>)}
           <div className="flex gap-2 opacity-80 flex-wrap">
             <button className="menu_button" onClick={() => void manager.setArcPinned(arc.id, !arc.pinned)}>{arc.pinned ? "Unpin" : "Pin"}</button>
             <button className="menu_button" onClick={() => void manager.removeArc(arc.id)}>Remove</button>

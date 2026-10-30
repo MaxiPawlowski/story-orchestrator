@@ -1,3 +1,4 @@
+import { arcDeferred, deferArc, deferralSpan, deferredSignalLine, reopenTouched, rollbackArcHistory, type ArcRead, type ArcRefusal } from "./arcThreads";
 import { jaccardSimilarity } from "./similarity";
 import { generateMemoryId, type ArcEntry, type ParsedArcSignal } from "./types";
 
@@ -11,12 +12,17 @@ export const ARC_OPEN_INJECT_LIMIT = 8;
 export interface ArcSignalContext {
   boundary: number;
   messageId?: number;
+  read?: () => ArcRead | undefined;
+  deferrals?: boolean;
 }
 
 export interface ApplyArcSignalsResult {
   arcs: ArcEntry[];
   opened: ArcEntry[];
   resolved: ArcEntry[];
+  deferred: ArcEntry[];
+  reopened: ArcEntry[];
+  refused: ArcRefusal[];
 }
 
 export function openArcs(arcs: ArcEntry[]): ArcEntry[] {
@@ -51,6 +57,8 @@ export function applyArcSignals(arcs: ArcEntry[], signals: ParsedArcSignal[], ct
     }
   }
 
+  const threads = applyThreadEvents(next, signals, ctx);
+
   const opened: ArcEntry[] = [];
   for (const signal of signals) {
     if (signal.kind !== "open") continue;
@@ -68,7 +76,51 @@ export function applyArcSignals(arcs: ArcEntry[], signals: ParsedArcSignal[], ct
     });
   }
 
-  return { arcs: [...next, ...opened], opened, resolved };
+  return { arcs: [...threads.arcs, ...opened], opened, resolved, ...threads.outcome };
+}
+
+const bestOpenMatch = (arcs: ArcEntry[], text: string): number => {
+  let best = -1;
+  let bestScore = ARC_RESOLVE_THRESHOLD;
+  arcs.forEach((arc, index) => {
+    if (arc.status !== "open") return;
+    const score = jaccardSimilarity(arc.text, text);
+    if (score >= bestScore) {
+      best = index;
+      bestScore = score;
+    }
+  });
+  return best;
+};
+
+function applyThreadEvents(arcs: ArcEntry[], signals: ParsedArcSignal[], ctx: ArcSignalContext) {
+  const outcome: Pick<ApplyArcSignalsResult, "deferred" | "reopened" | "refused"> = { deferred: [], reopened: [], refused: [] };
+  const next = [...arcs];
+  const deferrals = signals.filter((entry) => entry.kind === "deferred");
+  const read = ctx.deferrals !== false && (deferrals.length || arcs.some(arcDeferred)) ? ctx.read?.() : undefined;
+  const at = { boundary: ctx.boundary, messageId: ctx.messageId ?? read?.window.to ?? 0 };
+  for (const signal of deferrals) {
+    const refuse = (reason: string) => outcome.refused.push({ line: deferredSignalLine(signal), reason });
+    if (ctx.deferrals === false) { refuse("put-off threads are switched off"); continue; }
+    if (!read) { refuse("no read window"); continue; }
+    const span = deferralSpan(signal, read);
+    if ("reason" in span) { refuse(span.reason); continue; }
+    const index = bestOpenMatch(next, signal.text);
+    if (index < 0) { refuse("matches no open arc"); continue; }
+    const deferred = deferArc(next[index], span.source, signal.quote ?? "", at);
+    if ("reason" in deferred) { refuse(deferred.reason); continue; }
+    next[index] = deferred;
+    outcome.deferred.push(deferred);
+  }
+  if (read) {
+    next.forEach((arc, index) => {
+      const reopened = arcDeferred(arc) ? reopenTouched(arc, read, at) : null;
+      if (!reopened) return;
+      next[index] = reopened;
+      outcome.reopened.push(reopened);
+    });
+  }
+  return { arcs: next, outcome };
 }
 
 export function setArcPinned(arcs: ArcEntry[], id: string, pinned: boolean): ArcEntry[] {
@@ -86,6 +138,7 @@ export function setArcSummary(arcs: ArcEntry[], id: string, summary: string): Ar
 export function rollbackArcs(arcs: ArcEntry[], messageId: number, boundary: number): ArcEntry[] {
   return arcs
     .filter((arc) => typeof arc.openedMessageId !== "number" || arc.openedMessageId < messageId)
+    .map((arc) => rollbackArcHistory(arc, messageId, boundary))
     .map((arc) => {
       const resolvedAfter = (typeof arc.resolvedAt === "number" && arc.resolvedAt > boundary)
         || (typeof arc.resolvedMessageId === "number" && arc.resolvedMessageId >= messageId);

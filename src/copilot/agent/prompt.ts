@@ -2,7 +2,7 @@ import type { Story } from "@engine/index";
 import type { ProvisioningEnvironment } from "@wizard/index";
 import { isRecord } from "@utils/guards";
 import { truncate } from "@utils/string";
-import { CARD_CRAFT_RULE, FIRST_MESSAGE_RULE, OPENING_CAST_RULE, loreContentRule } from "../prompts";
+import { CARD_CRAFT_RULE, FIRST_MESSAGE_RULE, OPENING_CAST_RULE, PLACE_DESCRIPTION_RULE, loreContentRule } from "../prompts";
 import { GUIDE_TOPIC_IDS } from "../guideTopics";
 import { renderCoverage, storyCoverage } from "../../studio/coverage";
 import { runReadTool } from "./readTools";
@@ -45,7 +45,7 @@ const rules = (): string[] => [
     "You never edit an existing card or lorebook, never touch personas, and never save the story: saving is the author's click.",
     "A card with notes comes back once before the author sees it: send one revised createCharacterCard with replaces set to that step's id, or the same card to keep it.",
   ].join(" "),
-  [CARD_CRAFT_RULE, loreContentRule()].filter(Boolean).join(" "),
+  [CARD_CRAFT_RULE, loreContentRule(), PLACE_DESCRIPTION_RULE].filter(Boolean).join(" "),
   `Consult readGuide(topic) before authoring a field you have not used yet in this session. Topics: ${GUIDE_TOPIC_IDS.join(", ")}.`,
   `For a whole task, readRecipe(recipe) first and follow its steps in order. Recipes: ${recipeIndex()}.`,
   "After each accepted write you are shown the validation and diagnostics. Fix blocking problems before adding more.",

@@ -3,7 +3,7 @@ import { readContext, renderSharedReadPrompt, runningTotals } from "./contract";
 import { deriveScopeWithSources } from "./scope";
 import { SCOPE_SOURCES, type ScopeSource, type ScopeSourceContext } from "./scopeSources";
 import { CLEANED_FORM, cleanWindowMessage } from "./windowHygiene";
-import type { ScopedQuality } from "./types";
+import type { ReadLayout, ScopedQuality } from "./types";
 
 export interface FixtureTranscriptEntry {
   index: number;
@@ -28,6 +28,7 @@ export interface ExtractionFixtureSpec {
   scopeCaps?: FixtureScopeCaps;
   scopeContext?: ScopeSourceContext;
   showValues?: boolean;
+  readLayout?: ReadLayout;
 }
 
 export interface FixtureSourceRead {
@@ -91,6 +92,7 @@ export function buildFixtureRun(spec: ExtractionFixtureSpec): FixtureRun {
     ...(spec.entities ? { entities: spec.entities } : {}),
     ...readContext(story, activeCheckpointId),
     counted: runningTotals(scope, blackboard.values),
+    ...(spec.readLayout ? { layout: spec.readLayout } : {}),
   });
   return { story, activeCheckpointId, scope, prompt: spec.showValues ? withCurrentValues(prompt, scope, blackboard.values) : prompt, sources };
 }

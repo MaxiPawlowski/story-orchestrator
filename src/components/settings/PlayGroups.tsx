@@ -51,6 +51,7 @@ export const ChapterBudgetGroup = ({ snapshot, manager }: GroupProps) => (
 export const LorebooksGroup = ({ snapshot, manager }: GroupProps) => {
   const [scanMemory, setScanMemory] = useState(() => getGlobalSettings().worldInfo.scanMemory);
   const [lateLore, setLateLore] = useState(() => getGlobalSettings().worldInfo.lateLore);
+  const [lorePins, setLorePins] = useState(() => getGlobalSettings().worldInfo.lorePins);
   const [releasing, setReleasing] = useState(false);
   return (
     <div className="flex flex-col gap-2 border-t border-solid border-[var(--so-line)] pt-2">
@@ -82,6 +83,8 @@ export const LorebooksGroup = ({ snapshot, manager }: GroupProps) => {
         }}
         lateLore={lateLore}
         onLateLore={(on) => setLateLore(setGlobalSettings({ worldInfo: { lateLore: on } }).worldInfo.lateLore)}
+        lorePins={lorePins}
+        onLorePins={(on) => setLorePins(setGlobalSettings({ worldInfo: { lorePins: on } }).worldInfo.lorePins)}
       />
     </div>
   );
@@ -96,7 +99,26 @@ export const InnerVoiceGroup = ({ snapshot, manager }: GroupProps) => {
   );
 };
 
-export const CharacterStateGroup = ({ manager }: GroupProps) => {
+const PromptTrialRows = ({ snapshot, manager }: GroupProps) => {
+  const [, bump] = useState(0);
+  const { memory, talk } = getGlobalSettings();
+  const after = () => {
+    bump((value) => value + 1);
+    manager.notify();
+  };
+  return (
+    <div id="so-prompt-trials" className="flex flex-col gap-1">
+      <CheckRow id="so-history-notes" setting="memory.historyNotes" className="text-xs" checked={memory.historyNotes === true}
+        onChange={(on) => { manager.setMemorySettings({ historyNotes: on }); after(); }} />
+      <CheckRow id="so-outward-narration" setting="memory.outwardNarration" className="text-xs" checked={snapshot.memory.settings.outwardNarration === true}
+        onChange={(on) => { manager.setMemorySettings({ outwardNarration: on }); after(); }} />
+      <CheckRow id="so-swipe-contrast" setting="talk.swipeContrast" className="text-xs" checked={talk.swipeContrast}
+        onChange={(on) => { setGlobalSettings({ talk: { swipeContrast: on } }); after(); }} />
+    </div>
+  );
+};
+
+export const CharacterStateGroup = ({ snapshot, manager }: GroupProps) => {
   const [on, setOn] = useState(() => getGlobalSettings().sprites.cardOverlay);
   const change = (cardOverlay: boolean) => {
     setGlobalSettings({ sprites: { cardOverlay } });
@@ -107,6 +129,7 @@ export const CharacterStateGroup = ({ manager }: GroupProps) => {
     <div className="flex flex-col gap-2 border-t border-solid border-[var(--so-line)] pt-2">
       <GroupHeader title="Added to the reply prompt" scope="install" id="so-character-state-header" />
       <CheckRow id="so-card-overlay" setting="sprites.cardOverlay" checked={on} onChange={change} />
+      {snapshot.ui.authorView && <PromptTrialRows snapshot={snapshot} manager={manager} />}
     </div>
   );
 };

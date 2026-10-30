@@ -45,7 +45,7 @@ export function payloadCaseGroup(entry: PayloadCase): PrefixGroup {
     group: entry.case,
     texts: true,
     entries: entry.captures.map((capture) => ({
-      key: capture.member ?? RESTING_KEY,
+      key: capture.sideKey ?? capture.member ?? RESTING_KEY,
       label: capture.label,
       prompt: capture.prompt,
       blocks: capture.blocks.map((block): PromptBlockHint => ({ value: block.value, position: block.position })),

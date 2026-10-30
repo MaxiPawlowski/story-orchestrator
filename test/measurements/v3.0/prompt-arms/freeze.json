@@ -1,0 +1,9 @@
+{
+ "format": "so-v30-prompt-arms-freeze/1",
+ "hash": "sha256 of JSON.stringify(JSON.parse(file))",
+ "files": {
+  "outward.cases.json": "3ef403a18e0af209e0daa568fa0129e25d93d80a4ac9753e16a2f390fc8359cf",
+  "swipe.cases.json": "ea5ef3d0275492a0145f3e27620c6cfc6b5b14fd2846d356429ccf62cbb3ce93",
+  "notes.cases.json": "f21b08aa50db19c470c12b33e83a2392543b847fea778437a9ae2776f08cc4f2"
+ }
+}

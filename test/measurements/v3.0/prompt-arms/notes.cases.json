@@ -1,0 +1,933 @@
+{
+ "format": "so-v30-prompt-arms/1",
+ "synthetic": true,
+ "gate": "notes",
+ "plan": "v3.0 34 S1",
+ "cases": [
+  {
+   "id": "n01",
+   "truth": {
+    "place": "market",
+    "part": "evening"
+   },
+   "transcript": [
+    {
+     "speaker": "player",
+     "text": "I step inside and shake the rain off my cloak."
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} smiles a little too quickly. “You made good time. Sit, sit.”"
+    },
+    {
+     "speaker": "player",
+     "text": "We walk until the streets change around us."
+    },
+    {
+     "speaker": "narrator",
+     "text": "The crowd thins as the party goes on.",
+     "set": {
+      "location": "market",
+      "story_time": 2
+     }
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} keeps pace beside you and says nothing for a while."
+    },
+    {
+     "speaker": "player",
+     "text": "I look around. Where are we now, and what is happening here?"
+    }
+   ]
+  },
+  {
+   "id": "n02",
+   "truth": {
+    "place": "chapel",
+    "part": "night"
+   },
+   "transcript": [
+    {
+     "speaker": "player",
+     "text": "I step inside and shake the rain off my cloak."
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} folds her hands on the table. “I did not expect you before dark.”"
+    },
+    {
+     "speaker": "player",
+     "text": "I lead the way along the river path."
+    },
+    {
+     "speaker": "narrator",
+     "text": "The light shifts while the party walks.",
+     "set": {
+      "location": "chapel",
+      "story_time": 3
+     }
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} keeps pace beside you and says nothing for a while."
+    },
+    {
+     "speaker": "player",
+     "text": "I stop and take in the place. What do I see?"
+    }
+   ]
+  },
+  {
+   "id": "n03",
+   "truth": {
+    "place": "mill",
+    "part": "afternoon"
+   },
+   "transcript": [
+    {
+     "speaker": "player",
+     "text": "I step inside and shake the rain off my cloak."
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} glances at the door, then back. “Ask what you came to ask.”"
+    },
+    {
+     "speaker": "player",
+     "text": "We cross the square without stopping."
+    },
+    {
+     "speaker": "narrator",
+     "text": "Bells somewhere mark the passing hours.",
+     "set": {
+      "location": "mill",
+      "story_time": 1
+     }
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} keeps pace beside you and says nothing for a while."
+    },
+    {
+     "speaker": "player",
+     "text": "I ask {receiver} what she makes of this place at this hour."
+    }
+   ]
+  },
+  {
+   "id": "n04",
+   "truth": {
+    "place": "archive",
+    "part": "evening"
+   },
+   "transcript": [
+    {
+     "speaker": "player",
+     "text": "I step inside and shake the rain off my cloak."
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} pours two cups without asking. “Long road?”"
+    },
+    {
+     "speaker": "player",
+     "text": "I pull my hood up and keep moving."
+    },
+    {
+     "speaker": "narrator",
+     "text": "The streets empty and fill again as time passes.",
+     "set": {
+      "location": "archive",
+      "story_time": 2
+     }
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} keeps pace beside you and says nothing for a while."
+    },
+    {
+     "speaker": "player",
+     "text": "I find somewhere to sit and watch the people around us."
+    }
+   ]
+  },
+  {
+   "id": "n05",
+   "truth": {
+    "place": "harbor",
+    "part": "night"
+   },
+   "transcript": [
+    {
+     "speaker": "player",
+     "text": "I step inside and shake the rain off my cloak."
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} keeps her shawl on though the room is warm. “Well. Here we are.”"
+    },
+    {
+     "speaker": "player",
+     "text": "We take the long way, past the gates."
+    },
+    {
+     "speaker": "narrator",
+     "text": "By the time the party arrives, the hour has turned.",
+     "set": {
+      "location": "harbor",
+      "story_time": 3
+     }
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} keeps pace beside you and says nothing for a while."
+    },
+    {
+     "speaker": "player",
+     "text": "I listen for a while. What do I hear?"
+    }
+   ]
+  },
+  {
+   "id": "n06",
+   "truth": {
+    "place": "chapel",
+    "part": "night"
+   },
+   "transcript": [
+    {
+     "speaker": "player",
+     "text": "I set my pack down by the door and look around."
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} smiles a little too quickly. “You made good time. Sit, sit.”"
+    },
+    {
+     "speaker": "player",
+     "text": "We walk until the streets change around us."
+    },
+    {
+     "speaker": "narrator",
+     "text": "The crowd thins as the party goes on.",
+     "set": {
+      "location": "chapel",
+      "story_time": 3
+     }
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} keeps pace beside you and says nothing for a while."
+    },
+    {
+     "speaker": "player",
+     "text": "I stop and take in the place. What do I see?"
+    }
+   ]
+  },
+  {
+   "id": "n07",
+   "truth": {
+    "place": "mill",
+    "part": "afternoon"
+   },
+   "transcript": [
+    {
+     "speaker": "player",
+     "text": "I set my pack down by the door and look around."
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} folds her hands on the table. “I did not expect you before dark.”"
+    },
+    {
+     "speaker": "player",
+     "text": "I lead the way along the river path."
+    },
+    {
+     "speaker": "narrator",
+     "text": "The light shifts while the party walks.",
+     "set": {
+      "location": "mill",
+      "story_time": 1
+     }
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} keeps pace beside you and says nothing for a while."
+    },
+    {
+     "speaker": "player",
+     "text": "I ask {receiver} what she makes of this place at this hour."
+    }
+   ]
+  },
+  {
+   "id": "n08",
+   "truth": {
+    "place": "archive",
+    "part": "evening"
+   },
+   "transcript": [
+    {
+     "speaker": "player",
+     "text": "I set my pack down by the door and look around."
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} glances at the door, then back. “Ask what you came to ask.”"
+    },
+    {
+     "speaker": "player",
+     "text": "We cross the square without stopping."
+    },
+    {
+     "speaker": "narrator",
+     "text": "Bells somewhere mark the passing hours.",
+     "set": {
+      "location": "archive",
+      "story_time": 2
+     }
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} keeps pace beside you and says nothing for a while."
+    },
+    {
+     "speaker": "player",
+     "text": "I find somewhere to sit and watch the people around us."
+    }
+   ]
+  },
+  {
+   "id": "n09",
+   "truth": {
+    "place": "harbor",
+    "part": "night"
+   },
+   "transcript": [
+    {
+     "speaker": "player",
+     "text": "I set my pack down by the door and look around."
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} pours two cups without asking. “Long road?”"
+    },
+    {
+     "speaker": "player",
+     "text": "I pull my hood up and keep moving."
+    },
+    {
+     "speaker": "narrator",
+     "text": "The streets empty and fill again as time passes.",
+     "set": {
+      "location": "harbor",
+      "story_time": 3
+     }
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} keeps pace beside you and says nothing for a while."
+    },
+    {
+     "speaker": "player",
+     "text": "I listen for a while. What do I hear?"
+    }
+   ]
+  },
+  {
+   "id": "n10",
+   "truth": {
+    "place": "market",
+    "part": "evening"
+   },
+   "transcript": [
+    {
+     "speaker": "player",
+     "text": "I set my pack down by the door and look around."
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} keeps her shawl on though the room is warm. “Well. Here we are.”"
+    },
+    {
+     "speaker": "player",
+     "text": "We take the long way, past the gates."
+    },
+    {
+     "speaker": "narrator",
+     "text": "By the time the party arrives, the hour has turned.",
+     "set": {
+      "location": "market",
+      "story_time": 2
+     }
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} keeps pace beside you and says nothing for a while."
+    },
+    {
+     "speaker": "player",
+     "text": "I look around. Where are we now, and what is happening here?"
+    }
+   ]
+  },
+  {
+   "id": "n11",
+   "truth": {
+    "place": "mill",
+    "part": "afternoon"
+   },
+   "transcript": [
+    {
+     "speaker": "player",
+     "text": "I lean on the counter and wait for someone to notice me."
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} smiles a little too quickly. “You made good time. Sit, sit.”"
+    },
+    {
+     "speaker": "player",
+     "text": "We walk until the streets change around us."
+    },
+    {
+     "speaker": "narrator",
+     "text": "The crowd thins as the party goes on.",
+     "set": {
+      "location": "mill",
+      "story_time": 1
+     }
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} keeps pace beside you and says nothing for a while."
+    },
+    {
+     "speaker": "player",
+     "text": "I ask {receiver} what she makes of this place at this hour."
+    }
+   ]
+  },
+  {
+   "id": "n12",
+   "truth": {
+    "place": "archive",
+    "part": "evening"
+   },
+   "transcript": [
+    {
+     "speaker": "player",
+     "text": "I lean on the counter and wait for someone to notice me."
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} folds her hands on the table. “I did not expect you before dark.”"
+    },
+    {
+     "speaker": "player",
+     "text": "I lead the way along the river path."
+    },
+    {
+     "speaker": "narrator",
+     "text": "The light shifts while the party walks.",
+     "set": {
+      "location": "archive",
+      "story_time": 2
+     }
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} keeps pace beside you and says nothing for a while."
+    },
+    {
+     "speaker": "player",
+     "text": "I find somewhere to sit and watch the people around us."
+    }
+   ]
+  },
+  {
+   "id": "n13",
+   "truth": {
+    "place": "harbor",
+    "part": "night"
+   },
+   "transcript": [
+    {
+     "speaker": "player",
+     "text": "I lean on the counter and wait for someone to notice me."
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} glances at the door, then back. “Ask what you came to ask.”"
+    },
+    {
+     "speaker": "player",
+     "text": "We cross the square without stopping."
+    },
+    {
+     "speaker": "narrator",
+     "text": "Bells somewhere mark the passing hours.",
+     "set": {
+      "location": "harbor",
+      "story_time": 3
+     }
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} keeps pace beside you and says nothing for a while."
+    },
+    {
+     "speaker": "player",
+     "text": "I listen for a while. What do I hear?"
+    }
+   ]
+  },
+  {
+   "id": "n14",
+   "truth": {
+    "place": "market",
+    "part": "evening"
+   },
+   "transcript": [
+    {
+     "speaker": "player",
+     "text": "I lean on the counter and wait for someone to notice me."
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} pours two cups without asking. “Long road?”"
+    },
+    {
+     "speaker": "player",
+     "text": "I pull my hood up and keep moving."
+    },
+    {
+     "speaker": "narrator",
+     "text": "The streets empty and fill again as time passes.",
+     "set": {
+      "location": "market",
+      "story_time": 2
+     }
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} keeps pace beside you and says nothing for a while."
+    },
+    {
+     "speaker": "player",
+     "text": "I look around. Where are we now, and what is happening here?"
+    }
+   ]
+  },
+  {
+   "id": "n15",
+   "truth": {
+    "place": "chapel",
+    "part": "night"
+   },
+   "transcript": [
+    {
+     "speaker": "player",
+     "text": "I lean on the counter and wait for someone to notice me."
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} keeps her shawl on though the room is warm. “Well. Here we are.”"
+    },
+    {
+     "speaker": "player",
+     "text": "We take the long way, past the gates."
+    },
+    {
+     "speaker": "narrator",
+     "text": "By the time the party arrives, the hour has turned.",
+     "set": {
+      "location": "chapel",
+      "story_time": 3
+     }
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} keeps pace beside you and says nothing for a while."
+    },
+    {
+     "speaker": "player",
+     "text": "I stop and take in the place. What do I see?"
+    }
+   ]
+  },
+  {
+   "id": "n16",
+   "truth": {
+    "place": "archive",
+    "part": "evening"
+   },
+   "transcript": [
+    {
+     "speaker": "player",
+     "text": "I follow the noise toward the back of the room."
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} smiles a little too quickly. “You made good time. Sit, sit.”"
+    },
+    {
+     "speaker": "player",
+     "text": "We walk until the streets change around us."
+    },
+    {
+     "speaker": "narrator",
+     "text": "The crowd thins as the party goes on.",
+     "set": {
+      "location": "archive",
+      "story_time": 2
+     }
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} keeps pace beside you and says nothing for a while."
+    },
+    {
+     "speaker": "player",
+     "text": "I find somewhere to sit and watch the people around us."
+    }
+   ]
+  },
+  {
+   "id": "n17",
+   "truth": {
+    "place": "harbor",
+    "part": "night"
+   },
+   "transcript": [
+    {
+     "speaker": "player",
+     "text": "I follow the noise toward the back of the room."
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} folds her hands on the table. “I did not expect you before dark.”"
+    },
+    {
+     "speaker": "player",
+     "text": "I lead the way along the river path."
+    },
+    {
+     "speaker": "narrator",
+     "text": "The light shifts while the party walks.",
+     "set": {
+      "location": "harbor",
+      "story_time": 3
+     }
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} keeps pace beside you and says nothing for a while."
+    },
+    {
+     "speaker": "player",
+     "text": "I listen for a while. What do I hear?"
+    }
+   ]
+  },
+  {
+   "id": "n18",
+   "truth": {
+    "place": "market",
+    "part": "evening"
+   },
+   "transcript": [
+    {
+     "speaker": "player",
+     "text": "I follow the noise toward the back of the room."
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} glances at the door, then back. “Ask what you came to ask.”"
+    },
+    {
+     "speaker": "player",
+     "text": "We cross the square without stopping."
+    },
+    {
+     "speaker": "narrator",
+     "text": "Bells somewhere mark the passing hours.",
+     "set": {
+      "location": "market",
+      "story_time": 2
+     }
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} keeps pace beside you and says nothing for a while."
+    },
+    {
+     "speaker": "player",
+     "text": "I look around. Where are we now, and what is happening here?"
+    }
+   ]
+  },
+  {
+   "id": "n19",
+   "truth": {
+    "place": "chapel",
+    "part": "night"
+   },
+   "transcript": [
+    {
+     "speaker": "player",
+     "text": "I follow the noise toward the back of the room."
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} pours two cups without asking. “Long road?”"
+    },
+    {
+     "speaker": "player",
+     "text": "I pull my hood up and keep moving."
+    },
+    {
+     "speaker": "narrator",
+     "text": "The streets empty and fill again as time passes.",
+     "set": {
+      "location": "chapel",
+      "story_time": 3
+     }
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} keeps pace beside you and says nothing for a while."
+    },
+    {
+     "speaker": "player",
+     "text": "I stop and take in the place. What do I see?"
+    }
+   ]
+  },
+  {
+   "id": "n20",
+   "truth": {
+    "place": "mill",
+    "part": "afternoon"
+   },
+   "transcript": [
+    {
+     "speaker": "player",
+     "text": "I follow the noise toward the back of the room."
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} keeps her shawl on though the room is warm. “Well. Here we are.”"
+    },
+    {
+     "speaker": "player",
+     "text": "We take the long way, past the gates."
+    },
+    {
+     "speaker": "narrator",
+     "text": "By the time the party arrives, the hour has turned.",
+     "set": {
+      "location": "mill",
+      "story_time": 1
+     }
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} keeps pace beside you and says nothing for a while."
+    },
+    {
+     "speaker": "player",
+     "text": "I ask {receiver} what she makes of this place at this hour."
+    }
+   ]
+  },
+  {
+   "id": "n21",
+   "truth": {
+    "place": "harbor",
+    "part": "night"
+   },
+   "transcript": [
+    {
+     "speaker": "player",
+     "text": "I take a seat where I can see the door."
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} smiles a little too quickly. “You made good time. Sit, sit.”"
+    },
+    {
+     "speaker": "player",
+     "text": "We walk until the streets change around us."
+    },
+    {
+     "speaker": "narrator",
+     "text": "The crowd thins as the party goes on.",
+     "set": {
+      "location": "harbor",
+      "story_time": 3
+     }
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} keeps pace beside you and says nothing for a while."
+    },
+    {
+     "speaker": "player",
+     "text": "I listen for a while. What do I hear?"
+    }
+   ]
+  },
+  {
+   "id": "n22",
+   "truth": {
+    "place": "market",
+    "part": "evening"
+   },
+   "transcript": [
+    {
+     "speaker": "player",
+     "text": "I take a seat where I can see the door."
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} folds her hands on the table. “I did not expect you before dark.”"
+    },
+    {
+     "speaker": "player",
+     "text": "I lead the way along the river path."
+    },
+    {
+     "speaker": "narrator",
+     "text": "The light shifts while the party walks.",
+     "set": {
+      "location": "market",
+      "story_time": 2
+     }
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} keeps pace beside you and says nothing for a while."
+    },
+    {
+     "speaker": "player",
+     "text": "I look around. Where are we now, and what is happening here?"
+    }
+   ]
+  },
+  {
+   "id": "n23",
+   "truth": {
+    "place": "chapel",
+    "part": "night"
+   },
+   "transcript": [
+    {
+     "speaker": "player",
+     "text": "I take a seat where I can see the door."
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} glances at the door, then back. “Ask what you came to ask.”"
+    },
+    {
+     "speaker": "player",
+     "text": "We cross the square without stopping."
+    },
+    {
+     "speaker": "narrator",
+     "text": "Bells somewhere mark the passing hours.",
+     "set": {
+      "location": "chapel",
+      "story_time": 3
+     }
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} keeps pace beside you and says nothing for a while."
+    },
+    {
+     "speaker": "player",
+     "text": "I stop and take in the place. What do I see?"
+    }
+   ]
+  },
+  {
+   "id": "n24",
+   "truth": {
+    "place": "mill",
+    "part": "afternoon"
+   },
+   "transcript": [
+    {
+     "speaker": "player",
+     "text": "I take a seat where I can see the door."
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} pours two cups without asking. “Long road?”"
+    },
+    {
+     "speaker": "player",
+     "text": "I pull my hood up and keep moving."
+    },
+    {
+     "speaker": "narrator",
+     "text": "The streets empty and fill again as time passes.",
+     "set": {
+      "location": "mill",
+      "story_time": 1
+     }
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} keeps pace beside you and says nothing for a while."
+    },
+    {
+     "speaker": "player",
+     "text": "I ask {receiver} what she makes of this place at this hour."
+    }
+   ]
+  },
+  {
+   "id": "n25",
+   "truth": {
+    "place": "archive",
+    "part": "evening"
+   },
+   "transcript": [
+    {
+     "speaker": "player",
+     "text": "I take a seat where I can see the door."
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} keeps her shawl on though the room is warm. “Well. Here we are.”"
+    },
+    {
+     "speaker": "player",
+     "text": "We take the long way, past the gates."
+    },
+    {
+     "speaker": "narrator",
+     "text": "By the time the party arrives, the hour has turned.",
+     "set": {
+      "location": "archive",
+      "story_time": 2
+     }
+    },
+    {
+     "speaker": "receiver",
+     "text": "{receiver} keeps pace beside you and says nothing for a while."
+    },
+    {
+     "speaker": "player",
+     "text": "I find somewhere to sit and watch the people around us."
+    }
+   ]
+  }
+ ]
+}

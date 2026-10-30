@@ -1,0 +1,35 @@
+{
+  "model": "any",
+  "_note": "v3.0 plan 32 live gate (written, not run: unmerged branch, no staging). Skip ahead after the first committed reply: one DM Narrator reply under the one-shot skip direction, its speech row (origin skip), its cued line (so a swipe re-arms it), the journal row, no direction left armed, and the clock moved by at most one day part (option A: only the story read moves it). talk.skipAhead is off by default until the blind rating, so the run switches it on install-wide for this lane copy and the last step puts it back; a crashed run leaves it on in the lane copy (re-seed the lane).",
+  "requires": {"lane": "model", "group": "Group: Arin, DM Narrator", "members": ["Arin", "DM Narrator"], "judge": "off", "why": "the skip reply starts through the guarded voice starter, which needs a live backend"},
+  "steps": [
+    {"eval": "for (const name of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[name]; const root = SillyTavern.getContext().extensionSettings['story-orchestrator'] ??= {}; root.settings ??= {}; globalThis.__soV3032Talk = root.settings.talk === undefined ? null : JSON.parse(JSON.stringify(root.settings.talk)); root.settings.talk = { ...(root.settings.talk ?? {}), skipAhead: true }; return { skipAhead: globalThis.storyOrchestratorRuntime.getGlobalSettings().talk.skipAhead };", "log": true},
+    {
+      "import_story": {
+        "title": "SO-V3032 Skip Ahead",
+        "description": "v3.0 plan 32 fixture: a road with a clock and a narrator.",
+        "clock": { "times": ["morning", "afternoon", "evening", "night"], "night": ["night"] },
+        "qualities": [
+          { "key": "at_gate", "type": "bool", "source": "extractor", "rubric": "Has the party reached the gate?" }
+        ],
+        "checkpoints": [
+          { "id": "road", "name": "The road", "objective": "Walk to the gate.", "type": "anchor", "start": true },
+          { "id": "gate", "name": "The gate", "objective": "Open it.", "type": "anchor", "agency": { "skip": false } }
+        ],
+        "transitions": [
+          { "from": "road", "to": "gate", "priority": 1, "gate": { "q": "at_gate", "op": "==", "v": true } }
+        ],
+        "roster": [{ "id": "DM Narrator", "name": "DM Narrator", "view": "omniscient" }, { "id": "Arin", "name": "Arin" }]
+      },
+      "log": true
+    },
+    {"eval": "const rt = globalThis.storyOrchestratorRuntime; const skip = rt.getSnapshot().skip; if (!skip || skip.enabled) throw new Error('before the first reply Skip ahead must show and wait: ' + JSON.stringify(skip)); return skip;", "log": true},
+    {"send_generate": {"text": "We set out along the road toward the gate.", "timeoutMs": 300000, "expectReply": true}},
+    {"wait": {"schedulerIdle": true, "quietMs": 2000}},
+    {"eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const sleep = (ms) => new Promise((r) => setTimeout(r, ms)); const timeBefore = rt.getSnapshot().blackboard?.story_time ?? null; const view = rt.getSnapshot().skip; if (!view?.enabled) throw new Error('Skip ahead is not available after the first reply: ' + JSON.stringify(view)); const before = ctx.chat.length; const outcome = await rt.skipAhead(); const until = Date.now() + 300000; while (Date.now() < until && (document.body.dataset.generating || ctx.chat.length <= before)) await sleep(250); await sleep(1500); const last = ctx.chat.at(-1); const cue = (rt.extras.cuedLines ?? []).find((line) => line.messageId === ctx.chat.length - 1); const speech = (rt.extras.speech ?? []).filter((row) => row.origin === 'skip'); const journal = rt.getSessionJournal().filter((row) => row.summary === 'Skipped ahead (player)'); const guidance = String(ctx.extensionPrompts?.story_orchestrator_guidance?.value ?? ''); globalThis.__soV3032 = { timeBefore, messageId: ctx.chat.length - 1 }; const state = { outcome: { ok: outcome.ok, reason: outcome.reason ?? null, due: outcome.plan?.due ?? null }, speaker: last?.name, cue: Boolean(cue), cueSkip: Boolean(cue?.text.includes('chose to skip ahead')), speech: speech.map((row) => row.messageId), journal: journal.length, armed: guidance.includes('chose to skip ahead') }; if (!outcome.ok || last?.name !== 'DM Narrator' || !state.cueSkip || speech.length !== 1 || speech[0].messageId !== ctx.chat.length - 1 || state.journal !== 1 || state.armed) throw new Error('the skip reply did not land as one directed narrator reply: ' + JSON.stringify(state)); return state;", "log": true},
+    {"wait": {"schedulerIdle": true, "quietMs": 2000}},
+    {"eval": "const rt = globalThis.storyOrchestratorRuntime; const time = rt.getSnapshot().blackboard?.story_time ?? null; const before = globalThis.__soV3032.timeBefore; const moved = typeof time === 'number' && typeof before === 'number' ? time - before : 0; if (moved < 0 || moved > 1) throw new Error(`the clock moved ${moved} parts on a skip (option A allows 0 or 1)`); return { before, time, moved };", "log": true},
+    {"eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const id = globalThis.__soV3032.messageId; await rt.rollbackFromMessage(id, undefined, 'swipe'); const cue = (rt.extras.cuedLines ?? []).find((line) => line.messageId === id); if (!cue) throw new Error('a swipe of the skip reply dropped its cue, so the regenerated reply would lose the direction'); return { kept: true, rows: ctx.chat.length };", "log": true},
+    {"eval": "const root = SillyTavern.getContext().extensionSettings['story-orchestrator']; const saved = globalThis.__soV3032Talk; if (saved === null) delete root.settings.talk; else root.settings.talk = saved; delete globalThis.__soV3032Talk; delete globalThis.__soV3032; return { skipAhead: globalThis.storyOrchestratorRuntime.getGlobalSettings().talk.skipAhead };", "log": true}
+  ]
+}

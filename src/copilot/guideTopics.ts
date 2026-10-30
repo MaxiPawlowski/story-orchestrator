@@ -59,11 +59,11 @@ export const GUIDE_TOPICS = {
   },
   requirements: {
     title: "Requirements",
-    fields: "requirements.personas, requirements.members, requirements.lorebooks",
+    fields: "requirements.personas, requirements.members, requirements.lorebooks, requirements.place_lore, requirements.people_lore",
     text: "What the install must provide before the story's effects run: personas, group members and lorebooks, each named as SillyTavern names them. Name characters by "
-      + "their CARD name, never by a roster id: \"Mara Venn\", not \"mara\". If wrong: the story never reads as ready and its effects stay deferred. A lorebook used by "
-      + "lore_select or checkpoint world_info belongs here too; a listed book the install has is loaded for this story's chats, so no global selection is needed. "
-      + "Name a persona only if it already exists: nothing creates one.",
+      + "their CARD name, never by a roster id: \"Mara Venn\", not \"mara\". If wrong: the story never reads as ready. A book used by lore_select or world_info belongs here too. "
+      + "Name a persona only if it exists. place_lore {<location value>: {book, entry (exact comment)}} and people_lore {<codex people id>: ...} pin that entry while the party is "
+      + "there or just met them; the gate and secrets win.",
   },
   roster: {
     title: "Cast",
@@ -136,7 +136,9 @@ export const GUIDE_TOPICS = {
     text: "agency.objective_kind: world_pressure (the world presses and escalates on its own) or player_action (the world sets up the choice and stops; the player acts). "
       + "Defaults protect the player: narration never writes the player accepting, refusing or acting, nor decides what they feel or conclude. "
       + "alternate names a beat to recover to when the player refuses the route "
-      + "(never the beat itself). player_attempts_only makes the world decide whether the player's attempt works. objective_block: off stops the objective line being injected.",
+      + "(never the beat itself). player_attempts_only makes the world decide whether the player's attempt works. "
+      + "skip: false takes Skip ahead away at this beat (a skip is one narrator reply up to the next day part, stopping early when something falls due). "
+      + "objective_block: off stops the objective line being injected.",
   },
   "open-stretches": {
     title: "Open stretches",

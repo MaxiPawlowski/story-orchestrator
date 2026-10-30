@@ -86,7 +86,7 @@ export function prepareFrontier(mod: any, frontier: Frontier) {
 }
 
 export function forcedSceneRecord(mod: any, frontier: Frontier, story: any, outcome: Outcome) {
-  const threads = mod.focusCandidates({ arcs: frontier.inputs.openThreads, unknownNames: [] }).filter((candidate: any) => candidate.kind === 'arc');
+  const threads = mod.focusCandidates({ arcs: frontier.inputs.openThreads, unknownNames: [], resting: (text: string) => text }).filter((candidate: any) => candidate.kind === 'arc');
   const parts = (tag: string) => mod.sceneDrawParts(frontier.ids, frontier.frontierId, frontier.plannedAt, tag);
   const focus = outcome === 'interrupt' ? mod.focusPick(threads, mod.unitDraw(parts(`${mod.SCENE_DRAW_TAG}:focus`)))?.text : undefined;
   return {

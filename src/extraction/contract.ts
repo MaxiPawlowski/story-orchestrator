@@ -1,5 +1,5 @@
 import { readsByStep, readsWorldEvidence, type NormalizedStory } from "@engine/index";
-import { HEARSAY_RULE, renderMemoryContractAddendum } from "@memory/contract";
+import { HEARSAY_RULE, renderMemoryContractAddendum, renderMemoryContractParts } from "@memory/contract";
 import { fnv1a, stableStringify } from "@runtime/hash";
 import { STEP_READ_REMINDER } from "./stepRead";
 import { PLAYER_MARK, renderQuestion, STEP_READ_HEADER } from "./question";
@@ -57,7 +57,55 @@ const renderPlayer = (contract: SharedReadContract) => {
 
 const promiseSection = (contract: SharedReadContract): string | null => (contract.openPromises ? contract.promiseSection ?? "" : null);
 
+const READ_RULES = (deltasOnly: boolean) => [
+  "Read only the transcript below. Propose only changes directly supported by quoted evidence.",
+  "Closed vocabulary: you may only write listed quality keys and allowed values.",
+  "Output zero or more lines in exactly these formats:",
+  "DELTA q=<quality_key> value=<json_literal> evidence=\"exact quote from transcript\"",
+  ...(deltasOnly ? [] : ["FACT importance=<1|2|3> text=\"fact text\" evidence=\"exact quote from transcript\""]),
+  "If nothing changed, output NO_DELTA.",
+  "value is a JSON literal: true, 3 or \"a listed value\". evidence is copied word for word from one transcript line, without its [index] Speaker: prefix.",
+  READ_OUTPUT_RULE,
+];
+
+const promiseParts = (contract: SharedReadContract) => (contract.openPromises ? { rules: contract.promiseSection ?? "", open: contract.promiseOpen ?? "" } : null);
+
+const readTail = (contract: SharedReadContract) => [
+  "Quality questions:",
+  renderType(contract) || "(no in-scope qualities)",
+  "",
+  "Transcript:",
+  renderTranscript(contract) || "(empty)",
+  "",
+  ...(readsAnyStep(contract) ? [STEP_READ_REMINDER] : []),
+  "Output:",
+];
+
+function renderStableFirstPrompt(contract: SharedReadContract): string {
+  const deltasOnly = contract.deltasOnly === true;
+  const memory = deltasOnly ? null : renderMemoryContractParts(contract.openArcs ?? [], contract.epistemicLedgerCapable ?? false, contract.entities ?? [], promiseParts(contract));
+  return [
+    READ_TASK_HEADER,
+    `Story: ${contract.storyTitle}`,
+    ...(deltasOnly ? [] : renderCast(contract)),
+    "",
+    ...READ_RULES(deltasOnly),
+    "",
+    ...(memory ? [memory.rules, ""] : []),
+    ...(!deltasOnly && contract.hearsay ? [HEARSAY_RULE, ""] : []),
+    ...(!deltasOnly && contract.witnessSection ? [contract.witnessSection, ""] : []),
+    renderCheckpoint(contract),
+    ...renderPlayer(contract),
+    "Canon-lite:",
+    contract.canon || "(none)",
+    "",
+    ...(memory?.context.flatMap((block) => [block, ""]) ?? []),
+    ...readTail(contract),
+  ].join("\n");
+}
+
 export function renderSharedReadPrompt(contract: SharedReadContract): string {
+  if (contract.layout === "stable-first") return renderStableFirstPrompt(contract);
   const deltasOnly = contract.deltasOnly === true;
   return [
     READ_TASK_HEADER,
@@ -68,26 +116,12 @@ export function renderSharedReadPrompt(contract: SharedReadContract): string {
     "Canon-lite:",
     contract.canon || "(none)",
     "",
-    "Read only the transcript below. Propose only changes directly supported by quoted evidence.",
-    "Closed vocabulary: you may only write listed quality keys and allowed values.",
-    "Output zero or more lines in exactly these formats:",
-    "DELTA q=<quality_key> value=<json_literal> evidence=\"exact quote from transcript\"",
-    ...(deltasOnly ? [] : ["FACT importance=<1|2|3> text=\"fact text\" evidence=\"exact quote from transcript\""]),
-    "If nothing changed, output NO_DELTA.",
-    "value is a JSON literal: true, 3 or \"a listed value\". evidence is copied word for word from one transcript line, without its [index] Speaker: prefix.",
-    READ_OUTPUT_RULE,
+    ...READ_RULES(deltasOnly),
     "",
     ...(deltasOnly ? [] : [renderMemoryContractAddendum(contract.openArcs ?? [], contract.epistemicLedgerCapable ?? false, contract.entities ?? [], promiseSection(contract)), ""]),
     ...(!deltasOnly && contract.hearsay ? [HEARSAY_RULE, ""] : []),
     ...(!deltasOnly && contract.witnessSection ? [contract.witnessSection, ""] : []),
-    "Quality questions:",
-    renderType(contract) || "(no in-scope qualities)",
-    "",
-    "Transcript:",
-    renderTranscript(contract) || "(empty)",
-    "",
-    ...(readsAnyStep(contract) ? [STEP_READ_REMINDER] : []),
-    "Output:",
+    ...readTail(contract),
   ].join("\n");
 }
 
@@ -113,5 +147,7 @@ export function hashContract(contract: SharedReadContract): string {
     ...(contract.openPromises ? { promises: contract.openPromises.map((ref) => ref.id) } : {}),
     ...(contract.witnessSection ? { witness: true } : {}),
     ...(contract.hearsay ? { hearsay: true } : {}),
+    ...(contract.layout ? { layout: contract.layout } : {}),
+    ...(contract.promiseAddressee ? { promiseAddressee: true } : {}),
   }));
 }

@@ -22,7 +22,7 @@ describe("v2.8 49 focusPick (pure, shared with 48)", () => {
   });
 
   it("a one-character name or alias is a whole token too: Q filters its arc, never an unrelated word", () => {
-    expect(focusCandidates({ arcs: ["Q waits at the gate", "the quay at dusk", "Queen Ash's banner"], unknownNames: ["Q"] }))
+    expect(focusCandidates({ arcs: ["Q waits at the gate", "the quay at dusk", "Queen Ash's banner"], unknownNames: ["Q"], resting: (text) => text }))
       .toEqual([{ kind: "arc", text: "the quay at dusk" }, { kind: "arc", text: "Queen Ash's banner" }]);
     expect(namesAny("the note from q.", ["Q"])).toBe(true);
     expect(namesAny("Quiet and quick", ["Q"])).toBe(false);

@@ -32,6 +32,12 @@ scripted (`/send compact`, `/sendas`), extraction and the curator pinned, and a 
 draft hook; ST's group dry run renders the first enabled member's card, so member captures differ only in what the
 extension stages. Changing a fixture changes its sha256 and the diff refuses it: re-capture the baseline instead.
 
+A case can also capture the story read (`__soPayloadGolden.captureRead(label)`, v3.0 A1): the planted read
+(`runExtractionNow('SCENE_NONE')`, no model call) records the newest audit's prompt as a `promptKind: read` capture with
+`sideKey: side:read-<layout>` (`extraction.readLayout`, `classic` when unset), so `prefix` pairs each layout with itself and
+reports side pairs unless `--side-fails`. `group-story-read` captures both layouts at two boundaries (capture owed: needs a
+staged lane).
+
 ## Commands
 
 ```
