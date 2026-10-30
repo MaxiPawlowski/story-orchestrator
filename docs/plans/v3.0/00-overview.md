@@ -76,7 +76,7 @@ Gate classes as v2.8 rule 7 (D deterministic, CL second-model, RP/LT real Artemi
   mode leaves reserves sized for other apps and a 4 GiB member cache holds about three ~1.3 GiB states (audit risk 6), so
   groups of 4+ thrash. Depends: A1 eviction coordination (audit risks 3, 5). Class: exact (timings, no-409, no fit spill) +
   image rows. GPU: TO ESTIMATE.
-- **A3 Long context** (no stub until started): chunked history compaction near 32K (web idea 3 / Fable idea 6, ~26K tokens
+- **A3 Long context** -> `40-long-context-compaction.md` (compaction BUILT 2026-10-30 behind `memory.chapters.compact`, off until rating A3-R): chunked history compaction near 32K (web idea 3 / Fable idea 6, ~26K tokens
   saved per member turn once full, **output-changing: blind rating at compaction points**), then the moved rows R2/R7
   (B1-PFX/HIST), R12 SP6, R3 K5 at 32K. R5 B1-NARR (>= 48K) stays parked unless A2 makes a 48K text profile fit while images
   idle (question 9). Depends: A1. GPU: TO ESTIMATE.
