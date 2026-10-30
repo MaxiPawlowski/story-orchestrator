@@ -80,6 +80,22 @@ export const AuthorViewAddsTheRestAndTheGuide: Story = {
   },
 };
 
+export const HostedInAPanelHasNoSecondHeader: Story = {
+  args: { hosted: true },
+  play: async ({ canvasElement }) => {
+    await expect(canvasElement.querySelector('[data-so="help-close"]')).toBeNull();
+    await expect(within(canvasElement).queryByText("Help", { selector: "span.font-semibold" })).toBeNull();
+    const stories = rowOf(canvasElement, "stories");
+    await expect(stories).toHaveTextContent("Orchestrator › Library › Playing › Story for this chat");
+  },
+};
+
+export const StandaloneKeepsItsHeader: Story = {
+  play: async ({ canvasElement }) => {
+    await expect(canvasElement.querySelector('[data-so="help-close"]')).not.toBeNull();
+  },
+};
+
 export const Phone: Story = { parameters: { testViewport: { width: 390, height: 844 } } };
 
 export const Tablet: Story = { parameters: { testViewport: { width: 768, height: 1024 } } };

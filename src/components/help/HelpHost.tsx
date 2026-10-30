@@ -5,7 +5,7 @@ import { authorGuideDoc, FEATURES, guideUrl, HOME_PAGE, visibleFeatures, type Fe
 import { helpWhere } from "@features/where";
 import { findingsByFeature, helpFeatureState } from "@runtime/helpFeatureState";
 import { showMeRenders, UNKNOWN_HOST, type ShowMeHostFacts } from "@runtime/showMeRenders";
-import { repairIntent } from "@runtime/workspaceRoutes";
+import { repairIntent, workspaceCrumb } from "@runtime/workspaceRoutes";
 import type { RuntimeSnapshot } from "@runtime/types";
 import type { AskOutcome } from "@runtime/askHost";
 import { getGlobalSettings } from "@runtime/settingsStore";
@@ -23,9 +23,10 @@ export interface HelpHostProps {
   onOpenDoc?: (doc?: string) => void;
   onClose: () => void;
   ask?: HelpAsk;
+  hosted?: boolean;
 }
 
-const SETUP_WHERE: FeatureWhere = { selector: "#so-setup", label: "This story › Play › Setup", surface: "drawer", workspace: repairIntent() };
+const SETUP_WHERE: FeatureWhere = { selector: "#so-setup", label: workspaceCrumb(repairIntent(), "Setup"), surface: "drawer", workspace: repairIntent() };
 
 const guideTopics = (): HelpGuideTopic[] => GUIDE_TOPIC_IDS.map((id) => ({ id, title: GUIDE_TOPICS[id].title, text: GUIDE_TOPICS[id].text, doc: authorGuideDoc(id) }));
 
@@ -37,7 +38,7 @@ const featureWhere = (target: KnowledgeShowMe): FeatureWhere | null => (target.k
 
 const docOf = (target: KnowledgeShowMe) => target.target.split("#")[0];
 
-export default function HelpHost({ authorView, snapshot, onShowMe, onOpenDoc, onClose, ask }: HelpHostProps) {
+export default function HelpHost({ authorView, snapshot, onShowMe, onOpenDoc, onClose, ask, hosted = false }: HelpHostProps) {
   const settings = getGlobalSettings();
   const [host, setHost] = useState<ShowMeHostFacts>(UNKNOWN_HOST);
   const judgeEnabled = settings.judge.enabled;
@@ -79,6 +80,7 @@ export default function HelpHost({ authorView, snapshot, onShowMe, onOpenDoc, on
       onShowMe={onShowMe}
       onOpenDoc={onOpenDoc}
       onClose={onClose}
+      hosted={hosted}
       onTour={() => { if (requestTour()) onClose(); }}
       ask={askBox}
     />

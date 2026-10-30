@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import type { Story } from "@engine/index";
 import { DIAGNOSTIC_CODES, DIAGNOSTIC_CONSEQUENCES, runDiagnostics } from "./diagnostics";
 
@@ -497,5 +499,20 @@ describe("v2.5 plan 01 D: world info rests off under per-chat gating", () => {
     expect(restsOff(withWorldInfo, "file")).toEqual([]);
     expect(restsOff(withWorldInfo)).toEqual([]);
     expect(restsOff(clean, "scan")).toEqual([]);
+  });
+});
+
+describe("compiled keys count as declared (v3.0 ui-review B7)", () => {
+  const lifeStory = JSON.parse(readFileSync(join(__dirname, "../../test/fixtures/character-life.story.json"), "utf-8")) as Story;
+  const undeclared = (draft: Story) => runDiagnostics(draft).filter((entry) => entry.code === "undeclared-quality").map((entry) => entry.message);
+
+  it("a gate on a roster relationship axis is not an undeclared quality", () => {
+    expect(lifeStory.transitions[0].gate).toEqual({ all: [{ q: "rel_arin_player_trust", op: ">=", v: 2 }] });
+    expect(undeclared(lifeStory)).toEqual([]);
+  });
+
+  it("a key nothing declares or compiles is still blocking", () => {
+    const typo = { ...lifeStory, transitions: [{ ...lifeStory.transitions[0], gate: { all: [{ q: "rel_arin_player_trusst", op: ">=", v: 2 }] } }] } as Story;
+    expect(undeclared(typo)).toEqual(["gate references undeclared quality 'rel_arin_player_trusst'"]);
   });
 });

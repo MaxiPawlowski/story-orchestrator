@@ -59,3 +59,44 @@ Each work package closes on full `npm run gates` plus a lane screenshot check an
   test:debug, test, typecheck:test, test:replay, test:release, debug:typecheck, test:plugin, lint, test-storybook:ci 169 suites /
   1014 tests).
 - Open for phase 1: workspace backdrop is the theme tint stacked opaque (decision 4 translucent + blur belongs to WP-6).
+
+## Phase 0b gate record
+
+2026-10-30, branch `v3.0-29-ui-p0-behaviour` (code commit `f7f8b67d`, master `6fd23cf6` with phase 0a merged in at `1088cd46`).
+
+- Judge scope (settings S2): This story → Features lists judge uses read-only (`[data-so="feature-judge-uses"]`, rows
+  `[data-judge-use]`, no checkbox) with `[data-so="feature-judge-open"]` → `judgeIntent()` (Connections, `#so-area-judge`
+  opened). No per-chat judge override exists, so read-only + link. Defaults keeps the editable checkboxes.
+- HUD (inchat F1): `narrative.ts` `sceneHeadline` = `player_name` → open chapter title → story title → "Current scene";
+  `NarrativeStatus.headline` feeds `#so-hud-main` and `#so-hud-card-title`; Author view adds the checkpoint name muted
+  (`[data-so="hud-author-checkpoint"]`). The away recap's "Where you are" line follows (j4 J4.3 expects the story title).
+- Inline (F4/F5): the legend panel renders below the chip row (sibling of `.so-inline-chips` in `[data-so="inline-strip"]`);
+  inline detail stops at level 3 (`INLINE_DETAIL_LEVEL`), level-4 raw detail (blackboards, prompts, payload keys) only in
+  `#so-inspector`.
+- Help (F8): `HelpPanel`/`HelpHost` `hosted` drops the second header and `[data-so="help-close"]` inside `PanelFrame`.
+  Breadcrumbs come from `workspaceRoutes.ts` (`WORKSPACE_PAGES`, `WORKSPACE_CONTEXT_LABELS`, `workspaceCrumb`), shared with
+  `WorkspaceShell` and `settingsReference.ts`; `drawerAt` on a `#so-feature-<id>-` selector now opens Features (was Author).
+  `workspaceRoutes.test.ts` fails a Where line whose page is not the page Show me opens.
+- 1:1 chat (player P4): `noGroupView` answers in every one-on-one chat (`storyId` null until a pick); `story-needs-group`
+  still fires only with a story. Play page heading = state (`[data-so="play-page"][data-state]`: playing / no-chat /
+  no-group / no-story), `#so-play-make-group` card in a 1:1 chat.
+- B7 confirmed and fixed: `undeclared-quality` flagged `rel_arin_player_trust` (character-life fixture) as blocking.
+  `studio/compiledQualities.ts` adds the engine's compiled living/reward/life/codex/observation/check keys to the Studio
+  quality map; a typo key still blocks.
+- No-model lanes: `st-lanes.mts no-model` also writes `REMOTE_AUTHORING_PATHS` (living, branching, prefetch, create,
+  briefing draft, polish) false, reads back, keeps prior values in `so-no-model-settings.json`; `restore-model` restores
+  them exactly (absent stays absent); re-running `no-model` on a no-model lane re-applies the settings. The offline seed
+  switches them off too. A `lane: "no-model"` scenario is not-runnable while one is on or a role has a harness route
+  (`facts.remoteAuthoring`). Harness routes assigned by hand are reported, not rewritten. `laneNoModel.test.mts`.
+- Live: lane 31 (offline no-model; images/sprites/living/judge/extraction off, read back), worktree `dist/` routed into the
+  lane browser (nothing staged), SO-UI-B cards + group + synthetic story with no `player_name`: HUD `◈ SO-UI-B Lantern Road`,
+  card title same, author line `cp-road-internal` only in Author view, `assert-player-clean` ok (0 findings), Features
+  speakers judge rows 0 checkboxes and link opens `#so-area-judge`, Help panel 0 `help-close` / 1 `panel-close` with
+  `Orchestrator › Library › Playing › Story for this chat`, 1:1 chat `noGroup.storyId` null and Play heading "Stories play in
+  group chats" with the card; 0 model calls, cleanup leaked 0, lane stopped. `no-model 31` / `restore-model 31` round trip:
+  settings identical apart from judge. Inline legend/level 4 not driven live (no replies on a no-model lane): stories only.
+- Bundle: main `dist/index.js` 1,265,925 B (budget 1,300,000).
+- `npm run gates:quick`: green after a max-len fix. `npm run gates` (no `--resume`, Storybook included) on the merged tree:
+  all green in 457.6s (jest 10,827 passed / 1 skipped, test:debug 1,674, Storybook 169 suites / 1,025 tests, replay 32/32).
+  An earlier run on the pre-merge tree was red on code-health (an `as unknown` cast and a silent catch in
+  `compiledQualities.ts`, removed), a max-len, and one `CharacterTutorial` color-contrast play that passed on rerun.

@@ -9,7 +9,7 @@ const baseSnapshot = (overrides: Record<string, unknown> = {}): RuntimeSnapshot 
   ({
     ready: true,
     activeCheckpointName: "The Ruined Gate",
-    narrative: { title: "Quest", sections: [{ id: "now", label: "Where you are", lines: ["The Ruined Gate"] }], text: "" },
+    narrative: { title: "Quest", headline: "The Ruined Gate", sections: [{ id: "now", label: "Where you are", lines: ["The Ruined Gate"] }], text: "" },
     tension: { level: "high", smoothed: 0.72, expected: 0.6, hint: null },
     ui: { authorView: false, announceTransitions: true, hudEnabled: true },
     pendingDeltas: [],
@@ -35,6 +35,25 @@ export const Default: Story = {
     await expect(canvas.getByText(/tension high/)).toBeInTheDocument();
     await userEvent.click(canvas.getByRole("button"));
     await expect(args.onOpenStory).toHaveBeenCalledTimes(1);
+  },
+};
+
+export const UnnamedSceneShowsStoryTitle: Story = {
+  args: { snapshot: baseSnapshot({ activeCheckpointName: "cp3 ambush",
+    narrative: { title: "Quest", headline: "Quest", sections: [{ id: "now", label: "Where you are", lines: ["Quest"] }], text: "" } }) },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText(/◈ Quest/)).toBeInTheDocument();
+    await expect(canvasElement.querySelector('[data-so="hud-author-checkpoint"]')).toBeNull();
+    await expect(canvasElement.textContent).not.toContain("cp3 ambush");
+  },
+};
+
+export const AuthorSeesCheckpointName: Story = {
+  args: { snapshot: baseSnapshot({ activeCheckpointName: "cp3 ambush", ui: { authorView: true, announceTransitions: true, hudEnabled: true },
+    narrative: { title: "Quest", headline: "Quest", sections: [{ id: "now", label: "Where you are", lines: ["Quest"] }], text: "" } }) },
+  play: async ({ canvasElement }) => {
+    await expect(canvasElement.querySelector('[data-so="hud-author-checkpoint"]')).toHaveTextContent("cp3 ambush");
   },
 };
 
@@ -244,7 +263,7 @@ export const YourMovePhone: Story = { ...crowdedTurn, ...fitsAt(VIEWPORTS.phone,
 
 const cardSnapshot = () => baseSnapshot({
   ...playing,
-  narrative: { title: "Quest", sections: [{ id: "now", label: "Where you are", lines: ["The Ruined Gate", "Breach the sanctum."] }], text: "" },
+  narrative: { title: "Quest", headline: "The Ruined Gate", sections: [{ id: "now", label: "Where you are", lines: ["The Ruined Gate", "Breach the sanctum."] }], text: "" },
   activeCheckpointId: "cp_gate_internal",
   memory: { entries: [{ id: "secret", text: "Kel hides the key from Arin.", tier: "facts" }] },
   memoryShown: [

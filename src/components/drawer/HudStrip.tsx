@@ -51,7 +51,9 @@ export const HudStrip = ({ snapshot, onOpenStory, onOpenSettings, card }: HudStr
         <button ref={main} id="so-hud-main" type="button" className="so-hud-main" title={card ? HUD_COPY.open : PLAYER_COPY.openDrawer}
           aria-expanded={card ? open : undefined} aria-controls={card && open ? "so-hud-card" : undefined}
           onClick={() => (card ? setOpen((current) => !current) : onOpenStory())}>
-          <span className="so-hud-name">◈ {snapshot.narrative?.sections.find((section) => section.id === "now")?.lines[0] ?? HUD_COPY.fallbackScene}</span>
+          <span className="so-hud-name">◈ {snapshot.narrative?.headline ?? HUD_COPY.fallbackScene}</span>
+          {snapshot.ui.authorView && snapshot.activeCheckpointName && snapshot.activeCheckpointName !== snapshot.narrative?.headline
+            ? <span className="so-hud-dim" data-so="hud-author-checkpoint">{snapshot.activeCheckpointName}</span> : null}
           {snapshot.tension.level ? <span className="so-hud-dim">{hudTensionText(snapshot.tension.level)}</span> : null}
         </button>
         {snapshot.turn?.yours ? (

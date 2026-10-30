@@ -22,6 +22,57 @@ export function withJudgeEnabled(settings: unknown, enabled: boolean): Record<st
   return { ...settings, extension_settings: { ...extensions, 'story-orchestrator': { ...root, settings: { ...ours, judge: { ...judge, enabled } } } } };
 }
 
+export const NO_MODEL_SETTINGS_BACKUP = 'so-no-model-settings.json';
+
+export const REMOTE_AUTHORING_PATHS = [
+  'stagecraft.livingEnabled', 'stagecraft.branchingEnabled', 'stagecraft.prefetchEnabled', 'stagecraft.createEnabled',
+  'display.briefingDraft', 'characters.polish',
+] as const;
+
+export type RemoteAuthoringBackup = Record<string, boolean | null>;
+
+const oursOf = (settings: Record<string, unknown>): Record<string, unknown> => {
+  const extensions = isRecord(settings.extension_settings) ? settings.extension_settings : {};
+  const root = isRecord(extensions['story-orchestrator']) ? extensions['story-orchestrator'] : {};
+  return isRecord(root.settings) ? root.settings : {};
+};
+
+const withOurs = (settings: Record<string, unknown>, ours: Record<string, unknown>): Record<string, unknown> => {
+  const extensions = isRecord(settings.extension_settings) ? settings.extension_settings : {};
+  const root = isRecord(extensions['story-orchestrator']) ? extensions['story-orchestrator'] : {};
+  return { ...settings, extension_settings: { ...extensions, 'story-orchestrator': { ...root, settings: ours } } };
+};
+
+const readPath = (ours: Record<string, unknown>, path: string): boolean | null => {
+  const [section, key] = path.split('.');
+  const value = isRecord(ours[section]) ? (ours[section] as Record<string, unknown>)[key] : undefined;
+  return typeof value === 'boolean' ? value : null;
+};
+
+const writePath = (ours: Record<string, unknown>, path: string, value: boolean | null): Record<string, unknown> => {
+  const [section, key] = path.split('.');
+  const current = isRecord(ours[section]) ? { ...(ours[section] as Record<string, unknown>) } : {};
+  if (value === null) delete current[key];
+  else current[key] = value;
+  return { ...ours, [section]: current };
+};
+
+export function withRemoteAuthoringOff(settings: unknown): { next: Record<string, unknown>; backup: RemoteAuthoringBackup } {
+  if (!isRecord(settings)) throw new Error('settings.json is not an object');
+  const ours = oursOf(settings);
+  const backup = Object.fromEntries(REMOTE_AUTHORING_PATHS.map((path) => [path, readPath(ours, path)]));
+  return { next: withOurs(settings, REMOTE_AUTHORING_PATHS.reduce((acc, path) => writePath(acc, path, false), ours)), backup };
+}
+
+export function withRemoteAuthoringRestored(settings: unknown, backup: RemoteAuthoringBackup): Record<string, unknown> {
+  if (!isRecord(settings)) throw new Error('settings.json is not an object');
+  const ours = REMOTE_AUTHORING_PATHS.reduce((acc, path) => writePath(acc, path, path in backup ? backup[path] : null), oursOf(settings));
+  return withOurs(settings, ours);
+}
+
+export const remoteAuthoringOn = (settings: unknown): string[] =>
+  (isRecord(settings) ? REMOTE_AUTHORING_PATHS.filter((path) => readPath(oursOf(settings), path) !== false) : [...REMOTE_AUTHORING_PATHS]);
+
 const JUDGE_ENABLED_DEFAULT = true;
 
 export const judgeEnabledIn = (settings: unknown): boolean | null => {
@@ -50,7 +101,7 @@ const rewire = (value: unknown, lanePort: number, seen: Set<string>, allow: read
 export function offlineSettings(settings: unknown, lanePort: number): { next: Record<string, unknown>; rewired: string[] } {
   if (!isRecord(settings)) throw new Error('settings.json is not an object');
   const seen = new Set<string>();
-  const wired = rewire(withJudgeEnabled(settings, false), lanePort, seen) as Record<string, any>;
+  const wired = rewire(withRemoteAuthoringOff(withJudgeEnabled(settings, false)).next, lanePort, seen) as Record<string, any>;
   const extensions = wired.extension_settings;
   const ours = extensions['story-orchestrator'].settings;
   ours.image = { ...(isRecord(ours.image) ? ours.image : {}), enabled: false };
