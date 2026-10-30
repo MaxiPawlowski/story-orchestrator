@@ -433,7 +433,7 @@ export const DEGRADING_SETUP_CHECKS: readonly Check[] = [
       return {
         consequence: `${them(gaps.map((gap) => gap.key), "A judge use is", "Some judge uses are")} routed to a provider not calibrated for ${them(gaps.map((gap) => gap.key), "it", "them")}, `
           + "so every call is refused and the story takes its usual path without the judge.",
-        detail: `${rows.join("; ")}. Route ${them(rows, "it", "them")} back to ${JUDGE_PROVIDERS[DEFAULT_JUDGE_PROVIDER].label} under Connections › Judge, or measure that provider first.`,
+        detail: `${rows.join("; ")}. Route ${them(rows, "it", "them")} back to ${JUDGE_PROVIDERS[DEFAULT_JUDGE_PROVIDER].label} under Judge, or measure that provider first.`,
         target: { kind: "setting", id: judgeProviderControlId(ridesWardenRoute(gaps[0].key) ? "warden" : gaps[0].key) },
       };
     },

@@ -142,6 +142,8 @@ export const excerpt = (value: string, max = CANON_EXCERPT_CHARS): string => {
   return `${(word || head).trimEnd()}…`;
 };
 
+export const midSentence = (name: string): string => name.replace(/^(The|A|An) (?=\S)/, (article) => article.toLowerCase());
+
 export const sceneHeadline = (parts: { playerName?: string | null; chapterTitle?: string | null; storyTitle?: string | null }): string =>
   [parts.playerName, parts.chapterTitle, parts.storyTitle].map((value) => value?.trim()).find(Boolean) ?? PLAYER_COPY.currentScene;
 
@@ -163,7 +165,7 @@ export function buildNarrativeStatus(input: NarrativeInput): NarrativeStatus {
 
   const moved = input.lastTransition;
   const recently = [
-    ...(moved ? [moved.fromName ? `You left ${moved.fromName} behind and moved into ${moved.toName}.` : `You moved into ${moved.toName}.`] : []),
+    ...(moved ? [moved.fromName ? `You left ${midSentence(moved.fromName)} behind and moved into ${midSentence(moved.toName)}.` : `You moved into ${midSentence(moved.toName)}.`] : []),
     ...(input.latestScene ? [input.latestScene.text] : []),
   ];
   if (recently.length) sections.push({ id: "recently", label: "Recently", lines: recently });
@@ -328,9 +330,9 @@ export const MEMORY_TIER_LABELS: Record<MemoryTier, string> = {
   scene_history: "Scene history",
 };
 
-export const CP_AUTHOR_ONLY_TEXT = "/cp is an author tool and shows the story's internals. Turn on Author view under This story → Author to use it; /story recap shows where the story is.";
+export const CP_AUTHOR_ONLY_TEXT = "/cp is an author tool and shows the story's internals. Turn on Author view under This chat → Author to use it; /story recap shows where the story is.";
 
-export const SO_MEM_AUTHOR_ONLY_TEXT = "/so-mem backlog is an author tool. Turn on Author view under This story → Author to use it.";
+export const SO_MEM_AUTHOR_ONLY_TEXT = "/so-mem backlog is an author tool. Turn on Author view under This chat → Author to use it.";
 
 export const castChangeText = (name: string, left: boolean): string => `${name} ${left ? "left" : "joined"}`;
 

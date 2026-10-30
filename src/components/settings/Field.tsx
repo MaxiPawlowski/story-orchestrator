@@ -19,6 +19,7 @@ export interface CheckRowProps {
   changed?: boolean;
   onReset?: () => void;
   kind?: "switch" | "checkbox";
+  extra?: ReactNode;
 }
 
 const resolve = (setting: SettingCopyKey | undefined, label: ReactNode | undefined, help: string | undefined) => {
@@ -26,7 +27,15 @@ const resolve = (setting: SettingCopyKey | undefined, label: ReactNode | undefin
   return { text: label ?? copy?.label ?? "", tip: help ?? copy?.help };
 };
 
-export const CheckRow = ({ id, setting, checked, disabled, onChange, label, help, description, scope, changed, onReset, kind = "switch" }: CheckRowProps) => {
+const firstSentence = (text: string): string => /^(.+?[.!?])(\s|$)/.exec(text)?.[1] ?? text;
+
+export const HelpText = ({ text, id }: { text: string | undefined; id?: string }) => {
+  if (!text) return null;
+  const short = firstSentence(text);
+  return <span id={id} title={short === text ? undefined : text}>{short}</span>;
+};
+
+export const CheckRow = ({ id, setting, checked, disabled, onChange, label, help, description, scope, changed, onReset, kind = "switch", extra }: CheckRowProps) => {
   const fallback = useId();
   const controlId = id ?? fallback;
   const { text, tip } = resolve(setting, label, help);
@@ -42,17 +51,17 @@ export const CheckRow = ({ id, setting, checked, disabled, onChange, label, help
     );
   }
   return (
-    <SettingRow label={text} htmlFor={controlId} help={tip} description={description} scope={scope} changed={changed} onReset={onReset}
-      control={(describedBy) => <Switch id={controlId} checked={checked} disabled={disabled} describedBy={describedBy} onChange={onChange} />} />
+    <SettingRow label={text} htmlFor={controlId} description={description ?? (tip ? <HelpText text={tip} /> : undefined)} scope={scope} changed={changed} onReset={onReset}
+      control={(describedBy) => <>{extra}<Switch id={controlId} checked={checked} disabled={disabled} describedBy={describedBy} onChange={onChange} /></>} />
   );
 };
 
 export const FieldLabel = ({ htmlFor, setting, label, help }: { htmlFor: string; setting?: SettingCopyKey; label?: ReactNode; help?: string }) => {
   const { text, tip } = resolve(setting, label, help);
   return (
-    <div className="flex items-center gap-1">
-      <label htmlFor={htmlFor}>{text}</label>
-      {tip && <HelpTooltip title={tip} />}
+    <div className="so-field-label">
+      <label htmlFor={htmlFor} className="so-setting-label">{text}</label>
+      {tip && <p className="so-setting-desc"><HelpText text={tip} /></p>}
     </div>
   );
 };

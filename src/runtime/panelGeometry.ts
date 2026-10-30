@@ -22,6 +22,7 @@ export const PANEL_DEFAULTS: Record<string, PanelGeometry> = {
   guide: { x: 100, y: 60, w: 780, h: 620 },
   journal: { x: 140, y: 90, w: 420, h: 540 },
   "stat-sheet": { x: 180, y: 120, w: 340, h: 420 },
+  inspector: { x: 4000, y: 72, w: 400, h: 600 },
 };
 
 const fallback: PanelGeometry = { x: 80, y: 80, w: 420, h: 480 };
@@ -55,6 +56,8 @@ export const sanitizePanels = (value: unknown): Record<string, PanelGeometry> =>
   }))
   : {});
 
+export const panelFits = (stored: Record<string, PanelGeometry>, id: string): boolean => !stored[id] || stored[id].h === (PANEL_DEFAULTS[id] ?? fallback).h;
+
 export const panelGeometry = (stored: Record<string, PanelGeometry>, id: string, viewport: Viewport): PanelGeometry =>
   clampPanel(stored[id] ?? PANEL_DEFAULTS[id] ?? fallback, viewport);
 
@@ -71,7 +74,7 @@ export const isPanelKey = (key: string): key is PanelKey => key === "ArrowLeft" 
 export const SHEET_DOCK_KEY = "sheet-dock";
 export const SHEET_WINDOW_KEY = "sheet";
 export const SHEET_WIDTH = { min: 300, max: 640, initial: 380 };
-export const SHEET_PEEK = 120;
+export const SHEET_PEEK = 56;
 
 export interface SheetDock {
   width: number;

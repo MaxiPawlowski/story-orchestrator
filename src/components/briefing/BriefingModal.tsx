@@ -7,7 +7,8 @@ import { Lazy } from "@components/Lazy";
 import { Dialog, DialogHeader } from "@components/ui/Dialog";
 import { lazyRetry } from "@utils/lazyRetry";
 import type { PlayerSetupView } from "@runtime/playerSetup";
-import type { ChooseIdentity } from "./PlayerSetupPane";
+import type { ChooseIdentity, StartCommit } from "./PlayerSetupPane";
+import { Button } from "@components/ui/Button";
 import type { CarryPaneProps } from "@components/carry/CarryPane";
 
 const PlayerSetupPane = lazyRetry(() => import("./PlayerSetupPane"));
@@ -55,6 +56,7 @@ export const BriefingModal = ({ briefing, chapter = null, blocks = [], onboardin
   const dialogRef = useRef<HTMLDialogElement | null>(null);
   const [dontShow, setDontShow] = useState(false);
   const closed = useRef(false);
+  const commit = useRef<StartCommit | null>(null);
   const close = () => {
     if (closed.current) return;
     closed.current = true;
@@ -72,7 +74,11 @@ export const BriefingModal = ({ briefing, chapter = null, blocks = [], onboardin
   }, []);
   const lead = briefing ?? chapter;
   const title = lead?.title ?? (identity && !blocks.length ? PLAYER_SETUP_COPY.heading : BRIEFING_COPY.beforeYouStart);
-  const startLabel = lead?.startLabel ?? BRIEFING_COPY.close;
+  const startLabel = lead?.startLabel ?? (identity ? BRIEFING_COPY.start : BRIEFING_COPY.close);
+  const start = async () => {
+    if (commit.current && !(await commit.current())) return;
+    close();
+  };
   return (
     <Dialog
       id="so-briefing"
@@ -83,9 +89,9 @@ export const BriefingModal = ({ briefing, chapter = null, blocks = [], onboardin
       onKeyDown={(event) => { if (event.key === "Escape") { event.preventDefault(); close(); } }}
       onClose={close}
     >
-      <DialogHeader titleId="so-briefing-title" title={title} onClose={close} closeLabel={BRIEFING_COPY.dismiss}
+      <DialogHeader titleId="so-briefing-title" title={title} onClose={close} closeLabel={BRIEFING_COPY.dismiss} closeDataSo="briefing-close"
         subtitle={briefing?.tone ? <span data-so="briefing-tone">{briefing.tone}</span> : undefined} />
-      <div className="so-briefing-panel flex flex-col gap-4">
+      <div className="so-briefing-panel">
         {blocks.length > 0 && (
           <section data-so="briefing-before-you-start" role="alert" className="so-briefing-blocks flex flex-col gap-1">
             <h3 className="so-briefing-heading">{BRIEFING_COPY.beforeYouStart}</h3>
@@ -93,10 +99,10 @@ export const BriefingModal = ({ briefing, chapter = null, blocks = [], onboardin
             <ul className="flex flex-col gap-1">{blocks.map((line) => <li key={line}>{line}</li>)}</ul>
           </section>
         )}
-        {identity && <Lazy fallback={null}><PlayerSetupPane view={identity.view} rechoose={identity.rechoose} onChoose={identity.onChoose} /></Lazy>}
-        {carry && <Lazy fallback={null}><CarryPane view={carry.view} actions={carry.actions} /></Lazy>}
         {briefing && <BriefingBody view={briefing} level="story" />}
         {chapter && <BriefingBody view={chapter} level={briefing ? "chapter" : "story"} />}
+        {carry && <Lazy fallback={null}><CarryPane view={carry.view} actions={carry.actions} /></Lazy>}
+        {identity && <Lazy fallback={null}><PlayerSetupPane view={identity.view} rechoose={identity.rechoose} onChoose={identity.onChoose} startRef={commit} /></Lazy>}
         {onboarding && (
           <details data-so="briefing-onboarding" className="so-briefing-onboarding">
             <summary>{BRIEFING_COPY.onboarding}</summary>
@@ -110,16 +116,16 @@ export const BriefingModal = ({ briefing, chapter = null, blocks = [], onboardin
             </ul>
           </details>
         )}
-        <footer className="flex flex-wrap items-center justify-between gap-2">
-          {optOut ? (
-            <label className="flex items-center gap-2 text-sm" title={BRIEFING_COPY.optOutHelp}>
-              <input id="so-briefing-optout" type="checkbox" checked={dontShow} onChange={(event) => setDontShow(event.target.checked)} />
-              <span>{BRIEFING_COPY.optOut}</span>
-            </label>
-          ) : <span />}
-          <button id="so-briefing-start" type="button" className="menu_button so-briefing-start" autoFocus onClick={close}>{startLabel}</button>
-        </footer>
       </div>
+      <footer className="so-briefing-foot">
+        {optOut ? (
+          <label className="so-briefing-optout" title={BRIEFING_COPY.optOutHelp}>
+            <input id="so-briefing-optout" type="checkbox" checked={dontShow} onChange={(event) => setDontShow(event.target.checked)} />
+            <span>{BRIEFING_COPY.optOut}</span>
+          </label>
+        ) : <span />}
+        <Button id="so-briefing-start" variant="primary" className="so-briefing-start" autoFocus work={start}>{startLabel}</Button>
+      </footer>
     </Dialog>
   );
 };

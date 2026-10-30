@@ -2,7 +2,7 @@
 
 ## The default: SillyTavern's own image service
 
-In **Orchestrator → Connections → Images → Image service**, choose **Use SillyTavern Image Generation settings**. Configure a source in ST's own Image
+In **Settings → Images & stage**, choose **Use SillyTavern Image Generation settings**. Configure a source in ST's own Image
 Generation extension, then use **Test render** in an open group chat. Its saved image appears as a separate message.
 Nothing else needs installing for this route.
 
@@ -10,13 +10,13 @@ The optional **Image-prompt model** picker uses Connection Manager. Leave it emp
 current public scene and appearance details. It never switches your reply profile.
 
 New installs draw automatically only at story-authored moments. Every-N automation is opt-in
-(**Orchestrator → Defaults → Illustrations → When to draw**, or for one chat on **This story → Features**). While no image service
+(**Settings → Features → Illustrations → When to draw**, or for one chat on **This chat → Story settings**). While no image service
 is ready (ST's Image Generation is not set up, or its ComfyUI is stopped), automatic pictures are skipped without an
 error and Setup says why; Test render explains which step is missing.
 
 ## Automatic scene pictures from prepared looks
 
-**How automatic scene pictures are drawn** (`image.automaticRoute`, under **Connections → Images**) picks the route for each
+**How automatic scene pictures are drawn** (`image.automaticRoute`, under **Images & stage**) picks the route for each
 automatic scene picture (story moments and every-N replies; manual pictures, portraits and backgrounds are unchanged):
 
 - **Auto** (default): when every character the picture shows (one or two) has a prepared current look, either from a visual pack
@@ -88,7 +88,7 @@ hires is refused with a reason. Embeddings a recipe names are dropped when Comfy
 
 ## Downloading models (Civitai, Hugging Face)
 
-With the media plugin installed, **Orchestrator → Connections → Images → Image service → Model sources** downloads a model you are missing into
+With the media plugin installed, **Settings → Images & stage → Model sources** downloads a model you are missing into
 your own model folders. It is admin-only, because it writes to the server's disk.
 
 1. Save a **Civitai token** and/or a **Hugging Face token** (needed for many Civitai files and for gated Hugging

@@ -1,6 +1,7 @@
 @import "./styles/tokens.css";
 @import "./styles/kit.css";
 @import "./styles/sheet.css";
+@import "./styles/play.css";
 @reference "tailwindcss";
 @source "./";
 
@@ -465,16 +466,101 @@ dialog#so-studio-guide-reader::backdrop {
   }
 }
 
+dialog#so-briefing.so-dialog {
+  --so-dialog-window-w: 40rem;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  background-color: var(--so-surface);
+  background-image: var(--so-surface-solid);
+}
+
+dialog#so-briefing.so-dialog[open] {
+  display: flex;
+  flex-direction: column;
+}
+
 #so-briefing .so-briefing-panel {
-  padding: 1rem;
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: var(--so-space-6);
+  padding: var(--so-space-4);
   text-align: left;
   overflow-wrap: anywhere;
 }
 
-#so-briefing .menu_button {
-  width: fit-content;
-  max-width: 100%;
-  overflow-wrap: break-word;
+#so-briefing .so-briefing-foot {
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--so-space-2) var(--so-space-3);
+  padding: var(--so-space-3) var(--so-space-4) max(var(--so-space-3), env(safe-area-inset-bottom));
+  border-top: 1px solid var(--so-line);
+  background-color: var(--so-surface);
+  background-image: var(--so-surface-solid);
+}
+
+#so-briefing .so-briefing-optout {
+  display: flex;
+  align-items: center;
+  gap: var(--so-space-2);
+  font-size: var(--so-text-sm);
+}
+
+#so-briefing .so-briefing-start { margin-left: auto; }
+
+#so-briefing .so-briefing-you {
+  display: flex;
+  flex-direction: column;
+  gap: var(--so-space-2);
+  padding-top: var(--so-space-4);
+  border-top: 1px solid var(--so-line);
+}
+
+#so-briefing .so-briefing-role {
+  margin: 0;
+  font-size: var(--so-text-lg);
+  font-weight: 600;
+}
+
+#so-briefing .so-briefing-meta {
+  margin: 0;
+  color: var(--so-fg-muted);
+  font-size: var(--so-text-sm);
+}
+
+#so-briefing .so-briefing-assumes ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--so-space-1);
+  margin: var(--so-space-1) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+#so-briefing .so-briefing-assumes li {
+  padding: 0 var(--so-space-2);
+  border: 1px solid var(--so-line);
+  border-radius: var(--so-radius-pill);
+  font-size: var(--so-text-sm);
+}
+
+#so-briefing .so-briefing-choice {
+  display: flex;
+  flex-direction: column;
+  gap: var(--so-space-2);
+  padding-top: var(--so-space-1);
+}
+
+#so-briefing .so-briefing-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--so-space-1);
+  font-size: var(--so-text-sm);
 }
 
 #so-briefing .so-briefing-heading,

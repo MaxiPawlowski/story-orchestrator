@@ -89,7 +89,7 @@ export const HostedInAPanelHasNoSecondHeader: Story = {
     await expect(canvasElement.querySelector('[data-so="help-close"]')).toBeNull();
     await expect(within(canvasElement).queryByText("Help", { selector: "span.font-semibold" })).toBeNull();
     const stories = rowOf(canvasElement, "stories");
-    await expect(stories).toHaveTextContent("Orchestrator › Library › Playing › Story for this chat");
+    await expect(stories).toHaveTextContent("This chat › Story settings › Story › Story for this chat");
   },
 };
 
@@ -230,7 +230,7 @@ export const NoStoryShowsDefaults: Story = {
     await expect(canvasElement.textContent).not.toContain("Off in this chat");
     await expect(within(rowOf(canvasElement, "npc-commitments")).getByText("Needs a story")).toBeInTheDocument();
     await userEvent.click(within(pacing).getByRole("button", { name: "Show me" }));
-    await expect(args.onShowMe).toHaveBeenCalledWith(expect.objectContaining({ workspace: expect.objectContaining({ context: "orchestrator", page: "defaults", feature: "pacing" }) }));
+    await expect(args.onShowMe).toHaveBeenCalledWith(expect.objectContaining({ workspace: expect.objectContaining({ context: "orchestrator", page: "features", feature: "pacing" }) }));
   },
 };
 

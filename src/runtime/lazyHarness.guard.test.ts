@@ -36,7 +36,8 @@ const LAZY_DIET = ["src/runtime/storyUpdate.ts", "src/judge/director.ts", "src/w
 const LAZY_HEADROOM = ["src/runtime/slashCommands.ts", "src/runtime/curatorPassKit.ts", "src/judge/extraction.ts"];
 
 const LAZY_HEADROOM_V30 = ["src/memory/contract.ts", "src/extraction/contract.ts", "src/extraction/sharedRead.ts", "src/judge/useCopy.ts", "src/components/panels/PanelsHost.tsx",
-  "src/components/panels/PanelFrame.tsx", "src/runtime/panelGeometry.ts", "src/runtime/panelStore.ts", "src/sprites/visualManifest.ts", "src/runtime/copilotProvisioning.ts", "src/wizard/interview.ts"];
+  "src/components/panels/PanelFrame.tsx", "src/runtime/panelGeometry.ts", "src/runtime/panelStore.ts", "src/sprites/visualManifest.ts", "src/runtime/copilotProvisioning.ts", "src/wizard/interview.ts",
+  "src/services/stHost/media.ts", "src/runtime/featureControls.ts"];
 
 const LAZY_DELIVERY = ["src/runtime/delivery/kit.ts", "src/runtime/delivery/render.ts", "src/runtime/delivery/mine.ts"];
 

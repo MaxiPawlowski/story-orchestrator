@@ -1065,7 +1065,7 @@
       "status": "checked",
       "note": "Plan 33: RunGuard and current-stage checks precede renders, saves and application. Tests: sprites/poses/bodyRenderer.test.ts."
     },
-    "src/sprites/SpriteGroup.tsx#SpriteGroup>anonymous": {
+    "src/sprites/RemoveStorySprites.tsx#RemoveStorySprites.run": {
       "status": "local",
       "note": "v2.8 review fixes (2026-10-14), census widened to .tsx: the author's confirmed removal of one story's generated sprite files (install-wide media, keyed by the story id named in the confirm), then the component's own notice. Not chat- or draft-scoped, so no run token applies (releaseGlobalStoryLore precedent)."
     },

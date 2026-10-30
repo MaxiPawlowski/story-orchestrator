@@ -77,7 +77,7 @@ export const SETTING_COPY = {
   ),
   "display.briefing": copy(
     "Show the story briefing when a story starts",
-    "The first time a story starts in a chat, a page shows the author's briefing: the world, who you are, who is with you and how to play. You can re-open it from This story → Play.",
+    "The first time a story starts in a chat, a page shows the author's briefing: the world, who you are, who is with you and how to play. You can re-open it from This chat → Play.",
   ),
   "display.briefingDraft": copy(
     "Write a briefing when a story has none",
@@ -131,7 +131,7 @@ export const SETTING_COPY = {
   ),
   "display.presence.suggestions": copy(
     "What could I do?",
-    "A button on This story → Play and the wand menu that asks the memory model for a few things you could try next. A suggestion goes into the box where you type; "
+    "A button on This chat → Play and the wand menu that asks the memory model for a few things you could try next. A suggestion goes into the box where you type; "
       + "nothing is sent until you send it. The request sees only what you have already seen in the story.",
   ),
   "display.hudEnabled": copy(
@@ -300,7 +300,5 @@ export const SETTINGS_AREA_COPY: Record<FeatureArea, SettingsAreaCopy> = {
   authoring: { label: "Authoring", oneLine: "Tools for writing stories.", doc: "author/README.md" },
   setup: { label: "Setup", oneLine: "What SillyTavern features were found, and a copy for a bug report.", doc: "setup/README.md" },
 };
-
-export const SETTINGS_ADVANCED_LABEL = "Advanced";
 
 export const settingsGuideLabel = (area: FeatureArea): string => `Read the guide: ${SETTINGS_AREA_COPY[area].label}`;

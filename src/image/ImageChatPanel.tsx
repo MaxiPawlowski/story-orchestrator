@@ -1,65 +1,30 @@
 import { useEffect, useState } from "react";
 import type { RuntimeManager } from "@runtime/index";
 import type { RuntimeSnapshot } from "@runtime/types";
-import HelpTooltip from "@components/studio/HelpTooltip";
-import { imageAutomationText, PLAYER_COPY } from "@runtime/narrative";
+import { PLAYER_COPY } from "@runtime/narrative";
 import { startImage } from "./start";
-import type { ImageOverride } from "./settings";
-import { log } from "@utils/log";
-import { BusyButton } from "@components/BusyButton";
+import { Button } from "@components/ui/Button";
 
-export default function ImageChatPanel({ manager, snapshot }: { manager: RuntimeManager; snapshot: RuntimeSnapshot }) {
+export const IMAGE_QUICK_COPY = {
+  label: "Illustrations",
+  scene: "Illustrate scene",
+  portrait: "Portrait",
+  background: "Background",
+  stop: "Stop images",
+} as const;
+
+export default function ImageChatPanel({ manager }: { manager: RuntimeManager; snapshot?: RuntimeSnapshot }) {
   const image = startImage(manager);
   const [, refresh] = useState(0);
-  const [preferenceFailed, setPreferenceFailed] = useState(false);
   useEffect(() => image.subscribe(() => refresh((value) => value + 1)), [image]);
-  const settings = image.settings();
+  if (!image.settings().enabled) return null;
   const state = image.status();
-  const override = image.override();
-  const models = [...new Set([override.checkpoint, ...Object.values(settings.purposes).map((route) => route.checkpoint)])].filter(Boolean);
-  const update = (patch: Partial<ImageOverride>) => {
-    setPreferenceFailed(false);
-    void image.setOverride({ ...override, ...patch }).catch((error: unknown) => {
-      log.warn("image preference not saved", error);
-      setPreferenceFailed(true);
-    });
-  };
-  const cues = [snapshot.imageStory?.checkpoints && "each new turn in the story", snapshot.imageStory?.scenes && "confirmed scene changes"].filter(Boolean);
-  const automation = imageAutomationText(settings.automation.mode, cues.filter((cue): cue is string => typeof cue === "string"), settings.automation.everyN);
-  return <section id="so-image-chat" aria-labelledby="so-image-chat-heading" className="flex flex-col gap-2 text-sm">
-    <h3 id="so-image-chat-heading" className="so-card-heading">Illustrations <span className="opacity-70 font-normal">— this chat</span></h3>
-    <div className="text-xs opacity-80">{settings.enabled ? automation : PLAYER_COPY.imageInstallOff} Manual images are still available.</div>
-    <div className="flex items-center gap-2">
-      <label className="flex items-center gap-2">
-        <input type="checkbox" checked={override.paused} onChange={(event) => update({ paused: event.target.checked })} />
-        Pause automatic images in this chat
-      </label>
-      <HelpTooltip title="Only this chat is paused. You can still request an image manually; other chats keep their own preference."
-        href="/scripts/extensions/third-party/story-orchestrator/README.md#illustrations-and-scope" reference="Image preferences" />
-    </div>
-    <details className="text-xs"><summary className="cursor-pointer">Chat image preferences</summary>
-      <div className="flex flex-col gap-2 pt-2">
-        {settings.backend === "comfy" && <label className="flex flex-col gap-1">Image model
-          <select className="text_pole" value={override.checkpoint} onChange={(event) => update({ checkpoint: event.target.value })}>
-          <option value="">Use the install route</option>{models.map((file) => <option key={file} value={file}>{file}</option>)}
-        </select></label>}
-        <label className="flex flex-col gap-1">Quality <select className="text_pole" value={override.quality} onChange={(event) => update({ quality: event.target.value as ImageOverride["quality"] })}>
-          <option value="">Use the route default</option><option value="base">Standard</option><option value="hires">High resolution</option>
-        </select></label>
-        <label className="flex flex-col gap-1">Extra visual direction
-          <input className="text_pole" value={override.extraPositive} placeholder="This chat only"
-            onChange={(event) => update({ extraPositive: event.target.value })} />
-        </label>
-      </div>
-    </details>
-    <div className="flex flex-wrap gap-2">
-      <BusyButton className="menu_button" work={() => image.direct({ purpose: "scene", text: "", messageId: null })}>Illustrate scene</BusyButton>
-      <BusyButton className="menu_button" work={() => image.direct({ purpose: "portrait", text: "", messageId: null })}>Portrait</BusyButton>
-      <BusyButton className="menu_button" work={() => image.direct({ purpose: "background", text: "", messageId: null })}>Background</BusyButton>
-      {state.jobs.length > 0 && <button type="button" className="menu_button" onClick={() => image.queue.cancelAll()}>Stop images</button>}
-    </div>
-    <div role="status" className="text-xs opacity-80">{state.jobs.length ? state.jobs.map((job) => `${job.label}: ${job.state}`).join(" · ") : PLAYER_COPY.imageNoJobs}</div>
-    {preferenceFailed && <div role="alert" data-so="image-preference-error" className="text-xs so-error-text">{PLAYER_COPY.imagePreferenceError}</div>}
-    {state.lastError && <div role="alert" data-so="image-error" className="text-xs so-error-text">{PLAYER_COPY.imageError}</div>}
-  </section>;
+  return <div id="so-image-quick" data-so="image-quick" role="group" aria-label={IMAGE_QUICK_COPY.label} className="so-scene-quick">
+    <Button size="sm" icon="fa-clapperboard" work={() => image.direct({ purpose: "scene", text: "", messageId: null })}>{IMAGE_QUICK_COPY.scene}</Button>
+    <Button size="sm" icon="fa-user" work={() => image.direct({ purpose: "portrait", text: "", messageId: null })}>{IMAGE_QUICK_COPY.portrait}</Button>
+    <Button size="sm" icon="fa-image" work={() => image.direct({ purpose: "background", text: "", messageId: null })}>{IMAGE_QUICK_COPY.background}</Button>
+    {state.jobs.length > 0 && <Button size="sm" variant="ghost" icon="fa-stop" onClick={() => image.queue.cancelAll()}>{IMAGE_QUICK_COPY.stop}</Button>}
+    {state.jobs.length > 0 && <span role="status" className="so-play-meta">{state.jobs.map((job) => `${job.label}: ${job.state}`).join(" · ")}</span>}
+    {state.lastError && <span role="alert" data-so="image-error" className="so-play-meta so-error-text">{PLAYER_COPY.imageError}</span>}
+  </div>;
 }

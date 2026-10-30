@@ -9,12 +9,12 @@ backend). It needs reliable instruction following more than good prose; see [Cho
 1. In SillyTavern, make a **Connection Manager** profile for the model you want (Text Completion or Chat
    Completion). Give it an **instruct template** that matches the model: without one, many local models answer the
    memory model's prompts with loops of repeated tokens.
-2. Open **Extensions → Story Orchestrator → Open Story Orchestrator → Orchestrator → Connections**, and under
+2. Open **Extensions → Story Orchestrator → Open Story Orchestrator → Settings → Models**, and under
    **Memory → Models and routing** pick it as the **Memory model**.
 3. Press **Test memory model**. It runs fixed scenes through the real pipeline and says what passed.
 
-**Story reading** must be on (it is by default: **Orchestrator → Defaults → Story reading**). The choice affects every
-chat, including new ones. It worked when **This story → Play** stops asking for a memory model and its Status line
+**Story reading** must be on (it is by default: **Settings → Features → Story reading**). The choice affects every
+chat, including new ones. It worked when **This chat → Play** stops asking for a memory model and its Status line
 reads "Following along.".
 
 ## Options in the same group
@@ -42,7 +42,7 @@ reads "Following along.".
   Every profile list is grouped by provider and labelled **local** (this machine or your network) or **cloud**. A
   task on a cloud profile says what it sends, and to whom, under its picker.
 - **How often it reads**: **Read every … replies** (default 3) and **Leave newest … replies out** (default 0) are on
-  **Orchestrator → Defaults → Story reading**, and for one chat on **This story → Features → Story reading**. The
+  **Settings → Features → Story reading**, and for one chat on **This chat → Story settings → Story reading**. The
   defaults are fine for nearly everyone.
 
 ## Use a cloud model for a task
@@ -81,7 +81,7 @@ By default the story read runs every three character replies and includes the ne
 stepping back and reading again). Other things can ask for a read sooner: a scene change, a cue the story's author
 wrote for a decisive moment, a stuck scene being re-checked, and an edit or swipe. What a read finds is applied after
 the **next** reply finishes; one scene change happens per reply, by design. So a story can take a few replies to react,
-and that is normal; **This story → Features → Story reading → Read now** reads straight away.
+and that is normal; **This chat → Story settings → Story reading → Read now** reads straight away.
 
 **Tool calling.** With Chat Completion function calling on (for example an extension that gives the model tools), one
 player turn can render a reply, a tool call and a continuation. Each rendered reply counts as its own reply, so one

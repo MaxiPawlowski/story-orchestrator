@@ -1,11 +1,10 @@
 import { useEffect, useRef, useState, type CSSProperties, type KeyboardEvent as ReactKeyboardEvent, type PointerEvent as ReactPointerEvent, type ReactNode } from "react";
 import { Lazy } from "@components/Lazy";
-import { lazyRetry } from "@utils/lazyRetry";
 import type { RuntimeSnapshot } from "@runtime/types";
 import type { WidgetDrawerTab } from "@engine/index";
-import { memoryPeek, pickSheetTab, sheetTabs, type SheetTab } from "@runtime/storySheet";
+import { pickSheetTab, sheetTabs, type SheetTab } from "@runtime/storySheet";
 import {
-  SHEET_DOCK_KEY, SHEET_WIDTH, SHEET_WINDOW_KEY, docked, nearestSnap, nextSnap, panelGeometry, sheetDock, sheetSnaps, type PanelGeometry, type SheetSnap, type Viewport,
+  SHEET_DOCK_KEY, SHEET_WIDTH, SHEET_WINDOW_KEY, docked, nearestSnap, nextSnap, panelFits, panelGeometry, sheetDock, sheetSnaps, type PanelGeometry, type SheetSnap, type Viewport,
 } from "@runtime/panelGeometry";
 import type { SuggestionAsk, SuggestionOutcome } from "@runtime/suggestionsHost";
 import type { WriteResult } from "@utils/writeResult";
@@ -14,14 +13,7 @@ import { IconButton } from "@components/ui/IconButton";
 import { Tab, TabList, TabPanel, Tabs } from "@components/ui/Tabs";
 import { PanelFrame } from "../panels/PanelFrame";
 import type { HtmlPanelHost } from "./tabs/WidgetTab";
-
-const JournalTab = lazyRetry(() => import("./tabs/JournalTab"));
-const HereNowTab = lazyRetry(() => import("./tabs/HereNowTab"));
-const PeopleTab = lazyRetry(() => import("./tabs/PeopleTab"));
-const StatsTab = lazyRetry(() => import("./tabs/StatsTab"));
-const WidgetTab = lazyRetry(() => import("./tabs/WidgetTab"));
-const IdeasTab = lazyRetry(() => import("./tabs/IdeasTab"));
-const MemoryTab = lazyRetry(() => import("./tabs/MemoryTab"));
+import { SheetTabBody as TabBody } from "./SheetTabBody";
 
 export interface SheetRoom {
   view: Viewport;
@@ -87,23 +79,6 @@ const useRoom = (fixed?: SheetRoom): SheetRoom => {
 };
 
 const memoryStore: StorySheetStore = { read: () => ({}), save: () => {} };
-
-const TabBody = ({ tab, snapshot, actions }: { tab: SheetTab; snapshot: RuntimeSnapshot; actions: StorySheetActions }) => {
-  const game = snapshot.game ?? null;
-  const author = snapshot.ui.authorView ? snapshot.gameAuthor ?? null : null;
-  if (tab === "journal" && game) return <JournalTab game={game} author={author} onJump={actions.onJump} />;
-  if (tab === "here" && game?.scene) return <HereNowTab scene={game.scene} />;
-  if (tab === "people" && game?.codex) return <PeopleTab codex={game.codex} />;
-  if (tab === "stats") return <StatsTab sheet={game?.statSheet ?? null} provenance={author?.provenance?.[game?.statSheet?.id ?? ""]} onAction={actions.fill} openDrawer={actions.openDrawer} />;
-  if (tab === "ideas" && actions.requestSuggestions && actions.fillSuggestion) return <IdeasTab request={actions.requestSuggestions} fill={actions.fillSuggestion} />;
-  if (tab === "memory") return <MemoryTab entries={memoryPeek(snapshot)} onOpenMemory={actions.openMemory} />;
-  const widget = tab.startsWith("widget-") ? game?.widgets.find((entry) => `widget-${entry.id}` === tab) : undefined;
-  if (widget) {
-    return <WidgetTab widget={widget} onAction={actions.fill} html={snapshot.ui.presence?.htmlWidgets === false ? null : actions.htmlHost ?? null} openDrawer={actions.openDrawer}
-      provenance={author?.provenance?.[widget.id]} />;
-  }
-  return null;
-};
 
 const SheetTabs = ({ snapshot, tab, onTab, actions, end }: { snapshot: RuntimeSnapshot; tab: SheetTab; onTab: (tab: SheetTab) => void; actions: StorySheetActions; end?: ReactNode }) => {
   const tabs = sheetTabs(snapshot);
@@ -186,7 +161,8 @@ export function StorySheet({ snapshot, tab, popped, onTab, onPop, onClose, actio
 
   if (mode === "window") {
     return (
-      <PanelFrame id={SHEET_WINDOW_KEY} title={SHEET_TEXT.title} geometry={panelGeometry(store.read(), SHEET_WINDOW_KEY, room.view)} onChange={(geometry) => store.save(SHEET_WINDOW_KEY, geometry)}
+      <PanelFrame id={SHEET_WINDOW_KEY} title={SHEET_TEXT.title} geometry={panelGeometry(store.read(), SHEET_WINDOW_KEY, room.view)} fit={panelFits(store.read(), SHEET_WINDOW_KEY)}
+        onChange={(geometry) => store.save(SHEET_WINDOW_KEY, geometry)}
         onClose={onClose} viewport={fixedRoom?.view}
         actions={<IconButton data-so="sheet-dock" icon="fa-table-columns" size="sm" label={SHEET_TEXT.dock} onClick={() => onPop(false)} />}>
         <div id="so-sheet" data-so="sheet" data-mode={mode} className="so-sheet so-sheet--window">{body()}</div>

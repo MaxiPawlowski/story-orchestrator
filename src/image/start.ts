@@ -11,7 +11,7 @@ export function startImage(manager: RuntimeManager): StoryImageDirector {
   image = new StoryImageDirector(manager);
   globalThis.storyOrchestratorImage = image;
   const stop = image.start();
-  const unmount = registerImageSurface(image);
+  const unmount = registerImageSurface(image, (listener) => manager.subscribe(listener));
   dispose = () => { unmount(); stop(); };
   return image;
 }

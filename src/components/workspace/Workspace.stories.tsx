@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { expect, fn, userEvent, within } from "@storybook/test";
 import Workspace from "./Workspace";
+import { clockWidget } from "../widgets/gameViewFixtures";
 import { resolveFeatures } from "@runtime/featureResolve";
 import { defaultGlobalSettings } from "@runtime/settingsModel";
 import { buildNarrativeStatus } from "@runtime/narrative";
@@ -10,7 +11,7 @@ import type { ExtractionRuntimeState, RuntimeSnapshot } from "@runtime/types";
 import type { RuntimeManager } from "@runtime/runtimeManager";
 import type { SettingsHost } from "@components/settings/SettingsPanel";
 import type { DrawerTabsProps } from "@components/drawer/DrawerTabs";
-import { PLAYER_COPY } from "@runtime/narrative";
+import { PLAY_COPY } from "@features/playCopy";
 import { SETUP_COPY } from "@components/drawer/SetupSection";
 import { VIEWPORTS } from "../../../.storybook/fit";
 
@@ -18,7 +19,9 @@ const global = defaultGlobalSettings();
 const snapshot = {
   ready: true, storyTitle: "Test story", features: resolveFeatures(global, null), featureOverrides: {},
   stagecraftScope: [], extraction: { settings: global.extraction }, memory: { settings: global.memory },
-  stagecraft: { settings: global.stagecraft }, ui: { authorView: false },
+  stagecraft: { settings: global.stagecraft }, ui: { authorView: false }, library: [{ id: "quest", title: "Test story" }], storyId: "quest",
+  storyIdentity: { id: "quest", pinned: true, drifted: false }, validationErrors: [], copilot: { enabled: true, ask: true }, pacing: { shapeOverride: null },
+  roleRoutes: [],
 } as unknown as RuntimeSnapshot;
 
 const extraction: ExtractionRuntimeState = {
@@ -30,27 +33,50 @@ const pipeline = derivePipelineStatus(extraction, undefined, null);
 const playSnapshot = {
   ...snapshot, storyId: "quest", boundary: 4, extraction, pipeline, saveHealth: createSaveHealth(),
   requirements: { ready: true, missingPersonas: [], missingMembers: [], missingLorebooks: [] },
-  libraryLost: { stories: ["Old tale"], sessions: [], changed: [] },
+  libraryLost: { stories: ["Old tale"], sessions: [], changed: [] }, thinkingSilent: true,
   narrative: buildNarrativeStatus({
     storyTitle: "Test story", checkpointName: "The Ruined Gate", objective: "Breach the sanctum.", lastTransition: { fromName: "Camp", toName: "The Ruined Gate" },
     openThreads: ["Who left the gate open"], canon: "The party crossed the dunes and reached the gate at dusk.", tensionLevel: "tense", pendingCount: 0, pipeline,
     sceneLocation: null, consequences: null,
   }),
   memory: { settings: global.memory, entries: [{ id: "m1", text: "The sun-key opens the inner sanctum.", tier: "facts", status: "live" }] },
-  game: { journal: [{ id: "q1", title: "The ferry", status: "active", steps: [] }], milestones: [], codex: null, statSheet: { id: "sheet", rows: [] }, widgets: [{ id: "road", title: "The road" }] },
+  game: { journal: [{ id: "q1", title: "The ferry", status: "active", steps: [] }], milestones: [], codex: null, statSheet: { id: "sheet", rows: [] },
+    widgets: [{ ...clockWidget, id: "road", title: "The road" }] },
   presence: { shown: { journal: true, statSheet: true, widgets: true, suggestions: true }, continueRows: [] },
 } as unknown as RuntimeSnapshot;
 
 const meta: Meta<typeof Workspace> = {
   title: "Workspace/Workspace", component: Workspace,
   args: { intent: { context: "story", page: "features" }, snapshot,
-    manager: { setFeatureOverride: fn(() => true) } as unknown as RuntimeManager,
+    manager: { setFeatureOverride: fn(() => true), setPacingSettings: fn(), setUiSettings: fn(), notify: fn(), reapplyPromptBlocks: fn(), runExtractionNow: fn(),
+      selectStory: fn(), restartStory: fn(), getSnapshot: () => snapshot } as unknown as RuntimeManager,
     settingsHost: {} as SettingsHost, drawerProps: {} as DrawerTabsProps, onClose: fn() },
 };
 export default meta;
 type Story = StoryObj<typeof Workspace>;
-export const Desktop: Story = {};
-export const Mobile: Story = { parameters: { viewport: { defaultViewport: "mobile1" } } };
+export const Desktop: Story = {
+  play: async ({ canvasElement }) => {
+    const body = canvasElement.ownerDocument.body;
+    const page = within(body);
+    await page.findByRole("dialog", { name: "Test story" });
+    await expect(await page.findByRole("heading", { name: "Story" })).toBeInTheDocument();
+    await expect(body.querySelectorAll('[data-so="feature-row"]').length).toBeGreaterThan(20);
+    await expect(body.querySelector('[data-so="feature-list"]')).toHaveAttribute("data-scope", "chat");
+    await expect(body.querySelector("#so-author-view-switch")).toHaveAttribute("role", "switch");
+    await expect(body.querySelectorAll("#so-workspace-nav .so-nav-item")).toHaveLength(2);
+  },
+};
+export const Mobile: Story = { ...Desktop, parameters: { viewport: { defaultViewport: "mobile1" } } };
+export const SettingsFeatures: Story = {
+  args: { intent: { context: "orchestrator", page: "features" } },
+  play: async ({ canvasElement }) => {
+    const body = canvasElement.ownerDocument.body;
+    await within(body).findByRole("heading", { name: "Features" });
+    await expect(body.querySelector('[data-so="feature-list"]')).toHaveAttribute("data-scope", "install");
+    await expect(body.querySelector("#so-feature-sprites-home")).toHaveTextContent("Images & stage");
+    await expect(body.querySelector("#so-workspace-page-features")).toHaveAttribute("aria-current", "page");
+  },
+};
 
 const lineCount = (element: Element) => {
   const range = element.ownerDocument.createRange();
@@ -67,28 +93,30 @@ const playPage = (viewport: { width: number; height: number }, maxLines: number)
   },
   parameters: { testViewport: viewport, a11y: { element: "#so-workspace-modal" } },
   play: async ({ canvasElement, args }) => {
-    const page = within(canvasElement.ownerDocument.body);
+    const doc = canvasElement.ownerDocument;
+    const page = within(doc.body);
     await page.findByRole("dialog", { name: "Test story" });
-    const setup = canvasElement.ownerDocument.querySelector<HTMLElement>("#so-setup");
-    await expect(setup).not.toBeNull();
-    await expect(Number.parseFloat(getComputedStyle(setup as HTMLElement).paddingLeft)).toBeGreaterThanOrEqual(12);
-    const fix = await page.findByRole("button", { name: PLAYER_COPY.libraryLostAcknowledge });
-    const dismiss = await page.findByRole("button", { name: SETUP_COPY.dismiss });
-    await expect(lineCount(fix)).toBeLessThanOrEqual(maxLines);
-    await expect(lineCount(dismiss)).toBe(1);
-    const now = canvasElement.ownerDocument.querySelector(".st-checkpoint-row") as HTMLElement;
-    await expect(Number.parseFloat(getComputedStyle(now).paddingLeft)).toBeGreaterThanOrEqual(8);
-    for (const name of ["Open the journal", "Open the stat sheet", "Open the story panels", "What could I do?"]) {
-      await expect(await page.findByRole("button", { name })).toBeVisible();
-    }
-    await expect(canvasElement.ownerDocument.querySelector("#so-open-suggestions")?.closest("details")).toBeNull();
-    await expect(canvasElement.ownerDocument.querySelector("#so-open-memory")?.closest("details")).not.toBeNull();
-    await userEvent.click(await page.findByRole("button", { name: "Open the journal" }));
-    await expect(args.settingsHost.openPanel).toHaveBeenCalledWith("journal");
-    await userEvent.click(await page.findByRole("button", { name: "What could I do?" }));
-    await expect(args.settingsHost.openPanel).toHaveBeenCalledWith("suggestions");
-    const root = canvasElement.ownerDocument.documentElement;
-    const modal = canvasElement.ownerDocument.querySelector("#so-workspace-content") as HTMLElement;
+    await expect(await page.findByRole("heading", { name: "The Ruined Gate", level: 2 })).toBeVisible();
+    const toggle = await page.findByRole("button", { name: new RegExp(SETUP_COPY.count(1)) });
+    await expect(toggle).toHaveAttribute("aria-expanded", "false");
+    await expect(doc.querySelector('[data-so="setup-row"][data-check="library-lost-to-tab"]')).toBeNull();
+    await userEvent.click(toggle);
+    await expect(lineCount(await page.findByRole("button", { name: SETUP_COPY.dismiss }))).toBe(1);
+    const tabs = within(await page.findByRole("tablist", { name: PLAY_COPY.tabsLabel }));
+    for (const name of [PLAY_COPY.now, "Journal", "Stats", "The road", PLAY_COPY.memory]) await expect(tabs.getByRole("tab", { name })).toBeVisible();
+    await expect(doc.querySelector("#so-open-memory")?.getAttribute("role")).toBe("tab");
+    await expect(doc.querySelector("#so-chat-side")).toBeNull();
+    const ideas = await page.findByRole("button", { name: "What could I do?" });
+    await expect(ideas.closest("details")).toBeNull();
+    await expect(lineCount(await page.findByRole("button", { name: PLAY_COPY.restart }))).toBeLessThanOrEqual(maxLines);
+    await userEvent.click(tabs.getByRole("tab", { name: "Journal" }));
+    await expect(await page.findByRole("button", { name: PLAY_COPY.popOut("Journal") })).toHaveAttribute("id", "so-open-journal");
+    await userEvent.click(page.getByRole("button", { name: PLAY_COPY.restart }));
+    const confirm = await page.findByRole("dialog", { name: PLAY_COPY.restartTitle });
+    await userEvent.click(within(confirm).getAllByRole("button", { name: PLAY_COPY.restartKeep })[1]);
+    await expect(args.manager.restartStory).not.toHaveBeenCalled();
+    const root = doc.documentElement;
+    const modal = doc.querySelector("#so-workspace-content") as HTMLElement;
     await expect(modal.scrollWidth).toBeLessThanOrEqual(modal.clientWidth);
     await expect(root.scrollWidth).toBeLessThanOrEqual(root.clientWidth);
   },

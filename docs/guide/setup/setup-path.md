@@ -5,8 +5,9 @@ the story plays the way you want. **Every feature is on by default**, so most st
 it on". New to the extension? Start with the [Quick start](../quick-start.md).
 
 Each step says what it does, what it costs, where it is and how to check it. Inside SillyTavern, **Show me** points at
-the control. Open this page from **Orchestrator → Help → Setup path**. The workspace pages are **Orchestrator →
-Library, Defaults, Connections, Interface, Help** and **This story → Play, Features, Review, Author**.
+the control. Open this page from **Settings → Help → Setup path**. The workspace pages are **Settings →
+Library, Features, Models, Judge, Images & stage, World & lore, Display, Authoring, Diagnostics, Help** and **This chat →
+Play, Settings** (Review and Author in Author view).
 
 1. [Level 0: required](#level-0-required): a group chat and a memory model.
 2. [Level 1: reliable play](#level-1-reliable-play): clean replies, lore only in the chats that use it.
@@ -22,7 +23,7 @@ Library, Defaults, Connections, Interface, Help** and **This story → Play, Fea
 
 - **What it does:** lets a story start at all. Stories play only in group chats whose members are the story's cast.
 - **Cost:** none.
-- **Where:** a SillyTavern group, then **Orchestrator → Library** to import or start a story.
+- **Where:** a SillyTavern group, then **Settings → Library** to import or start a story.
 - **How to check:** no **Make a group for this story** card, and nothing about groups in the repair card.
   <!-- so:show player:library -->
 
@@ -30,7 +31,7 @@ Library, Defaults, Connections, Interface, Help** and **This story → Play, Fea
 
 - **What it does:** reads the chat after each reply, so the story moves on, remembers and summarizes by itself.
 - **Cost:** one memory model call every 3 replies.
-- **Where:** **Orchestrator → Connections → Memory model**. Pick a **Connection Manager** profile saved with the
+- **Where:** **Settings → Models → Memory model**. Pick a **Connection Manager** profile saved with the
   instruct template that matches its model; without it many local models loop.
 - **How to check:** the red **fix setup** chip on the strip above the chat box clears.
   <!-- so:show setup:memory -->
@@ -39,7 +40,7 @@ Library, Defaults, Connections, Interface, Help** and **This story → Play, Fea
 
 - **What it does:** tells you whether the model can track the story and who knows what.
 - **Cost:** a handful of calls, once.
-- **Where:** **Orchestrator → Connections → Test memory model**.
+- **Where:** **Settings → Models → Test memory model**.
 - **How to check:** a list of what passed. A model that cannot keep private knowledge apart is offered a switch-off
   for that part. <!-- so:show setup:test -->
 
@@ -51,9 +52,9 @@ More: [Memory model](memory-model.md).
 
 - **What it does:** replies in character, inside the context the server holds.
 - **Cost:** your reply model's usual cost.
-- **Where:** SillyTavern's own connection and preset; checked in **Orchestrator → Connections → Host capabilities**.
+- **Where:** SillyTavern's own connection and preset; checked in **Settings → Diagnostics → Host capabilities**.
 - **How to check:** Host capabilities shows the memory model's context, and no repair row says a request is larger
-  than the server holds. <!-- so:show open:orchestrator.connections.so-capabilities -->
+  than the server holds. <!-- so:show open:orchestrator.diagnostics.so-capabilities -->
 
 The extension was tested on Artemis 31B v1.1 over Text Completion with thinking on, the preset's context set to
 what the server holds (32,768 on a 24 GB card): [What we tested on](models.md#what-we-tested-on).
@@ -62,7 +63,7 @@ what the server holds (32,768 on a 24 GB card): [What we tested on](models.md#wh
 
 - **What it does:** a bounded think before each reply, so replies stay clean and start sooner.
 - **Cost:** up to 400 thinking tokens per reply at **Medium** (Low 128, High no cap). Only llama.cpp setups that think.
-- **Where:** **Orchestrator → Defaults → Reply thinking → Thinking effort**, default **Medium**.
+- **Where:** **Settings → Features → Reply thinking → Thinking effort**, default **Medium**.
 - **How to check:** no repair line says characters' intentions are not tracked because the model is not thinking.
   <!-- so:show setup:feature -->
 
@@ -70,18 +71,18 @@ what the server holds (32,768 on a 24 GB card): [What we tested on](models.md#wh
 
 - **What it does:** story lore switches on only in the chats that play that story.
 - **Cost:** no model calls.
-- **Where:** **Orchestrator → Connections → How story lorebook entries switch on** (advanced), default **Per chat**.
-  **Memory-triggered lore** and **Late lore placement** in **Defaults** stay on.
+- **Where:** **Settings → World & lore → How story lorebook entries switch on** (advanced), default **Per chat**.
+  **Memory-triggered lore** and **Late lore placement** in **Settings → Features** stay on.
 - **How to check:** no repair row about entries left switched on, or about a story's lorebook selected for every
-  chat. <!-- so:show open:orchestrator.connections.so-wi-gating-mode -->
+  chat. <!-- so:show open:orchestrator.world.so-wi-gating-mode -->
 
 ### A fallback for the memory model (optional)
 
 - **What it does:** reads continue through an outage and switch back on their own.
 - **Cost:** calls only while the memory model is down.
-- **Where:** **Orchestrator → Connections → Fallback when it is down**.
+- **Where:** **Settings → Models → Fallback when it is down**.
 - **How to check:** during an outage the Play page says another model is standing in.
-  <!-- so:show open:orchestrator.connections.so-extraction-fallback -->
+  <!-- so:show open:orchestrator.models.so-extraction-fallback -->
 
 ## Level 2: the judge
 
@@ -93,14 +94,14 @@ The judge is a small, fast model for short choices, such as who speaks next. It 
 - **What it does:** lets the judge answer at all.
 - **Cost:** none until a key is saved.
 - **Where:** on the SillyTavern machine, `npm run plugin:install` (judge and lore plugins), `enableServerPlugins:
-  true` in `config.yaml`, then restart SillyTavern. Status shows in **Orchestrator → Connections → Judge**.
-- **How to check:** the status line says whether the plugin answers. <!-- so:show open:orchestrator.connections.so-judge-status -->
+  true` in `config.yaml`, then restart SillyTavern. Status shows in **Settings → Judge**.
+- **How to check:** the status line says whether the plugin answers. <!-- so:show open:orchestrator.judge.so-judge-status -->
 
 ### Save the judge key
 
 - **What it does:** turns the judge's uses on.
 - **Cost:** small calls to TypeSafe per use; two uses run before a reply, within 1.5 s.
-- **Where:** **Orchestrator → Connections → Judge → TypeSafe API key**, then **Save key**. Type it yourself: it is
+- **Where:** **Settings → Judge → TypeSafe API key**, then **Save key**. Type it yourself: it is
   kept in SillyTavern's secrets on the server and never shown again.
 - **How to check:** the status line says the judge is ready. <!-- so:show setup:judge -->
 
@@ -108,10 +109,10 @@ The judge is a small, fast model for short choices, such as who speaks next. It 
 
 - **What it does:** each use answers one kind of question, so the slower usual path runs less often.
 - **Cost:** one small call per use when it runs.
-- **Where:** **Orchestrator → Connections → Judge → What the judge is used for**; **Test the judge** below it. Every
+- **Where:** **Settings → Judge → What the judge is used for**; **Test the judge** below it. Every
   use is on and says what it sends; untick one you do not want sent.
 - **How to check:** the heading counts the uses that are on, and the test reports each one.
-  <!-- so:show open:orchestrator.connections.so-judge-uses -->
+  <!-- so:show open:orchestrator.judge.so-judge-uses -->
 
 ## Level 3: the authoring model
 
@@ -123,15 +124,15 @@ The wizard and Ask want a strong tool-calling model, not a roleplay model. More:
 - **What it does:** runs the wizard on opencode or Claude Code, on your subscription instead of a per-token bill.
 - **Cost:** your subscription's usage.
 - **Where:** `npm run plugins:install -- --with harness`, offer the harness in its `config.json`, sign in on the
-  server, restart. Then **Orchestrator → Connections → Models per task**.
+  server, restart. Then **Settings → Models → Models per task**.
 - **How to check:** each task lists the harness under **Cloud harness (on the SillyTavern server)**, without "(log in
-  first)". <!-- so:show open:orchestrator.connections.so-role-profiles -->
+  first)". <!-- so:show open:orchestrator.models.so-role-profiles -->
 
 ### The wizard's model
 
 - **What it does:** stories built through reliable tool calls.
 - **Cost:** gpt-6.1-sol takes about 25 s per Ask answer and about half an hour per wizard run, on the subscription.
-- **Where:** **Orchestrator → Connections → Models per task → Wizard and road ahead**. Left on its default it uses
+- **Where:** **Settings → Models → Models per task → Wizard and road ahead**. Left on its default it uses
   opencode `openai/gpt-6.1-sol` when the harness offers it, else the first DeepSeek profile (paid per token past its
   quota), else the memory model.
 - **How to check:** the select names its default as "Default: …", and no repair row reports a model outage.
@@ -140,9 +141,9 @@ The wizard and Ask want a strong tool-calling model, not a roleplay model. More:
 
 - **What it does:** the Studio's wizard, its suggestions, Ask in Help and `/story ask`.
 - **Cost:** a few calls per question; a wizard run while you build.
-- **Where:** **Orchestrator → Help → Enable the wizard** and **Ask questions**, both on.
+- **Where:** **Settings → Help → Enable the wizard** and **Ask questions**, both on.
 - **How to check:** **New story (wizard)** in the Library opens the wizard, and Help shows an Ask box.
-  <!-- so:show open:orchestrator.help.so-copilot-enabled -->
+  <!-- so:show open:orchestrator.authoring.so-copilot-enabled -->
 
 A story with no briefing gets one written by this model: one call per new story in a chat.
 
@@ -156,25 +157,25 @@ without an error and the repair card says why. More: [Illustrations](images.md),
 
 - **What it does:** illustrations at the moments each story asks for.
 - **Cost:** one render per picture.
-- **Where:** SillyTavern's Image Generation source, then **Orchestrator → Connections → Images → Image backend** and
+- **Where:** SillyTavern's Image Generation source, then **Settings → Images & stage → Image backend** and
   **Test render**.
-- **How to check:** the test picture appears as its own message. <!-- so:show open:orchestrator.connections.so-image-backend -->
+- **How to check:** the test picture appears as its own message. <!-- so:show open:orchestrator.images.so-image-backend -->
 
 ### Character sprites
 
 - **What it does:** characters on stage, their faces following the reply.
 - **Cost:** an expression pick per reply: the judge, else the expression model.
-- **Where:** a sprite pack per character (`characters/<name>/`), and **Orchestrator → Defaults → Character stage**.
+- **Where:** a sprite pack per character (`characters/<name>/`), and **Settings → Features → Character stage**.
   The stage starts on **Automatic**: it shows when a story directs it.
 - **How to check:** the stage shows in Visual Novel mode (`/vn`), or always with **Show stage** set to Always.
-  <!-- so:show open:orchestrator.defaults.so-feature-sprites-enabled -->
+  <!-- so:show open:orchestrator.images.so-sprite-enabled -->
 
 ### One GPU for text and pictures
 
 - **What it does:** a local text model and local pictures take turns on one graphics card.
 - **Cost:** no model calls; replies wait while a picture renders.
 - **Where:** `npm run plugin:install -- --with gpu`, a `config.json` with `"adapter": "observe"` to start, restart.
-  Status shows near **Orchestrator → Connections → Images**.
+  Status shows near **Settings → Images & stage**.
 - **How to check:** the repair card no longer says pictures and the local text model share one GPU with nothing
   taking turns. Only needed for a local text model and local pictures on the same card.
 
@@ -188,8 +189,8 @@ without an error and the repair card says why. More: [Illustrations](images.md),
 
 ## Level 5: feature defaults
 
-**Orchestrator → Defaults** holds one card per feature. Each switch is the default for every chat, and off there is a
-master switch. A story can turn a feature off for itself, and **This story → Features** can change it for one chat.
+**Settings → Features** holds one card per feature. Each switch is the default for every chat, and off there is a
+master switch. A story can turn a feature off for itself, and **This chat → Story settings** can change it for one chat.
 Every feature is on by default; the character stage is on in its automatic form. <!-- so:show setup:defaults -->
 
 | Feature | What it does | Cost | Turn it off when |
@@ -226,7 +227,7 @@ Every feature is on by default; the character stage is on in its automatic form.
 | **Character stage** | Shows the speaking characters and their expressions. | An expression pick per reply. | You never want the stage. |
 | **Character poses** | Uses the story's body-pose library on the stage. | Body renders on ComfyUI when a pose is needed. | You have no ComfyUI pose setup. |
 
-The judge checks behind a feature are listed on that feature's card and switched in **Orchestrator → Connections →
+The judge checks behind a feature are listed on that feature's card and switched in **Settings → Models →
 Judge**. Every control is listed in the [Settings reference](settings-reference.md).
 
 ## Level 6: author-side
@@ -237,22 +238,22 @@ Author view spoils the story it is turned on in, so it asks first. More: [Writin
 
 - **What it does:** shows tracked values, the scheduler, the next prompt and review cards, for one chat.
 - **Cost:** none.
-- **Where:** **This story → Author → Show author view**, then confirm.
+- **Where:** **This chat → Author → Show author view**, then confirm.
 - **How to check:** extra tabs for the story's state, the background work and the next prompt appear, for this chat only. <!-- so:show author:author-view -->
 
 ### A story's own feature choices
 
 - **What it does:** each story runs with the features it was written for.
 - **Cost:** none.
-- **Where:** **Orchestrator → Library → Open Studio**, the story's [feature policies](../author/fields/story.md#feature-policies).
-- **How to check:** **This story → Features** says "Turned off by this story" on a declined feature.
+- **Where:** **Settings → Library → Open Studio**, the story's [feature policies](../author/fields/story.md#feature-policies).
+- **How to check:** **This chat → Story settings** says "Turned off by this story" on a declined feature.
   <!-- so:show author:studio -->
 
 ### One chat's preferences
 
 - **What it does:** tries a setting in one chat without touching the install or the story.
 - **Cost:** whatever the feature costs.
-- **Where:** **This story → Features**, any feature card. A feature off in **Defaults** cannot be turned on for one
+- **Where:** **This chat → Story settings**, any feature row. A feature off in **Settings → Features** cannot be turned on for one
   chat.
 - **How to check:** the source chip says **This chat**; **Reset to story/default** puts it back.
 
@@ -260,7 +261,7 @@ Author view spoils the story it is turned on in, so it asks first. More: [Writin
 
 - **What it does:** lorebook changes and continuity notes you accept, applied at the end of the next reply.
 - **Cost:** none beyond the curator's own calls.
-- **Where:** **This story → Review**, in Author view.
+- **Where:** **This chat → Review**, in Author view.
 - **How to check:** an accepted change applies at the end of the next reply, and a rollback reverts it.
   <!-- so:show author:review -->
 

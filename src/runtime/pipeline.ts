@@ -56,7 +56,7 @@ export const HUD_COPY = {
   cardLabel: "Story card",
   cardClose: "Close the story card",
   cardMore: "Story window",
-  cardMoreTitle: "Open This story → Play",
+  cardMoreTitle: "Open This chat → Play",
   cardTabs: "Open the story sheet on a page",
   cardLevel: "Notes under messages",
   sheet: "Story sheet",
@@ -107,6 +107,8 @@ export const mutedMembersText = (names: string[]): string =>
 export const TRANSPORT_PLAYER_TEXT ="The memory model is not answering — the story will catch up when it does.";
 
 export const pipelineAction = (status: PipelineStatus): string | null => (status.nextAction ? PIPELINE_ACTION_COPY[status.nextAction] : null);
+
+export const statusSentence = (status: PipelineStatus): string => (status.nextAction && status.nextAction !== "wait" ? `${status.text} ${PIPELINE_ACTION_COPY[status.nextAction]}` : status.text);
 
 /**
  * A generated draft is in flight. It is the one thing the machine does that the player

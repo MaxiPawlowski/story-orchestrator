@@ -5,8 +5,14 @@ import { ASPECTS, familyOf, SHOTS, type Aspect, type Placement, type Purpose, ty
 import { type ImageRoute, type ImageSettings } from "./settings";
 import { startImage } from "./start";
 import { guideUrl } from "@features/guideLinks";
-import { Advanced, CheckRow, FieldLabel } from "@components/settings/Field";
+import { settingCopy } from "@features/settingsCopy";
+import { CheckRow, FieldLabel, HelpText } from "@components/settings/Field";
 import { ProfileOptions } from "@components/settings/ProfileOptions";
+import { SettingRow } from "@components/ui/SettingRow";
+import { Section } from "@components/ui/Section";
+import { Select, TextInput } from "@components/ui/Field";
+import { Button } from "@components/ui/Button";
+import { Card } from "@components/ui/Card";
 import { comfyDiscover } from "@services/stHost/media";
 import { FAMILIES } from "./catalog";
 import GpuBrokerLine from "./GpuBrokerLine";
@@ -28,7 +34,11 @@ const useImage = (manager: RuntimeManager) => {
   return image;
 };
 
-export default function ImageGroup({ manager }: { manager: RuntimeManager }) {
+export type ImageView = "main" | "picture-types" | "model-sources";
+
+const copyRow = (key: Parameters<typeof settingCopy>[0]) => ({ label: settingCopy(key).label, description: <HelpText text={settingCopy(key).help} /> });
+
+export default function ImageGroup({ manager, view = "main", onOpenView }: { manager: RuntimeManager; view?: ImageView; onOpenView?: (view: Exclude<ImageView, "main">) => void }) {
   const image = useImage(manager);
   const [selectedPurpose, setSelectedPurpose] = useState<Purpose>("scene");
   const [testResult, setTestResult] = useState<string | null>(null);
@@ -42,117 +52,104 @@ export default function ImageGroup({ manager }: { manager: RuntimeManager }) {
   const entry = settings.purposes[selectedPurpose];
   const routeId = (field: string) => `so-image-route-${field}`;
   const guide = guideUrl("setup/images.md");
+  if (view === "model-sources") return <Section id="so-image-model-sources" title="Model sources" level={3} description="Civitai and Hugging Face keys used to download image models.">
+    <ModelSources />
+  </Section>;
+  if (view === "picture-types") return <Section id="so-image-routes" title="Picture types" level={3}
+    description="These are install defaults. A story supplies what to draw; each picture type picks the model, size and placement.">
+    <SettingRow label="Picture type" htmlFor={routeId("purpose")} description="Choose which kind of picture to edit below."
+      control={<Select id={routeId("purpose")} size="sm" value={selectedPurpose} onChange={(event) => setSelectedPurpose(event.target.value as Purpose)}>
+        {PURPOSES.map((purpose) => <option key={purpose} value={purpose}>{purpose}</option>)}
+      </Select>} />
+    <fieldset className="so-fieldset">
+      <legend>{selectedPurpose}</legend>
+      {settings.backend === "comfy" && <>
+        <Button className="self-start" size="sm" onClick={() => {
+          void comfyDiscover().then((models) => setInstalled(models.checkpoints)).catch((error) => setTestResult(String(error)));
+        }}>Discover installed image models</Button>
+        <FieldLabel htmlFor={routeId("family")} setting="image.purposes.*.family" />
+        <Select id={routeId("family")} value={entry.family} onChange={(event) => route(selectedPurpose, { family: event.target.value })}>
+          {Object.values(FAMILIES).map((family) => <option key={family.id} value={family.id}>{family.label}</option>)}
+        </Select>
+        <FieldLabel htmlFor={routeId("checkpoint")} setting="image.purposes.*.checkpoint" />
+        <Select id={routeId("checkpoint")} size="lg" value={entry.checkpoint} onChange={(event) => route(selectedPurpose, { checkpoint: event.target.value })}>
+          <option value="">Pick the one installed {FAMILIES[entry.family]?.label ?? "matching"} model</option>
+          {[...new Set([entry.checkpoint, ...installed])].filter(Boolean).map((file) => <option key={file} value={file}>
+            {file}{familyNote(file, entry.family)}</option>)}
+        </Select>
+      </>}
+      <SettingRow {...copyRow("image.purposes.*.quality")} htmlFor={routeId("quality")}
+        control={<Select id={routeId("quality")} size="sm" value={entry.quality} onChange={(event) => route(selectedPurpose, { quality: event.target.value as Quality })}>{option(quality)}</Select>} />
+      <SettingRow {...copyRow("image.purposes.*.aspect")} htmlFor={routeId("aspect")}
+        control={<Select id={routeId("aspect")} size="sm" value={entry.aspect}
+          onChange={(event) => route(selectedPurpose, { aspect: event.target.value as Aspect | "auto" })}>{option(["auto", ...ASPECTS])}</Select>} />
+      <SettingRow {...copyRow("image.purposes.*.shot")} htmlFor={routeId("shot")}
+        control={<Select id={routeId("shot")} size="sm" value={entry.shot} onChange={(event) => route(selectedPurpose, { shot: event.target.value as Shot })}>{option(SHOTS)}</Select>} />
+      <SettingRow {...copyRow("image.purposes.*.placement")} htmlFor={routeId("placement")}
+        control={<Select id={routeId("placement")} size="sm" value={entry.placement}
+          onChange={(event) => route(selectedPurpose, { placement: event.target.value as Placement })}>{option(PLACEMENTS)}</Select>} />
+      <SettingRow {...copyRow("image.purposes.*.candidates")} htmlFor={routeId("candidates")}
+        control={<TextInput id={routeId("candidates")} size="xs" type="number" min={1} max={4} value={entry.candidates}
+          onChange={(event) => route(selectedPurpose, { candidates: Number(event.target.value) })} />} />
+      <CheckRow id={routeId("override")} setting="image.purposes.*.directorMayOverride" checked={entry.directorMayOverride}
+        onChange={(on) => route(selectedPurpose, { directorMayOverride: on })} />
+      <FieldLabel htmlFor={routeId("positive")} setting="image.purposes.*.extraPositive" />
+      <TextInput id={routeId("positive")} value={entry.extraPositive} onChange={(event) => route(selectedPurpose, { extraPositive: event.target.value })} />
+      <FieldLabel htmlFor={routeId("negative")} setting="image.purposes.*.extraNegative" />
+      <TextInput id={routeId("negative")} value={entry.extraNegative} onChange={(event) => route(selectedPurpose, { extraNegative: event.target.value })} />
+    </fieldset>
+    {testResult && <p role="status">{testResult}</p>}
+  </Section>;
   return (
-    <details id="so-image-settings" className="rounded border border-[var(--SmartThemeBorderColor)] p-2 text-sm">
-      <summary className="cursor-pointer font-semibold">Image service <span className="opacity-70 font-normal">— this install</span></summary>
-      <div className="flex flex-col gap-2 py-2">
-        <p>Uses your image service. Story authors choose scenes and style; players can pause pictures for their chat.
-          Pictures are drawn after the text is done. Advanced edits use ComfyUI and the optional media plugin.</p>
-        <CheckRow id="so-image-enabled" setting="image.enabled" checked={settings.enabled} onChange={(on) => change({ enabled: on })} />
-        <FieldLabel htmlFor="so-image-backend" setting="image.backend" />
-        <select id="so-image-backend" className="text_pole" value={settings.backend} onChange={(event) => change({ backend: event.target.value as ImageSettings["backend"] })}>
-          <option value="st">Use SillyTavern Image Generation settings</option><option value="comfy">Advanced ComfyUI recipes</option>
-        </select>
-        <button id="so-image-test" type="button" className="st-button" disabled={testing} onClick={() => {
-          setTesting(true); setTestResult(null);
-          void image.direct({ purpose: "free", text: "A small still life of a red apple on a wooden table", raw: true, messageId: null }, { placement: "message", candidates: 1 })
-            .then((path) => setTestResult(path ? `Test render saved: ${path}` : "Test render discarded."))
-            .catch((error) => setTestResult(error instanceof Error ? error.message : String(error)))
-            .finally(() => setTesting(false));
-        }}>Test render</button>
-        {testResult && <p role="status">{testResult}</p>}
-        <div className="flex flex-col gap-1">
-          <FieldLabel htmlFor="so-image-mode" setting="image.automation.mode" />
-          <select id="so-image-mode" className="text_pole" value={settings.automation.mode} onChange={(event) => change({
-            automation: { ...settings.automation, mode: event.target.value as ImageSettings["automation"]["mode"] },
-          })}>
-            <option value="manual">Manual only</option><option value="story">Story-authored moments</option>
-            <option value="everyN">Every N turns + story moments</option><option value="tool">Model requests</option>
-          </select>
-        </div>
-        {settings.automation.mode === "everyN" && <div className="flex flex-col gap-1">
-          <FieldLabel htmlFor="so-image-every-n" setting="image.automation.everyN" />
-          <input id="so-image-every-n" type="number" min={1} max={100} className="text_pole" value={settings.automation.everyN} onChange={(event) => change({
-            automation: { ...settings.automation, everyN: Math.max(1, Number(event.target.value)) },
-          })} />
-        </div>}
-        <div className="flex flex-col gap-1">
-          <FieldLabel htmlFor="so-image-automatic-route" setting="image.automaticRoute" />
-          <select id="so-image-automatic-route" className="text_pole" value={settings.automaticRoute}
-            onChange={(event) => change({ automaticRoute: event.target.value as ImageSettings["automaticRoute"] })}>
-            <option value="auto">Auto: references when every character is prepared</option><option value="sdxl">Always SDXL tags</option>
-            <option value="qwen">References only (skip otherwise)</option>
-          </select>
-        </div>
-        <div className="flex flex-col gap-1">
-          <FieldLabel htmlFor="so-image-profile" setting="image.directorProfileId" />
-          <select id="so-image-profile" className="text_pole" value={settings.directorProfileId} onChange={(event) => change({ directorProfileId: event.target.value })}>
-            <option value="">Template prompt (no extra model)</option>
-            <ProfileOptions profiles={profiles} />
-          </select>
-        </div>
-        <div className="flex flex-col gap-1">
-          <FieldLabel htmlFor="so-image-comfy-url" setting="image.comfyUrl" />
-          <input id="so-image-comfy-url" className="text_pole" value={settings.comfyUrl} placeholder="http://127.0.0.1:8188" onChange={(event) => change({ comfyUrl: event.target.value })} />
-        </div>
-        <GpuBrokerLine />
-        <CheckRow id="so-image-safe-mode" setting="image.safeMode" checked={settings.safeMode} onChange={(on) => change({ safeMode: on })} />
-        {guide && <a id="so-image-guide" className="text-xs underline" href={guide} target="_blank" rel="noreferrer">How illustrations are set up</a>}
-        <Advanced id="so-image-routes" label="Picture types">
-          <p className="text-xs opacity-80">These are install defaults. A story supplies what to draw; each picture type picks the model, size and placement.</p>
-          <FieldLabel htmlFor={routeId("purpose")} label="Picture type" help="Choose which kind of picture to edit below." />
-          <select id={routeId("purpose")} className="text_pole" value={selectedPurpose} onChange={(event) => setSelectedPurpose(event.target.value as Purpose)}>
-            {PURPOSES.map((purpose) => <option key={purpose} value={purpose}>{purpose}</option>)}
-          </select>
-          <fieldset className="my-2 flex flex-col gap-1 rounded border p-2">
-            <legend className="font-semibold">{selectedPurpose}</legend>
-            {settings.backend === "comfy" && <>
-              <button type="button" className="st-button" onClick={() => {
-                void comfyDiscover().then((models) => setInstalled(models.checkpoints)).catch((error) => setTestResult(String(error)));
-              }}>Discover installed image models</button>
-              <FieldLabel htmlFor={routeId("family")} setting="image.purposes.*.family" />
-              <select id={routeId("family")} className="text_pole" value={entry.family} onChange={(event) => route(selectedPurpose, { family: event.target.value })}>
-                {Object.values(FAMILIES).map((family) => <option key={family.id} value={family.id}>{family.label}</option>)}
-              </select>
-              <FieldLabel htmlFor={routeId("checkpoint")} setting="image.purposes.*.checkpoint" />
-              <select id={routeId("checkpoint")} className="text_pole" value={entry.checkpoint} onChange={(event) => route(selectedPurpose, { checkpoint: event.target.value })}>
-                <option value="">Pick the one installed {FAMILIES[entry.family]?.label ?? "matching"} model</option>
-                {[...new Set([entry.checkpoint, ...installed])].filter(Boolean).map((file) => <option key={file} value={file}>
-                  {file}{familyNote(file, entry.family)}</option>)}
-              </select>
-            </>}
-            <FieldLabel htmlFor={routeId("quality")} setting="image.purposes.*.quality" />
-            <select id={routeId("quality")} className="text_pole" value={entry.quality} onChange={(event) => route(selectedPurpose, { quality: event.target.value as Quality })}>
-              {option(quality)}
-            </select>
-            <FieldLabel htmlFor={routeId("aspect")} setting="image.purposes.*.aspect" />
-            <select id={routeId("aspect")} className="text_pole" value={entry.aspect} onChange={(event) => route(selectedPurpose, { aspect: event.target.value as Aspect | "auto" })}>
-              {option(["auto", ...ASPECTS])}
-            </select>
-            <FieldLabel htmlFor={routeId("shot")} setting="image.purposes.*.shot" />
-            <select id={routeId("shot")} className="text_pole" value={entry.shot} onChange={(event) => route(selectedPurpose, { shot: event.target.value as Shot })}>
-              {option(SHOTS)}
-            </select>
-            <FieldLabel htmlFor={routeId("placement")} setting="image.purposes.*.placement" />
-            <select id={routeId("placement")} className="text_pole" value={entry.placement} onChange={(event) => route(selectedPurpose, { placement: event.target.value as Placement })}>
-              {option(PLACEMENTS)}
-            </select>
-            <FieldLabel htmlFor={routeId("candidates")} setting="image.purposes.*.candidates" />
-            <input id={routeId("candidates")} className="text_pole" type="number" min={1} max={4} value={entry.candidates}
-              onChange={(event) => route(selectedPurpose, { candidates: Number(event.target.value) })} />
-            <CheckRow id={routeId("override")} setting="image.purposes.*.directorMayOverride" checked={entry.directorMayOverride}
-              onChange={(on) => route(selectedPurpose, { directorMayOverride: on })} />
-            <FieldLabel htmlFor={routeId("positive")} setting="image.purposes.*.extraPositive" />
-            <input id={routeId("positive")} className="text_pole" value={entry.extraPositive} onChange={(event) => route(selectedPurpose, { extraPositive: event.target.value })} />
-            <FieldLabel htmlFor={routeId("negative")} setting="image.purposes.*.extraNegative" />
-            <input id={routeId("negative")} className="text_pole" value={entry.extraNegative} onChange={(event) => route(selectedPurpose, { extraNegative: event.target.value })} />
-          </fieldset>
-        </Advanced>
-        <Advanced id="so-image-model-sources" label="Model sources (Civitai, Hugging Face)">
-          <ModelSources />
-        </Advanced>
-        <p className="text-xs opacity-80">Character appearances belong to the story. Edit them in Studio → Presentation.</p>
-      </div>
-    </details>
+    <Section id="so-image-settings" title="Illustrations" level={3}
+      description="Uses your image service. Story authors choose scenes and style; players can pause pictures for their chat. Pictures are drawn after the text is done.">
+      <CheckRow id="so-image-enabled" setting="image.enabled" checked={settings.enabled} onChange={(on) => change({ enabled: on })} />
+      <SettingRow {...copyRow("image.backend")} htmlFor="so-image-backend"
+        control={<>
+          <Select id="so-image-backend" size="lg" value={settings.backend} onChange={(event) => change({ backend: event.target.value as ImageSettings["backend"] })}>
+            <option value="st">Use SillyTavern Image Generation settings</option><option value="comfy">Advanced ComfyUI recipes</option>
+          </Select>
+          <Button id="so-image-test" size="sm" busy={testing} onClick={() => {
+            setTesting(true); setTestResult(null);
+            void image.direct({ purpose: "free", text: "A small still life of a red apple on a wooden table", raw: true, messageId: null }, { placement: "message", candidates: 1 })
+              .then((path) => setTestResult(path ? `Test render saved: ${path}` : "Test render discarded."))
+              .catch((error) => setTestResult(error instanceof Error ? error.message : String(error)))
+              .finally(() => setTesting(false));
+          }}>Test render</Button>
+        </>} />
+      {testResult && <p role="status">{testResult}</p>}
+      <SettingRow {...copyRow("image.automation.mode")} htmlFor="so-image-mode"
+        control={<Select id="so-image-mode" size="lg" value={settings.automation.mode} onChange={(event) => change({
+          automation: { ...settings.automation, mode: event.target.value as ImageSettings["automation"]["mode"] },
+        })}>
+          <option value="manual">Only when asked</option><option value="story">Story moments</option>
+          <option value="everyN">Every few replies, and story moments</option><option value="tool">When the model asks</option>
+        </Select>} />
+      {settings.automation.mode === "everyN" && <SettingRow {...copyRow("image.automation.everyN")} htmlFor="so-image-every-n"
+        control={<TextInput id="so-image-every-n" size="xs" type="number" min={1} max={100} value={settings.automation.everyN} onChange={(event) => change({
+          automation: { ...settings.automation, everyN: Math.max(1, Number(event.target.value)) },
+        })} />} />}
+      <SettingRow {...copyRow("image.automaticRoute")} htmlFor="so-image-automatic-route"
+        control={<Select id="so-image-automatic-route" size="lg" value={settings.automaticRoute}
+          onChange={(event) => change({ automaticRoute: event.target.value as ImageSettings["automaticRoute"] })}>
+          <option value="auto">Auto: references when every character is prepared</option><option value="sdxl">Always SDXL tags</option>
+          <option value="qwen">References only (skip otherwise)</option>
+        </Select>} />
+      <SettingRow {...copyRow("image.directorProfileId")} htmlFor="so-image-profile"
+        control={<Select id="so-image-profile" size="lg" value={settings.directorProfileId} onChange={(event) => change({ directorProfileId: event.target.value })}>
+          <option value="">Template prompt (no extra model)</option>
+          <ProfileOptions profiles={profiles} />
+        </Select>} />
+      <SettingRow {...copyRow("image.comfyUrl")} htmlFor="so-image-comfy-url"
+        control={<TextInput id="so-image-comfy-url" size="lg" value={settings.comfyUrl} placeholder="http://127.0.0.1:8188" onChange={(event) => change({ comfyUrl: event.target.value })} />} />
+      <GpuBrokerLine />
+      <CheckRow id="so-image-safe-mode" setting="image.safeMode" checked={settings.safeMode} onChange={(on) => change({ safeMode: on })} />
+      {onOpenView && <div className="so-subpage-links">
+        <Card interactive id="so-image-open-picture-types" onClick={() => onOpenView("picture-types")} title="Picture types">Model, size and placement for each kind of picture.</Card>
+        <Card interactive id="so-image-open-model-sources" onClick={() => onOpenView("model-sources")} title="Model sources">Civitai and Hugging Face keys for downloads.</Card>
+      </div>}
+      {guide && <a id="so-image-guide" className="so-setting-desc" href={guide} target="_blank" rel="noreferrer">How illustrations are set up</a>}
+      <p className="so-setting-desc">Character appearances belong to the story. Edit them in Studio → Presentation.</p>
+    </Section>
   );
 }

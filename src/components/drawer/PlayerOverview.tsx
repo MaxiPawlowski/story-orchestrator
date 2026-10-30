@@ -1,14 +1,9 @@
+import type { ReactNode } from "react";
 import { PLAYER_COPY, requirementNotReadyText, rollbackNoticeText, rollbackUnavailableText, type RequirementKind } from "@runtime/narrative";
-import { pipelineAction as pipelineActionText } from "@runtime/pipeline";
+import { statusSentence } from "@runtime/pipeline";
 import type { RuntimeSnapshot } from "@runtime/types";
-import { shownCarry, shownPromises } from "@runtime/surfaceShown";
-import { Lazy } from "@components/Lazy";
-import { lazyRetry } from "@utils/lazyRetry";
 import { StatusIcon } from "@components/ui/StatusDot";
-
-const PlayerChapters = lazyRetry(() => import("./PlayerChapters"));
-const PlayerPromises = lazyRetry(() => import("./PlayerPromises"));
-const CarryCard = lazyRetry(() => import("@components/carry/CarryCard"));
+import { Button } from "@components/ui/Button";
 
 export interface PlayerOverviewProps {
   snapshot: RuntimeSnapshot;
@@ -16,14 +11,19 @@ export interface PlayerOverviewProps {
   onReread?: () => void;
   onRestart?: () => void;
   onRetry?: () => void;
-  onFlagChapter?: (title: string) => void;
-  onDismissPreviously?: () => void;
+  setupCovers?: boolean;
+  children?: ReactNode;
 }
 
-// The default (player) surface: the narrative composition the runtime already builds, plus the
-// honest working/stuck/not-configured line. Nothing here may name a checkpoint the player has not
-// reached, a gate, a counter or a control that steers the story (spec addendum §Personas).
 const ATTENTION_STATES = new Set(["stalled-rechecking", "error", "not-configured"]);
+
+export const SETUP_COVERS_TEXT = "Paused until the setup below is fixed.";
+
+export const chapterChip = (snapshot: Pick<RuntimeSnapshot, "chapters">, headline: string): string | null => {
+  const current = snapshot.chapters?.declared ? snapshot.chapters.current : null;
+  if (!current || current.interlude) return null;
+  return current.playerTitle && current.playerTitle !== headline ? `Chapter ${current.number} · ${current.playerTitle}` : `Chapter ${current.number}`;
+};
 
 const MissingRequirements = ({ snapshot }: { snapshot: RuntimeSnapshot }) => {
   const all: Array<{ kind: RequirementKind; missing: string[] }> = [
@@ -34,94 +34,56 @@ const MissingRequirements = ({ snapshot }: { snapshot: RuntimeSnapshot }) => {
   const items = all.filter((item) => item.missing.length > 0);
   if (!items.length) return null;
   return (
-    <div id="so-player-requirements" className="flex flex-col gap-1">
-      <div className="font-medium">{PLAYER_COPY.requirementsHeading}</div>
+    <div id="so-player-requirements" className="so-scene-notes">
+      <p className="so-play-label">{PLAYER_COPY.requirementsHeading}</p>
       {items.map((item) => (
-        <div key={item.kind} className="flex items-center gap-2 text-xs">
+        <p key={item.kind} className="so-scene-note">
           <StatusIcon tone="error" />
           <span>{requirementNotReadyText(item.kind)}</span>
-        </div>
+        </p>
       ))}
     </div>
   );
 };
 
-const NowSection = ({ lines }: { lines: string[] }) => (
-  <div className="checkpoints-wrapper flex flex-col gap-1">
-    <div className="font-medium">Where you are</div>
-    <div className="st-checkpoint-row status-current flex flex-col gap-1 rounded-md px-3 py-2">
-      <div className="font-semibold">{lines[0]}</div>
-      {lines.slice(1).map((line) => <div key={line} className="text-sm opacity-80">{line}</div>)}
-    </div>
-  </div>
-);
-
-export const PlayerOverview = ({ snapshot, onOpenSettings, onReread, onRestart, onRetry, onFlagChapter, onDismissPreviously }: PlayerOverviewProps) => {
+export const PlayerOverview = ({ snapshot, onOpenSettings, onReread, onRestart, onRetry, setupCovers = false, children }: PlayerOverviewProps) => {
   const { narrative, pipeline } = snapshot;
-  const pipelineAction = pipelineActionText(pipeline);
-  const promises = shownPromises(snapshot);
-  const carry = shownCarry(snapshot);
-  const sections = narrative.sections.filter((section) => section.id !== "status");
-  const statusNotes = (narrative.sections.find((section) => section.id === "status")?.lines ?? []).filter((line) => line !== pipeline.text);
+  const now = narrative.sections.find((section) => section.id === "now")?.lines ?? [];
+  const headline = narrative.headline || now[0] || PLAYER_COPY.currentScene;
+  const lines = now.filter((line) => line !== headline);
+  const chip = chapterChip(snapshot, headline);
+  const covered = setupCovers && pipeline.needsSetup;
+  const notes = (narrative.sections.find((section) => section.id === "status")?.lines ?? []).filter((line) => line !== pipeline.text);
   return (
-    <div id="so-player-overview" className="flex flex-col gap-3">
-      {sections.map((section) => (
-        section.id === "now"
-          ? <NowSection key={section.id} lines={section.lines} />
-          : section.id === "chapters" && snapshot.chapters?.records.length
-          ? <Lazy key={section.id} fallback={null}><PlayerChapters chapters={snapshot.chapters} onFlag={onFlagChapter} /></Lazy>
-          : (
-            <div key={section.id} className="flex flex-col gap-1">
-              <div className="font-medium">{section.label}</div>
-              {section.lines.map((line) => <div key={line} className="text-sm opacity-80 whitespace-pre-wrap">{line}</div>)}
-            </div>
-          )
-      ))}
-      {promises ? <Lazy fallback={null}><PlayerPromises promises={promises} /></Lazy> : null}
-      {carry ? <Lazy fallback={null}><CarryCard view={carry} onDismiss={onDismissPreviously} /></Lazy> : null}
-      {snapshot.lastRollback && (
-        <div id="so-rollback-notice" className="text-xs opacity-90">
-          {rollbackNoticeText(snapshot.lastRollback)}
-        </div>
-      )}
-      {/* E1: an edit the run cannot rewind to. The player is told plainly and offered both ways out
-          the sentence names, right where it names them: rebuild from here, or start over. */}
+    <section id="so-player-overview" data-so="scene-header" className="so-scene" aria-labelledby="so-scene-title">
+      <header id="so-scene-header" className="so-scene-head">
+        <h2 id="so-scene-title" className="so-scene-title">{headline}</h2>
+        {chip && <span data-so="scene-chapter" className="so-scene-chip">{chip}</span>}
+      </header>
+      {lines.map((line) => <p key={line} className="so-scene-line">{line}</p>)}
+      <div id="so-pipeline-status" className="so-scene-status" data-state={pipeline.state}>
+        <span id={ATTENTION_STATES.has(pipeline.state) ? "so-stall-signal" : undefined}>{covered ? SETUP_COVERS_TEXT : statusSentence(pipeline)}</span>
+        {pipeline.retryable && onRetry && (
+          <Button id="so-pipeline-retry" size="sm" icon="fa-rotate" onClick={onRetry}>{PLAYER_COPY.retryButton}</Button>
+        )}
+        {pipeline.needsSetup && !covered && onOpenSettings && (
+          <Button id="so-open-story-settings" size="sm" icon="fa-gear" onClick={onOpenSettings}>{PLAYER_COPY.openSettingsButton}</Button>
+        )}
+        {notes.map((line) => <span key={line} data-so="status-note">{line}</span>)}
+      </div>
+      {snapshot.lastRollback && <p id="so-rollback-notice" className="so-scene-note">{rollbackNoticeText(snapshot.lastRollback)}</p>}
       {snapshot.rollbackUnavailable && (
-        <div id="so-rollback-unavailable" className="flex flex-col gap-1 text-xs opacity-90" role="status">
-          <span>{rollbackUnavailableText({ ...snapshot.rollbackUnavailable, checkpointName: "the current scene" })}</span>
-          {onReread && (
-            <button id="so-reread-checkpoint" type="button" className="menu_button self-start" onClick={onReread}>
-              {PLAYER_COPY.rereadButton}
-            </button>
-          )}
-          {onRestart && (
-            <button id="so-rollback-restart" type="button" className="menu_button self-start" onClick={onRestart}>
-              {PLAYER_COPY.restartButton}
-            </button>
-          )}
+        <div id="so-rollback-unavailable" className="so-scene-notes" role="status">
+          <p className="so-scene-note">{rollbackUnavailableText({ ...snapshot.rollbackUnavailable, checkpointName: "the current scene" })}</p>
+          <div className="so-actions">
+            {onReread && <Button id="so-reread-checkpoint" size="sm" onClick={onReread}>{PLAYER_COPY.rereadButton}</Button>}
+            {onRestart && <Button id="so-rollback-restart" size="sm" variant="danger" onClick={onRestart}>{PLAYER_COPY.restartButton}</Button>}
+          </div>
         </div>
       )}
       <MissingRequirements snapshot={snapshot} />
-      <div id="so-pipeline-status" className={`text-xs flex items-center gap-2 flex-wrap ${pipeline.state === "idle" ? "opacity-70" : "opacity-90"}`}>
-        {ATTENTION_STATES.has(pipeline.state)
-          ? <span id="so-stall-signal">{pipeline.text}</span>
-          : <span>{pipeline.text}</span>}
-        {pipeline.needsSetup && onOpenSettings && (
-          <button id="so-open-story-settings" type="button" className="menu_button" onClick={onOpenSettings}>{PLAYER_COPY.openSettingsButton}</button>
-        )}
-        {/* v2.3 plan 07. The rest of the composition's status section: the pipeline line above is this
-            surface's own, and everything else the narrative put there (a save this chat could not
-            confirm, a route the world has not answered yet) is one sentence about the story that the
-            player must not have to open a popup to read. */}
-        {/* v2.3 plan 09: the state sentence says what the machine is doing, this says whether the
-            player is being asked for something. Same line, no author vocabulary. */}
-        {pipelineAction && <span id="so-pipeline-action" className="opacity-80">{pipelineAction}</span>}
-        {pipeline.retryable && onRetry && (
-          <button id="so-pipeline-retry" type="button" className="menu_button" onClick={onRetry}>{PLAYER_COPY.retryButton}</button>
-        )}
-        {statusNotes.map((line) => <span key={line} data-so="status-note">{line}</span>)}
-      </div>
-    </div>
+      {children}
+    </section>
   );
 };
 

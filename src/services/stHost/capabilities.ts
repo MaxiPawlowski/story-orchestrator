@@ -4,7 +4,6 @@ import { judgeStatus, JUDGE_PLUGIN_BASE } from "./judge";
 import { pluginVersionIssue } from "@utils/pluginVersions";
 import { backgroundsModule } from "./modules";
 import { stImageReadiness } from "./stImage";
-import { mediaStatus, comfyDiscover } from "./media";
 import { listSlashCommands } from "./selectors";
 import { personaCrudAvailable } from "./personas";
 import { getHostVersion, macroEngineInUse } from "./version";
@@ -116,6 +115,7 @@ const wiScanGatingProbe: Probe = async () => {
 const imageProbe: Probe = async () => {
   const st = await stImageReadiness();
   if (st.ready) return present(`SillyTavern's image service (${st.source ?? "source unknown"})`);
+  const { mediaStatus, comfyDiscover } = await import("./media");
   const media = await mediaStatus();
   if (!media) return absent(`${st.reason ?? "No image service is set up."} The optional media plugin is not installed either.`);
   await comfyDiscover();

@@ -4,7 +4,7 @@ import { isRecord } from "@utils/guards";
 import { DEFAULT_CHAPTER_SETTINGS } from "./chapters";
 import { DEFAULT_REPLY_EFFORT } from "@utils/reasoningEffort";
 import type { GlobalSettings } from "./settingsModel";
-import { FEATURE_CONTROLS } from "./featureControls";
+import { FEATURE_CONTROL_PATHS } from "./featureControlPaths";
 
 export type FeatureSource = "install" | "story" | "chat" | "device";
 export interface ResolvedControl {
@@ -63,11 +63,11 @@ export const resolveFeatures = (global: GlobalSettings, story: Pick<Story, "feat
   return Object.fromEntries(STORY_FEATURE_IDS.map((id) => {
     const policy = authored[id];
     const chat = overrides[id];
-    const master = FEATURE_CONTROLS[id].controls[0];
+    const master = FEATURE_CONTROL_PATHS[id][0];
     const masterOff = id === "sprites" ? global.sprites.explicit && !global.sprites.enabled : defaultValue(global, id, "enabled", master.path) === false;
     const declined = policy === "off" || policy?.enabled === false;
     const controls: Record<string, ResolvedControl> = {};
-    for (const control of FEATURE_CONTROLS[id].controls) {
+    for (const control of FEATURE_CONTROL_PATHS[id]) {
       const value = defaultValue(global, id, control.field, control.path);
       const authoredValue = policy && policy !== "off" ? policy[control.field] : undefined;
       const storyValue = authoredValue ?? (id === "thinking" && control.field === "effort" ? story?.reasoning : id === "polish" && control.field === "mode" ? story?.polish?.mode : undefined);
@@ -88,7 +88,7 @@ export const featureSettings = (global: GlobalSettings, features: ResolvedFeatur
   const result = { ...global };
   for (const id of STORY_FEATURE_IDS) {
     const feature = features[id];
-    for (const control of FEATURE_CONTROLS[id].controls) {
+    for (const control of FEATURE_CONTROL_PATHS[id]) {
       let value = feature.controls[control.field].value;
       if (id === "inner" && control.field === "fanOut") value = value === "top2" ? "top2" : "next";
       writeSettingPath(result, control.path, value);

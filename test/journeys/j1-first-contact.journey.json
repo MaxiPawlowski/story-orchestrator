@@ -89,7 +89,7 @@
           }
         },
         {
-          "eval": "let details = null; for (let tick = 0; tick < 40 && !details; tick += 1) { details = document.getElementById('so-area-memory'); if (!details) await new Promise((resolve) => setTimeout(resolve, 250)); } if (!details) throw new Error('the Memory section (#so-area-memory) is missing from the workspace Connections page'); details.open = true; return { memorySectionOpen: details.open };"
+          "eval": "let select = null; for (let tick = 0; tick < 40 && !select; tick += 1) { select = document.getElementById('so-extraction-profile'); if (!select) await new Promise((resolve) => setTimeout(resolve, 250)); } if (!select) throw new Error('the memory model picker (#so-extraction-profile) is missing from Settings, Models'); return { memoryModelShown: true };"
         },
         {
           "ui": {
@@ -266,7 +266,7 @@
       "goal": "after configuring the memory model in the settings panel, the first real transition fires",
       "steps": [
         {
-          "eval": "const details = document.getElementById('so-area-memory'); if (!details) throw new Error('the Memory section (#so-area-memory) is missing from the settings panel'); details.open = true; return { memorySectionOpen: details.open };"
+          "eval": "const select = document.getElementById('so-extraction-profile'); if (!select) throw new Error('the memory model picker (#so-extraction-profile) is missing from Settings, Models'); return { memoryModelShown: true };"
         },
         {
           "ui": {

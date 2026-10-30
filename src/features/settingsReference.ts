@@ -3,8 +3,8 @@ import { DEFAULT_CHAPTER_SETTINGS } from "@runtime/chapters";
 import { AUTOMATIC_STAGE } from "@runtime/featureResolve";
 import { FEATURE_CONTROLS } from "@runtime/featureControls";
 import { DEVICE_SETTING_PATHS } from "@runtime/deviceSettings";
-import type { WorkspacePage } from "@runtime/workspaceNavigation";
-import { WORKSPACE_CONTEXT_LABELS as CONTEXT_LABELS, WORKSPACE_PAGES } from "@runtime/workspaceRoutes";
+import type { WorkspaceContext, WorkspacePage } from "@runtime/workspaceNavigation";
+import { FEATURE_INSTALL_HOMES, WORKSPACE_CONTEXT_LABELS as CONTEXT_LABELS, WORKSPACE_PAGES } from "@runtime/workspaceRoutes";
 import { STORY_FEATURE_IDS, type StoryFeatureId } from "@engine/featurePolicy";
 import { AUTHOR_JUDGE_USES, JUDGE_USE_DEPENDENCIES, JUDGE_USE_KEYS, WARDEN_RIDERS, type JudgeUseKey } from "@judge/settings";
 import { JUDGE_USE_COPY } from "@judge/useCopy";
@@ -37,7 +37,8 @@ const EFFECTIVE_DEFAULTS: Record<string, string> = {
 
 const STATUS_LABELS: Record<FeatureStatus, string> = { shipped: "", "off-by-default": "Off by default", experimental: "Experimental" };
 
-const PAGE_LABELS = Object.fromEntries(Object.values(WORKSPACE_PAGES).flat().map((page) => [page.id, page.label])) as Record<WorkspacePage, string>;
+const pageLabel = (context: WorkspaceContext, page: WorkspacePage): string => WORKSPACE_PAGES[context].find((entry) => entry.id === page)?.label ?? page;
+const featuresPageLabel = pageLabel("orchestrator", "features");
 
 export const EXPERIMENT_COPY: Record<SpikeFlag, string> = {
   swipeBackCache: "Swiping back to a reply you saw before restores the story state that reply had, instead of reading it again.",
@@ -83,37 +84,33 @@ const isDeviceSetting = (key: string) => (DEVICE_SETTING_PATHS as readonly strin
 
 const trail = (...parts: string[]) => parts.filter(Boolean).join(" → ");
 
-const DEVICE_LOCATION = trail("Orchestrator", "Interface", "This device");
+const DEVICE_LOCATION = "the This device chip on the same row";
 
 const LOCATION_OVERRIDES: Record<string, string> = {
   "sprites.renderPreset": trail("Studio", "Sprite builder"),
 };
 
 const ownerLocation = (owner: Feature | null): string => {
-  if (!owner) return "Orchestrator";
-  const parts = owner.where.label.split(" › ").filter((part) => part !== "Overview");
+  if (!owner) return CONTEXT_LABELS.orchestrator;
   const intent = owner.where.workspace;
-  if (intent) {
-    const page = intent.page ?? (intent.context === "story" ? "play" : "library");
-    const tail = parts.slice(2);
-    if (page === "features") return trail("Orchestrator", "Connections", SETTINGS_AREA_COPY[owner.area].label, ...tail.slice(-1));
-    return trail(CONTEXT_LABELS[intent.context], PAGE_LABELS[page], ...(page === "interface" ? tail.slice(-1) : tail));
+  if (intent?.context === "story" && intent.page === "features" && intent.feature) {
+    const home = FEATURE_INSTALL_HOMES[intent.feature];
+    return home ? trail(CONTEXT_LABELS.orchestrator, pageLabel("orchestrator", home.page))
+      : trail(CONTEXT_LABELS.orchestrator, featuresPageLabel, FEATURE_CONTROLS[intent.feature].name);
   }
-  const [first, ...rest] = parts;
-  if (first === "Story drawer") return rest[0] === "Author view" ? trail("This story", "Author", ...rest.slice(1)) : trail("This story", "Play", ...rest);
-  if (first === "Settings") {
-    if (/^(Start|Continue|Repair|Author)$/.test(rest[0] ?? "")) return trail("Orchestrator", "Library", ...rest);
-    return rest[0] === "Playing" ? trail("Orchestrator", "Interface", ...rest.slice(-1)) : trail("Orchestrator", "Connections", ...rest);
-  }
-  return trail(...parts);
+  return trail(...owner.where.label.split(" › ").filter((part) => part !== "Overview"));
+};
+
+const featureLocation = (feature: StoryFeatureId): string => {
+  const name = FEATURE_CONTROLS[feature].name;
+  const home = FEATURE_INSTALL_HOMES[feature];
+  const install = home ? trail(CONTEXT_LABELS.orchestrator, pageLabel("orchestrator", home.page)) : trail(CONTEXT_LABELS.orchestrator, featuresPageLabel, name);
+  return `${install}; this chat: ${trail(CONTEXT_LABELS.story, pageLabel("story", "features"), name)}`;
 };
 
 export const locationOf = (key: string, owner: Feature | null): string => {
   const feature = featureControlFor(key);
-  const name = feature ? FEATURE_CONTROLS[feature].name : "";
-  const base = LOCATION_OVERRIDES[key] ?? (feature ? `${trail("Orchestrator", "Defaults", name)}; this chat: ${trail("This story", "Features", name)}`
-    : key.startsWith("display.") ? trail("Orchestrator", "Interface", owner?.where.label.split(" › ").pop() ?? "")
-      : ownerLocation(owner));
+  const base = LOCATION_OVERRIDES[key] ?? (feature ? featureLocation(feature) : ownerLocation(owner));
   return isDeviceSetting(key) ? `${base}; this device: ${DEVICE_LOCATION}` : base;
 };
 
@@ -151,22 +148,24 @@ const moreLink = (doc: string) => (doc.startsWith("author/")
 const SCOPE_INTRO = [
   "## Where settings live",
   "",
-  "Open **Extensions → Story Orchestrator → Open Story Orchestrator**. The window has two halves: **This story** (Play, Features, Review,",
-  "Author) for the chat that is open, and **Orchestrator** (Library, Defaults, Connections, Interface, Help) for the whole install. The route",
-  "icon in SillyTavern's top bar opens **This story → Play**.",
+  "Open **Extensions → Story Orchestrator → Open Story Orchestrator**. The window has two halves: **This chat** (Play and Story settings, plus",
+  "Review and Author in Author view) for the chat that is open, and **Settings** (Library, Features, Models, Judge, Images & stage,",
+  "World & lore, Display, Authoring, Diagnostics, Help) for the whole install. **Search all settings** at the top finds any setting and",
+  "jumps to it. The route icon in SillyTavern's top bar opens **This chat → Play**.",
   "",
   "| Scope | What it holds | Where you change it |",
   "|---|---|---|",
-  "| Install | Model connections, the judge, images, and every feature's default | **Orchestrator → Connections**, **Orchestrator → Defaults** |",
+  "| Install | Model connections, the judge, images, and every feature's default | **Settings → Models**, **Settings → Features** |",
   "| Story | What the story's author chose for a feature (on, off or tuned) | The story itself, in the Studio |",
-  "| Chat | Your change to a feature for this chat only | **This story → Features** |",
-  "| Device | Display and animation preferences, kept in this browser for your SillyTavern account | **Orchestrator → Interface → This device** |",
+  "| Chat | Your change to a feature for this chat only | **This chat → Story settings** |",
+  "| Device | Display and animation preferences, kept in this browser for your SillyTavern account | The **This device** chip on the row "
+    + "(**Settings → Display**, **Settings → Images & stage**) |",
   "",
   "A feature uses the first of: this chat's change, the story's choice, the install default. An install default switched off is a master",
   "switch: no story or chat can turn that feature back on. A device preference changes only how this browser shows things.",
   "",
-  "Worked example: **Speaker direction** is on in **Orchestrator → Defaults**. A story turns it off for its own chats. In one of those chats",
-  "you open **This story → Features → Speaker direction** and switch it on: that chat now uses it, the story's other chats do not, and the",
+  "Worked example: **Speaker direction** is on in **Settings → Features**. A story turns it off for its own chats. In one of those chats",
+  "you open **This chat → Story settings → Speaker direction** and switch it on: that chat now uses it, the story's other chats do not, and the",
   "feature page says this chat re-enables something the story turned off. **Reset to story/default** on the same page drops your change, and",
   "the chat follows the story again.",
   "",

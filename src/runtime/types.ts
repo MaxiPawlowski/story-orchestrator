@@ -561,6 +561,7 @@ export interface RuntimeSnapshot {
   gameAuthor?: GameAuthorView | null;
   lifeAuthor?: LifeAuthorView | null;
   living?: LivingView | null;
+  consoleAuthor?: import("./authorConsole").ConsoleAuthorView | null;
 }
 
 export interface LoadedStory {

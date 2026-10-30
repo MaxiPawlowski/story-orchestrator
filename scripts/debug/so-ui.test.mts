@@ -7,7 +7,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { PLAYER_TEXT_SURFACES, assertPlayerClean, messageTextFindings, SO_IN_MESSAGE_TEXT } from './so-ui.mts';
-import { attributeFindings, surfaceTextFindings, assignedRoleProfiles, branchContinue, closeCharacterPanel, switchDrawerTab, gateReplayHistoryFrom, INLINE_PLAYER_FORBIDDEN_SELECTORS, inlineTextFindings, jumpToCitation, memoryQueueSelector, PLAYER_FORBIDDEN_SELECTORS, PLAYER_RECOVERY_CONTROLS, recoveryControlFindings, errorStateFindings } from './so-ui.mts';
+import { attributeFindings, surfaceTextFindings, assignedRoleProfiles, authorSectionLabel, branchContinue, closeCharacterPanel, switchDrawerTab, gateReplayHistoryFrom, INLINE_PLAYER_FORBIDDEN_SELECTORS, inlineTextFindings, jumpToCitation, memoryQueueSelector, PLAYER_FORBIDDEN_SELECTORS, PLAYER_RECOVERY_CONTROLS, recoveryControlFindings, errorStateFindings } from './so-ui.mts';
 
 test('keep and lock address the side row inside the named pair', () => {
   assert.equal(memoryQueueSelector({ action: 'keep', key: 'fact:abc' }), '[data-so="conflict-pair"][data-key="fact:abc"] [data-so="conflict-keep"] >> nth=0');
@@ -75,6 +75,21 @@ test('T3-4 harness: drawer-tab opens the story drawer itself before it looks for
   } as never;
   const result = await switchDrawerTab(page, 'Memory', { open: async () => { calls.push('open'); drawerState.open = true; } });
   assert.deepEqual([calls, result], [['open', 'click'], { tab: 'Memory', selected: true }]);
+  delete (globalThis as any).document;
+});
+
+test('v3.0 29: drawer-tab takes the old tab labels as aliases of the Author console sections', async () => {
+  assert.deepEqual(['Overview', 'Blackboard', 'Payload', 'Scheduler', 'Review', 'Memory', 'Activity'].map(authorSectionLabel),
+    ['Health', 'State', 'Prompt', 'Pipeline', 'Proposals', 'Memory', 'Activity']);
+  fakeDom(false, false);
+  const asked: string[] = [];
+  const tab = { count: async () => 1, first: () => ({ click: async () => undefined, getAttribute: async () => 'true' }), waitFor: async () => undefined };
+  const page = {
+    evaluate: (fn: (arg?: unknown) => unknown, arg?: unknown) => fn(arg),
+    locator: () => ({ count: async () => 1, locator: (_selector: string, options?: { hasText?: string }) => { asked.push(options?.hasText ?? _selector); return tab; } }),
+  } as never;
+  const result = await switchDrawerTab(page, 'Scheduler', { open: async () => undefined });
+  assert.deepEqual([asked[0], result], ['Pipeline', { tab: 'Pipeline', alias: 'Scheduler', selected: true }]);
   delete (globalThis as any).document;
 });
 
@@ -228,7 +243,7 @@ test('v2.6 plan 08: the inline sweep forbids the author half and flags a leak in
 });
 
 test('CR-U: the player-clean sweep forbids every v2.6 author surface and no longer lists the stale .so-inspect', () => {
-  for (const selector of ['#so-inline-level option[value="3"]', '#so-inline-level option[value="4"]', '#so-chapter-seal', '#so-chapter-fold', '#so-chapter-story-so-far',
+  for (const selector of ['#so-inline-level [data-value="3"]', '#so-inline-level [data-value="4"]', '#so-chapter-seal', '#so-chapter-fold', '#so-chapter-story-so-far',
     '#so-chapter-budget', '#so-chapters', '[data-so^="chapter-"]:not([data-so^="chapter-card"])', '#so-inner-harvest-idle', '[data-so="model-call-route"]', '[data-so="model-call-result"]',
     '[data-so="role-profile-detail"]', '#so-next-turn', '[data-so^="next-turn-"]', '[data-so="payload-folded"]', '[data-so="memory-lock"]', '[data-so^="conflict-"]',
     '[data-so="quarantined"]', '[data-so="effect-ledger"]', '#so-lore-fired', '[data-so="lore-lost"]', '[data-so="lore-constant-missed"]', '#so-scan-gate',
@@ -386,10 +401,10 @@ async function sweepPlanted(plant: { panels?: PlantedSpec[]; message?: PlantedSp
     getElementById: (id: string) => root.querySelector(`#${id}`) };
   const snapshot = () => ({ ui: { authorView: false }, inline: null });
   g.storyOrchestratorRuntime = { getSnapshot: snapshot, getCachedSnapshot: snapshot, getStory: () => null };
-  const page = { evaluate: async (fn: (arg?: unknown) => unknown, arg?: unknown) => fn(arg), waitForFunction: async () => undefined,
-    locator: (selector: string) => ({ count: async () => root.querySelectorAll(selector).length, click: async () => undefined,
-      waitFor: async () => undefined, getByRole: () => ({ click: async () => undefined }),
-      allTextContents: async () => root.querySelectorAll(selector).map((node) => node.innerText) }) };
+  const locator = (selector: string): Record<string, unknown> => ({ count: async () => root.querySelectorAll(selector).length, click: async () => undefined,
+    waitFor: async () => undefined, getByRole: () => ({ click: async () => undefined }), locator: (inner: string) => locator(`${selector} ${inner}`),
+    allTextContents: async () => root.querySelectorAll(selector).map((node) => node.innerText) });
+  const page = { evaluate: async (fn: (arg?: unknown) => unknown, arg?: unknown) => fn(arg), waitForFunction: async () => undefined, locator };
   try {
     return (await assertPlayerClean(page)).findings.map((finding: { needle: string }) => finding.needle);
   } finally {

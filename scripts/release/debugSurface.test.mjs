@@ -26,7 +26,7 @@ test("D3: the shipped bundle carries the warm-batch lease", { skip: noBuild }, (
 
 test("D4: the shipped bundle carries every settings control the prod build used to strip", { skip: noBuild }, () => {
   const bundle = scripts("dist");
-  assert.deepEqual(["so-inner-fanout", "so-chapter-fold", "so-chapter-story-so-far"].filter((marker) => !bundle.includes(marker)), []);
+  assert.deepEqual(["memory.innerFanOut", "so-chapter-fold", "so-chapter-story-so-far"].filter((marker) => !bundle.includes(marker)), []);
 });
 
 const FIXED_RESERVE = /MiB[^,;]{0,16}>=\s*\d{3,}/;

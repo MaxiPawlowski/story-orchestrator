@@ -6,7 +6,7 @@ import type { RuntimeManager } from "@runtime/index";
 import type { RuntimeSnapshot } from "@runtime/types";
 import type { WidgetDrawerTab } from "@engine/index";
 import type { SheetTab } from "@runtime/storySheet";
-import { dockInset, panelGeometry, shownPanels, type Viewport } from "@runtime/panelGeometry";
+import { dockInset, panelFits, panelGeometry, shownPanels, type Viewport } from "@runtime/panelGeometry";
 import { readPanels, savePanel } from "@runtime/panelStore";
 import { hasOpenGroup } from "@runtime/persistence";
 import type { FeatureWhere } from "@features/registry";
@@ -16,12 +16,15 @@ import type { WriteResult } from "@utils/writeResult";
 import { requestGuide } from "@guide/request";
 import type { GuideTarget } from "@guide/types";
 import { PanelFrame } from "./PanelFrame";
+import type { InlineActions } from "../inline/InlineDetail";
+import { setInspectTarget, useInspectTarget } from "../drawer/inspectTarget";
 
 const HelpHost = lazyRetry(() => import("../help/HelpHost"));
 const GuideHost = lazyRetry(() => import("../../guide/GuideHost"));
 const StorySheet = lazyRetry(() => import("../sheet/StorySheet"));
+const MessageInspector = lazyRetry(() => import("../drawer/MessageInspector"));
 
-export type PanelId = "help" | "guide";
+export type PanelId = "help" | "guide" | "inspector";
 
 export interface SheetControl {
   setTab: (tab: SheetTab) => void;
@@ -45,6 +48,8 @@ export interface PanelsHostProps {
   fillSuggestion: (ask: SuggestionAsk, text: string) => WriteResult;
   fill: (text: string) => WriteResult;
   htmlHost: { journal: (summary: string, detail: string) => void };
+  inspectActions?: InlineActions;
+  onOpenAuthor?: () => void;
 }
 
 const viewport = (): Viewport => ({ width: window.innerWidth, height: window.innerHeight });
@@ -65,7 +70,8 @@ const usePanelViewport = () => {
 };
 
 const Panel = ({ id, title, inset, setPanel, children }: { id: PanelId; title: string; inset: number; setPanel: PanelsHostProps["setPanel"]; children: ReactNode }) => (
-  <PanelFrame id={id} title={title} geometry={panelGeometry(readPanels(), id, viewport())} dockInset={inset} onChange={(geometry) => savePanel(id, geometry)} onClose={() => setPanel(id, false)}>
+  <PanelFrame id={id} title={title} geometry={panelGeometry(readPanels(), id, viewport())} fit={panelFits(readPanels(), id)} dockInset={inset}
+    onChange={(geometry) => savePanel(id, geometry)} onClose={() => setPanel(id, false)}>
     {children}
   </PanelFrame>
 );
@@ -74,14 +80,18 @@ const sheetStore = { read: readPanels, save: savePanel };
 
 const PanelsHost = ({
   panels, setPanel, sheet, sheetControl, manager, useSnapshot, showFeature, openDrawer, jumpToMessage, guideTarget, clearGuideTarget, requestSuggestions, fillSuggestion, fill, htmlHost,
+  inspectActions, onOpenAuthor,
 }: PanelsHostProps) => {
   const snapshot = useSnapshot();
+  const inspecting = useInspectTarget();
   const { view, inset } = usePanelViewport();
   const bodies = new Map<PanelId, { title: string; body: ReactNode }>();
   if (panels.includes("help")) bodies.set("help", { title: HELP_COPY.heading, body: <Lazy fallback={null}><HelpHost authorView={snapshot.ui.authorView} snapshot={snapshot} onShowMe={showFeature}
     onOpenDoc={requestGuide} onClose={() => setPanel("help", false)} hosted ask={async (question) => (await askHost()).askInChat(manager, question)} /></Lazy> });
   if (panels.includes("guide")) bodies.set("guide", { title: GUIDE_COPY.title, body: <Lazy fallback={null}><GuideHost authorView={snapshot.ui.authorView} target={guideTarget()}
     onTargetSeen={clearGuideTarget} snapshot={snapshot} groupOpen={hasOpenGroup()} onShowMe={() => setPanel("guide", false)} /></Lazy> });
+  if (panels.includes("inspector") && snapshot.ui.authorView && inspecting !== null) bodies.set("inspector", { title: "Inspector", body: <Lazy fallback={null}><MessageInspector
+    view={snapshot.inline} messageId={inspecting} onStep={setInspectTarget} actions={inspectActions} onOpenAuthor={onOpenAuthor} /></Lazy> });
   return (
     <>
       {sheet.open && snapshot.ready && (

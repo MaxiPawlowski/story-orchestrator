@@ -8,7 +8,7 @@ export const PRESENCE_FEATURES: readonly Feature[] = [
     oneLine: "Groups and chats that play a story carry a small icon in SillyTavern's lists.",
     what: "The group list, the welcome screen's recent chats and a group's past chats mark every chat that plays a story. A saga, a story its author marks as one, "
       + "has its own icon. The marks come from a list of the chats you played, which fills in by itself as you open chats.",
-    where: settingsAt("#so-presence-list-badges", "Interface › Mark story groups in the lists"),
+    where: settingsAt("#so-presence-list-badges", "Display › Mark story groups in the lists"),
     settings: ["display.presence.listBadges"], doc: "player/playing.md", status: "shipped", needs: ["group-chat"],
     isOn: (settings) => settings.display.presence.listBadges,
   },
@@ -16,7 +16,7 @@ export const PRESENCE_FEATURES: readonly Feature[] = [
     id: "story-card", name: "Story card", area: "play", audience: "player",
     oneLine: "Hover a group's story icon to see the story, its chapter and when you last played.",
     what: "The card shows only names you have already reached. A story can switch its card off; switching it off here hides it for every story.",
-    where: settingsAt("#so-presence-group-card", "Interface › Story card on hover"),
+    where: settingsAt("#so-presence-group-card", "Display › Story card on hover"),
     settings: ["display.presence.groupCard"], doc: "player/playing.md", status: "shipped", needs: ["group-chat"],
     isOn: (settings) => settings.display.presence.groupCard,
   },
@@ -24,7 +24,7 @@ export const PRESENCE_FEATURES: readonly Feature[] = [
     id: "continue-list", name: "Your stories", area: "play", audience: "player",
     oneLine: "Under Continue: every chat that plays a story, newest first, one click to open it.",
     what: "Each row names the story, the chapter and place you reached and when you last played. A chat keeps its row while it still plays the story, even after the story leaves your library.",
-    where: settingsAt("#so-presence-continue-list", "Interface › Your stories list"),
+    where: settingsAt("#so-presence-continue-list", "Display › Your stories list"),
     settings: ["display.presence.continueList"], doc: "player/playing.md", status: "shipped", needs: ["group-chat"],
     isOn: (settings) => settings.display.presence.continueList,
   },
@@ -32,7 +32,7 @@ export const PRESENCE_FEATURES: readonly Feature[] = [
     id: "chapter-cards", name: "Chapter title cards", area: "play", audience: "player",
     oneLine: "A full-width card under the message where a new chapter opens.",
     what: "When the story enters a new chapter, a title card appears under that message with the chapter's name. Swiping that reply away takes the card with it.",
-    where: settingsAt("#so-presence-chapter-card", "Interface › Chapter title cards"),
+    where: settingsAt("#so-presence-chapter-card", "Display › Chapter title cards"),
     settings: ["display.presence.chapterCard"], doc: "player/drawer-and-hud.md", status: "shipped", needs: ["story"],
     isOn: (settings) => settings.display.presence.chapterCard,
   },
@@ -40,7 +40,7 @@ export const PRESENCE_FEATURES: readonly Feature[] = [
     id: "story-wand", name: "Story in the wand menu", area: "play", audience: "player",
     oneLine: "Story recap, the story briefing, flag this moment and the story window, from the extensions wand.",
     what: "While a story plays, the wand beside where you type lists a recap of the story so far, a flag for this moment and a shortcut to the story window.",
-    where: settingsAt("#so-presence-wand", "Interface › Story entries in the wand menu"),
+    where: settingsAt("#so-presence-wand", "Display › Story entries in the wand menu"),
     settings: ["display.presence.wand"], doc: "player/drawer-and-hud.md", status: "shipped", needs: ["story"],
     isOn: (settings) => settings.display.presence.wand,
   },
@@ -49,7 +49,7 @@ export const PRESENCE_FEATURES: readonly Feature[] = [
     oneLine: "A check the story makes public shows its roll under the message it decided.",
     what: "\"Climb: 15 + 4 vs 12, success\" sits under the reply the check decided. The roll is drawn from the chat itself, so a swipe or a reopened chat shows the same roll. "
       + "A check the author keeps hidden shows only in the story's telling. Author view also shows every other roll and background draw.",
-    where: settingsAt("#so-presence-roll-chips", "Interface › Dice chips under messages"),
+    where: settingsAt("#so-presence-roll-chips", "Display › Dice chips under messages"),
     settings: ["display.presence.rollChips"], doc: "player/drawer-and-hud.md", status: "shipped", needs: ["story"],
     isOn: (settings) => settings.display.presence.rollChips,
   },
@@ -63,7 +63,7 @@ export const PRESENCE_FEATURES: readonly Feature[] = [
   {
     id: "suggestions", name: "What could I do?", area: "play", audience: "player",
     oneLine: "A button that suggests a few things you could try next, and puts the one you pick in the box where you type.",
-    what: "Click What could I do? on This story → Play or the story card above the chat box, or pick it from the wand menu. "
+    what: "Click What could I do? on This chat → Play or the story card above the chat box, or pick it from the wand menu. "
       + "The memory model words four things to try, built on what you already know; a waiting check lists what could help, never dice; in Author view an offer not open yet shows greyed. "
       + "Picking one only fills the box where you type; nothing is sent until you send it, and it never replaces something you started typing. A story can switch the button off.",
     where: drawerAt("#so-open-suggestions", "What could I do?"),
@@ -73,9 +73,9 @@ export const PRESENCE_FEATURES: readonly Feature[] = [
   {
     id: "repetition-readout", name: "Repetition readout", area: "play", audience: "author",
     oneLine: "Author view names phrases the latest reply repeats from the five before it.",
-    what: "A short line in the Scheduler tab lists phrases, openers and stock constructions the newest reply shares with at least two of the five replies before it. "
+    what: "A short line in the Author page's Proposals section lists phrases, openers and stock constructions the newest reply shares with at least two of the five replies before it. "
       + "Counted in code, with no model call. It only reports; nothing reaches the prompt.",
-    where: drawerAt("[data-so=\"repetition\"]", "Scheduler › Repetition"),
+    where: drawerAt("[data-so=\"repetition\"]", "Proposals › Repetition"),
     settings: [], doc: "player/drawer-and-hud.md", status: "experimental", needs: ["story", "author-view"],
   },
   {

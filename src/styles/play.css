@@ -1,0 +1,101 @@
+#so-workspace-modal .so-workspace-content > .so-play, #drawer-manager .so-play {
+  display: flex;
+  flex-direction: column;
+  gap: var(--so-space-4);
+  max-width: 64rem;
+  margin-inline: 0;
+  font-size: 0.9375rem;
+}
+
+:is(#so-workspace-modal, #drawer-manager) .so-play-label {
+  margin: 0;
+  color: var(--so-fg-muted);
+  font-size: var(--so-text-xs);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+:is(#so-workspace-modal, #drawer-manager) .so-play-text { margin: 0; white-space: pre-wrap; }
+:is(#so-workspace-modal, #drawer-manager) .so-play-meta { margin: 0; color: var(--so-fg-muted); font-size: var(--so-text-xs); }
+
+:is(#so-workspace-modal, #drawer-manager) .so-scene {
+  display: flex;
+  flex-direction: column;
+  gap: var(--so-space-2);
+  padding: var(--so-space-4);
+  border-left: 4px solid var(--so-context-accent, var(--so-accent));
+  border-radius: var(--so-radius);
+  background: var(--so-surface-2);
+}
+
+:is(#so-workspace-modal, #drawer-manager) .so-scene-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--so-space-2) var(--so-space-3); }
+:is(#so-workspace-modal, #drawer-manager) .so-scene-title { margin: 0; font-size: 1.25rem; font-weight: 600; line-height: 1.25; }
+:is(#so-workspace-modal, #drawer-manager) .so-scene-chip {
+  padding: 0 var(--so-space-2);
+  border: 1px solid var(--so-line);
+  border-radius: var(--so-radius-pill);
+  color: var(--so-fg-muted);
+  font-size: var(--so-text-xs);
+}
+:is(#so-workspace-modal, #drawer-manager) .so-scene-line { margin: 0; color: var(--so-fg-muted); }
+:is(#so-workspace-modal, #drawer-manager) .so-scene-status { display: flex; flex-wrap: wrap; align-items: center; gap: var(--so-space-2); font-size: var(--so-text-sm); }
+:is(#so-workspace-modal, #drawer-manager) .so-scene-status[data-state="error"], :is(#so-workspace-modal, #drawer-manager) .so-scene-status[data-state="not-configured"] { color: var(--so-warn); }
+:is(#so-workspace-modal, #drawer-manager) .so-scene-notes { display: flex; flex-direction: column; gap: var(--so-space-1); }
+:is(#so-workspace-modal, #drawer-manager) .so-scene-note { display: flex; align-items: center; gap: var(--so-space-2); margin: 0; font-size: var(--so-text-sm); }
+:is(#so-workspace-modal, #drawer-manager) .so-scene-quick { display: flex; flex-wrap: wrap; align-items: center; gap: var(--so-space-2); padding-top: var(--so-space-2); border-top: 1px solid var(--so-line); }
+
+:is(#so-workspace-modal, #drawer-manager) .so-attention { display: flex; flex-direction: column; border: 1px solid var(--so-line); border-radius: var(--so-radius); background: var(--so-surface-2); }
+:is(#so-workspace-modal, #drawer-manager) .so-attention[data-tone="error"] { border-left: 3px solid var(--so-error); }
+:is(#so-workspace-modal, #drawer-manager) .so-attention[data-tone="warn"] { border-left: 3px solid var(--so-warn); }
+:is(#so-workspace-modal, #drawer-manager) .so-attention-toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--so-space-2);
+  width: 100%;
+  padding: var(--so-space-2) var(--so-space-3);
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+}
+:is(#so-workspace-modal, #drawer-manager) .so-attention-label { flex: 1; font-weight: 600; }
+:is(#so-workspace-modal, #drawer-manager) .so-attention-rows:not([hidden]) { display: flex; flex-direction: column; gap: var(--so-space-3); padding: 0 var(--so-space-3) var(--so-space-3); }
+:is(#so-workspace-modal, #drawer-manager) .so-attention-row { display: flex; gap: var(--so-space-2); padding-top: var(--so-space-3); border-top: 1px solid var(--so-line); }
+:is(#so-workspace-modal, #drawer-manager) .so-attention-body { display: flex; flex: 1; flex-direction: column; gap: var(--so-space-2); min-width: 0; }
+:is(#so-workspace-modal, #drawer-manager) .so-attention-text { margin: 0; }
+:is(#so-workspace-modal, #drawer-manager) .so-attention-detail { margin: 0; color: var(--so-fg-muted); font-size: var(--so-text-xs); }
+:is(#so-workspace-modal, #drawer-manager) .so-attention-heading { margin: 0; font-size: var(--so-text-sm); font-weight: 600; }
+:is(#so-workspace-modal, #drawer-manager) .so-attention-hidden { display: flex; align-items: center; gap: var(--so-space-2); margin: 0; padding: 0 var(--so-space-3) var(--so-space-2); font-size: var(--so-text-sm); }
+:is(#so-workspace-modal, #drawer-manager) .so-attention-dismissed { display: flex; flex-direction: column; gap: var(--so-space-2); padding-top: var(--so-space-3); border-top: 1px solid var(--so-line); font-size: var(--so-text-sm); }
+
+:is(#so-workspace-modal, #drawer-manager) .so-you-card { display: flex; flex-direction: column; gap: var(--so-space-1); padding: var(--so-space-3) var(--so-space-4); border: 1px solid var(--so-line); border-radius: var(--so-radius); }
+:is(#so-workspace-modal, #drawer-manager) .so-you-line, :is(#so-workspace-modal, #drawer-manager) .so-you-summary { margin: 0; }
+:is(#so-workspace-modal, #drawer-manager) .so-you-assumes { display: flex; flex-wrap: wrap; gap: var(--so-space-1); margin: 0; padding: 0; list-style: none; }
+:is(#so-workspace-modal, #drawer-manager) .so-you-assumes li { padding: 0 var(--so-space-2); border: 1px solid var(--so-line); border-radius: var(--so-radius-pill); font-size: var(--so-text-xs); }
+
+:is(#so-workspace-modal, #drawer-manager) .so-play-tabs { display: flex; align-items: flex-end; gap: var(--so-space-2); }
+:is(#so-workspace-modal, #drawer-manager) .so-play-tablist { flex: 1; min-width: 0; }
+:is(#so-workspace-modal, #drawer-manager) .so-play-panel { display: flex; flex-direction: column; gap: var(--so-space-3); min-height: 6rem; padding-top: var(--so-space-1); }
+:is(#so-workspace-modal, #drawer-manager) .so-play-panel:focus { outline: none; }
+:is(#so-workspace-modal, #drawer-manager) .so-play-now { display: flex; flex-direction: column; gap: var(--so-space-4); }
+:is(#so-workspace-modal, #drawer-manager) .so-play-section { display: flex; flex-direction: column; gap: var(--so-space-1); }
+:is(#so-workspace-modal, #drawer-manager) .so-play-ideas { align-self: flex-start; }
+:is(#so-workspace-modal, #drawer-manager) .so-memory-tab { display: flex; flex-direction: column; gap: var(--so-space-2); font-size: var(--so-text-sm); }
+
+:is(#so-workspace-modal, #drawer-manager) .so-play-foot { display: flex; flex-wrap: wrap; align-items: center; gap: var(--so-space-2); padding-top: var(--so-space-3); border-top: 1px solid var(--so-line); }
+:is(#so-workspace-modal, #drawer-manager) .so-play-restart { margin-left: auto; }
+:is(#so-workspace-modal, #drawer-manager) .so-flag-form { display: flex; flex: 1 1 18rem; align-items: center; gap: var(--so-space-2); }
+:is(#so-workspace-modal, #drawer-manager) .so-flag-form .text_pole { flex: 1; min-width: 0; margin: 0; }
+:is(#so-workspace-modal, #drawer-manager) .so-play-empty { display: flex; flex-direction: column; gap: var(--so-space-3); }
+:is(#so-workspace-modal, #drawer-manager) .so-confirm-foot { display: flex; justify-content: flex-end; gap: var(--so-space-2); padding: 0 var(--so-space-4) var(--so-space-4); }
+
+:is(#so-workspace-modal, #drawer-manager) .so-image-prefs { display: flex; flex-direction: column; gap: var(--so-space-2); }
+:is(#so-workspace-modal, #drawer-manager) .so-image-field { display: flex; flex-direction: column; gap: var(--so-space-1); font-size: var(--so-text-sm); }
+
+@media (max-width: 699px) {
+  :is(#so-workspace-modal, #drawer-manager) .so-play-tabs { position: sticky; top: calc(-1 * var(--so-space-3)); z-index: 1; background-color: var(--so-surface); background-image: var(--so-surface-solid); }
+  :is(#so-workspace-modal, #drawer-manager) .so-play-restart { margin-left: 0; }
+  :is(#so-workspace-modal, #drawer-manager) .so-scene { padding: var(--so-space-3); }
+}

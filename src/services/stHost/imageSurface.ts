@@ -33,7 +33,7 @@ const commandRequest = (named: Record<string, unknown>, text: unknown): { reques
   };
 };
 
-export function registerImageSurface(image: StoryImageDirector): () => void {
+export function registerImageSurface(image: StoryImageDirector, watch?: (listener: () => void) => () => void): () => void {
   const ctx = getContext();
   const slash = ctx.SlashCommand;
   const parser: unknown = ctx.SlashCommandParser;
@@ -58,7 +58,9 @@ export function registerImageSurface(image: StoryImageDirector): () => void {
     }));
   }
 
+  const removeButtons = () => document.querySelectorAll(".so-image-button, #so-image-wand").forEach((element) => element.remove());
   const addButtons = () => {
+    if (!image.settings().enabled) { removeButtons(); return; }
     for (const container of document.querySelectorAll("#message_template .extraMesButtons, #chat .mes .extraMesButtons")) {
       if (container.querySelector(".so-image-button")) continue;
       const button = document.createElement("button");
@@ -97,6 +99,13 @@ export function registerImageSurface(image: StoryImageDirector): () => void {
     void image.direct({ purpose: "scene", text: "", messageId }).catch(() => undefined);
   };
   addButtons();
+  let shown = image.settings().enabled;
+  const unwatch = watch?.(() => {
+    const enabled = image.settings().enabled;
+    if (enabled === shown) return;
+    shown = enabled;
+    addButtons();
+  });
   document.addEventListener("click", onClick);
   const changed = ctx.eventTypes.CHAT_CHANGED;
   const ready = ctx.eventTypes.APP_READY;
@@ -137,6 +146,7 @@ export function registerImageSurface(image: StoryImageDirector): () => void {
     if (ready) ctx.eventSource.removeListener?.(ready, addButtons);
     if (rendered) ctx.eventSource.removeListener?.(rendered, onRendered);
     if (toolHost.unregisterFunctionTool) toolHost.unregisterFunctionTool("illustrate_scene");
-    document.querySelectorAll(".so-image-button, #so-image-wand").forEach((element) => element.remove());
+    unwatch?.();
+    removeButtons();
   };
 }

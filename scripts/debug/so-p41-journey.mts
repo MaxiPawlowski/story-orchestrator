@@ -267,7 +267,7 @@ async function stepLookRebuild(ctx: Ctx): Promise<StepResult> {
 async function openPlayPage(ctx: Ctx) {
   await openExtensionSettings(ctx.page);
   const modal = ctx.page.locator('#so-workspace-modal');
-  await modal.getByRole('button', { name: 'This story', exact: true }).click({ force: true });
+  await modal.locator('#so-workspace-context-story').click({ force: true });
   await modal.locator('#so-workspace-page-play').click({ force: true });
   const cast = modal.locator('#so-cast-scene');
   const onPlay = await cast.waitFor({ state: 'attached', timeout: 5000 }).then(() => true, () => false);
@@ -276,7 +276,7 @@ async function openPlayPage(ctx: Ctx) {
   catch {
     const why = await ctx.page.evaluate(() => {
       const el = document.getElementById('so-workspace-modal');
-      return { imageChat: Boolean(document.getElementById('so-image-chat')), castAnywhere: Boolean(document.getElementById('so-cast-scene')),
+      return { imageQuick: Boolean(document.getElementById('so-image-quick')), castAnywhere: Boolean(document.getElementById('so-cast-scene')),
         ids: [...(el?.querySelectorAll('[id^="so-"]') ?? [])].map((node) => node.id).slice(0, 40), tail: (el?.textContent ?? '').slice(-300) };
     });
     throw new Error(`#so-cast-scene not on the Play page: ${JSON.stringify(why)}`);
