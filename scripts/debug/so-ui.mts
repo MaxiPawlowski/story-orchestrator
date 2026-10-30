@@ -1215,7 +1215,7 @@ export async function assertPlayerClean(page) {
   const { alreadyOpen } = await openStoryDrawer(page);
   const authorView = await evaluateInST(page, () => globalThis.storyOrchestratorRuntime?.getSnapshot?.().ui?.authorView ?? null);
   if (authorView !== false) throw new Error(`assert-player-clean requires player mode (authorView=${authorView}). Turn Author view off first.`);
-  const tabs = await page.locator('#so-workspace-modal nav button').allTextContents();
+  const tabs = (await page.locator('#so-workspace-nav .so-nav-item').allTextContents()).map((tab) => tab.trim());
   const findings = [];
   const authorOnlyTabs = tabs.filter((tab) => ['Blackboard', 'Scheduler', 'Payload'].includes(tab));
   if (authorOnlyTabs.length) findings.push({ tab: authorOnlyTabs.join(', '), needle: 'author-only tab offered in player mode' });
@@ -1237,7 +1237,7 @@ export async function assertPlayerClean(page) {
     return found;
   };
   for (const tab of tabs) {
-    await page.locator('#so-workspace-modal nav').getByRole('button', { name: tab, exact: true }).click();
+    await page.locator('#so-workspace-nav').getByRole('button', { name: tab, exact: true }).click();
     const hits = await evaluateInST(page, collect, { surfaces: PLAYER_SELECTOR_SURFACES, selectors: PLAYER_FORBIDDEN_SELECTORS });
     for (const hit of hits ?? []) {
       findings.push({ tab, needle: `${hit.selector} reachable in ${hit.surface}` });
@@ -1246,15 +1246,12 @@ export async function assertPlayerClean(page) {
     const recovery = await evaluateInST(page, collect, { surfaces: PLAYER_SELECTOR_SURFACES, selectors: PLAYER_RECOVERY_CONTROLS });
     for (const control of recovery ?? []) recoveryControls.push({ tab, ...control });
     records.push(await recordPlayerSurfaces(page, tab));
-    if (tab === 'Features') {
-      const ids = await page.locator('#so-workspace-modal button[data-feature]').evaluateAll((nodes) => nodes.map((node) => node.getAttribute('data-feature')));
-      for (const id of ids) {
-        await page.locator(`#so-workspace-modal button[data-feature="${id}"]`).click();
-        const hits = await evaluateInST(page, collect, { surfaces: PLAYER_SELECTOR_SURFACES, selectors: PLAYER_FORBIDDEN_SELECTORS });
-        for (const hit of hits ?? []) findings.push({ tab: `Features/${id}`, needle: `${hit.selector} reachable in ${hit.surface}` });
-        records.push(await recordPlayerSurfaces(page, `Features/${id}`));
-        await page.locator('#so-workspace-modal').getByRole('button', { name: '← All features' }).click();
-      }
+    if (tab === 'Settings') {
+      const toggles = page.locator('#so-workspace-modal [data-so="feature-row"] button[aria-expanded="false"][id$="-toggle"]');
+      for (let left = await toggles.count(); left > 0; left = await toggles.count()) await toggles.first().click();
+      const hits = await evaluateInST(page, collect, { surfaces: PLAYER_SELECTOR_SURFACES, selectors: PLAYER_FORBIDDEN_SELECTORS });
+      for (const hit of hits ?? []) findings.push({ tab: 'Settings/features expanded', needle: `${hit.selector} reachable in ${hit.surface}` });
+      records.push(await recordPlayerSurfaces(page, 'Settings/features expanded'));
     }
   }
   findings.push(...recoveryControlFindings(recoveryControls));

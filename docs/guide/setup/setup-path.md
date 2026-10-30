@@ -5,8 +5,9 @@ the story plays the way you want. **Every feature is on by default**, so most st
 it on". New to the extension? Start with the [Quick start](../quick-start.md).
 
 Each step says what it does, what it costs, where it is and how to check it. Inside SillyTavern, **Show me** points at
-the control. Open this page from **Settings → Help → Setup path**. The workspace pages are **Orchestrator →
-Library, Defaults, Connections, Interface, Help** and **This chat → Play, Features, Review, Author**.
+the control. Open this page from **Settings → Help → Setup path**. The workspace pages are **Settings →
+Library, Features, Models, Judge, Images & stage, World & lore, Display, Authoring, Diagnostics, Help** and **This chat →
+Play, Settings** (Review and Author in Author view).
 
 1. [Level 0: required](#level-0-required): a group chat and a memory model.
 2. [Level 1: reliable play](#level-1-reliable-play): clean replies, lore only in the chats that use it.
@@ -71,7 +72,7 @@ what the server holds (32,768 on a 24 GB card): [What we tested on](models.md#wh
 - **What it does:** story lore switches on only in the chats that play that story.
 - **Cost:** no model calls.
 - **Where:** **Settings → World & lore → How story lorebook entries switch on** (advanced), default **Per chat**.
-  **Memory-triggered lore** and **Late lore placement** in **Defaults** stay on.
+  **Memory-triggered lore** and **Late lore placement** in **Settings → Features** stay on.
 - **How to check:** no repair row about entries left switched on, or about a story's lorebook selected for every
   chat. <!-- so:show open:orchestrator.world.so-wi-gating-mode -->
 
@@ -250,7 +251,7 @@ Author view spoils the story it is turned on in, so it asks first. More: [Writin
 
 - **What it does:** tries a setting in one chat without touching the install or the story.
 - **Cost:** whatever the feature costs.
-- **Where:** **This chat → Settings**, any feature card. A feature off in **Defaults** cannot be turned on for one
+- **Where:** **This chat → Settings**, any feature row. A feature off in **Settings → Features** cannot be turned on for one
   chat.
 - **How to check:** the source chip says **This chat**; **Reset to story/default** puts it back.
 

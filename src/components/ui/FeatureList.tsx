@@ -130,7 +130,7 @@ export const FeatureList = ({
           const current = entry.controls[control.field];
           const copy = settingDescription(control.path);
           return <SettingRow key={control.field} label={control.label} htmlFor={featureControlId(feature, control.field)}
-            description={copy && <span title={copy.full === copy.text ? undefined : copy.full}>{copy.text}</span>}
+            description={copy?.text}
             scope={scopeChip(current.source)} changed={isChanged(feature, control.field, entry)} onReset={onReset && (() => onReset(feature, control.field))}
             resetLabel={`Reset ${control.label}`}
             control={(describedBy) => <ControlInput feature={feature} control={control} value={current.value} describedBy={describedBy}

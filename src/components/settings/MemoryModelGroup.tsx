@@ -169,7 +169,7 @@ export const MemoryModelGroup = ({ snapshot, manager, onOpenReplyThinking }: {
       {onOpenReplyThinking && <SettingRow label={settingCopy("extraction.replyEffort").label}
         description={`${REPLY_EFFORT_LABELS[settings.replyEffort ?? DEFAULT_REPLY_EFFORT]}. Set in Features › Reply thinking.`}
         control={<Button id="so-reply-effort-open" variant="ghost" size="sm" icon="fa-arrow-right" onClick={onOpenReplyThinking}>Change</Button>} />}
-      <Section id="so-models-tasks" title="Models per task" level={3} description="Each task can use its own profile or harness. Left on the memory model, it follows it.">
+      <div id="so-models-tasks">
         <RoleProfilesGroup
           routes={snapshot.roleRoutes ?? []}
           assigned={settings.profiles ?? {}}
@@ -187,7 +187,7 @@ export const MemoryModelGroup = ({ snapshot, manager, onOpenReplyThinking }: {
           authorView
           measurements={{ lore: loreEligibility() }}
         />
-      </Section>
+      </div>
       <Section id="so-models-knowledge" title="Knowledge tracking" level={3}>
         <CheckRow id="so-epistemic-capable" setting="memory.epistemicLedgerCapable" checked={snapshot.memory.settings.epistemicLedgerCapable}
           onChange={(on) => manager.setMemorySettings({ epistemicLedgerCapable: on })} />

@@ -40,11 +40,12 @@ in the extensions wand beside where you type, or from **Extensions → Story Orc
 (**Story setup and repair** there opens the setup list). It has two
 halves, switched at the top:
 
-- **This story**, the chat that is open: **Play**, **Features**, **Review** and **Author**.
-- **Orchestrator**, every chat on this install: **Library**, **Defaults**, **Connections**, **Interface** and **Help**.
+- **This chat**, the chat that is open: **Play** and **Settings** (plus **Review** and **Author** while Author view is on).
+- **Settings**, every chat on this install: **Library**, **Features**, **Models**, **Judge**, **Images & stage**,
+  **World & lore**, **Display**, **Authoring**, **Diagnostics** and **Help**, with **Search all settings** at the top.
 
-The header says which half you are in ("This chat · Player view", or "All chats · Install settings"). Escape or
-**Close** closes it; on a phone the pages sit in a bar at the bottom and **← Back** steps back.
+The header says which half you are in ("This chat · Player view", or "Settings · all chats"). Escape or **Close**
+closes it; on a phone Settings opens on its list of pages, and the one back button returns to it.
 
 ### This chat → Play
 

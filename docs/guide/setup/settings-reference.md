@@ -17,7 +17,7 @@ jumps to it. The route icon in SillyTavern's top bar opens **This chat → Play*
 | Install | Model connections, the judge, images, and every feature's default | **Settings → Models**, **Settings → Features** |
 | Story | What the story's author chose for a feature (on, off or tuned) | The story itself, in the Studio |
 | Chat | Your change to a feature for this chat only | **This chat → Settings** |
-| Device | Display and animation preferences, kept in this browser for your SillyTavern account | The **This device** chip on the row, in **Settings → Display** and **Settings → Images & stage** |
+| Device | Display and animation preferences, kept in this browser for your SillyTavern account | The **This device** chip on the row (**Settings → Display**, **Settings → Images & stage**) |
 
 A feature uses the first of: this chat's change, the story's choice, the install default. An install default switched off is a master
 switch: no story or chat can turn that feature back on. A device preference changes only how this browser shows things.

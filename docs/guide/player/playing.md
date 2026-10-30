@@ -106,8 +106,8 @@ closes the story window first) opens a panel over the chat and asks the memory m
 and the recent messages, never the story's later scenes, a quest you have not found or anything a character keeps from
 you. A suggestion that happens to name a place you have not reached yet is left out. Pick one and it is put in the box
 where you type; nothing is sent until you send it, and it never replaces something you started typing. **Other ideas**
-asks again. It calls the model only when you open it. A story can switch it off, and so can you in **Orchestrator →
-Interface**.
+asks again. It calls the model only when you open it. A story can switch it off, and so can you in **Settings →
+Display**.
 
 ## Asking a question
 
@@ -115,8 +115,8 @@ Interface**.
 memory?", "what is still open?". While you play it knows only what you have already seen: the scenes you reached, the
 Play page and the recent messages. Ask it about something you have not reached and it says it can only talk about what
 you have played. When the answer names a setting, **Show me** takes you there. It only reads; it never changes
-anything. It uses the authoring model, one or a few calls per question, and can be switched off in **Orchestrator →
-Help → Ask questions**.
+anything. It uses the authoring model, one or a few calls per question, and can be switched off in **Settings →
+Authoring → Ask questions**.
 
 ## People, promises and standing
 

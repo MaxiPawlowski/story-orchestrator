@@ -72,20 +72,23 @@ SillyTavern's top bar opens the same window at **This chat → Play**.
 
 | Half | Page | What is there |
 |---|---|---|
-| **This story** (the open chat) | **Play** | Where you are, setup problems, what the story remembers, Restart story |
-| | **Features** | This chat's changes to each feature |
-| | **Review** | Proposals waiting for you (Author view) |
-| | **Author** | Author view: tracked values, activity, the story's internals |
-| **Orchestrator** (every chat) | **Library** | Start (New story, Import a story), Continue, Repair, Author; the story for this chat |
-| | **Defaults** | Every feature's install default; off here is a master switch |
-| | **Connections** | Memory model and models per task, lorebooks, images, the judge, host capabilities |
-| | **Interface** | The status strip, notes under messages, briefings, list marks, and **This device** |
-| | **Help** | **Take the tour** and **Setup path**, the Ask and wizard switches, and host capabilities |
+| **This chat** (the open chat) | **Play** | Where you are, setup problems, what the story remembers, Restart story |
+| | **Settings** | The story for this chat and for new chats in the group, this chat's change to each feature, the **Author view** switch |
+| | **Review**, **Author** | Only while Author view is on: proposals waiting for you, tracked values, activity, the story's internals |
+| **Settings** (every chat) | **Library** | Start (New story, Import a story), Continue, Repair, Author |
+| | **Features** | Every feature, on or off for all chats, each with its own controls; off here is a master switch |
+| | **Models** | Memory model, fallback, the model test, models per task |
+| | **Judge** | The judge key and switch, and the one list of judge checks |
+| | **Images & stage** | Picture service, when pictures are drawn, picture types, model sources, the sprite stage |
+| | **World & lore** | How story lorebooks are scanned, and story books still on for every chat |
+| | **Display** | Notes under messages, the status strip, briefings, panels and list marks |
+| | **Authoring** | The wizard, Ask, the chapter budget, a link to the Author view switch |
+| | **Diagnostics** | Host capabilities and a copy for bug reports |
+| | **Help** | **Take the tour**, **Setup path**, the guide and Help and Ask |
 
-Each section's **?** opens its page in this guide, and rarely changed settings sit under its **Advanced** fold. The
-guide itself opens with `/story guide`, and Ask with `/story ask <question>`.
-
-![Sketch of a settings page: one section per area, each with its ? guide button](../assets/settings-sections.png)
+**Search all settings** at the top of the window finds any setting and jumps to it. Every setting has one home; other
+pages link to it with **Change**. A row marked **This device** can keep its own value in this browser. The guide opens
+with `/story guide`, and Ask with `/story ask <question>`.
 
 Settings have four scopes: **install** (every chat), **story** (what the author chose), **chat** (your change for the
 open chat) and **device** (display preferences kept in this browser). How they combine, with an example, and every

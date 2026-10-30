@@ -386,10 +386,10 @@ async function sweepPlanted(plant: { panels?: PlantedSpec[]; message?: PlantedSp
     getElementById: (id: string) => root.querySelector(`#${id}`) };
   const snapshot = () => ({ ui: { authorView: false }, inline: null });
   g.storyOrchestratorRuntime = { getSnapshot: snapshot, getCachedSnapshot: snapshot, getStory: () => null };
-  const page = { evaluate: async (fn: (arg?: unknown) => unknown, arg?: unknown) => fn(arg), waitForFunction: async () => undefined,
-    locator: (selector: string) => ({ count: async () => root.querySelectorAll(selector).length, click: async () => undefined,
-      waitFor: async () => undefined, getByRole: () => ({ click: async () => undefined }),
-      allTextContents: async () => root.querySelectorAll(selector).map((node) => node.innerText) }) };
+  const locator = (selector: string): Record<string, unknown> => ({ count: async () => root.querySelectorAll(selector).length, click: async () => undefined,
+    waitFor: async () => undefined, getByRole: () => ({ click: async () => undefined }), locator: (inner: string) => locator(`${selector} ${inner}`),
+    allTextContents: async () => root.querySelectorAll(selector).map((node) => node.innerText) });
+  const page = { evaluate: async (fn: (arg?: unknown) => unknown, arg?: unknown) => fn(arg), waitForFunction: async () => undefined, locator };
   try {
     return (await assertPlayerClean(page)).findings.map((finding: { needle: string }) => finding.needle);
   } finally {

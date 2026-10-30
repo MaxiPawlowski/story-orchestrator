@@ -54,7 +54,9 @@ export const revealControl = (root: HTMLElement | null, control: string): boolea
   if (!element || (root && !root.contains(element))) return false;
   for (let details = element.closest("details"); details; details = details.parentElement?.closest("details") ?? null) details.open = true;
   element.scrollIntoView({ block: "center" });
-  element.focus({ preventScroll: true });
+  const focusable = element.matches("button, input, select, textarea, [tabindex]") ? element
+    : element.querySelector<HTMLElement>("button[aria-checked='true'], button, input, select, textarea, [tabindex]") ?? element;
+  focusable.focus({ preventScroll: true });
   const row = element.closest<HTMLElement>("[data-so='setting-row'], [data-so='feature-row']") ?? element;
   row.classList.add("so-revealed");
   window.setTimeout(() => row.classList.remove("so-revealed"), 2000);
