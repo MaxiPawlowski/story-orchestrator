@@ -51,23 +51,22 @@ export interface ConsoleAuthorView {
   secrets: SecretGridView | null;
 }
 
-export function consoleAuthorSlice(input: {
-  story: NormalizedStory | null;
-  state: EngineState | null;
+export interface ConsoleSources {
   boundaryLog: readonly BoundaryLogEntry[];
-  authorView: boolean;
-  secrets?: SecretGridView | null;
-}): ConsoleAuthorView | null {
-  const { story, state } = input;
-  if (!input.authorView || !story || !state) return null;
+  extras: { ui: { authorView: boolean } };
+  secretGrid?: SecretGridView | null;
+}
+
+export function consoleAuthorSlice(story: NormalizedStory | null, state: EngineState | null, sources: ConsoleSources): ConsoleAuthorView | null {
+  if (!sources.extras.ui.authorView || !story || !state) return null;
   const values = state.blackboard.values;
   const active = state.activeCheckpointId;
   const gates = new Set((story.outgoingByCheckpoint[active] ?? []).flatMap((transition) => gateKeys(transition.gate)));
-  const changes = lastChanges(input.boundaryLog);
+  const changes = lastChanges(sources.boundaryLog);
   const keys = Object.fromEntries([...new Set([...Object.keys(values), ...gates])].map((key) => [key, {
     label: qualityLabel(story, key), group: stateGroupOf(key, gates), ...(changes[key] ? { changedAt: changes[key] } : {}),
   }]));
-  return { gates: outgoingGateRows(story, active, values), keys, secrets: input.secrets ?? null };
+  return { gates: outgoingGateRows(story, active, values), keys, secrets: sources.secretGrid ?? null };
 }
 
 export interface ProposalCounts {

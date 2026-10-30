@@ -15,11 +15,9 @@ export const workspaceCrumb = (intent: WorkspaceIntent, leaf: string): string =>
   return [WORKSPACE_CONTEXT_LABELS[intent.context], page, rest].filter(Boolean).join(" › ");
 };
 
-export const INSPECTOR_CONTROL = "so-inspector";
 export const SETUP_CONTROL = "so-setup";
 
 export const storyPlayIntent = (): WorkspaceIntent => ({ context: "story", page: "play" });
-export const inspectorIntent = (): WorkspaceIntent => ({ context: "story", page: "author", control: INSPECTOR_CONTROL });
 export const repairIntent = (): WorkspaceIntent => ({ context: "story", page: "play", control: SETUP_CONTROL });
 export const connectionsIntent = (): WorkspaceIntent => ({ context: "orchestrator", page: "connections" });
 export const JUDGE_AREA_CONTROL = "so-area-judge";

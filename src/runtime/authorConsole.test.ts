@@ -67,7 +67,7 @@ describe("v3.0 29 author console read-models", () => {
   test("state rows group, search and mark what changed at the latest boundary", () => {
     const log = [entry(2, {}, { trust: 1, story_day: 1 }), entry(3, { trust: 1, story_day: 1 }, { trust: 2, story_day: 1, rep_guild: 1 })];
     expect(lastChanges(log)).toEqual({ trust: { boundary: 3, messageId: 6 }, story_day: { boundary: 2, messageId: 4 }, rep_guild: { boundary: 3, messageId: 6 } });
-    const slice = consoleAuthorSlice({ story, state: state("market", { trust: 2, story_day: 1, rep_guild: 1, rel_a_b_trust: 0 }, 3), boundaryLog: log, authorView: true });
+    const slice = consoleAuthorSlice(story, state("market", { trust: 2, story_day: 1, rep_guild: 1, rel_a_b_trust: 0 }, 3), { boundaryLog: log, extras: { ui: { authorView: true } } });
     expect(slice?.keys.trust).toEqual({ label: "Guide's trust", group: "gates", changedAt: { boundary: 3, messageId: 6 } });
     expect(slice?.keys.debt.group).toBe("gates");
     const rows = blackboardRows({ blackboard: { trust: 2, story_day: 1, rep_guild: 1, rel_a_b_trust: 0 }, gateQualities: ["trust", "debt"], pendingDeltas: [] });
@@ -82,8 +82,8 @@ describe("v3.0 29 author console read-models", () => {
   });
 
   test("the console slice exists only in Author view", () => {
-    expect(consoleAuthorSlice({ story, state: state("market", {}, 0), boundaryLog: [], authorView: false })).toBeNull();
-    expect(consoleAuthorSlice({ story: null, state: null, boundaryLog: [], authorView: true })).toBeNull();
+    expect(consoleAuthorSlice(story, state("market", {}, 0), { boundaryLog: [], extras: { ui: { authorView: false } } })).toBeNull();
+    expect(consoleAuthorSlice(null, null, { boundaryLog: [], extras: { ui: { authorView: true } } })).toBeNull();
   });
 
   test("key groups: clock, faction, life and compiled families; everything else is authored", () => {

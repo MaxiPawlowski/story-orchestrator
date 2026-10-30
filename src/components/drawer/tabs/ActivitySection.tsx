@@ -113,7 +113,7 @@ export const ActivitySection = ({ snapshot, manager, onJump, onOpenHealth }: {
 }) => (
   <div className="so-console-stack">
     <RefusedRoute snapshot={snapshot} manager={manager} />
-    <Lazy fallback={null}><ActivityPanel rows={composeActivity(snapshot.inline, snapshot.rolls ?? [])} onJump={onJump} setupCount={setupCount(snapshot)}
+    <Lazy fallback={null}><ActivityPanel rows={snapshot.inline ? composeActivity(snapshot.inline, snapshot.rolls ?? []) : []} onJump={onJump} setupCount={setupCount(snapshot)}
       onOpenHealth={onOpenHealth} /></Lazy>
     <AuthorMovesPanel snapshot={snapshot} />
     <TalkDecisionsPanel snapshot={snapshot} />

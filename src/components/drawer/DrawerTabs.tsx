@@ -26,8 +26,6 @@ const PromptSection = lazyRetry(() => import("./tabs/PromptSection").then((modul
 const PatternsPanel = lazyRetry(() => import("./PatternsPanel").then((module) => ({ default: module.PatternsPanel })));
 const SecretGridPanel = lazyRetry(() => import("./SecretGridPanel"));
 
-export type DrawerTabId = AuthorSectionId;
-
 export interface DrawerDriver {
   context: ReturnType<RuntimeManager["getDriverContext"]>;
   activeNudge: string | null;

@@ -1,7 +1,7 @@
 import { memorySightings, nameIndexOf, sameCharacterCandidates } from "@memory/nameFold";
 import {
-  agencyFor, gateKeys, milestoneEarned, valueReader, visibleQuestTitles,
-  type ApplyQueueEntry, type BoundaryLogEntry, type EngineState, type NormalizedStory, type StoryEngine, type ValidationError,
+  agencyFor, gateKeys, milestoneEarned, valueReader, visibleQuestTitles, type ValidationError,
+  type ApplyQueueEntry, type BoundaryLogEntry, type EngineState, type NormalizedStory, type StoryEngine,
 } from "@engine/index";
 import type { DriverContext } from "@copilot/index";
 import { castVoices, sceneFieldsInConflict, shownRows, withoutExcludedThreads, type LedgerView, type MemoryInjectionView } from "@memory/index";
@@ -93,7 +93,7 @@ const readerFields = (reader: { reader: "judge" | "llm"; confidence?: number } |
 
 const playerTransition = (story: NormalizedStory | null, boundaryLog: BoundaryLogEntry[]): NarrativeTransition | null => playerLastTransition(story, boundaryLog);
 
-const publishedIntro = (story: NormalizedStory | null): string | null => story?.player_intro || story?.description || null;
+const publishedIntro = (story: NormalizedStory | null) => story?.player_intro || story?.description || null;
 
 export interface SnapshotSources {
   loaded: LoadedStory | null;
@@ -350,8 +350,8 @@ const presenceSlices = (sources: SnapshotSources, story: NormalizedStory | null,
   return {
     ...gameSlices({
       story, state, boundaryLog: sources.boundaryLog, checks: extras.checks, observations: extras.observations, resting: sources.resting,
-      chat: sources.chat, castNames: game.castNames, authorView: extras.ui.authorView, scopeContext: sources.scopeContext,
-      enabled: sources.enabled, threads: { open: game.openThreads, resolved: story ? resolvedThreads(extras.memory, sources.resting) : [] },
+      chat: sources.chat, castNames: game.castNames, authorView: extras.ui.authorView,
+      scopeContext: sources.scopeContext, enabled: sources.enabled, threads: { open: game.openThreads, resolved: story ? resolvedThreads(extras.memory, sources.resting) : [] },
       location: sceneLocationOf(story, extras), characters: sources.characters,
     }),
     lifeAuthor: lifeAuthorSlice(story, state, extras.ui.authorView, extras.agendaProposals, sources.scopeContext, sources.boundaryLog),
@@ -457,7 +457,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     ready: Boolean(loaded),
     busy: busyWork.view(sources.chatId ?? null),
     features: resolveFeatures(getGlobalSettings(), story, extras.overrides), featureOverrides: extras.overrides ?? {},
-    storyDeclares: { commitments: Boolean(story?.life?.members.some((member) => (member.commitments?.length ?? 0) > 0)) },
+    storyDeclares: { commitments: Boolean(story?.life?.members.some((m) => (m.commitments?.length ?? 0) > 0)) },
     storyId: loaded?.record.id ?? null,
     storyHash: loaded?.record.hash ?? null,
     storyIdentity: buildStoryIdentity(loaded?.record ?? null, loaded ? findStoryRecord(loaded.record.id) : null, Boolean(loaded && hasPersistedRuntime(loaded.record.id))),
@@ -537,7 +537,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     nextTurnBuckets: promptBuckets.view(nextTurnCost.ownTokens), nextTurnFold: fold,
     roleRoutes: roleHealth.view(),
     lore: extras.lore,
-    consoleAuthor: consoleAuthorSlice({ story, state, boundaryLog: sources.boundaryLog, authorView: extras.ui.authorView, secrets: sources.secretGrid }),
+    consoleAuthor: consoleAuthorSlice(story, state, sources),
     inline, castNames, ...presenceSlices(sources, story, state, { castNames, openThreads }),
     ...modelCallSlices(extras),
   };
