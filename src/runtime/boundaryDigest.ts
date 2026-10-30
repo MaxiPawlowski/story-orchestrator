@@ -24,7 +24,7 @@ export interface BoundaryDigest {
 
 const SOURCE_OF: Record<string, ChangeSource> = { extractor: "read", mechanical: "code", reconciliation: "re-check" };
 
-const text = (value: PrimitiveValue | undefined) => (value === undefined ? "unset" : String(value));
+const text = (value: PrimitiveValue | undefined) => (value === undefined ? "unset" : value === "" ? "empty" : String(value));
 
 const writers = (entry: BoundaryLogEntry): Map<string, ChangeSource> => {
   const by = new Map<string, ChangeSource>();

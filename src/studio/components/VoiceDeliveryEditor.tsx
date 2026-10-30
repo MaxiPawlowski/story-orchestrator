@@ -3,6 +3,7 @@ import { DELIVERY_CAPS, DELIVERY_RHYTHMS, MOOD_DEFAULT_VALUES, type RosterMember
 import HelpTooltip from "@components/studio/HelpTooltip";
 import { useDraftStore } from "../draft";
 import { setMemberPolish, type PolishPatch } from "../deliveryMutations";
+import { IconButton } from "@components/ui/IconButton";
 
 const HELP = "How this character words things, told only to them before they speak. It never changes what happens or what they know. "
   + "Record only what the card already shows; leave a field empty rather than invent a trait.";
@@ -11,17 +12,17 @@ const NOTES_HELP = "Register, sentence habits, what they never say aloud. Wordin
 
 type ListKey = "prefer" | "avoid" | "tics";
 
-const LISTS: Array<{ key: ListKey; label: string; help: string; placeholder: string }> = [
-  { key: "prefer", label: "Words that are theirs", help: "Words and turns of phrase this character uses.", placeholder: "e.g. mind the rope" },
-  { key: "avoid", label: "Words they would not use", help: "Told to the character as words to say their own way instead. Never a name.", placeholder: "e.g. indeed" },
+const LISTS: Array<{ key: ListKey; label: string; help?: string; desc?: string; placeholder: string }> = [
+  { key: "prefer", label: "Words that are theirs", placeholder: "e.g. mind the rope" },
+  { key: "avoid", label: "Words they would not use", desc: "Told to the character as words to say their own way instead. Never a name.", placeholder: "e.g. indeed" },
   {
     key: "tics", label: "Habits to watch", placeholder: "e.g. smirks",
     help: "Model habits you have seen in their replies ('smirks'). Named back to the character when they show in two of their last six replies.",
   },
 ];
 
-export const ChipList = ({ name, label, help, placeholder, items, max, onChange }: {
-  name: string; label: string; help: string; placeholder: string; items: string[]; max: number; onChange: (items: string[]) => void;
+export const ChipList = ({ name, label, help, desc, placeholder, items, max, onChange }: {
+  name: string; label: string; help?: string; desc?: string; placeholder: string; items: string[]; max: number; onChange: (items: string[]) => void;
 }) => {
   const [text, setText] = useState("");
   const add = () => {
@@ -31,12 +32,13 @@ export const ChipList = ({ name, label, help, placeholder, items, max, onChange 
   };
   return (
     <div className="flex basis-full flex-col gap-1 text-sm">
-      <span className="text-xs st-muted">{label} <HelpTooltip title={help} /></span>
+      <span className="text-xs st-muted">{label}{help ? <> <HelpTooltip title={help} /></> : null}</span>
+      {desc ? <p className="so-setting-desc">{desc}</p> : null}
       <div className="flex flex-wrap items-center gap-1">
         {items.map((item) => (
           <span key={item} className="st-pill flex items-center gap-1 px-2 py-0.5 text-[11px]">
             {item}
-            <button type="button" className="st-button danger px-1" aria-label={`Remove ${name} ${label} ${item}`} onClick={() => onChange(items.filter((entry) => entry !== item))}>×</button>
+            <IconButton icon="fa-xmark" label={`Remove ${name} ${label} ${item}`} type="button" onClick={() => onChange(items.filter((entry) => entry !== item))} />
           </span>
         ))}
         <input
@@ -71,7 +73,8 @@ const MemberSheet = ({ member }: { member: RosterMember }) => {
         <span className="text-xs st-muted">On</span>
       </label>
       <label className="flex basis-full flex-col gap-1 text-sm">
-        <span className="text-xs st-muted">How they talk <HelpTooltip title={NOTES_HELP} /></span>
+        <span className="text-xs st-muted">How they talk</span>
+        <span className="so-setting-desc">{NOTES_HELP}</span>
         <textarea
           className="text_pole st-input"
           aria-label={`${name} voice notes`}
@@ -83,7 +86,7 @@ const MemberSheet = ({ member }: { member: RosterMember }) => {
         />
       </label>
       {LISTS.map((list) => (
-        <ChipList key={list.key} name={name} label={list.label} help={list.help} placeholder={list.placeholder} items={polish[list.key] ?? []}
+        <ChipList key={list.key} name={name} label={list.label} help={list.help} desc={list.desc} placeholder={list.placeholder} items={polish[list.key] ?? []}
           max={DELIVERY_CAPS[list.key].items} onChange={(items) => patch({ [list.key]: items })} />
       ))}
       <label className="flex flex-col gap-1 text-sm">
@@ -102,7 +105,7 @@ const MemberSheet = ({ member }: { member: RosterMember }) => {
       </label>
       {moods.length > 0 && (
         <div data-so="delivery-moods" className="flex basis-full flex-col gap-1">
-          <span className="text-xs st-muted">By mood <HelpTooltip title="How they sound in each mood, used while that is their current mood." /></span>
+          <span className="text-xs st-muted">By mood</span>
           {moods.map((mood) => (
             <label key={mood} className="flex items-center gap-2 text-sm">
               <span className="w-16 text-xs st-muted">{mood}</span>

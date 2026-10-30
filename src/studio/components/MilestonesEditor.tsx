@@ -1,10 +1,11 @@
 import React from "react";
 import type { Milestone } from "@engine/index";
-import HelpTooltip from "@components/studio/HelpTooltip";
 import { useDraftStore } from "../draft";
 import { addMilestone, removeMilestone, updateMilestone } from "../gameMutations";
 import GateBuilder from "./GateBuilder";
 import { TextField } from "./GameFields";
+import { Button } from "@components/ui/Button";
+import { IconButton } from "@components/ui/IconButton";
 
 const HELP = "A milestone is earned once its condition holds and stays earned. A secret one is listed only after it is earned.";
 
@@ -22,7 +23,7 @@ const MilestoneRow = ({ milestone }: { milestone: Milestone }) => {
             onChange={(event) => patch({ secret: event.target.checked ? true : undefined })} />
           Secret
         </label>
-        <button type="button" className="st-button danger" aria-label={`Remove milestone ${milestone.id}`} onClick={() => mutate((current) => removeMilestone(current, milestone.id))}>×</button>
+        <IconButton icon="fa-xmark" label={`Remove milestone ${milestone.id}`} type="button" onClick={() => mutate((current) => removeMilestone(current, milestone.id))} />
       </div>
       <GateBuilder gate={milestone.when} qualities={qualities} onChange={(when) => patch({ when })} />
     </div>
@@ -34,9 +35,10 @@ const MilestonesEditor: React.FC = () => {
   const mutate = useDraftStore((state) => state.mutate);
   return (
     <div data-so="milestones-editor" className="st-subpanel flex flex-col gap-2 p-3">
-      <div className="text-sm font-medium">Milestones<HelpTooltip title={HELP} /></div>
+      <div className="text-sm font-medium">Milestones</div>
+      <p className="so-setting-desc">{HELP}</p>
       {milestones.map((milestone) => <MilestoneRow key={milestone.id} milestone={milestone} />)}
-      <button type="button" className="st-button secondary self-start" onClick={() => mutate((current) => addMilestone(current))}>+ Milestone</button>
+      <Button type="button" className="self-start" onClick={() => mutate((current) => addMilestone(current))}>+ Milestone</Button>
     </div>
   );
 };

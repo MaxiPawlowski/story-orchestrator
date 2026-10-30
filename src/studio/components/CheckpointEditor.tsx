@@ -18,6 +18,8 @@ import OffersEditor from "./OffersEditor";
 import { rosterMemberIsPlayer } from "../playerRole";
 import { CHECKPOINT_SECTIONS, type CheckpointSection } from "../diagnosticTarget";
 import "../mobile.css";
+import { Button } from "@components/ui/Button";
+import { IconButton } from "@components/ui/IconButton";
 
 const Field: React.FC<{ label: string; children: React.ReactNode }> = ({ label, children }) => (
   <label className="flex flex-col gap-1 text-sm">
@@ -101,20 +103,16 @@ const ArcBridgesPanel: React.FC = () => {
               onChange={(event) => update(index, { amount: optionalFloat(event.target.value) ?? 0 })}
             />
           </label>
-          <button
-            type="button"
-            className="st-button danger"
-            aria-label={`Remove arc bridge ${index + 1}`}
-            onClick={() => mutate((current) => setArcBridges(current, bridges.filter((_, entryIndex) => entryIndex !== index)))}
-          >×</button>
+          <IconButton icon="fa-xmark"
+            label={`Remove arc bridge ${index + 1}`}
+            onClick={() => mutate((current) => setArcBridges(current, bridges.filter((_, entryIndex) => entryIndex !== index)))} />
         </div>
       ))}
-      <button
-        type="button"
-        className="st-button secondary self-start"
+      <Button
+        className="self-start"
         onClick={() => mutate((current) => setArcBridges(current, [...bridges, { arcMatch: "", anchor: anchors[0]?.id ?? "", amount: 1 }]))}
         disabled={anchors.length === 0}
-      >+ Arc bridge</button>
+      >+ Arc bridge</Button>
     </div>
   );
 };
@@ -124,7 +122,7 @@ type Patch = (change: Partial<Checkpoint>) => void;
 
 const CheckpointList = ({ checkpoints, selectedId, onAdd, onSelect }: { checkpoints: Checkpoint[]; selectedId: string | null; onAdd: () => void; onSelect: (id: string) => void }) => (
   <div className="flex w-full flex-col gap-2 sm:w-56">
-    <button type="button" className="st-button primary" onClick={onAdd}>+ Checkpoint</button>
+    <Button variant="primary" onClick={onAdd}>+ Checkpoint</Button>
     <ul className="flex flex-col gap-1" aria-label="Checkpoints">
       {checkpoints.map((checkpoint) => (
         <li key={checkpoint.id}>
@@ -281,7 +279,7 @@ const CheckpointBehaviour = ({ selected, draft, backgroundNames, patch }: { sele
 
 const CheckpointDeleteRow = ({ confirming, touchingTransitions, onDelete }: { confirming: boolean; touchingTransitions: number; onDelete: () => void }) => (
 <div className="flex items-center gap-2 border-t st-divider pt-3">
-  <button type="button" className="st-button danger" onClick={onDelete}>Delete checkpoint</button>
+  <Button variant="danger" onClick={onDelete}>Delete checkpoint</Button>
   {confirming ? (
     <span className="text-xs st-text-error">{touchingTransitions > 0 ? `Also removes ${touchingTransitions} connected ` +
       `transition${touchingTransitions === 1 ? "" : "s"} — ` : ""}click Delete again to confirm.</span>
@@ -341,7 +339,7 @@ const CheckpointEditor: React.FC<{ backgroundNames?: string[]; compact?: boolean
         {!compact && <div className="so-editor-list"><CheckpointList checkpoints={checkpoints} selectedId={selectedId} onAdd={handleAdd}
           onSelect={(id) => { setConfirmDeleteId(null); setSelectedId(id); setEditing(true); }} /></div>}
         <div className="so-editor-detail flex-1 min-w-0">
-          {!compact && <button className="so-editor-back st-button secondary" onClick={() => setEditing(false)}>Back to checkpoints</button>}
+          {!compact && <Button className="so-editor-back" onClick={() => setEditing(false)}>Back to checkpoints</Button>}
           {!selected ? (
             <div className="st-subpanel p-4 text-sm st-muted">Select or add a checkpoint.</div>
           ) : (

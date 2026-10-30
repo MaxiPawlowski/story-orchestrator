@@ -11,6 +11,8 @@ import { GAME_TEXT } from "@features/gameCopy";
 import { WIDGET_TEXT, changedAgoText, provenanceText, rollHintText } from "@features/widgetCopy";
 import { SHEET_TEXT } from "@features/sheetCopy";
 import { IconButton } from "@components/ui/IconButton";
+import { Button } from "@components/ui/Button";
+import "./game.css";
 
 const ICON: Record<string, string> = {
   scroll: "fa-scroll", flag: "fa-flag", star: "fa-star", heart: "fa-heart", shield: "fa-shield-halved", hourglass: "fa-hourglass-half", compass: "fa-compass",
@@ -226,13 +228,13 @@ const ActionButton = ({ text, onAction, run, hint, kind = "text", note }: {
   if (!act) return null;
   return (
     <span className="flex flex-col gap-0.5">
-      <button type="button" data-so="widget-action" data-intent={kind} className="st-button secondary so-game-action text-xs self-start" title={hint ?? WIDGET_TEXT.actionHint}
+      <Button type="button" data-so="widget-action" data-intent={kind} className="so-game-action self-start" size="sm" title={hint ?? WIDGET_TEXT.actionHint}
         onClick={() => {
           const result = act();
           setRefusal(result.ok ? null : result.reason);
         }}>
         {kind === "open" && <i className="fa-solid fa-route" aria-hidden="true" />}{kind === "roll" && <i className="fa-solid fa-dice" aria-hidden="true" />} {text}
-      </button>
+      </Button>
       {note && <span data-so="widget-roll" className="text-xs st-muted">{note}</span>}
       {refusal && <span role="status" data-so="widget-action-refused" className="text-xs st-muted">{refusal}</span>}
     </span>

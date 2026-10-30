@@ -4,6 +4,7 @@ import { liveHeadKey } from "../liveHeadRefs";
 import { loadHeadManifest, manifestRef } from "./manifest";
 import { mouthRegionProblem } from "./meshMouth";
 import { motionSummary } from "./motionSummary";
+import { Button } from "@components/ui/Button";
 
 export interface HeadStatus { member: string; name: string; look: string; present: boolean; state?: "missing-source" | "pending-bust" | "pending-rig" | "ready" }
 export function LiveHeadAuthor({ rows, onImport }: { rows: HeadStatus[]; onImport(ref: LiveHeadRef): void }) {
@@ -27,7 +28,7 @@ export function LiveHeadAuthor({ rows, onImport }: { rows: HeadStatus[]; onImpor
     <details><summary>Import a live head rig</summary>
       <label htmlFor="so-live-head-json">Rig package JSON</label>
       <textarea id="so-live-head-json" value={text} onChange={(event) => setText(event.target.value)} rows={3} />
-      <button type="button" className="menu_button" disabled={!text.trim()} onClick={install}>Import rig</button>
+      <Button type="button" disabled={!text.trim()} onClick={install}>Import rig</Button>
     </details>
     {notice && <span role="status">{notice}</span>}
   </div>;

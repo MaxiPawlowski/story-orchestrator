@@ -23,6 +23,9 @@ import ProposalReview from "./ProposalReview";
 import ProvisioningCard from "./ProvisioningCard";
 import WizardQuestions from "./WizardQuestions";
 import "../mobile.css";
+import { Button } from "@components/ui/Button";
+import { Callout } from "@components/ui/Callout";
+import { StatusText } from "@components/ui/StatusText";
 
 // Grant and revoke cards share the results map with the model's proposal, which counts up from 0.
 // Addressing the derived cards by name keeps their keys stable when the other list changes under
@@ -206,7 +209,7 @@ const WizardComposer = ({ label, message, busy, onChange, onRun }: { label: stri
       value={message}
       onChange={(event) => onChange(event.target.value)}
     />
-    <button id="so-wizard-run" type="button" className="st-button primary" disabled={busy} onClick={onRun}>{busy ? "Working…" : "Run stage"}</button>
+    <Button variant="primary" id="so-wizard-run" type="button" disabled={busy} onClick={onRun}>{busy ? "Working…" : "Run stage"}</Button>
   </div>
 );
 
@@ -426,8 +429,8 @@ const StagedWizard: React.FC<Props & { modeSwitch?: React.ReactNode }> = ({ enab
       {applied.length > 0 && (
         <div id="so-wizard-created" className="text-[11px] st-muted" role="status" aria-label="Created in SillyTavern">Created so far: {applied.join(", ")}</div>
       )}
-      {error ? <div className="st-alert-error rounded px-3 py-2 text-sm" role="alert">{error}</div> : null}
-      {fellBack ? <div data-so="wizard-fell-back" className="so-warning-text text-xs" role="status">{fellBackText(fellBack)}</div> : null}
+      {error ? <Callout tone="error" role="alert"><p>{error}</p></Callout> : null}
+      {fellBack ? <StatusText tone="warn" as="div" data-so="wizard-fell-back" className="text-xs" role="status">{fellBackText(fellBack)}</StatusText> : null}
       {questions.length > 0 && (
         <WizardQuestions questions={questions} summary={history[history.length - 1]?.text} busy={busy} onAnswer={answer} onDismiss={dismiss} />
       )}

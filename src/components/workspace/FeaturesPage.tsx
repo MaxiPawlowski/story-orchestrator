@@ -21,6 +21,7 @@ import { Callout } from "@components/ui/Callout";
 import { CheckRow } from "../settings/Field";
 import { InnerHarvestNotes } from "../settings/InnerHarvestNotes";
 import type { WorkspaceNavigate } from "./WorkspaceShell";
+import { StatusText } from "@components/ui/StatusText";
 
 export const FEATURE_JUDGE_USES: Partial<Record<StoryFeatureId, JudgeUseKey[]>> = {
   reading: ["typedExtraction", "stallCheck", "sceneTrigger", "sceneTracker"],
@@ -139,7 +140,7 @@ export const FeaturesPage = ({ snapshot, manager, scope, expanded, navigate, pro
     const waiting = waitingCount(snapshot, feature);
     if (!entry.reenabled && !entry.masterOff && waiting <= 0) return null;
     return <>
-      {entry.reenabled && <p className="so-warning-text" role="status">This chat re-enables a feature the story turned off. Its authored limits still apply.</p>}
+      {entry.reenabled && <StatusText tone="warn" role="status">This chat re-enables a feature the story turned off. Its authored limits still apply.</StatusText>}
       {entry.masterOff && <p className="so-setting-desc">Off for every chat. <Button variant="ghost" size="sm" onClick={() => navigate({ context: "orchestrator", page: "features", feature },
         `so-feature-${feature}-enabled`)}>Turn it on in Settings › Features</Button></p>}
       {waiting > 0 && <p className="so-setting-desc">{waiting} changes are waiting for review. Author view reveals their contents.</p>}

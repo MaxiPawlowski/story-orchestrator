@@ -2,6 +2,9 @@ import type { WiGatingStatus } from "@runtime/worldInfoMode";
 import { settingCopy } from "@features/settingsCopy";
 import { SettingRow } from "@components/ui/SettingRow";
 import { Select } from "@components/ui/Field";
+import { Button } from "@components/ui/Button";
+import { StatusText } from "@components/ui/StatusText";
+import { Callout } from "@components/ui/Callout";
 
 export interface WorldInfoGatingGroupProps {
   status: WiGatingStatus | null;
@@ -54,14 +57,14 @@ export function WorldInfoGatingGroup({ status, authorView, onChoose, onRenormali
         </div>
       )}
       {unavailable && (
-        <div data-so="wi-unavailable" className="text-xs so-warning-text">Per-chat gating is unavailable on this SillyTavern; lorebooks are gated by file writes.</div>
+        <StatusText as="div" tone="warn" data-so="wi-unavailable">Per-chat gating is unavailable on this SillyTavern; lorebooks are gated by file writes.</StatusText>
       )}
       {mode === "scan" && fixable.length > 0 && (
-        <div data-so="wi-drift" className="flex flex-col gap-1 text-xs so-warning-text">
-          {status?.drift.length ? <span>Switched on outside the story, so chats without it see {status.drift.length === 1 ? "it" : "them"}: {entryCount(status.drift)}</span> : null}
-          {status?.missingKey.length ? <span>Cannot be switched off per chat: {entryCount(status.missingKey)}</span> : null}
-          <button id="so-wi-renormalize" type="button" className="menu_button self-start" disabled={busy} onClick={onRenormalize}>Switch {fixable.length === 1 ? "it" : "them"} off again</button>
-        </div>
+        <Callout data-so="wi-drift" tone="warn" size="sm"
+          actions={<Button id="so-wi-renormalize" type="button" disabled={busy} onClick={onRenormalize}>Switch {fixable.length === 1 ? "it" : "them"} off again</Button>}>
+          {status?.drift.length ? <p>Switched on outside the story, so chats without it see {status.drift.length === 1 ? "it" : "them"}: {entryCount(status.drift)}</p> : null}
+          {status?.missingKey.length ? <p>Cannot be switched off per chat: {entryCount(status.missingKey)}</p> : null}
+        </Callout>
       )}
       {authorView && (unavailable || fixable.length > 0) && <WiGatingAuthorDetail status={status} unavailable={unavailable} />}
     </div>

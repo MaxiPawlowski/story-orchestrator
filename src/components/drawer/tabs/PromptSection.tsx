@@ -3,6 +3,7 @@ import type { RuntimeManager } from "@runtime/index";
 import { lorebookFileId } from "@utils/string";
 import { NextTurnPanel, type NextTurnOwnerTab } from "../NextTurnPanel";
 import { MessageCitation } from "../MessageCitation";
+import { StatusText } from "@components/ui/StatusText";
 
 // Author only: what lore-select forced into the latest scan, with each entry's p.
 const LoreForced = ({ record }: { record: RuntimeSnapshot["loreForced"] | undefined }) => {
@@ -46,14 +47,16 @@ const LoreFired = ({ evidence }: { evidence: RuntimeSnapshot["loreEvidence"] }) 
               {entry.origin !== "other" && <span className="st-pill px-1 text-[10px]">{entry.origin}</span>}
             </div>
           ))}
-          {last.lost.length > 0 && <div
+          {last.lost.length > 0 && <StatusText
+            as="div"
+            tone="warn"
             data-so="lore-lost"
-            className="so-warning-text"
-          >Forced but never reached the reply: {last.lost.map((entry) => entry.comment || `${entry.world} #${entry.uid}`).join(", ")}</div>}
-          {last.constantMissed.length > 0 && <div
+          >Forced but never reached the reply: {last.lost.map((entry) => entry.comment || `${entry.world} #${entry.uid}`).join(", ")}</StatusText>}
+          {last.constantMissed.length > 0 && <StatusText
+            as="div"
+            tone="warn"
             data-so="lore-constant-missed"
-            className="so-warning-text"
-          >Constant and enabled for this chat, but did not fire: {last.constantMissed.map((entry) => entry.comment).join(", ")}</div>}
+          >Constant and enabled for this chat, but did not fire: {last.constantMissed.map((entry) => entry.comment).join(", ")}</StatusText>}
         </>
       )}
     </div>
@@ -95,7 +98,7 @@ const SamplerOverlayRow = ({ overlay }: { overlay: RuntimeSnapshot["samplerOverl
     <div data-so="next-turn-overlay" className="so-console-block">
       <div className="so-strong">Sampler overlay “{overlay.name}”: {values}</div>
       <div className="so-muted">This checkpoint's replies only; the selected preset is untouched. {overlay.applied ? `Applied to ${overlay.applied} request(s).` : "Not applied yet."}</div>
-      {overlay.lastSkipped.length > 0 && <div className="so-warning-text">Not in the last request: {overlay.lastSkipped.join(", ")}</div>}
+      {overlay.lastSkipped.length > 0 && <StatusText as="div" tone="warn">Not in the last request: {overlay.lastSkipped.join(", ")}</StatusText>}
       {overlay.unknown.length > 0 && <div className="so-muted">Not sent (not a per-request sampler): {overlay.unknown.join(", ")}</div>}
     </div>
   );

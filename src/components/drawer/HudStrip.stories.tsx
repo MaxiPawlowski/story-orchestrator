@@ -4,6 +4,7 @@ import type { RuntimeSnapshot } from "@runtime/types";
 import { HudStrip } from "./HudStrip";
 import { emptyGame } from "../widgets/gameViewFixtures";
 import { fitsAt, VIEWPORTS } from "../../../.storybook/fit";
+import { Button } from "@components/ui/Button";
 
 const baseSnapshot = (overrides: Record<string, unknown> = {}): RuntimeSnapshot =>
   ({
@@ -358,7 +359,7 @@ export const StoryCardNoticesOnAPhone: Story = {
 
 export const StoryCardClosesOnEscapeAndOutsideClick: Story = {
   args: { snapshot: cardSnapshot(), card: { ...cardArgs(), tabs: [] } },
-  render: (args) => <><button type="button" id="outside" className="menu_button">elsewhere</button><div id="so-hud-root"><HudStrip {...args} /></div></>,
+  render: (args) => <><Button type="button" id="outside">elsewhere</Button><div id="so-hud-root"><HudStrip {...args} /></div></>,
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);
     const main = canvasElement.querySelector("#so-hud-main") as HTMLButtonElement;

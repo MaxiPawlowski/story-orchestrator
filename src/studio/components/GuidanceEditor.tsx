@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { buildGuidance, guidanceMembers, guidanceShared, type Checkpoint, type RosterMember } from "@engine/index";
+import { Button } from "@components/ui/Button";
 
 export interface GuidanceEditorProps {
   guidance: Checkpoint["guidance"];
@@ -34,7 +35,7 @@ export function GuidanceEditor({ guidance, roster, onChange }: GuidanceEditorPro
             {unknown.map((id) => (
               <div key={id} data-so="guidance-member-unknown" className="text-xs st-muted">
                 &quot;{id}&quot; is not in the roster, so nobody hears its direction.
-                <button type="button" className="menu_button" onClick={() => setMember(id, "")}>Remove</button>
+                <Button type="button" onClick={() => setMember(id, "")}>Remove</Button>
               </div>
             ))}
           </div>

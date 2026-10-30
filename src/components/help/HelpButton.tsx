@@ -1,5 +1,6 @@
 import type { MouseEvent } from "react";
 import { HELP_COPY } from "@features/helpCopy";
+import { IconButton } from "@components/ui/IconButton";
 
 export interface HelpButtonProps {
   id: string;
@@ -9,13 +10,12 @@ export interface HelpButtonProps {
 }
 
 export const HelpButton = ({ id, open, controls = "so-help", onToggle }: HelpButtonProps) => (
-  <button
+  <IconButton
     id={id}
     type="button"
     data-so="help-toggle"
-    className="menu_button fa-solid fa-circle-question"
-    aria-label={HELP_COPY.toggle}
-    title={HELP_COPY.toggle}
+    icon="fa-circle-question"
+    label={HELP_COPY.toggle}
     aria-expanded={open}
     aria-controls={controls}
     onClick={onToggle}

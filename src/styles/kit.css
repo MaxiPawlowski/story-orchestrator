@@ -27,7 +27,7 @@
     font-weight: 500;
     line-height: 1.2;
     text-align: center;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
     cursor: pointer;
     transition: background-color var(--so-dur) var(--so-ease), border-color var(--so-dur) var(--so-ease);
   }
@@ -220,6 +220,7 @@
 
   .so-nav-item {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
     gap: var(--so-space-2);
@@ -239,7 +240,7 @@
 
   .so-nav-item:hover:not(:disabled) { background: var(--so-surface-3); }
   .so-nav-item[aria-current="page"] { background: color-mix(in srgb, var(--so-accent) 18%, transparent); box-shadow: inset 3px 0 0 var(--so-accent); font-weight: 600; }
-  .so-nav-label { display: inline-flex; align-items: center; gap: var(--so-space-2); min-width: 0; overflow-wrap: anywhere; }
+  .so-nav-label { display: inline-flex; align-items: center; gap: var(--so-space-2); min-width: 0; overflow-wrap: break-word; }
   .so-nav-count { color: var(--so-fg-muted); font-size: var(--so-text-xs); }
 
   .so-card {
@@ -306,6 +307,11 @@
   .so-callout-body { display: flex; flex-direction: column; gap: var(--so-space-2); min-width: 0; }
   .so-callout-body > p { margin: 0; }
   .so-callout-title { font-weight: 600; }
+
+  .so-status-text { display: flex; align-items: baseline; gap: var(--so-space-1); margin: 0; font-size: var(--so-text-xs); color: color-mix(in oklab, var(--tone) 75%, var(--so-fg)); }
+  span.so-status-text { display: inline-flex; }
+  .so-status-text > i { flex: none; }
+  .so-callout[data-size="sm"] { padding: var(--so-space-1) var(--so-space-2); gap: var(--so-space-1) var(--so-space-2); font-size: var(--so-text-xs); }
 
   .so-status-word[data-tone="info"] { --so-tone: var(--so-info); }
 

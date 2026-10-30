@@ -19,7 +19,8 @@ const StoryDisplayEditor: React.FC = () => {
   const mutate = useDraftStore((state) => state.mutate);
   return (
     <div data-so="story-display" className="st-subpanel flex flex-col gap-2 p-3">
-      <div className="text-sm font-medium">Story presence <span className="st-muted font-normal">— what this story shows around the chat</span><HelpTooltip title={PRESENCE_STORY_HINT} /></div>
+      <div className="text-sm font-medium">Story presence <span className="st-muted font-normal">— what this story shows around the chat</span></div>
+      <p className="so-setting-desc">{PRESENCE_STORY_HINT}</p>
       {PRESENCE_TOGGLES.map((toggle) => {
         const copy = settingCopy(`display.presence.${toggle}`);
         return (

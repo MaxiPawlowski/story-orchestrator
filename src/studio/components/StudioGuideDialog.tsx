@@ -2,6 +2,7 @@ import React, { Component, Suspense, useLayoutEffect, useMemo, useRef, type Reac
 import { lazyRetry } from "@utils/lazyRetry";
 import { GUIDE_COPY } from "@features/helpCopy";
 import { targetForDoc } from "@guide/links";
+import { IconButton } from "@components/ui/IconButton";
 
 const GuideHost = lazyRetry(() => import("@guide/GuideHost"));
 
@@ -59,8 +60,7 @@ const StudioGuideDialog: React.FC<StudioGuideDialogProps> = ({ doc, onClose }) =
       <div className="st-panel flex h-[80dvh] w-[min(960px,94dvw)] flex-col gap-2 overflow-hidden p-3 shadow-lg">
         <div className="flex items-center justify-between gap-2">
           <span className="font-semibold">{GUIDE_COPY.title}</span>
-          <button ref={closeRef} type="button" id="so-studio-guide-close" data-so="studio-guide-close" className="menu_button fa-solid fa-xmark"
-            aria-label={GUIDE_COPY.close} title={GUIDE_COPY.close} onClick={close} />
+          <IconButton icon="fa-xmark" label={GUIDE_COPY.close} ref={closeRef} type="button" id="so-studio-guide-close" data-so="studio-guide-close" title={GUIDE_COPY.close} onClick={close} />
         </div>
         <div className="min-h-0 flex-1">
           <ReaderBoundary>

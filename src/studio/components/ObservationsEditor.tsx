@@ -7,6 +7,8 @@ import { nextId } from "../mutations";
 import { imposesMind, instructs } from "../observationDiagnostics";
 import GateBuilder from "./GateBuilder";
 import { TextField, optionalText } from "./GameFields";
+import { Button } from "@components/ui/Button";
+import { IconButton } from "@components/ui/IconButton";
 
 const HELP = "Small details the player can notice: what is there to see, never what they feel or should do. A line shows on the story card the turn it is noticed and stays in the "
   + "Journal; a passive roll decides, unseen, whether it is noticed at all. No model is told.";
@@ -95,8 +97,8 @@ const ObservationRow: React.FC<{ observation: Observation; sources: string[] }> 
           <input type="number" min={1} className="text_pole st-input w-16" aria-label={`${observation.id} rev`} value={observation.rev ?? 1}
             onChange={(event) => { const rev = whole(event.target.value, 1); if (rev !== null) patch({ rev: rev > 1 ? rev : undefined }); }} />
         </label>
-        <button type="button" className="st-button danger" aria-label={`Remove observation ${observation.id}`}
-          onClick={() => mutate((current) => removeObservation(current, observation.id))}>×</button>
+        <IconButton icon="fa-xmark" label={`Remove observation ${observation.id}`} type="button"
+          onClick={() => mutate((current) => removeObservation(current, observation.id))} />
       </div>
       {warnings.length > 0 && <div data-so="observation-warning" role="note" className="text-xs st-warn">{warnings.join(". ")}. Write only what is there to see.</div>}
       <WhenField label={`${observation.id} noticed when`} when={observation.when} qualities={qualities} checkpoints={checkpoints} onChange={(when) => patch({ when })} />
@@ -122,7 +124,7 @@ const ObservationsEditor: React.FC = () => {
         Show what the player notices
       </label>
       {list.map((observation) => <ObservationRow key={observation.id} observation={observation} sources={sources} />)}
-      <button type="button" className="st-button secondary self-start" onClick={add}>+ Detail</button>
+      <Button type="button" className="self-start" onClick={add}>+ Detail</Button>
     </div>
   );
 };

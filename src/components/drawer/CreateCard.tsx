@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { nearDupAdvice, type CreateCuratorOp, type CuratorOpRecord, type CuratorProposalRecord } from "@stagecraft/index";
 import type { RuntimeManager } from "@runtime/index";
+import { Button } from "@components/ui/Button";
+import { StatusText } from "@components/ui/StatusText";
 
 const CREATE_STATUS: Record<CuratorOpRecord["status"], string> = {
   pending: "waiting for you",
@@ -35,9 +37,9 @@ export const CreateCard = ({ record, index, entry, op, manager }: {
     <div data-so="curator-op" data-kind="create" className="border-t border-solid border-[var(--so-line)] mt-1 pt-1">
       <div className="opacity-100">new entry “{op.comment}” in {op.lorebook} <span className="opacity-70">· {createStatusText(entry)}</span></div>
       {(entry.nearDups ?? []).map((dup) => (
-        <div key={dup.comment} data-so="curator-near-dup" data-band={dup.band ?? ""} className="so-warning-text">{nearDupAdvice(dup)}</div>
+        <StatusText as="div" tone="warn" key={dup.comment} data-so="curator-near-dup" data-band={dup.band ?? ""}>{nearDupAdvice(dup)}</StatusText>
       ))}
-      {entry.status === "failed" && entry.message && <div className="so-error-text">{entry.message}</div>}
+      {entry.status === "failed" && entry.message && <StatusText as="div" tone="error">{entry.message}</StatusText>}
       {decidable ? (
         <>
           <label className="flex flex-col gap-1">
@@ -49,8 +51,8 @@ export const CreateCard = ({ record, index, entry, op, manager }: {
             <textarea data-so="curator-text" className="text_pole w-full" rows={3} value={text} onChange={(event) => setText(event.target.value)} />
           </label>
           <div className="flex gap-2 flex-wrap">
-            <button data-so="curator-accept" className="menu_button" disabled={!keyList(keys).length || !text.trim()} onClick={accept}>Create it</button>
-            <button data-so="curator-reject" className="menu_button opacity-80" onClick={() => void manager.setCuratorOpDecision(record.id, index, "rejected")}>Decline</button>
+            <Button data-so="curator-accept" disabled={!keyList(keys).length || !text.trim()} onClick={accept}>Create it</Button>
+            <Button data-so="curator-reject" className="opacity-80" onClick={() => void manager.setCuratorOpDecision(record.id, index, "rejected")}>Decline</Button>
           </div>
         </>
       ) : (

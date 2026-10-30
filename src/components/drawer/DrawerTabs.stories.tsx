@@ -1169,7 +1169,7 @@ export const MemorizePreparing: Story = {
     await openMemoryTab(canvas);
     const button = canvas.getByRole("button", { name: "Preparing…" });
     await expect(button).toBeDisabled();
-    await expect(button).not.toHaveClass("so-error-text");
+    await expect(button.closest(".so-status-text")).toBeNull();
     await expect(canvas.queryByRole("button", { name: "Memorize chat" })).toBeNull();
     await expect(canvas.queryByText(/Memorizing:/)).toBeNull();
     await expect(canvasElement.querySelector("#so-memorize-error")).toBeNull();
@@ -1219,7 +1219,7 @@ export const MemorizeStopped: Story = {
     await expect(canvas.queryByRole("button", { name: "Stop" })).toBeNull();
     const note = canvas.getByText(/Stopped after 1 of 3 parts/);
     await expect(note).toHaveAttribute("id", "so-memorize-note");
-    await expect(note).not.toHaveClass("so-error-text");
+    await expect(note.closest(".so-status-text")).toBeNull();
     await expect(canvasElement.querySelector("#so-memorize-error")).toBeNull();
     await expect(canvas.queryByText(/Memorizing:/)).toBeNull();
     await userEvent.click(canvas.getByRole("button", { name: "Memorize chat" }));
@@ -1243,7 +1243,7 @@ export const MemorizeFailed: Story = {
     await openMemoryTab(canvas);
     const error = canvas.getByText("Memorizing the chat stopped before the end. Try again later.");
     await expect(error).toHaveAttribute("id", "so-memorize-error");
-    await expect(error).toHaveClass("so-error-text");
+    await expect(error.closest("[data-tone]")).toHaveAttribute("data-tone", "error");
     await expect(canvas.queryByText("Response not OK")).toBeNull();
     await expect(canvasElement.querySelector("#so-memorize-note")).toBeNull();
   },

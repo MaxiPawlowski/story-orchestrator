@@ -10,6 +10,7 @@ import { Button } from "@components/ui/Button";
 import { settingCopy } from "@features/settingsCopy";
 import type { EffectsLevel, SpriteActivation, SpriteSettings, StageMode } from "./settings";
 import { CheckRow, HelpText } from "@components/settings/Field";
+import { StatusText } from "@components/ui/StatusText";
 
 export type SpriteDeviceKey = "stage" | "effects" | "focus" | "breathing" | "blink" | "mouth" | "liveHead" | "liveHeadFrames";
 
@@ -60,8 +61,8 @@ export function SpriteSettingsView({
         <CheckRow id="so-sprite-enabled" setting="sprites.enabled" checked={on} disabled={capability === "absent"} onChange={toggle}
           description={<span id="so-sprite-activation" data-activation={activation}>{ACTIVATION_TEXT[activation]}</span>}
           extra={settings.explicit ? <Button id="so-sprite-story-decides" variant="ghost" size="sm" onClick={onStoryDecides}>Let each story decide</Button> : undefined} />
-        {on && waitsForVn && <div id="so-sprite-vn-hint" className="so-warning-text">{PLAYER_COPY.spriteNeedsVn}</div>}
-        {capability === "absent" && <div id="so-sprite-capability" className="so-warning-text">{PLAYER_COPY.spriteUnavailable}</div>}
+        {on && waitsForVn && <StatusText as="div" tone="warn" id="so-sprite-vn-hint">{PLAYER_COPY.spriteNeedsVn}</StatusText>}
+        {capability === "absent" && <StatusText as="div" tone="warn" id="so-sprite-capability">{PLAYER_COPY.spriteUnavailable}</StatusText>}
         <SettingRow label={settingCopy("sprites.stage").label} description={<HelpText text={settingCopy("sprites.stage").help} />} scope={deviceScope?.("stage")}
           control={<>{deviceChip?.("stage")}<SegmentedControl id="so-sprite-stage" label={settingCopy("sprites.stage").label} size="sm" value={stage} disabled={!on}
             options={STAGES} onChange={(value: StageMode) => onChange({ stage: value })} /></>} />

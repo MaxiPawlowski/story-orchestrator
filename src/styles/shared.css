@@ -1,0 +1,74 @@
+#so-studio-modal [role="tabpanel"],
+#drawer-manager {
+  overflow-wrap: anywhere;
+  white-space: normal;
+  min-width: 0;
+}
+
+@media (min-width: 700px) {
+  #drawer-manager .so-overview-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(18rem, 0.8fr);
+    gap: 0.8rem 1rem;
+    align-items: start;
+  }
+
+  #drawer-manager .so-overview-layout #so-player-overview { grid-column: 1; }
+}
+:is(#story-orchestrator-settings, #so-workspace-modal, #drawer-manager, #so-panels-root) .so-task-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+  gap: 0.75rem;
+}
+
+:is(#story-orchestrator-settings, #so-workspace-modal, #drawer-manager, #so-panels-root) .so-task-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 0;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--st-border);
+  border-radius: 0.5rem;
+  background: color-mix(in srgb, var(--st-bg-tint) 50%, transparent);
+}
+
+:is(#drawer-manager, #so-hud-root, #story-orchestrator-settings, #so-studio-root, #so-studio-modal, #so-panels-root, #so-workspace-modal) .border-t.border-solid:not(.border) {
+  border-width: 1px 0 0;
+  border-top-color: var(--so-line);
+}
+
+:is(#story-orchestrator-settings, #so-workspace-modal, #drawer-manager, #so-panels-root) .so-card-heading {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+:is(#story-orchestrator-settings, #so-workspace-modal, #drawer-manager, #so-panels-root) summary.so-card-heading {
+  cursor: pointer;
+  padding: 0.5rem 0;
+}
+
+:is(#story-orchestrator-settings, #so-workspace-modal, #drawer-manager, #so-panels-root) .so-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+#drawer-manager {
+  text-align: left;
+
+  .requirements-reload {
+    cursor: pointer;
+    margin-left: 10px;
+  }
+}
+
+#story-orchestrator-settings .so-actions > .menu_button {
+  width: auto;
+  max-width: 100%;
+  margin: 0;
+  white-space: normal;
+  overflow-wrap: break-word;
+  text-align: center;
+}

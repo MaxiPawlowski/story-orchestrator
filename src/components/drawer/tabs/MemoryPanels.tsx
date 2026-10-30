@@ -4,6 +4,8 @@ import { arcDeferred, arcHistoryLines } from "@memory/arcThreads";
 import { MessageCitation } from "../MessageCitation";
 import { RumorsPanel } from "../RumorsPanel";
 import { EchoesPanel } from "../EchoesPanel";
+import { Button } from "@components/ui/Button";
+import { StatusText } from "@components/ui/StatusText";
 
 const EPISTEMIC_TAG_LABELS: Record<string, string> = { knows: "knows", suspects: "suspects", believes: "believes (false)", unaware: "unaware", hiding: "hiding" };
 
@@ -37,7 +39,7 @@ export const EffectLedgerPanel = ({ snapshot }: { snapshot: RuntimeSnapshot }) =
       {rows.map((row) => (
         <div key={row.id} data-so="effect-row" data-status={row.status} className="opacity-80 mt-1">
           <div>{describeEffectTarget(row.target)} <span className="opacity-70">· {row.effect} · {EFFECT_STATUS_COPY[row.status] ?? row.status}</span></div>
-          {row.reason && <div className="so-warning-text">{row.reason}</div>}
+          {row.reason && <StatusText as="div" tone="warn">{row.reason}</StatusText>}
           <div className="opacity-70">boundary {row.boundary} · <MessageCitation messageId={row.messageId} /></div>
         </div>
       ))}
@@ -57,7 +59,7 @@ export const NotStoredPanel = ({ snapshot, manager }: { snapshot: RuntimeSnapsho
         <div key={drop.entry.id} className="flex gap-2 opacity-80 flex-wrap mt-1">
           <span title={drop.entry.evidence}>{drop.entry.text}</span>
           <span>support {drop.p.toFixed(2)}{drop.model ? ` · ${drop.model}` : ""}</span>
-          <button className="menu_button" data-so="memory-store-anyway" onClick={() => void manager.storeDroppedMemory(drop.entry.id)}>Store anyway</button>
+          <Button data-so="memory-store-anyway" onClick={() => void manager.storeDroppedMemory(drop.entry.id)}>Store anyway</Button>
         </div>
       ))}
     </details>
@@ -77,8 +79,8 @@ export const EpistemicPanel = ({ snapshot, manager }: { snapshot: RuntimeSnapsho
           {entries.filter((entry) => entry.subject === subject).map((entry) => (
             <div key={entry.id} className="flex gap-2 opacity-80 flex-wrap">
               <span>[{EPISTEMIC_TAG_LABELS[entry.tag] ?? entry.tag}{entry.hiddenFrom ? ` from ${entry.hiddenFrom}` : ""}] {entry.content}{entry.pinned ? " 📌" : ""}</span>
-              <button className="menu_button" onClick={() => void manager.setEpistemicPinned(entry.id, !entry.pinned)}>{entry.pinned ? "Unpin" : "Pin"}</button>
-              <button className="menu_button" onClick={() => void manager.removeEpistemicEntry(entry.id)}>Remove</button>
+              <Button onClick={() => void manager.setEpistemicPinned(entry.id, !entry.pinned)}>{entry.pinned ? "Unpin" : "Pin"}</Button>
+              <Button onClick={() => void manager.removeEpistemicEntry(entry.id)}>Remove</Button>
             </div>
           ))}
         </div>
@@ -107,7 +109,7 @@ export const LedgerPanel = ({ snapshot, manager }: { snapshot: RuntimeSnapshot; 
                 <span>{row.field}={row.value}{row.bound ? " 🔒" : ""}</span>
                  {row.bound && <span title="mirrored read-only from a blackboard quality">blackboard</span>}
                  {row.cardWriter && <span>current card state · {row.cardWriter} · boundary {row.turn}</span>}
-                {id && <button className="menu_button" onClick={() => void manager.removeLedgerEntry(id)}>Remove</button>}
+                {id && <Button onClick={() => void manager.removeLedgerEntry(id)}>Remove</Button>}
               </div>
             );
           })}
@@ -134,8 +136,8 @@ export const ArcCanonPanel = ({ snapshot, manager }: { snapshot: RuntimeSnapshot
           {arcDeferred(arc) && <div className="opacity-80" data-so="arc-put-off">Put off by the player</div>}
           {arcHistoryLines(arc).map((line, index) => <div key={index} className="opacity-70" data-so="arc-history">{line}</div>)}
           <div className="flex gap-2 opacity-80 flex-wrap">
-            <button className="menu_button" onClick={() => void manager.setArcPinned(arc.id, !arc.pinned)}>{arc.pinned ? "Unpin" : "Pin"}</button>
-            <button className="menu_button" onClick={() => void manager.removeArc(arc.id)}>Remove</button>
+            <Button onClick={() => void manager.setArcPinned(arc.id, !arc.pinned)}>{arc.pinned ? "Unpin" : "Pin"}</Button>
+            <Button onClick={() => void manager.removeArc(arc.id)}>Remove</Button>
           </div>
         </div>
       ))}

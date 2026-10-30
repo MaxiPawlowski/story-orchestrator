@@ -59,9 +59,11 @@ describe("validation Go to (v3.0 29 WP-S6)", () => {
 
 describe("readable gate labels (v3.0 29 WP-S2)", () => {
   it("names qualities by their display label and reads operators as words", () => {
-    const label = qualityLabelOf([{ key: "trust", display: { label: "Guide's trust" } }, { key: "mood" }]);
+    const label = qualityLabelOf({ qualities: [{ key: "trust", display: { label: "Guide's trust" } }, { key: "mood" }] });
     expect(readableGateText({ all: [{ q: "trust", op: ">=", v: 2 }, { q: "rel_arin_player_fear", op: "<", v: 1 }] }, label)).toBe("Guide's trust ≥ 2 and rel arin player fear < 1");
     expect(readableGateText({ any: [{ q: "mood", op: "==", v: "calm" }, { not: { q: "mood", op: "in", v: ["angry", "sad"] } }] }, label))
       .toBe("mood is calm or (not (mood is one of angry, sad))");
+    const cast = qualityLabelOf({ roster: [{ id: "arin", name: "Arin" }], qualities: [] });
+    expect(readableGateText({ q: "rel_arin_player_trust", op: ">=", v: 2 }, cast)).toBe("Arin's trust toward you ≥ 2");
   });
 });

@@ -24,6 +24,8 @@ import { slugifyStoryId } from "@engine/index";
 import {
   addArcBridge, removeArcBridge, setArcTemplate, setBriefing, setHouseRules, setLoreSelect, setPlayer, setRequirements, setSceneRead, setStagecraft, setStoryField, setStoryId, updateArcBridge,
 } from "../mutations";
+import { Button } from "@components/ui/Button";
+import { IconButton } from "@components/ui/IconButton";
 
 export interface StoryEditorProps {
   section?: "setup" | "world" | "presentation" | "rules" | "flow";
@@ -44,24 +46,25 @@ const ARC_TEMPLATE_LABELS: Record<ArcTemplateName, string> = {
   three_act: "Three act",
 };
 
-const Field: React.FC<{ label: string; hint?: string; children: React.ReactNode }> = ({ label, hint, children }) => (
+const Field: React.FC<{ label: string; hint?: string; desc?: string; children: React.ReactNode }> = ({ label, hint, desc, children }) => (
   <div className="flex flex-col gap-1 text-sm">
     <span className="text-xs st-muted">{label}{hint ? <HelpTooltip title={hint} /> : null}</span>
+    {desc ? <p className="so-setting-desc">{desc}</p> : null}
     {children}
   </div>
 );
 
 const RequirementList: React.FC<{
-  label: string;
-  hint: string;
+  label: string; hint?: string; desc?: string;
   values: string[];
   options: string[];
   listId: string;
   max?: number;
   onChange: (next: string[]) => void;
-}> = ({ label, hint, values, options, listId, max, onChange }) => (
+}> = ({ label, hint, desc, values, options, listId, max, onChange }) => (
   <div className="flex flex-col gap-1">
-    <span className="text-xs st-muted">{label}<HelpTooltip title={hint} />{max !== undefined ? <span data-so="list-count"> {values.length}/{max}</span> : null}</span>
+    <span className="text-xs st-muted">{label}{hint ? <HelpTooltip title={hint} /> : null}{max !== undefined ? <span data-so="list-count"> {values.length}/{max}</span> : null}</span>
+    {desc ? <p className="so-setting-desc">{desc}</p> : null}
     {values.map((value, index) => (
       <div key={index} className="flex items-center gap-2">
         <input
@@ -71,10 +74,10 @@ const RequirementList: React.FC<{
           value={value}
           onChange={(event) => onChange(values.map((entry, entryIndex) => (entryIndex === index ? event.target.value : entry)))}
         />
-        <button type="button" className="st-button danger" aria-label={`Remove ${label} ${index + 1}`} onClick={() => onChange(values.filter((_, entryIndex) => entryIndex !== index))}>×</button>
+        <IconButton icon="fa-xmark" label={`Remove ${label} ${index + 1}`} type="button" onClick={() => onChange(values.filter((_, entryIndex) => entryIndex !== index))} />
       </div>
     ))}
-    <button type="button" className="st-button secondary self-start" disabled={max !== undefined && values.length >= max} onClick={() => onChange([...values, options[0] ?? ""])}>+ {label}</button>
+    <Button type="button" className="self-start" disabled={max !== undefined && values.length >= max} onClick={() => onChange([...values, options[0] ?? ""])}>+ {label}</Button>
     <datalist id={listId}>
       {options.map((option) => <option key={option} value={option} />)}
     </datalist>
@@ -91,7 +94,7 @@ const StoryIdentitySection = ({ draft, mutate, idLocked }: { draft: Draft; mutat
       <div className="grid gap-3 sm:grid-cols-2">
         <Field
           label="Story id"
-          hint="The stable identity of this story. Chats key their progress by it, so it is fixed once the story is in the library — editing the title afterwards never forks a new record."
+          desc="Chats key their progress by it, so it is fixed once the story is in the library."
         >
           <div className="flex items-center gap-2">
             <input
@@ -103,12 +106,12 @@ const StoryIdentitySection = ({ draft, mutate, idLocked }: { draft: Draft; mutat
               onChange={(event) => mutate((current) => setStoryId(current, event.target.value))}
             />
             {!idLocked && !draft.id ? (
-              <button type="button" className="st-button secondary" onClick={() => mutate((current) => setStoryId(current, slugifyStoryId(current.title)))}>From title</button>
+              <Button type="button" onClick={() => mutate((current) => setStoryId(current, slugifyStoryId(current.title)))}>From title</Button>
             ) : null}
           </div>
         </Field>
       </div>
-      <Field label="Library description" hint="Existing stories use this as their public introduction. Keep it spoiler-safe; the Player introduction below replaces it in the drawer and recap.">
+      <Field label="Library description" desc="Existing stories use this as their public introduction. Keep it spoiler-safe; the Player introduction below replaces it in the drawer and recap.">
         <textarea
           className="text_pole st-input min-h-[4rem]"
           aria-label="Story description"
@@ -116,7 +119,7 @@ const StoryIdentitySection = ({ draft, mutate, idLocked }: { draft: Draft; mutat
           onChange={(event) => mutate((current) => setStoryField(current, "description", event.target.value))}
         />
       </Field>
-      <Field label="Player introduction" hint="Only write what the player may know from the start. This is shown in their drawer and recap; leave secrets and future plot here out.">
+      <Field label="Player introduction" desc="Only write what the player may know from the start. This is shown in their drawer and recap; leave secrets and future plot here out.">
         <textarea className="text_pole st-input min-h-[4rem]" aria-label="Player introduction" placeholder="A spoiler-safe premise and what the player can expect…" value={draft.player_intro ?? ""}
           onChange={(event) => mutate((current) => setStoryField(current, "player_intro", event.target.value || undefined))} />
       </Field>
@@ -131,7 +134,7 @@ const StoryIdentitySection = ({ draft, mutate, idLocked }: { draft: Draft; mutat
         onChange={(next) => mutate((current) => setBriefing(current, next))}
         onPreview={() => requestBriefing({ kind: "preview", view: composeBriefing(draft) })} />
       <PlayerEditor player={draft.player} onChange={(next) => mutate((current) => setPlayer(current, next))} />
-      <Field label="Reply thinking" hint="The story's thinking level. A checkpoint override wins; empty uses the player's install setting. Only budgets an already-thinking llama.cpp setup.">
+      <Field label="Reply thinking" desc="A checkpoint override wins; empty uses the player's install setting. Only budgets an already-thinking llama.cpp setup.">
         <select className="text_pole st-input" aria-label="Reply thinking" value={draft.reasoning ?? ""}
           onChange={(event) => mutate((current) => setStoryField(current, "reasoning", CHECKPOINT_REASONING.find((level) => level === event.target.value)))}>
           <option value="">Use install setting</option>
@@ -205,7 +208,6 @@ const RequirementsSection = ({ draft, mutate, personaNames, memberNames, loreboo
       <div className="text-sm font-medium">Requirements <span className="st-muted font-normal">— what the chat must have before the story runs</span></div>
       <RequirementList
         label="Persona"
-        hint="The user persona this story is written for. A mismatch shows the player a 'this story still needs' notice instead of silently misfiring."
         values={requirements.personas ?? []}
         options={personaNames}
         listId="so-req-personas"
@@ -213,7 +215,7 @@ const RequirementsSection = ({ draft, mutate, personaNames, memberNames, loreboo
       />
       <RequirementList
         label="Cast member"
-        hint="Characters that must be in the group. Names must match the character cards."
+        desc="Names must match the character cards."
         values={requirements.members ?? []}
         options={memberNames}
         listId="so-req-members"
@@ -236,7 +238,7 @@ const StagecraftSection = ({ draft, mutate, lorebookNames }: { draft: Draft; mut
     <div className="text-sm font-medium">Stagecraft <span className="st-muted font-normal">— what a background curator may edit</span></div>
     <RequirementList
       label="Curator lorebook"
-      hint="The only lorebooks the World Info curator may ever write into. Leave empty and it can write nothing at all — never list a book you keep for yourself."
+      desc="The only lorebooks the curator may write into. Empty = none. Never list a book you keep for yourself."
       values={draft.stagecraft?.lorebooks ?? []}
       options={lorebookNames}
       listId="so-stagecraft-lorebooks"
@@ -280,10 +282,10 @@ const CuratorExclusions = ({ draft, mutate }: { draft: Draft; mutate: Mutate }) 
           onChange={(event) => patch(index, { lorebook: event.target.value })} />
         <input className="text_pole st-input flex-1" aria-label={`Excluded entries ${index + 1}`} placeholder="Entry title, another title" value={entry.comments.join(",")}
           onChange={(event) => patch(index, { comments: event.target.value.split(",") })} />
-        <button type="button" className="st-button danger" aria-label={`Remove exclusion ${index + 1}`} onClick={() => write(exclude.filter((_, at) => at !== index))}>×</button>
+        <IconButton icon="fa-xmark" label={`Remove exclusion ${index + 1}`} type="button" onClick={() => write(exclude.filter((_, at) => at !== index))} />
       </div>
     ))}
-    <button type="button" className="st-button secondary self-start" onClick={() => write([...exclude, { lorebook: books[0] ?? "", comments: [""] }])}>+ Excluded entry</button>
+    <Button type="button" className="self-start" onClick={() => write([...exclude, { lorebook: books[0] ?? "", comments: [""] }])}>+ Excluded entry</Button>
     <datalist id="so-stagecraft-exclude-books">
       {books.map((book) => <option key={book} value={book} />)}
     </datalist>
@@ -310,7 +312,7 @@ const IllustrationsSection = ({ draft, mutate }: { draft: Draft; mutate: Mutate 
     <label className="flex items-center gap-2 text-sm">
       <input type="checkbox" checked={art?.scenes ?? false} onChange={(event) => update({ scenes: event.target.checked })} />At confirmed scene changes
     </label>
-    <Field label="Visual direction" hint="Portable artistic direction for the image-prompt model. Model files, LoRAs and ComfyUI addresses belong to this SillyTavern install.">
+    <Field label="Visual direction" desc="For the image-prompt model. Model files, LoRAs and ComfyUI addresses belong to this SillyTavern install.">
       <textarea className="text_pole st-input min-h-[4rem]" aria-label="Visual direction" value={art?.style ?? ""}
         placeholder="Lighting, palette and visual mood…" onChange={(event) => update({ style: event.target.value })} />
     </Field>
@@ -334,7 +336,7 @@ const IllustrationsSection = ({ draft, mutate }: { draft: Draft; mutate: Mutate 
     <VisualPacksPanel packs={art?.packs} memberNames={Object.fromEntries(draft.roster.map((member) => [member.id, member.name ?? member.id]))}
       checkpointNames={Object.fromEntries(draft.checkpoints.map((checkpoint) => [checkpoint.id, checkpoint.name]))}
       onChange={(packs) => mutate((current) => setStoryField(current, "illustrations", { ...current.illustrations, packs }))} />
-    {draft.roster.map((member) => <Field key={member.id} label={`${member.name ?? member.id} — appearance`} hint="Appearance the image-prompt model should preserve for this story's cast member.">
+    {draft.roster.map((member) => <Field key={member.id} label={`${member.name ?? member.id} — appearance`}>
       <input className="text_pole st-input" aria-label={`${member.name ?? member.id} appearance`} value={art?.appearances?.[member.id] ?? ""}
         onChange={(event) => update({ appearances: { ...art?.appearances, [member.id]: event.target.value } })} />
     </Field>)}
@@ -425,7 +427,7 @@ const SceneReadSection = ({ draft, mutate }: { draft: Draft; mutate: Mutate }) =
       />
       <RequirementList
         label="Time of day"
-        hint="Leave empty for dawn, morning, midday, afternoon, evening and night."
+        desc="Empty = dawn, morning, midday, afternoon, evening and night."
         values={draft.scene_read?.times ?? []}
         options={[]}
         listId="so-scene-read-times"
@@ -484,10 +486,10 @@ const ArcBridgesSection = ({ draft, mutate }: { draft: Draft; mutate: Mutate }) 
               onChange={(event) => mutate((current) => updateArcBridge(current, index, { amount: Number(event.target.value) || 0 }))}
             />
           </label>
-          <button type="button" className="st-button danger" aria-label={`Remove bridge ${index + 1}`} onClick={() => mutate((current) => removeArcBridge(current, index))}>×</button>
+          <IconButton icon="fa-xmark" label={`Remove bridge ${index + 1}`} type="button" onClick={() => mutate((current) => removeArcBridge(current, index))} />
         </div>
       ))}
-      <button type="button" className="st-button secondary self-start" disabled={!anchors.length} onClick={() => mutate((current) => addArcBridge(current))}>+ Bridge</button>
+      <Button type="button" className="self-start" disabled={!anchors.length} onClick={() => mutate((current) => addArcBridge(current))}>+ Bridge</Button>
     </div>
   );
 };

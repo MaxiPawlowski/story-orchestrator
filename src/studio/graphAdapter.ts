@@ -15,7 +15,7 @@ const declaredChapters = (draft: StoryDraft) => {
 
 export const toGraphDraft = (draft: StoryDraft): StoryGraphDraft => {
   const { chapters, laneOf } = declaredChapters(draft);
-  const label = qualityLabelOf([...draft.qualities, ...compiledQualities(draft)]);
+  const label = qualityLabelOf({ ...draft, qualities: [...draft.qualities, ...compiledQualities(draft)] });
   return {
     start: draft.checkpoints.find((checkpoint) => checkpoint.start)?.id ?? draft.checkpoints[0]?.id,
     ...(chapters.length ? { chapters } : {}),

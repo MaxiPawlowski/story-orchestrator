@@ -4,6 +4,8 @@ import HelpTooltip from "@components/studio/HelpTooltip";
 import { useDraftStore } from "../draft";
 import { addPattern, removePattern, updatePattern } from "../gameMutations";
 import { JsonField, optionalText, TextField } from "./GameFields";
+import { Button } from "@components/ui/Button";
+import { IconButton } from "@components/ui/IconButton";
 
 const HELP = "A pattern notices an order of things the player saw happen: a reached checkpoint, a quest that moved, a milestone, a public check. When it completes, "
   + "your label joins What changed and your hint goes to the narrator for 3 turns. Matched in code, never by a model, and never a cause. \"?name\" binds the same value across steps.";
@@ -34,8 +36,8 @@ const StepRow = ({ pattern, step, at }: { pattern: StoryPattern; step: PatternSt
       )}
       <JsonField label={`${label} where`} hint={WHERE_HINT} value={step.where}
         onChange={(where) => patch({ where: where && typeof where === "object" ? where as Record<string, string> : undefined })} />
-      <button type="button" className="st-button danger" aria-label={`Remove ${label}`} disabled={pattern.steps.length <= 1}
-        onClick={() => mutate((current) => updatePattern(current, pattern.id, { steps: pattern.steps.filter((_, index) => index !== at) }))}>×</button>
+      <IconButton icon="fa-xmark" label={`Remove ${label}`} type="button" disabled={pattern.steps.length <= 1}
+        onClick={() => mutate((current) => updatePattern(current, pattern.id, { steps: pattern.steps.filter((_, index) => index !== at) }))} />
     </div>
   );
 };
@@ -56,11 +58,11 @@ const PatternRow = ({ pattern }: { pattern: StoryPattern }) => {
             {PATTERN_REPEATS.map((repeat) => <option key={repeat} value={repeat}>{repeat}</option>)}
           </select>
         </label>
-        <button type="button" className="st-button danger" aria-label={`Remove pattern ${pattern.id}`} onClick={() => mutate((current) => removePattern(current, pattern.id))}>×</button>
+        <IconButton icon="fa-xmark" label={`Remove pattern ${pattern.id}`} type="button" onClick={() => mutate((current) => removePattern(current, pattern.id))} />
       </div>
       {pattern.steps.map((step, at) => <StepRow key={at} pattern={pattern} step={step} at={at} />)}
-      <button type="button" className="st-button secondary self-start" disabled={pattern.steps.length >= PATTERN_STEPS_MAX}
-        onClick={() => patch({ steps: [...pattern.steps, { kind: pattern.steps.at(-1)?.kind ?? "milestone" }] })}>+ Step</button>
+      <Button type="button" className="self-start" disabled={pattern.steps.length >= PATTERN_STEPS_MAX}
+        onClick={() => patch({ steps: [...pattern.steps, { kind: pattern.steps.at(-1)?.kind ?? "milestone" }] })}>+ Step</Button>
       <JsonField label={`${pattern.id} unless`} hint={UNLESS_HINT} value={pattern.unless}
         onChange={(unless) => patch({ unless: Array.isArray(unless) ? unless as PatternUnless[] : undefined })} />
       <TextField label={`${pattern.id} callback line`} value={pattern.label?.text ?? ""} onChange={(text) => patch({ label: text.trim() ? { text } : undefined })} />
@@ -77,7 +79,7 @@ const PatternsEditor: React.FC = () => {
     <div data-so="patterns-editor" className="st-subpanel flex flex-col gap-2 p-3">
       <div className="text-sm font-medium">Story patterns<HelpTooltip title={HELP} /></div>
       {patterns.map((pattern) => <PatternRow key={pattern.id} pattern={pattern} />)}
-      <button type="button" className="st-button secondary self-start" onClick={() => mutate((current) => addPattern(current))}>+ Pattern</button>
+      <Button type="button" className="self-start" onClick={() => mutate((current) => addPattern(current))}>+ Pattern</Button>
     </div>
   );
 };

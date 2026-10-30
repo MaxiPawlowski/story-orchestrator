@@ -3,6 +3,8 @@ import { diffProposal, type ProposalResult } from "@copilot/index";
 import { emptyEnvironment, entryKey, type ExistingEntry, type ProvisioningEnvironment, type ProvisioningOp } from "@wizard/index";
 import type { Story } from "@engine/index";
 import ProvisioningCard from "./ProvisioningCard";
+import { Button } from "@components/ui/Button";
+import { StatusText } from "@components/ui/StatusText";
 
 interface Props {
   result: ProposalResult;
@@ -38,8 +40,8 @@ const ProposalReview: React.FC<Props> = ({
     return (
       <section className="st-subpanel flex flex-col gap-2 p-2" aria-label="Wizard proposal">
         <div className="flex items-center gap-2">
-          <span className="st-alert-error rounded px-2 py-0.5 text-[11px]">Invalid proposal</span>
-          <button type="button" className="st-button secondary ml-auto" onClick={onDismiss}>Dismiss</button>
+          <StatusText tone="error" as="span">Invalid proposal</StatusText>
+          <Button type="button" className="ml-auto" onClick={onDismiss}>Dismiss</Button>
         </div>
         <ul className="flex flex-col gap-1 text-sm">
           {result.issues.map((issue, index) => <li key={index} className="st-text-error">{issue}</li>)}
@@ -57,8 +59,8 @@ const ProposalReview: React.FC<Props> = ({
       <div className="flex items-center gap-2">
         <span className="st-pill px-2 py-0.5 text-[10px]">{result.stage}</span>
         <span className="text-sm">{result.proposal.summary || `${diff.items.length + diff.provisioning.length} change(s)`}</span>
-        <button type="button" className="st-button ml-auto" disabled={allAccepted || diff.items.length === 0} onClick={onAcceptAll}>Accept all</button>
-        <button type="button" className="st-button secondary" onClick={onDismiss}>Dismiss</button>
+        <Button type="button" className="ml-auto" disabled={allAccepted || diff.items.length === 0} onClick={onAcceptAll}>Accept all</Button>
+        <Button type="button" onClick={onDismiss}>Dismiss</Button>
       </div>
       {diff.items.length > 0 && (
         <ul className="flex flex-col gap-1" aria-label="Proposed changes">
@@ -68,7 +70,7 @@ const ProposalReview: React.FC<Props> = ({
               <li key={item.index} className="flex items-center gap-2 text-sm">
                 <span className="st-pill px-2 py-0.5 text-[10px]">{ACTION_LABEL[item.action]}</span>
                 <span>{item.label}</span>
-                <button type="button" className="st-button secondary ml-auto" disabled={isAccepted} onClick={() => onAccept(item.index)}>{isAccepted ? "Accepted" : "Accept"}</button>
+                <Button type="button" className="ml-auto" disabled={isAccepted} onClick={() => onAccept(item.index)}>{isAccepted ? "Accepted" : "Accept"}</Button>
               </li>
             );
           })}

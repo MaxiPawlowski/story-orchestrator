@@ -69,7 +69,7 @@ export default function Workspace({ intent, snapshot, manager, settingsHost, dra
         onContinueBranch={onContinueBranch} imageQuick={imagePanel} /></Lazy>;
       if (!snapshot.ui.authorView) return <section><h2>{location.page === "review" ? "Review proposals" : "Author view"}</h2>
         <p>This area can reveal private character knowledge, lore and future routes. Feature configuration is available without revealing them.</p>
-        <button id="so-author-view" className="st-button secondary" onClick={() => settingsHost.openAuthorView?.()}>Show author view</button>
+        <Button id="so-author-view" onClick={() => settingsHost.openAuthorView?.()}>Show author view</Button>
       </section>;
       return <section className="so-author-page" data-so="author-page">
         <header className="so-author-head"><h2>Author tools</h2>

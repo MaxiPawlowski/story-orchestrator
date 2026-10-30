@@ -3,6 +3,8 @@ import * as hostApi from "@services/stHost/modelDownloads";
 import { MODEL_PROVIDERS, type DownloadCard, type DownloadJob, type ModelProvider } from "@services/stHost/modelDownloads";
 import { POSE_DOWNLOADS } from "./poseDownloads";
 import { cardLines, jobLine, readModelRef } from "./downloadCopy";
+import { Button } from "@components/ui/Button";
+import { StatusText } from "@components/ui/StatusText";
 
 export type ModelSourcesApi = Pick<typeof hostApi, "modelKeyStatus" | "testModelKey" | "writeModelKey" | "planModelDownload" | "startModelDownload" | "modelDownloads" | "cancelModelDownload">;
 
@@ -34,7 +36,7 @@ export default function ModelSources({ api = hostApi }: { api?: ModelSourcesApi 
   return <div id="so-model-sources" className="flex flex-col gap-2">
     <p className="text-xs opacity-80">Tokens are stored in SillyTavern's secrets and read only by the media plugin; this page never sees them again.
       Nothing downloads unless you press Download on a card. Downloads are admin-only.</p>
-    {notes.keys ? <p role="alert" data-so="model-sources-unavailable" className="so-warning-text text-xs">Model downloads are unavailable: {notes.keys}</p> : null}
+    {notes.keys ? <StatusText tone="warn" role="alert" data-so="model-sources-unavailable">Model downloads are unavailable: {notes.keys}</StatusText> : null}
     <label>DWPose catalogue<select aria-label="DWPose catalogue" className="text_pole" defaultValue="" onChange={(event) => {
       const entry = POSE_DOWNLOADS.find((entry) => entry.file === event.target.value);
       if (entry) { setProvider("huggingface"); setFields({ version: "", repo: entry.repo, file: entry.file, revision: entry.revision, kind: "poseModels" }); setCard(null); }
@@ -44,16 +46,16 @@ export default function ModelSources({ api = hostApi }: { api?: ModelSourcesApi 
       <div className="flex gap-1">
         <input id={`so-model-key-${id}`} type="password" autoComplete="off" className="text_pole" value={drafts[id]}
           onChange={(event) => setDrafts((prev) => ({ ...prev, [id]: event.target.value }))} />
-        <button type="button" className="st-button" disabled={!drafts[id].trim()} onClick={() => {
+        <Button type="button" disabled={!drafts[id].trim()} onClick={() => {
           void api.writeModelKey(id, drafts[id]).then((result) => {
             setDrafts((prev) => ({ ...prev, [id]: "" }));
             note(id, result.ok ? "Saved." : result.reason);
             if (result.ok) setKeys((prev) => ({ civitai: false, huggingface: false, ...prev, [id]: true }));
           });
-        }}>Save</button>
-        <button type="button" className="st-button" onClick={() => {
+        }}>Save</Button>
+        <Button type="button" onClick={() => {
           void api.testModelKey(id).then((answer) => note(id, answer.message), (error: unknown) => note(id, message(error)));
-        }}>Test</button>
+        }}>Test</Button>
       </div>
       {notes[id] ? <p role="status" className="text-xs">{notes[id]}</p> : null}
     </div>)}
@@ -74,22 +76,22 @@ export default function ModelSources({ api = hostApi }: { api?: ModelSourcesApi 
       <select aria-label="Model kind" className="text_pole" value={fields.kind} onChange={(event) => setFields({ ...fields, kind: event.target.value })}>
         {KINDS.map((kind) => <option key={kind} value={kind}>{kind || "Kind from the source"}</option>)}
       </select>
-      <button type="button" className="st-button" onClick={() => { void check(); }}>Check</button>
+      <Button type="button" onClick={() => { void check(); }}>Check</Button>
       {notes.card ? <p role="status" className="text-xs">{notes.card}</p> : null}
       {card ? <div data-so="model-download-card" className="flex flex-col gap-1 rounded border p-2 text-xs">
         {cardLines(card).map((line) => <span key={line}>{line}</span>)}
         <a href={card.termsUrl} target="_blank" rel="noreferrer" className="underline">License and terms</a>
-        <button type="button" className="st-button" disabled={card.present || !card.fits} onClick={() => {
+        <Button type="button" disabled={card.present || !card.fits} onClick={() => {
           void api.startModelDownload(card.id).then((job) => setJobs((prev) => [...prev, job]), (error: unknown) => note("card", message(error)));
-        }}>Download</button>
+        }}>Download</Button>
       </div> : null}
     </fieldset>
     {jobs.map((job) => <div key={job.id} className="flex items-center gap-2 text-xs" data-so="model-download-job">
       <span role="status">{jobLine(job)}</span>
       {["queued", "running"].includes(job.state)
-        ? <button type="button" className="st-button" onClick={() => {
+        ? <Button type="button" onClick={() => {
           void api.cancelModelDownload(job.id).then((next) => setJobs((prev) => prev.map((row) => (row.id === next.id ? next : row))));
-        }}>Stop</button>
+        }}>Stop</Button>
         : null}
     </div>)}
   </div>;

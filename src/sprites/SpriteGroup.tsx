@@ -12,6 +12,7 @@ import { SpriteSettingsView, type SpriteDeviceKey } from "./SpriteSettingsView";
 import type { SpriteSettings } from "./settings";
 import { LiveHeadAuthor } from "./liveHead/LiveHeadAuthor";
 import { liveHeadKey } from "./liveHeadRefs";
+import { StatusText } from "@components/ui/StatusText";
 
 const DEVICE_LABELS: Record<SpriteDeviceKey, string> = {
   stage: "Show stage", effects: "Stage effects", focus: "Dim non-speakers", breathing: "Breathing", blink: "Blinking", mouth: "Mouth movement",
@@ -63,7 +64,7 @@ export default function SpriteGroup({ manager }: { manager: RuntimeManager }) {
       deviceChip={(key) => <DeviceChip setting={device[key]} label={DEVICE_LABELS[key]} />}
       deviceScope={(key) => device[key].overridden ? "device" : undefined}
     />
-    {error && <p role="alert" className="so-warning-text">{error}</p>}
+    {error && <StatusText tone="warn" role="alert">{error}</StatusText>}
     {snapshot.ui.authorView && <LiveHeadAuthor rows={stage.headStatus()} onImport={(ref) => {
       const rigs = Object.fromEntries(Object.entries(view.settings.liveHeadRigs).filter(([, entry]) => entry.member !== ref.member || entry.look !== ref.look));
       stage.updateSettings({ liveHeadRigs: { ...rigs, [liveHeadKey(ref)]: ref } });

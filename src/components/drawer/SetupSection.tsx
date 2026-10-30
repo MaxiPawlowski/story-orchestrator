@@ -3,6 +3,7 @@ import type { OneClickFix, RepairStep, SetupFindings, ShowMe } from "@runtime/re
 import { ActionStatus, useActionStatus } from "@components/ActionStatus";
 import { Button } from "@components/ui/Button";
 import { StatusIcon, type StatusTone } from "@components/ui/StatusDot";
+import { StatusText } from "@components/ui/StatusText";
 
 export interface SetupHandlers {
   onShowMe?(target: ShowMe): void;
@@ -35,7 +36,7 @@ const SetupRow = ({ step, authorView, handlers, onHide }: { step: RepairStep; au
       <StatusIcon tone={TONE[step.severity]} />
       <div className="so-attention-body">
         <span className="sr-only">{SEVERITY_LABEL[step.severity]}</span>
-        <p className={`so-attention-text ${step.severity === "blocks" ? "so-warning-text" : ""}`}>{step.consequence}</p>
+        <StatusText className="so-attention-text" tone={step.severity === "blocks" ? "warn" : "neutral"} icon={null}>{step.consequence}</StatusText>
         {authorView && step.detail !== step.consequence && <p data-so="setup-detail" className="so-attention-detail">{step.detail}</p>}
         <div className="so-actions">
           {step.target && handlers.onShowMe && (

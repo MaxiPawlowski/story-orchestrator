@@ -1,6 +1,7 @@
 import React from "react";
 import { PLAYER_ASSUMES_MAX, PLAYER_NAME_MODES, renderPlayerRoleLine, type PlayerNameMode, type StoryPlayer } from "@engine/index";
-import HelpTooltip from "@components/studio/HelpTooltip";
+import { Button } from "@components/ui/Button";
+import { IconButton } from "@components/ui/IconButton";
 
 export interface PlayerEditorProps {
   player?: StoryPlayer;
@@ -32,7 +33,8 @@ export const PlayerEditor: React.FC<PlayerEditorProps> = ({ player, onChange }) 
   const line = renderPlayerRoleLine(current.role, current.summary);
   return (
     <div data-so="player-editor" className="st-subpanel flex flex-col gap-2 p-2">
-      <div className="text-sm font-medium">Who the player is<HelpTooltip title={HINT} /></div>
+      <div className="text-sm font-medium">Who the player is</div>
+      <p className="so-setting-desc">{HINT}</p>
       <label className="flex flex-col gap-1 text-sm">
         <span className="text-xs st-muted">Role</span>
         <input className="text_pole st-input" aria-label="Player role" placeholder="a hired adventurer" value={current.role ?? ""} onChange={(event) => update({ role: event.target.value })} />
@@ -61,10 +63,10 @@ export const PlayerEditor: React.FC<PlayerEditorProps> = ({ player, onChange }) 
           <div key={index} className="flex items-center gap-2">
             <input className="text_pole st-input flex-1" aria-label={`Assumption ${index + 1}`} value={entry}
               onChange={(event) => update({ assumes: assumes.map((value, at) => (at === index ? event.target.value : value)) })} />
-            <button type="button" className="st-button danger" aria-label={`Remove assumption ${index + 1}`} onClick={() => update({ assumes: assumes.filter((_, at) => at !== index) })}>×</button>
+            <IconButton icon="fa-xmark" label={`Remove assumption ${index + 1}`} type="button" onClick={() => update({ assumes: assumes.filter((_, at) => at !== index) })} />
           </div>
         ))}
-        <button type="button" className="st-button secondary self-start" disabled={assumes.length >= PLAYER_ASSUMES_MAX} onClick={() => update({ assumes: [...assumes, ""] })}>+ Assumption</button>
+        <Button type="button" className="self-start" disabled={assumes.length >= PLAYER_ASSUMES_MAX} onClick={() => update({ assumes: [...assumes, ""] })}>+ Assumption</Button>
       </div>
       <label className="flex flex-col gap-1 text-sm">
         <span className="text-xs st-muted">Suggested persona description</span>

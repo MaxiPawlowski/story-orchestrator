@@ -6,6 +6,8 @@ import { MEMORY_TIER_LABELS, memorizeProgressText, PLAYER_COPY, pinnedOverflowTe
 import type { RuntimeSnapshot } from "@runtime/types";
 import { memoryEntriesFor, memorySearchable } from "@runtime/surfaceShown";
 import type { RuntimeManager } from "@runtime/index";
+import { Button } from "@components/ui/Button";
+import { StatusText } from "@components/ui/StatusText";
 
 const ConflictQueue = lazyRetry(() => import("../ConflictQueue"));
 const AuthorMemoryPanels = lazyRetry(() => import("./MemoryPanels"));
@@ -20,15 +22,15 @@ const MemoryControls = ({ snapshot, manager }: { snapshot: RuntimeSnapshot; mana
   return (
     <>
       <div className="flex items-center gap-2 mt-1">
-        <button type="button" className="menu_button" disabled={backfill?.running} onClick={() => void manager.memorizeChat()}>
+        <Button type="button" disabled={backfill?.running} onClick={() => void manager.memorizeChat()}>
           {backfill?.running && backfill.preparing ? "Preparing…" : "Memorize chat"}
-        </button>
-        {backfill?.running && <button type="button" id="so-memorize-stop" className="menu_button" onClick={() => manager.cancelMemorizeBacklog()}>Stop</button>}
+        </Button>
+        {backfill?.running && <Button type="button" id="so-memorize-stop" onClick={() => manager.cancelMemorizeBacklog()}>Stop</Button>}
         <span className="opacity-70">Read the whole chat history into memory.</span>
       </div>
       {backfill?.running && !backfill.preparing && <div>{memorizeProgressText(backfill.processed, backfill.total)}</div>}
       {backfill?.stoppedNote && <div id="so-memorize-note" className="opacity-80">{backfill.stoppedNote}</div>}
-      {backfill?.lastError && <div id="so-memorize-error" role="alert" className="so-error-text">{PLAYER_COPY.memorizeError}</div>}
+      {backfill?.lastError && <StatusText as="div" tone="error" id="so-memorize-error" role="alert">{PLAYER_COPY.memorizeError}</StatusText>}
     </>
   );
 };
@@ -53,8 +55,8 @@ const MemoryRow = ({ entry, snapshot, manager, authorView, editing, draftText, o
       <div className="flex flex-col gap-1">
         <textarea className="text_pole" rows={2} aria-label="Edit this memory" value={draftText} onChange={(event) => onDraft(event.target.value)} />
         <div className="flex gap-2">
-          <button type="button" className="menu_button" onClick={onSave}>Save</button>
-          <button type="button" className="menu_button" onClick={onCancel}>Cancel</button>
+          <Button type="button" onClick={onSave}>Save</Button>
+          <Button type="button" onClick={onCancel}>Cancel</Button>
         </div>
       </div>
     ) : (
@@ -64,11 +66,11 @@ const MemoryRow = ({ entry, snapshot, manager, authorView, editing, draftText, o
         </div>
         <div className="flex gap-2 flex-wrap">
           {entry.provenance?.override && <span data-so="kept-by-you">{PLAYER_COPY.keptByYou}</span>}
-          {entry.provenance && entry.provenance.validity !== "live" && <span data-so="quarantine-badge" className="so-warning-text">{PLAYER_COPY.sourceChanged}</span>}
+          {entry.provenance && entry.provenance.validity !== "live" && <StatusText as="span" tone="warn" data-so="quarantine-badge">{PLAYER_COPY.sourceChanged}</StatusText>}
           {authorView && <Lazy fallback={null}><AuthorMemoryRowExtras entry={entry} snapshot={snapshot} manager={manager} /></Lazy>}
-          <button type="button" className="menu_button" onClick={() => void manager.setMemoryPinned(entry.id, !entry.pinned)}>{entry.pinned ? "Unpin" : "Pin"}</button>
-          <button type="button" className="menu_button" onClick={onEdit}>Edit</button>
-          <button type="button" className="menu_button" onClick={onExclude}>Exclude</button>
+          <Button type="button" onClick={() => void manager.setMemoryPinned(entry.id, !entry.pinned)}>{entry.pinned ? "Unpin" : "Pin"}</Button>
+          <Button type="button" onClick={onEdit}>Edit</Button>
+          <Button type="button" onClick={onExclude}>Exclude</Button>
         </div>
       </>
     )}
@@ -135,16 +137,16 @@ export const MemoryTab = ({ snapshot, manager, authorView, focusFact }: { snapsh
     <div data-so="memory-tab" className="so-memory-tab">
       {excluded && (
         <div id="so-memory-excluded" data-so="memory-excluded" data-state={excluded.state} role="status" className="flex flex-wrap items-center gap-2 mt-1">
-          <span className={excluded.state === "refused" ? "so-warning-text" : ""}>
+          <StatusText as="span" tone={excluded.state === "refused" ? "warn" : "neutral"}>
             {excluded.state === "excluded" ? PLAYER_COPY.memoryExcluded : excluded.state === "restored" ? PLAYER_COPY.memoryRestored : PLAYER_COPY.memoryExcludeRefused}
-          </span>
+          </StatusText>
           {excluded.state === "excluded" && excluded.entry && (
-            <button type="button" id="so-memory-undo" className="menu_button" onClick={() => void undoExclude()}>{PLAYER_COPY.memoryUndo}</button>
+            <Button type="button" id="so-memory-undo" onClick={() => void undoExclude()}>{PLAYER_COPY.memoryUndo}</Button>
           )}
         </div>
       )}
       {(snapshot.memory.pinnedOverflow ?? 0) > 0 && (
-        <div id="so-pinned-overflow" className="so-warning-text">{pinnedOverflowText(snapshot.memory.pinnedOverflow ?? 0)}</div>
+        <StatusText as="div" tone="warn" id="so-pinned-overflow">{pinnedOverflowText(snapshot.memory.pinnedOverflow ?? 0)}</StatusText>
       )}
       {authorView && <Lazy fallback={null}><ConflictQueue snapshot={snapshot} manager={manager} /></Lazy>}
       {authorView && <Lazy fallback={null}><AuthorMemoryControls snapshot={snapshot} manager={manager} /></Lazy>}
@@ -163,7 +165,7 @@ export const MemoryTab = ({ snapshot, manager, authorView, focusFact }: { snapsh
           <label className="flex items-center gap-2">
             <span>Find</span>
             <input id="so-memory-search" className="text_pole" type="search" value={query} placeholder="text or character" onChange={(event) => setQuery(event.target.value)} />
-            {query && <button className="menu_button" data-so="memory-search-clear" onClick={() => setQuery("")}>Clear</button>}
+            {query && <Button data-so="memory-search-clear" onClick={() => setQuery("")}>Clear</Button>}
           </label>
           <div className="flex flex-wrap items-center gap-1">
             {MEMORY_TIERS.map((tier) => (

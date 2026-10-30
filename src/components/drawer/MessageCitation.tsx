@@ -1,5 +1,6 @@
 import { createContext, useContext, type ReactNode } from "react";
 import { fingerprintAt, jumpLabel, type ChatJumpIndex } from "@runtime/messageJump";
+import { Button } from "@components/ui/Button";
 
 export interface MessageJump {
   enabled: boolean;
@@ -26,8 +27,8 @@ export const MessageCitation = ({ messageId, prefix = "message" }: { messageId: 
   const fingerprint = fingerprintAt(jump.index, messageId);
   const onJump = jump.onJump;
   return (
-    <button type="button" data-so="jump-to-message" data-mesid={messageId} data-fingerprint={fingerprint} className="menu_button text-xs" title={TITLES[fingerprint]} onClick={() => onJump(messageId)}>
+    <Button type="button" data-so="jump-to-message" data-mesid={messageId} data-fingerprint={fingerprint} size="sm" title={TITLES[fingerprint]} onClick={() => onJump(messageId)}>
       {jumpLabel(messageId, fingerprint)}
-    </button>
+    </Button>
   );
 };

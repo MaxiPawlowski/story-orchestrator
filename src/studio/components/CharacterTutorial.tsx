@@ -14,6 +14,8 @@ import { useDraftStore } from "../draft";
 import { lapsedProvisioningCopy, provisionOwned } from "./ownedProvisioning";
 import ProvisioningCard from "./ProvisioningCard";
 import type { WizardHost } from "./StudioCopilot";
+import { Button } from "@components/ui/Button";
+import { StatusText } from "@components/ui/StatusText";
 
 export interface CharacterTutorialProps {
   host?: WizardHost;
@@ -87,8 +89,8 @@ const LookCard = ({ card, decision, onDecide }: { card: TutorialCard; decision: 
       {ops.map((op, index) => <span key={index} data-so="tutorial-look-op">{opPreview(draft, op).label}</span>)}
       {decision ? <span data-so="tutorial-look-decision" role="status">{decision === "accepted" ? TUTORIAL_TEXT.accepted : TUTORIAL_TEXT.rejected}</span> : (
         <div className="flex gap-2">
-          <button type="button" data-so="tutorial-look-accept" className="st-button primary" onClick={() => onDecide("accepted")}>{TUTORIAL_TEXT.accept}</button>
-          <button type="button" data-so="tutorial-look-reject" className="st-button secondary" onClick={() => onDecide("rejected")}>{TUTORIAL_TEXT.reject}</button>
+          <Button variant="primary" data-so="tutorial-look-accept" onClick={() => onDecide("accepted")}>{TUTORIAL_TEXT.accept}</Button>
+          <Button data-so="tutorial-look-reject" onClick={() => onDecide("rejected")}>{TUTORIAL_TEXT.reject}</Button>
         </div>
       )}
     </div>
@@ -129,11 +131,11 @@ const ReviewStep = ({ card, host, onCreated }: { card: TutorialCard; host?: Wiza
   };
   return (
     <div className="flex flex-col gap-2">
-      {findings.length === 0 ? <div data-so="tutorial-clean" className="text-xs so-success-text">{TUTORIAL_TEXT.noFindings}</div> : (
+      {findings.length === 0 ? <StatusText as="div" tone="ok" data-so="tutorial-clean">{TUTORIAL_TEXT.noFindings}</StatusText> : (
         <ul data-so="tutorial-findings" className="flex flex-col gap-1 text-xs">
           {findings.map((finding) => (
-            <li key={finding.id} data-so="tutorial-finding" data-finding={finding.id} data-severity={finding.severity} className={finding.severity === "blocks" ? "so-warning-text" : ""}>
-              {finding.severity === "blocks" ? "Blocking: " : ""}{finding.text}
+            <li key={finding.id} data-so="tutorial-finding" data-finding={finding.id} data-severity={finding.severity}>
+              {finding.severity === "blocks" ? <StatusText as="span" tone="warn">Blocking: {finding.text}</StatusText> : finding.text}
             </li>
           ))}
         </ul>
@@ -209,27 +211,27 @@ const CharacterTutorial: React.FC<CharacterTutorialProps> = ({ host, draftStep, 
         )}
         {step.id !== "review" && (
           <div className="flex flex-wrap items-center gap-2">
-            <button type="button" data-so="tutorial-draft" className="st-button secondary" disabled={!draftStep || busy} onClick={() => void draftIt()}>
+            <Button data-so="tutorial-draft" disabled={!draftStep || busy} onClick={() => void draftIt()}>
               {busy ? TUTORIAL_TEXT.drafting : TUTORIAL_TEXT.draft}
-            </button>
-            <button type="button" data-so="tutorial-write" className="st-button secondary" onClick={() => firstField.current?.focus()}>{TUTORIAL_TEXT.write}</button>
+            </Button>
+            <Button data-so="tutorial-write" onClick={() => firstField.current?.focus()}>{TUTORIAL_TEXT.write}</Button>
           </div>
         )}
-        {notice && <div data-so="tutorial-notice" role="status" className="text-xs so-warning-text">{notice}</div>}
+        {notice && <StatusText as="div" tone="warn" data-so="tutorial-notice" role="status">{notice}</StatusText>}
         {step.id === "look" && card.appearance.trim() && card.name.trim() && !lookShown && (
-          <button type="button" data-so="tutorial-propose-look" className="st-button primary self-start" onClick={() => setLookShown(true)}>{TUTORIAL_TEXT.proposeLook}</button>
+          <Button variant="primary" data-so="tutorial-propose-look" className="self-start" onClick={() => setLookShown(true)}>{TUTORIAL_TEXT.proposeLook}</Button>
         )}
         {step.id === "look" && lookShown && <LookCard card={card} decision={look} onDecide={decideLook} />}
         {step.id === "review" && <ReviewStep card={card} host={host} onCreated={(message, ok) => setNotice(ok ? null : message)} />}
       </div>
       <div className="flex gap-2">
-        <button type="button" data-so="tutorial-back" className="st-button secondary" disabled={index === 0} onClick={() => setStepId(TUTORIAL_STEPS[index - 1]?.id ?? stepId)}>
+        <Button data-so="tutorial-back" disabled={index === 0} onClick={() => setStepId(TUTORIAL_STEPS[index - 1]?.id ?? stepId)}>
           {TUTORIAL_TEXT.back}
-        </button>
-        <button type="button" data-so="tutorial-next" className="st-button secondary" disabled={index === TUTORIAL_STEPS.length - 1}
+        </Button>
+        <Button data-so="tutorial-next" disabled={index === TUTORIAL_STEPS.length - 1}
           onClick={() => setStepId(TUTORIAL_STEPS[index + 1]?.id ?? stepId)}>
           {TUTORIAL_TEXT.next}
-        </button>
+        </Button>
       </div>
     </section>
   );

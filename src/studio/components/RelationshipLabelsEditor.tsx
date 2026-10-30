@@ -5,6 +5,8 @@ import { useDraftStore } from "../draft";
 import { setRelationshipLabels } from "../gameMutations";
 import GateBuilder from "./GateBuilder";
 import { OptionalGate, TextField } from "./GameFields";
+import { Button } from "@components/ui/Button";
+import { IconButton } from "@components/ui/IconButton";
 
 const HELP = "Words the player can see on a character's People page. A public label is how this character visibly treats the other side; the last row whose gate holds "
   + "is shown. A secret label stays hidden until its gate holds once, then the player has learned it for good. Players never see the feeling's number.";
@@ -36,8 +38,8 @@ const RelationshipRow = ({ member, relationship }: { member: RosterMember; relat
             {row.follows_feeling && (
               <TextField label={`${name} public label ${at + 1} hold`} value={row.hold ? String(row.hold) : ""} onChange={(hold) => patchPublic(at, { hold: toHold(hold) })} />
             )}
-            <button type="button" className="st-button danger" aria-label={`Remove ${name} public label ${at + 1}`}
-              onClick={() => save({ public: shown.filter((_, index) => index !== at) })}>×</button>
+            <IconButton icon="fa-xmark" label={`Remove ${name} public label ${at + 1}`} type="button"
+              onClick={() => save({ public: shown.filter((_, index) => index !== at) })} />
           </div>
           <OptionalGate label={`${name} public label ${at + 1} shown when`} gate={row.when} qualities={qualities} onChange={(when) => patchPublic(at, { when })} />
         </div>
@@ -47,18 +49,18 @@ const RelationshipRow = ({ member, relationship }: { member: RosterMember; relat
           <div className="flex flex-wrap items-end gap-2">
             <TextField label={`${name} secret ${at + 1} id`} value={row.id} onChange={(id) => patchSecret(at, { id: id.trim() })} />
             <TextField label={`${name} secret ${at + 1} label`} value={row.label} onChange={(label) => patchSecret(at, { label })} />
-            <button type="button" className="st-button danger" aria-label={`Remove ${name} secret ${at + 1}`}
-              onClick={() => save({ secret: secret.filter((_, index) => index !== at) })}>×</button>
+            <IconButton icon="fa-xmark" label={`Remove ${name} secret ${at + 1}`} type="button"
+              onClick={() => save({ secret: secret.filter((_, index) => index !== at) })} />
           </div>
           <span className="text-xs st-muted">Revealed when</span>
           <GateBuilder gate={row.revealed_when} qualities={qualities} onChange={(revealed_when) => patchSecret(at, { revealed_when })} />
         </div>
       ))}
       <div className="flex flex-wrap gap-2">
-        <button type="button" className="st-button secondary" onClick={() => save({ public: [...shown, { label: "new label" }] })}>+ Public label</button>
-        <button type="button" className="st-button secondary" onClick={() => save({ secret: [...secret, { id: `secret-${secret.length + 1}`, label: "secret label", revealed_when: { all: [] } }] })}>
+        <Button type="button" onClick={() => save({ public: [...shown, { label: "new label" }] })}>+ Public label</Button>
+        <Button type="button" onClick={() => save({ secret: [...secret, { id: `secret-${secret.length + 1}`, label: "secret label", revealed_when: { all: [] } }] })}>
           + Secret label
-        </button>
+        </Button>
       </div>
     </div>
   );

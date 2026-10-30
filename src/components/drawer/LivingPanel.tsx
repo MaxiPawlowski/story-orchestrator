@@ -1,6 +1,8 @@
 import { useState } from "react";
 import type { LivingAuthorView, LivingProposalRow, LivingSceneRow } from "@runtime/livingSnapshot";
 import { savedLine, type LivingSaveResult } from "./LivingSave";
+import { Button } from "@components/ui/Button";
+import { StatusText } from "@components/ui/StatusText";
 
 export interface LivingActions {
   decide(id: string, status: "accepted" | "rejected", edit?: { name?: string; objective?: string }): Promise<boolean> | void;
@@ -42,7 +44,7 @@ const ProposalCard = ({ row, actions }: { row: LivingProposalRow; actions?: Livi
       {row.scene && <div data-so="living-scene" data-applied={row.scene.applied} className="opacity-70">{sceneLine(row.scene)}</div>}
       {row.objective && !editing && <div className="opacity-80">{row.objective}</div>}
       {row.reason && row.status !== "failed" && <div className="opacity-70">Why: {row.reason}</div>}
-      {row.issues.length > 0 && <div data-so="living-issues" className="so-warning-text">{row.issues.join("; ")}</div>}
+      {row.issues.length > 0 && <StatusText as="div" tone="warn" data-so="living-issues">{row.issues.join("; ")}</StatusText>}
       {editing && (
         <div className="flex flex-col gap-1">
           <label className="flex flex-col">Name<input data-so="living-edit-name" className="text_pole" value={name} onChange={(event) => setName(event.target.value)} /></label>
@@ -56,21 +58,21 @@ const ProposalCard = ({ row, actions }: { row: LivingProposalRow; actions?: Livi
         <div className="flex flex-wrap items-center gap-1 mt-1">
           {waiting && !editing && (
             <>
-              <button type="button" className="menu_button" data-so="living-accept" onClick={() => void actions.decide(row.id, "accepted")}>Accept</button>
-              <button type="button" className="menu_button" data-so="living-reject" onClick={() => void actions.decide(row.id, "rejected")}>Reject</button>
-              <button type="button" className="menu_button" data-so="living-edit" onClick={() => setEditing(true)}>Edit</button>
+              <Button type="button" data-so="living-accept" onClick={() => void actions.decide(row.id, "accepted")}>Accept</Button>
+              <Button type="button" data-so="living-reject" onClick={() => void actions.decide(row.id, "rejected")}>Reject</Button>
+              <Button type="button" data-so="living-edit" onClick={() => setEditing(true)}>Edit</Button>
             </>
           )}
           {waiting && editing && (
             <>
-              <button type="button" className="menu_button" data-so="living-accept-edited"
-                onClick={() => { setEditing(false); void actions.decide(row.id, "accepted", { name, objective }); }}>Accept edited</button>
-              <button type="button" className="menu_button" data-so="living-edit-cancel"
-                onClick={() => { setEditing(false); setName(row.name); setObjective(row.objective); }}>Cancel</button>
+              <Button type="button" data-so="living-accept-edited"
+                onClick={() => { setEditing(false); void actions.decide(row.id, "accepted", { name, objective }); }}>Accept edited</Button>
+              <Button type="button" data-so="living-edit-cancel"
+                onClick={() => { setEditing(false); setName(row.name); setObjective(row.objective); }}>Cancel</Button>
             </>
           )}
           {(waiting || row.status === "failed") && !editing && (
-            <button type="button" className="menu_button" data-so="living-regenerate" onClick={() => void actions.regenerate(row.id)}>Write it again</button>
+            <Button type="button" data-so="living-regenerate" onClick={() => void actions.regenerate(row.id)}>Write it again</Button>
           )}
         </div>
       )}
@@ -104,7 +106,7 @@ export const LivingPanel = ({ view, canSave, actions }: { view: LivingAuthorView
       {!view.branching && <div className="opacity-70">Branching off in settings.</div>}
       {view.living && actions && (
         <div className="flex flex-wrap items-center gap-1 mt-1">
-          <button id="so-living-run" type="button" className="menu_button" disabled={!view.enabled || !view.frontierId} onClick={() => void actions.runNow()}>Write the next turning point now</button>
+          <Button id="so-living-run" type="button" disabled={!view.enabled || !view.frontierId} onClick={() => void actions.runNow()}>Write the next turning point now</Button>
         </div>
       )}
       {view.sceneTest && (
@@ -129,9 +131,9 @@ export const LivingPanel = ({ view, canSave, actions }: { view: LivingAuthorView
             Keep turning points nobody reached
           </label>
           <div className="flex flex-wrap items-center gap-1">
-            <button id="so-living-author-save" type="button" className="menu_button" disabled={saving} onClick={() => void save()}>Save as story</button>
+            <Button id="so-living-author-save" type="button" disabled={saving} onClick={() => void save()}>Save as story</Button>
           </div>
-          {saved && <div data-so="living-save-result" className={saved.ok ? "" : "so-warning-text"}>{savedLine(saved)}</div>}
+          {saved && <StatusText as="div" data-so="living-save-result" tone={saved.ok ? "neutral" : "warn"}>{savedLine(saved)}</StatusText>}
         </div>
       )}
     </section>

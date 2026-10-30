@@ -16,6 +16,9 @@ import { settingHelp } from "@features/settingsCopy";
 import { log } from "@utils/log";
 import { CheckRow, FieldLabel } from "./Field";
 import { Section } from "@components/ui/Section";
+import { Button } from "@components/ui/Button";
+import { StatusText } from "@components/ui/StatusText";
+import { Callout } from "@components/ui/Callout";
 
 export interface JudgeSettingsPatch {
   enabled?: boolean;
@@ -151,7 +154,7 @@ const JudgeProviderNotices = ({ settings, status, providers, onChange }: JudgePr
         const model = providerStatus?.model ? ` · model ${providerStatus.model}` : "";
         const folder = providerStatus?.modelsDir ? ` · models in ${providerStatus.modelsDir}` : "";
         const notReady = providerStatus?.problem ? LOCAL_PROBLEM_COPY[providerStatus.problem] ?? providerStatus.problem : null;
-        const problem = notReady ? <span className="so-warning-text"> Not ready: {notReady}.</span> : null;
+        const problem = notReady ? <>{" "}<StatusText as="span" tone="warn">Not ready: {notReady}.</StatusText></> : null;
         return (
           <div key={provider} id={`so-judge-local-${provider}`} className="text-xs">
             <span className="opacity-70">{info.label} runs on this machine{where}: nothing it is asked leaves it.{model}{folder}</span>{problem}
@@ -160,15 +163,17 @@ const JudgeProviderNotices = ({ settings, status, providers, onChange }: JudgePr
       }
       if (provider === "systemone-local") {
         const problem = providerStatus?.problem ?? "unreachable";
-        return <div key={provider} id={`so-judge-local-${provider}`} className="text-xs so-warning-text">{info.label} is not ready: {LOCAL_PROBLEM_COPY[problem] ?? problem}.</div>;
+        return <StatusText as="div" tone="warn" key={provider} id={`so-judge-local-${provider}`}>{info.label} is not ready: {LOCAL_PROBLEM_COPY[problem] ?? problem}.</StatusText>;
       }
       if (settings.noticesSeen.includes(provider)) return null;
       return (
-        <div key={provider} id={`so-judge-privacy-${provider}`} className="flex flex-wrap items-center gap-2 text-xs so-warning-text">
-          <span>{info.notice}{providerStatus?.host && !info.remote ? ` (${providerStatus.host})` : ""}</span>
-          {info.policyUrl && <a className="underline" href={info.policyUrl} target="_blank" rel="noreferrer">Privacy policy</a>}
-          <button id={`so-judge-privacy-ack-${provider}`} type="button" className="menu_button" onClick={() => onChange({ noticesSeen: [...settings.noticesSeen, provider] })}>Got it</button>
-        </div>
+        <Callout key={provider} id={`so-judge-privacy-${provider}`} tone="warn" size="sm"
+          actions={<>
+            {info.policyUrl && <a className="underline" href={info.policyUrl} target="_blank" rel="noreferrer">Privacy policy</a>}
+            <Button id={`so-judge-privacy-ack-${provider}`} type="button" size="sm" onClick={() => onChange({ noticesSeen: [...settings.noticesSeen, provider] })}>Got it</Button>
+          </>}>
+          <p>{info.notice}{providerStatus?.host && !info.remote ? ` (${providerStatus.host})` : ""}</p>
+        </Callout>
       );
     })}
   </>
@@ -234,10 +239,10 @@ export function JudgeSettingsGroup({
             placeholder={ready ? "Saved — paste a new key to replace it" : "Paste your key"}
             onChange={(event) => { setKey(event.target.value); setSaved("idle"); }}
           />
-          <button id="so-judge-key-save" type="button" className="menu_button" disabled={!key.trim() || saving} onClick={() => void saveKey()}>{saving ? "Saving…" : "Save key"}</button>
+          <Button id="so-judge-key-save" type="button" disabled={!key.trim() || saving} onClick={() => void saveKey()}>{saving ? "Saving…" : "Save key"}</Button>
         </div>
         {saved === "saved" && <span className="text-xs opacity-70">Saved to SillyTavern secrets.</span>}
-        {saved === "failed" && <span id="so-judge-key-error" className="text-xs so-warning-text">Could not save the key: {keyError ?? "SillyTavern refused it."}</span>}
+        {saved === "failed" && <StatusText as="span" tone="warn" id="so-judge-key-error">Could not save the key: {keyError ?? "SillyTavern refused it."}</StatusText>}
       </div>
       <CheckRow id="so-judge-enabled" setting="judge.enabled" checked={settings.enabled} onChange={(on) => onChange({ enabled: on })} />
       <div className="text-xs opacity-70">When a use is on, the text it lists is sent to the provider it is routed to. Nothing is sent while this is off.</div>
@@ -274,16 +279,16 @@ export function JudgeSettingsGroup({
       {concerns.length > 0 && (
         <div id="so-judge-readiness" className="flex flex-col gap-1 pl-4 text-xs">
           {concerns.map((row) => (
-            <div key={row.key} className="so-warning-text">
+            <StatusText as="div" tone="warn" key={row.key}>
               {labelOf(row.key)}: {concernText(row)}
               <span className="opacity-80"> — {row.recommendation}</span>
-            </div>
+            </StatusText>
           ))}
         </div>
       )}
       <div className="flex flex-wrap items-center gap-2">
-        <button id="so-judge-self-test" type="button" className="menu_button" disabled={!ready || selfTest.running} onClick={onRunSelfTest}>{selfTest.running ? "Testing…" : "Test the judge"}</button>
-        <button id="so-judge-refresh" type="button" className="menu_button" onClick={onRefresh}>Recheck</button>
+        <Button id="so-judge-self-test" type="button" disabled={!ready || selfTest.running} onClick={onRunSelfTest}>{selfTest.running ? "Testing…" : "Test the judge"}</Button>
+        <Button id="so-judge-refresh" type="button" onClick={onRefresh}>Recheck</Button>
         <a
           id="so-judge-recommended-config"
           className="text-xs underline"

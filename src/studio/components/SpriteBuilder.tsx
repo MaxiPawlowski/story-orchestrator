@@ -20,6 +20,7 @@ import SpritePreview from "./SpritePreview";
 import type { FrameRegion } from "../../sprites/builder/frameRegion";
 import PresentationRoutes from "./PresentationRoutes";
 import { isMouthFrameKey } from "../../sprites/frameKeys";
+import { Button } from "@components/ui/Button";
 
 const PosesList = lazy(() => import("./PosesList"));
 const PreparePresentation = lazy(() => import("./PreparePresentation"));
@@ -209,7 +210,7 @@ export default function SpriteBuilder({ services = host }: { services?: SpriteBu
     {character && <Suspense fallback={<p role="status">Loading changed looks…</p>}><ChangedLookRebuild key={`looks:${character}`} character={character}
       member={rosterIdOf(draft.roster ?? [], members, character)} name={members.find((member) => member.folder === character)?.name ?? character} busy={busy} setBusy={setBusy} /></Suspense>}
     <PresentationRoutes />
-    <button type="button" className="st-button" disabled={busy} onClick={() => void discover()}>Discover image-edit setup</button>
+    <Button type="button" disabled={busy} onClick={() => void discover()}>Discover image-edit setup</Button>
     {discovery && <fieldset className="flex flex-col gap-2"><legend>Installed models — {EDIT_RECIPE.id}</legend>
       {(["diffusion", "encoder", "vae"] as const).map((field) => <label key={field}>{field}<select aria-label={field} className="text_pole" disabled={busy} value={models[field]}
         onChange={(event) => setModels({ ...models, [field]: event.target.value })}>
@@ -231,14 +232,14 @@ export default function SpriteBuilder({ services = host }: { services?: SpriteBu
     {kind === "look" && <label>Visible change<input className="text_pole" value={value} disabled={busy} onChange={(event) => setValue(event.target.value)} placeholder="hair dyed red" /></label>}
     <label>Seed<input type="number" min={0} max={4294967295} className="text_pole" disabled={busy} value={seed} onChange={(event) => setSeed(Number(event.target.value))} /></label>
     <SpriteRenderControls controls={render} busy={busy} />
-    <div className="flex flex-wrap gap-2"><button type="button" className="st-button primary"
+    <div className="flex flex-wrap gap-2"><Button variant="primary" type="button"
       disabled={busy || boxPending || !discovery || !reference || !character || !/^[a-z0-9_]+$/.test(set) || !/^[a-z0-9_]+$/.test(label)}
-      onClick={() => void generate()}>Generate preview</button>
-      <button type="button" className="st-button" disabled={!busy} onClick={() => builder.cancel()}>Cancel render</button></div>
+      onClick={() => void generate()}>Generate preview</Button>
+      <Button type="button" disabled={!busy} onClick={() => builder.cancel()}>Cancel render</Button></div>
     {busy && <p role="status">Working on the sprite…</p>}
     {error && <p role="alert">{error}</p>}
-    {repair && <button id="so-sprite-use-own-box" type="button" className="st-button" disabled={busy} onClick={adoptOwnBox}>
-      Use {members.find((member) => member.folder === character)?.name ?? character}’s head box</button>}
+    {repair && <Button id="so-sprite-use-own-box" type="button" disabled={busy} onClick={adoptOwnBox}>
+      Use {members.find((member) => member.folder === character)?.name ?? character}’s head box</Button>}
     {preview && <SpritePreview candidate={preview} busy={busy} saved={Boolean(saved)} keep={() => void save()} />}
     {saved && <p role="status">Saved to {saved}</p>}
     <Suspense fallback={<p role="status">Loading poses…</p>}><PosesList /></Suspense>

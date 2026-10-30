@@ -1,6 +1,8 @@
 import { useState } from "react";
 import type { MakeGroupOutcome } from "@runtime/makeGroup";
 import { NO_GROUP_PICK, type NoGroupView } from "@runtime/noGroup";
+import { Button } from "@components/ui/Button";
+import { StatusText } from "@components/ui/StatusText";
 
 export interface MakeGroupCardProps {
   view: NoGroupView;
@@ -35,15 +37,15 @@ export default function MakeGroupCard({ view, id = "so-make-group", wizardOn, on
       </div>
       {storyId && (
         <div className="flex flex-wrap items-center gap-2">
-          <button type="button" data-so="make-group-button" className="menu_button" disabled={busy} onClick={() => void make()}>{MAKE_GROUP_LABEL}</button>
+          <Button type="button" data-so="make-group-button" disabled={busy} onClick={() => void make()}>{MAKE_GROUP_LABEL}</Button>
         </div>
       )}
-      {outcome && <div data-so="make-group-outcome" data-ok={outcome.ok} className={`text-xs ${outcome.ok ? "opacity-80" : "so-warning-text"}`}>{outcome.message}</div>}
+      {outcome && <StatusText as="div" data-so="make-group-outcome" data-ok={String(outcome.ok)} tone={outcome.ok ? "neutral" : "warn"}>{outcome.message}</StatusText>}
       {storyId && missing.length > 0 && (
         <div className="flex flex-wrap items-center gap-2">
-          <button type="button" data-so="make-group-fix" className="menu_button" disabled={!wizardOn}
+          <Button type="button" data-so="make-group-fix" disabled={!wizardOn}
             title={wizardOn ? "Open the wizard on the provisioning step, pre-filled with the missing cards." : "Turn on the wizard under Authoring first."}
-            onClick={() => onFixWithWizard(storyId, missing)}>Fix with wizard</button>
+            onClick={() => onFixWithWizard(storyId, missing)}>Fix with wizard</Button>
         </div>
       )}
     </div>

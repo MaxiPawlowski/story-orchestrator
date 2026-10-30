@@ -1,5 +1,6 @@
 import { kindLabel, lastPlayedText, type ContinueRow } from "@runtime/playsIndex";
 import { PRESENCE_TEXT } from "@features/presenceCopy";
+import { Button } from "@components/ui/Button";
 
 export interface ContinueListProps {
   rows: readonly ContinueRow[];
@@ -26,14 +27,14 @@ export const ContinueList = ({ rows, openChatId = null, now = Date.now(), limit 
               <span className="text-sm truncate"><i className={`fa-solid ${row.kind === "saga" ? "fa-book-bookmark" : "fa-route"} mr-1`} aria-hidden="true" />{row.title}</span>
               <span className="text-xs opacity-70 truncate">{[kindLabel(row.kind), where(row), lastPlayedText(row.updatedAt, now)].filter(Boolean).join(" · ")}</span>
             </div>
-            <button
+            <Button
               type="button"
               data-so="continue-open"
-              className="menu_button text-xs"
+              size="sm"
               disabled={open}
               aria-label={`${PRESENCE_TEXT.continueOpen} ${row.title}`}
               onClick={() => onOpen(row)}
-            >{open ? PRESENCE_TEXT.continueOpenNow : PRESENCE_TEXT.continueOpen}</button>
+            >{open ? PRESENCE_TEXT.continueOpenNow : PRESENCE_TEXT.continueOpen}</Button>
           </li>
         );
       })}

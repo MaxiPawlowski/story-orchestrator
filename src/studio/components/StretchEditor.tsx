@@ -1,6 +1,7 @@
 import React from "react";
 import { OPENING_MAX_TURNS, STRETCH_PACES, type CheckpointStretch, type StretchPace } from "@engine/index";
 import { arrivalExit, newOpenStretch, newOpening, offArrivalExits, withArrival, withEncounters, withMaxTurns, withOpeningTurns, withPace, withPullAfter, type StretchExit } from "../stretchDraft";
+import { StatusText } from "@components/ui/StatusText";
 
 export interface StretchEditorProps {
   anchor?: boolean;
@@ -107,12 +108,12 @@ export function StretchEditor({ anchor = false, stretch, exits, hasPlayerText, o
             {stretch.max_turns ? ` from ${stretch.max_turns} it presses plainly.` : " it never presses plainly."} It never moves the party.
           </div>
           {sideExits.length ? (
-            <div data-so="stretch-side-exits" className="text-xs st-text-error">
+            <StatusText tone="error" as="div" data-so="stretch-side-exits" className="text-xs">
               Every exit must use the arrival gate: {sideExits.map((exit) => `to ${exit.toName}`).join(", ")} use another gate and will be refused.
-            </div>
+            </StatusText>
           ) : null}
           {hasPlayerText ? (
-            <div data-so="stretch-player-text" className="text-xs st-text-error">An open stretch shows its name, never a task: clear the public situation above.</div>
+            <StatusText tone="error" as="div" data-so="stretch-player-text" className="text-xs">An open stretch shows its name, never a task: clear the public situation above.</StatusText>
           ) : null}
         </>
       ) : null}

@@ -1,5 +1,6 @@
 import React from "react";
 import type { SpriteCandidate } from "../../sprites/builder/builder";
+import { Button } from "@components/ui/Button";
 
 export default function SpritePreview({ candidate, busy, saved, keep }: { candidate: SpriteCandidate; busy: boolean; saved: boolean; keep(): void }) {
   return <div className="flex flex-col gap-2" data-so="sprite-preview" data-timings={JSON.stringify(candidate.timings ?? {})}>
@@ -12,6 +13,6 @@ export default function SpritePreview({ candidate, busy, saved, keep }: { candid
         {candidate.rawData && <img src={`data:image/png;base64,${candidate.rawData}`} alt="Raw edit" style={{ maxWidth: "min(240px,100%)" }} />}
       </div>
     </details>}
-    <button type="button" className="st-button primary" disabled={busy || saved} onClick={keep}>Keep this sprite</button>
+    <Button variant="primary" type="button" disabled={busy || saved} onClick={keep}>Keep this sprite</Button>
   </div>;
 }

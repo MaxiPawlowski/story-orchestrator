@@ -32,9 +32,9 @@ export class LazyBoundary extends Component<BoundaryProps, { failed: boolean }> 
     if (!this.state.failed) return this.props.children;
     if (this.props.quiet) return null;
     return (
-      <div data-so="lazy-failed" role="alert" className="flex flex-wrap items-center gap-2 text-xs so-error-text">
-        <span>{LAZY_FAILED_TEXT}</span>
-        <button type="button" data-so="lazy-retry" className="menu_button" onClick={this.retry}>Retry</button>
+      <div data-so="lazy-failed" role="alert" className="so-status-text so-lazy-failed" data-tone="error">
+        {LAZY_FAILED_TEXT}
+        <button type="button" data-so="lazy-retry" className="so-btn" onClick={this.retry}>Retry</button>
       </div>
     );
   }

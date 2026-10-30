@@ -3,6 +3,7 @@ import { describeProvenance, isQuarantined, originLabel, type ConflictPair, type
 import type { RuntimeManager } from "@runtime/runtimeManager";
 import type { RuntimeSnapshot } from "@runtime/types";
 import { MessageCitation } from "./MessageCitation";
+import { Button } from "@components/ui/Button";
 
 // Two stores can disagree about the same thing, and until the author decides, both
 // rows are held out of every prompt. This is where the decision is made: keep one side, lock a fact
@@ -66,33 +67,29 @@ const ConflictQueue = ({ snapshot, manager }: { snapshot: RuntimeSnapshot; manag
                   title={side.provenance ? describeProvenance(side) : "this row came from before envelopes were recorded"}
                 >{originText(side.provenance, side.messageId, side.confidence)}</div>
               </div>
-              <button
-                className="menu_button"
+              <Button
                 data-so="conflict-keep"
                 title="Keep this side and retire the other"
                 onClick={() => void act(pair.key, () => manager.memoryActions.resolveMemoryConflict(pair.key, side.id))}
-              >Keep this</button>
-              {side.store === "memory" && <button
-                className="menu_button"
+              >Keep this</Button>
+              {side.store === "memory" && <Button
                 data-so="conflict-lock"
                 title="Keep it as canon: no extraction or consolidation may retire it"
                 onClick={() => void act(pair.key, () => manager.memoryActions.lockAsCanon(pair.key, side.id))}
-              >Lock as canon</button>}
+              >Lock as canon</Button>}
             </div>
           ))}
           <div className="flex gap-2 mt-1">
-            <button
-              className="menu_button"
+            <Button
               data-so="conflict-reread"
               title="Read the messages these claims came from again"
               onClick={() => void act(pair.key, () => manager.memoryActions.rereadConflictWindow(pair.key))}
-            >Re-read the window</button>
-            <button
-              className="menu_button"
+            >Re-read the window</Button>
+            <Button
               data-so="conflict-dismiss"
               title="Live with the disagreement: both sides steer replies again and this pair stops being queued"
               onClick={() => void act(pair.key, () => manager.memoryActions.dismissMemoryConflict(pair.key))}
-            >Dismiss</button>
+            >Dismiss</Button>
           </div>
         </div>
       ))}
@@ -101,8 +98,8 @@ const ConflictQueue = ({ snapshot, manager }: { snapshot: RuntimeSnapshot; manag
           <span className="opacity-70">{entry.provenance?.validity === "conflicted" ? "Conflicted" : "Source removed"}: {entry.text}</span>
           <div className="opacity-70" title={describeProvenance(entry)}>{originText(entry.provenance, entry.provenance?.messageId === -1 ? undefined : entry.provenance?.messageId, undefined)}</div>
           <div className="flex gap-2">
-            <button className="menu_button" data-so="reconfirm" onClick={() => void act(entry.id, () => manager.memoryActions.reconfirmMemoryEntry(entry.id))}>Reconfirm — keep it as mine</button>
-            <button className="menu_button" data-so="discard-quarantined" onClick={() => void act(entry.id, () => manager.memoryActions.discardQuarantined(entry.id))}>Discard</button>
+            <Button data-so="reconfirm" onClick={() => void act(entry.id, () => manager.memoryActions.reconfirmMemoryEntry(entry.id))}>Reconfirm — keep it as mine</Button>
+            <Button data-so="discard-quarantined" onClick={() => void act(entry.id, () => manager.memoryActions.discardQuarantined(entry.id))}>Discard</Button>
           </div>
         </div>
       ))}
@@ -117,8 +114,8 @@ const ConflictQueue = ({ snapshot, manager }: { snapshot: RuntimeSnapshot; manag
           </span>
           <div className="opacity-70" title={describeProvenance(entry)}>{originText(entry.provenance, entry.provenance?.messageId === -1 ? undefined : entry.provenance?.messageId, undefined)}</div>
           <div className="flex gap-2">
-            <button className="menu_button" data-so="reconfirm" onClick={() => void act(entry.id, () => manager.memoryActions.reconfirmMemoryEntry(entry.id))}>Reconfirm — keep it as mine</button>
-            <button className="menu_button" data-so="discard-quarantined" onClick={() => void act(entry.id, () => manager.memoryActions.discardQuarantined(entry.id))}>Discard</button>
+            <Button data-so="reconfirm" onClick={() => void act(entry.id, () => manager.memoryActions.reconfirmMemoryEntry(entry.id))}>Reconfirm — keep it as mine</Button>
+            <Button data-so="discard-quarantined" onClick={() => void act(entry.id, () => manager.memoryActions.discardQuarantined(entry.id))}>Discard</Button>
           </div>
         </div>
       ))}
@@ -127,8 +124,8 @@ const ConflictQueue = ({ snapshot, manager }: { snapshot: RuntimeSnapshot; manag
           <span className="opacity-70">{entry.provenance?.validity === "conflicted" ? "Conflicted" : "Source removed"}: {entry.entity} {entry.field} = {entry.value}</span>
           <div className="opacity-70" title={describeProvenance(entry)}>{originText(entry.provenance, entry.provenance?.messageId === -1 ? undefined : entry.provenance?.messageId, undefined)}</div>
           <div className="flex gap-2">
-            <button className="menu_button" data-so="reconfirm" onClick={() => void act(entry.id, () => manager.memoryActions.reconfirmMemoryEntry(entry.id))}>Reconfirm — keep it as mine</button>
-            <button className="menu_button" data-so="discard-quarantined" onClick={() => void act(entry.id, () => manager.memoryActions.discardQuarantined(entry.id))}>Discard</button>
+            <Button data-so="reconfirm" onClick={() => void act(entry.id, () => manager.memoryActions.reconfirmMemoryEntry(entry.id))}>Reconfirm — keep it as mine</Button>
+            <Button data-so="discard-quarantined" onClick={() => void act(entry.id, () => manager.memoryActions.discardQuarantined(entry.id))}>Discard</Button>
           </div>
         </div>
       ))}

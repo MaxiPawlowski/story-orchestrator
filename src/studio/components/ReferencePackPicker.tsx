@@ -7,6 +7,7 @@ import type { ComfyDiscovery } from "@services/stHost/media";
 import type { SpriteBuilderHost } from "./SpriteBuilder";
 import { draftOwnership } from "../agentHost";
 import { RENDER_PRESETS } from "../../sprites/settings";
+import { Button } from "@components/ui/Button";
 
 export default function ReferencePackPicker({ character, discovery, models, box, steps, resolution = RENDER_PRESETS.standard.resolution, busy, setBusy, services }: {
   character: string; discovery: ComfyDiscovery; models: { diffusion: string; encoder: string; vae: string };
@@ -53,9 +54,9 @@ export default function ReferencePackPicker({ character, discovery, models, box,
     <label>Reference pack<select id="so-sprite-reference-pack" aria-label="Reference pack" className="text_pole" disabled={busy} value={pack}
       onChange={(event) => { setPack(event.target.value); setAdopted(null); }}>
       {packs.map((id) => <option key={id} value={id}>{id || "Default expressions"}</option>)}</select></label>
-    <button id="so-sprite-use-reference" type="button" className="st-button" style={{ transitionProperty: "background-color,border-color,color" }}
+    <Button id="so-sprite-use-reference" type="button" style={{ transitionProperty: "background-color,border-color,color" }}
       disabled={busy || !character || !packs.includes(pack)}
-      onClick={() => void adopt()}>Use this expression pack</button>
+      onClick={() => void adopt()}>Use this expression pack</Button>
     {adopted && <p role="status">{adopted}</p>}
     {error && <p role="alert">{error}</p>}
   </fieldset>;

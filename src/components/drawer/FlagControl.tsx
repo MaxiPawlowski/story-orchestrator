@@ -3,6 +3,7 @@ import type { RuntimeManager } from "@runtime/index";
 import { PLAYER_COPY } from "@runtime/narrative";
 import { Button } from "@components/ui/Button";
 import { IconButton } from "@components/ui/IconButton";
+import { StatusText } from "@components/ui/StatusText";
 
 export const FLAG_COPY = {
   label: "Flag a moment",
@@ -26,7 +27,7 @@ export const FlagControl = ({ manager }: { manager: Pick<RuntimeManager, "flagMo
 
   if (!open) return <>
     <Button id="so-flag-moment" icon="fa-flag" title={FLAG_COPY.title} onClick={() => { setFlagged(false); setOpen(true); }}>{FLAG_COPY.label}</Button>
-    {flagged && <span id="so-flag-status" role="status" className="so-play-meta so-success-text">{PLAYER_COPY.flagged}</span>}
+    {flagged && <StatusText as="span" tone="ok" id="so-flag-status" role="status" className="so-play-meta">{PLAYER_COPY.flagged}</StatusText>}
   </>;
   return (
     <div className="so-flag-form">

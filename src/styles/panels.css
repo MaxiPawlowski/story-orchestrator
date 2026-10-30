@@ -1,0 +1,87 @@
+#so-panels-root .so-panel {
+  position: fixed;
+  z-index: var(--so-z-panel);
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  color: var(--st-text-active);
+  background: var(--SmartThemeBlurTintColor, var(--st-bg-tint));
+  backdrop-filter: blur(var(--SmartThemeBlurStrength, 0px));
+  border: 1px solid var(--so-line);
+  border-radius: var(--so-radius);
+  box-shadow: 0 6px 24px var(--so-shadow);
+  text-align: left;
+}
+
+#so-panels-root .so-panel--docked {
+  left: 0;
+  right: 0;
+  --so-dock-height: min(55dvh, calc(100dvh - var(--so-dock-inset, 0px) - var(--topBarBlockSize, 3rem)));
+  top: calc(100dvh - var(--so-dock-inset, 0px) - var(--so-dock-height));
+  width: 100%;
+  height: var(--so-dock-height);
+  border-radius: 8px 8px 0 0;
+}
+
+#so-panels-root .so-panel-bar {
+  flex-wrap: nowrap;
+  cursor: move;
+  touch-action: none;
+  user-select: none;
+}
+
+#so-panels-root .so-panel--docked .so-panel-bar {
+  cursor: default;
+}
+
+#so-panels-root .so-panel-bar:focus-visible {
+  outline: 2px solid var(--st-hover);
+  outline-offset: -2px;
+}
+
+#so-panels-root .so-panel-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+  padding: 8px;
+}
+
+#so-panels-root .so-panel-resize {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 14px;
+  height: 14px;
+  cursor: nwse-resize;
+  touch-action: none;
+  background: linear-gradient(135deg, transparent 50%, var(--st-border) 50%);
+  border-bottom-right-radius: 8px;
+}
+
+#so-panels-root .so-activity-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+#so-panels-root .so-activity-row {
+  padding-bottom: 4px;
+  border-bottom: 1px solid color-mix(in srgb, var(--st-border) 40%, transparent);
+}
+
+#so-panels-root .so-activity-text {
+  overflow-wrap: anywhere;
+}
+
+#so-panels-root .so-scene-portrait {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  object-fit: cover;
+  font-size: 0.65rem;
+  background: color-mix(in srgb, var(--st-border) 50%, transparent);
+}

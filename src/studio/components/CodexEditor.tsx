@@ -1,11 +1,12 @@
 import React from "react";
 import { CODEX_START, isReached, type CodexEntry, type CodexFact, type CodexKnownWhen, type CodexPage, type CodexReturn, type Quality } from "@engine/index";
-import HelpTooltip from "@components/studio/HelpTooltip";
 import { useDraftStore } from "../draft";
 import { removeCodexEntry, setCodexShown, updateCodexEntry } from "../gameMutations";
 import { nextId } from "../mutations";
 import GateBuilder from "./GateBuilder";
 import { TextField, optionalText } from "./GameFields";
+import { Button } from "@components/ui/Button";
+import { IconButton } from "@components/ui/IconButton";
 
 const HELP = "People and Places fill the player's Journal as they learn. A line shows only once its condition holds, and stays; a swipe of the reply that earned it takes it back.";
 
@@ -73,8 +74,8 @@ const FactRow: React.FC<{ page: CodexPage; entry: CodexEntry; fact: CodexFact; s
           <input type="number" min={1} className="text_pole st-input w-16" aria-label={`${label} rev`} value={fact.rev ?? 1}
             onChange={(event) => { const rev = Number(event.target.value); if (Number.isInteger(rev) && rev >= 1) patch({ rev: rev > 1 ? rev : undefined }); }} />
         </label>
-        <button type="button" className="st-button danger" aria-label={`Remove fact ${label}`}
-          onClick={() => mutate((current) => updateCodexEntry(current, page, { ...entry, facts: entry.facts.filter((item) => item.id !== fact.id) }))}>×</button>
+        <IconButton icon="fa-xmark" label={`Remove fact ${label}`}
+          onClick={() => mutate((current) => updateCodexEntry(current, page, { ...entry, facts: entry.facts.filter((item) => item.id !== fact.id) }))} />
       </div>
       <KnownWhenField label={`${label} known when`} when={fact.known_when} allowNone={false} qualities={qualities} checkpoints={checkpoints}
         onChange={(known) => patch({ known_when: known ?? CODEX_START })} />
@@ -95,8 +96,8 @@ const ReturnRow: React.FC<{ entry: CodexEntry; back: CodexReturn }> = ({ entry, 
       <div className="flex flex-wrap items-end gap-2">
         <span className="st-pill px-2 py-0.5 text-[11px]">{back.id}</span>
         <TextField label={`${label} text`} value={back.text} onChange={(text) => patch({ text })} />
-        <button type="button" className="st-button danger" aria-label={`Remove ${label}`}
-          onClick={() => mutate((current) => updateCodexEntry(current, "places", { ...entry, returns: returns.filter((item) => item.id !== back.id) }))}>×</button>
+        <IconButton icon="fa-xmark" label={`Remove ${label}`}
+          onClick={() => mutate((current) => updateCodexEntry(current, "places", { ...entry, returns: returns.filter((item) => item.id !== back.id) }))} />
       </div>
       <KnownWhenField label={`${label} after`} when={back.when} allowNone={false} noStart qualities={qualities} checkpoints={checkpoints}
         onChange={(when) => { if (when && when !== CODEX_START) patch({ when }); }} />
@@ -136,15 +137,15 @@ const EntryRow: React.FC<{ page: CodexPage; entry: CodexEntry; sources: string[]
         )}
         <TextField label={`${entry.id} aliases`} value={(entry.aliases ?? []).join(", ")}
           onChange={(text) => { const aliases = text.split(",").map((name) => name.trim()).filter(Boolean); patch({ aliases: aliases.length ? aliases : undefined }); }} />
-        <button type="button" className="st-button danger" aria-label={`Remove ${page} ${entry.id}`} onClick={() => mutate((current) => removeCodexEntry(current, page, entry.id))}>×</button>
+        <IconButton icon="fa-xmark" label={`Remove ${page} ${entry.id}`} onClick={() => mutate((current) => removeCodexEntry(current, page, entry.id))} />
       </div>
       <KnownWhenField label={`${entry.id} known when`} when={entry.known_when} allowNone qualities={draft.qualities} checkpoints={draft.checkpoints.map((checkpoint) => checkpoint.id)}
         onChange={(known) => patch({ known_when: known })} />
       {entry.facts.map((fact) => <FactRow key={fact.id} page={page} entry={entry} fact={fact} sources={sources} />)}
-      <button type="button" className="st-button secondary self-start" onClick={addFact}>+ Fact</button>
+      <Button className="self-start" onClick={addFact}>+ Fact</Button>
       {page === "places" && returns.map((back) => <ReturnRow key={back.id} entry={entry} back={back} />)}
       {page === "places" && entry.location && (
-        <button type="button" className="st-button secondary self-start" title="A line that shows when the party comes back here after something happened" onClick={addReturn}>+ Return</button>
+        <Button className="self-start" title="A line that shows when the party comes back here after something happened" onClick={addReturn}>+ Return</Button>
       )}
     </div>
   );
@@ -161,7 +162,7 @@ const PageEditor: React.FC<{ page: CodexPage }> = ({ page }) => {
     <div data-so={`codex-editor-${page}`} className="flex flex-col gap-2">
       <div className="text-sm font-medium">{page === "people" ? "People" : "Places"}</div>
       {entries.map((entry) => <EntryRow key={entry.id} page={page} entry={entry} sources={sources} />)}
-      <button type="button" className="st-button secondary self-start" onClick={add}>{page === "people" ? "+ Person" : "+ Place"}</button>
+      <Button className="self-start" onClick={add}>{page === "people" ? "+ Person" : "+ Place"}</Button>
     </div>
   );
 };
@@ -171,7 +172,8 @@ const CodexEditor: React.FC = () => {
   const mutate = useDraftStore((state) => state.mutate);
   return (
     <div id="so-codex-editor" data-so="codex-editor" className="st-subpanel flex flex-col gap-3 p-3">
-      <div className="text-sm font-medium">People and Places<HelpTooltip title={HELP} /></div>
+      <div className="text-sm font-medium">People and Places</div>
+      <p className="so-setting-desc">{HELP}</p>
       <label className="flex items-center gap-2 text-sm">
         <input type="checkbox" aria-label="Show People and Places to players" checked={shown} onChange={(event) => mutate((current) => setCodexShown(current, event.target.checked))} />
         Show People and Places to players

@@ -2,6 +2,8 @@ import { formatShare, nextTurnCostText } from "@runtime/nextTurn";
 import { promptBucketsText, type PromptBucketState } from "@runtime/promptBuckets";
 import type { RuntimeSnapshot } from "@runtime/types";
 import { tierOfKey, trimText } from "./memoryFate";
+import { Button } from "@components/ui/Button";
+import { StatusText } from "@components/ui/StatusText";
 
 export type NextTurnOwnerTab = RuntimeSnapshot["nextTurn"][number]["ownerTab"];
 
@@ -48,9 +50,9 @@ const PromptBucketsLine = ({ state }: { state: PromptBucketState | undefined }) 
     <div data-so="next-turn-buckets" data-state={state.matches ? "matches" : "mismatch"} className="opacity-80">
       {promptBucketsText(state)}
       {state.oursExceedsHistory && (
-        <div data-so="next-turn-buckets-tokenizers" className="so-warning-text">
+        <StatusText as="div" tone="warn" data-so="next-turn-buckets-tokenizers">
           Story Orchestrator&apos;s count is larger than ST&apos;s chat history: the two counts come from different tokenizers, so read ours as an estimate.
-        </div>
+        </StatusText>
       )}
     </div>
   );
@@ -76,7 +78,7 @@ export const NextTurnPanel = ({ snapshot, actions, onOpenOwner }: { snapshot: Ru
         </div>
       ) : null}
       {cost.lastGenerationBudget !== null && cost.budget !== null && cost.lastGenerationBudget !== cost.budget && (
-        <div data-so="next-turn-budget-drift" className="so-warning-text">The last generation was handed {cost.lastGenerationBudget} tokens, not {cost.budget}: a setting changed since.</div>
+        <StatusText as="div" tone="warn" data-so="next-turn-budget-drift">The last generation was handed {cost.lastGenerationBudget} tokens, not {cost.budget}: a setting changed since.</StatusText>
       )}
       {rows.length === 0 ? (
         <div className="opacity-70">Nothing is injected into the next reply.</div>
@@ -87,23 +89,23 @@ export const NextTurnPanel = ({ snapshot, actions, onOpenOwner }: { snapshot: Ru
             <span data-so="next-turn-tokens" className="opacity-70">depth {row.depth} · {row.characters} chars · {tokenText(row.tokens, row.tokenSource, row.share)}</span>
             {row.target && <span className="st-pill px-1 text-[10px]" title="Injected only for the member ST drafts">private → {row.target}</span>}
             {row.oneTurn && <span data-so="next-turn-one-turn" className="st-pill px-1 text-[10px]">one turn</span>}
-            {row.freshness !== "live" && <span className="so-warning-text">{row.freshness}</span>}
-            {row.fallback && <span className="so-warning-text">fell back ({row.fallback})</span>}
+            {row.freshness !== "live" && <StatusText as="span" tone="warn">{row.freshness}</StatusText>}
+            {row.fallback && <StatusText as="span" tone="warn">fell back ({row.fallback})</StatusText>}
           </div>
           <div className="opacity-70">{row.owner}</div>
           <div className="whitespace-pre-wrap opacity-80">{row.preview}</div>
           <TrimNote injection={snapshot.memoryInjection} rowKey={row.key} />
           <div className="flex flex-wrap items-center gap-2 pt-1">
             {row.oneShot && (
-              <button data-so="next-turn-clear" className="menu_button text-xs" onClick={() => actions.clearNote()}>Clear the note</button>
+              <Button data-so="next-turn-clear" size="sm" onClick={() => actions.clearNote()}>Clear the note</Button>
             )}
             {row.key === "story_orchestrator_scene" && (
-              <button data-so="next-turn-reread-scene" className="menu_button text-xs" onClick={() => void actions.rerunScene()}>Re-read the scene</button>
+              <Button data-so="next-turn-reread-scene" size="sm" onClick={() => void actions.rerunScene()}>Re-read the scene</Button>
             )}
             {row.ownerTab === "payload" ? (
               <span className="opacity-70">edited here, in the driver</span>
             ) : (
-              <button data-so="next-turn-open-owner" data-owner-tab={row.ownerTab} className="menu_button text-xs" onClick={() => onOpenOwner(row.ownerTab)}>{OWNER_LABELS[row.ownerTab]}</button>
+              <Button data-so="next-turn-open-owner" data-owner-tab={row.ownerTab} size="sm" onClick={() => onOpenOwner(row.ownerTab)}>{OWNER_LABELS[row.ownerTab]}</Button>
             )}
           </div>
         </div>

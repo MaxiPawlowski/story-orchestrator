@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { branchNoticeText, PLAYER_COPY } from "@runtime/narrative";
 import type { ChatIdentitySnapshot } from "@runtime/chatIdentity";
+import { Button } from "@components/ui/Button";
 
 export interface BranchNoticeProps {
   identity: Extract<ChatIdentitySnapshot, { kind: "branch" }>;
@@ -21,9 +22,9 @@ export const BranchNotice = ({ onContinue }: BranchNoticeProps) => {
   return (
     <div id="so-branch-notice" className="flex flex-col gap-1 text-xs" role="status">
        <span>{branchNoticeText(null)}</span>
-      <button id="so-branch-continue" type="button" className="menu_button self-start" disabled={busy} onClick={() => void run()}>
+      <Button id="so-branch-continue" type="button" className="self-start" disabled={busy} onClick={() => void run()}>
         {PLAYER_COPY.branchContinue}
-      </button>
+      </Button>
     </div>
   );
 };

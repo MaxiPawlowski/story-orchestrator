@@ -4,6 +4,7 @@ import type { RuntimeManager } from "@runtime/index";
 import type { RuntimeSnapshot } from "@runtime/types";
 import { showConfirmPopup } from "@services/STAPI";
 import { MessageCitation } from "./MessageCitation";
+import { Button } from "@components/ui/Button";
 
 export interface ChaptersPanelProps {
   snapshot: RuntimeSnapshot;
@@ -64,8 +65,8 @@ const RecordCard = ({ record, newest, busy, act, confirm, manager }: CardProps) 
             <textarea data-so="chapter-short-input" className="text_pole" rows={2} value={short} onChange={(event) => setShort(event.target.value)} />
           </label>
           <div className="flex gap-1">
-            <button type="button" data-so="chapter-save" className="menu_button" disabled={busy || !summary.trim()} onClick={save}>Save</button>
-            <button type="button" className="menu_button" disabled={busy} onClick={() => setEditing(false)}>Cancel</button>
+            <Button type="button" data-so="chapter-save" disabled={busy || !summary.trim()} onClick={save}>Save</Button>
+            <Button type="button" disabled={busy} onClick={() => setEditing(false)}>Cancel</Button>
           </div>
         </div>
       ) : (
@@ -82,9 +83,9 @@ const RecordCard = ({ record, newest, busy, act, confirm, manager }: CardProps) 
         </>
       )}
       <div className="flex flex-wrap gap-1">
-        {!editing && <button type="button" data-so="chapter-edit" className="menu_button" disabled={busy} onClick={() => setEditing(true)}>Edit summary</button>}
-        {newest && <button type="button" data-so="chapter-reseal" className="menu_button" disabled={busy} onClick={reseal}>Re-seal</button>}
-        {newest && <button type="button" data-so="chapter-unseal" className="menu_button" disabled={busy} onClick={unseal}>Unseal</button>}
+        {!editing && <Button type="button" data-so="chapter-edit" disabled={busy} onClick={() => setEditing(true)}>Edit summary</Button>}
+        {newest && <Button type="button" data-so="chapter-reseal" disabled={busy} onClick={reseal}>Re-seal</Button>}
+        {newest && <Button type="button" data-so="chapter-unseal" disabled={busy} onClick={unseal}>Unseal</Button>}
       </div>
     </div>
   );
@@ -112,7 +113,7 @@ export const ChaptersPanel = ({ snapshot, manager, confirm = askFirst }: Chapter
       {records.map((record, index) => (
         <RecordCard key={record.id} record={record} newest={index === records.length - 1} busy={busy} act={act} confirm={confirm} manager={manager} />
       ))}
-      {view?.current && !view.ended && <button type="button" data-so="chapter-seal-now" className="menu_button self-start" disabled={busy} onClick={sealNow}>Seal now</button>}
+      {view?.current && !view.ended && <Button type="button" data-so="chapter-seal-now" className="self-start" disabled={busy} onClick={sealNow}>Seal now</Button>}
     </div>
   );
 };

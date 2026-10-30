@@ -10,6 +10,7 @@ import { INLINE_LEVEL_LABELS, INLINE_LEVEL_SHORT } from "@features/inlineCopy";
 import { Button } from "@components/ui/Button";
 import { IconButton } from "@components/ui/IconButton";
 import { SegmentedControl } from "@components/ui/SegmentedControl";
+import "./hudCard.css";
 
 export interface HudCardActions {
   tabs: readonly SheetTabEntry[];

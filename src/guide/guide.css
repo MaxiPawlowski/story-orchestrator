@@ -1,0 +1,102 @@
+:is(#so-panels-root, #so-studio-modal) .so-guide-body :is(h2, h3, h4, h5, h6) {
+  margin: 0.6rem 0 0.1rem;
+  line-height: 1.25;
+}
+
+:is(#so-panels-root, #so-studio-modal) .so-guide-body h2 {
+  font-size: 1.25rem;
+}
+
+:is(#so-panels-root, #so-studio-modal) .so-guide-body h3 {
+  font-size: 1.05rem;
+}
+
+:is(#so-panels-root, #so-studio-modal) .so-guide-body :is(h4, h5, h6) {
+  font-size: 0.95rem;
+}
+
+:is(#so-panels-root, #so-studio-modal) .so-guide-body p {
+  margin: 0;
+}
+
+:is(#so-panels-root, #so-studio-modal) .so-guide-code {
+  padding: 0 0.25rem;
+  border-radius: 0.25rem;
+  background: color-mix(in srgb, var(--st-border) 25%, transparent);
+  font-size: 0.85em;
+}
+
+:is(#so-panels-root, #so-studio-modal) .so-guide-pre {
+  margin: 0;
+  padding: 0.5rem;
+  overflow-x: auto;
+  border-radius: 0.375rem;
+  background: color-mix(in srgb, var(--st-border) 20%, transparent);
+  font-size: 0.8rem;
+  white-space: pre;
+}
+
+:is(#so-panels-root, #so-studio-modal) .so-guide-quote {
+  margin: 0;
+  padding-left: 0.6rem;
+  border-left: 3px solid var(--st-border);
+  opacity: 0.9;
+}
+
+:is(#so-panels-root, #so-studio-modal) .so-guide-table-wrap {
+  overflow-x: auto;
+}
+
+:is(#so-panels-root, #so-studio-modal) .so-guide-table {
+  border-collapse: collapse;
+  font-size: 0.8rem;
+}
+
+:is(#so-panels-root, #so-studio-modal) .so-guide-table :is(th, td) {
+  padding: 0.25rem 0.4rem;
+  border: 1px solid color-mix(in srgb, var(--st-border) 50%, transparent);
+  text-align: left;
+  vertical-align: top;
+}
+
+:is(#so-panels-root, #so-studio-modal) :is(.so-guide-nav-item, .so-guide-result) {
+  padding: 0.1rem 0.25rem;
+  border: 0;
+  border-radius: 0.25rem;
+  background: transparent;
+  color: var(--st-text-active);
+  font: inherit;
+  text-shadow: none;
+  cursor: pointer;
+}
+
+:is(#so-panels-root, #so-studio-modal) :is(.so-guide-nav-item, .so-guide-result):hover {
+  background: color-mix(in srgb, var(--st-border) 20%, transparent);
+}
+
+:is(#so-panels-root, #so-studio-modal) .so-guide-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-right: 0.35rem;
+  font-size: 0.85em;
+  opacity: 0.9;
+}
+
+:is(#so-panels-root, #so-studio-modal) .so-guide-show {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.25rem;
+  margin: 0.15rem 0.35rem 0.15rem 0;
+  padding: 0 0.6rem;
+  white-space: nowrap;
+  font-size: 0.85em;
+  vertical-align: middle;
+}
+
+:is(#so-panels-root, #so-studio-modal) .so-guide-image {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.375rem;
+}

@@ -1,4 +1,5 @@
 import { useCallback, useState } from "react";
+import { StatusText } from "@components/ui/StatusText";
 
 export type ActionOutcome = string | null | void;
 
@@ -13,5 +14,5 @@ export const useActionStatus = () => {
 };
 
 export const ActionStatus = ({ text, id, tone = "warning" }: { text: string | null; id?: string; tone?: "warning" | "success" | "plain" }) => (text
-  ? <p id={id} role="status" data-so="action-status" className={`text-xs m-0 ${tone === "warning" ? "so-warning-text" : tone === "success" ? "so-success-text" : ""}`}>{text}</p>
+  ? <StatusText id={id} role="status" data-so="action-status" tone={tone === "warning" ? "warn" : tone === "success" ? "ok" : "neutral"}>{text}</StatusText>
   : null);

@@ -6,6 +6,8 @@ import type { CardReadBackRecord } from "@utils/cardReadBack";
 import {
   bookSiblings, draftLoreTexts, gatedAt, loreKeyLint, loreOpEntry, loreOpLintEntry, opCards, previewKeyMatches, renderKeyMatchLine,
 } from "@copilot/lorePreview";
+import { Button } from "@components/ui/Button";
+import { Callout } from "@components/ui/Callout";
 
 export interface ProvisioningContext {
   draft: Story;
@@ -97,10 +99,10 @@ const CardNotes = ({ op, context, environment }: { op: Extract<ProvisioningOp, {
   const notes = cardWarnings(cardFindings(op, context.draft, environment));
   if (!notes.length) return null;
   return (
-    <div data-so="card-notes" className="st-alert-warning flex flex-col gap-1 rounded px-2 py-1 text-[11px]" aria-label="Card notes">
-      <span>Card notes (you can still create it):</span>
-      <ul className="flex flex-col gap-0.5">{notes.map((note) => <li key={note.id} data-note={note.id}>{note.text}</li>)}</ul>
-    </div>
+    <Callout tone="warn" size="sm" data-so="card-notes">
+      <p>Card notes (you can still create it):</p>
+      <ul className="flex flex-col gap-0.5" aria-label="Card notes">{notes.map((note) => <li key={note.id} data-note={note.id}>{note.text}</li>)}</ul>
+    </Callout>
   );
 };
 
@@ -112,9 +114,11 @@ const LorePreview = ({ op, context }: { op: Extract<ProvisioningOp, { kind: "ups
       <span data-so="key-matches" className="st-muted">{renderKeyMatchLine(preview)}</span>
       {preview.reasons.length ? <span data-so="key-uncertain" className="st-muted">May not fire: {preview.reasons.join("; ")}.</span> : null}
       {lint.length ? (
-        <ul data-so="key-lint" className="st-alert-warning flex flex-col gap-0.5 rounded px-2 py-1" aria-label="Key lint">
-          {lint.map((entry) => <li key={entry.id} data-lint={entry.id}>{entry.text}</li>)}
-        </ul>
+        <Callout tone="warn" size="sm">
+          <ul data-so="key-lint" className="flex flex-col gap-0.5" aria-label="Key lint">
+            {lint.map((entry) => <li key={entry.id} data-lint={entry.id}>{entry.text}</li>)}
+          </ul>
+        </Callout>
       ) : null}
     </div>
   );
@@ -174,17 +178,17 @@ const ProvisioningCard: React.FC<ProvisioningCardProps> = ({ op, environment, ap
         </label>
       ))}
       {draft.kind === "grantLorebook" ? (
-        <div className="st-alert-warning rounded px-2 py-1 text-[11px]">
-          This is an existing lorebook. Confirming lets this story’s wizard update entries in it. The permission is saved only in this wizard session and can be revoked here.
-        </div>
+        <Callout tone="warn" size="sm">
+          <p>This is an existing lorebook. Confirming lets this story’s wizard update entries in it. The permission is saved only in this wizard session and can be revoked here.</p>
+        </Callout>
       ) : null}
-      {!validation.ok && !applied ? <div className="st-alert-error rounded px-2 py-1 text-[11px]" role="alert">{validation.message}</div> : null}
+      {!validation.ok && !applied ? <Callout tone="error" size="sm" role="alert"><p>{validation.message}</p></Callout> : null}
       {context && !applied && draft.kind === "createCharacterCard" ? <CardNotes op={draft} context={context} environment={environment} /> : null}
       {context && draft.kind === "upsertLorebookEntry" ? <LorePreview op={draft} context={context} /> : null}
       {readBack ? (
-        <div data-so="card-readback" data-state={readBack.state} className={`${readBack.state === "stored" ? "st-muted" : "st-alert-warning"} rounded px-2 py-1 text-[11px]`} role="status">
-          {READ_BACK_TEXT[readBack.state]}{readBack.state === "mismatch" ? `: ${readBack.lossy.join(", ")}.` : ""}
-        </div>
+        <Callout tone={readBack.state === "stored" ? "neutral" : "warn"} size="sm" data-so="card-readback" data-state={readBack.state} role="status">
+          <p>{READ_BACK_TEXT[readBack.state]}{readBack.state === "mismatch" ? `: ${readBack.lossy.join(", ")}.` : ""}</p>
+        </Callout>
       ) : null}
       {/* R8: replacing an entry is a visible decision. Nothing exists under this title yet is a
           different claim from this overwrites what is there, and only the host can say which. */}
@@ -203,18 +207,17 @@ const ProvisioningCard: React.FC<ProvisioningCardProps> = ({ op, environment, ap
           </div>
         </div>
       ) : null}
-      {result ? <div className={`${failed ? "st-alert-error" : "st-alert-success"} rounded px-2 py-1 text-[11px]`} role="status">{result}</div> : null}
+      {result ? <Callout tone={failed ? "error" : "ok"} size="sm" role="status"><p>{result}</p></Callout> : null}
       <div className="flex items-center gap-2">
-        <button
+        <Button variant="primary"
           type="button"
-          className="st-button primary"
           data-so="provisioning-apply"
           disabled={applied || busy || !validation.ok}
-          aria-busy={busy}
+          busy={busy}
           onClick={() => onApply(draft)}
         >
           {applyLabel(draft, applied, busy)}
-        </button>
+        </Button>
         <span className="text-[11px] st-muted">{draft.kind === "grantLorebook" ? "Changes permission, not the lorebook itself." : "Creates this in SillyTavern. Nothing existing is changed."}</span>
       </div>
     </section>

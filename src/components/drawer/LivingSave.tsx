@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { Button } from "@components/ui/Button";
+import { StatusText } from "@components/ui/StatusText";
 
 export interface LivingSaveResult {
   ok: boolean;
@@ -25,10 +27,10 @@ export const LivingSave = ({ onSave }: { onSave: () => Promise<LivingSaveResult>
   return (
     <div data-so="living-save" className="flex flex-col gap-1 text-xs">
       <div className="flex flex-wrap items-center gap-2">
-        <button id="so-living-save" type="button" className="menu_button" disabled={saving} onClick={() => void save()}>Save this run as a story</button>
+        <Button id="so-living-save" type="button" disabled={saving} onClick={() => void save()}>Save this run as a story</Button>
       </div>
       <div className="opacity-70">Keeps what you played as a story you can start again.</div>
-      {result && <div data-so="living-save-result" className={result.ok ? "" : "so-warning-text"}>{savedLine(result)}</div>}
+      {result && <StatusText as="div" data-so="living-save-result" tone={result.ok ? "neutral" : "warn"}>{savedLine(result)}</StatusText>}
     </div>
   );
 };

@@ -3,6 +3,8 @@ import { TALK_CHAIN_MAX_CAP, type RosterMember, type StoryTalkDefaults, type Tal
 import { directorEnabled, directorInstruction } from "@talk/index";
 import HelpTooltip from "@components/studio/HelpTooltip";
 import TalkPacingFields from "./TalkPacingFields";
+import { Button } from "@components/ui/Button";
+import { IconButton } from "@components/ui/IconButton";
 
 const memberLabel = (member: RosterMember) => member.name ?? member.id;
 
@@ -26,7 +28,7 @@ const SpeakerRow: React.FC<{
         onChange({ weight: Number.isFinite(parsed) && parsed > 0 ? parsed : undefined });
       }} />
     </label>
-    <button type="button" className="st-button danger" aria-label={`Remove speaker ${index + 1}`} onClick={onRemove}>×</button>
+    <IconButton icon="fa-xmark" label={`Remove speaker ${index + 1}`} type="button" onClick={onRemove} />
   </div>
 );
 
@@ -154,11 +156,11 @@ const TalkControlEditor: React.FC<{
                 }}
               />
             ))}
-            <button
+            <Button
               type="button"
-              className="st-button secondary self-start"
+              className="self-start"
               onClick={() => emit({ ...control, speakers: [...speakers, { member: roster[0] ? memberLabel(roster[0]) : "" }] })}
-            >+ Speaker</button>
+            >+ Speaker</Button>
           </div>
           <label className="flex flex-col gap-1 text-sm">
             <span className="text-xs st-muted">Lead speaker</span>

@@ -12,6 +12,7 @@ import {
   type StoryGraphDraft,
 } from "./graphPanelUtils";
 import { log } from "@utils/log";
+import { Button } from "@components/ui/Button";
 
 type Props = {
   draft: StoryGraphDraft;
@@ -204,29 +205,26 @@ const GraphToolbar = ({ layout, dagreReady, disabled, canAddTransition, onAddChe
   <div className="st-panel-header flex flex-wrap items-center justify-between gap-2 px-3 py-2">
     <div className="font-semibold">Graph</div>
     <div className="flex flex-wrap items-center gap-2">
-      <button
+      <Button
         type="button"
-        className="st-button secondary"
         onClick={onAddCheckpoint}
         disabled={!!disabled}
       >
         + Checkpoint
-      </button>
-      <button
+      </Button>
+      <Button
         type="button"
-        className="st-button secondary"
         onClick={onAddTransition}
         disabled={!!disabled || !canAddTransition}
       >
         + Transition
-      </button>
-      <button
+      </Button>
+      <Button
         type="button"
-        className="st-button secondary"
         onClick={onRelayout}
       >
         Re-layout
-      </button>
+      </Button>
       <select
         value={layout}
         aria-label="Graph layout"

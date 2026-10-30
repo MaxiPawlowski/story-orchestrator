@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { ContinueRow } from "@runtime/playsIndex";
 import type { TrophyRow } from "@runtime/carryPort";
 import { CARRY_COPY } from "@features/carryCopy";
+import { Button } from "@components/ui/Button";
 
 export interface TrophyShelfProps {
   rows: readonly ContinueRow[];
@@ -42,9 +43,9 @@ export const TrophyShelf = ({ rows, load, onOpen }: TrophyShelfProps) => {
                   )}
                 </div>
                 {row && onOpen && (
-                  <button type="button" data-so="trophy-open" className="menu_button text-xs" aria-label={`${CARRY_COPY.shelfOpen} ${trophy.storyTitle}`} onClick={() => onOpen(row)}>
+                  <Button type="button" data-so="trophy-open" size="sm" aria-label={`${CARRY_COPY.shelfOpen} ${trophy.storyTitle}`} onClick={() => onOpen(row)}>
                     {CARRY_COPY.shelfOpen}
-                  </button>
+                  </Button>
                 )}
               </li>
             );

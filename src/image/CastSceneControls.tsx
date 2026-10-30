@@ -5,6 +5,7 @@ import type { ImageQueue } from "./queue";
 import { spriteCast } from "@services/stHost/sprites";
 import { PLAYER_COPY } from "@runtime/narrative";
 import { log } from "@utils/log";
+import { Button } from "@components/ui/Button";
 
 export default function CastSceneControls({ manager, snapshot, queue, members, render }: {
   manager: RuntimeManager; snapshot: RuntimeSnapshot; queue: ImageQueue;
@@ -33,8 +34,8 @@ export default function CastSceneControls({ manager, snapshot, queue, members, r
       checked={selected.includes(member.folder)} onChange={(event) => setSelected((rows) => event.target.checked
         ? [...rows, member.folder] : rows.filter((row) => row !== member.folder))} />{member.name}</label>)}
     <label>Scene direction<input className="text_pole" value={direction} disabled={busy} onChange={(event) => setDirection(event.target.value)} /></label>
-    <button type="button" className="menu_button" disabled={busy || !selected.length} onClick={() => void draw()}>Draw current-look cast</button>
-    {busy && <button type="button" className="menu_button" onClick={() => queue.cancelAll()}>Cancel cast illustration</button>}
+    <Button type="button" disabled={busy || !selected.length} onClick={() => void draw()}>Draw current-look cast</Button>
+    {busy && <Button type="button" onClick={() => queue.cancelAll()}>Cancel cast illustration</Button>}
     {error && <p role="alert">{error}</p>}
   </div></details>;
 }

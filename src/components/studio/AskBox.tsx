@@ -2,6 +2,8 @@ import { useId, useState, type FormEvent } from "react";
 import type { KnowledgeShowMe } from "@copilot/knowledge/types";
 import { ASK_TEXT } from "@features/askCopy";
 import { log } from "@utils/log";
+import { Button } from "@components/ui/Button";
+import { StatusText } from "@components/ui/StatusText";
 
 export type AskBoxPersona = "player" | "author";
 
@@ -59,13 +61,13 @@ export function AskBox({ persona, id = "so-help-ask", onAsk, onShowMe, canShow =
           onKeyDown={(event) => { if (event.key === "Enter" && (event.ctrlKey || event.metaKey)) void submit(); }}
         />
         <div className="flex flex-wrap items-center gap-2">
-          <button type="submit" data-so="ask-submit" className="menu_button text-xs" aria-busy={busy} disabled={busy || !question.trim()}>{busy ? ASK_TEXT.busy : ASK_TEXT.submit}</button>
+          <Button type="submit" data-so="ask-submit" size="sm" busy={busy} disabled={busy || !question.trim()}>{busy ? ASK_TEXT.busy : ASK_TEXT.submit}</Button>
           <span data-so="ask-note" className="text-xs opacity-70">{persona === "player" ? ASK_TEXT.playerNote : ASK_TEXT.authorNote}</span>
         </div>
       </form>
       <div data-so="ask-answer" role="status" aria-live="polite" aria-label={ASK_TEXT.answer} className="flex flex-col gap-1">
         {busy && <span className="text-xs opacity-70">{ASK_TEXT.busy}</span>}
-        {!busy && reply && isError(reply) && <span data-so="ask-error" className="text-xs so-warning-text">{reply.error}</span>}
+        {!busy && reply && isError(reply) && <StatusText as="span" tone="warn" data-so="ask-error">{reply.error}</StatusText>}
         {!busy && answer && <div data-so="ask-text" data-status={answer.status} className="whitespace-pre-wrap">{answer.answer}</div>}
         {!busy && answer && answer.topics.length > 0 && (
           <div className="text-xs opacity-80">
@@ -76,9 +78,9 @@ export function AskBox({ persona, id = "so-help-ask", onAsk, onShowMe, canShow =
           </div>
         )}
         {!busy && showMe && onShowMe && (
-          <button type="button" data-so="ask-show-me" className="menu_button self-start text-xs" onClick={() => onShowMe(showMe)}>
+          <Button type="button" data-so="ask-show-me" className="self-start" size="sm" onClick={() => onShowMe(showMe)}>
             {showMe.kind === "doc" ? ASK_TEXT.readMore : ASK_TEXT.showMe}
-          </button>
+          </Button>
         )}
       </div>
     </section>

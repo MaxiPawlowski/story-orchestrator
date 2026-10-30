@@ -26,11 +26,11 @@ const SideRows = ({ side }: { side: SuggestionSide }) => {
         <ul className="flex flex-col gap-1 list-none p-0 m-0">
           {greyed.map((offer) => (
             <li key={offer.id}>
-              <button type="button" data-so="suggestion-unavailable" className="menu_button w-full text-left whitespace-normal opacity-50" disabled aria-disabled="true"
+              <Button type="button" data-so="suggestion-unavailable" className="w-full text-left whitespace-normal opacity-50" disabled aria-disabled="true"
                 title={`${SUGGESTION_SIDE_TEXT.notYet}: ${offer.reason}`}>
                 <span>{offer.text}</span>
                 <span className="block text-xs">{offer.reason}</span>
-              </button>
+              </Button>
             </li>
           ))}
         </ul>
@@ -78,13 +78,13 @@ export function IdeasTab({ request, fill }: IdeasTabProps) {
           <ul className="flex flex-col gap-1 list-none p-0 m-0">
             {lines.map((line) => (
               <li key={line.text}>
-                <button type="button" data-so="suggestion" className="menu_button w-full text-left whitespace-normal"
+                <Button type="button" data-so="suggestion" className="w-full text-left whitespace-normal"
                   onClick={() => {
                     const result = fill(view.result.ask, line.text);
                     setNotice(result.ok ? PRESENCE_TEXT.suggestionsFilled : result.reason);
                   }}>
                   {line.text}
-                </button>
+                </Button>
                 {anchorText(line.anchorId) && <div data-so="suggestion-anchor" className="text-xs opacity-70">{SUGGESTION_SIDE_TEXT.anchorFor(anchorText(line.anchorId) ?? "")}</div>}
               </li>
             ))}

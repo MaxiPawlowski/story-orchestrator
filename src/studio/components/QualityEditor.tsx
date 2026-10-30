@@ -5,6 +5,10 @@ import { addQuality, newQuality, nextId, removeQuality, updateQuality } from "..
 import { findQualityUsages, reservedQualityKeys } from "../qualityUsage";
 import QualityReadEditor from "./QualityReadEditor";
 import QualityCommitEvidence from "./QualityCommitEvidence";
+import { Button } from "@components/ui/Button";
+import { IconButton } from "@components/ui/IconButton";
+import { Callout } from "@components/ui/Callout";
+import { StatusText } from "@components/ui/StatusText";
 
 const Field: React.FC<{ label: string; children: React.ReactNode }> = ({ label, children }) => (
   <label className="flex flex-col gap-1 text-sm">
@@ -24,10 +28,10 @@ const EnumValuesEditor: React.FC<{ values: string[]; onChange: (next: string[]) 
           value={value}
           onChange={(event) => onChange(values.map((entry, entryIndex) => (entryIndex === index ? event.target.value : entry)))}
         />
-        <button type="button" className="st-button danger" aria-label={`Remove enum value ${index + 1}`} onClick={() => onChange(values.filter((_, entryIndex) => entryIndex !== index))}>×</button>
+        <IconButton icon="fa-xmark" label={`Remove enum value ${index + 1}`} type="button" onClick={() => onChange(values.filter((_, entryIndex) => entryIndex !== index))} />
       </div>
     ))}
-    <button type="button" className="st-button secondary self-start" onClick={() => onChange([...values, ""])}>+ Value</button>
+    <Button type="button" className="self-start" onClick={() => onChange([...values, ""])}>+ Value</Button>
   </div>
 );
 
@@ -41,7 +45,7 @@ interface QualityListProps {
 
 const QualityList = ({ qualities, selectedKey, reserved, onAdd, onSelect }: QualityListProps) => (
   <div className="flex w-full flex-col gap-2 sm:w-56">
-    <button type="button" className="st-button primary" onClick={onAdd}>+ Quality</button>
+    <Button variant="primary" type="button" onClick={onAdd}>+ Quality</Button>
     <ul className="flex flex-col gap-1" aria-label="Qualities">
       {qualities.length === 0 ? <li className="text-sm st-muted">No qualities yet</li> : null}
       {qualities.map((quality) => (
@@ -223,9 +227,9 @@ const QualityScopeFields = ({ selected, isReserved, draft, patch, onScope, onLed
 const QualityDeleteRow = ({ isReserved, confirming, usages, onDelete }: { isReserved: boolean; confirming: boolean; usages: ReturnType<typeof findQualityUsages>; onDelete: () => void }) => (
   <>
     <div className="flex items-center gap-2 border-t st-divider pt-3">
-      <button type="button" className="st-button danger" disabled={isReserved} onClick={onDelete}>Delete quality</button>
+      <Button variant="danger" type="button" disabled={isReserved} onClick={onDelete}>Delete quality</Button>
       {confirming ? (
-        <span className="text-xs st-text-error">Used in {usages.length} place(s) — click Delete again to confirm.</span>
+        <StatusText tone="error" as="span">Used in {usages.length} place(s) — click Delete again to confirm.</StatusText>
       ) : null}
     </div>
 
@@ -332,7 +336,7 @@ const QualityEditor: React.FC = () => {
           <div className="st-subpanel p-4 text-sm st-muted">Select or add a quality to edit it.</div>
         ) : (
           <div className="st-subpanel flex flex-col gap-3 p-3">
-            {isReserved ? <div className="st-alert-error rounded px-2 py-1 text-xs">This is a derived quality ({selected.key}); the engine manages it.</div> : null}
+            {isReserved ? <Callout tone="error" size="sm"><p>This is a derived quality ({selected.key}); the engine manages it.</p></Callout> : null}
             <QualityShapeFields selected={selected} isReserved={isReserved} patch={patch} onRename={handleRenameKey} onType={handleTypeChange} onSource={handleSourceChange} />
             <QualityScopeFields selected={selected} isReserved={isReserved} draft={draft} patch={patch} onScope={setScopeHint} onLedger={setLedgerBinding} />
             <QualityDeleteRow isReserved={isReserved} confirming={confirmKey === selected.key} usages={usages} onDelete={handleDelete} />

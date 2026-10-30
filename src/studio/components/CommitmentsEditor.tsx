@@ -6,6 +6,8 @@ import { setCommitments } from "../gameMutations";
 import { nextId } from "../mutations";
 import GateBuilder from "./GateBuilder";
 import { JsonField, OptionalGate, TextField } from "./GameFields";
+import { Button } from "@components/ui/Button";
+import { IconButton } from "@components/ui/IconButton";
 
 const HELP = "Something a character has promised the player. It is made, then kept or broken by an event, never by time. The character is reminded of it in its own notes; "
   + "the player sees \"Promised you: ...\" on the character's People page once made, unless it was said out of the player's hearing.";
@@ -38,8 +40,8 @@ const CommitmentRow = ({ member, commitment, list }: { member: RosterMember; com
             onChange={(event) => patch({ heard: event.target.checked ? undefined : false })} />
           Said in the player's hearing
         </label>
-        <button type="button" className="st-button danger" aria-label={`Remove ${name}`}
-          onClick={() => mutate((current) => setCommitments(current, member.id, list.filter((item) => item.id !== commitment.id)))}>×</button>
+        <IconButton icon="fa-xmark" label={`Remove ${name}`}
+          onClick={() => mutate((current) => setCommitments(current, member.id, list.filter((item) => item.id !== commitment.id)))} />
       </div>
       <label className="flex items-center gap-2 text-sm">
         <input type="checkbox" aria-label={`${name} made before the story`} checked={commitment.made_when === COMMITMENT_START}
@@ -91,7 +93,7 @@ const CommitmentsEditor: React.FC<{ memberId?: string }> = ({ memberId }) => {
       {roster.map((member) => (
         <div key={member.id} className="flex flex-col gap-2">
           {(member.commitments ?? []).map((commitment) => <CommitmentRow key={commitment.id} member={member} commitment={commitment} list={member.commitments ?? []} />)}
-          <button type="button" className="st-button secondary self-start" onClick={() => add(member)}>+ Promise from {member.name ?? member.id}</button>
+          <Button className="self-start" onClick={() => add(member)}>+ Promise from {member.name ?? member.id}</Button>
         </div>
       ))}
     </div>

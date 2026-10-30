@@ -8,6 +8,8 @@ import BriefingEditor from "./BriefingEditor";
 import { composeChapterBriefing } from "@engine/index";
 import { requestBriefing } from "@runtime/briefingRequest";
 import { addChapter, removeChapter, setChapterPolicy, setCheckpointChapter, updateChapter } from "../mutations";
+import { Button } from "@components/ui/Button";
+import { IconButton } from "@components/ui/IconButton";
 
 const KIND_LABELS: Record<ChapterKind, string> = { chapter: "Chapter", interlude: "Interlude (seals with the next chapter)" };
 const THREAD_LABELS: Record<OpenThreadPolicy, string> = { carry: "Carry into the next chapter", close: "Close them", decide: "Let the record decide" };
@@ -52,7 +54,7 @@ const ChapterRow = ({ chapter }: { chapter: Chapter }) => {
           <input className="text_pole st-input" aria-label={`${name} player title`} placeholder={chapter.title} value={chapter.player_title ?? ""}
             onChange={(event) => update({ player_title: textOrUndefined(event.target.value) })} />
         </label>
-        <button type="button" className="st-button danger" aria-label={`Remove chapter ${name}`} onClick={() => mutate((current) => removeChapter(current, chapter.id))}>×</button>
+        <IconButton icon="fa-xmark" label={`Remove chapter ${name}`} onClick={() => mutate((current) => removeChapter(current, chapter.id))} />
       </div>
       <div className="flex flex-wrap items-end gap-2">
         <label className="flex flex-col gap-1 text-sm">
@@ -146,12 +148,13 @@ const ChaptersEditor: React.FC = () => {
   };
   return (
     <div data-so="chapters" className="st-subpanel flex flex-col gap-3 p-3">
-      <div className="text-sm font-medium">Chapters <span className="st-muted font-normal">— acts the story is sealed in</span><HelpTooltip title={HELP} /></div>
+      <div className="text-sm font-medium">Chapters <span className="st-muted font-normal">— acts the story is sealed in</span></div>
+      <p className="so-setting-desc">{HELP}</p>
       {chapters.length === 0 ? <div className="text-xs st-muted">None. A story without chapters is played as one long act.</div> : null}
       {chapters.map((chapter) => <ChapterRow key={chapter.id} chapter={chapter} />)}
       <div className="flex items-center gap-2">
         <input className="text_pole st-input w-40" aria-label="New chapter id" placeholder="chapter id" value={newId} onChange={(event) => setNewId(event.target.value)} />
-        <button type="button" className="st-button secondary" disabled={taken} onClick={add}>+ Chapter</button>
+        <Button disabled={taken} onClick={add}>+ Chapter</Button>
       </div>
       {chapters.length ? <CheckpointAssignment /> : null}
     </div>
