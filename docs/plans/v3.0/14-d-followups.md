@@ -1,7 +1,7 @@
 # Plan 14 — Track D follow-ups (offline parts)
 
 **Status 2026-10-28 (current): MERGED to master with `v3.0-wave1-integration` (§Gate record: merge 2026-10-28). Open: D6 P5
-still a miss (not retuned), D8 passive-modifier scope finding, D1 rerun (GPU + Sol rating), J6 x2 on a model lane, SP1 count
+still a miss (not retuned), D8 fixed 2026-10-29 (`cb5b036b`), D1 rerun (GPU + Sol rating), J6 x2 on a model lane, SP1 count
 after the owner's play.** Earlier status (2026-10-26, history): offline parts built on branch `v3.0-d-followups`; GPU and
 model-lane rows deferred to the end batch.
 Source: `00-overview.md` §Replan 2026-10-26 track D and E/SP1, §Owner decisions 2026-10-26 (12, 13). Each item: one change,

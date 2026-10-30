@@ -224,7 +224,7 @@ State column below is current, the 2026-10-26 lines are history. 18-21 on master
 | Plan | Subject | Where | State (13-17: 2026-10-28; 18-21: 2026-10-26) |
 |---|---|---|---|
 | 13 | Prefix stability gate | master (merged 2026-10-28) | built, merged; first capture x2 done offline (end-batch captures); in-page recorder fires (no-model); real-generation recorder row owed |
-| 14 | D follow-ups | master (merged 2026-10-28) | merged; D6 P5 miss recorded; D8 passive-modifier scope finding open; D1 rerun (GPU + rating), J6 x2 (model lane), SP1 count owed |
+| 14 | D follow-ups | master (merged 2026-10-28) | merged; D6 P5 miss recorded; D8 fixed 2026-10-29 (`cb5b036b`); D1 rerun (GPU + rating), J6 x2 (model lane), SP1 count owed |
 | 15 | End test batch (GPU, ~6-7 h) | master | run 2026-10-27/28: §v3.0 end batch 2026-10-27; GBNF parity, render-survival now on master, not run |
 | 16 | Twine/Twee spike | master (merged 2026-10-28) | spike-later (Astra triage), docs only |
 | 17 | Reply polish integration review | master (merged 2026-10-28) | planned; polish stays off |
