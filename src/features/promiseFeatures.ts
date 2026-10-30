@@ -9,6 +9,6 @@ export const PROMISE_FEATURES: readonly Feature[] = [
     what: "When you promise a character something, the story keeps your exact words. Only that character is reminded, and only when the scene touches it; "
       + "it never decides for you whether you keep it. Your open promises show in the Overview as your own quoted words. A swipe or edit takes a promise back.",
     where: drawerAt("#so-player-promises", "Overview › Your promises"),
-    settings: ["memory.promises"], guideTopic: "quests", doc: authorGuideDoc("quests"), status: "shipped", needs: ["story", "group-chat", "memory-profile"],
+    settings: ["memory.promises", "extraction.promiseAddressee"], guideTopic: "quests", doc: authorGuideDoc("quests"), status: "shipped", needs: ["story", "group-chat", "memory-profile"],
   },
 ];

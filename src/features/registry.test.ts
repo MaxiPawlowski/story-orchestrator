@@ -35,7 +35,7 @@ const leaves = (value: unknown, prefix = ""): string[] => {
 };
 
 const OPTIONAL_EXTRACTION: Record<Exclude<keyof ExtractionRuntimeSettings, keyof ReturnType<typeof defaultExtractionSettings>>, true> = {
-  fallbackProfileId: true, profiles: true, routes: true, reasoningBudget: true, replyEffort: true,
+  fallbackProfileId: true, profiles: true, routes: true, reasoningBudget: true, replyEffort: true, readLayout: true, promiseAddressee: true,
 };
 
 const OPTIONAL_MEMORY: Record<Exclude<keyof MemoryRuntimeSettings, keyof ReturnType<typeof defaultMemorySettings>>, true> = {

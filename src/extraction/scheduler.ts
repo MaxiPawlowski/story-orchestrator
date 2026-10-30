@@ -11,13 +11,13 @@ import { Failover, recovered, transportHealth, tripped } from "./failover";
 import { isLapse } from "./modelError";
 import { isHarnessKey } from "@utils/harness";
 import type { ModelCall } from "./modelRoute";
-import { runSharedRead, sharedReadWindow } from "./sharedReadEntry";
+import { readPromptOptions, runSharedRead, sharedReadWindow } from "./sharedReadEntry";
 import { ROLLBACK_REREAD_PREFIX, rollbackRereadReason } from "./rereadReason";
 import { CADENCE_WINDOW_FALLBACK, CADENCE_WINDOW_MAX, cadenceWindowFrom } from "./cadenceWindow";
 import type { RequestBudget } from "./tokenMeter";
-import type { OpenPromiseRef, ParsedFact, SharedReadAudit, SharedReadWindow } from "./types";
+import type { OpenPromiseRef, ParsedFact, ReadPromptOptions, SharedReadAudit, SharedReadWindow } from "./types";
 
-export interface SchedulerSettings {
+export interface SchedulerSettings extends ReadPromptOptions {
   enabled: boolean;
   profileId: string | null;
   fallbackProfileId?: string | null;
@@ -512,7 +512,7 @@ export class ExtractionScheduler {
           witnessPresent: this.host.witness?.present() ?? null,
           epistemicLedgerCapable: this.host.getEpistemicLedgerCapable?.() ?? false,
           entities: this.host.getEntities?.() ?? [],
-          judgeTyped: this.host.judgeTyped?.() ?? null,
+          judgeTyped: this.host.judgeTyped?.() ?? null, ...readPromptOptions(settings),
           model: this.host.model,
           ask,
         }));

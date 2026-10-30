@@ -11,10 +11,11 @@ export interface PayloadCapture {
   label: string;
   member: string | null;
   mainApi: string | null;
-  promptKind: 'text' | 'chat';
+  promptKind: 'text' | 'chat' | 'read';
   checkpoint: string | null;
   prompt: string;
   blocks: PayloadBlock[];
+  sideKey?: string;
 }
 
 export interface PayloadCase {
@@ -63,6 +64,7 @@ export function renderCapture(capture: PayloadCapture | null): string {
     `mainApi: ${capture.mainApi ?? '(unknown)'}`,
     `promptKind: ${capture.promptKind}`,
     `checkpoint: ${capture.checkpoint ?? '(none)'}`,
+    ...(capture.sideKey ? [`sideKey: ${capture.sideKey}`] : []),
     '## prompt',
     capture.prompt,
   ];

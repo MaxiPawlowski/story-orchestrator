@@ -2,17 +2,19 @@ import { FACT_ENTRY_TYPES, MEMORY_EXPIRATIONS, SESSION_ENTRY_TYPES } from "./typ
 
 export const PROMISE_ARC_RULE = "Promises the player makes to a cast member are tracked separately as [promised] lines: never write them as arcs.";
 
-export function renderArcContractSection(openArcs: string[] = [], promisesTracked = false): string {
-  const existing = openArcs.length
-    ? ["EXISTING OPEN ARCS (read-only context — do not copy or re-output these):", ...openArcs.map((arc) => `[arc] ${arc}`), ""]
-    : [];
+export const renderExistingArcs = (openArcs: readonly string[]): string[] => (openArcs.length
+  ? ["EXISTING OPEN ARCS (read-only context — do not copy or re-output these):", ...openArcs.map((arc) => `[arc] ${arc}`)]
+  : []);
+
+export function renderArcContractSection(openArcs: string[] = [], promisesTracked = false, listedBelow = false): string {
+  const existing = openArcs.length ? [...renderExistingArcs(openArcs), ""] : [];
   return [
     ...existing,
     "Track story arcs: open narrative threads still in motion — unresolved conflicts, unfulfilled promises, active goals, open mysteries, unplayed tensions. Report the few " +
       "that matter most, not every loose detail.",
     "Not arcs: tactical/logistical details, single-scene contingencies, or facts about events that already happened and are over.",
     "Output arc lines in exactly these formats:",
-    "[arc] <a NEW unresolved thread introduced in this window, not already listed above>",
+    `[arc] <a NEW unresolved thread introduced in this window, not already listed ${listedBelow ? "under EXISTING OPEN ARCS" : "above"}>`,
     "[resolved] <brief description of an existing open arc that this window explicitly closed>",
     "Only mark [resolved] when the window directly closes the thread (promise kept, mystery answered, conflict ended); a related revelation is not a resolution.",
     ...(promisesTracked ? [PROMISE_ARC_RULE] : []),
@@ -51,8 +53,10 @@ export function renderEpistemicContractSection(): string {
   ].join("\n");
 }
 
+const knownEntitiesLine = (entities: readonly string[]) => `Known entities: ${entities.join(", ")}.`;
+
 export function renderLedgerContractSection(entities: string[] = []): string {
-  const known = entities.length ? [`Known entities: ${entities.join(", ")}.`] : [];
+  const known = entities.length ? [knownEntitiesLine(entities)] : [];
   return [
     ...known,
     "When an entity's current physical or operational state is explicitly shown, emit state lines:",
@@ -61,34 +65,64 @@ export function renderLedgerContractSection(entities: string[] = []): string {
   ].join("\n");
 }
 
+const memoryRules = () => [
+  "Also extract memory notes worth keeping across turns, report scene breaks, and track story arcs.",
+  `Facts tier types (${FACT_ENTRY_TYPES.join(", ")}) — durable, cross-session:`,
+  "- fact: an established truth about a character or the world.",
+  "- relationship: the current state of the bond between participants.",
+  "- preference: something the user demonstrably enjoys (tone, pacing, content).",
+  "- event: a significant event that occurred and should be recalled.",
+  `Session tier types (${SESSION_ENTRY_TYPES.join(", ")}) — finer within-chapter specifics:`,
+  "- scene: a current/recent scene detail (location, atmosphere, time, layout).",
+  "- revelation: something revealed or discovered in this exchange.",
+  "- development: how a relationship or situation changed.",
+  "- detail: a specific fact, name, object, or physical detail mentioned.",
+  `Rate importance 1-3 (1=atmospheric/minor, 2=useful context, 3=critical/defining) and classify expiration as one of ${MEMORY_EXPIRATIONS.join("|")}.`,
+  "Optionally tag involved named entities (proper nouns only) as entity=\"Name1,Name2\". Add character=\"<roster id from the Cast line>\" only when the memory is private " +
+    "to that one cast member (only they saw, know or feel it); a tagged memory is shown to that member alone, so shared knowledge carries no character tag.",
+  PRIVATE_MEMORY_RULE,
+  CLAIM_RULE,
+  "Output additional lines in this exact format:",
+  "MEMORY type=<type> importance=<1|2|3> expiration=<scene|session|permanent> [entity=\"Name1,Name2\"] [character=\"<roster id>\"] text=\"memory text\" evidence=\"exact quote from transcript\"",
+  "Then report whether a scene break occurred in this window:",
+  "SCENE_BREAK at=<message index> reason=<time_skip|location|divider|cast>",
+  "If no scene break occurred, output SCENE_NONE.",
+  "",
+];
+
 export function renderMemoryContractAddendum(openArcs: string[] = [], capable = false, entities: string[] = [], promises: string | null = null): string {
   return [
-    "Also extract memory notes worth keeping across turns, report scene breaks, and track story arcs.",
-    `Facts tier types (${FACT_ENTRY_TYPES.join(", ")}) — durable, cross-session:`,
-    "- fact: an established truth about a character or the world.",
-    "- relationship: the current state of the bond between participants.",
-    "- preference: something the user demonstrably enjoys (tone, pacing, content).",
-    "- event: a significant event that occurred and should be recalled.",
-    `Session tier types (${SESSION_ENTRY_TYPES.join(", ")}) — finer within-chapter specifics:`,
-    "- scene: a current/recent scene detail (location, atmosphere, time, layout).",
-    "- revelation: something revealed or discovered in this exchange.",
-    "- development: how a relationship or situation changed.",
-    "- detail: a specific fact, name, object, or physical detail mentioned.",
-    `Rate importance 1-3 (1=atmospheric/minor, 2=useful context, 3=critical/defining) and classify expiration as one of ${MEMORY_EXPIRATIONS.join("|")}.`,
-    "Optionally tag involved named entities (proper nouns only) as entity=\"Name1,Name2\". Add character=\"<roster id from the Cast line>\" only when the memory is private " +
-      "to that one cast member (only they saw, know or feel it); a tagged memory is shown to that member alone, so shared knowledge carries no character tag.",
-    PRIVATE_MEMORY_RULE,
-    CLAIM_RULE,
-    "Output additional lines in this exact format:",
-    "MEMORY type=<type> importance=<1|2|3> expiration=<scene|session|permanent> [entity=\"Name1,Name2\"] [character=\"<roster id>\"] text=\"memory text\" evidence=\"exact quote from transcript\"",
-    "Then report whether a scene break occurred in this window:",
-    "SCENE_BREAK at=<message index> reason=<time_skip|location|divider|cast>",
-    "If no scene break occurred, output SCENE_NONE.",
-    "",
+    ...memoryRules(),
     renderArcContractSection(openArcs, promises !== null),
     ...(promises ? ["", promises] : []),
     ...(capable ? ["", renderEpistemicContractSection(), "", renderLedgerContractSection(entities)] : []),
   ].join("\n");
+}
+
+export interface MemoryContractParts {
+  rules: string;
+  context: string[];
+}
+
+export interface PromiseContractParts {
+  rules: string;
+  open: string;
+}
+
+export function renderMemoryContractParts(openArcs: string[] = [], capable = false, entities: string[] = [], promises: PromiseContractParts | null = null): MemoryContractParts {
+  return {
+    rules: [
+      ...memoryRules(),
+      renderArcContractSection([], promises !== null, true),
+      ...(promises?.rules ? ["", promises.rules] : []),
+      ...(capable ? ["", renderEpistemicContractSection(), "", renderLedgerContractSection([])] : []),
+    ].join("\n"),
+    context: [
+      ...(openArcs.length ? [renderExistingArcs(openArcs).join("\n")] : []),
+      ...(promises?.open ? [promises.open] : []),
+      ...(capable && entities.length ? [knownEntitiesLine(entities)] : []),
+    ],
+  };
 }
 
 export const SUMMARY_TASK = "Write plain TEXT ONLY. Do NOT continue the roleplay or speak as any character.";

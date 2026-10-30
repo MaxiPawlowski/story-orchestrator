@@ -18,6 +18,8 @@ export interface ExtractionSettingsSnapshot {
   stabilityLag: number;
   profileId: string | null;
   profiles: Record<string, string>;
+  readLayout: string | null;
+  promiseAddressee: boolean;
 }
 
 export async function readExtractionSettings(page): Promise<ExtractionSettingsSnapshot | null> {
@@ -25,7 +27,8 @@ export async function readExtractionSettings(page): Promise<ExtractionSettingsSn
     const runtime = globalThis.storyOrchestratorRuntime;
     const settings = runtime?.getGlobalSettings?.()?.extraction ?? runtime?.getSnapshot?.()?.extraction?.settings ?? null;
     return settings
-      ? { enabled: settings.enabled, cadence: settings.cadence, stabilityLag: settings.stabilityLag, profileId: settings.profileId ?? null, profiles: settings.profiles ?? {} }
+      ? { enabled: settings.enabled, cadence: settings.cadence, stabilityLag: settings.stabilityLag, profileId: settings.profileId ?? null, profiles: settings.profiles ?? {},
+        readLayout: settings.readLayout ?? null, promiseAddressee: settings.promiseAddressee === true }
       : null;
   });
 }

@@ -1,4 +1,5 @@
 import { runSharedRead } from "@extraction/sharedRead";
+import { readPromptOptions } from "@extraction/sharedReadEntry";
 import { askText, parseSharedReadResponse, type ExtractionReply, type ModelCall, type ModelPass, type PassRole } from "@extraction/index";
 import { windowOf } from "@extraction/chatRows";
 import { buildFixtureRun, type ExtractionFixtureSpec, type FixtureSourceRead } from "@extraction/fixtureRun";
@@ -179,6 +180,7 @@ export function registerLiveSuite(manager: RuntimeManager) {
       const budget = requestBudgetFor("read");
       const result = await runSharedRead({
         story, state, priority: 0, reason: "p42-w4", window: windowOf(spec.chat, spec.from, spec.to), witnessPresent: spec.present, model: tracked,
+        ...readPromptOptions(manager.getExtractionSettings()),
         ask: { role: "read", pass: "read", budget, ...(spec.debugResponse ? { debugResponse: spec.debugResponse } : {}) },
       });
       const { audit } = result;
@@ -188,10 +190,12 @@ export function registerLiveSuite(manager: RuntimeManager) {
         window: audit.window, scope: audit.scope.length, rejected: audit.rejected.length, witness: audit.witness ?? null,
       };
     },
-    runPromiseRead: async (spec) => (await import("./promiseReadCase")).runPromiseReadCase(spec, { model, budget: () => requestBudgetFor("read") }),
+    runPromiseRead: async (spec) => (await import("./promiseReadCase"))
+      .runPromiseReadCase(spec, { model, budget: () => requestBudgetFor("read"), ...readPromptOptions(manager.getExtractionSettings()) }),
     runFixture: async (spec, options = {}) => {
       await loadGameLayer();
-      const hinted = { ...spec, story: withHints(spec.story, options.hints) };
+      const layout = readPromptOptions(manager.getExtractionSettings()).readPrompt?.readLayout;
+      const hinted = { ...(layout ? { readLayout: layout } : {}), ...spec, story: withHints(spec.story, options.hints) };
       const first = buildFixtureRun(hinted);
       let judged: LiveFixtureResult["judged"];
       let judgedDeltas: LiveFixtureResult["deltas"] = [];
