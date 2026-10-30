@@ -4,6 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import fs from 'node:fs/promises';
 import { EventEmitter } from 'node:events';
+import net from 'node:net';
 import { validateConfig } from './config.mjs';
 import { start, exit, init } from './index.mjs';
 import { createArbiter, controlRequest, leaseRequest, brokerState } from './broker/arbiter.mjs';
@@ -61,11 +62,13 @@ function fakeFetch({ comfy = true, procs } = {}) {
 }
 
 const superviseConfig = async (overrides = {}) => ({
-    adapter: 'supervise', listenPort: 20000 + Math.floor(Math.random() * 20000), stateDir: await tmp(),
+    adapter: 'supervise', listenPort: await freePort(), stateDir: await tmp(),
     text: { binary: abs('llama-server'), model: abs('model.gguf'), port: 41000 + Math.floor(Math.random() * 1000), profiles: { normal: { args: ['--ctx-size', '8192'] } } },
     comfy: { url: 'http://127.0.0.1:8188' },
     ...overrides,
 });
+
+const freePort = () => new Promise((resolve) => { const server = net.createServer().listen(0, '127.0.0.1', () => { const { port } = server.address(); server.close(() => resolve(port)); }); });
 
 const router = () => {
     const routes = new Map();
@@ -146,7 +149,7 @@ test('the broker state reads in plain words', () => {
 
 test('fail-open: no config means the none adapter, and a lease passes through', async () => {
     const r = router();
-    await start(r, { adapter: 'none', listenPort: 20000 + Math.floor(Math.random() * 20000) });
+    await start(r, { adapter: 'none', listenPort: await freePort() });
     try {
         const res = await call(r, 'POST /lease');
         assert.deepEqual([res.data.lease, res.data.brokered], [null, false]);

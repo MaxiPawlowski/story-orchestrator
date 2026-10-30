@@ -70,7 +70,7 @@ export function parseQuery(stdout) {
 }
 
 const runPowerShell = (script) => new Promise((resolve, reject) => {
-    execFile('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', script], { windowsHide: true, timeout: 20000, maxBuffer: 16 * 1024 * 1024 },
+    execFile('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', script], { windowsHide: true, timeout: 90000, maxBuffer: 16 * 1024 * 1024 },
         (error, stdout) => (error ? reject(error) : resolve(stdout)));
 });
 

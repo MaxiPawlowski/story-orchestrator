@@ -31,7 +31,7 @@
     "storybook:build": "node node_modules/storybook/bin/index.cjs build --output-dir .sb-static --disable-telemetry",
     "serve-sb": "http-server .sb-static -p 6006 -s -c-1",
     "test-storybook": "node node_modules/@storybook/test-runner/dist/test-storybook.js --url http://127.0.0.1:6006 --maxWorkers 4",
-    "test-storybook:ci": "npm run storybook:build && concurrently -k -s first -n SB,TEST \"npm run serve-sb\" \"wait-on -t 60000 http://127.0.0.1:6006 && npm run test-storybook\"",
+    "test-storybook:ci": "npm run storybook:build && node scripts/release/storybookCi.mjs",
     "plugin:install": "node scripts/plugin-install.mjs",
     "plugins:install": "node scripts/plugin-install.mjs",
     "sessions:archive": "node scripts/lib/sessionsArchive.mjs",

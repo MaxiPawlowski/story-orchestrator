@@ -58,6 +58,7 @@ const everything = (overrides: Record<string, unknown> = {}): RuntimeSnapshot =>
   judgeRouteGaps: [{ key: "canonDraft", provider: "systemone-local", problem: "unmeasured" }],
   extensionConflicts: ["stepped-thinking-separated", "presence", "prompt-inspector", "vectors-world-info", "cc-send-if-empty", "nemo-lorebook-spacing", "recast-autorun"],
   tunnelVisionBooks: [{ name: "Ruins Lore", suppressesScan: true, canWrite: true }],
+  tavernOsRewrites: true,
   playerSetup: {
     storyId: "s", pending: false, needsPane: true, switched: true, record: { pending: false, avatarId: "mara.png", name: "Mara", lockFailed: "the chat did not take the persona lock" }, lockedName: "Mara",
     current: { avatarId: "belle.png", name: "Belle" }, castClash: "Belle", descriptionEmpty: true, injectOff: true, beforeFirstMessage: true,

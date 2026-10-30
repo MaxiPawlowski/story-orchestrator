@@ -5,6 +5,7 @@ import { PERSONA_BLOCK_CHECKS, PERSONA_DEGRADE_CHECKS, PERSONA_INFO_CHECKS } fro
 import { GAME_CHECKS } from "./checksGame";
 import { SPRITE_DEGRADE_CHECKS, SPRITE_INFO_CHECKS } from "./checksSprites";
 import { EXTENSION_DEGRADE_CHECKS, EXTENSION_INFO_CHECKS } from "./checksExtensions";
+import { TAVERNOS_CHECKS } from "./checksTavernOs";
 
 export type RepairArea = "memory-model" | "model-role" | "cast" | "lore" | "persona" | "save" | "chapter" | "privacy" | "thinking" | "group" | "image" | "quest"
   | "characters" | "display" | "extension" | "judge";
@@ -155,7 +156,7 @@ export const CHECKS: readonly Check[] = [
   ...MODEL_CHECKS, STORY_NEEDS_GROUP_CHECK, ...REQUIREMENT_CHECKS, ...PERSONA_BLOCK_CHECKS,
   SECRET_LEAK_CHECK, THINKING_CHECK, ...EXTENSION_DEGRADE_CHECKS, ...PERSONA_DEGRADE_CHECKS, ...DEGRADING_SETUP_CHECKS,
   ...IMAGE_CHECKS, ...SPRITE_DEGRADE_CHECKS, ...GAME_CHECKS,
-  ...INFO_SETUP_CHECKS, ...SPRITE_INFO_CHECKS, ...PERSONA_INFO_CHECKS, ...EXTENSION_INFO_CHECKS,
+  ...INFO_SETUP_CHECKS, ...SPRITE_INFO_CHECKS, ...PERSONA_INFO_CHECKS, ...EXTENSION_INFO_CHECKS, ...TAVERNOS_CHECKS,
 ];
 
 const inScope = (check: Check, snapshot: RuntimeSnapshot): boolean => check.scope === "install" || Boolean(check.engineFree) || Boolean(snapshot.storyId);
