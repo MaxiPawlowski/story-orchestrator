@@ -1,18 +1,22 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { isEstablished, type MemoryEntry } from "@memory/index";
+import { useEffect, useLayoutEffect, useRef } from "react";
 import { HUD_COPY, pipelineAction } from "@runtime/pipeline";
+import { PLAYER_COPY } from "@runtime/narrative";
 import type { RuntimeSnapshot } from "@runtime/types";
+import type { SheetTab, SheetTabEntry } from "@runtime/storySheet";
+import { INLINE_LEVELS, type InlineLevel } from "@runtime/settingsModel";
 import { GAME_TEXT } from "@features/gameCopy";
-import { PRESENCE_TEXT } from "@features/presenceCopy";
 import { SKIP_COPY } from "@runtime/skipGate";
+import { INLINE_LEVEL_LABELS, INLINE_LEVEL_SHORT } from "@features/inlineCopy";
 import { Button } from "@components/ui/Button";
-
-export type HudCardPanel = "journal" | "suggestions";
+import { IconButton } from "@components/ui/IconButton";
+import { SegmentedControl } from "@components/ui/SegmentedControl";
 
 export interface HudCardActions {
-  panels: readonly HudCardPanel[];
-  openPanel: (panel: HudCardPanel) => void;
-  openMemory: () => void;
+  tabs: readonly SheetTabEntry[];
+  openTab: (tab: SheetTab) => void;
+  onRetry?: () => void;
+  onOpenSettings?: () => void;
+  setLevel?: (level: InlineLevel) => void;
   skip?: () => void;
 }
 
@@ -21,8 +25,6 @@ export interface HudCardProps extends HudCardActions {
   onMore: () => void;
   onClose: (restoreFocus: boolean) => void;
 }
-
-const PEEK = 5;
 
 export const NOTICE_MAX = 3;
 
@@ -33,23 +35,19 @@ export const cardNotices = (snapshot: RuntimeSnapshot): { lines: string[]; more:
 
 export const cardRoom = (hudTop: number, clipTop: number): number => Math.max(120, Math.floor(hudTop - clipTop - 8));
 
-export const memoryPeek = (snapshot: RuntimeSnapshot, limit = PEEK): MemoryEntry[] => (snapshot.memoryShown ?? [])
-  .filter((entry) => !entry.supersededBy && (!entry.foldedInto || isEstablished(entry)) && entry.provenance?.validity !== "conflicted")
-  .sort((a, b) => Number(Boolean(b.pinned)) - Number(Boolean(a.pinned)) || (b.createdAt ?? 0) - (a.createdAt ?? 0))
-  .slice(0, limit);
+const ALIAS: Partial<Record<SheetTab, string>> = { journal: "so-hud-card-journal", ideas: "so-hud-card-suggestions", memory: "so-hud-card-memory" };
 
-const PANEL_LABELS: Record<HudCardPanel, { label: string; icon: string; id: string }> = {
-  journal: { label: GAME_TEXT.journalLaunch, icon: "fa-book", id: "so-hud-card-journal" },
-  suggestions: { label: PRESENCE_TEXT.suggestionsOpen, icon: "fa-lightbulb", id: "so-hud-card-suggestions" },
+export const cardTabs = (tabs: readonly SheetTabEntry[]): SheetTabEntry[] => {
+  const widget = tabs.find((tab) => tab.id.startsWith("widget-"));
+  return [...tabs.filter((tab) => !tab.id.startsWith("widget-")), ...(widget ? [widget] : [])];
 };
 
-export const HudCard = ({ snapshot, panels, openPanel, openMemory, skip, onMore, onClose }: HudCardProps) => {
+export const HudCard = ({ snapshot, tabs, openTab, onRetry, onOpenSettings, setLevel, skip, onMore, onClose }: HudCardProps) => {
   const card = useRef<HTMLElement>(null);
-  const [peek, setPeek] = useState(false);
   const now = snapshot.narrative?.sections.find((section) => section.id === "now")?.lines ?? [];
   const action = pipelineAction(snapshot.pipeline);
-  const remembered = peek ? memoryPeek(snapshot) : [];
   const notices = cardNotices(snapshot);
+  const level = snapshot.ui.inline.level;
 
   useLayoutEffect(() => {
     const element = card.current;
@@ -87,11 +85,18 @@ export const HudCard = ({ snapshot, panels, openPanel, openMemory, skip, onMore,
     <section ref={card} id="so-hud-card" role="dialog" aria-modal="false" aria-labelledby="so-hud-card-title" className="so-hud-card">
       <div className="so-hud-card-head">
         <h2 id="so-hud-card-title" className="so-hud-card-title">{snapshot.narrative?.headline ?? now[0] ?? HUD_COPY.fallbackScene}</h2>
-        <button type="button" id="so-hud-card-close" className="menu_button fa-solid fa-xmark" aria-label={HUD_COPY.cardClose} title={HUD_COPY.cardClose}
-          onClick={() => onClose(true)} />
+        <IconButton id="so-hud-card-close" icon="fa-xmark" size="sm" label={HUD_COPY.cardClose} onClick={() => onClose(true)} />
       </div>
       {now[1] ? <p className="so-hud-card-line">{now[1]}</p> : null}
-      <p id="so-hud-card-status" className="so-hud-card-status">{snapshot.pipeline.text}{action ? ` ${action}` : ""}</p>
+      <div id="so-hud-card-status" className="so-hud-card-status" data-state={snapshot.pipeline.state}>
+        <span>{snapshot.pipeline.text}{action ? ` ${action}` : ""}</span>
+        {snapshot.pipeline.retryable && onRetry && (
+          <Button id="so-hud-card-retry" size="sm" icon="fa-rotate" work={onRetry}>{PLAYER_COPY.retryButton}</Button>
+        )}
+        {snapshot.pipeline.needsSetup && onOpenSettings && (
+          <Button id="so-hud-card-settings" size="sm" icon="fa-gear" onClick={() => { onClose(false); onOpenSettings(); }}>{PLAYER_COPY.openSettingsButton}</Button>
+        )}
+      </div>
       {notices.lines.length > 0 && (
         <div id="so-hud-card-notice" className="so-hud-card-line">
           <span>{GAME_TEXT.noticeLead}</span>
@@ -99,31 +104,29 @@ export const HudCard = ({ snapshot, panels, openPanel, openMemory, skip, onMore,
           {notices.more > 0 && <p data-so="hud-card-notice-more">{`and ${notices.more} ${GAME_TEXT.noticeMore}`}</p>}
         </div>
       )}
-      <div className="so-hud-card-actions">
-        {panels.map((panel) => (
-          <button key={panel} type="button" id={PANEL_LABELS[panel].id} className="menu_button so-launcher" onClick={() => { onClose(false); openPanel(panel); }}>
-            <i className={`fa-solid ${PANEL_LABELS[panel].icon}`} aria-hidden="true" /><span>{PANEL_LABELS[panel].label}</span>
-          </button>
-        ))}
-        {skip && snapshot.skip && (
-          <Button id="so-hud-card-skip" className="so-launcher" icon="fa-forward" disabled={!snapshot.skip.enabled} title={snapshot.skip.reason ?? SKIP_COPY.title}
-            onClick={() => { onClose(false); skip(); }}><span>{SKIP_COPY.label}</span></Button>
-        )}
-        <button type="button" id="so-hud-card-memory" className="menu_button so-launcher" aria-expanded={peek} aria-controls="so-hud-card-peek" onClick={() => setPeek((open) => !open)}>
-          <i className="fa-solid fa-brain" aria-hidden="true" /><span>{HUD_COPY.cardMemory}</span>
-        </button>
-        <button type="button" id="so-hud-card-more" className="menu_button so-launcher" title={HUD_COPY.cardMoreTitle} onClick={() => { onClose(false); onMore(); }}>
-          <span>{HUD_COPY.cardMore}</span>
-        </button>
-      </div>
-      {peek && (
-        <div id="so-hud-card-peek" className="so-hud-card-peek">
-          {remembered.length
-            ? <ul>{remembered.map((entry) => <li key={entry.id} data-so="hud-card-memory">{entry.text}</li>)}</ul>
-            : <p>{HUD_COPY.cardMemoryEmpty}</p>}
-          <button type="button" id="so-hud-card-memory-all" className="menu_button" onClick={() => { onClose(false); openMemory(); }}>{HUD_COPY.cardMemoryAll}</button>
+      {tabs.length > 0 && (
+        <div className="so-hud-card-tabs" role="group" aria-label={HUD_COPY.cardTabs}>
+          {cardTabs(tabs).map((tab) => (
+            <Button key={tab.id} id={ALIAS[tab.id]} size="sm" icon={tab.icon} data-so="hud-card-tab" data-tab={tab.id} onClick={() => { onClose(false); openTab(tab.id); }}>
+              {tab.label}
+            </Button>
+          ))}
         </div>
       )}
+      <div className="so-hud-card-foot">
+        {skip && snapshot.skip && (
+          <Button id="so-hud-card-skip" size="sm" icon="fa-forward" disabled={!snapshot.skip.enabled} title={snapshot.skip.reason ?? SKIP_COPY.title}
+            onClick={() => { onClose(false); skip(); }}>{SKIP_COPY.label}</Button>
+        )}
+        <Button id="so-hud-card-more" size="sm" variant="ghost" icon="fa-up-right-from-square" title={HUD_COPY.cardMoreTitle} onClick={() => { onClose(false); onMore(); }}>
+          {HUD_COPY.cardMore}
+        </Button>
+        {snapshot.ui.authorView && setLevel && (
+          <SegmentedControl id="so-hud-card-level" data-so="hud-card-level" size="sm" label={HUD_COPY.cardLevel} value={String(level)}
+            options={INLINE_LEVELS.map((entry) => ({ value: String(entry), label: INLINE_LEVEL_SHORT[entry], title: INLINE_LEVEL_LABELS[entry] }))}
+            onChange={(value) => setLevel(Number(value) as InlineLevel)} />
+        )}
+      </div>
     </section>
   );
 };

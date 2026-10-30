@@ -1,6 +1,7 @@
 import type { ExpansionRuntimeState } from "@generation/index";
 import type { ExtractionRuntimeState } from "./types";
-import { derivePipelineStatus, expansionInFlight, pipelineAction, PIPELINE_ACTION_COPY, TRANSPORT_PLAYER_TEXT } from "./pipeline";
+import { derivePipelineStatus, expansionInFlight, hudChipLabel, pipelineAction, PIPELINE_ACTION_COPY, READ_STALLED_TEXT, TRANSPORT_PLAYER_TEXT, WAITING_ON_COPY } from "./pipeline";
+import { READ_WAIT_BOUND_MS } from "@extraction/yieldGate";
 
 const state = (overrides: Partial<ExtractionRuntimeState> = {}) => ({
   settings: { enabled: true, profileId: "p1", cadence: 3, stabilityLag: 0 },
@@ -12,6 +13,29 @@ const state = (overrides: Partial<ExtractionRuntimeState> = {}) => ({
 }) as Partial<ExtractionRuntimeState> as ExtractionRuntimeState;
 
 const pending = { id: "1", boundary: 4, checkpointId: "cp1", targetedKeys: ["has_key"], scheduledAt: "t", resolvedAt: null, evidence: [] };
+
+describe("v3.0 29: the status says what a read waits on, bounded into Try again", () => {
+  const scheduler = (patch: Partial<ExtractionRuntimeState["scheduler"]>) => state({ scheduler: { queueDepth: 1, inFlight: false, lastError: null, ...patch } });
+
+  it("names the inner beat only while the yield gate holds the read", () => {
+    const held = derivePipelineStatus(scheduler({ yielding: true }));
+    expect(held).toMatchObject({ state: "working", waitingOn: "inner-beat", text: WAITING_ON_COPY["inner-beat"].text, nextAction: "wait" });
+    expect(hudChipLabel(held.state, false, held.waitingOn)).toBe(WAITING_ON_COPY["inner-beat"].chip);
+    const free = derivePipelineStatus(scheduler({ yielding: false }));
+    expect(free.waitingOn).toBeUndefined();
+    expect(free.text).not.toBe(WAITING_ON_COPY["inner-beat"].text);
+    expect(hudChipLabel(free.state, false, free.waitingOn)).toBeNull();
+  });
+
+  it("a read in flight past the bound becomes retryable without cancelling; under the bound it is still reading", () => {
+    const start = 1_000_000;
+    expect(derivePipelineStatus(scheduler({ inFlight: true, inFlightSince: start }), undefined, null, false, null, null, start + READ_WAIT_BOUND_MS - 1))
+      .toMatchObject({ state: "reading" });
+    const late = derivePipelineStatus(scheduler({ inFlight: true, inFlightSince: start }), undefined, null, false, null, null, start + READ_WAIT_BOUND_MS);
+    expect(late).toMatchObject({ state: "stalled-rechecking", retryable: true, nextAction: "retry", text: READ_STALLED_TEXT });
+    expect(derivePipelineStatus(scheduler({ inFlight: true, inFlightSince: null }), undefined, null, false, null, null, start + 10 * READ_WAIT_BOUND_MS).state).toBe("reading");
+  });
+});
 
 describe("derivePipelineStatus", () => {
   it("reports a configured, quiet pipeline as following along", () => {

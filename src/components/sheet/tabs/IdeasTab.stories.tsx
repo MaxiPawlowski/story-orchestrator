@@ -1,8 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { expect, fn, userEvent, within } from "@storybook/test";
 import type { SuggestionAsk, SuggestionSide } from "@runtime/suggestionsHost";
-import { SuggestionsPanel } from "./SuggestionsPanel";
-import { PanelFrame } from "./PanelFrame";
+import { IdeasTab } from "./IdeasTab";
+import { PanelFrame } from "../../panels/PanelFrame";
 
 const ASK = { chatId: "chat-a", box: "" } as unknown as SuggestionAsk;
 const IDEAS = ["I ask the ferryman who else crossed tonight.", "I offer him a third coin to wait.", "I look for footprints on the jetty.", "\"Is the fog always this thick?\""];
@@ -34,15 +34,15 @@ const AUTHOR: SuggestionSide = {
   },
 };
 
-const meta: Meta<typeof SuggestionsPanel> = {
-  title: "Panels/SuggestionsPanel",
-  component: SuggestionsPanel,
+const meta: Meta<typeof IdeasTab> = {
+  title: "Panels/Sheet/IdeasTab",
+  component: IdeasTab,
   args: { request: fn(async () => ({ ok: true as const, suggestions: LINES, ask: ASK })), fill: fn(() => ({ ok: true as const })) },
 };
 
 export default meta;
 
-type Story = StoryObj<typeof SuggestionsPanel>;
+type Story = StoryObj<typeof IdeasTab>;
 
 export const FillsTheBoxNeverSends: Story = {
   play: async ({ canvasElement, args }) => {
@@ -120,7 +120,7 @@ const framed = (width: number, height: number, side?: SuggestionSide): Story => 
   ...(side ? { args: { request: fn(async () => ({ ok: true as const, suggestions: LINES, ask: ASK, side })) } } : {}),
   render: (args) => (
     <PanelFrame id="suggestions" title="What could I do?" geometry={{ x: 20, y: 20, w: 360, h: 320 }} viewport={{ width, height }} onChange={fn()} onClose={fn()}>
-      <SuggestionsPanel {...args} />
+      <IdeasTab {...args} />
     </PanelFrame>
   ),
   play: async ({ canvasElement }) => {

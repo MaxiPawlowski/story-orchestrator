@@ -5,7 +5,7 @@ jest.mock("@services/STAPI", () => ({
   readServerBoundary: async () => null, getContext: () => ({ chat: [], chatId: "chat-a", extensionSettings: {} }), sendConnectionProfileRequest: jest.fn() }));
 
 import { ExtractionScheduler, type SchedulerHost } from "./scheduler";
-import { YIELD_MAX_MS } from "./yieldGate";
+import { READ_WAIT_BOUND_MS, YIELD_MAX_MS, readWaitClock } from "./yieldGate";
 
 const harness = (yieldTo: () => Promise<unknown> | null) => {
   const host = {
@@ -48,6 +48,42 @@ describe("v2.9 side finding: a boundary's reads wait for the inner beat on the s
     expect(run).not.toHaveBeenCalled();
     await jest.advanceTimersByTimeAsync(1);
     expect(run).toHaveBeenCalledTimes(1);
+  });
+
+  it("v3.0 29: the snapshot says the read waits on the beat only while it does", async () => {
+    let finish = () => {};
+    const beat = new Promise<void>((resolve) => { finish = resolve; });
+    let pending: Promise<unknown> | null = beat;
+    const scheduler = harness(() => pending);
+    expect(scheduler.getSnapshot().yielding).toBe(false);
+    let release = () => {};
+    scheduler.schedule({ priority: 0, reason: "cadence", run: () => new Promise<void>((resolve) => { release = resolve; }) });
+    await flush();
+    expect(scheduler.getSnapshot()).toMatchObject({ yielding: true, inFlight: false });
+    pending = null;
+    finish();
+    await flush();
+    expect(scheduler.getSnapshot()).toMatchObject({ yielding: false, inFlight: true });
+    release();
+    await flush();
+    expect(scheduler.getSnapshot()).toMatchObject({ inFlight: false });
+  });
+
+  it("v3.0 29: the read-wait clock stamps an in-flight read once, re-publishes at the bound, and clears when it ends", async () => {
+    jest.useFakeTimers();
+    const changed = jest.fn();
+    const clock = readWaitClock(changed);
+    expect(clock({ inFlight: false }).inFlightSince).toBeNull();
+    const first = clock({ inFlight: true }).inFlightSince;
+    expect(typeof first).toBe("number");
+    expect(clock({ inFlight: true }).inFlightSince).toBe(first);
+    await jest.advanceTimersByTimeAsync(READ_WAIT_BOUND_MS + 50);
+    expect(changed).toHaveBeenCalledTimes(1);
+    expect(clock({ inFlight: false }).inFlightSince).toBeNull();
+    clock({ inFlight: true });
+    clock({ inFlight: false });
+    await jest.advanceTimersByTimeAsync(READ_WAIT_BOUND_MS + 50);
+    expect(changed).toHaveBeenCalledTimes(1);
   });
 
   it("control: with no beat in flight the read runs at once", async () => {

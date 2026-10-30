@@ -49,7 +49,7 @@ export function gameSlices(input: GameSliceInput): { game: GameView | null; game
     story, state, boundaryLog: input.boundaryLog, checks: input.checks?.records ?? [], observations: input.observations?.records ?? [], resting: input.resting,
     threads: input.threads, chat: input.chat, castNames: input.castNames, authorView: input.authorView,
     enabled: input.enabled, location: input.location ?? null,
-    ...((story.widgets ?? []).some((widget) => widget.kind === "scene") ? { portraits: portraitsOf(story, input.characters ?? [], input.castNames) } : {}),
+    portraits: portraitsOf(story, input.characters ?? [], input.castNames),
   }) ?? null;
   const reader = valueReader(state.blackboard.values);
   const gameAuthor: GameAuthorView | null = input.authorView ? {

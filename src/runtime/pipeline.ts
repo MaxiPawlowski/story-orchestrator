@@ -10,6 +10,7 @@ export const busyText = (jobs: readonly BusyJob[], now = Date.now()): string | n
   return oldest && now - oldest.startedAt >= 10000 ? `Still working · ${Math.floor((now - oldest.startedAt) / 1000)}s` : null;
 };
 import { ROLLBACK_REREAD_PREFIX } from "@extraction/rereadReason";
+import { READ_WAIT_BOUND_MS } from "@extraction/yieldGate";
 import type { ExpansionRuntimeState } from "@generation/index";
 import type { ExtractionRuntimeState } from "./types";
 
@@ -25,6 +26,14 @@ export type PipelineState = "working" | "reading" | "catching-up" | "stalled-rec
  */
 export type PipelineNextAction = "wait" | "retry" | "repair";
 
+export type PipelineWaitingOn = "inner-beat";
+
+export const WAITING_ON_COPY: Record<PipelineWaitingOn, { text: string; chip: string; detail: string }> = {
+  "inner-beat": { text: "Waiting for a character to finish thinking…", chip: "waiting for a character", detail: "read held by the yield gate (inner beat, up to 15 s)" },
+};
+
+export const READ_STALLED_TEXT = "Reading is taking longer than usual. It keeps going; Try again checks on it.";
+
 export const PIPELINE_ACTION_COPY: Record<PipelineNextAction, string> = {
   wait: "Waiting for the next reply.",
   retry: "Retrying.",
@@ -39,17 +48,19 @@ export interface PipelineStatus {
   /** Null when there is genuinely nothing to ask of the player. */
   nextAction: PipelineNextAction | null;
   retryable?: true;
+  waitingOn?: PipelineWaitingOn;
 }
 
 export const HUD_COPY = {
   open: "Open the story card",
   cardLabel: "Story card",
   cardClose: "Close the story card",
-  cardMore: "More…",
+  cardMore: "Story window",
   cardMoreTitle: "Open This story → Play",
-  cardMemory: "What the story remembers",
-  cardMemoryEmpty: "Nothing remembered yet.",
-  cardMemoryAll: "See all",
+  cardTabs: "Open the story sheet on a page",
+  cardLevel: "Notes under messages",
+  sheet: "Story sheet",
+  tensionLabel: "Tension",
   branchChip: "You went back: continue from here?",
   steppedBack: "stepped back",
   fallbackScene: "Current scene",
@@ -71,8 +82,8 @@ const HUD_CHIP_LABELS: Partial<Record<PipelineState, string>> = {
   error: "not keeping up",
 };
 
-export const hudChipLabel = (state: PipelineState, steppedBack: boolean): string | null =>
-  (state === "catching-up" ? HUD_CHIP_LABELS[state] ?? null : steppedBack ? HUD_COPY.steppedBack : HUD_CHIP_LABELS[state] ?? null);
+export const hudChipLabel = (state: PipelineState, steppedBack: boolean, waitingOn?: PipelineWaitingOn): string | null =>
+  (state === "catching-up" ? HUD_CHIP_LABELS[state] ?? null : steppedBack ? HUD_COPY.steppedBack : waitingOn ? WAITING_ON_COPY[waitingOn].chip : HUD_CHIP_LABELS[state] ?? null);
 
 export const hudTensionText = (level: string): string => `tension ${level}`;
 
@@ -121,14 +132,19 @@ const lostPlace = (checkpointId: string): PipelineStatus =>
 
 export function derivePipelineStatus(
   extraction: ExtractionRuntimeState, expansion?: ExpansionActivity, health: ExtractionHealth | null = null, ended = false, active: { id: string } | null = null,
-  lostCheckpointId: string | null = null,
+  lostCheckpointId: string | null = null, now = Date.now(),
 ): PipelineStatus {
   if (lostCheckpointId) return lostPlace(lostCheckpointId);
-  const status = baseStatus(extraction, expansion, health, ended, active);
+  const status = baseStatus(extraction, expansion, health, ended, active, now);
   return health?.kind === "transport" && health.fallback && !status.detail ? { ...status, detail: failoverDetail(health.fallback) } : status;
 }
 
-function baseStatus(extraction: ExtractionRuntimeState, expansion: ExpansionActivity | undefined, health: ExtractionHealth | null, ended: boolean, active: { id: string } | null): PipelineStatus {
+const readStalled = (since: number, now: number): PipelineStatus =>
+  ({ state: "stalled-rechecking", text: READ_STALLED_TEXT, detail: `read in flight ${Math.round((now - since) / 1000)} s`, needsSetup: false, nextAction: "retry", retryable: true });
+
+function baseStatus(
+  extraction: ExtractionRuntimeState, expansion: ExpansionActivity | undefined, health: ExtractionHealth | null, ended: boolean, active: { id: string } | null, now: number,
+): PipelineStatus {
   if (ended) return { state: "complete", text: "The story has ended. You can keep playing on in the epilogue.", detail: null, needsSetup: false, nextAction: null };
   const problem = pipelineProblem(extraction, health, active?.id ?? null);
   if (problem) return problem;
@@ -138,7 +154,13 @@ function baseStatus(extraction: ExtractionRuntimeState, expansion: ExpansionActi
   if (expansion?.generating) {
     return { state: "working", text: "Preparing the road ahead…", detail: null, needsSetup: false, nextAction: "wait" };
   }
+  const since = extraction.scheduler.inFlightSince ?? null;
+  if (extraction.scheduler.inFlight && since !== null && now - since >= READ_WAIT_BOUND_MS) return readStalled(since, now);
   if (extraction.scheduler.inFlight) return { state: "reading", text: "Reading the last few messages…", detail: null, needsSetup: false, nextAction: "wait" };
+  if (extraction.scheduler.yielding) {
+    const copy = WAITING_ON_COPY["inner-beat"];
+    return { state: "working", text: copy.text, detail: copy.detail, needsSetup: false, nextAction: "wait", waitingOn: "inner-beat" };
+  }
   if (extraction.scheduler.queueDepth > 0) return { state: "working", text: "Working through what just happened…", detail: null, needsSetup: false, nextAction: "wait" };
   return { state: "idle", text: "Following along.", detail: null, needsSetup: false, nextAction: "wait" };
 }

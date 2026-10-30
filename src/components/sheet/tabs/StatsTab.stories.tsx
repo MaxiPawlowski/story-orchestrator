@@ -1,18 +1,18 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { expect, within } from "@storybook/test";
-import { StatSheetPanel } from "./StatSheetPanel";
-import { sampleGame } from "../widgets/gameViewFixtures";
-import { fitsAt, VIEWPORTS } from "../../../.storybook/fit";
+import { StatsTab } from "./StatsTab";
+import { sampleGame } from "../../widgets/gameViewFixtures";
+import { fitsAt, VIEWPORTS } from "../../../../.storybook/fit";
 
-const meta: Meta<typeof StatSheetPanel> = {
-  title: "Panels/StatSheetPanel",
-  component: StatSheetPanel,
+const meta: Meta<typeof StatsTab> = {
+  title: "Panels/Sheet/StatsTab",
+  component: StatsTab,
   args: { sheet: sampleGame().statSheet },
 };
 
 export default meta;
 
-type Story = StoryObj<typeof StatSheetPanel>;
+type Story = StoryObj<typeof StatsTab>;
 
 export const Groups: Story = {
   play: async ({ canvasElement }) => {

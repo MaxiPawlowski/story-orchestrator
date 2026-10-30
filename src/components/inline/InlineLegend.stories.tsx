@@ -1,23 +1,21 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { expect, userEvent, within } from "@storybook/test";
-import { InlineLegend } from "./InlineLegend";
+import { expect, within } from "@storybook/test";
+import { InlineLegendPanel } from "./InlineLegend";
 import { fitsAt, VIEWPORTS } from "../../../.storybook/fit";
 
-const meta: Meta<typeof InlineLegend> = {
+const meta: Meta<typeof InlineLegendPanel> = {
   title: "Inline/InlineLegend",
-  component: InlineLegend,
-  args: { level: 1 },
+  component: InlineLegendPanel,
+  args: { level: 1, id: "so-inline-legend" },
+  decorators: [(Story) => <div id="so-panels-root"><Story /></div>],
 };
 
 export default meta;
 
-type Story = StoryObj<typeof InlineLegend>;
+type Story = StoryObj<typeof InlineLegendPanel>;
 
 export const PlayerLevels: Story = {
   play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvasElement.querySelector('[data-so="inline-legend"]')).toBeNull();
-    await userEvent.click(canvas.getByRole("button", { name: "What do these icons mean?" }));
     const legend = canvasElement.querySelector('[data-so="inline-legend"]') as HTMLElement;
     await expect(within(legend).getByText("Progress")).toBeInTheDocument();
     await expect(within(legend).getByText("Behind the scenes")).toBeInTheDocument();
@@ -28,16 +26,12 @@ export const PlayerLevels: Story = {
 export const AuthorLevels: Story = {
   args: { level: 3 },
   play: async ({ canvasElement }) => {
-    await userEvent.click(within(canvasElement).getByRole("button", { name: "What do these icons mean?" }));
     await expect(within(canvasElement.querySelector('[data-so="inline-legend"]') as HTMLElement).getByText("Raw")).toBeInTheDocument();
   },
 };
 
-const openLegend = async (canvasElement: HTMLElement) => {
-  await userEvent.click(within(canvasElement).getByRole("button", { name: "What do these icons mean?" }));
-  return canvasElement.querySelector('[data-so="inline-legend"]');
-};
+const legend = async (canvasElement: HTMLElement) => canvasElement.querySelector('[data-so="inline-legend"]');
 
-export const Phone: Story = fitsAt(VIEWPORTS.phone, openLegend);
-export const Tablet: Story = fitsAt(VIEWPORTS.tablet, openLegend);
-export const Wide: Story = fitsAt(VIEWPORTS.wide, openLegend);
+export const Phone: Story = fitsAt(VIEWPORTS.phone, legend);
+export const Tablet: Story = fitsAt(VIEWPORTS.tablet, legend);
+export const Wide: Story = fitsAt(VIEWPORTS.wide, legend);

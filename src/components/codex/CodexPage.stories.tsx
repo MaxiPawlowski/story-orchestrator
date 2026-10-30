@@ -1,8 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { expect, userEvent, within } from "@storybook/test";
 import { CodexPage } from "./CodexPage";
-import { JournalPanel } from "../panels/JournalPanel";
-import { codexGame, labelledPeople, promisedPeople, returnPlaces, sampleCodex } from "./codexFixtures";
+import { PeopleTab } from "../sheet/tabs/PeopleTab";
+import { labelledPeople, promisedPeople, returnPlaces, sampleCodex } from "./codexFixtures";
 import { fitsAt, VIEWPORTS } from "../../../.storybook/fit";
 
 const meta: Meta<typeof CodexPage> = {
@@ -74,33 +74,23 @@ export const EmptyPage: Story = {
   },
 };
 
-export const InJournal: StoryObj<typeof JournalPanel> = {
-  render: () => <JournalPanel game={codexGame()} />,
+export const InSheet: StoryObj<typeof PeopleTab> = {
+  render: () => <PeopleTab codex={sampleCodex()} />,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.getByRole("tab", { name: "People · 2" })).toBeVisible();
-    await userEvent.click(canvas.getByRole("tab", { name: "People · 2" }));
+    await expect(canvas.getByRole("tab", { name: /People/ })).toHaveAttribute("aria-selected", "true");
     await expect(canvas.getByText("Runs the night crossing.")).toBeVisible();
-    await userEvent.click(canvas.getByRole("tab", { name: "Places · 1" }));
+    await userEvent.click(canvas.getByRole("tab", { name: /Places/ }));
     await expect(canvas.getByText("The boathouse")).toBeVisible();
-    await userEvent.click(canvas.getByRole("tab", { name: "Journal" }));
-    await expect(canvas.getByText("The ferryman's debt")).toBeVisible();
   },
 };
 
-export const OnlyPeople: StoryObj<typeof JournalPanel> = {
-  render: () => <JournalPanel game={codexGame({ people: sampleCodex().people, places: [] })} />,
+export const OnlyPeople: StoryObj<typeof PeopleTab> = {
+  render: () => <PeopleTab codex={{ people: sampleCodex().people, places: [] }} />,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await expect(canvas.queryByRole("tab", { name: /Places/ })).toBeNull();
-    await expect(canvas.getByRole("tab", { name: "People · 2" })).toBeVisible();
-  },
-};
-
-export const NoCodexNoTabs: StoryObj<typeof JournalPanel> = {
-  render: () => <JournalPanel game={codexGame(null)} />,
-  play: async ({ canvasElement }) => {
-    await expect(canvasElement.querySelector('[data-so="journal-tabs"]')).toBeNull();
+    await expect(canvas.getByText("Runs the night crossing.")).toBeVisible();
   },
 };
 

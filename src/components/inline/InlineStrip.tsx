@@ -1,10 +1,10 @@
-import { useId, useState } from "react";
+import { useId } from "react";
 import type { InlineItem } from "@runtime/inlineTimeline";
-import { INLINE_CATEGORY_LABELS } from "@runtime/messageInspector";
-import { INLINE_CATEGORIES, type InlineCategory, type InlineLevel } from "@runtime/settingsModel";
+import { INLINE_RAW_LEVEL, inlineGroups, inlineLineParts, inlineLineText } from "@runtime/inlineLine";
+import type { InlineLevel } from "@runtime/settingsModel";
+import { INLINE_LINE_COPY } from "@features/inlineCopy";
 import { InlineDetail, type InlineActions } from "./InlineDetail";
 import { INLINE_ICONS } from "./inlineIcons";
-import { InlineLegendPanel, InlineLegendToggle } from "./InlineLegend";
 
 export { INLINE_ICONS };
 
@@ -12,58 +12,49 @@ export interface InlineStripProps {
   messageId: number;
   items: InlineItem[];
   level: InlineLevel;
-  expanded: InlineCategory | null;
-  onToggle: (category: InlineCategory) => void;
+  expanded: boolean;
+  onToggle: () => void;
   actions?: InlineActions;
-  legend?: boolean;
 }
 
 export const INLINE_DETAIL_LEVEL = 3;
 
-export const InlineStrip = ({ messageId, items, level, expanded, onToggle, actions, legend = false }: InlineStripProps) => {
-  const [legendOpen, setLegendOpen] = useState(false);
-  const legendPanel = useId();
-  const groups = INLINE_CATEGORIES.map((category) => ({ category, items: items.filter((item) => item.category === category) })).filter((group) => group.items.length);
-  if (!groups.length) return null;
-  const open = groups.find((group) => group.category === expanded) ?? null;
+export const InlineStrip = ({ messageId, items, level, expanded, onToggle, actions }: InlineStripProps) => {
+  const panel = useId();
+  const parts = inlineLineParts(items);
+  if (!parts.length) return null;
   const author = level >= 3;
+  const raw = level >= INLINE_RAW_LEVEL;
   return (
     <div data-so="inline-strip" data-mesid={messageId} data-level={level} className="so-inline-strip">
-      <div className="so-inline-chips" role="group" aria-label={`Story notes for message ${messageId}`}>
-        {groups.map((group) => (
-          <button
-            key={group.category}
-            type="button"
-            data-so="inline-chip"
-            data-category={group.category}
-            aria-expanded={expanded === group.category}
-            aria-label={`${INLINE_CATEGORY_LABELS[group.category]}: ${group.items.length}`}
-            title={INLINE_CATEGORY_LABELS[group.category]}
-            className="so-inline-chip"
-            onClick={() => onToggle(group.category)}
-          >
-            <i className={INLINE_ICONS[group.category]} aria-hidden="true" />
-            {group.items.length > 1 && <span>{group.items.length}</span>}
-          </button>
-        ))}
+      <div className="so-inline-head">
+        <button type="button" data-so="inline-line" className="so-inline-line-button" aria-expanded={expanded} aria-controls={expanded ? panel : undefined}
+          aria-label={`${inlineLineText(parts)}. ${INLINE_LINE_COPY.expand}`} onClick={onToggle}>
+          <i className="fa-solid fa-turn-up fa-rotate-90 so-inline-lead" aria-hidden="true" />
+          {parts.map((part, index) => (
+            <span key={part.category} data-so="inline-part" data-category={part.category} data-count={part.count} title={part.label} className="so-inline-part">
+              {index > 0 && <span className="so-inline-sep" aria-hidden="true">·</span>}
+              <i className={INLINE_ICONS[part.category]} aria-hidden="true" />
+              <span>{part.text}</span>
+              {raw && <span data-so="inline-raw-count" className="so-inline-raw">{INLINE_LINE_COPY.raw(part.count)}</span>}
+            </span>
+          ))}
+        </button>
         {author && actions && (
-          <button
-            type="button"
-            data-so="inline-inspect"
-            className="so-inline-chip"
-            title="Open this message in the inspector"
-            aria-label={`Inspect message ${messageId}`}
-            onClick={() => actions.inspect(messageId)}
-          >
-            <i className="fa-solid fa-magnifying-glass" aria-hidden="true" />
+          <button type="button" data-so="inline-inspect" className="so-inline-link" title={INLINE_LINE_COPY.inspectTitle}
+            aria-label={`Inspect message ${messageId}`} onClick={() => actions.inspect(messageId)}>
+            {INLINE_LINE_COPY.inspect}
           </button>
         )}
-        {legend && <InlineLegendToggle open={legendOpen} panel={legendPanel} onToggle={() => setLegendOpen(!legendOpen)} />}
       </div>
-      {legend && legendOpen && <InlineLegendPanel level={level} id={legendPanel} />}
-      {open && (
-        <div data-so="inline-expanded" data-category={open.category} className="so-inline-panel">
-          <InlineDetail items={open.items} showDetail={author} detailLevel={INLINE_DETAIL_LEVEL} showActions={author} actions={actions} />
+      {expanded && (
+        <div id={panel} data-so="inline-expanded" className="so-inline-panel">
+          {inlineGroups(items).map((group) => (
+            <div key={group.category} role="group" data-so="inline-group" data-category={group.category} className="so-inline-group"
+              aria-label={parts.find((part) => part.category === group.category)?.label}>
+              <InlineDetail items={group.items} showDetail={author} detailLevel={INLINE_DETAIL_LEVEL} showActions={author} actions={actions} />
+            </div>
+          ))}
         </div>
       )}
     </div>

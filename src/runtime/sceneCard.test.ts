@@ -120,9 +120,9 @@ describe("65 here-now scene card", () => {
     expect(same).toHaveLength(4);
   });
 
-  test("a story without a scene widget has no scene projection, and the validator keeps the time option on scene panels", () => {
+  test("v3.0 29: a story with people pages and no scene widget still gets the Here now projection, and the validator keeps the time option on scene panels", () => {
     const bare = parseStoryOrThrow(labRaw({ roster: ROSTER }));
-    expect(compose(bare, run(bare, 2, 2)).scene).toBeUndefined();
+    expect(compose(bare, run(bare, 2, 2)).scene?.present.map((member) => member.name)).toEqual(["Ada"]);
     expect(() => parseStoryOrThrow(labRaw({ widgets: [{ id: "log", kind: "log", title: "Log", options: { time: true } }] }))).toThrow(/only a scene panel shows the story's time/);
   });
 });

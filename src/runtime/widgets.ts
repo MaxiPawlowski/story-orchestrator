@@ -5,7 +5,7 @@ import {
 import { isRecord } from "@utils/guards";
 import type {
   BoardLane, CodexView, GameView, IntentView, LogRowView, MainLineView, MilestoneView, ObservationLineView,
-  ProgressView, ProvenanceView, QuestLane, QuestView, RosterRowView, SheetGroupView, TimelineChapterView,
+  ProgressView, ProvenanceView, QuestLane, QuestView, RosterRowView, SceneView, SheetGroupView, TimelineChapterView,
   WidgetBody, WidgetView,
 } from "./gameTypes";
 import { previousValues, sheetGroups } from "./gameSheet";
@@ -22,7 +22,7 @@ import type { ObservationRecord } from "./observationRecords";
 import { labelLogRows } from "./labelView";
 import { peopleSources } from "./commitmentView";
 import { gameLayer } from "@engine/validate/gameLayer";
-import { sceneEmpty, sceneView } from "./sceneCard";
+import { hereNowOffered, sceneEmpty, sceneView } from "./sceneCard";
 
 export const LOG_LIMIT = 40;
 export const ACTION_CHARS = 140;
@@ -343,7 +343,10 @@ export function composeGame(sources: GameSources): GameCompose {
   const log = kinds("log").length ? kinds("log") : fallback(synthesized("journal-log", "Log", { kind: "log", rows: parts.log }, still));
   const meters = kinds("meters");
   const statSheet = meters[0] ?? (parts.sheet.length ? synthesized("stat-sheet", "Stat sheet", { kind: "meters", groups: parts.sheet }, still) : null);
-  const scene = kinds("scene")[0]?.body;
+  const authoredScene = kinds("scene")[0]?.body;
+  const scene: SceneView | undefined = authoredScene?.kind === "scene"
+    ? { location: authoredScene.location, time: authoredScene.time, present: authoredScene.present }
+    : hereNowOffered(story) ? sceneView({ ...sources, codex: parts.codex }, { time: true, standing: false }) : undefined;
   const provenance = sources.authorView ? provenanceFor(story.widgets ?? [], [...authored, ...(statSheet?.synthesized ? [statSheet] : [])], sources) : {};
   return {
     player: {
@@ -352,7 +355,7 @@ export function composeGame(sources: GameSources): GameCompose {
       widgets: player.filter((widget) => !backing.has(widget.id) && (!["meters", "track", "log"].includes(widget.body.kind) || (widget.body.kind === "meters" && widget !== meters[0]))),
       ...(codex ? { codex } : {}),
       ...(observations ? { observations } : {}),
-      ...(scene?.kind === "scene" ? { scene: { location: scene.location, time: scene.time, present: scene.present } } : {}),
+      ...(scene ? { scene } : {}),
     },
     authorWidgets: authored.filter((widget) => widget.audience === "author" && !backing.has(widget.id)),
     provenance,

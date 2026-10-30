@@ -1,18 +1,18 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { expect, fn, userEvent, within } from "@storybook/test";
-import { WidgetPanel } from "./WidgetPanel";
-import { boardWidget, clockWidget, cluesWidget, mapWidget } from "../widgets/gameViewFixtures";
-import { fitsAt, VIEWPORTS } from "../../../.storybook/fit";
+import { WidgetTab } from "./WidgetTab";
+import { boardWidget, clockWidget, cluesWidget, mapWidget } from "../../widgets/gameViewFixtures";
+import { fitsAt, VIEWPORTS } from "../../../../.storybook/fit";
 
-const meta: Meta<typeof WidgetPanel> = {
-  title: "Panels/WidgetPanel",
-  component: WidgetPanel,
+const meta: Meta<typeof WidgetTab> = {
+  title: "Panels/Sheet/WidgetTab",
+  component: WidgetTab,
   args: { widget: clockWidget },
 };
 
 export default meta;
 
-type Story = StoryObj<typeof WidgetPanel>;
+type Story = StoryObj<typeof WidgetTab>;
 
 export const ClockPanel: Story = {
   play: async ({ canvasElement }) => {

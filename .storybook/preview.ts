@@ -6,7 +6,7 @@ import "../src/styles.css";
 export const mountRootFor = (title: string) => {
   if (title.startsWith("Workspace/")) return "so-workspace-root";
   if (title.startsWith("Tour/")) return "so-coach-root";
-  if (title === "Drawer/HudStrip") return "so-hud-root";
+  if (title === "Drawer/HudStrip" || title === "Drawer/HudCard") return "so-hud-root";
   if (title.startsWith("Drawer/")) return "drawer-manager";
   if (title.startsWith("Settings/")) return "story-orchestrator-settings";
   if (title.startsWith("Sprites/")) return "so-vn-root";

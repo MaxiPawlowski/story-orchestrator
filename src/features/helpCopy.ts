@@ -1,7 +1,7 @@
 export const HELP_COPY = {
   toggle: "Help: what each part does",
   heading: "Help",
-  intro: "Every part of Story Orchestrator, grouped by what it is for, with what this chat has on and who chose it. Show me takes you to its setting; Read more opens its guide page.",
+  intro: "Every part of Story Orchestrator, grouped by who it is for, with what this chat has on and who chose it. Show me takes you to its setting; Read more opens its guide page.",
   search: "Search features",
   searchPlaceholder: "memory, images, group…",
   noMatch: "Nothing matches. Try another word.",
@@ -15,6 +15,9 @@ export const HELP_COPY = {
   quickStart: "Quick start",
   openPanel: "Help and Ask",
   where: "Where",
+  audiences: { player: "For playing", setup: "Setting up", author: "For authors" },
+  legendHeading: "Notes under messages",
+  legendIntro: "What each note under a message means, at the level this chat shows.",
   guideHeading: "Author's guide",
   guideIntro: "Every topic of the story guide. The Studio shows the topics for each tab; all of them are here.",
   close: "Close help",
