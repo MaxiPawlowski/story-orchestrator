@@ -29,6 +29,7 @@ export class ResidencyScheduler {
         this.residentImages = null;
         this.imagesNeedRelease = false;
         this.imageReleaseTargetMiB = null;
+        this.warmImageRam = null;
         this.freeImages = async (options = {}) => {
             this.residentImages = null;
             this.imagesNeedRelease = true;
@@ -57,6 +58,7 @@ export class ResidencyScheduler {
             this.imagesNeedRelease = false;
             this.imageReleaseTargetMiB = null;
             this.lastCacheMode = result?.mode ?? null;
+            if (this.lastCacheMode !== 'ram-warm') this.warmImageRam = null;
             return result;
         };
         this.pending = [];
@@ -587,6 +589,7 @@ export class ResidencyScheduler {
             if (!warm) try { this.observe(await this.snapshot({ fresh: true })); } catch (error) { this.lastError = error.message; }
             this.lastWorkflow = lease.workflowKey;
             this.lastCacheMode = cache?.mode ?? null;
+            this.warmImageRam = ['gpu-warm', 'ram-warm'].includes(this.lastCacheMode) && Number.isFinite(lease.needRamMiB) ? { ramMiB: lease.needRamMiB, comfyPid: this.comfyPid() } : null;
             if (lease.key && lease.seenJob) {
                 this.footprints[lease.key] = observedFootprint(lease, this.footprints[lease.key], this.config.reserves);
                 try { await this.saveFootprints(this.footprints); } catch (error) { this.lastError = error.message; }
@@ -688,13 +691,19 @@ export class ResidencyScheduler {
 
     resume() { this.manualHold = false; void this.pump(); }
 
+    warmImageRamMiB() {
+        if (!this.warmImageRam || this.lease || this.imagePending) return 0;
+        if (this.warmImageRam.comfyPid !== this.comfyPid()) { this.warmImageRam = null; return 0; }
+        return this.warmImageRam.ramMiB;
+    }
+
     status() {
         return { phase: this.imagePending ? 'reserving' : this.lease ? 'image' : this.restoring ? 'restoring' : this.manualHold ? 'manual-hold' : 'text',
             activeText: this.activeText, overlappedText: this.overlapped ?? 0, burst: { open: this.burstOpen() ? { remaining: this.burst.remaining, until: new Date(this.burst.until).toISOString(), kind: this.burst.kind } : null, ...this.burstStats }, replyWaits: this.replyWaitStatus(), spill: { backoffMiB: this.spill.backoffMiB, textSpilled: this.spill.textSpilled, events: this.spill.events.slice(-5) }, waitingText: this.pending.length, imageLease: Boolean(this.lease),
             imageWaiting: Boolean(this.imageQueued), servedText: this.servedText, fairImages: true, ramShort: this.ramShort,
             text: this.backend.status(), objective: this.config.residencyObjective ?? 'total-wait', timings: this.timings, lastTextDecision: this.lastTextDecision,
             lastDecision: this.lastDecision, lastResidency: this.lastResidency, lastNeedGpuMiB: this.lastNeedGpuMiB, measurement: this.lastMeasurement ? { ...this.lastMeasurement, trace: undefined } : null,
-            imageResidency: { mode: this.residentImages ? 'gpu-warm' : this.lastCacheMode, awaitingReclaim: this.imagesNeedRelease, releaseTargetMiB: this.imageReleaseTargetMiB, releaseFailures: this.releaseFailures ?? 0, lastReleaseGiveUp: this.lastReleaseGiveUp ?? null },
+            imageResidency: { mode: this.residentImages ? 'gpu-warm' : this.lastCacheMode, warmRamMiB: this.warmImageRamMiB(), awaitingReclaim: this.imagesNeedRelease, releaseTargetMiB: this.imageReleaseTargetMiB, releaseFailures: this.releaseFailures ?? 0, lastReleaseGiveUp: this.lastReleaseGiveUp ?? null },
             lastError: this.lastError };
     }
 }

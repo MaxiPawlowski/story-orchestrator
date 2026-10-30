@@ -148,6 +148,19 @@ Optional `config.json` keys, all read by `broker/backend.mjs` `nativeArgs` (plan
   at `speculative.nMax`. `speculative.extraTypes: ["ngram-simple"]` adds the request-local n-gram drafter (the shared
   pool `ngram-mod` is refused). Both measured below their floors and off.
 
+- `memberCache.fitImageCacheRam: true` (plan v3.0 10 follow-up for M5, off by default, live) credits the RAM a warm
+  ComfyUI cache still holds (the last warm render's RAM need, forgotten on an evicting release, a ComfyUI restart or
+  during a lease; `/status` `imageResidency.warmRamMiB`) to the fit, capped at the staging part of the floor
+  (`keepCacheRamFloorMiB` minus `reserves.ramMiB`). ComfyUI gives that RAM back at its `--cache-ram` threshold and the
+  image admission still trims the cache first, so the first chat after an image no longer evicts the states that
+  survived the sleep. `lastRefit.imageCreditMiB` shows the credit. Unbenched: the next GPU window decides it.
+- `unloadTextOnApply: true` in a mode (plan v3.0 10 follow-up for H1, off in every built-in preset) makes an apply-now
+  switch into that mode unload loaded text instead of reloading it, so its CPU-layer RAM is returned too (`lastApply.text
+  'unloaded'`). Pair it with `keepTextResident: false`, or the automatic reload brings text straight back.
+- Local judge on the GPU (plan v3.0 10 follow-up for M4): `node scripts/local/judge.mjs start` with
+  `SO_JUDGE_LOCAL_GPU_LAYERS` starts on the CPU while this controller answers (`SO_LOCAL_CONTROLLER_URL`, default
+  `http://127.0.0.1:18888`), because the controller does not count the judge's VRAM in its reserve;
+  `SO_JUDGE_LOCAL_GPU_FORCE=1` takes the layers anyway.
 - `memberCache.fitRam: true` (plan v3.0 10; RAM store) makes `budgetMiB` a ceiling. At each text load `--cache-ram` is
   the RAM available before the load, minus what text takes (learned per profile from the previous load, else the
   profile's `estimatedRamMiB`), minus `keepCacheRamFloorMiB` (10240: reserve plus an image's staging), in 256 MiB steps,
@@ -247,6 +260,7 @@ presets live in `config.json` under `modes` (edit them there) and the selected o
 | `imageCacheMode` | warm | evict | warm | evict | now (next image release) |
 | `memberCache.budgetMiB` | 12288 (ceiling) | 2048 | (current) | 2048 | next text load; live on a `/cache` server |
 | `memberCache.fitRam` | on | on | (current) | off | next text load; live on a `/cache` server |
+| `unloadTextOnApply` | off | off | off | off | on an apply-now switch (`mode <name> --now`, `mode toggle`) |
 
 Max and Headroom are plan v3.0 10 candidates until its bench passes (`docs/plans/v3.0/10-max-memory-profile.md`); a
 config written before them keeps its own `modes.max` until `cli.mjs mode-reset max`, and gains `headroom` from the
