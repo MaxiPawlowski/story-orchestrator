@@ -557,3 +557,44 @@ No build order is set. If several reopen at once, by dependency: 02 B before 05.
 ## Review 2026-10-03
 
 Round 3 (Sol): R3-14, R3-15 applied; R3-15's homes decided by the user 2026-10-03.
+
+## Integration record 2026-10-30 (harvest wave)
+
+Branch `v3.0-harvest-wave` (worktree `C:/dev/so-harvest-wave`), cut from `28c1be1d`; master not moved by this branch.
+
+- Merges, in order, each `--no-ff` with `npm run gates:quick` green before the next:
+  1. `v3.0-harvest-1030-fixes` @96e74c62 (6 suspected defects, `extension-research-2026-10-30/SUMMARY.md` §Defect check)
+  2. master `a7837a2a` (gates ports), then `v3.0-harness-cpu` @69f007c5 (C-H1..H5)
+  3. `v3.0-memory-cpu` @e4ac137a (C-A1 readLayout, C-D4 promiseAddressee, C-D2 corpus)
+  4. `v3.0-33-threads` @086e9806 (plan 33)
+  5. `v3.0-34-grounding` @a955e6e5 (plan 34 + plan 31 arms)
+  6. `v3.0-a3-compaction` @6f1d8433 (plan 40)
+  7. `v3.0-32-skip` @c3b52eb9 (plan 32), then master `3d8c5280` (TavernOS check)
+- Conflicts and resolutions:
+  - 33 vs memory-cpu: source files (`memory/contract.ts`, parse files, `chapterKit.ts`) auto-merged; the stable-first read
+    (C-A1) dropped 33's `[deferred]` lines because it renders the arc section with no arcs listed. Fixed:
+    `renderArcContractSection` takes `deferrable`, stable-first passes `openArcs.length > 0`. `test/goldens/read-prompt/
+    classic.json` + `stable-first.json` re-recorded on the merged contract (classic = today's default read incl. 33).
+  - 34 and 32 vs 33/31: settings model/types/baseline-settings, `features/registry.ts` lists and `featureControls`
+    entries unioned (`deferrals`, `deferredOutOfPrompt`, `historyNotes`, `outwardNarration`, `talk.swipeContrast`,
+    `talk.skipAhead`); `gpu-queue-2026-10-30.md` keeps every row of both sides.
+  - 40 vs 34 in `runtime/wiring/talk.ts`: both run in the interceptor; order fold -> `chapters.compact` -> history notes
+    (notes land on the compacted rows; both off by default).
+  - Budgets after merging: `settingsCopy.ts` split (`settingsCopyTools.ts`, S3); skip-ahead feature moved to
+    `features/skipFeatures.ts` and `buildCastNames` to `runtime/castNameMap.ts` (S3 on `registry.ts`,
+    `snapshotBuilder.ts`); plan 32's HUD-card skip button moved to the kit `Button` (raw-button ratchet, behaviour
+    unchanged, id kept). memoryCoordinator stayed within 560.
+  - Generated files regenerated, never hand-merged: `pages.generated.ts` + `docs/guide/author/` (`npm run docs:guide`),
+    settings reference + README tables (`npm run docs:settings`), `test/goldens/arrival-findings.json`
+    (`SO_RECORD_ARRIVAL_GOLDEN=1`).
+- Bundle: `dist/index.js` 1,283,619 B (budget 1,300,000, unchanged).
+- Full gate, once, no `--resume`, Storybook included: `npm run gates -- --serial` on `bb9bb53a`:
+  `gates: all green in 1315.6s` (11 steps; jest 958 suites / 10965 passed, 1 skipped; Storybook 186 suites / 1064).
+- Ship off pending ratings (built, default off): `extraction.readLayout`, `extraction.promiseAddressee`,
+  `memory.deferredOutOfPrompt`, `memory.historyNotes`, `memory.outwardNarration`, `talk.swipeContrast`,
+  `memory.chapters.compact`, `talk.skipAhead`. GPU rows in `gpu-queue-2026-10-30.md`.
+- Owner decisions open from the defect check:
+  - Regenerate after a trailing system row (group `regenerateGroup()` keeps SO's trailing row; new round lands under it):
+    confirmed, not fixed; options = DOM-level Regenerate intercept (needs a live gate) or refuse/hide.
+  - Mid-chat-started story (`storyStart` > 0) now folds nothing; owner may want pre-story rows folded too.
+- Not run here: no GPU, lanes, staging or model calls; live gates for 31/32/33/34/40 stay owed (queue rows).
