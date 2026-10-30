@@ -92,7 +92,7 @@ export const AddAndDelete: Story = {
 export const ToggleNpcReply: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(canvas.getByLabelText("NPC replies"));
+    await userEvent.selectOptions(canvas.getByLabelText("Add effect"), "NPC replies");
     await expect(useDraftStore.getState().draft.checkpoints[0].effects?.npc_replies).toHaveLength(1);
   },
 };
@@ -100,7 +100,7 @@ export const ToggleNpcReply: Story = {
 export const AuthorsAnOpeningHook: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(canvas.getByLabelText("NPC replies"));
+    await userEvent.selectOptions(canvas.getByLabelText("Add effect"), "NPC replies");
     await userEvent.selectOptions(canvas.getByLabelText("Reply kind"), "llm");
     await userEvent.click(canvas.getByLabelText("Reply 1 new chat only"));
     await userEvent.click(canvas.getByLabelText("Reply 1 asks the player"));
@@ -122,13 +122,13 @@ export const ToggleBackground: Story = {
   args: { backgroundNames: ["tavern day.jpg", "landscape postapoc.jpg"] },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(canvas.getByLabelText("Background"));
+    await userEvent.selectOptions(canvas.getByLabelText("Add effect"), "Background");
     await expect(useDraftStore.getState().draft.checkpoints[0].effects?.background).toEqual({ name: "tavern day.jpg" });
     const field = canvas.getByLabelText("Background file");
     await userEvent.clear(field);
     await userEvent.type(field, "royal.jpg");
     await expect(useDraftStore.getState().draft.checkpoints[0].effects?.background).toEqual({ name: "royal.jpg" });
-    await userEvent.click(canvas.getByLabelText("Background"));
+    await userEvent.click(canvas.getByRole("button", { name: "Remove Background" }));
     await expect(useDraftStore.getState().draft.checkpoints[0].effects?.background).toBeUndefined();
   },
 };
@@ -138,13 +138,13 @@ export const ScenarioThreeStates: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await expect(useDraftStore.getState().draft.checkpoints[0].effects?.scenario).toBeUndefined();
-    await userEvent.click(canvas.getByLabelText("Scenario"));
+    await userEvent.selectOptions(canvas.getByLabelText("Add effect"), "Scenario");
     await expect(useDraftStore.getState().draft.checkpoints[0].effects?.scenario).toBe("");
     await expect(canvasElement.querySelector('[data-so="scenario-clear-note"]')).not.toBeNull();
     await userEvent.type(canvas.getByLabelText("Scenario text"), "The party waits at the city gate.");
     await expect(useDraftStore.getState().draft.checkpoints[0].effects?.scenario).toBe("The party waits at the city gate.");
     await expect(canvasElement.querySelector('[data-so="scenario-clear-note"]')).toBeNull();
-    await userEvent.click(canvas.getByLabelText("Scenario"));
+    await userEvent.click(canvas.getByRole("button", { name: "Remove Scenario" }));
     await expect(useDraftStore.getState().draft.checkpoints[0].effects?.scenario).toBeUndefined();
   },
 };
@@ -153,7 +153,7 @@ export const ScenarioThreeStates: Story = {
 export const PresetSaysOverlay: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(canvas.getByLabelText("Preset"));
+    await userEvent.selectOptions(canvas.getByLabelText("Add effect"), "Preset");
     await userEvent.type(canvas.getByLabelText("Preset name"), "Artemis Cool");
     await expect(useDraftStore.getState().draft.checkpoints[0].effects?.preset).toBe("Artemis Cool");
     await expect(canvas.getByText(/this checkpoint's replies only; your selected preset is untouched/)).toBeInTheDocument();
@@ -203,5 +203,37 @@ export const CastChangesShowRosterIdsAsMembers: Story = {
     await expect(unresolved?.textContent).toContain("ghost");
     await userEvent.click(within(unresolved as HTMLElement).getByRole("button", { name: "Remove" }));
     await expect(useDraftStore.getState().draft.checkpoints[0].effects?.cast_changes).toEqual({ enable: [], disable: ["Lord Vael"] });
+  },
+};
+
+export const OffersAsRows: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const id = useDraftStore.getState().draft.checkpoints[0].id;
+    const offers = () => useDraftStore.getState().draft.checkpoints.find((checkpoint) => checkpoint.id === id)?.offers;
+    await userEvent.click(canvas.getByRole("button", { name: "Add offer" }));
+    await userEvent.type(canvas.getByLabelText("Offer 1 text"), "Ask about the debt");
+    await userEvent.click(canvas.getByRole("button", { name: "Add offer" }));
+    await userEvent.type(canvas.getByLabelText("Offer 2 text"), "Leave");
+    await userEvent.click(canvas.getByRole("button", { name: "Move Offer 2 up" }));
+    await expect(offers()?.map((offer) => offer.text)).toEqual(["Leave", "Ask about the debt"]);
+    await userEvent.click(canvas.getByLabelText("Offer 1 needs"));
+    await userEvent.type(canvas.getByLabelText("Offer 1 needs reason"), "Not yet");
+    await expect(offers()?.[0].needs?.reason).toBe("Not yet");
+    await userEvent.click(canvas.getByRole("button", { name: "Edit as JSON" }));
+    await expect((canvas.getByLabelText("Offers as JSON") as HTMLTextAreaElement).value).toContain("Not yet");
+    await userEvent.click(canvas.getByRole("button", { name: "Edit as rows" }));
+    await userEvent.click(canvas.getByRole("button", { name: "Remove Offer 2" }));
+    await expect(offers()).toHaveLength(1);
+  },
+};
+
+export const SectionIndexNamesEverySection: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const index = await canvas.findByRole("navigation", { name: /Sections of/ });
+    await expect([...index.querySelectorAll("button")].map((button) => button.textContent))
+      .toEqual(["Basics", "Player sees", "Pacing", "State", "Effects", "Cast", "Stretch", "Offers", "Agency", "Scope"]);
+    await expect(canvasElement.querySelectorAll("[data-so-section]").length).toBe(10);
   },
 };

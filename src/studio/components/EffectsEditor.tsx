@@ -11,6 +11,7 @@ import type { WorkflowMap } from "@engine/schema";
 import WorkflowMapEditor, { useWorkflowNames } from "./WorkflowMapEditor";
 import { TRANSITION_EFFECT_COLOR, TRANSITION_EFFECT_KINDS, TRANSITION_EFFECT_MAX_MS, type TransitionEffect, type TransitionEffectKind } from "@engine/schema";
 import { Select, TextInput } from "@components/ui/Field";
+import { IconButton } from "@components/ui/IconButton";
 
 const StageTransitionFields: React.FC<{ value: TransitionEffect; onChange: (next: TransitionEffect) => void }> = ({ value, onChange }) => (
   <div className="flex flex-wrap items-end gap-2" data-so="effect-transition">
@@ -64,15 +65,47 @@ const readWorldInfoEntries = (value: unknown): WorldInfoEntry[] => {
 };
 
 const Section: React.FC<{ title: string; enabled: boolean; onToggle: (enabled: boolean) => void; help?: string; children?: React.ReactNode }> = ({ title, enabled, onToggle, help, children }) => (
-  <div className="st-subpanel flex flex-col gap-2 p-2">
-    <label className="flex items-center gap-2 text-sm font-medium">
-      <input type="checkbox" checked={enabled} onChange={(event) => onToggle(event.target.checked)} />
-      {title}
-      {help ? <HelpTooltip title={help} /> : null}
-    </label>
-    {enabled ? <div className="flex flex-col gap-2 pl-6">{children}</div> : null}
-  </div>
+  enabled ? (
+    <div className="st-subpanel flex flex-col gap-2 p-2" data-so="effect" data-effect={title}>
+      <div className="flex items-center gap-2 text-sm font-medium">
+        <span className="flex-1">{title}{help ? <HelpTooltip title={help} /> : null}</span>
+        <IconButton icon="fa-trash" size="sm" variant="ghost" label={`Remove ${title}`} onClick={() => onToggle(false)} />
+      </div>
+      <div className="flex flex-col gap-2">{children}</div>
+    </div>
+  ) : null
 );
+
+interface EffectEntry { title: string; on: boolean; add: () => void }
+
+const effectCatalog = (effects: CheckpointEffects, emit: (next: CheckpointEffects) => void, backgroundNames: string[]): EffectEntry[] => [
+  { title: "Author note", on: readAuthorNote(effects.author_note) !== null, add: () => emit({ ...effects, author_note: { text: "" } }) },
+  { title: "Preset", on: readPresetName(effects.preset) !== null, add: () => emit({ ...effects, preset: "" }) },
+  { title: "Background", on: effects.background !== undefined, add: () => emit({ ...effects, background: { name: backgroundNames[0] ?? "" } }) },
+  { title: "Stage transition", on: effects.transition !== undefined, add: () => emit({ ...effects, transition: { kind: "fade" } }) },
+  { title: "Picture workflows", on: effects.illustrations !== undefined, add: () => emit({ ...effects, illustrations: {} }) },
+  { title: "Scenario", on: effects.scenario !== undefined, add: () => emit({ ...effects, scenario: "" }) },
+  { title: "Cast changes", on: isRecord(effects.cast_changes), add: () => emit({ ...effects, cast_changes: { enable: [], disable: [] } }) },
+  { title: "World info", on: isRecord(effects.world_info), add: () => emit({ ...effects, world_info: { enable: [], disable: [] } }) },
+  { title: "Card changes", on: isRecord(effects.card), add: () => emit({ ...effects, card: {} }) },
+  { title: "NPC replies", on: Array.isArray(effects.npc_replies) && effects.npc_replies.length > 0,
+    add: () => emit({ ...effects, npc_replies: [{ trigger: "onEnter", member: "", kind: "scripted" }] }) },
+];
+
+const AddEffect: React.FC<{ entries: EffectEntry[] }> = ({ entries }) => {
+  const available = entries.filter((entry) => !entry.on);
+  const added = entries.length - available.length;
+  return (
+    <div className="flex flex-wrap items-center gap-2" data-so="add-effect">
+      <Select aria-label="Add effect" size="md" value="" disabled={!available.length}
+        onChange={(event) => entries.find((entry) => entry.title === event.target.value)?.add()}>
+        <option value="">{available.length ? "+ Add effect…" : "Every effect is added"}</option>
+        {available.map((entry) => <option key={entry.title} value={entry.title}>{entry.title}</option>)}
+      </Select>
+      {added === 0 && <span className="text-xs st-muted">No effects yet: arriving here changes nothing outside the story.</span>}
+    </div>
+  );
+};
 
 const StringListInput: React.FC<{ label: string; values: string[]; onChange: (next: string[]) => void }> = ({ label, values, onChange }) => (
   <div className="flex flex-col gap-1">
@@ -271,6 +304,45 @@ const StageTransitionSection: React.FC<{ effects: CheckpointEffects; emit: (next
   </Section>
 );
 
+const CardChangesSection: React.FC<{ effects: CheckpointEffects; roster: RosterMember[]; cardFields: DeclaredCardField[]; emit: (next: CheckpointEffects) => void }> = ({
+  effects, roster, cardFields, emit,
+}) => {
+  const card = isRecord(effects.card) ? (effects.card as Record<string, Record<string, string>>) : undefined;
+  const ownerLabel = (owner: string) => (owner === "player" ? "You" : roster.find((member) => member.id === owner)?.name ?? owner);
+  const setCardValue = (owner: string, field: string, value: string) => {
+    const next = { ...(card ?? {}) };
+    const values = { ...(next[owner] ?? {}) };
+    if (value.trim()) values[field] = value; else delete values[field];
+    if (Object.keys(values).length) next[owner] = values; else delete next[owner];
+    emit({ ...effects, card: Object.keys(next).length ? next : undefined });
+  };
+  return (
+    <Section
+      title="Card changes"
+      help={"Rewrites a character's card field for play from this checkpoint on, e.g. after a transformation. Only fields declared in the Roster tab appear, " +
+        "and an empty value leaves the field unchanged."}
+      enabled={card !== undefined}
+      onToggle={(on) => emit({ ...effects, card: on ? {} : undefined })}
+    >
+      {cardFields.length === 0 ? <p className="text-xs st-muted">Declare a card field in the Roster tab first.</p> : cardFields.map(({ owner, field, quality }) => (
+        <label key={`${owner}:${field}`} className="flex flex-wrap items-center gap-2 text-sm">
+          <span className="text-xs st-muted">{ownerLabel(owner)} · {field}</span>
+          {quality.type === "enum" && quality.values?.length ? (
+            <select className="text_pole st-input" aria-label={`${ownerLabel(owner)} ${field}`} value={card?.[owner]?.[field] ?? ""}
+              onChange={(event) => setCardValue(owner, field, event.target.value)}>
+              <option value="">no change</option>
+              {quality.values.map((value) => <option key={value} value={value}>{value}</option>)}
+            </select>
+          ) : (
+            <input className="text_pole st-input" aria-label={`${ownerLabel(owner)} ${field}`} placeholder="value" value={card?.[owner]?.[field] ?? ""}
+              onChange={(event) => setCardValue(owner, field, event.target.value)} />
+          )}
+        </label>
+      ))}
+    </Section>
+  );
+};
+
 const EffectsEditor: React.FC<{
   effects: CheckpointEffects;
   roster: RosterMember[];
@@ -293,18 +365,10 @@ const EffectsEditor: React.FC<{
   const castEnable = readStrings(cast?.enable);
   const castDisable = readStrings(cast?.disable);
   const worldInfo = isRecord(effects.world_info) ? effects.world_info : undefined;
-  const card = isRecord(effects.card) ? (effects.card as Record<string, Record<string, string>>) : undefined;
-  const ownerLabel = (owner: string) => (owner === "player" ? "You" : roster.find((member) => member.id === owner)?.name ?? owner);
-  const setCardValue = (owner: string, field: string, value: string) => {
-    const next = { ...(card ?? {}) };
-    const values = { ...(next[owner] ?? {}) };
-    if (value.trim()) values[field] = value; else delete values[field];
-    if (Object.keys(values).length) next[owner] = values; else delete next[owner];
-    emit({ ...effects, card: Object.keys(next).length ? next : undefined });
-  };
 
   return (
     <div className="flex flex-col gap-2">
+      <AddEffect entries={effectCatalog(effects, emit, backgroundNames)} />
       <Section title="Author note" enabled={authorNote !== null} onToggle={(on) => emit({ ...effects, author_note: on ? { text: "" } : undefined })}>
         {authorNote ? (
           <>
@@ -393,29 +457,7 @@ const EffectsEditor: React.FC<{
         <WorldInfoList title="disable" entries={readWorldInfoEntries(worldInfo?.disable)} onChange={(disable) => emit({ ...effects, world_info: { ...worldInfo, disable } })} />
       </Section>
 
-      <Section
-        title="Card changes"
-        help={"Rewrites a character's card field for play from this checkpoint on, e.g. after a transformation. Only fields declared in the Roster tab appear, " +
-          "and an empty value leaves the field unchanged."}
-        enabled={card !== undefined}
-        onToggle={(on) => emit({ ...effects, card: on ? {} : undefined })}
-      >
-        {cardFields.length === 0 ? <p className="text-xs st-muted">Declare a card field in the Roster tab first.</p> : cardFields.map(({ owner, field, quality }) => (
-          <label key={`${owner}:${field}`} className="flex flex-wrap items-center gap-2 text-sm">
-            <span className="text-xs st-muted">{ownerLabel(owner)} · {field}</span>
-            {quality.type === "enum" && quality.values?.length ? (
-              <select className="text_pole st-input" aria-label={`${ownerLabel(owner)} ${field}`} value={card?.[owner]?.[field] ?? ""}
-                onChange={(event) => setCardValue(owner, field, event.target.value)}>
-                <option value="">no change</option>
-                {quality.values.map((value) => <option key={value} value={value}>{value}</option>)}
-              </select>
-            ) : (
-              <input className="text_pole st-input" aria-label={`${ownerLabel(owner)} ${field}`} placeholder="value" value={card?.[owner]?.[field] ?? ""}
-                onChange={(event) => setCardValue(owner, field, event.target.value)} />
-            )}
-          </label>
-        ))}
-      </Section>
+      <CardChangesSection effects={effects} roster={roster} cardFields={cardFields} emit={emit} />
 
       <Section
         title="NPC replies"

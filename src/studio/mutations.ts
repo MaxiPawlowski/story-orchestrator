@@ -4,6 +4,7 @@ import type {
 } from "@engine/index";
 import type { StoryDraft } from "./draft";
 import type { StoryFeatureId, StoryFeatures, FeatureTuning } from "@engine/featurePolicy";
+import { OFFERS_MAX, type CheckpointOffer } from "@engine/offerSchema";
 
 export const setFeatures = (draft: StoryDraft, features: StoryFeatures): StoryDraft => ({ ...draft, features });
 export const setFeaturePolicy = (draft: StoryDraft, id: StoryFeatureId, policy: "off" | FeatureTuning | null): StoryDraft => {
@@ -292,6 +293,37 @@ export const setChapters = (draft: StoryDraft, chapters: Chapter[], assign: Reco
     ? { ...written, chapters: chapters.map((chapter) => definedOnly(written.chapters?.find((entry) => entry.id === chapter.id) ?? chapter)) }
     : written;
   return Object.entries(assign).reduce((current, [checkpointId, chapterId]) => setCheckpointChapter(current, checkpointId, chapterId), ordered);
+};
+
+const offersOf = (draft: StoryDraft, id: string): CheckpointOffer[] => draft.checkpoints.find((checkpoint) => checkpoint.id === id)?.offers ?? [];
+
+export const setOffers = (draft: StoryDraft, id: string, offers: CheckpointOffer[] | undefined): StoryDraft =>
+  updateCheckpoint(draft, id, { offers: offers?.length ? offers : undefined });
+
+export const addOffer = (draft: StoryDraft, id: string, text = ""): StoryDraft => {
+  const offers = offersOf(draft, id);
+  if (offers.length >= OFFERS_MAX) return draft;
+  return setOffers(draft, id, [...offers, { id: nextId(offers.map((offer) => offer.id), "offer"), text }]);
+};
+
+export const updateOffer = (draft: StoryDraft, id: string, offerId: string, patch: Partial<CheckpointOffer>): StoryDraft =>
+  setOffers(draft, id, offersOf(draft, id).map((offer) => {
+    if (offer.id !== offerId) return offer;
+    const next = { ...offer, ...patch };
+    (Object.keys(next) as Array<keyof CheckpointOffer>).forEach((key) => { if (next[key] === undefined) delete next[key]; });
+    return next;
+  }));
+
+export const removeOffer = (draft: StoryDraft, id: string, offerId: string): StoryDraft =>
+  setOffers(draft, id, offersOf(draft, id).filter((offer) => offer.id !== offerId));
+
+export const moveOffer = (draft: StoryDraft, id: string, offerId: string, step: -1 | 1): StoryDraft => {
+  const offers = [...offersOf(draft, id)];
+  const from = offers.findIndex((offer) => offer.id === offerId);
+  const to = from + step;
+  if (from < 0 || to < 0 || to >= offers.length) return draft;
+  [offers[from], offers[to]] = [offers[to], offers[from]];
+  return setOffers(draft, id, offers);
 };
 
 export const setStoryId = (draft: StoryDraft, id: string): StoryDraft => {
