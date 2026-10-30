@@ -25,11 +25,12 @@ const STATE_ICON: Record<InlineItem["state"], string> = {
 export interface InlineDetailProps {
   items: InlineItem[];
   showDetail: boolean;
+  detailLevel?: number;
   showActions: boolean;
   actions?: InlineActions;
 }
 
-export const InlineDetail = ({ items, showDetail, showActions, actions }: InlineDetailProps) => (
+export const InlineDetail = ({ items, showDetail, detailLevel, showActions, actions }: InlineDetailProps) => (
   <ul data-so="inline-detail" className="so-inline-list">
     {items.map((item) => (
       <li key={item.id} data-so="inline-item" data-state={item.state} data-level={item.level} className="so-inline-row">
@@ -37,7 +38,7 @@ export const InlineDetail = ({ items, showDetail, showActions, actions }: Inline
           <i className={`${STATE_ICON[item.state]} so-inline-state`} aria-label={INLINE_STATE_LABELS[item.state]} title={INLINE_STATE_LABELS[item.state]} role="img" />
           <span className="so-inline-text">{item.text}</span>
         </span>
-        {showDetail && item.detail && <span data-so="inline-item-detail" className="so-inline-more">{item.detail}</span>}
+        {showDetail && item.detail && (detailLevel === undefined || item.level <= detailLevel) && <span data-so="inline-item-detail" className="so-inline-more">{item.detail}</span>}
         {showActions && actions && item.actions?.length ? (
           <span className="so-inline-actions">
             {item.actions.map((action, index) => (

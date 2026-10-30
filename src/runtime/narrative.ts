@@ -118,6 +118,7 @@ export interface NarrativeInput {
 
 export interface NarrativeStatus {
   title: string;
+  headline: string;
   sections: NarrativeSection[];
   text: string;
 }
@@ -140,6 +141,9 @@ export const excerpt = (value: string, max = CANON_EXCERPT_CHARS): string => {
   const word = head.replace(/\s+\S*$/, "");
   return `${(word || head).trimEnd()}…`;
 };
+
+export const sceneHeadline = (parts: { playerName?: string | null; chapterTitle?: string | null; storyTitle?: string | null }): string =>
+  [parts.playerName, parts.chapterTitle, parts.storyTitle].map((value) => value?.trim()).find(Boolean) ?? PLAYER_COPY.currentScene;
 
 export function buildNarrativeStatus(input: NarrativeInput): NarrativeStatus {
   const sections: NarrativeSection[] = [];
@@ -188,7 +192,7 @@ export function buildNarrativeStatus(input: NarrativeInput): NarrativeStatus {
 
   const title = input.storyTitle ?? "Your story";
   const text = sections.map((section) => `${section.label}\n${section.lines.map((line) => `  ${line}`).join("\n")}`).join("\n\n");
-  return { title, sections, text };
+  return { title, headline: input.checkpointName ?? sceneHeadline({ storyTitle: input.storyTitle }), sections, text };
 }
 
 export function renderNarrativeNode(status: NarrativeStatus, doc: Document, heading = status.title): HTMLElement {

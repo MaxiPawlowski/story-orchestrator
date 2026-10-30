@@ -292,10 +292,10 @@
       "findings": [
         "M3"
       ],
-      "goal": "a ledger update is undone by an edit to the message its boundary acted on",
+      "goal": "a ledger update is undone by an edit to the message its boundary acted on Every read but the scripted one is pinned to SCENE_NONE, so a background read cannot confirm a scene break and schedule an epistemic pass that takes the scripted response first (v3.0 end batch 2: 1 of 6 runs stamped the belief at message 12, not the scripted window end 11).",
       "steps": [
         {
-          "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.setExtractionSettings({ cadence: 0 }); rt.setEpistemicLedgerCapable(true); if (!rt.getSnapshot().memory.settings.epistemicLedgerCapable) throw new Error(\"the epistemic/ledger capability did not stick\"); return { capable: true };",
+          "eval": "globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; const rt = globalThis.storyOrchestratorRuntime; rt.setExtractionSettings({ cadence: 0 }); rt.setEpistemicLedgerCapable(true); if (!rt.getSnapshot().memory.settings.epistemicLedgerCapable) throw new Error(\"the epistemic/ledger capability did not stick\"); return { capable: true, pinned: 'SCENE_NONE' };",
           "log": true
         },
         {
@@ -322,12 +322,19 @@
           "log": true
         },
         {
-          "eval": "const rt = globalThis.storyOrchestratorRuntime; const to = rt.getEngineState().lastMessageId - 1; globalThis.storyOrchestratorDebugEpistemicResponse = `[knows] Arin | the ferryman takes no coin after dark`; globalThis.storyOrchestratorDebugLedgerResponse = `[state:Arin:character] condition=healthy`; globalThis.storyOrchestratorDebugSceneSummaryResponse = `NONE`; const wrote = await rt.runEpistemicLedgerPass({ id: \"j6-derived-1\", createdAt: new Date().toISOString(), priority: 0, reason: \"scene:location\", contractHash: \"j6\", scope: [], window: { from: 0, to }, prompt: \"\", rawResponse: \"\", acceptedDeltas: [], rejected: [], sceneBreak: { at: to, reason: \"location\" } }); const belief = rt.getEpistemic().filter((entry) => entry.subject === `Arin` && !entry.supersededBy); const view = rt.getLedger().filter((row) => row.entity === `Arin` && row.field === `condition`); if (!belief.length) throw new Error(`the reveal never landed (wrote=${wrote}): ${JSON.stringify(rt.getSnapshot().memory.epistemic)}`); if (!view.some((row) => row.value === `healthy`)) throw new Error(`the ledger never took the first value (wrote=${wrote}): ${JSON.stringify(rt.getSnapshot().memory.ledger)}`); globalThis.__j6Belief = belief[0].id; return { wrote, to, belief: belief[0].id, messageId: belief[0].messageId };",
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const to = rt.getEngineState().lastMessageId - 1; globalThis.storyOrchestratorDebugEpistemicResponse = `[knows] Arin | the ferryman takes no coin after dark`; globalThis.storyOrchestratorDebugLedgerResponse = `[state:Arin:character] condition=healthy`; globalThis.storyOrchestratorDebugSceneSummaryResponse = `NONE`; const wrote = await rt.runEpistemicLedgerPass({ id: \"j6-derived-1\", createdAt: new Date().toISOString(), priority: 0, reason: \"scene:location\", contractHash: \"j6\", scope: [], window: { from: 0, to }, prompt: \"\", rawResponse: \"\", acceptedDeltas: [], rejected: [], sceneBreak: { at: to, reason: \"location\" } }); const belief = rt.getEpistemic().filter((entry) => entry.subject === `Arin` && !entry.supersededBy); const view = rt.getLedger().filter((row) => row.entity === `Arin` && row.field === `condition`); if (!belief.length) throw new Error(`the reveal never landed (wrote=${wrote}): ${JSON.stringify(rt.getSnapshot().memory.epistemic)}`); if (!view.some((row) => row.value === `healthy`)) throw new Error(`the ledger never took the first value (wrote=${wrote}): ${JSON.stringify(rt.getSnapshot().memory.ledger)}`); if (belief[0].messageId !== to) throw new Error(`a background pass took the scripted response first: the belief is stamped message ${belief[0].messageId}, the scripted window ends at ${to}`); globalThis.__j6Belief = belief[0].id; return { wrote, to, belief: belief[0].id, messageId: belief[0].messageId };",
           "log": true
         },
         {
           "eval": "const rt = globalThis.storyOrchestratorRuntime; const active = rt.getEpistemic().filter((entry) => !entry.supersededBy); const index = active.findIndex((entry) => entry.id === globalThis.__j6Belief) + 1; if (index < 1) throw new Error(`the belief is not in the pass's own numbered list: ${JSON.stringify(active.map((entry) => entry.id))}`); globalThis.storyOrchestratorDebugEpistemicResponse = `[retire] ${index}`; globalThis.storyOrchestratorDebugLedgerResponse = `[state:Arin:character] condition=wounded`; const to = rt.getEngineState().lastMessageId; const wrote = await rt.runEpistemicLedgerPass({ id: \"j6-derived-2\", createdAt: new Date().toISOString(), priority: 0, reason: \"scene:location\", contractHash: \"j6\", scope: [], window: { from: 0, to }, prompt: \"\", rawResponse: \"\", acceptedDeltas: [], rejected: [], sceneBreak: { at: to, reason: \"location\" } }); const after = rt.getEpistemic().find((entry) => entry.id === globalThis.__j6Belief); const view = rt.getLedger().filter((row) => row.entity === `Arin` && row.field === `condition`); if (!after?.supersededBy) throw new Error(`the reveal never retired the belief (wrote=${wrote}): ${JSON.stringify(after)}`); if (!view.some((row) => row.value === `wounded`)) throw new Error(`the ledger never took the update (wrote=${wrote}): ${JSON.stringify(rt.getSnapshot().memory.ledger)}`); return { wrote, to, retiredAt: after.retiredAt, view };",
           "log": true
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 3000,
+            "timeoutMs": 120000
+          }
         },
         {
           "edit": {
@@ -354,8 +361,11 @@
       "findings": [
         "M4"
       ],
-      "goal": "a belief a reveal retired comes back when the reveal's message is edited The player line carries the evidence the scripted read cites: the evidence rule only accepts a quote from the read's window, and the old line relied on the model's reply happening to echo it (L2 2026-09-23: rejected once, story stayed at cp1). It waits for the read to land, not for a checkpoint: a living-director branch can hold the story off the authored route (v3.0 14 D5).",
+      "goal": "a belief a reveal retired comes back when the reveal's message is edited The player line carries the evidence the scripted read cites: the evidence rule only accepts a quote from the read's window, and the old line relied on the model's reply happening to echo it (L2 2026-09-23: rejected once, story stayed at cp1). It waits for the read to land, not for a checkpoint: a living-director branch can hold the story off the authored route (v3.0 14 D5). The background-read pin is set again here so the check stands alone under --only.",
       "steps": [
+        {
+          "eval": "globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; return { pinned: 'SCENE_NONE' };"
+        },
         {
           "send_generate": {
             "text": "I read the posting on the board again, then ask Arin about the crossing.",
@@ -386,6 +396,13 @@
         {
           "eval": "const rt = globalThis.storyOrchestratorRuntime; const active = rt.getEpistemic().filter((entry) => !entry.supersededBy); const index = active.findIndex((entry) => entry.id === globalThis.__j6Belief) + 1; if (index < 1) throw new Error(`the belief is not in the pass's own numbered list: ${JSON.stringify(active.map((entry) => entry.id))}`); globalThis.storyOrchestratorDebugEpistemicResponse = `[retire] ${index}`; globalThis.storyOrchestratorDebugLedgerResponse = `[state:Arin:character] condition=wounded`; const to = rt.getEngineState().lastMessageId; const wrote = await rt.runEpistemicLedgerPass({ id: \"j6-derived-2\", createdAt: new Date().toISOString(), priority: 0, reason: \"scene:location\", contractHash: \"j6\", scope: [], window: { from: 0, to }, prompt: \"\", rawResponse: \"\", acceptedDeltas: [], rejected: [], sceneBreak: { at: to, reason: \"location\" } }); const after = rt.getEpistemic().find((entry) => entry.id === globalThis.__j6Belief); const view = rt.getLedger().filter((row) => row.entity === `Arin` && row.field === `condition`); if (!after?.supersededBy) throw new Error(`the reveal never retired the belief (wrote=${wrote}): ${JSON.stringify(after)}`); if (!view.some((row) => row.value === `wounded`)) throw new Error(`the ledger never took the update (wrote=${wrote}): ${JSON.stringify(rt.getSnapshot().memory.ledger)}`); return { wrote, to, retiredAt: after.retiredAt, view };",
           "log": true
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 3000,
+            "timeoutMs": 120000
+          }
         },
         {
           "edit": {

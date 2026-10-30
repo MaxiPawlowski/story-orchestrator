@@ -34,7 +34,7 @@ export function SpriteSettingsView({
     onSwitch(next);
   };
   return (
-    <div id="so-sprite-settings" className="flex flex-col gap-2 border-t border-solid border-white/10 pt-2">
+    <div id="so-sprite-settings" className="flex flex-col gap-2 border-t border-solid border-[var(--so-line)] pt-2">
       <div className="text-sm font-bold">Sprite stage</div>
       <CheckRow id="so-sprite-enabled" setting="sprites.enabled" checked={on} disabled={capability === "absent"} onChange={toggle} />
       <div id="so-sprite-activation" data-activation={activation} className="flex flex-wrap items-center gap-2 text-xs opacity-80">

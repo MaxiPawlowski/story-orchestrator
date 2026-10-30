@@ -224,13 +224,13 @@ State column below is current, the 2026-10-26 lines are history. 18-21 on master
 | Plan | Subject | Where | State (13-17: 2026-10-28; 18-21: 2026-10-26) |
 |---|---|---|---|
 | 13 | Prefix stability gate | master (merged 2026-10-28) | built, merged; first capture x2 done offline (end-batch captures); in-page recorder fires (no-model); real-generation recorder row owed |
-| 14 | D follow-ups | master (merged 2026-10-28) | merged; D6 P5 miss recorded; D8 passive-modifier scope finding open; D1 rerun (GPU + rating), J6 x2 (model lane), SP1 count owed |
+| 14 | D follow-ups | master (merged 2026-10-28) | merged; D6 P5 miss recorded; D8 fixed 2026-10-29 (`cb5b036b`); D1 rerun (GPU + rating), J6 x2 (model lane), SP1 count owed |
 | 15 | End test batch (GPU, ~6-7 h) | master | run 2026-10-27/28: §v3.0 end batch 2026-10-27; GBNF parity, render-survival now on master, not run |
 | 16 | Twine/Twee spike | master (merged 2026-10-28) | spike-later (Astra triage), docs only |
 | 17 | Reply polish integration review | master (merged 2026-10-28) | planned; polish stays off |
 | 18 | Image e2e review (live, showcase lane) | master (written by the run) | baseline e2e26 NOT GREEN (4 misses, 2 environment); probe running |
-| 19 | Talk pacing: one-shot instruction, yield on question, opening hook | branch `v3.0-talk-pacing` | in build; campaign hooks (63, private plan) wait for its keys |
-| 20 | Visual bridge: identity/place packs, style recipe, resolver, default Qwen recipe, background renders | branch `v3.0-visual-bridge` | stage 1 in build |
+| 19 | Talk pacing: one-shot instruction, yield on question, opening hook | master | stages 2 (`43c8121c`) and 3 (`f8b56971`) merged; campaign stage 2 on `v3.0-campaign-talk-s2`, not adopted (2026-10-29) |
+| 20 | Visual bridge: identity/place packs, style recipe, resolver, default Qwen recipe, background renders | master | stages 1+2 merged (`3cea7708`); Qwen vs SDXL and background renders wait for the owner (2026-10-29) |
 | 21 | Image fixes from playtest 1 | master | done (`2403c70f`, `f96dabda`, `d12deead`) |
 | 25 | Read facts tier below floor on Artemis (`25-read-facts-tier.md`) | master | 2026-10-28: cause = the model writes facts as MEMORY lines, never FACT; prompt candidate A not adopted (rating format -0.267, intents precision < 0.8 on live x2); owner Q1+Q3 done (`v3.0-facts-count`): scorer v3 facts tier = product facts tier, offline rescore 8/20 -> 14/20 (floor 0.68 unchanged); parser keeps hybrid FACT lines (stored-output bug fix, rejected 35 -> 36/36); live suite x2 owed after the controller benchmark; Q2 open |
 
@@ -362,7 +362,9 @@ Controller samples (`controller/status-samples*.jsonl`, every 15 s):
 - D-EB1 (product, spike): edit re-read clears the rollback notice it just set (diagnosis 2).
 - D-EB2 (fixture): reply-effort counts inner beats as replies (diagnosis 1).
 - D-EB3 (harness): J6 under `batch --fresh-page` loses the page mid-evaluate (diagnosis 3).
-- D-EB4 (harness): `so-p41-journey cleanup` leaves empty character folders, group image folders and `plays` rows.
+- ~~D-EB4 (harness): `so-p41-journey cleanup` leaves empty character folders, group image folders and `plays` rows.~~ Fixed
+  2026-10-29 (§Gate record: harness EB fixes); live p41 rerun owed.
+- ~~J6.7 fixture race (1 of 6 runs, §End batch 2)~~ Fixed 2026-10-29 (§Gate record: harness EB fixes); live J6 x2 owed.
 - D-EB5 (harness): `so-turn-types-check` solo leg is stale; `--skip-solo` should be the default.
 - D-EB6 (process): `so-run-header diff` captures live from its own environment; run unlaned it read the owner's ST page on
   :8000 (read-only header capture, three times between 22:42Z and 00:51Z) and wrote `so-lanes/0/debug/run-header-diff-end.json`. Always
@@ -449,10 +451,37 @@ J6 under `st-lanes batch --lanes 45 --repeat 2 --strict --fresh-page J6` (lane 4
     reuses J6.7's chat and the content dedups onto the earlier row. Reverted, not counted.
   - `14-01-33-428Z`: **GREEN x2** (11/11 automated each, 1 human row unscored). Records
     `test/journeys/records/v3.0-end-batch-2/2026-10-28T14-12-15-893Z_journey-J6.json`, `…14-25-21-760Z_journey-J6.json`.
-- Open: the J6.7 race (1 of 6 runs) and the "Promise was collected" trigger itself.
+- Open: the "Promise was collected" trigger itself. The J6.7 race is fixed (§Gate record: harness EB fixes).
 - Gates (branch `v3.0-eb2-evaljob`, worktree `C:\dev\so-eb2-evaljob`): `npm run gates:quick` green (149.7 s); `npm run gates`
   (no `--resume`) all green in 395.9 s: jest 10799 passed / 1 skipped, test:debug 1640/1640, Storybook 1010 passed, build,
   typecheck, typecheck:test, debug:typecheck, lint, test:replay, test:plugin, test:release ok. Record lines added after the run (docs only).
+
+### Gate record: harness EB fixes 2026-10-29 (branch `v3.0-harness-eb`, CPU only)
+
+- J6.7 race. Cause: J6.7 and J6.8 left background reads on the real model. Any read whose answer names a scene break
+  schedules an epistemic/ledger pass (`wiring/scheduler.ts` `scheduleSceneBreak`), and that pass reads the same
+  `storyOrchestratorDebugEpistemicResponse` global the check had just scripted, stamping the belief at its own window end
+  (12), so the edit at 12 rightly dropped it. Fix (fixture): J6.7's first step and a new first step of J6.8 pin
+  `storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'` (the scripted `extract` passes its response directly, so it
+  is unaffected), as `live-rollback-derived` does; both wait `schedulerIdle` before the edit; J6.7 now fails early,
+  naming the cause, when the tracked belief is not stamped at the scripted window end. Assertions otherwise unchanged.
+- Guard: `scriptedPassesUnpinned` (`scripts/debug/lib/scenarioSchema.mts`): a model check (journey check or scenario) that
+  scripts an epistemic/ledger response must pin background reads earlier in the same check (a `reload` drops the pin).
+  Tests in `scenarioSchema.test.mts`: corpus clean; planted controls; the pre-fix J6 fires on J6.7 steps 5-6, J6.8 steps 4-5.
+- D-EB4. Cause: `removeMarkedAssets` deletes cards and groups through ST, which keeps the card's `characters/<name>/`
+  folder, the group's `user/images/<groupId>/` (cast and director images) and the plays index rows of the deleted chats.
+  Fix (`scripts/debug/lib/p41Residue.mts`, called at the end of p41 cleanup, reported as `cleanup.residue`): owned groups =
+  groups this cleanup deleted plus the groups of plays rows for the marker story, minus groups still listed by
+  `/api/groups/all` or in the baseline (`protectedGroups`). Plays rows of owned groups are dropped and saved; owned image
+  folders are emptied through ST's `/api/images/delete`, then removed; marker-named character folders with no listed
+  card and no files are removed. Disk work only on a lane (`SO_LANE` >= 1, `<lane>/data/default-user`); a kept folder or
+  refused delete counts as a leak. Tests: `p41Residue.test.mts` (7, fake fs and fake page).
+- `npm run gates:quick` green (214.0 s). `npm run gates` (no `--resume`) all green in 869.3 s: jest 10809 passed / 1
+  skipped, test:debug 1665/1665, Storybook 1010 passed, build, typecheck, typecheck:test, debug:typecheck, lint,
+  test:replay, test:plugin, test:release ok. Record written after the run (docs only).
+- Owed (model/GPU, not run today): J6 x2 under `st-lanes batch --repeat 2 --strict --fresh-page J6` on a model lane (J6.7
+  cannot run on a no-model lane: it is a model check and the race needs a real background read); `so-p41-journey run` +
+  `cleanup` on an image lane to see `cleanup.residue` remove the folders and rows live.
 
 ## Rules
 
@@ -500,11 +529,13 @@ No build order is set. If several reopen at once, by dependency: 02 B before 05.
 | 07 | `07-inference-engine-eval.md` engine evaluation (SGLang, vLLM, ExLlamaV3, llama.cpp options): RESEARCH 2026-10-25, SPIKE 2026-10-26: ExLlamaV3 dropped (TTFT, RAM, Sol 3/8); b11888 + gateway member-state cache recommended (warm switch 9-10 s → 4.7-6.0 s) |
 | 08 | `08-member-state-cache.md` per-member state cache: disk mode built 2026-10-26 and kept off (disk-bound saves); superseded by 09 RAM mode on the patched server |
 | 09 | `09-controller-round-3.md` controller round 3: patched llama.cpp b11888 (`scripts/local/llama-patches/`) + RAM member cache 4 GiB LIVE on the owner controller 2026-10-26 (warm member switch 8.55 → 3.8 s, member turn 14.6 → 10.5 s; Sol 25 pairs better on all categories, thinking floor missed as written 23/25, owner adopted); 409 reserve-refusal fix + ComfyUI reclaim guards; chat-first queue built; max-memory profile, rewound entries + checkpoint_at, read reorder queued. Research: `research/` (web, Fable simulation, feature-impact audit, Astra review) |
-| 10 | `10-max-memory-profile.md` max-memory profile + tray headroom toggle: STUB 2026-10-26 (replan track A2), floors TO DECIDE |
+| 10 | `10-max-memory-profile.md` max-memory profile + tray headroom toggle: STUB 2026-10-26 (replan track A2); built on branch `v3.0-a2-maxmem`, unmerged, live re-check + J13 owed in the next GPU window (2026-10-29) |
 | 11 | `11-image-perf-after-unlock.md` image performance after the unlock, ComfyUI flags, image/text thrash: STUB 2026-10-26 (track B1), floors TO DECIDE |
 | 15 | `15-end-test-batch.md` end test batch for the current wave (09 r3, A0, D1/D3/D5/D6/D8, C1, B1 prep, v2.9 freeze): DESIGN 2026-10-26, est. ~6 h GPU (up to ~7.2 h with conditionals), no-model and replay lanes in parallel |
-| 12 | `12-witness-redesign.md` witness record redesign after v2.8 42 W4 FAIL: STUB 2026-10-26 (track C1), floors TO DECIDE |
-| 26 | `26-llama-fork-round-4.md` llama.cpp fork round 4 (light sleep, fast load, read preemption, request-local n-gram): STUB 2026-10-28, floors in `research/llama-fork-opportunities.md` (workload measurement, C1-C9, Sol review) |
+| 12 | `12-witness-redesign.md` witness record redesign after v2.8 42 W4 FAIL: STUB 2026-10-26 (track C1); 2026-10-29: best design D2 exact-set 0.660 vs floor 0.9, FAIL; recommended parked until a playtest flag (owner question) |
+| 26 | `26-llama-fork-round-4.md` llama.cpp fork round 4 (light sleep, fast load, read preemption, request-local n-gram): STUB 2026-10-28, floors in `research/llama-fork-opportunities.md` (workload measurement, C1-C9, Sol review); carried by 27 and 28 |
+| 27 | `27-llama-fork-wrap-up.md` fork wrap-up (guarded light sleep W1, limited read preemption W4, seed rating tool W3): branch `v3.0-27-fork-wrapup`, gates green 2026-10-29, off by default, GPU recipe ~3.5 h owed, unmerged (merge after A2) |
+| 28 | `28-cache-spill-and-restore.md` member cache spill to disk across images (C5) + C6/C9 timing switches, so6 build: branch `v3.0-28-cache-spill`, gates green 2026-10-29, off by default, GPU recipe ~2 h owed, unmerged |
 
 ## Decisions (user, 2026-10-03: as recommended)
 

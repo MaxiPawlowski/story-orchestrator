@@ -104,7 +104,7 @@
       "model": "none",
       "mode": "auto",
       "findings": [],
-      "goal": "the recap names the checkpoint the player left off at by its player copy (player_name, else Current scene: the authored name is author copy since 544975fb, and sun-ruins cp1 has no player_name), then dismisses cleanly",
+      "goal": "the recap names the checkpoint the player left off at by its player copy (player_name, else chapter title, else story title: the authored name is author copy since 544975fb, and sun-ruins cp1 has no player_name), then dismisses cleanly",
       "requires": [
         "away-recap"
       ],
@@ -113,7 +113,7 @@
           "expect_ui": {
             "selector": "dialog.popup[open]",
             "contains": [
-              "Current scene",
+              "Quest for the Sun Ruins",
               "Where you are"
             ],
             "timeoutMs": 30000

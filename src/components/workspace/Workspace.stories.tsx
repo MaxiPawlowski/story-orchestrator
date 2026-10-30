@@ -95,4 +95,31 @@ const playPage = (viewport: { width: number; height: number }, maxLines: number)
 });
 
 export const PlayDesktop: Story = playPage(VIEWPORTS.wide, 1);
+
+const soloSnapshot = { ...snapshot, ready: false, storyTitle: null, noChat: null, boundary: 0, copilot: { enabled: true },
+  noGroup: { notice: "Stories play in group chats.", storyId: null, storyTitle: null } } as unknown as RuntimeSnapshot;
+export const PlayInAOneOnOneChat: Story = {
+  args: { intent: { context: "story", page: "play" }, snapshot: soloSnapshot,
+    settingsHost: { makeGroup: fn(async () => ({ ok: true as const, group: "g", message: "made" })) } as unknown as SettingsHost,
+    drawerProps: { onShowMe: fn(), onFix: fn() } as unknown as DrawerTabsProps },
+  play: async ({ canvasElement }) => {
+    const page = within(canvasElement.ownerDocument.body);
+    await expect(await page.findByRole("heading", { name: "Stories play in group chats" })).toBeInTheDocument();
+    await expect(page.queryByRole("heading", { name: "Playing this story" })).toBeNull();
+    const card = await page.findByText(/This is a one-on-one chat/);
+    await expect(card.closest("#so-play-make-group")).not.toBeNull();
+    await expect(page.queryByRole("button", { name: "Make a group for this story" })).toBeNull();
+    await expect(await page.findByRole("button", { name: "Open library" })).toBeInTheDocument();
+  },
+};
+
+export const PlayWithNoStory: Story = {
+  args: { intent: { context: "story", page: "play" }, snapshot: { ...soloSnapshot, noGroup: null } as unknown as RuntimeSnapshot,
+    drawerProps: { onShowMe: fn(), onFix: fn() } as unknown as DrawerTabsProps },
+  play: async ({ canvasElement }) => {
+    const page = within(canvasElement.ownerDocument.body);
+    await expect(await page.findByRole("heading", { name: "No story in this chat" })).toBeInTheDocument();
+    await expect(await page.findByText("Choose a story for this chat.")).toBeInTheDocument();
+  },
+};
 export const PlayPhone: Story = playPage(VIEWPORTS.phone, 2);

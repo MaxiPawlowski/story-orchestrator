@@ -44,11 +44,12 @@ describe("v2.7 plan 29 settings by area", () => {
   it("places every settings feature in the section of its own area, or names why not", () => {
     const labels = new Map(FEATURE_AREAS.map((area) => [area, SETTINGS_AREA_COPY[area].label]));
     const misplaced = FEATURES.filter((feature) => feature.where.surface === "settings").flatMap((feature) => {
-      const section = feature.where.label.replace(/^(?:Settings|Orchestrator) › /, "").split(/ [›→] /)[0];
-      if (ENTRY_POINTS.includes(section)) return [];
+      const [, page, rest] = feature.where.label.split(/ [›→] /);
+      const section = rest ?? page;
+      if (ENTRY_POINTS.includes(section) || ENTRY_POINTS.includes(page)) return [];
       if (feature.id.startsWith("judge-use-")) return section === "Judge" ? [] : [`${feature.id}: ${section}`];
       const expected = feature.where.workspace?.page === "interface" ? "Interface" : SECTION_EXCEPTIONS[feature.id] ?? labels.get(feature.area);
-      return section === expected ? [] : [`${feature.id}: ${section}, expected ${expected}`];
+      return (feature.where.workspace?.page === "interface" ? page : section) === expected ? [] : [`${feature.id}: ${section}, expected ${expected}`];
     });
     expect(misplaced).toEqual([]);
   });

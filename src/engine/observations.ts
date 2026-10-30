@@ -43,5 +43,6 @@ export const observationLatches = (story: ObservationStory, view: ObservationLat
 export const observationScopeUnits = (story: ObservationStory, values: Values): { entries: string[][]; facts: string[][] } => ({
   entries: [],
   facts: (story.observations ?? []).filter((observation) => !observationSettled(observation, values))
-    .map((observation) => [...new Set(knownWhenKeys(observation.when))]).filter((keys) => keys.length > 0),
+    .map((observation) => [...new Set([...knownWhenKeys(observation.when), ...(observation.passive?.modifiers ?? []).map((modifier) => modifier.q)])])
+    .filter((keys) => keys.length > 0),
 });

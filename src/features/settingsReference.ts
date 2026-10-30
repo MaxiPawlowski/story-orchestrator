@@ -3,7 +3,8 @@ import { DEFAULT_CHAPTER_SETTINGS } from "@runtime/chapters";
 import { AUTOMATIC_STAGE } from "@runtime/featureResolve";
 import { FEATURE_CONTROLS } from "@runtime/featureControls";
 import { DEVICE_SETTING_PATHS } from "@runtime/deviceSettings";
-import type { WorkspaceContext, WorkspacePage } from "@runtime/workspaceNavigation";
+import type { WorkspacePage } from "@runtime/workspaceNavigation";
+import { WORKSPACE_CONTEXT_LABELS as CONTEXT_LABELS, WORKSPACE_PAGES } from "@runtime/workspaceRoutes";
 import { STORY_FEATURE_IDS, type StoryFeatureId } from "@engine/featurePolicy";
 import { AUTHOR_JUDGE_USES, JUDGE_USE_DEPENDENCIES, JUDGE_USE_KEYS, WARDEN_RIDERS, type JudgeUseKey } from "@judge/settings";
 import { JUDGE_USE_COPY } from "@judge/useCopy";
@@ -34,12 +35,7 @@ const EFFECTIVE_DEFAULTS: Record<string, string> = {
 
 const STATUS_LABELS: Record<FeatureStatus, string> = { shipped: "", "off-by-default": "Off by default", experimental: "Experimental" };
 
-const CONTEXT_LABELS: Record<WorkspaceContext, string> = { story: "This story", orchestrator: "Orchestrator" };
-
-const PAGE_LABELS: Record<WorkspacePage, string> = {
-  play: "Play", features: "Features", review: "Review", author: "Author",
-  library: "Library", defaults: "Defaults", connections: "Connections", interface: "Interface", help: "Help",
-};
+const PAGE_LABELS = Object.fromEntries(Object.values(WORKSPACE_PAGES).flat().map((page) => [page.id, page.label])) as Record<WorkspacePage, string>;
 
 export const EXPERIMENT_COPY: Record<SpikeFlag, string> = {
   swipeBackCache: "Swiping back to a reply you saw before restores the story state that reply had, instead of reading it again.",
@@ -97,7 +93,7 @@ const ownerLocation = (owner: Feature | null): string => {
   const intent = owner.where.workspace;
   if (intent) {
     const page = intent.page ?? (intent.context === "story" ? "play" : "library");
-    const tail = parts.slice(1);
+    const tail = parts.slice(2);
     if (page === "features") return trail("Orchestrator", "Connections", SETTINGS_AREA_COPY[owner.area].label, ...tail.slice(-1));
     return trail(CONTEXT_LABELS[intent.context], PAGE_LABELS[page], ...(page === "interface" ? tail.slice(-1) : tail));
   }

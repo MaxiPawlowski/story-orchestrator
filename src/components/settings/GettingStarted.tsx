@@ -13,7 +13,7 @@ export function GettingStarted({ steps, dismissed, onReveal, onHide, installChec
   if (!gettingStartedShown(steps, dismissed) && !installChecks.length) return null;
   const requiredDone = steps.every((step) => step.optional || step.done);
   return (
-    <div id="so-getting-started" data-so="getting-started" className="flex flex-col gap-1 border-t border-solid border-white/10 pt-1">
+    <div id="so-getting-started" data-so="getting-started" className="flex flex-col gap-1 border-t border-solid border-[var(--so-line)] pt-1">
       <div className="text-xs font-medium">{HELP_COPY.gettingStartedHeading}</div>
       <ol className="so-help-list flex flex-col gap-1">
         {steps.map((step) => (

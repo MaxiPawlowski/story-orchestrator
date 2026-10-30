@@ -27,7 +27,7 @@ const TalkDecisionsPanel = ({ snapshot }: { snapshot: RuntimeSnapshot }) => {
         <div className="opacity-70">No decisions yet. Recorded when a talk-control checkpoint picks the next speaker.</div>
       ) : (
         decisions.map((decision) => (
-          <div key={`${decision.checkpointId}-${decision.messageId}-${decision.at}`} className="border-t border-solid border-white/10 mt-1 pt-1">
+          <div key={`${decision.checkpointId}-${decision.messageId}-${decision.at}`} className="border-t border-solid border-[var(--so-line)] mt-1 pt-1">
             <div className="opacity-100">
               {decision.chosenName ?? (decision.chainStep !== undefined ? "back to the player" : "silence")}{" "}
               <span className="opacity-70">
@@ -54,7 +54,7 @@ const ReconciliationPanel = ({ snapshot }: { snapshot: RuntimeSnapshot }) => {
         <div className="opacity-70">None. Queued when a checkpoint overstays its target length with gate qualities still unmet.</div>
       ) : (
         events.map((event) => (
-          <div key={`${event.id}-${event.scheduledAt}`} className="border-t border-solid border-white/10 mt-1 pt-1">
+          <div key={`${event.id}-${event.scheduledAt}`} className="border-t border-solid border-[var(--so-line)] mt-1 pt-1">
             <div className="opacity-100">{event.resolvedAt ? "✔ resolved" : "… pending"} · boundary {event.boundary} · {event.checkpointId}</div>
             <div>chasing {event.targetedKeys.join(", ") || "recent scenes"}</div>
             {event.evidence.map((line) => <div key={line} className="opacity-70">{line}</div>)}
@@ -71,7 +71,7 @@ const AuthorMovesPanel = ({ snapshot }: { snapshot: RuntimeSnapshot }) => (
     {(snapshot.authorMoves ?? []).length === 0 ? (
       <div className="opacity-70">None yet. Advance, Nudge and Report from the driver are listed here.</div>
     ) : (snapshot.authorMoves ?? []).map((move) => (
-      <div key={`${move.at}-${move.summary}`} data-so="author-move" className="border-t border-solid border-white/10 mt-1 pt-1">
+      <div key={`${move.at}-${move.summary}`} data-so="author-move" className="border-t border-solid border-[var(--so-line)] mt-1 pt-1">
         <div className="opacity-100">{move.summary}</div>
         <div><MessageCitation messageId={move.messageId} prefix="msg" /> · boundary {move.boundary}</div>
         {move.note ? <div className="opacity-70 whitespace-pre-wrap">{move.note.length > 280 ? `${move.note.slice(0, 279)}…` : move.note}</div> : null}
@@ -110,7 +110,7 @@ export const SchedulerTab = ({ snapshot, manager, onOpenFact }: { snapshot: Runt
       <div className="font-medium opacity-100">Extraction</div>
       <div>Queue {snapshot.extraction.scheduler.queueDepth}, in flight {snapshot.extraction.scheduler.inFlight ? "yes" : "no"}</div>
       <div>Last read boundary {snapshot.extraction.lastReadBoundary}</div>
-      {snapshot.extraction.scheduler.lastError && <div className="text-red-300">{snapshot.extraction.scheduler.lastError}</div>}
+      {snapshot.extraction.scheduler.lastError && <div className="text-[var(--so-error)]">{snapshot.extraction.scheduler.lastError}</div>}
       {snapshot.extraction.audits[0] && <div>Last scope: {snapshot.extraction.audits[snapshot.extraction.audits.length - 1]?.scope.join(", ") || "none"}</div>}
       <div>Audits recorded {snapshot.extraction.audits.length}</div>
       {(snapshot.extraction.judgedReads ?? []).length > 0 && (
@@ -129,7 +129,7 @@ export const SchedulerTab = ({ snapshot, manager, onOpenFact }: { snapshot: Runt
     </div>
     <ReconciliationPanel snapshot={snapshot} />
     {snapshot.agencyRecovery && (
-      <div data-so="agency-recovery" className="text-xs opacity-80 border-t border-solid border-white/10 pt-1">
+      <div data-so="agency-recovery" className="text-xs opacity-80 border-t border-solid border-[var(--so-line)] pt-1">
         <div className="font-medium opacity-100">Refused route</div>
         <div>The player&apos;s last {snapshot.agencyRecovery.turns} turns were read, and nothing in them moved an exit of {snapshot.agencyRecovery.checkpointName}.</div>
         <div className="flex flex-wrap items-center gap-2 pt-1">
@@ -149,9 +149,9 @@ export const SchedulerTab = ({ snapshot, manager, onOpenFact }: { snapshot: Runt
     <div className="text-xs opacity-80">
       <div className="font-medium opacity-100">Expansion</div>
       <div>Queue {snapshot.expansion.scheduler.queueDepth}, in flight {snapshot.expansion.scheduler.inFlight ? "yes" : "no"}</div>
-      {snapshot.expansion.scheduler.lastError && <div className="text-red-300">{snapshot.expansion.scheduler.lastError}</div>}
+      {snapshot.expansion.scheduler.lastError && <div className="text-[var(--so-error)]">{snapshot.expansion.scheduler.lastError}</div>}
       {Object.values(snapshot.expansion.entries).map((entry) => (
-        <div key={entry.key} className="border-t border-solid border-white/10 mt-1 pt-1">
+        <div key={entry.key} className="border-t border-solid border-[var(--so-line)] mt-1 pt-1">
           <div>{entry.kind === "encounters" ? `${entry.stubId} encounters` : `${entry.stubId} → ${entry.targetAnchorId}`}: {entry.status}
             {entry.needsReview ? " review" : ""}{entry.origin === "lookahead" ? ` · prepared ahead (${Math.round(
             (entry.headingP ?? 0) * 100,
