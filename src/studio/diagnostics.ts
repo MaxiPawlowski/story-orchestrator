@@ -238,9 +238,9 @@ const checkLatchingSnapshots = (run: DiagnosticRun) => {
 const checkQualitiesInScope = (run: DiagnosticRun) => {
   const { draft, push } = run;
   const referencedKeys = scopedKeys(draft);
-  const widgetOnly = widgetGateKeys(draft);
+  const widgetOnly = new Set([...widgetGateKeys(draft), TENSION_CURRENT_KEY]);
   draft.qualities.forEach((quality, index) => {
-    if (quality.source !== "extractor" || quality.key === TENSION_CURRENT_KEY || widgetOnly.has(quality.key) || quality.display?.public) return;
+    if (quality.source !== "extractor" || widgetOnly.has(quality.key) || quality.display?.public) return;
     if (!referencedKeys.has(quality.key)) {
       push(
         "quality-never-in-scope",
