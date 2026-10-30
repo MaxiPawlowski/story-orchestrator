@@ -119,4 +119,17 @@ nothing staged. Recorded here, not in the queue doc, to avoid a conflict with th
 
 - Per item: `node --test` on each touched test file, `npm run debug:typecheck` clean, `npm run gates:quick` green (413.0 s,
   after C-H2/C-H3; the later items touch `scripts/` only, which gates:quick does not cover beyond typecheck).
-- Full gates: see the line below.
+- Full `npm run gates` on `bcda8244`, no `--resume`, NOT green as a single run. Each red step was environment and was rerun
+  alone green on the same tree:
+  - Run 1 (545 s): RED on 2 steps.
+    - `test-storybook:ci`: `EADDRINUSE :6006`. Port 6006 was held by another worktree's Storybook (`C:\dev\so-tavernos`).
+    - `test:debug` 1685/1687: `scripts/local/orphans.win.test.mjs` "hard-killed controller" and "startup reap" ran about
+      60 s each; the `powershell Get-CimInstance` call timed out under machine load. These are not files this branch touches.
+  - Run 2 (`--serial`): RED at `test-storybook:ci`, again `EADDRINUSE :6006`, this time held by `C:\dev\so-a2`. 9 steps did
+    not run.
+  - Run 3 (`--no-storybook`, 827 s): every other step green (jest 10827 passed / 1 skipped, build, typecheck,
+    typecheck:test, debug:typecheck, lint, test:replay, test:plugin, test:release) except `test:debug` 1686/1687 (the same
+    `orphans.win` "startup reap" timeout).
+  - Reruns alone:
+    - `npm run test:debug`: 1687/1687 green.
+    - `npm run test-storybook:ci`, once 6006 was free: 169 suites / 1025 tests green.
