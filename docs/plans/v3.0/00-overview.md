@@ -505,6 +505,10 @@ J6 under `st-lanes batch --lanes 45 --repeat 2 --strict --fresh-page J6` (lane 4
     `scriptedPassesUnpinned` to the previous check on the same chat.
   - Evidence: `C:/dev/so-lanes/45/debug/batch/2026-10-30T20-15-42-386Z/J6-run{1,2}/`, batch log
     `C:/dev/so-lanes/45/debug/g1-j6x2-batch.log`, summary `C:/dev/so-lanes/batch-2026-10-30T20-15-42-386Z.json`.
+- J6 x2 rerun 2026-10-30 on master `e4c9e9f0` (fixture fixes `v3.0-harness-j6-1031` merged; staged bundle `93465494d1b1`;
+  lane 45, same controller and model; peer on lane 41 only): same command. **GREEN 2 of 2**: run 1 11/11 (682 s), run 2
+  11/11 (629 s), first try 11 of 11 each. REG-3 closed. Evidence: `C:/dev/so-lanes/45/debug/batch/2026-10-30T21-31-38-066Z/`,
+  `C:/dev/so-lanes/45/debug/g3-j6x2-batch.log`, summary `C:/dev/so-lanes/batch-2026-10-30T21-31-38-066Z.json`.
 
 ### Gate record: harness J6 fixes 2026-10-31 (branch `v3.0-harness-j6-1031`, CPU only)
 
