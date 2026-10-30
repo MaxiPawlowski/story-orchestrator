@@ -68,7 +68,7 @@ describe("T2-4: the away recap describes where the player is now (recap-popup.js
 });
 
 describe("T2-4: the recap waits for the summary to catch up, bounded", () => {
-  const stale = { title: "S", sections: [{ id: "story" as const, label: "The story so far", lines: ["guild hall"] }], text: "" };
+  const stale = { title: "S", headline: "S", sections: [{ id: "story" as const, label: "The story so far", lines: ["guild hall"] }], text: "" };
   const fresh = { ...stale, sections: [{ id: "story" as const, label: "The story so far", lines: ["Wendhope and the forest"] }] };
   const setup = () => {
     const controller = new AwayRecapController(() => ({ close: () => undefined }));

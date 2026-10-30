@@ -61,7 +61,7 @@ describe("v2.8 19 correction: an anchor's authored player_text is hidden while i
 
   it("the player projection that Ask and suggestions read hides it for the opening and shows it after, and the start projection hides it at turn 0", () => {
     const projection = (turns: number) => playedProjection({
-      story: OPENING, narrative: { title: "T", sections: [], text: "" }, visitedPath: ["dock"], activeCheckpointId: "harbour", cast: [], chat: [], playerName: "Max", playerTurns: turns,
+      story: OPENING, narrative: { title: "T", headline: "T", sections: [], text: "" }, visitedPath: ["dock"], activeCheckpointId: "harbour", cast: [], chat: [], playerName: "Max", playerTurns: turns,
     });
     expect(projection(1).current).toEqual({ name: "The Harbour", text: null });
     expect(projection(2).current).toEqual({ name: "The Harbour", text: null });

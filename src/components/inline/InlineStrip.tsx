@@ -1,9 +1,10 @@
+import { useId, useState } from "react";
 import type { InlineItem } from "@runtime/inlineTimeline";
 import { INLINE_CATEGORY_LABELS } from "@runtime/messageInspector";
 import { INLINE_CATEGORIES, type InlineCategory, type InlineLevel } from "@runtime/settingsModel";
 import { InlineDetail, type InlineActions } from "./InlineDetail";
 import { INLINE_ICONS } from "./inlineIcons";
-import { InlineLegend } from "./InlineLegend";
+import { InlineLegendPanel, InlineLegendToggle } from "./InlineLegend";
 
 export { INLINE_ICONS };
 
@@ -17,7 +18,11 @@ export interface InlineStripProps {
   legend?: boolean;
 }
 
+export const INLINE_DETAIL_LEVEL = 3;
+
 export const InlineStrip = ({ messageId, items, level, expanded, onToggle, actions, legend = false }: InlineStripProps) => {
+  const [legendOpen, setLegendOpen] = useState(false);
+  const legendPanel = useId();
   const groups = INLINE_CATEGORIES.map((category) => ({ category, items: items.filter((item) => item.category === category) })).filter((group) => group.items.length);
   if (!groups.length) return null;
   const open = groups.find((group) => group.category === expanded) ?? null;
@@ -53,11 +58,12 @@ export const InlineStrip = ({ messageId, items, level, expanded, onToggle, actio
             <i className="fa-solid fa-magnifying-glass" aria-hidden="true" />
           </button>
         )}
-        {legend && <InlineLegend level={level} />}
+        {legend && <InlineLegendToggle open={legendOpen} panel={legendPanel} onToggle={() => setLegendOpen(!legendOpen)} />}
       </div>
+      {legend && legendOpen && <InlineLegendPanel level={level} id={legendPanel} />}
       {open && (
         <div data-so="inline-expanded" data-category={open.category} className="so-inline-panel">
-          <InlineDetail items={open.items} showDetail={author} showActions={author} actions={actions} />
+          <InlineDetail items={open.items} showDetail={author} detailLevel={INLINE_DETAIL_LEVEL} showActions={author} actions={actions} />
         </div>
       )}
     </div>

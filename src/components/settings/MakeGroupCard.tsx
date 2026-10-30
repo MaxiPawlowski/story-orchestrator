@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { MakeGroupOutcome } from "@runtime/makeGroup";
-import type { NoGroupView } from "@runtime/noGroup";
+import { NO_GROUP_PICK, type NoGroupView } from "@runtime/noGroup";
 
 export interface MakeGroupCardProps {
   view: NoGroupView;
@@ -25,12 +25,13 @@ export default function MakeGroupCard({ view, id = "so-make-group", wizardOn, on
       setBusy(false);
     }
   };
+  const lead = storyId ? `${view.storyTitle ? `"${view.storyTitle}"` : "This story"} needs a group to play in.` : NO_GROUP_PICK;
   const missing = outcome && !outcome.ok && outcome.reason === "missing" ? outcome.missing ?? [] : [];
   return (
     <div id={id} data-so="make-group" role="status" className="so-task-card flex flex-col gap-1 text-sm">
       <div className="font-medium">{view.notice}</div>
       <div className="text-xs opacity-80">
-        {view.storyTitle ? `"${view.storyTitle}" needs a group to play in. ` : ""}A group holds the story's cast, so each character keeps their own memory and voice.
+        {lead} A group holds the story's cast, so each character keeps their own memory and voice.
       </div>
       {storyId && (
         <div className="flex flex-wrap items-center gap-2">

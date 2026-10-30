@@ -22,14 +22,15 @@ const ITEMS: InlineItem[] = [
   item({ id: "memory:delta:a1:0", category: "memory", level: 3, state: "pending", text: "found_map = true", detail: "\"I unroll the map.\"" }),
   item({ id: "lore:count:4", category: "lore", level: 2, until: 3, text: "Lore consulted: 4 entries" }),
   item({ id: "lore:entry:4:Sun:2", category: "lore", level: 3, text: "Sun Ruins · CP4 - Betrayal reveal", detail: "constant · checkpoint-gated · uid 2" }),
+  item({ id: "progress:evaluated:3", category: "progress", level: 4, text: "Boundary 3 evaluated", detail: "{\"blackboard\":{\"found_map\":true}}" }),
 ];
 
 const visible = (level: InlineLevel) => ITEMS.filter((entry) => entry.level <= level && (entry.until === undefined || level < entry.until));
 
-const Harness = ({ level, actions }: { level: InlineLevel; actions?: InlineActions }) => {
+const Harness = ({ level, actions, legend }: { level: InlineLevel; actions?: InlineActions; legend?: boolean }) => {
   const [expanded, setExpanded] = useState<InlineCategory | null>(null);
   const toggle = (category: InlineCategory) => setExpanded((current) => (current === category ? null : category));
-  return <InlineStrip messageId={4} items={visible(level)} level={level} expanded={expanded} onToggle={toggle} actions={actions} />;
+  return <InlineStrip messageId={4} items={visible(level)} level={level} expanded={expanded} onToggle={toggle} actions={actions} legend={legend} />;
 };
 
 const meta: Meta<typeof Harness> = {
@@ -82,6 +83,31 @@ export const AuthorLevelShowsDetailActionsAndInspect: Story = {
     await userEvent.click(canvas.getByRole("button", { name: "World Info: 1" }));
     await expect(canvas.getByText("Sun Ruins · CP4 - Betrayal reveal")).toBeInTheDocument();
     await expect(canvasElement.textContent).not.toContain("Lore consulted");
+  },
+};
+
+export const RawLevelKeepsRawDetailInTheInspector: Story = {
+  args: { level: 4, actions: { run: fn(), inspect: fn() } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole("button", { name: "Progress: 3" }));
+    await expect(canvas.getByText("Boundary 3 evaluated")).toBeInTheDocument();
+    await expect(canvas.getByText("gate: {\"all\":[\"found_map\"]}")).toBeInTheDocument();
+    await expect(canvasElement.textContent).not.toContain("blackboard");
+  },
+};
+
+export const LegendOpensBelowTheChipRow: Story = {
+  args: { level: 1, legend: true, actions: { run: fn(), inspect: fn() } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole("button", { name: "Memory: 1" }));
+    await userEvent.click(canvas.getByRole("button", { name: "What do these icons mean?" }));
+    const legend = canvasElement.querySelector('[data-so="inline-legend"]');
+    await expect(legend).not.toBeNull();
+    await expect(legend?.closest(".so-inline-chips")).toBeNull();
+    await expect(legend?.parentElement?.getAttribute("data-so")).toBe("inline-strip");
+    await expect(canvasElement.querySelector('[data-so="inline-expanded"]')).not.toBeNull();
   },
 };
 

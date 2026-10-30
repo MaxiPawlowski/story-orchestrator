@@ -28,6 +28,7 @@ export interface HelpPanelProps {
   onClose?: () => void;
   onTour?: () => void;
   ask?: ReactNode;
+  hosted?: boolean;
 }
 
 export const canShow = (where: FeatureWhere): boolean => where.selector.startsWith("#") && (where.surface === "settings" || where.surface === "drawer");
@@ -96,17 +97,17 @@ const FeatureRow = ({ feature, state, where, findings, homePage, onShowMe, onOpe
   );
 };
 
-export function HelpPanel({ features, stateOf, whereOf, findingsOf, onOpenSetup, homePage, guideTopics = [], onShowMe, onOpenDoc, onClose, onTour, ask }: HelpPanelProps) {
+export function HelpPanel({ features, stateOf, whereOf, findingsOf, onOpenSetup, homePage, guideTopics = [], onShowMe, onOpenDoc, onClose, onTour, ask, hosted = false }: HelpPanelProps) {
   const [query, setQuery] = useState("");
   const searchId = useId();
   const shown = features.filter((feature) => matchesQuery(feature, query));
   const topics = guideTopics.filter((topic) => topicMatches(topic, query));
   return (
     <section id="so-help" data-so="help-panel" aria-label={HELP_COPY.heading} className="so-help-panel flex flex-col gap-2 text-sm">
-      <div className="flex items-center justify-between gap-2">
+      {!hosted && <div className="flex items-center justify-between gap-2">
         <span className="font-semibold">{HELP_COPY.heading}</span>
         {onClose && <button type="button" data-so="help-close" className="menu_button fa-solid fa-xmark" aria-label={HELP_COPY.close} title={HELP_COPY.close} onClick={onClose} />}
-      </div>
+      </div>}
       <div className="text-xs opacity-80">{HELP_COPY.intro}</div>
       {ask}
       {(onOpenDoc || onTour) && <div className="flex flex-wrap gap-2">
