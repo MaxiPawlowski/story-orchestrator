@@ -402,3 +402,46 @@ WP-S1 `99670706`, lane fixes `d297dbd9`, Storybook flake fix `ab4d2c28`; master 
 - Gates: `npm run gates:quick` green during the work. Final `npm run gates` (no `--resume`, Storybook included) on `3748b679`: all green in
   544.6s (jest 11,053 / 1 skipped, test:debug 1,730, Storybook 191 suites / 1,134 tests, replay, release, plugin, lint, typechecks).
 - Open: compiled life keys without a display label read humanised ("rel arin player trust ≥ 2"), not as a sentence.
+
+## Phase 3 gate record
+
+2026-10-30, branch `v3.0-29-ui-p3` (WP-3 `5a02de5c`, WP-7 `cdbe5878`, key labels `c07cf635`, wait-on `b36a76cb`, lane fixes `6f2de374`, Lazy icon
+`7f0bf930`, gate fixes `701c15be` `8c0e5573`; master `38f11f6c` merged, docs only).
+
+- WP-3: every raw `menu_button`/`st-button`, `st-alert-*` box, `so-warning|error|success-text` line and `×` close in our roots moved to the kit
+  (Button/IconButton, `Callout` with new `size="sm"`, new kit `StatusText` = one tone line with its icon; `ActionStatus` renders it).
+  `FeedbackAlert` deleted (Studio save feedback is a Callout in `[data-so=studio-feedback]`). Diagnostics: code pill `[data-so=repair-code]`, clean line
+  `[data-so=diagnostics-clean]`; `so-ui.mts` reads both. Remove buttons are ghost IconButtons now (were red `st-button danger`).
+- `test/findings/rawButtons.json`: 280 uses / 94 files before, 9 / 4 after. Kept on purpose: `ExtensionsBlock` (2, ST's Extensions stub),
+  `CoachMarks` (5, renders in `#so-coach-root`), `ReviewGrid` (1, renders in an ST popup) and `RigPreview` (1, its Sprites stories mount in `#so-vn-root`):
+  the kit CSS is scoped to the mount roots, so a kit button there is unstyled (axe contrast failures on the first full run). `GuideMarkdown` uses
+  `so-btn` markup without the kit import because the static guide site compiles it alone.
+- WP-7: `src/styles.css` is the entry (root scope, Tailwind) importing `styles/{tokens,kit,shared,hud,panels,badges,status,sheet,play}.css`; lazy surfaces
+  ship their CSS: `briefing/briefing.css` (BriefingModal), `drawer/hudCard.css` (HudCard), `widgets/game.css` (WidgetCard, HtmlWidgetFrame),
+  `guide/guide.css` (GuideReader), help rules into `help/help.css` (+ GettingStarted), Studio rules into `studio/mobile.css`. Dead rules removed: `st-button*`,
+  `st-alert-*`, `so-*-text`, `st-bg-tint`, `st-muted-weak`, `st-strong`, `st-chip-muted`, `so-settings-section|area|area-guide`, `so-card-hint`, `so-launcher`,
+  `so-chat-tools`, `so-card-table`, the `menu_button` width rules (the Extensions stub keeps its own). styles.css 1,252 -> 222 lines.
+- Studio `?`: 64 sites -> 33 (A-F 18 -> 9, G-Z 46 -> 24); the useful ones became visible `so-setting-desc` lines (Effects sections, Story id, library
+  description, player introduction, milestones, quests, voice), restating ones deleted. guideCoverage green.
+- Key labels: `engine/keyLabel.ts` (`labelForKey`, `keyLabeler`; authored display label first, then compiled patterns with card names: `rel_<a>_<b>_<axis>`
+  -> "<A>'s <axis> toward <B|you>", `mood_<m>`, `agenda_<m>_<id>_<step|wait|chapter|repeats>`, `rep_<faction>` -> "Standing with <name>", story time keys;
+  else spaced words). Used by the Studio graph (`gateLabels.qualityLabelOf`), Steer unmet gates, the state table and the inspector (`gateReadout.qualityLabel`).
+  Live: "SO-UI Guide's trust toward you ≥ 2, now 0 → The confession" in Steer, graph edge and inspector.
+- `wait-on` devDependency removed: no script, import or npm script used it (`test-storybook:ci` is `scripts/release/storybookCi.mjs`); lock updated with
+  `--package-lock-only`, shared `node_modules` untouched.
+- Screenshot pass: lane 30 (no-model; living + extraction switched off, images/sprites/judge off, read back), worktree `dist/` routed into the lane browser,
+  SO-UI Guide/Narrator + group, `character-life` as `SO-UI P3 lab` (+ briefing, player, `coins`), two `/sendas` + one `/send`: briefing, Extensions block,
+  HUD, story card, story sheet (+ people/stats), This chat Play and Story settings, Settings Library/Features/Models/Display/Help, Help panel, Author console
+  + State, Studio graph/Story/Diagnostics, author inline line, inspector; 1920x1080 and 390x844, dark + light: 40 shots each, `C:\dev\so-lanes\ui-review\p3\`
+  (driver `driver-tmp-p3-shots.mts.txt`). `assertPlayerClean` ok on both (0 findings); 4 blocked model calls, 0 page errors, cleanup leaked 0, library 0,
+  lane stopped. The lane's library already held six `SO-UI Settings lab` rows from an earlier session (not removed).
+- Defects found and fixed: kit buttons and nav labels broke per letter in narrow flex rows ("Models" nav item, Continue "Open"): `overflow-wrap: break-word`,
+  nav items wrap their badge; role fallback select overflowed on a phone (row wraps, select `min-w-0`); inspector showed an empty value as blank (now "empty").
+  Found, not fixed: Getting started rows put "Show me" on a wrapped line; light palette disabled `text_pole` is ST's solid grey; the phone Author tab row
+  scrolls without a hint; a long graph edge label wraps before its value; at player level 1 this no-model chat shows no inline line (nothing to say).
+- Bundle: main `dist/index.js` 1,231,677 B (master 1,231,727; the Lazy failure icon comes from CSS).
+- Gates: `npm run gates:quick` green during the work. First full `npm run gates` red: guide site build (GuideMarkdown kit import), two stories reading
+  `id` from StatusText's inner span, eight Sprites/Tour/ReviewGrid plays on kit buttons outside the mount roots; fixed. Final `npm run gates` (no `--resume`,
+  Storybook included) on `8c0e5573`: all green in 413.6s (jest 11,058 passed / 1 skipped, Storybook 191 suites / 1,132 tests, test:debug, replay,
+  release, plugin, lint, typechecks).
+- Open: make `#so-coach-root` and the image review popup kit roots so their last raw buttons can move.
