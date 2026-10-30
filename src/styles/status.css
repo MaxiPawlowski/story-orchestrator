@@ -36,3 +36,14 @@
   border: 1px dashed currentColor;
   border-radius: 50% 50% 20% 20%;
 }
+
+:is(#drawer-manager, #so-hud-root, #story-orchestrator-settings, #so-studio-root, #so-studio-modal, #so-briefing-root, #so-briefing, #so-panels-root, #so-workspace-root, #so-workspace-modal) .so-lazy-failed {
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--so-space-2);
+}
+
+:is(#drawer-manager, #so-hud-root, #story-orchestrator-settings, #so-studio-root, #so-studio-modal, #so-briefing-root, #so-briefing, #so-panels-root, #so-workspace-root, #so-workspace-modal) .so-lazy-failed::before {
+  content: "057";
+  font: var(--fa-font-solid);
+}
