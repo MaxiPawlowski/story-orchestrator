@@ -58,12 +58,8 @@ export const hostMacrosAvailable = (): boolean => typeof macrosHost?.MacrosParse
 const argMacros = argMacroSeam(() => getContext());
 
 const newMacroEngineOn = (): boolean | null => {
-  try {
-    const flag = (getContext() as unknown as { powerUserSettings?: { experimental_macro_engine?: unknown } }).powerUserSettings?.experimental_macro_engine;
-    return typeof flag === "boolean" ? flag : null;
-  } catch {
-    return null;
-  }
+  const flag = (getContext() as unknown as { powerUserSettings?: { experimental_macro_engine?: unknown } } | undefined)?.powerUserSettings?.experimental_macro_engine;
+  return typeof flag === "boolean" ? flag : null;
 };
 
 const plainMacros = plainMacroSeam(() => macrosHost.MacrosParser, newMacroEngineOn);
