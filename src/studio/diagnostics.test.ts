@@ -325,6 +325,17 @@ describe("runDiagnostics", () => {
     expect(hits.map((entry) => entry.message)).toEqual([expect.stringContaining("orphan")]);
   });
 
+  it("does not warn for a quality read only by an observation's passive modifier", () => {
+    const story: Story = { ...clean,
+      qualities: [...clean.qualities, { key: "glanced", type: "bool", source: "extractor", rubric: "r" },
+        { key: "lamp", type: "bool", source: "extractor", rubric: "r" }, { key: "orphan", type: "bool", source: "extractor", rubric: "r" }],
+      observations: [{ id: "scuff", text: "A scuff mark on the floor.", when: { q: "glanced", op: "==", v: true },
+        passive: { roll: { sides: 20, target: 11 }, modifiers: [{ q: "lamp", v: true, add: 4 }] } }],
+    };
+    const hits = runDiagnostics(story).filter((entry) => entry.code === "quality-never-in-scope");
+    expect(hits.map((entry) => entry.message)).toEqual([expect.stringContaining("orphan")]);
+  });
+
   it("recognizes the runtime's card scope without hiding an unbound orphan", () => {
     const story: Story = { ...clean,
       qualities: [...clean.qualities, { key: "hair", type: "string", source: "extractor", rubric: "confirmed hair" },
