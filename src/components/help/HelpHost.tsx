@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { GUIDE_TOPIC_IDS, GUIDE_TOPICS } from "@copilot/guideTopics";
 import type { KnowledgeShowMe } from "@copilot/knowledge/types";
 import { authorGuideDoc, FEATURES, guideUrl, HOME_PAGE, visibleFeatures, type Feature, type FeatureWhere } from "@features/registry";
@@ -11,6 +11,7 @@ import type { AskOutcome } from "@runtime/askHost";
 import { getGlobalSettings } from "@runtime/settingsStore";
 import { AskBox, type AskBoxReply } from "@components/studio/AskBox";
 import { requestTour } from "@guide/tour/request";
+import { InlineLegendPanel } from "../inline/InlineLegend";
 import { canShow, HelpPanel, type HelpGuideTopic } from "./HelpPanel";
 import { readShowMeHostFacts } from "./helpHostFacts";
 
@@ -41,6 +42,7 @@ const docOf = (target: KnowledgeShowMe) => target.target.split("#")[0];
 export default function HelpHost({ authorView, snapshot, onShowMe, onOpenDoc, onClose, ask, hosted = false }: HelpHostProps) {
   const settings = getGlobalSettings();
   const [host, setHost] = useState<ShowMeHostFacts>(UNKNOWN_HOST);
+  const legendId = useId();
   const judgeEnabled = settings.judge.enabled;
   useEffect(() => {
     let live = true;
@@ -83,6 +85,7 @@ export default function HelpHost({ authorView, snapshot, onShowMe, onOpenDoc, on
       hosted={hosted}
       onTour={() => { if (requestTour()) onClose(); }}
       ask={askBox}
+      legend={<InlineLegendPanel level={snapshot?.inline.level ?? 1} id={legendId} />}
     />
   );
 }

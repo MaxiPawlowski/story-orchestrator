@@ -119,6 +119,7 @@ export const NavFollowsTheGuideOrder: Story = {
   play: async ({ canvasElement }) => {
     const items = [...canvasElement.querySelectorAll('[data-so="guide-nav-item"]')].map((item) => item.getAttribute("data-page"));
     await expect(items).toEqual(["README", "player/memory", "player/playing", "setup/memory-model"]);
+    await expect(canvasElement.querySelector('[data-so="guide-nav"]')?.classList.contains("hidden")).toBe(false);
     const groups = [...canvasElement.querySelectorAll('[data-so="guide-nav-select"] optgroup')].map((group) => group.getAttribute("label"));
     await expect(groups).toEqual(["Playing: Start here", "Playing: Play", "Setup: Set up"]);
     const play = canvasElement.querySelector('[data-so="guide-nav-section"][data-section="Play"]') as HTMLDetailsElement;
