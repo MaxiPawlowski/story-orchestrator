@@ -265,7 +265,7 @@ master merged in twice, last at `ee9f75f7` with the harvest wave `435a614b`).
 
 ## Phase 2 author gate record
 
-2026-10-30, branch `v3.0-29-ui-p2-author` (WP-A4 `e32331dc`, WP-A3 `f454da27`, WP-A2 `7f9f8b3f`, fixes, master merged in up to `435a614b`).
+2026-10-30, branch `v3.0-29-ui-p2-author` (WP-A4 `e32331dc`, WP-A3 `f454da27`, WP-A2 `7f9f8b3f`, fixes, master merged in up to `75e9a5e4`: harvest wave, in-chat `b17a057c`, sprite motion `cc86db08`, Settings `75e9a5e4`).
 
 - WP-A2 run console (`components/drawer/DrawerTabs.tsx`, `runtime/authorConsole.ts`): `#drawer-manager` kept; sticky Steer column
   `[data-so="steer"]` (DriverPanel on the kit: checkpoint name + id, boundary, pipeline in words, readable unmet gates from
@@ -280,7 +280,8 @@ master merged in twice, last at `ee9f75f7` with the harvest wave `435a614b`).
 - WP-A4: inspector `#so-inspector` is the floating panel `inspector` in `#so-panels-root` (default right of the chat): header with ‹ ›
   (`stepMessage`), What changed / Why (`boundaryDigests` on `InlineView.boundaries`, Author view only), Prompt (`InlineView.prompts`), Health,
   notes; raw items only at level 4; Open in Author page. `#so-inspector-close` dropped (PanelFrame close), `inspectorIntent`/`INSPECTOR_CONTROL`
-  removed. Author chips at level ≥ 3 carry labels and a ~1.4em hit area; Inspect is labelled.
+  removed. The in-chat merge replaced the inline strip: its quiet line and Inspect link `[data-so=inline-inspect]` now open the
+  inspector panel (my level ≥ 3 chip labels were dropped with the old strip).
 - Harvest: who-knows-what grid `#so-who-knows` (memory section) + kept-out-on-stage alert (Steer and grid), built from `heldSecrets` through
   `secretAudience` (same `allowed` rule as `keptFrom`), inputs from `MemoryInjector.secretGridInputs()` only in Author view, grid built in the
   lazy `authorConsole` chunk; `assert-player-clean` ok (0 findings) with a held secret.
@@ -293,8 +294,12 @@ master merged in twice, last at `ee9f75f7` with the harvest wave `435a614b`).
   `character-life` as `SO-UI Life lab`, three `/sendas` boundaries, one seeded hiding secret: desktop + 390x844, dark + light, 0 model calls,
   cleanup leaked 0 / library 0, inline level restored, lane stopped. One earlier run leaked its group after a reload timeout; removed with
   `so-assets remove --marker SO-UI`. `C:\dev\so-lanes\ui-review\p2-author\` (driver kept as `.mts.txt`).
-- Bundle: main `dist/index.js` 1,284,350 B (budget 1,300,000; +733 over master 435a614b).
-- `npm run gates` (no `--resume`, Storybook included) on `597a60a2`: all green in 685.8s (jest 10,977 / 1 skipped, test:debug 1,722,
+- Settings merge: Author page renders the console (Review on Proposals) inside the new shell, keeps `RemoveStorySprites`;
+  `connectionsIntent` -> `modelsIntent`; docs say This chat → Author/Review; Workspace raw buttons 6 -> 4.
+- Bundle: main `dist/index.js` 1,296,035 B (budget 1,300,000; +739 over master 75e9a5e4).
+- Final `npm run gates` (no `--resume`, Storybook included) on `b1dd8c82`: all green in 437.2s (jest 11,025 / 1 skipped,
+  test:debug 1,729, Storybook 191 suites / 1,121 tests, replay, release, plugin, lint, typecheck all ok).
+- Earlier `npm run gates` on `597a60a2`: all green in 685.8s (jest 10,977 / 1 skipped, test:debug 1,722,
   Storybook 187 suites / 1,077 tests, replay 32/32). An earlier full run was red on code-health (snapshotBuilder file budget, two dead
   exports), five DrawerTabs plays (story snapshot without `inline`), and two known flakes (HelpPanel Ask timeout, controller startup reap).
 - Not done: Review nav item count badge (WorkspaceShell belongs to the Settings agent; the Proposals tab carries the count); inspect chip on
