@@ -177,18 +177,17 @@ export const GUIDE_TOPICS = {
       + "their exact title (comment). Transitions carry no beat lore; an intermediate expanded into a generated stretch has its world_info played by the stretch's "
       + "first generated beat, so disable a passed scene there or it stays on through the downtime.",
   },
-  preset: {
-    title: "Preset",
-    fields: "effects.preset",
+  preset: { title: "Preset", fields: "effects.preset",
     text: "A sampler preset for this beat's replies: an installed preset name of the connection's own API (matched exactly), or {name, settings}. It overlays only the "
       + "samplers the request already sends, for this beat only, and never changes the selected preset. Text and Chat Completion only.",
   },
-  background: {
-    title: "Background",
-    fields: "effects.background",
+  background: { title: "Background", fields: "effects.background",
     text: "A SillyTavern background file the scene switches to when the beat starts: \"tavern night.jpg\" or {name}. Applied again on reopen. Use the exact file name on the "
       + "install (lookupBackgrounds), or leave the background out; a name the install lacks switches nothing.",
   },
+  "stage-transition": { title: "Stage transition", fields: "effects.transition",
+    text: "How the stage changes into this beat: dissolve (default, background crossfade), fade, wipe, iris or cut; a kind or "
+      + "{kind, ms 0-5000, color hex}. Presentation only, on forward steps only; reduced motion shortens it." },
   scenario: {
     title: "Scenario",
     fields: "effects.scenario",

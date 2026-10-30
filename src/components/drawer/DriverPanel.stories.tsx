@@ -64,7 +64,7 @@ export const AdvanceRequiresConfirm: Story = {
     await userEvent.click(canvas.getByRole("button", { name: "Confirm advance" }));
     await expect(args.controller.advance).toHaveBeenCalledWith("vault");
     await expect(await canvas.findByRole("status")).toHaveTextContent("Advanced to The Vault Door.");
-    await expect(canvas.getByText(/Active: The Approach/)).toBeInTheDocument();
+    await expect(canvasElement.querySelector('[data-so="steer-checkpoint"]')?.textContent).toContain("The Approach");
     await expect(canvas.getByRole("button", { name: "Advance" })).toBeEnabled();
     await waitFor(() => expect(canvasElement.getAnimations({ subtree: true })).toHaveLength(0));
   },
@@ -124,5 +124,33 @@ export const StepBackRecovery: Story = {
     await expect(args.controller.stepBack).not.toHaveBeenCalled();
     await userEvent.click(canvas.getByRole("button", { name: "Confirm step back" }));
     await expect(args.controller.stepBack).toHaveBeenCalled();
+  },
+};
+
+export const ReadableUnmetGates: Story = {
+  args: {
+    controller: makeController(),
+    boundary: 3,
+    pipeline: { state: "idle", text: "Up to date" },
+    gates: [
+      { to: "vault", toName: "The Vault Door", raw: "has_key == true", met: false, leaves: [{ key: "has_key", label: "Holds the key", op: "=", want: "true", now: "false", met: false }] },
+      { to: "camp", toName: "Camp", raw: "retreat == true", met: true, leaves: [{ key: "retreat", label: "retreat", op: "=", want: "true", now: "true", met: true }] },
+    ],
+  },
+  play: async ({ canvasElement }) => {
+    const gates = [...canvasElement.querySelectorAll('[data-so="steer-gate"]')].map((node) => node.textContent);
+    await expect(gates).toEqual(["Holds the key = true, now false→ The Vault Door"]);
+    await expect(canvasElement.querySelector('[data-so="steer-pipeline"]')?.textContent).toContain("Up to date");
+  },
+};
+
+export const WithoutTheWizard: Story = {
+  args: { controller: makeController(), copilot: false },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.queryByRole("button", { name: "Suggest" })).toBeNull();
+    await expect(canvas.queryByLabelText("Nudge text")).toBeNull();
+    await expect(canvas.getByRole("button", { name: "Probe" })).toBeInTheDocument();
+    await expect(canvas.getByLabelText("Advance target")).toBeInTheDocument();
   },
 };

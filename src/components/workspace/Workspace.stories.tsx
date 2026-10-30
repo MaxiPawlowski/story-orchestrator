@@ -18,7 +18,9 @@ const global = defaultGlobalSettings();
 const snapshot = {
   ready: true, storyTitle: "Test story", features: resolveFeatures(global, null), featureOverrides: {},
   stagecraftScope: [], extraction: { settings: global.extraction }, memory: { settings: global.memory },
-  stagecraft: { settings: global.stagecraft }, ui: { authorView: false },
+  stagecraft: { settings: global.stagecraft }, ui: { authorView: false }, library: [{ id: "quest", title: "Test story" }], storyId: "quest",
+  storyIdentity: { id: "quest", pinned: true, drifted: false }, validationErrors: [], copilot: { enabled: true, ask: true }, pacing: { shapeOverride: null },
+  roleRoutes: [],
 } as unknown as RuntimeSnapshot;
 
 const extraction: ExtractionRuntimeState = {
@@ -44,13 +46,35 @@ const playSnapshot = {
 const meta: Meta<typeof Workspace> = {
   title: "Workspace/Workspace", component: Workspace,
   args: { intent: { context: "story", page: "features" }, snapshot,
-    manager: { setFeatureOverride: fn(() => true) } as unknown as RuntimeManager,
+    manager: { setFeatureOverride: fn(() => true), setPacingSettings: fn(), setUiSettings: fn(), notify: fn(), reapplyPromptBlocks: fn(), runExtractionNow: fn(),
+      selectStory: fn(), restartStory: fn(), getSnapshot: () => snapshot } as unknown as RuntimeManager,
     settingsHost: {} as SettingsHost, drawerProps: {} as DrawerTabsProps, onClose: fn() },
 };
 export default meta;
 type Story = StoryObj<typeof Workspace>;
-export const Desktop: Story = {};
-export const Mobile: Story = { parameters: { viewport: { defaultViewport: "mobile1" } } };
+export const Desktop: Story = {
+  play: async ({ canvasElement }) => {
+    const body = canvasElement.ownerDocument.body;
+    const page = within(body);
+    await page.findByRole("dialog", { name: "Test story" });
+    await expect(await page.findByRole("heading", { name: "Story" })).toBeInTheDocument();
+    await expect(body.querySelectorAll('[data-so="feature-row"]').length).toBeGreaterThan(20);
+    await expect(body.querySelector('[data-so="feature-list"]')).toHaveAttribute("data-scope", "chat");
+    await expect(body.querySelector("#so-author-view-switch")).toHaveAttribute("role", "switch");
+    await expect(body.querySelectorAll("#so-workspace-nav .so-nav-item")).toHaveLength(2);
+  },
+};
+export const Mobile: Story = { ...Desktop, parameters: { viewport: { defaultViewport: "mobile1" } } };
+export const SettingsFeatures: Story = {
+  args: { intent: { context: "orchestrator", page: "features" } },
+  play: async ({ canvasElement }) => {
+    const body = canvasElement.ownerDocument.body;
+    await within(body).findByRole("heading", { name: "Features" });
+    await expect(body.querySelector('[data-so="feature-list"]')).toHaveAttribute("data-scope", "install");
+    await expect(body.querySelector("#so-feature-sprites-home")).toHaveTextContent("Images & stage");
+    await expect(body.querySelector("#so-workspace-page-features")).toHaveAttribute("aria-current", "page");
+  },
+};
 
 const lineCount = (element: Element) => {
   const range = element.ownerDocument.createRange();

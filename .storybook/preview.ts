@@ -2,6 +2,10 @@ import { createElement } from "react";
 import type { Decorator, Preview } from "@storybook/react";
 import "./st-theme.css";
 import "../src/styles.css";
+import { installStoryParser } from "../src/engine/storyParser";
+import { parseStory } from "../src/engine/validate";
+
+installStoryParser(parseStory);
 
 export const mountRootFor = (title: string) => {
   if (title.startsWith("Workspace/")) return "so-workspace-root";

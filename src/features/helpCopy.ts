@@ -34,7 +34,7 @@ export const BRIEFING_COPY = {
   beforeYouStartIntro: "This story cannot play as written until this is fixed:",
   onboarding: "How Story Orchestrator works",
   optOut: "Don't open briefings automatically",
-  optOutHelp: "Stops this page opening on its own when a story starts. Story briefing on This story → Play still opens it.",
+  optOutHelp: "Stops this page opening on its own when a story starts. Story briefing on This chat → Play still opens it.",
   reopen: "Story briefing",
   reopenHelp: "Read the story's briefing again.",
   close: "Close",
@@ -50,7 +50,7 @@ export const ONBOARDING_LINES: ReadonlyArray<{ icon: string; text: string }> = [
   { icon: "fa-route", text: "The route icon in the top bar opens the story window: where you are, what happened, and what is still open." },
   { icon: "fa-bars-progress", text: "The strip above where you type shows the scene and the tension. Click it for the story card." },
   { icon: "fa-tags", text: "Small icons under replies say what moved the story, what it remembered and which lore it used. Click one to read more." },
-  { icon: "fa-brain", text: "In the story window, This story → Play lists what the story remembers. Pin what matters so it stays; remove what is wrong." },
+  { icon: "fa-brain", text: "In the story window, This chat → Play lists what the story remembers. Pin what matters so it stays; remove what is wrong." },
   { icon: "fa-terminal", text: "/story recap, /story intro and /story help work from the chat box." },
 ];
 

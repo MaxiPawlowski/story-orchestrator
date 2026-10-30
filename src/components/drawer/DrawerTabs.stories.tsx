@@ -15,8 +15,8 @@ const openMemoryTab = async (canvas: ReturnType<typeof within>) => {
 };
 
 const openTab = async (canvasElement: HTMLElement, name: string) => {
-  await userEvent.click(within(canvasElement).getByRole("tab", { name }));
-  await waitFor(() => expect(canvasElement.querySelector(`[data-so-tab="${name.toLowerCase()}"]`)).not.toBeNull());
+  await userEvent.click(within(canvasElement).getByRole("tab", { name: new RegExp(`^${name}`) }));
+  await waitFor(() => expect(canvasElement.querySelector(`[data-so-tab="${name.toLowerCase()}"]`)).not.toBeNull(), { timeout: 10000 });
 };
 
 // The narrative and pipeline slices are derived, never hand-written: a story that faked them
@@ -173,7 +173,7 @@ const sampleSnapshot = (): RuntimeSnapshot => derive(({
         key: "story_orchestrator_continuity",
         label: "Continuity note",
         owner: "runtime/coordinators/stagecraftCoordinator",
-        ownerTab: "scheduler",
+        ownerTab: "proposals",
         depth: 0,
         role: 0,
         characters: 62,
@@ -188,7 +188,7 @@ const sampleSnapshot = (): RuntimeSnapshot => derive(({
         key: "story_orchestrator_scene",
         label: "Scene so far",
         owner: "runtime/coordinators/sceneCoordinator",
-        ownerTab: "scheduler",
+        ownerTab: "state",
         depth: 1,
         role: 0,
         characters: 44,
@@ -432,10 +432,10 @@ export default meta;
 
 type Story = StoryObj<typeof DrawerTabs>;
 
-export const Overview: Story = {
+export const Health: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.getByRole("tab", { name: "Overview" })).toHaveAttribute("aria-selected", "true");
+    await expect(canvas.getByRole("tab", { name: "Health" })).toHaveAttribute("aria-selected", "true");
     await expect(canvasElement.querySelector("#so-author-overview")).not.toBeNull();
     await expect(canvasElement.querySelector("#so-player-overview")).toBeNull();
     await expect(canvasElement.querySelector("#so-setup")).toBeNull();
@@ -446,19 +446,21 @@ export const Overview: Story = {
 export const Blackboard: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await openTab(canvasElement, "Blackboard");
+    await openTab(canvasElement, "State");
     await expect(canvas.getByText("has_key")).toBeInTheDocument();
     await expect(canvas.getByText("guardian_respect")).toBeInTheDocument();
   },
 };
 
-export const Scheduler: Story = {
+export const Pipeline: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await openTab(canvasElement, "Scheduler");
+    await openTab(canvasElement, "Pipeline");
     await expect(canvas.getByText("Extraction")).toBeInTheDocument();
     await expect(canvas.getByText("Expansion")).toBeInTheDocument();
+    await openTab(canvasElement, "Activity");
     await expect(canvas.getByText("Stall re-checks")).toBeInTheDocument();
+    await openTab(canvasElement, "Proposals");
     await expect(canvas.getByText("World Info curator")).toBeInTheDocument();
     await expect(canvas.getByText(/Watching Xentar Checkpoints/)).toBeInTheDocument();
   },
@@ -482,7 +484,7 @@ export const BlackboardGateQualitiesAndPending: Story = {
     </div>
   ),
   play: async ({ canvasElement }) => {
-    await openTab(canvasElement, "Blackboard");
+    await openTab(canvasElement, "State");
     const row = canvasElement.querySelector('[data-so="blackboard-row"][data-key="seal_broken"]');
     await expect(row?.textContent).toContain("unset");
     await expect(row?.getAttribute("data-gate")).toBe("true");
@@ -491,7 +493,7 @@ export const BlackboardGateQualitiesAndPending: Story = {
   },
 };
 
-export const SchedulerAuthorMoves: Story = {
+export const ActivityAuthorMoves: Story = {
   render: () => (
     <div style={{ maxWidth: 360 }}>
       <DrawerTabs snapshot={authorSnapshot()} manager={fakeManager()} driver={{ context: null, activeNudge: null, controller: {} as never }} />
@@ -499,7 +501,7 @@ export const SchedulerAuthorMoves: Story = {
   ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await openTab(canvasElement, "Scheduler");
+    await openTab(canvasElement, "Activity");
     const moves = [...canvasElement.querySelectorAll('[data-so="author-move"]')].map((node) => node.firstElementChild?.textContent);
     await expect(moves).toEqual(["Author advance: The Summons → Fort Vicinitas", "Author nudge at The Summons"]);
     await expect(canvas.queryByText(/war-the-front\.$/)).toBeNull();
@@ -635,7 +637,7 @@ export const AuthorMemoryShowsAHeldSecret: Story = {
 export const Payload: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await openTab(canvasElement, "Payload");
+    await openTab(canvasElement, "Prompt");
     await expect(canvas.getByText("story_orchestrator_memory_facts")).toBeInTheDocument();
     await expect(canvas.getByText(/@depth 4/)).toBeInTheDocument();
   },
@@ -646,7 +648,7 @@ export const Payload: Story = {
 export const NextTurn: Story = {
   play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
-    await openTab(canvasElement, "Payload");
+    await openTab(canvasElement, "Prompt");
     await step("lists every contributor in ST's assembly order with its owner", async () => {
       const panel = canvasElement.querySelector("#so-next-turn") as HTMLElement;
       const rows = [...panel.querySelectorAll('[data-so="next-turn-row"]')];
@@ -679,16 +681,17 @@ export const NextTurn: Story = {
     });
     // V19: the owner was named but not reachable.
     await step("each contributor opens the editor that owns it", async () => {
-      await expect(canvas.getAllByRole("button", { name: "Open Scheduler" })).toHaveLength(2);
+      await expect(canvas.getAllByRole("button", { name: "Open Proposals" })).toHaveLength(1);
+      await expect(canvas.getAllByRole("button", { name: "Open State" })).toHaveLength(1);
       await expect(canvas.getAllByRole("button", { name: "Open Memory" })).toHaveLength(2);
       await userEvent.click(canvas.getByRole("button", { name: "Open settings" }));
       await expect(openSettings).toHaveBeenCalled();
       openSettings.mockClear();
       await userEvent.click(canvas.getAllByRole("button", { name: "Open Memory" })[0]);
       await expect(canvas.getByRole("tab", { name: "Memory" })).toHaveAttribute("aria-selected", "true");
-      await openTab(canvasElement, "Payload");
-      await userEvent.click(canvas.getAllByRole("button", { name: "Open Scheduler" })[0]);
-      await expect(canvas.getByRole("tab", { name: "Scheduler" })).toHaveAttribute("aria-selected", "true");
+      await openTab(canvasElement, "Prompt");
+      await userEvent.click(canvas.getByRole("button", { name: "Open Proposals" }));
+      await expect(canvas.getByRole("tab", { name: /^Proposals/ })).toHaveAttribute("aria-selected", "true");
     });
   },
 };
@@ -701,7 +704,7 @@ export const NextTurnEmpty: Story = {
   ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await openTab(canvasElement, "Payload");
+    await openTab(canvasElement, "Prompt");
     await expect(canvas.getByText("Nothing is injected into the next reply.")).toBeInTheDocument();
     await expect(canvasElement.querySelector('[data-so="next-turn-reread-scene"]')).toBeNull();
   },
@@ -878,7 +881,7 @@ export const PayloadLoreForced: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await openTab(canvasElement, "Payload");
+    await openTab(canvasElement, "Prompt");
     const forced = within(await canvas.findByText("Lore forced this turn").then((node) => node.closest("[data-so=\"lore-forced\"]") as HTMLElement));
     await expect(forced.getByText(/message 9 · MESSAGE_SENT · 912 ms/)).toBeInTheDocument();
     await expect(forced.getByText("NPC - Ellie")).toBeInTheDocument();
@@ -917,7 +920,7 @@ export const PayloadLoreFired: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await openTab(canvasElement, "Payload");
+    await openTab(canvasElement, "Prompt");
     const fired = within(await canvas.findByText("Lore that fired last turn").then((node) => node.closest("[data-so=\"lore-fired\"]") as HTMLElement));
     await expect(fired.getByText(/reply rendered · 2 scans \(1 inside a quiet run\)/)).toBeInTheDocument();
     await expect(fired.getAllByText("gated")).toHaveLength(1);
@@ -968,7 +971,7 @@ export const PayloadScanGate: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await openTab(canvasElement, "Payload");
+    await openTab(canvasElement, "Prompt");
     const table = within(await canvas.findByText(/Per-chat lorebook gating: this chat's path/).then((node) => node.closest("[data-so=\"scan-gate\"]") as HTMLElement));
     await expect(table.getByText(/SO-T13 Xentar · gated by Quest for the Sun Ruins · file off · this chat on · fired/)).toBeInTheDocument();
     await expect(table.getByText(/SO-T13 Xentar · file off · this chat off$/)).toBeInTheDocument();
@@ -997,7 +1000,7 @@ export const PayloadSamplerOverlay: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await openTab(canvasElement, "Payload");
+    await openTab(canvasElement, "Prompt");
     const row = within(await canvas.findByText(/Sampler overlay/).then((node) => node.closest("[data-so=\"next-turn-overlay\"]") as HTMLElement));
     await expect(row.getByText(/temperature 0.55, top_p 0.9/)).toBeInTheDocument();
     await expect(row.getByText(/the selected preset is untouched\. Applied to 2 request\(s\)\./)).toBeInTheDocument();
@@ -1033,7 +1036,7 @@ export const ScanGateHiddenWhenFileMode: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await openTab(canvasElement, "Payload");
+    await openTab(canvasElement, "Prompt");
     await expect(canvas.queryByText(/Scan-time gating/)).toBeNull();
   },
 };
@@ -1050,7 +1053,7 @@ export const PlayerNeverSeesLoreFired: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.queryByRole("tab", { name: "Payload" })).toBeNull();
+    await expect(canvas.queryByRole("tab", { name: "Prompt" })).toBeNull();
     await expect(canvas.queryByText("Lore that fired last turn")).toBeNull();
   },
 };
@@ -1062,6 +1065,7 @@ export const AuthorSceneRead: Story = {
     </div>
   ),
   play: async ({ canvasElement }) => {
+    await openTab(canvasElement, "State");
     const panel = await within(canvasElement).findByText("Scene read");
     const scene = within(panel.closest("[data-so=\"scene-read\"]") as HTMLElement);
     await expect(scene.getByText(/Scene change: 82% \(time_skip\) · read asked/)).toBeInTheDocument();
@@ -1101,9 +1105,9 @@ export const PlayerView: Story = {
   ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.queryByRole("tab", { name: "Blackboard" })).toBeNull();
-    await expect(canvas.queryByRole("tab", { name: "Scheduler" })).toBeNull();
-    await expect(canvas.queryByRole("tab", { name: "Payload" })).toBeNull();
+    await expect(canvas.queryByRole("tab", { name: "State" })).toBeNull();
+    await expect(canvas.queryByRole("tab", { name: "Pipeline" })).toBeNull();
+    await expect(canvas.queryByRole("tab", { name: "Prompt" })).toBeNull();
     await expect(canvas.getByRole("tab", { name: "Memory" })).toBeInTheDocument();
     await expect(canvasElement.querySelector("#so-author-overview")).toBeNull();
     await expect(canvas.queryByText(/boundary 6/i)).toBeNull();
@@ -1273,7 +1277,7 @@ export const AuthorControlsWithoutPlayerDuplicates: Story = {
     </div>
   ),
   play: async ({ canvasElement }) => {
-    await expect(canvasElement.querySelectorAll("#so-author-new-story").length).toBe(1);
+    await waitFor(() => expect(canvasElement.querySelectorAll("#so-author-new-story").length).toBe(1));
     await expect(canvasElement.querySelector("#so-drawer-repair")).toBeNull();
     await expect(canvasElement.querySelector("#so-restart-story-drawer")).toBeNull();
     await expect(canvasElement.querySelector("#so-story-briefing")).toBeNull();
@@ -1310,9 +1314,9 @@ export const Empty: Story = {
   ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await openTab(canvasElement, "Blackboard");
+    await openTab(canvasElement, "State");
     await expect(canvas.getByText("No blackboard values yet.")).toBeInTheDocument();
-    await openTab(canvasElement, "Payload");
+    await openTab(canvasElement, "Prompt");
     await expect(canvas.getByText(/No captures yet\./)).toBeInTheDocument();
   },
 };
@@ -1333,7 +1337,7 @@ export const AuthorStoryControls: Story = {
   ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.getByRole("button", { name: "Edit story" })).toBeInTheDocument();
+    await expect(await canvas.findByRole("button", { name: "Edit story" })).toBeInTheDocument();
     await expect(canvas.getByRole("button", { name: "Update to the latest" })).toBeInTheDocument();
     await expect(canvas.queryByRole("button", { name: "Restart story" })).toBeNull();
   },
@@ -1520,7 +1524,7 @@ export const RefusedRouteOnAnAuthoredExit: Story = {
   ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await openTab(canvasElement, "Scheduler");
+    await openTab(canvasElement, "Activity");
     const card = within((await canvas.findByText("Refused route")).closest("[data-so=\"agency-recovery\"]") as HTMLElement);
     await expect(card.getByText(/turns were read, and nothing in them moved an exit of The Ruined Gate/)).toBeInTheDocument();
     await expect(card.queryByText(/narrated on their behalf/)).toBeNull();
@@ -1538,7 +1542,7 @@ export const RefusedRouteWithARoadToGenerate: Story = {
   ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await openTab(canvasElement, "Scheduler");
+    await openTab(canvasElement, "Activity");
     const card = within((await canvas.findByText("Refused route")).closest("[data-so=\"agency-recovery\"]") as HTMLElement);
     await userEvent.click(card.getByRole("button", { name: "Generate the road ahead" }));
     await expect(stubManager.runExpansionNow).toHaveBeenCalledTimes(1);
@@ -1684,7 +1688,7 @@ export const AuthorJumpsFromACitation: Story = {
     const jump = canvas.getByRole("button", { name: "message 5 (changed since)" });
     await userEvent.click(jump);
     await expect(jumpFromDrawer).toHaveBeenCalledWith(5);
-    await openTab(canvasElement, "Scheduler");
+    await openTab(canvasElement, "Activity");
     await expect(canvasElement.querySelector('[data-so="jump-to-message"][data-mesid="6"]')).not.toBeNull();
   },
 };
@@ -1699,5 +1703,106 @@ export const PlayerSeesNoJumpButtons: Story = {
     const canvas = within(canvasElement);
     await openMemoryTab(canvas);
     await expect(canvasElement.querySelectorAll('[data-so="jump-to-message"]').length).toBe(0);
+  },
+};
+
+const consoleSnapshot = (): RuntimeSnapshot => derive({
+  ...sampleSnapshot(),
+  boundary: 6,
+  gateQualities: ["guardian_respect"],
+  consoleAuthor: {
+    gates: [{ to: "sanctum", toName: "Inner Sanctum", raw: "guardian_respect >= 3", met: false,
+      leaves: [{ key: "guardian_respect", label: "Guardian's respect", op: "≥", want: "3", now: "2", met: false }] }],
+    keys: {
+      has_key: { label: "has_key", group: "authored", changedAt: { boundary: 6, messageId: 8 } },
+      guardian_respect: { label: "Guardian's respect", group: "gates", changedAt: { boundary: 4, messageId: 5 } },
+      trap_state: { label: "trap_state", group: "authored" },
+    },
+    secrets: {
+      members: [{ id: "arin", name: "Arin", onStage: true }, { id: "sphinx", name: "Sphinx", onStage: false }],
+      rows: [{ id: "e1", holder: "Sphinx", tag: "hiding", text: "The sun-key is a forgery made by the wardens.", cells: { arin: "kept-out", sphinx: "knows" } }],
+      alerts: [{ secretId: "e1", memberId: "arin", name: "Arin", text: "The sun-key is a forgery made by the wardens." }],
+    },
+  },
+} as unknown as RuntimeSnapshot);
+
+const consoleDriver = { context: { title: "Sun Ruins", activeCheckpointId: "gate", activeCheckpointName: "The Ruined Gate", activeObjective: "Breach the sanctum.",
+  unmetGates: ["guardian_respect >= 3 → sanctum"], upcomingAnchors: [], blackboard: {}, canon: "", recentChat: "" }, activeNudge: null, controller: {} as never };
+
+export const SteerShowsReadableGates: Story = {
+  render: () => <DrawerTabs snapshot={consoleSnapshot()} manager={fakeManager()} driver={consoleDriver} />,
+  play: async ({ canvasElement }) => {
+    const steer = within(canvasElement.querySelector('[data-so="steer"]') as HTMLElement);
+    await expect(await steer.findByText("Guardian's respect ≥ 3, now 2")).toBeInTheDocument();
+    await expect(steer.getByText("→ Inner Sanctum")).toBeInTheDocument();
+    await expect(canvasElement.querySelector('[data-so="steer-boundary"]')?.textContent).toBe("boundary 6");
+    await expect(canvasElement.querySelector('[data-so="steer"] [data-so="secret-on-stage"]')).not.toBeNull();
+  },
+};
+
+export const StateSearchGroupsAndChanges: Story = {
+  render: () => <DrawerTabs snapshot={consoleSnapshot()} manager={fakeManager()} driver={consoleDriver} />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await openTab(canvasElement, "State");
+    const groups = [...canvasElement.querySelectorAll('[data-so="state-group"]')].map((node) => node.getAttribute("data-group"));
+    await expect(groups).toEqual(["gates", "authored"]);
+    await expect(canvasElement.querySelector('[data-so="blackboard-row"][data-key="has_key"]')?.getAttribute("data-fresh")).toBe("true");
+    await expect(canvasElement.querySelector('[data-so="blackboard-row"][data-key="guardian_respect"]')?.getAttribute("data-fresh")).toBeNull();
+    await userEvent.type(canvas.getByLabelText("Search keys"), "trap");
+    await waitFor(() => expect(canvasElement.querySelectorAll('[data-so="blackboard-row"]')).toHaveLength(1));
+    await userEvent.clear(canvas.getByLabelText("Search keys"));
+    await userEvent.click(canvas.getByRole("button", { name: /^Gates/ }));
+    await expect(canvasElement.querySelectorAll('[data-so="blackboard-row"]')).toHaveLength(1);
+    const evidence = canvasElement.querySelector('[data-so="blackboard-row"][data-key="guardian_respect"] [data-so="state-evidence"]');
+    await expect(evidence).toBeNull();
+  },
+};
+
+export const StateEvidencePopover: Story = {
+  render: () => <DrawerTabs snapshot={consoleSnapshot()} manager={fakeManager()} driver={consoleDriver} />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await openTab(canvasElement, "State");
+    const button = canvasElement.querySelector('[data-so="blackboard-row"][data-key="has_key"] [data-so="state-evidence"]') as HTMLElement;
+    await userEvent.click(button);
+    await expect(button).toHaveAttribute("aria-expanded", "true");
+    await expect(canvas.getByRole("note")).toHaveTextContent("Arin lifted the sun-key from the altar.");
+  },
+};
+
+export const WhoKnowsWhat: Story = {
+  render: () => <DrawerTabs snapshot={consoleSnapshot()} manager={fakeManager()} driver={consoleDriver} />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByRole("tab", { name: /^Memory/ })).toHaveTextContent("1");
+    await openTab(canvasElement, "Memory");
+    const grid = await canvas.findByRole("region", { name: "Who knows what" });
+    const cells = [...grid.querySelectorAll('[data-so="who-knows-cell"]')].map((cell) => cell.getAttribute("data-state"));
+    await expect(cells).toEqual(["kept-out", "knows"]);
+    await expect(within(grid).getByText(/Arin is on stage and kept out of a secret/)).toBeInTheDocument();
+  },
+};
+
+export const ReviewOpensProposals: Story = {
+  render: () => <DrawerTabs snapshot={consoleSnapshot()} manager={fakeManager()} driver={consoleDriver} section="proposals" />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByRole("tab", { name: /^Proposals/ })).toHaveAttribute("aria-selected", "true");
+    await expect(await canvas.findByText("World Info curator")).toBeInTheDocument();
+  },
+};
+
+export const PlayerSeesNoConsole: Story = {
+  render: () => (
+    <DrawerTabs snapshot={{ ...consoleSnapshot(), ui: { authorView: false, announceTransitions: true, hudEnabled: true } } as RuntimeSnapshot}
+      manager={fakeManager()} driver={consoleDriver} />
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getAllByRole("tab").map((tab) => tab.textContent)).toEqual(["Memory"]);
+    await expect(canvasElement.querySelector('[data-so="steer"]')).toBeNull();
+    await expect(canvasElement.querySelector('[data-so="who-knows"]')).toBeNull();
+    await expect(canvas.queryByText(/forgery/)).toBeNull();
   },
 };

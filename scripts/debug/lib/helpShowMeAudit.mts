@@ -28,7 +28,7 @@ export async function openHelpPanel(page: Page) {
   await page.locator('#so-drawer .drawer-toggle').click();
   const workspace = page.locator('#so-workspace-modal[open]');
   await workspace.waitFor({ state: 'visible', timeout: 10000 });
-  await workspace.getByRole('button', { name: 'Orchestrator', exact: true }).click();
+  await workspace.locator('#so-workspace-context-orchestrator').click();
   await workspace.locator('#so-workspace-page-help').click();
   await workspace.locator('#so-help-open-panel').click();
   await closeWorkspace(page);

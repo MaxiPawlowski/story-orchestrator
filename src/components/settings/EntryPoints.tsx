@@ -32,6 +32,7 @@ export interface EntryPointsProps {
   onOpenPlay?(row: ContinueRow): void;
   onTrophies?(rows: readonly ContinueRow[]): Promise<TrophyRow[]>;
   gettingStarted?: React.ReactNode;
+  importer?: React.ReactNode;
   onStartLiving?(fields: LivingStartFields): Promise<boolean>;
 }
 
@@ -76,7 +77,8 @@ const RepairAuthorDetail = ({ repair, wizardOn, onFixWithWizard, onRepairCast }:
 
 export default function EntryPoints(props: EntryPointsProps) {
   const {
-    snapshot, busy, importOpen, onToggleImport, onNewStory, onOpenStudio, onOpenStory, onOpenAuthorView, onRevealSetting, onFixWithWizard, onRepairCast, onOpenGroup, onOpenPlay, gettingStarted,
+    snapshot, busy, importOpen, onToggleImport, onNewStory, onOpenStudio, onOpenStory, onOpenAuthorView, onRevealSetting, onFixWithWizard, onRepairCast, onOpenGroup, onOpenPlay,
+    gettingStarted, importer,
     onStartLiving, onTrophies,
   } = props;
   const plays = snapshot.presence?.continueRows ?? [];
@@ -101,6 +103,7 @@ export default function EntryPoints(props: EntryPointsProps) {
           <button id="so-entry-import-toggle" type="button" className="menu_button" aria-expanded={importOpen} onClick={onToggleImport}>{importOpen ? "Hide import" : "Import a story"}</button>
         </div>
         <div className="text-xs opacity-70">{wizardOn ? "Build a story with the wizard, or bring your own JSON." : `Bring your own JSON. ${WIZARD_OFF_REASON}`}</div>
+        {importOpen && importer}
         {onStartLiving && <Lazy fallback={null}><LivingStart busy={busy} onStart={onStartLiving} /></Lazy>}
         {gettingStarted}
       </Row>

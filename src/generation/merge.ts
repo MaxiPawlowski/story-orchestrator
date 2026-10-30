@@ -1,7 +1,8 @@
 import {
-  chainThresholdFor, gateKeys, GENERATED_CHECKPOINT_PREFIX, isLivingId, parseStory, PLAYER_TURNS_KEY, progressQualityForAnchor,
+  chainThresholdFor, gateKeys, GENERATED_CHECKPOINT_PREFIX, isLivingId, PLAYER_TURNS_KEY, progressQualityForAnchor,
   type GateNode, type NormalizedStory, type Story, type Transition,
 } from "@engine/index";
+import { parseStory } from "@engine/storyParser";
 import type { ExtraGateSource } from "@extraction/types";
 import type { ExpansionCacheEntry } from "./types";
 import { isEncounterPool } from "./paths";

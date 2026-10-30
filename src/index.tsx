@@ -8,7 +8,8 @@ import {
   type InlineHostSet,
 } from "@services/STAPI";
 import { workspaceNavigation } from "@runtime/workspaceNavigation";
-import { connectionsIntent, inspectorIntent, repairIntent, storyPlayIntent } from "@runtime/workspaceRoutes";
+import { modelsIntent, repairIntent, storyPlayIntent } from "@runtime/workspaceRoutes";
+import { setInspectTarget } from "./components/drawer/inspectTarget";
 import { revealSetting } from "@runtime/settingReveal";
 import { storyPageFor } from "@runtime/drawerTab";
 import type { WidgetDrawerTab } from "@engine/index";
@@ -26,6 +27,7 @@ import ExtensionsBlock from "./components/settings/ExtensionsBlock";
 import { DEFAULT_MAX_TOKENS, inputBudget } from "@extraction/index";
 import { startRuntime, stopRuntime } from "@runtime/index";
 import { loadGameLayer } from "@engine/validate/gameLayer";
+import { loadStoryParser } from "@engine/storyParser";
 import { loadRecapKit } from "@runtime/recapPort";
 import { loadPatternsKit } from "@runtime/patternsPort";
 import { loadStylesheet } from "@runtime/stylesheet";
@@ -48,10 +50,12 @@ import { buildReplaySource, type GateReplaySource } from "./studio/replaySource"
 import type { FeatureWhere } from "@features/registry";
 import { log } from "@utils/log";
 
+const storyParser = loadStoryParser().catch((error) => log.warn("the story reader did not load", error));
 await loadStylesheet(() => import("./styles.css" as string), (message, error) => log.warn(message, error));
 await loadGameLayer().catch((error) => log.warn("quests, checks and story panels did not load", error));
 await loadRecapKit().catch((error) => log.warn("the consequences recap did not load", error));
 await loadPatternsKit().catch((error) => log.warn("story patterns did not load", error));
+await storyParser;
 const manager = startRuntime();
 const loadDraft = () => import("./studio/draft");
 const ui = createMountRegistry();
@@ -190,16 +194,6 @@ const readReplaySource = (): GateReplaySource | null => {
   return source ? { ...source, jump: (messageId) => { setStudioOpen(false); void jumpToChatMessage(messageId); } } : null;
 };
 
-const inspectListeners = new Set<() => void>();
-let inspectTarget: number | null = null;
-const setInspectTarget = (messageId: number | null) => {
-  inspectTarget = messageId;
-  inspectListeners.forEach((listener) => listener());
-};
-const useInspectTarget = () => useSyncExternalStore(
-  (listener) => { inspectListeners.add(listener); return () => { inspectListeners.delete(listener); }; },
-  () => inspectTarget,
-);
 
 const inlineActions: InlineActions = {
   run: (action) => {
@@ -211,7 +205,7 @@ const inlineActions: InlineActions = {
   },
   inspect: (messageId) => {
     setInspectTarget(messageId);
-    workspaceNavigation.open(inspectorIntent());
+    setPanel("inspector", true);
   },
 };
 
@@ -276,6 +270,7 @@ const settingsHost: SettingsHost = {
   openGroup,
   openStory: () => openStoryWindow(),
   openAuthorView: () => void toggleAuthorView(true).then(() => openStoryWindow()),
+  setAuthorView: (on) => void toggleAuthorView(on),
   showFeature: (where) => showFeature(where),
   makeGroup,
   fixGroupWithWizard: (storyId, missing) => void openStudio({ tab: "copilot", stage: "provisioning", missing: { personas: [], members: missing, lorebooks: [] } }, storyId),
@@ -321,7 +316,6 @@ const Workspace = lazyRetry(() => import("./components/workspace/Workspace"));
 const WorkspaceHost = () => {
   const intent = useSyncExternalStore(workspaceNavigation.subscribe, workspaceNavigation.read);
   const snapshot = useRuntimeSnapshot();
-  const inspecting = useInspectTarget();
   if (!intent) return null;
   return <Lazy quiet><Workspace intent={intent} snapshot={snapshot} manager={manager} settingsHost={settingsHost} onClose={workspaceNavigation.close}
     onContinueBranch={continueBranch}
@@ -333,7 +327,6 @@ const WorkspaceHost = () => {
       onFixWithWizard: launch(openWizardForRequirements), onOpenRepair: openRepairStep, onNewStory: launch(openWizard),
       onShowMe: showSetupTarget, onFix: (action) => fixSetup(action),
       onBranchFromOldest: (messageId) => { workspaceNavigation.close(); void branchAtFloor(messageId); }, onJumpToMessage: (messageId) => void jumpToChatMessage(messageId),
-      inspect: inspecting === null ? null : { messageId: inspecting, onClose: () => setInspectTarget(null), actions: inlineActions },
     }} /></Lazy>;
 };
 
@@ -361,7 +354,7 @@ const openInlinePanel = (panel: HTMLElement | null, block: ScrollLogicalPosition
   window.setTimeout(() => panel?.scrollIntoView({ block, behavior: "smooth" }), 100);
 };
 
-const openStorySettings = () => workspaceNavigation.open(connectionsIntent());
+const openStorySettings = () => workspaceNavigation.open(modelsIntent());
 
 const showFeature = (where: FeatureWhere) => {
   if (where.workspace) { workspaceNavigation.open(where.workspace); return; }
@@ -434,6 +427,7 @@ const InlineMount = ({ hosts }: { hosts: InlineHostSet }) => {
 const presenceUi = createPresenceUi({
   manager, useSnapshot: useRuntimeSnapshot, showFeature: (where) => showFeature(where), openDrawer: openStoryWindow,
   jumpToMessage: (messageId) => void jumpToChatMessage(messageId),
+  inspectActions: inlineActions, onOpenAuthor: () => workspaceNavigation.open({ context: "story", page: "author" }),
 });
 
 const mountInline = () => {

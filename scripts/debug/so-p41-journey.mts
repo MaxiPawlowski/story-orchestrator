@@ -267,7 +267,7 @@ async function stepLookRebuild(ctx: Ctx): Promise<StepResult> {
 async function openPlayPage(ctx: Ctx) {
   await openExtensionSettings(ctx.page);
   const modal = ctx.page.locator('#so-workspace-modal');
-  await modal.getByRole('button', { name: 'This story', exact: true }).click({ force: true });
+  await modal.locator('#so-workspace-context-story').click({ force: true });
   await modal.locator('#so-workspace-page-play').click({ force: true });
   const cast = modal.locator('#so-cast-scene');
   const onPlay = await cast.waitFor({ state: 'attached', timeout: 5000 }).then(() => true, () => false);

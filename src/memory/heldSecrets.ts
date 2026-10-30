@@ -48,6 +48,15 @@ const allowed = (secret: HeldSecret, names: readonly string[]): boolean =>
     ? names.length > 0 && !names.some((name) => secret.onlyFrom?.has(name))
     : names.some((name) => secret.knowers.has(name)));
 
+export type SecretAudience = "knows" | "kept-out" | "not-told";
+
+export const secretAudience = (secret: HeldSecret, entry: EpistemicEntry | undefined, member: readonly string[]): SecretAudience => {
+  const names = member.map(normalize);
+  if (allowed(secret, names)) return "knows";
+  const named = secret.onlyFrom ? [...secret.onlyFrom] : entry ? targets(entry) : [];
+  return names.some((name) => named.includes(name)) ? "kept-out" : "not-told";
+};
+
 export const keptFrom = (text: string, secrets: readonly HeldSecret[], member: readonly string[] | null): boolean => {
   const names = member?.map(normalize) ?? [];
   const words = contentWords(text);

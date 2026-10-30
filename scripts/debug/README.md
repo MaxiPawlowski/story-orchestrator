@@ -63,6 +63,18 @@ holding the kept p41 cast and chat (`run --group <g> --chat <id>`, lane cleared 
 then `pack <runDir>` writes a blind folder (shuffled `img-NN.png`, `ref-X.png`, `items.txt`, `brief.md`, about 10% hidden
 duplicates) with `key.json` beside it, outside the blind folder.
 
+`so-cast-presentation.mts --group <name|id> [--members "A,B"] [--set <id>] [--only ...] [--front] [--allow ...]` (lane >= 1, cleared
+for ComfyUI; a long GPU job, not a UI probe) prepares base, bust, three expressions, blink/talk frames and a rig for an existing
+group's members through Studio › Sprites. The cast is read from the group (`--members` filters by name); it runs in a new sandbox
+chat with a temporary workshop story, then deletes the chat (`deleteSandboxChats` + `settleReapPrompts`), removes the story,
+restores the install-wide sprite settings and diffs the run header (`--allow` declares expected paths); any gap exits 1
+(`lib/castPresentation.mts`, node:test). `--front` retries up to 4 seeds for a front-facing base the rig accepts.
+
+`so-sprite-copy.mts --lane <n> [--set <id>] [--members "Folder A,B"] [--confirm]` lists (dry run, the default) the prepared set's
+files on lane `<n>` (`characters/<folder>/<set>/`, `anim-<set>/`, `--front` variants, local rig assets) against the owner's install;
+`--confirm` copies only files the owner lacks, never overwrites a conflict and never deletes. The live-head refs those rigs need
+go to `rig-settings.json` in the report for the owner to apply. Only the owner runs `--confirm` (`lib/spriteCopy.mts`, node:test).
+
 `so-sprite-builder.mts setup --story <file>` imports a story into the explicitly opened group, disables extraction on
 the isolated lane, selects Author view and opens Studio › Sprites. Never run setup against a user's playing chat.
 
@@ -94,7 +106,7 @@ copy, move or download weights.
 | `st-payload.mts` | `arm`, `last [n] [--member <name>]`, `watch [n]` |
 | `st-navigation.mts` | `recent-group`, `new-group-session`, `recent-group-new`, `list-entities`, `open-group <id\|name>`, `open-character <name>`, `list-chats`, `open-chat <chatId>`, `new-chat` |
 | `st-eval.mts` | `"<js>"` or `--file <path>` — run an async snippet in the ST page with `ctx` (getContext()) and `rt` (runtime handle) in scope, JSON result |
-| `so-ui.mts` | `all`, `settings`, `drawer`, `open-settings`, `open-studio`, `studio`, `studio-tab <label>`, `studio-save [keep\|restart\|cancel]`, `drawer-tab <Overview\|Blackboard\|Memory\|Scheduler\|Payload>`, `pipeline`, `assert-player-clean`, `wizard`, `open-wizard`, `new-story-wizard`, `wizard-run [stage] [message]`, `wizard-answer [a1\|a2\|a3]`, `wizard-apply [index]`, `stagecraft`, `curator-accept [index\|text-first] [text]`, `curator-reject [index]`, `memory-queue [keep\|lock\|reread\|dismiss\|reconfirm\|discard] [--key <conflictKey>] [--side <n>] [--index <n>]`, `screenshot` |
+| `so-ui.mts` | `all`, `settings`, `drawer`, `open-settings`, `open-studio`, `studio`, `studio-tab <label>`, `studio-save [keep\|restart\|cancel]`, `drawer-tab <Health\|State\|Memory\|Prompt\|Proposals\|Activity\|Pipeline>` (old tab names are aliases), `pipeline`, `assert-player-clean`, `wizard`, `open-wizard`, `new-story-wizard`, `wizard-run [stage] [message]`, `wizard-answer [a1\|a2\|a3]`, `wizard-apply [index]`, `stagecraft`, `curator-accept [index\|text-first] [text]`, `curator-reject [index]`, `memory-queue [keep\|lock\|reread\|dismiss\|reconfirm\|discard] [--key <conflictKey>] [--side <n>] [--index <n>]`, `screenshot` |
 | `so-assets.mts` | `list`, `remove`, `assert-clean` `[--marker <prefix>]` — the ST assets a wizard run created (marker + the `applied` ledger of test sessions only — marker-keyed, or recorded since a journey's baseline); a real author's sessions and assets are never touched |
 | `so-responsive.mts` | `[--surface drawer\|settings\|studio\|all]` — 24 viewports from 320×568 to 2560×1440 against the live page; reports our roots' horizontal overflow and any `[data-so]` control outside the viewport; **needs no backend**, exits 1 on a finding, restores the original viewport |
 | `so-copilot.mts` | `context`, `suggest [--debug j]`, `report [--debug j]`, `nudge <text>`, `clear-nudge`, `probe [--debug d]`, `advance <id>`, `stage <stage> [--message m] [--debug j]` |

@@ -34,7 +34,6 @@ type Story = StoryObj<typeof ImageGroup>;
 export const ChangesInstallSettings: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(canvas.getByText("Image service"));
     const permit = canvas.getByRole("switch", { name: "Allow automatic illustrations on this install" });
     await expect(permit).toBeChecked();
     await userEvent.click(permit);

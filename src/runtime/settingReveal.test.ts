@@ -12,7 +12,7 @@ describe("revealSetting (C8 v27-d-01)", () => {
   test("a control the open page does not render opens the page that owns it", () => {
     const opened: WorkspaceIntent[] = [];
     revealSetting("so-extraction-profile", (intent) => opened.push(intent));
-    expect(opened).toEqual([{ context: "orchestrator", page: "connections", control: "so-extraction-profile" }]);
+    expect(opened).toEqual([{ context: "orchestrator", page: "models", control: "so-extraction-profile" }]);
     expect(opened[0]).toEqual(settingIntent("so-extraction-profile"));
   });
 
@@ -22,8 +22,8 @@ describe("revealSetting (C8 v27-d-01)", () => {
     expect(opened).toEqual([{ context: "story", page: "features", feature: "inner", control: "so-feature-inner-harvestReasoning" }]);
   });
 
-  test("a feature-looking id naming no feature stays on Connections", () => {
-    expect(settingIntent("so-feature-nothing-enabled")).toEqual({ context: "orchestrator", page: "connections", control: "so-feature-nothing-enabled" });
+  test("a feature-looking id naming no feature falls back to Models", () => {
+    expect(settingIntent("so-feature-nothing-enabled")).toEqual({ context: "orchestrator", page: "models", control: "so-feature-nothing-enabled" });
   });
 
   test("a mounted control is revealed in place without navigating", () => {

@@ -4,7 +4,7 @@ import { SILENT_REPLY_WINDOW } from "@runtime/thinkingSilence";
 export const InnerHarvestNotes = ({ snapshot }: { snapshot: RuntimeSnapshot }) => {
   const settings = snapshot.memory?.settings;
   return <>
-    {settings?.harvestReasoning === true && !settings.epistemicLedgerCapable ? (
+    {snapshot.ui.authorView && settings?.harvestReasoning === true && !settings.epistemicLedgerCapable ? (
       <div id="so-inner-harvest-idle" className="text-xs opacity-70">Idle: knowledge tracking is off for the memory model.</div>
     ) : null}
     {snapshot.thinkingSilent ? (

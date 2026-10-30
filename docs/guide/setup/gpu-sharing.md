@@ -50,7 +50,7 @@ never overwrites it.
 Then point your reply profile in Connection Manager at `http://127.0.0.1:18888` (the `listenPort`) instead of Unsloth
 Studio's own address, and send one reply: the plugin unloads the model only after an authenticated reply has passed
 through it. It worked when `http://127.0.0.1:18888/status` answers `"adapter": "observe"`, `"guarding": true` and
-`"state": "text-loaded"`, and the **GPU sharing** line in **Orchestrator → Connections → Images → Image service** says
+`"state": "text-loaded"`, and the **GPU sharing** line in **Settings → Images & stage** says
 the text model is loaded. During a picture the state is `image` and replies wait; afterwards the next reply reaches
 Unsloth Studio again.
 
@@ -110,7 +110,7 @@ load's time, so you can compare modes on your own disk.
 
 ## What you see
 
-**Orchestrator → Connections → Images → Image service** shows a **GPU sharing** line while the plugin runs: idle, text model loaded, rendering a
+**Settings → Images & stage** shows a **GPU sharing** line while the plugin runs: idle, text model loaded, rendering a
 picture, or waiting, and why a picture waits. The plugin's status (`lastResidency`) also says whether the last picture
 kept text loaded or swapped it out, and the memory readings behind that. If the text server stops by itself, the line says so: pictures keep
 rendering, and replies fail with a reason until an admin loads text again.

@@ -1,3 +1,4 @@
+import { FEATURE_INSTALL_HOMES } from "./workspaceRoutes";
 import { STORY_FEATURE_IDS } from "@engine/featurePolicy";
 import { FEATURE_STATE, UNMAPPED_CONTROLS, UNMAPPED_STORY_FEATURES, rowFeatures } from "@features/featureState";
 import { FEATURES, visibleFeatures, type Feature } from "@features/registry";
@@ -161,13 +162,15 @@ describe("v2.9 plan 09: every story feature and control has a Help row or a reas
     expect(FEATURE_STATE["npc-commitments"]).toEqual({ kind: "authored", declares: "commitments" });
   });
 
-  it("without a story, Show me for a story feature lands on Orchestrator → Defaults on a rendered control", () => {
-    const routed = FEATURES.filter((feature) => feature.where.workspace?.page === "features");
+  it("without a story, Show me for a story feature lands on Settings → Features on a rendered control", () => {
+    const routed = FEATURES.filter((feature) => feature.where.workspace?.context === "story" && feature.where.workspace.page === "features");
     expect(routed.length).toBeGreaterThan(15);
-    const broken = routed.map((feature) => ({ feature, where: defaultsWhere(feature.where) })).filter(({ where }) => {
+    const broken = routed.filter((feature) => feature.where.workspace?.feature).map((feature) => ({ feature, where: defaultsWhere(feature.where) })).filter(({ feature, where }) => {
       const workspace = where.workspace;
+      const home = FEATURE_INSTALL_HOMES[feature.where.workspace?.feature ?? "pacing"];
+      if (home) return workspace?.context !== "orchestrator" || workspace.page !== home.page || workspace.control !== home.control;
       const control = FEATURE_CONTROLS[workspace?.feature ?? "pacing"].controls.some((entry) => `so-feature-${workspace?.feature}-${entry.field}` === workspace?.control);
-      return workspace?.context !== "orchestrator" || workspace.page !== "defaults" || !control || !where.label.startsWith("Orchestrator › Defaults");
+      return workspace?.context !== "orchestrator" || workspace.page !== "features" || !control || !where.label.startsWith("Settings › Features");
     }).map(({ feature }) => feature.id);
     expect(broken).toEqual([]);
     expect(defaultsWhere(featureOf("hud").where)).toEqual(featureOf("hud").where);
@@ -176,7 +179,8 @@ describe("v2.9 plan 09: every story feature and control has a Help row or a reas
   it("without a story, Help offers no Show me into a story page that cannot render", () => {
     expect(helpWhere(featureOf("story-drawer").where, false)).toBeNull();
     expect(helpWhere(featureOf("story-drawer").where, true)).toEqual(featureOf("story-drawer").where);
-    expect(helpWhere(featureOf("pacing").where, false)?.workspace).toMatchObject({ context: "orchestrator", page: "defaults" });
+    expect(helpWhere(featureOf("pacing").where, false)?.workspace).toMatchObject({ context: "orchestrator", page: "features" });
+    expect(helpWhere(featureOf("stories").where, false)).toBeNull();
     expect(helpWhere(featureOf("hud").where, false)).toEqual(featureOf("hud").where);
     expect(featureOf("promises-remembered").where.workspace).toMatchObject({ context: "story", page: "play" });
   });

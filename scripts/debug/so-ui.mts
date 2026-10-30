@@ -34,8 +34,8 @@ export async function openExtensionSettings(page) {
   if (await page.locator('#so-studio-modal[open]').count()) await closeCheckpointStudio(page);
   const workspace = page.locator('#so-workspace-modal[open]');
   if (await workspace.count()) {
-    await workspace.getByRole('button', { name: 'Orchestrator', exact: true }).click();
-    await workspace.locator('#so-workspace-page-connections').click();
+    await workspace.locator('#so-workspace-context-orchestrator').click();
+    await workspace.locator('#so-workspace-page-models').click();
     return { alreadyOpen: true, navWasOpen: true };
   }
 
@@ -52,7 +52,7 @@ export async function openExtensionSettings(page) {
   await launcher.waitFor({ state: 'visible', timeout: 5000 });
   await launcher.click();
   await workspace.waitFor({ state: 'visible', timeout: 10000 });
-  await workspace.locator('#so-workspace-page-connections').click();
+  await workspace.locator('#so-workspace-page-models').click();
   return { alreadyOpen: false, navWasOpen };
 }
 
@@ -116,8 +116,6 @@ export async function revealSettingsControl(page, selector: string, { timeoutMs 
   const deadline = Date.now() + timeoutMs;
   for (;;) {
     const state = await evaluateInST(page, (wanted) => {
-      const memory = document.querySelector('#so-area-memory') as HTMLDetailsElement | null;
-      if (memory && memory.tagName === 'DETAILS' && !memory.open) memory.open = true;
       const node = document.querySelector(wanted);
       if (!node) return { found: false, opened: 0 };
       let opened = 0;
@@ -154,11 +152,11 @@ export async function selectMemoryProfile(page, wanted = process.env.ST_DEBUG_PR
   const roles = await assignedRoleProfiles(page);
   const dangling = Object.entries(roles).filter(([, entry]) => entry.label === null);
   if (dangling.length) throw new Error(`Models per task: ${dangling.map(([role, entry]) => `${role} -> ${entry.id}`).join(', ')} is set to a profile the panel does not offer; every assigned role's profile has to be live.`);
-  await page.locator('#so-workspace-page-defaults').click();
-  await page.locator('[data-feature="reading"]').click();
-  const enable = page.locator('#so-feature-reading-enabled');
-  if (!(await enable.isChecked())) await enable.check();
-  const result = { profile: label, kept, previous: current || null, available: labels, enabled: await enable.isChecked(), roles };
+  await page.locator('#so-workspace-page-features').click();
+  await page.locator('#so-feature-reading-enabled').waitFor({ state: 'visible', timeout: 10000 });
+  const enable = await toggleSetting(page, '#so-feature-reading-enabled', true);
+  if (!enable.ok) throw new Error(`Story reading could not be switched on: ${enable.reason ?? 'unknown'}`);
+  const result = { profile: label, kept, previous: current || null, available: labels, enabled: enable.on === true, roles };
   await page.locator('#so-workspace-modal').getByRole('button', { name: 'Close Story Orchestrator' }).click();
   // Leave the nav as we found it: an open Extensions drawer hides #options_button and #send_but,
   // so anything that plays the chat afterwards would time out.
@@ -442,7 +440,7 @@ export async function applyWizardProvisioning(page, index: number | 'all' = 0, {
 async function showStagecraftRing(page) {
   await openStoryDrawer(page);
   try {
-    await switchDrawerTab(page, 'Scheduler');
+    await switchDrawerTab(page, 'Proposals');
     return null;
   } catch (error) {
     return error instanceof Error ? error.message : String(error);
@@ -578,7 +576,7 @@ export async function getStagecraftState(page, { minOps = 0, timeoutMs = 15000 }
   const tabError = await showStagecraftRing(page);
   const state = await evaluateInST(page, () => {
     const root = document.getElementById('so-stagecraft');
-    if (!root) return { visible: false, reason: 'author view is off, or the Scheduler tab is not open' };
+    if (!root) return { visible: false, reason: 'author view is off, or the Proposals section is not open' };
     return {
       visible: true,
       header: root.querySelector('.opacity-70')?.textContent?.trim() ?? null,
@@ -607,7 +605,7 @@ async function showDrawerTab(page, label) {
 }
 
 export async function getNextTurnState(page) {
-  const tabError = await showDrawerTab(page, 'Payload');
+  const tabError = await showDrawerTab(page, 'Prompt');
   const state = await evaluateInST(page, () => {
     const snapshot = globalThis.storyOrchestratorRuntime?.getSnapshot?.() ?? null;
     const root = document.getElementById('so-next-turn');
@@ -624,9 +622,9 @@ export async function getNextTurnState(page) {
   return tabError ? { ...state, tabError } : state;
 }
 
-// v2.5 plan 07 A5: the author Calls list (Scheduler tab) next to the snapshot rows that rendered it.
+// v2.5 plan 07 A5: the author Calls list (Pipeline section) next to the snapshot rows that rendered it.
 export async function getModelCallsState(page) {
-  const tabError = await showDrawerTab(page, 'Scheduler');
+  const tabError = await showDrawerTab(page, 'Pipeline');
   const state = await evaluateInST(page, () => {
     const text = (node) => node?.textContent?.trim() ?? null;
     const root = document.querySelector('#drawer-manager [data-so="model-calls"]');
@@ -803,20 +801,25 @@ export async function closeCharacterPanel(page) {
   });
 }
 
-const LAZY_DRAWER_TABS = ['blackboard', 'scheduler', 'payload'];
+export const AUTHOR_SECTIONS = ['Health', 'State', 'Memory', 'Prompt', 'Proposals', 'Activity', 'Pipeline'];
+export const DRAWER_TAB_ALIASES: Record<string, string> = { Overview: 'Health', Blackboard: 'State', Payload: 'Prompt', Scheduler: 'Pipeline', Review: 'Proposals' };
+const LAZY_DRAWER_TABS = ['state', 'prompt', 'proposals', 'activity', 'pipeline'];
 
-export async function switchDrawerTab(page, label, { open = openStoryDrawer }: { open?: (page: any) => Promise<unknown> } = {}) {
+export const authorSectionLabel = (label: string): string => DRAWER_TAB_ALIASES[label.trim()] ?? label.trim();
+
+export async function switchDrawerTab(page, requested, { open = openStoryDrawer }: { open?: (page: any) => Promise<unknown> } = {}) {
+  const label = authorSectionLabel(requested);
   const drawer = page.locator('#drawer-manager');
   await closeCharacterPanel(page);
   await open(page);
   if (!(await drawer.count())) throw new Error('Drawer (#drawer-manager) is not mounted.');
-  const tab = drawer.locator('[role="tablist"] button', { hasText: label });
-  if (!(await tab.count())) throw new Error(`Drawer tab "${label}" not found.`);
+  const tab = drawer.locator('[role="tablist"] [role="tab"]', { hasText: label });
+  if (!(await tab.count())) throw new Error(`Drawer tab "${label}" not found${label === requested ? '' : ` (asked for "${requested}")`}.`);
   try {
     await tab.first().click({ timeout: 15000 });
   } catch (error) {
     const layout = await evaluateInST(page, (text: string) => {
-      const button = [...document.querySelectorAll('#drawer-manager [role="tablist"] button')].find((candidate) => candidate.textContent?.includes(text));
+      const button = [...document.querySelectorAll('#drawer-manager [role="tablist"] [role="tab"]')].find((candidate) => candidate.textContent?.includes(text));
       const box = (element: Element | null) => { const r = element?.getBoundingClientRect(); return r ? [Math.round(r.x), Math.round(r.y), Math.round(r.width), Math.round(r.height)] : null; };
       const rect = button?.getBoundingClientRect();
       const top = rect ? document.elementFromPoint(rect.x + rect.width / 2, rect.y + rect.height / 2) : null;
@@ -829,7 +832,7 @@ export async function switchDrawerTab(page, label, { open = openStoryDrawer }: {
   const lazyTab = label.trim().toLowerCase();
   if (LAZY_DRAWER_TABS.includes(lazyTab)) await drawer.locator(`[data-so-tab="${lazyTab}"]`).waitFor({ timeout: 15000 });
   const selected = await tab.first().getAttribute('aria-selected');
-  return { tab: label, selected: selected === 'true' };
+  return { tab: label, ...(label === requested ? {} : { alias: requested }), selected: selected === 'true' };
 }
 
 export async function getDrawerState(page) {
@@ -969,7 +972,7 @@ export const PLAYER_FORBIDDEN_SELECTORS = [
   '#so-inner-voice', '[data-so="inner-voice-row"]', '[data-so="inner-voice-beat"]', '#so-inner-voice-settings', '#so-inner-harvest', '#so-inner-beat', '#so-inner-fanout',
   '#so-inner-harvest-idle',
   // CR-U (v2.6 plan 15): the author half of every v2.6 surface.
-  '#so-inline-level option[value="3"]', '#so-inline-level option[value="4"]',
+  '#so-inline-level [data-value="3"]', '#so-inline-level [data-value="4"]',
   '#so-chapter-seal', '#so-chapter-fold', '#so-chapter-story-so-far', '#so-chapter-budget', '#so-chapters',
   '[data-so="chapters"]', '[data-so^="chapter-"]:not([data-so^="chapter-card"])',
   '[data-so="model-call-route"]', '[data-so="model-call-result"]',
@@ -1219,9 +1222,9 @@ export async function assertPlayerClean(page) {
   const { alreadyOpen } = await openStoryDrawer(page);
   const authorView = await evaluateInST(page, () => globalThis.storyOrchestratorRuntime?.getSnapshot?.().ui?.authorView ?? null);
   if (authorView !== false) throw new Error(`assert-player-clean requires player mode (authorView=${authorView}). Turn Author view off first.`);
-  const tabs = await page.locator('#so-workspace-modal nav button').allTextContents();
+  const tabs = (await page.locator('#so-workspace-nav .so-nav-item').allTextContents()).map((tab) => tab.trim());
   const findings = [];
-  const authorOnlyTabs = tabs.filter((tab) => ['Blackboard', 'Scheduler', 'Payload'].includes(tab));
+  const authorOnlyTabs = tabs.filter((tab) => ['Blackboard', 'Scheduler', 'Payload', 'Health', 'State', 'Prompt', 'Proposals', 'Activity', 'Pipeline'].includes(tab));
   if (authorOnlyTabs.length) findings.push({ tab: authorOnlyTabs.join(', '), needle: 'author-only tab offered in player mode' });
   const sweep = [];
   const recoveryControls = [];
@@ -1241,7 +1244,7 @@ export async function assertPlayerClean(page) {
     return found;
   };
   for (const tab of tabs) {
-    await page.locator('#so-workspace-modal nav').getByRole('button', { name: tab, exact: true }).click();
+    await page.locator('#so-workspace-nav').getByRole('button', { name: tab, exact: true }).click();
     const hits = await evaluateInST(page, collect, { surfaces: PLAYER_SELECTOR_SURFACES, selectors: PLAYER_FORBIDDEN_SELECTORS });
     for (const hit of hits ?? []) {
       findings.push({ tab, needle: `${hit.selector} reachable in ${hit.surface}` });
@@ -1250,15 +1253,12 @@ export async function assertPlayerClean(page) {
     const recovery = await evaluateInST(page, collect, { surfaces: PLAYER_SELECTOR_SURFACES, selectors: PLAYER_RECOVERY_CONTROLS });
     for (const control of recovery ?? []) recoveryControls.push({ tab, ...control });
     records.push(await recordPlayerSurfaces(page, tab));
-    if (tab === 'Features') {
-      const ids = await page.locator('#so-workspace-modal button[data-feature]').evaluateAll((nodes) => nodes.map((node) => node.getAttribute('data-feature')));
-      for (const id of ids) {
-        await page.locator(`#so-workspace-modal button[data-feature="${id}"]`).click();
-        const hits = await evaluateInST(page, collect, { surfaces: PLAYER_SELECTOR_SURFACES, selectors: PLAYER_FORBIDDEN_SELECTORS });
-        for (const hit of hits ?? []) findings.push({ tab: `Features/${id}`, needle: `${hit.selector} reachable in ${hit.surface}` });
-        records.push(await recordPlayerSurfaces(page, `Features/${id}`));
-        await page.locator('#so-workspace-modal').getByRole('button', { name: '← All features' }).click();
-      }
+    if (tab === 'Settings') {
+      const toggles = page.locator('#so-workspace-modal [data-so="feature-row"] button[aria-expanded="false"][id$="-toggle"]');
+      for (let left = await toggles.count(); left > 0; left = await toggles.count()) await toggles.first().click();
+      const hits = await evaluateInST(page, collect, { surfaces: PLAYER_SELECTOR_SURFACES, selectors: PLAYER_FORBIDDEN_SELECTORS });
+      for (const hit of hits ?? []) findings.push({ tab: 'Settings/features expanded', needle: `${hit.selector} reachable in ${hit.surface}` });
+      records.push(await recordPlayerSurfaces(page, 'Settings/features expanded'));
     }
   }
   findings.push(...recoveryControlFindings(recoveryControls));
@@ -1285,7 +1285,7 @@ export async function assertPlayerClean(page) {
   findings.push(...playerSurfaceFindings(records, tokens));
   findings.push(...await inlinePlayerSweep(page, tokens));
   findings.push(...messageTextFindings(await soNodesInMessageText(page)));
-  if (tabs.includes('Overview')) await switchDrawerTab(page, 'Overview');
+  if (tabs.includes('Health')) await switchDrawerTab(page, 'Health');
   const closedWorkspace = alreadyOpen ? false : await closeWorkspaceModal(page);
   return { ok: findings.length === 0, closedWorkspace, tabs, ask, surfaces: PLAYER_TEXT_SURFACES, selectorSurfaces: PLAYER_SELECTOR_SURFACES, selectorsChecked: PLAYER_FORBIDDEN_SELECTORS.length, findings, sweep, recoveryControls, records, tokens };
 }
@@ -1316,7 +1316,7 @@ export async function openStoryDrawer(page) {
   const alreadyOpen = await workspace.count() > 0;
   if (!alreadyOpen) await toggle.click();
   await workspace.waitFor({ state: 'visible', timeout: 10000 });
-  await workspace.getByRole('button', { name: 'This story', exact: true }).click();
+  await workspace.locator('#so-workspace-context-story').click();
   const author = await evaluateInST(page, () => globalThis.storyOrchestratorRuntime?.getCachedSnapshot().ui.authorView === true);
   if (author) await workspace.locator('#so-workspace-page-author').click();
   return { alreadyOpen };
@@ -1455,7 +1455,7 @@ open-studio: open Checkpoint Studio modal.
 studio: print Checkpoint Studio modal state (title, active tab, error/issue badges).
 studio-tab <Graph|Story|Qualities|Checkpoints|Transitions|Roster|Diagnostics>: switch the studio tab.
 studio-save [keep|restart|cancel]: click Save and answer the invalidation popup if one appears.
-drawer-tab <Overview|Memory|Blackboard|Scheduler|Payload>: switch the drawer tab.
+drawer-tab <Health|State|Memory|Prompt|Proposals|Activity|Pipeline>: switch the Author console section (old Overview/Blackboard/Payload/Scheduler/Review are aliases).
 pipeline: print the pipeline state (snapshot + status line + HUD chip).
 briefing: read the "Before you start" briefing modal (open, title, sections, blocks, onboarding) and the chat's pending flag.
 briefing-dismiss [--dont-show]: close the open briefing with its start button, optionally ticking "Don't show briefings".
@@ -1476,7 +1476,7 @@ agent-new-goal: press New goal (drops the agent session for this draft).
 agent-accept [n|all]: accept the agent's waiting edit cards one at a time (default all), waiting for the agent between cards; stops at a provisioning card.
 agent-apply [n]: press "Create it" on the agent's waiting provisioning card (default 1), waiting for the agent after each; stops at an edit card or a refused step.
 agent-state: print the agent pane (status, mode, steps, the pending card, controls on screen).
-stagecraft: print the World Info curator review ring from the drawer (author view, Scheduler tab).
+stagecraft: print the World Info curator review ring from the drawer (author view, Proposals section).
 curator-accept [index|text-first] [text]: accept one proposed change, optionally replacing its text first. text-first picks the
   newest proposal's first pending text change (text applied) or, with none, its first pending switch.
 curator-reject [index|text-first]: decline one proposed change.
@@ -1490,7 +1490,7 @@ help-showme-audit: open Help, click every offered Show me in turn and check its 
   with each miss; exits 1 when offered != reached (v2.9 plan 09). Run per view (player, author), per story state and per viewport.
 inline [mesid]: read the inline timeline under the chat (every chip opened in turn), the effective level and the attach-time median (v2.6 plan 08).
 inline-level <0-4>: set the install-wide inline level; prints requested vs effective (Author view caps it at 2).
-model-calls: the author Calls list (Scheduler tab): each row's kind, route ("route not recorded" for LLM passes until plan 13 H4) and result (v2.5 plan 07 A5).
+model-calls: the author Calls list (Pipeline section): each row's kind, route ("route not recorded" for LLM passes until plan 13 H4) and result (v2.5 plan 07 A5).
 gate-replay [transitionIndex]: the Studio's gate replay panel for one transition (open the Studio from the drawer first) (v2.5 plan 07 A3).
 gate-replay-history --out <file>: write this chat's {storyId, pinnedStory, engineHistory} for the offline A3 correctness check.
 branch-continue: open the drawer Overview, hit-test #so-branch-continue, click it with a real pointer and wait for #so-branch-notice to go (v2.4 plan 02).
@@ -1570,7 +1570,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
 
     if (subcommand === 'drawer-tab') {
       const label = process.argv[3];
-      if (!label) throw new Error('drawer-tab requires a tab label (Overview|Blackboard|Memory|Scheduler|Payload)');
+      if (!label) throw new Error('drawer-tab requires a section label (Health|State|Memory|Prompt|Proposals|Activity|Pipeline)');
       const result = await switchDrawerTab(page, label);
       console.log('Switched drawer tab:', JSON.stringify(result));
     }
@@ -1804,7 +1804,7 @@ export const BRANCH_NOTICE = '#so-branch-notice';
 
 const openOverview = async (page) => {
   await openStoryDrawer(page);
-  await switchDrawerTab(page, 'Overview');
+  await switchDrawerTab(page, 'Health');
 };
 
 // v2.4 plan 02 §10: "Continue from here" on a branch, pressed the way a player presses it — a pointer at

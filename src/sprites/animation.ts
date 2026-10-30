@@ -30,6 +30,8 @@ export function blinkGap(seed: string, cycle: number): number {
   return 2500 + Number.parseInt(fnv1a(`${seed}:${cycle}`), 16) % 3501;
 }
 
+export const blinkTwice = (seed: string, cycle: number): boolean => Number.parseInt(fnv1a(`${seed}:double:${cycle}`), 16) % 6 === 0;
+
 export interface TextMouthEngine { push(text: string, now: number): void; sample(now: number): MouthSample | null }
 export type TextMouthFactory = (spoken: string, config?: MouthConfig) => TextMouthEngine;
 

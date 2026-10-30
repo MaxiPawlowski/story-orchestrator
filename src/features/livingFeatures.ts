@@ -36,7 +36,7 @@ export const LIVING_FEATURES: readonly Feature[] = [
   {
     id: "save-run-as-story", name: "Save this run as a story", area: "play", audience: "player",
     oneLine: "Keep a living story's run as a story you can play again or edit.",
-    what: "This story → Play offers to save what you played as a new story in your library. Only the turning points you reached are kept; what the story had written "
+    what: "This chat → Play offers to save what you played as a new story in your library. Only the turning points you reached are kept; what the story had written "
       + "ahead of you is left out, so the saved copy never spoils a later play.",
     where: drawerAt("#so-living-save", "Play"),
     settings: [], guideTopic: "living-director", doc: authorGuideDoc("living-director"), status: "experimental", needs: ["story"],

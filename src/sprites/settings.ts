@@ -3,6 +3,9 @@ import { liveHeadRefs, type LiveHeadRef } from "./liveHeadRefs";
 import { visualSources, type VisualSources } from "./visualSources";
 
 export type StageMode = "vn" | "always" | "off";
+export const EFFECTS_LEVELS = ["full", "calm", "off"] as const;
+export type EffectsLevel = (typeof EFFECTS_LEVELS)[number];
+export const isEffectsLevel = (value: unknown): value is EffectsLevel => typeof value === "string" && (EFFECTS_LEVELS as readonly string[]).includes(value);
 export type RenderPreset = "standard" | "fast";
 export interface RenderParameters { resolution: number; steps: number }
 
@@ -24,6 +27,7 @@ export interface SpriteSettings {
   profileId: string;
   segmentChars: number;
   crossfadeMs: number;
+  effects: EffectsLevel;
   focus: boolean;
   breathing: boolean;
   blink: boolean;
@@ -52,6 +56,7 @@ export const defaultSpriteSettings = (): SpriteSettings => ({
   profileId: "",
   segmentChars: 400,
   crossfadeMs: 250,
+  effects: "full",
   focus: true,
   breathing: true,
   blink: true,
@@ -91,6 +96,7 @@ export function sanitizeSpriteSettings(value: unknown): SpriteSettings {
     profileId: typeof value.profileId === "string" ? value.profileId : d.profileId,
     segmentChars: within(value.segmentChars, 120, 2000, d.segmentChars),
     crossfadeMs: within(value.crossfadeMs, 0, 2000, d.crossfadeMs),
+    effects: isEffectsLevel(value.effects) ? value.effects : d.effects,
     focus: typeof value.focus === "boolean" ? value.focus : d.focus,
     breathing: typeof value.breathing === "boolean" ? value.breathing : d.breathing,
     blink: typeof value.blink === "boolean" ? value.blink : d.blink,

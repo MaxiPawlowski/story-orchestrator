@@ -67,6 +67,7 @@
    "world-info",
    "preset",
    "background",
+   "stage-transition",
    "scenario",
    "cast-changes",
    "npc-replies",

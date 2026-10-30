@@ -27,7 +27,7 @@ export const AuthorFeed: Story = {
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
     await expect(canvasElement.querySelectorAll('[data-so="activity-row"]')).toHaveLength(5);
-    await userEvent.selectOptions(canvas.getByRole("combobox"), "rolls");
+    await userEvent.click(canvas.getByRole("button", { name: /^Rolls/ }));
     await expect(canvasElement.querySelectorAll('[data-so="activity-row"]')).toHaveLength(2);
     await userEvent.click(canvas.getAllByRole("button", { name: "Go to message 6" })[0]);
     await expect(args.onJump).toHaveBeenCalledWith(6);
@@ -35,21 +35,17 @@ export const AuthorFeed: Story = {
 };
 
 export const WithSetupFindings: Story = {
-  args: {
-    checks: [{
-      check: "cast-muted", area: "cast", severity: "degrades", consequence: "Ilsa is muted in this group.", detail: "Muted in the group: Ilsa.",
-      targetId: null, target: null, provisionable: false, player: null, action: null, opensGroup: false, dismissable: true,
-    }],
-  },
-  play: async ({ canvasElement }) => {
+  args: { setupCount: 2, onOpenHealth: fn() },
+  play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.getByRole("region", { name: "Setup" })).toBeInTheDocument();
-    await expect(canvasElement.querySelector('[data-so="activity-check"][data-check="cast-muted"]')).not.toBeNull();
+    await expect(canvasElement.querySelector('[data-so="activity-checks"]')?.textContent).toContain("2 setup checks need attention.");
+    await userEvent.click(canvas.getByRole("button", { name: "Open Health" }));
+    await expect(args.onOpenHealth).toHaveBeenCalled();
     await expect(canvasElement.querySelectorAll('[data-so="activity-row"]')).toHaveLength(5);
   },
 };
 
-const filter = (canvasElement: HTMLElement) => within(canvasElement).getByRole("combobox");
+const filter = (canvasElement: HTMLElement) => within(canvasElement).getByRole("group", { name: "Show" });
 
 export const Phone: Story = fitsAt(VIEWPORTS.phone, filter);
 export const Tablet: Story = fitsAt(VIEWPORTS.tablet, filter);

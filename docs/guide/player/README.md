@@ -18,10 +18,10 @@ Setting up the extension for the first time is in [Setup](../setup/README.md). W
 
 ## Player mode and Author view
 
-The story window opens in **player mode**: **This story → Play** shows only what a player should see: where you
+The story window opens in **player mode**: **This chat → Play** shows only what a player should see: where you
 are, what happened, what is still open. Nothing in it spoils the story.
 
 **Author view** is for the person who wrote or is testing the story. It *adds* the machinery (tracked values,
-scheduler, prompt contents, steering controls) on **This story → Review** and **This story → Author**, and spoils the
+scheduler, prompt contents, steering controls) on **This chat → Review** and **This chat → Author**, and spoils the
 story, so it asks before it turns on. It is per chat; **Return to player view** on the Author page turns it off. If you
 only want to play, leave it off.
