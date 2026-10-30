@@ -56,7 +56,7 @@
   bottom: 0;
   height: 92%;
   transform: translateX(-50%);
-  transition: filter 400ms ease, transform 400ms ease;
+  transition: filter 400ms ease, transform 400ms ease, left var(--so-move-ms, 0ms) ease, width var(--so-move-ms, 0ms) ease;
   -webkit-mask-image: linear-gradient(to bottom, var(--black100) 78%, transparent 100%);
   mask-image: linear-gradient(to bottom, var(--black100) 78%, transparent 100%);
 }
@@ -116,6 +116,51 @@
 
 :is(#so-vn-root, #so-stage-strip) .so-sprite img.so-sprite-under {
   opacity: 1;
+}
+
+:is(#so-vn-root, #so-stage-strip) .so-sprite.so-enter[data-enter="rise"] {
+  animation: so-enter-rise var(--so-enter-ms, 450ms) ease-out both;
+}
+
+:is(#so-vn-root, #so-stage-strip) .so-sprite.so-enter[data-enter="fade"] {
+  animation: so-enter-fade var(--so-enter-ms, 450ms) ease-out both;
+}
+
+:is(#so-vn-root, #so-stage-strip) .so-sprite.so-exit {
+  pointer-events: none;
+  animation: so-exit-fade var(--so-exit-ms, 350ms) ease-in forwards;
+}
+
+:is(#so-vn-root, #so-stage-strip) .so-sprite.so-exit[data-enter="rise"] {
+  animation-name: so-exit-sink;
+}
+
+:is(#so-vn-root, #so-stage-strip) .so-sprite-sway,
+:is(#so-vn-root, #so-stage-strip) .so-sprite-act {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-origin: 50% 100%;
+}
+
+@keyframes so-enter-rise {
+  from { opacity: 0; translate: 0 3%; }
+  to { opacity: 1; translate: 0 0; }
+}
+
+@keyframes so-enter-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes so-exit-sink {
+  from { opacity: 1; translate: 0 0; }
+  to { opacity: 0; translate: 0 2%; }
+}
+
+@keyframes so-exit-fade {
+  from { opacity: 1; }
+  to { opacity: 0; }
 }
 
 @keyframes so-fade-in {
