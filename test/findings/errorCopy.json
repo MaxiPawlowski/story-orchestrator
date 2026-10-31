@@ -40,6 +40,8 @@
       "surface": "author", "rawError": true, "silentCatch": null, "verdict": "pass", "reason": "Author-only bust/rig save refusal; neither bust nor rig is published on failure." },
     { "site": "src/image/castSceneHost.ts#discardUnplaced>callback", "kind": 2, "template": "reason instanceof Error ? reason.message : String(reason)",
       "surface": "console", "rawError": true, "silentCatch": null, "verdict": "pass", "reason": "A failed removal of an unplaced cast image is logged to the console; the original refusal still surfaces to the caller." },
+    { "site": "src/image/imageRowsHost.ts#discard>callback", "kind": 2, "template": "error instanceof Error ? error.message : String(error)",
+      "surface": "console", "rawError": true, "silentCatch": null, "verdict": "pass", "reason": "A failed removal of a dropped or never-posted picture row keeps its path in the chat's record, so the next load retries it; the reason reaches no player surface." },
     { "site": "src/image/imageRows.ts#ImageRowQueue.post", "kind": 2, "template": "`The picture \"${row.caption}\" was not posted: ${reason}.`",
       "surface": "console", "rawError": false, "silentCatch": null, "verdict": "pass", "reason": "A queued picture row dropped before the next reply (chat switched, reply removed or changed) is logged to the console with the drop rule, and its file is deleted; reason is our own drop sentence, never a raw error." },
     { "site": "src/services/stHost/worldInfoPending.ts#saveCached", "kind": 2, "template": "`\"${name}\" had an edit waiting to save and could not be saved: ${error instanceof Error ? error.message : String(error)}`",

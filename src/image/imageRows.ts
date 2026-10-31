@@ -13,14 +13,23 @@ export interface PendingImageRow {
   media: ImageMedia;
 }
 
-export interface ImageRowChat { id: string; messages: ReadonlyArray<{ mes: string }> }
+export interface ImageRowMessage { mes: string; extra?: { media?: ReadonlyArray<{ url?: unknown }> } }
+export interface ImageRowChat { id: string; messages: ReadonlyArray<ImageRowMessage> }
+
+export interface ImageRowRecord {
+  load: (chatId: string) => string[];
+  write: (chatId: string, paths: string[], persist: boolean) => Promise<WriteResult<{ chatId: string }>>;
+}
 
 export interface ImageRowDeps {
   chat: () => ImageRowChat | null;
   place: (row: PendingImageRow) => Promise<WriteResult<{ placed: true }>>;
-  discard: (path: string) => Promise<unknown>;
+  discard: (path: string) => Promise<WriteResult<{ path: string }>>;
+  record: ImageRowRecord;
   dropped?: (reason: string) => void;
 }
+
+export interface SweepResult { done: boolean; deleted: string[]; kept: string[] }
 
 export const postsRow = (placement: ImagePlacement, target: number | null): boolean =>
   placement === "message" || (placement === "inline" && target === null);
@@ -32,16 +41,34 @@ export const rowDropReason = (row: PendingImageRow, chat: ImageRowChat | null): 
   return null;
 };
 
+export const chatShowsImage = (chat: ImageRowChat, path: string): boolean =>
+  chat.messages.some((message) => message.mes.includes(path) || (message.extra?.media ?? []).some((media) => media.url === path));
+
 export class ImageRowQueue {
   private pending: PendingImageRow[] = [];
   constructor(private readonly deps: ImageRowDeps) {}
 
   get waiting(): number { return this.pending.length; }
 
-  queue(row: Omit<PendingImageRow, "anchor">): boolean {
+  private async forget(chatId: string, paths: string[], persist = false): Promise<void> {
+    if (this.deps.chat()?.id !== chatId) return;
+    const drop = new Set(paths);
+    const before = this.deps.record.load(chatId);
+    const after = before.filter((path) => !drop.has(path));
+    if (after.length !== before.length) await this.deps.record.write(chatId, after, persist);
+  }
+
+  private async remember(chatId: string, path: string): Promise<void> {
+    if (this.deps.chat()?.id !== chatId) return;
+    const before = this.deps.record.load(chatId);
+    if (!before.includes(path)) await this.deps.record.write(chatId, [...before, path], true);
+  }
+
+  async queue(row: Omit<PendingImageRow, "anchor">): Promise<boolean> {
     const chat = this.deps.chat();
     if (!chat || chat.id !== row.chatId) return false;
     this.pending.push({ ...row, anchor: chat.messages.length - 1 });
+    await this.remember(row.chatId, row.media.url);
     return true;
   }
 
@@ -50,16 +77,43 @@ export class ImageRowQueue {
     for (const row of this.pending.splice(0)) {
       const reason = rowDropReason(row, this.deps.chat());
       if (reason) {
-        await this.deps.discard(row.media.url);
+        const removed = await this.deps.discard(row.media.url);
+        if (removed.ok) await this.forget(row.chatId, [row.media.url]);
         this.deps.dropped?.(`The picture "${row.caption}" was not posted: ${reason}.`);
         continue;
       }
+      await this.forget(row.chatId, [row.media.url]);
       const placed = await this.deps.place(row);
-      if (!placed.ok) this.deps.dropped?.(`The picture "${row.caption}" was not posted: ${placed.reason}`);
+      if (placed.ok) continue;
+      await this.remember(row.chatId, row.media.url);
+      this.deps.dropped?.(`The picture "${row.caption}" was not posted: ${placed.reason}`);
     }
   }
 
   async clear(): Promise<void> {
-    for (const row of this.pending.splice(0)) await this.deps.discard(row.media.url);
+    for (const row of this.pending.splice(0)) {
+      const removed = await this.deps.discard(row.media.url);
+      if (removed.ok) await this.forget(row.chatId, [row.media.url]);
+    }
+  }
+
+  async sweep(chatId: string, owns: () => boolean): Promise<SweepResult> {
+    const result: SweepResult = { done: false, deleted: [], kept: [] };
+    const waiting = new Set(this.pending.filter((row) => row.chatId === chatId).map((row) => row.media.url));
+    const settled: string[] = [];
+    for (const path of this.deps.record.load(chatId)) {
+      if (waiting.has(path)) continue;
+      const chat = this.deps.chat();
+      if (!owns() || chat?.id !== chatId) return result;
+      if (chatShowsImage(chat, path)) { result.kept.push(path); settled.push(path); continue; }
+      const removed = await this.deps.discard(path);
+      if (!removed.ok) continue;
+      result.deleted.push(path);
+      settled.push(path);
+    }
+    if (!owns()) return result;
+    if (settled.length) await this.forget(chatId, settled, true);
+    result.done = true;
+    return result;
   }
 }
