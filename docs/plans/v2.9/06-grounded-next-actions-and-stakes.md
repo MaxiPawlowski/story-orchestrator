@@ -465,3 +465,7 @@ panel only (not on the widget check button).
   `d27f360f75f8c40fddbc20ca62676a97b2301d3657d464c05272540a776d46f8`; all 80 scenario files match `corpus.scenarios.sha256`
   (0 mismatches). `frozen.json` `status` still reads DRAFT; this record is the freeze (its own text allows the Gate record).
   Floors, scoring and rater prompts are the ones in that file; never retuned.
+
+## LT rerun 2026-10-31 (v3.0 14 §D1 + v3.0 33 H33-F, master `e4c9e9f0`)
+
+- F1 39/40 pass; F2 36/40 pass; F3 FAIL (rater flags s11/anchored, s18/current; 0 answer needle hits); F4 -0.15 (11/13/16, CI95 [-0.425, +0.15]) MISS; F5 80/80 pass. Floors unchanged. Detail and evidence: v3.0 `14-d-followups.md` §D1 rerun 2026-10-31.
