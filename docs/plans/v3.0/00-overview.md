@@ -646,14 +646,14 @@ Branch `v3.0-owner-1031` (owner "as recommended"): HF-REGEN for the `/comment` t
 (`29-ui-rework.md` §Owner answers 2026-10-31).
 
 - HF-REGEN: the note is never the last chat row. `EffectsApplier.announceText` queues it (chat id, active checkpoint, the
-  row it followed); `postPendingNotes` posts it on the next `GENERATION_STARTED` of type `normal` (not dry, never swipe,
+  row it followed) in a `TransitionNoteQueue` (`runtime/transitionNotes.ts`), which posts it on the next `GENERATION_STARTED` of type `normal` (not dry, never swipe,
   continue, regenerate, quiet, impersonate) and before an NPC reply of the entered checkpoint. ST emits that event before
   the player's row and before each group member's reply (`script.js:4299`, user row sent later inside `Generate`), so the
   note lands after the reply that moved the story and before the next row. The reply stays last: swipe arrows stay on it and
   group Regenerate deletes it as usual (`group-chats.js:167-188` stops only at a system row). Dropped with a journal line when
   the row it followed is gone (Regenerate deleted it), the checkpoint moved back, another chat is open, or notes were switched
   off. Wiring: `wiring/generation.ts` onStarted awaits `runtimeManager.postNotes` (in `managerDelegates.ts`, manager budget
-  unchanged); pure rules in `runtime/transitionNotes.ts`. Setting copy updated (settings reference regenerated).
+  unchanged). Setting copy updated (settings reference regenerated).
 - Tests: `effectsApplier.test.ts` "v3.0 HF-REGEN" (queue, type filter, Regenerate drop, rollback/chat/off drops, mid-round
   control) and the L2 J1.7 block; `runtimeManager.test.ts` announcement + C7 order; census row `wiring/generation.ts#onStarted`.
 - Not changed: image placement `"message"` (same trailing-row trap, opt-in); `test/scenarios/v30-hf-regen.json` stays the
