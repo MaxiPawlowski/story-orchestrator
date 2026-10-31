@@ -3,8 +3,6 @@ import { scoreRankings, type E0ArmMetrics } from "./e0Score";
 import { QUERY_WINDOW, recencyWeights } from "./score";
 import { jaccardSimilarity } from "./similarity";
 
-export const E0_WINDOW_ARM = "f";
-
 const windowParts = (query: string): Array<{ text: string; weight: number }> => {
   const lines = query.split(/\r?\n/).map((line) => line.trim()).filter(Boolean).slice(-QUERY_WINDOW);
   const weights = recencyWeights(lines.length);
