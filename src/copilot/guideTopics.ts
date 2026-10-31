@@ -151,9 +151,10 @@ export const GUIDE_TOPICS = {
   },
   tension: {
     title: "Tension targets",
-    fields: "checkpoints[].tension_target",
+    fields: "checkpoints[].tension_target, checkpoints[].min_turns, transitions[].urgent",
     text: "calm, stirring, tense, critical or peak: the tension this beat aims for. Pacing compares it to the measured tension and steers. Good: calm for a camp, critical "
-      + "for the ambush. A story with every beat at peak has no shape to steer toward.",
+      + "for the ambush. A story with every beat at peak has no shape to steer toward. min_turns (1 to 20) holds every exit not marked urgent: true until that many "
+      + "player turns in the beat; exit-on-entry (info) names exits of a tense or hotter anchor with no turn count.",
   },
   guidance: {
     title: "Narrator guidance",
@@ -447,6 +448,7 @@ export const DIAGNOSTIC_GUIDE_TOPIC: Record<DiagnosticCode, GuideTopicId> = {
   "opener-uses-player-name": "player",
   "npc-reply-directs-player": "npc-replies",
   "opening-narrator-only": "opening-scene",
+  "exit-on-entry": "tension",
   ...TALK_DIAGNOSTIC_TOPICS,
   "player-spoiler-risk": "player",
   "agenda-pace-no-chapters": "character-life",

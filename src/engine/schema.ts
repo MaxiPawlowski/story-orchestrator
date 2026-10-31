@@ -223,6 +223,7 @@ export interface Checkpoint {
   state_snapshot?: Record<string, PrimitiveValue>;
   tension_target?: TensionLevel;
   target_turn_length?: number;
+  min_turns?: number;
   effects?: CheckpointEffects;
   talk_control?: TalkControl;
   agency?: Partial<AgencyPolicy>;
@@ -306,6 +307,7 @@ export interface Transition {
   check?: StoryCheck;
   recap?: import("./gameSchema").RecapText;
   recap_when?: GateNode;
+  urgent?: boolean;
 }
 
 export const ROSTER_VIEWS = ["own", "omniscient"] as const;

@@ -28,6 +28,7 @@ import { PATTERN_CONSEQUENCES, checkPatternDiagnostics } from "./patternDiagnost
 import { CUE_CONSEQUENCES, checkCueDiagnostics } from "./cueDiagnostics";
 import { OFFER_CONSEQUENCES, checkOfferDiagnostics } from "./offerDiagnostics";
 import { ECHO_CONSEQUENCES, checkEchoDiagnostics } from "./echoDiagnostics";
+import { RUSH_CONSEQUENCES, checkRushDiagnostics } from "./rushDiagnostics";
 
 export type DiagnosticSeverity = "blocking" | "warning" | "info";
 
@@ -87,7 +88,7 @@ export const DIAGNOSTIC_CONSEQUENCES: Record<(typeof DIAGNOSTIC_CODES)[number], 
   ...BRIEFING_CONSEQUENCES,
   ...KIND_CONSEQUENCES,
   ...PLAYER_CONSEQUENCES,
-  ...HOOK_CONSEQUENCES, ...TALK_PACING_CONSEQUENCES,
+  ...HOOK_CONSEQUENCES, ...TALK_PACING_CONSEQUENCES, ...RUSH_CONSEQUENCES,
   ...LIFE_CONSEQUENCES,
   ...FACTION_CONSEQUENCES,
   ...STAGE_CONSEQUENCES,
@@ -520,7 +521,7 @@ const DIAGNOSTIC_CHECKS = [
   checkBriefingSpoilers,
   checkStoryKind,
   checkPlayerProfile,
-  checkHookDiagnostics, checkTalkPacing,
+  checkHookDiagnostics, checkTalkPacing, checkRushDiagnostics,
   checkAgendaPace,
   checkFactionDiagnostics,
   checkStageSprites,

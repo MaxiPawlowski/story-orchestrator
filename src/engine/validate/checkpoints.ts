@@ -11,6 +11,7 @@ import { readGuidance } from "../checkpointGuidance";
 import { gameLayer } from "./gameLayer";
 import { readWorkflowMap } from "./illustrations";
 import { checkReplyIds } from "./replyIds";
+import { readMinTurns } from "./dwell";
 
 type Member = Story["roster"][number];
 
@@ -346,6 +347,8 @@ export const readCheckpoint = (value: unknown, path: string, errors: ValidationE
   if (typeof value.target_turn_length === "number" && Number.isFinite(value.target_turn_length)) {
     checkpoint.target_turn_length = value.target_turn_length;
   }
+  const minTurns = readMinTurns(value.min_turns, `${path}.min_turns`, errors);
+  if (minTurns !== undefined) checkpoint.min_turns = minTurns;
   if (isRecord(value.effects)) checkpoint.effects = readCheckpointEffects(value.effects, `${path}.effects`, errors) ?? undefined;
   if (value.talk_control !== undefined) checkpoint.talk_control = readTalkControl(value.talk_control, `${path}.talk_control`, errors) ?? undefined;
   if (value.agency !== undefined) {

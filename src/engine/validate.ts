@@ -18,6 +18,7 @@ import { readPlayer } from "./validate/player";
 import { GAME_LAYER_LOADING, gameLayer, usesGameLayer, type GameLayer } from "./validate/gameLayer";
 import { checkRecapGates } from "./validate/recap";
 import { checkPackBindings } from "./validate/illustrations";
+import { compileDwell } from "./validate/dwell";
 
 export { readChapters };
 
@@ -127,7 +128,7 @@ export const parseStory = (json: unknown): NormalizedStory | ValidationError[] =
   if (!layer && usesGameLayer(json)) return [{ path: "$", message: GAME_LAYER_LOADING }];
 
   const { living, checkpoints, baseQualities } = readLivingParts(layer, json, errors);
-  const transitions = readList(json.transitions, "transitions", readTransition, errors);
+  const authoredTransitions = readList(json.transitions, "transitions", readTransition, errors);
   const quests = layer?.readQuests(json.quests, errors);
   const milestones = layer?.readMilestones(json.milestones, errors);
   const codex = layer?.codex.readCodex(json.codex, errors);
@@ -141,7 +142,8 @@ export const parseStory = (json: unknown): NormalizedStory | ValidationError[] =
   const rewarded = layer ? layer.codex.addCodexQualities(layer.life.addLifeQualities(layer.addRewardQualities(builtin, quests, errors), life, errors), codex, errors) : builtin;
   const coded = layer ? layer.observations.addObservationQualities(rewarded, observations, errors) : rewarded;
   const lived = layer ? layer.addCheckQualities(coded, checkpoints, errors) : coded;
-  const qualities = layer ? layer.factions.addFactionQualities(lived, factions, (json.roster as unknown[]).filter(isRecord), errors) : lived;
+  const factioned = layer ? layer.factions.addFactionQualities(lived, factions, (json.roster as unknown[]).filter(isRecord), errors) : lived;
+  const { transitions, qualities } = compileDwell(checkpoints, authoredTransitions, factioned, errors);
   const options = readStoryOptions(json, errors);
   const features = readFeaturePolicies(json.features, (path, message) => addError(errors, path, message));
   const roster = readRoster(json.roster as Story["roster"], errors, layer?.delivery.deliveryNames(json));

@@ -49,6 +49,7 @@ export const DIAGNOSTIC_CODES = [
   "opener-uses-player-name",
   "npc-reply-directs-player",
   "opening-narrator-only",
+  "exit-on-entry",
   "talk-budget-below-chain",
   "talk-pacing-no-room",
   "npc-reply-scope-unused",
