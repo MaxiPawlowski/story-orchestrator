@@ -57,6 +57,7 @@ export const SHOW_ME_CONDITIONAL: Readonly<Record<string, Renders>> = {
   "#so-cast-scene": ofSnapshot(castPanelShown),
   "#so-judge-expansion-variants": ({ authorView }) => authorView,
   "#so-wi-lore-pins": ({ authorView }) => authorView,
+  "#so-wi-seeded-chance": ({ authorView }) => authorView,
   "#so-history-notes": ({ authorView }) => authorView,
   "#so-outward-narration": ({ authorView }) => authorView,
   "#so-mention-ledger": ({ authorView }) => authorView,

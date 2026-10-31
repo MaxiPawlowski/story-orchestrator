@@ -479,6 +479,7 @@ export interface RuntimeSnapshot {
   loreEvidence?: LoreEvidenceView;
   /** Spike (author only): the last gated scan, per gated entry; null unless scan gating is active. */
   scanGate?: ScanGateView | null;
+  loreWeightedGroups?: string[];
   /** Lorebook gating mode, ledger summary and drift (install-wide). */
   wiGating?: WiGatingStatus | null;
   globalStoryLore?: string[];

@@ -6,6 +6,7 @@ import {
 import { replayWorldInfoFiles } from "./effectSteps";
 import { onSettingsWrite } from "./librarySave";
 import { applyLoreExclusive, loreExclusiveFor, type LoreExclusiveRefusal, type LoreExclusiveStats } from "./loreExclusive";
+import { applyLoreChance, loreChanceFor, type LoreChanceRefusal, type LoreChanceStats } from "./loreChance";
 import { applyLorePlacement, lorePlacementFor, type LorePlacementRefusal, type LorePlacementStats } from "./lorePlacement";
 import type { CompleteLoreSelection } from "./loreSelect";
 import { createMirrorScan } from "./mirrorScan";
@@ -16,7 +17,7 @@ import { getGlobalSettings, setGlobalSettings } from "./settingsStore";
 import { listStoryRecords } from "./storyLibrary";
 import { createWiGating, type CapabilityReading, type NormalizePreviewBook, type WiGating } from "./worldInfoGating";
 import { gatedBy } from "./worldInfoLedger";
-import { noteScanGate, scanGatingActive, setScanGatingActive, setScanGatingSettled, setWiGatingStatus } from "./worldInfoMode";
+import { noteLoreChance, noteScanGate, scanGatingActive, setScanGatingActive, setScanGatingSettled, setWiGatingStatus } from "./worldInfoMode";
 import type { MemoryMirrorBook } from "./types";
 import type { NormalizeOutcome } from "./worldInfoNormalize";
 import { ScanGateProvider, type ScanGateChoice } from "./worldInfoScan";
@@ -31,6 +32,7 @@ export interface ScanGatingWiring {
   filePath: () => string[];
   values: () => Readonly<Record<string, unknown>>;
   mirrorBook: () => MemoryMirrorBook | null;
+  loreRoll?: (book: string, uid: number) => number | null;
   exclusive: {
     useActive: () => boolean;
     messageId: () => number;
@@ -51,6 +53,7 @@ export interface ScanGatingDebug {
   lastMirror: () => number;
   lastExclusive: () => { refusal: LoreExclusiveRefusal | null; stats: LoreExclusiveStats } | null;
   lastPlacement: () => { refusal: LorePlacementRefusal | null; stats: LorePlacementStats } | null;
+  lastChance: () => { refusal: LoreChanceRefusal | null; stats: LoreChanceStats } | null;
   timings: () => number[];
   normalize: () => Promise<NormalizeOutcome | null>;
   requestScan: () => Promise<boolean>;
@@ -143,6 +146,7 @@ export function startScanGating(deps: ScanGatingWiring): { reassert: () => void;
   let lastMirror = 0;
   let lastExclusive: { refusal: LoreExclusiveRefusal | null; stats: LoreExclusiveStats } | null = null;
   let lastPlacement: { refusal: LorePlacementRefusal | null; stats: LorePlacementStats } | null = null;
+  let lastChance: { refusal: LoreChanceRefusal | null; stats: LoreChanceStats } | null = null;
   let stopMirrorWatch: (() => void) | null = null;
   const apply = (arrays: Parameters<Parameters<typeof installScanGating>[0]>[0]) => {
     if (!scanGatingActive()) return;
@@ -153,6 +157,15 @@ export function startScanGating(deps: ScanGatingWiring): { reassert: () => void;
     const plan = loreExclusiveFor({ ...deps.exclusive, scanActive: scanGatingActive, story: deps.story, chatId: deps.chatId, vectorsScanWorldInfo });
     lastExclusive = { refusal: plan.refusal, stats: applyLoreExclusive(arrays, plan) };
     const worldInfo = deps.settings?.() ?? getGlobalSettings().worldInfo;
+    const chance = loreChanceFor({
+      enabled: () => worldInfo.seededChance && deps.loreRoll !== undefined,
+      story: deps.story,
+      chatId: deps.chatId,
+      ownedChat: deps.ownedChat,
+      roll: (book, uid) => deps.loreRoll?.(book, uid) ?? null,
+    });
+    lastChance = { refusal: chance.refusal, stats: applyLoreChance(arrays, chance) };
+    noteLoreChance({ chatId: deps.chatId(), weightedGroups: lastChance.stats.weightedGroups });
     const placement = lorePlacementFor({
       enabled: () => worldInfo.lateLore,
       depth: () => worldInfo.lateLoreDepth,
@@ -219,6 +232,7 @@ export function startScanGating(deps: ScanGatingWiring): { reassert: () => void;
     lastMirror: () => lastMirror,
     lastExclusive: () => lastExclusive,
     lastPlacement: () => lastPlacement,
+    lastChance: () => lastChance,
     timings: () => [...timings],
     normalize: gating.renormalize,
     requestScan: gating.requestScan,

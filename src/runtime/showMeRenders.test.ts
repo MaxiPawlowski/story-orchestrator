@@ -66,6 +66,7 @@ const ARMS: Record<string, { renders: ShowMeContext; hidden: ShowMeContext }> = 
   "#so-cast-scene": { renders: context(snap({}, true)), hidden: context(snap({}, false)) },
   "#so-judge-expansion-variants": { renders: context(null, { authorView: true }), hidden: context(null) },
   "#so-wi-lore-pins": { renders: context(null, { authorView: true }), hidden: context(null) },
+  "#so-wi-seeded-chance": { renders: context(null, { authorView: true }), hidden: context(null) },
   "#so-history-notes": { renders: context(null, { authorView: true }), hidden: context(null) },
   "#so-outward-narration": { renders: context(null, { authorView: true }), hidden: context(null) },
   "#so-mention-ledger": { renders: context(null, { authorView: true }), hidden: context(null) },

@@ -179,6 +179,8 @@ export const SETTING_COPY_TOOLS = {
   "worldInfo.lorePins": copy("Lore for where you are",
     "Adds the lore entry a story binds to the current place, and to a place or person just met, to the next replies, even when no keyword names it. "
       + "An entry the story keeps switched off, or one that would give away a secret, is left out."),
+  "worldInfo.seededChance": copy("Same lore on a swipe",
+    "Decides a story lorebook entry's trigger chance once per turn from a seed, so swipes and replays of that turn get the same lore. Sticky entries keep SillyTavern's roll."),
   "memory.historyNotes": copy("Time and place notes (trial)",
     "Adds a short note of the day and place to the first message after the scene or the time of day changed, in the prompt only. On since its blind rating passed."),
   "memory.outwardNarration": copy("Narrate only what can be seen (trial)",

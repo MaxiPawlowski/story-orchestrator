@@ -222,6 +222,8 @@ const WorldPage = ({ snapshot, manager, navigate }: PageProps) => {
         onChoose={(mode) => void (mode === "scan" ? wiGating()?.requestScan() : wiGating()?.requestFile())} onRenormalize={() => void wiGating()?.renormalize()} />
       {snapshot.ui.authorView && <GlobalCheck id="so-wi-lore-pins" setting="worldInfo.lorePins" manager={manager}
         read={(settings) => settings.worldInfo.lorePins} write={(on) => setGlobalSettings({ worldInfo: { lorePins: on } })} />}
+      {snapshot.ui.authorView && <GlobalCheck id="so-wi-seeded-chance" setting="worldInfo.seededChance" manager={manager}
+        read={(settings) => settings.worldInfo.seededChance} write={(on) => setGlobalSettings({ worldInfo: { seededChance: on } })} />}
     </Section>
     <Section title="Lore features" level={3}>
       <FeatureLinkRow feature="memoryLore" snapshot={snapshot} navigate={navigate} />

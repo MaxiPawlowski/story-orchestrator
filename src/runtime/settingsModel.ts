@@ -163,6 +163,7 @@ export interface WorldInfoSettings {
   lateLore: boolean;
   lateLoreDepth: number;
   lorePins: boolean;
+  seededChance: boolean;
 }
 
 export const DEFAULT_LATE_LORE_DEPTH = 4;
@@ -173,7 +174,7 @@ export const clampLateLoreDepth = (value: unknown, fallback: number = DEFAULT_LA
   typeof value === "number" && Number.isFinite(value) ? Math.min(LATE_LORE_DEPTH_MAX, Math.max(LATE_LORE_DEPTH_MIN, Math.round(value))) : fallback;
 
 export const defaultWorldInfoSettings = (): WorldInfoSettings => ({
-  gatingMode: "scan", normalized: {}, normalizedFrom: {}, scanMemory: true, keptGlobal: [], lateLore: true, lateLoreDepth: DEFAULT_LATE_LORE_DEPTH, lorePins: true,
+  gatingMode: "scan", normalized: {}, normalizedFrom: {}, scanMemory: true, keptGlobal: [], lateLore: true, lateLoreDepth: DEFAULT_LATE_LORE_DEPTH, lorePins: true, seededChance: true,
 });
 
 const sanitizeProvenance = (value: unknown): Record<string, NormalizedFrom[]> => {
@@ -211,6 +212,7 @@ const sanitizeWorldInfoSettings = (value: unknown): WorldInfoSettings => {
     lateLore: typeof value.lateLore === "boolean" ? value.lateLore : defaultWorldInfoSettings().lateLore,
     lateLoreDepth: clampLateLoreDepth(value.lateLoreDepth),
     lorePins: value.lorePins !== false,
+    seededChance: value.seededChance !== false,
   };
 };
 

@@ -202,6 +202,7 @@ Generated from the feature registry. "Experimental" means not yet measured; it i
 | World | Branches that follow you | When you leave the prepared ways forward, the story writes a branch that follows you and later comes back. | Experimental |
 | World | Scene test | Before the living director writes a turning point, a seeded draw may tell it the scene arrives changed or that the world acts first. | Experimental |
 | World | Lore for where you are | The lore entry for the current place, and for whoever was just met, is in the next reply. |  |
+| World | Same lore on a swipe | A story lorebook entry with a trigger chance gives the same answer for every swipe and replay of one turn. |  |
 | Images | Live close-shot head | A rigged close shot breathes, blinks, sways, gestures and talks as a reply streams. | Experimental |
 | Images | Prepared cast presentation | Review and accept each character's base and bust before sprites, poses and live heads use them. | Experimental |
 | Images | Reference views | Draw an accepted character three-quarter left and right, in profile and from behind, then accept or cancel all six views. | Experimental |
