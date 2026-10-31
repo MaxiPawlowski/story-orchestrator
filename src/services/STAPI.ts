@@ -88,6 +88,7 @@ export { installDraftGuard, isUserStoppedReply, startGroupVoice, startGroupVoice
 export { draftedCardName, draftedLoreMember, forceActivateEntries, getScannableEntries, readScanBuffer, type HostScanBuffer, type HostScannableEntry } from "@services/stHost/worldInfoActivate";
 export { readLorebookEntries, setLorebookEntriesDisabled } from "@services/stHost/worldInfoFiles";
 export { observeWorldInfoScans, loadedEntries, type HostEntriesLoaded, type WorldInfoScanObservation } from "@services/stHost/worldInfoEvidence";
+export { observeWorldInfoScanDone, readWorldInfoBudgetCap } from "@services/stHost/worldInfoScanDone";
 export { observeSamplerPayloads, readSamplerPreset, samplerApi, type SamplerPayloadHandlers } from "@services/stHost/samplerOverlay";
 export {
   installScanGating, installStoryLoreScan, probeScanGating, vectorsScanWorldInfo, type ScanGatingHandle, type StoryLoreScanHandle,

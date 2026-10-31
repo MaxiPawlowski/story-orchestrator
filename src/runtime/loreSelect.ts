@@ -1,15 +1,18 @@
 import { castCardName, type EngineState, type NormalizedStory } from "@engine/index";
 import { beginRun, type RunGuard, type RunOwnership } from "./runToken";
 import { fnv1a, storyRevision } from "./hash";
-import { buildLoreRequests, loreCandidates, loreKey, pickLore, readLore, type LoreEntry, type LorePick } from "@judge/lore";
+import { buildLoreRequests, loreCandidates, loreKey, loreTopK, pickLore, readLore, type LoreEntry, type LorePick } from "@judge/lore";
 import { LORE_RETRY_FALLBACKS, LORE_RETRY_WAIT_MS, LORE_TIMEOUT_MS } from "@judge/policy";
 import type { HostScannableEntry } from "@services/STAPI";
 import type { WriteResult } from "@utils/writeResult";
 import type { JudgeRuntime } from "./judge";
 import { excludedByTrigger, leftToScan, type ScanBufferView } from "./loreKeyMatch";
 import { eligibleLoreMember, type LoreMember } from "@utils/wiCharacterFilter";
+import { lexicalPlan, type LoreLexicalOptions } from "./loreLexicalPlan";
 
 export type LoreTrigger = "MESSAGE_SENT" | "GENERATION_STARTED";
+
+export type { LoreLexicalOptions } from "./loreLexicalPlan";
 
 export interface LoreSelectDeps {
   judge: () => JudgeRuntime | null;
@@ -23,6 +26,9 @@ export interface LoreSelectDeps {
   getScanBuffer?: (generationType?: string) => ScanBufferView | null;
   getDrafted?: () => string | null;
   getMember?: () => LoreMember;
+  lexical?: () => LoreLexicalOptions;
+  getPlayerTurn?: () => number | null;
+  getUnknownNames?: () => Promise<string[]>;
   wait?: (ms: number) => Promise<void>;
   // Optional: an unwired caller never lapses.
   ownership: RunOwnership;
@@ -41,6 +47,7 @@ export const loreStoryKey = (story: NormalizedStory): string => `${story.id ?? "
 export interface LoreSelection {
   trigger: LoreTrigger;
   cached: boolean;
+  lexical?: true;
   picks: Array<{ world: string; uid: number; comment: string; p: number }>;
   left: Array<{ world: string; uid: number; comment: string; reason: "keyword" | "self" }>;
 }
@@ -50,6 +57,10 @@ const sleep = (ms: number) => new Promise<void>((resolve) => { setTimeout(resolv
 const sameBook = (left: string, right: string) => left.trim().toLowerCase() === right.trim().toLowerCase();
 
 const fold = (text: string) => text.trim().toLowerCase();
+
+const hostKeys = (host: HostScannableEntry | undefined): string[] => (Array.isArray(host?.key) ? host.key.filter((key): key is string => typeof key === "string") : []);
+
+const rosterTerms = (story: NormalizedStory): string[] => (story.roster ?? []).flatMap((member) => [castCardName(member), ...(member.aliases ?? [])]);
 
 export function memberNames(story: NormalizedStory, card: string | null): string[] {
   if (!card?.trim()) return [];
@@ -137,7 +148,14 @@ export class LoreSelector {
       return reason === null;
     });
     const pickScope = { ...(scope.top_k !== undefined ? { topK: scope.top_k } : {}), ...(scope.min_p !== undefined ? { minP: scope.min_p } : {}) };
-    const known = new Map(this.scored?.key === sceneKey ? this.scored.p : []);
+    const plan = await lexicalPlan({
+      options: this.deps.lexical?.(), rated, candidates, window, terms: rosterTerms(story), sceneKey, playerTurn: this.deps.getPlayerTurn?.() ?? null,
+      keysOf: (candidate) => hostKeys(byKey.get(loreKey(candidate))), unknown: this.deps.getUnknownNames,
+      holdParts: () => [String(chatId), loreStoryKey(story), JSON.stringify(scope), checkpoint.id, fnv1a(JSON.stringify(scannable))],
+    });
+    if (!run.stillOwns()) return null;
+    const known = new Map(this.scored?.key === plan.scoreKey ? this.scored.p : []);
+    plan.prefilter(known);
     const chunks = buildLoreRequests(rated.filter((candidate) => !known.has(loreKey(candidate))), { checkpointName: checkpoint.name, objective: checkpoint.objective, window });
     const ask = async (chunk: (typeof chunks)[number]) => {
       const result = await judge.ask("lore", chunk.request, {
@@ -155,16 +173,18 @@ export class LoreSelector {
     const retry = missed && cooling <= LORE_RETRY_WAIT_MS && run.stillOwns();
     if (retry && cooling > 0) await (this.deps.wait ?? sleep)(cooling);
     const answered = await Promise.all(first.map(async (outcome, index) => (outcome.retry && retry && run.stillOwns() ? (await ask(chunks[index])).scored : outcome.scored)));
+    const fallback = plan.fallback(loreTopK(pickScope), chunks.length > 0 && answered.every((scored) => scored === null));
+    if (fallback) return this.lexicalFallback(fallback, byKey, run, memberKey, trigger, left);
     answered.forEach((scored, index) => {
       if (!scored) return;
       const p = new Map(scored.map((pick) => [loreKey(pick.entry), pick.p]));
       for (const asked of chunks[index].entries) known.set(loreKey(asked), p.get(loreKey(asked)) ?? null);
     });
-    if (run.stillOwns()) this.scored = { key: sceneKey, p: known };
+    if (run.stillOwns()) this.scored = { key: plan.scoreKey, p: known };
     const picked: LorePick[] = pickLore(rated.flatMap((candidate) => {
       const p = known.get(loreKey(candidate));
-      return typeof p === "number" ? [{ entry: candidate, p }] : [];
-    }), pickScope);
+      return typeof p === "number" ? [{ entry: candidate, p: plan.adjust(candidate, p) }] : [];
+    }), pickScope, plan.tiebreak);
     if (this.deps.getMember && JSON.stringify(this.deps.getMember()) !== memberKey) return null;
     const entries = picked.flatMap((pick) => byKey.get(`${pick.entry.world}.${pick.entry.uid}`) ?? []);
     const picks = picked.map((pick) => ({ world: pick.entry.world, uid: pick.entry.uid, comment: pick.entry.comment, p: pick.p }));
@@ -180,6 +200,13 @@ export class LoreSelector {
   // the prompt then carried ST's ordinary keyword scan and nothing said why. Nothing to force is
   // not a failure; a refused force is, and this says so. The token check lives here rather than at
   // the call sites because this is where the write is.
+  private async lexicalFallback(fallback: LoreEntry[], byKey: Map<string, HostScannableEntry>, run: RunGuard, memberKey: string, trigger: LoreTrigger,
+    left: LoreSelection["left"]): Promise<LoreSelection | null> {
+    if (this.deps.getMember && JSON.stringify(this.deps.getMember()) !== memberKey) return null;
+    if (!(await this.forced(fallback.flatMap((entry) => byKey.get(loreKey(entry)) ?? []), run))) return null;
+    return { trigger, cached: false, lexical: true, picks: fallback.map((entry) => ({ world: entry.world, uid: entry.uid, comment: entry.comment, p: 0 })), left };
+  }
+
   private async forced(entries: HostScannableEntry[], run: RunGuard): Promise<boolean> {
     if (!run.stillOwns()) return false;
     if (!entries.length) return true;

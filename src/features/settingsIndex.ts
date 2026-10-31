@@ -64,6 +64,12 @@ export const SETTING_CONTROLS: Record<string, string> = {
   "worldInfo.gatingMode": "so-wi-gating-mode",
   "worldInfo.lorePins": "so-wi-lore-pins",
   "worldInfo.seededChance": "so-wi-seeded-chance",
+  "worldInfo.budgetEvidence": "so-wi-budget-evidence",
+  "worldInfo.lexicalFallback": "so-wi-lexical-fallback",
+  "worldInfo.lexicalPrefilter": "so-wi-lexical-prefilter",
+  "worldInfo.lexicalTiebreak": "so-wi-lexical-tiebreak",
+  "worldInfo.holdRound": "so-wi-hold-round",
+  "worldInfo.preferKnown": "so-wi-prefer-known",
   "memory.historyNotes": "so-history-notes",
   "memory.outwardNarration": "so-outward-narration",
   "memory.mentionLedger": "so-mention-ledger",
@@ -73,7 +79,8 @@ export const SETTING_CONTROLS: Record<string, string> = {
   "pacing.pathArc": "so-authoring-path-arc",
 };
 
-const AUTHOR_SETTINGS: ReadonlySet<string> = new Set(["worldInfo.lorePins", "worldInfo.seededChance", "memory.historyNotes", "memory.outwardNarration", "talk.swipeContrast",
+const AUTHOR_SETTINGS: ReadonlySet<string> = new Set(["worldInfo.lorePins", "worldInfo.seededChance", "worldInfo.budgetEvidence", "worldInfo.lexicalFallback",
+  "worldInfo.lexicalPrefilter", "worldInfo.lexicalTiebreak", "worldInfo.holdRound", "worldInfo.preferKnown", "memory.historyNotes", "memory.outwardNarration", "talk.swipeContrast",
   "memory.mentionLedger", "memory.strengthRetention", "memory.retrievalQuery", "pacing.pathArc"]);
 
 const firstSentence = (text: string): string => /^(.+?[.!?])(\s|$)/.exec(text)?.[1] ?? text;

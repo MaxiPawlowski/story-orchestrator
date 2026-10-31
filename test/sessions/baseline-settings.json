@@ -211,7 +211,13 @@
       "lateLore": true,
       "lateLoreDepth": 4,
       "lorePins": true,
-      "seededChance": true
+      "seededChance": true,
+      "budgetEvidence": true,
+      "lexicalFallback": true,
+      "lexicalPrefilter": true,
+      "lexicalTiebreak": true,
+      "holdRound": true,
+      "preferKnown": true
     },
     "image": {
       "enabled": false,

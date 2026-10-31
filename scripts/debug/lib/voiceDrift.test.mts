@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { bucketOf, capitalisedChats, chatDrift, cosineDistance, driftVerdict, editDistance, nameNearMisses, nameVocabulary, trigramProfile, type DriftReply } from './voiceDrift.mts';
 import { distinctReplies, parseChatLines, sessionChatLines } from './voiceCorpus.mts';
-import { crossCensus, nameCensus } from '../so-voice-census.mts';
+import { crossCensus, holdCensus, nameCensus } from '../so-voice-census.mts';
 
 test('position buckets follow the predeclared edges', () => {
   assert.equal(bucketOf(1), '1-10');
@@ -91,4 +91,19 @@ test('cross census counts header and prose hits and what the trim keeps', () => 
 test('name census counts near misses per 1000 replies', () => {
   const result = nameCensus([chat, parseChatLines('c2', [JSON.stringify({ name: 'Tobias', mes: 'Here.' }), JSON.stringify({ name: 'Bram', mes: 'Tobies is late.' })])]);
   assert.equal(result.nearMisses, 1);
+});
+
+test('hold census asks once per round unless a new name enters the window', () => {
+  const round = parseChatLines('h1', [
+    JSON.stringify({ name: 'Max', is_user: true, mes: 'Hello.' }),
+    JSON.stringify({ name: 'Mara', mes: 'Hi.' }),
+    JSON.stringify({ name: 'Bram', mes: 'Hey.' }),
+    JSON.stringify({ name: 'Mara', mes: 'Where is Bram going?' }),
+    JSON.stringify({ name: 'Max', is_user: true, mes: 'Out.' }),
+    JSON.stringify({ name: 'Mara', mes: 'Fine.' }),
+  ]);
+  const result = holdCensus([round]);
+  assert.equal(result.asksBefore, 4);
+  assert.equal(result.asksAfter, 2);
+  assert.equal(result.multiMemberRounds, 1);
 });

@@ -31,6 +31,41 @@ export const MECHANICS_FEATURES: readonly Feature[] = [
     settings: ["talk.dryNames"], doc: "setup/settings-reference.md", status: "shipped", needs: ["group-chat", "story"],
   },
   {
+    id: "lore-budget-evidence", name: "Lore cut by the budget", area: "world", audience: "author",
+    oneLine: "Records which story lore entries matched but did not fit SillyTavern's lore budget, and warns when the budget has no cap.",
+    what: "Each reply's World Info scan is watched, read only. A story lorebook entry that matched but was cut because the lore budget ran out is "
+      + "listed in the Author console under Cut by budget, and Repair names it once it is cut in 2 of the last 10 replies, with the book that used "
+      + "the budget. Repair also notes when SillyTavern's lore budget has no cap and this story's lorebooks are large. Nothing is changed for you.",
+    where: settingsAt("#so-wi-budget-evidence", "World & lore › Record lore cut by the budget"),
+    settings: ["worldInfo.budgetEvidence"], doc: "setup/settings-reference.md", status: "shipped", needs: ["story"],
+  },
+  {
+    id: "lore-lexical", name: "Word-match lore", area: "world", audience: "author",
+    oneLine: "Matches lore entries against the recent chat by their words: a fallback when the judge is silent, a shortlist for the judge and a tie-break.",
+    what: "A word-match score (BM25 over each entry's title, keys and text against the recent chat, the newest line counting double) helps lore "
+      + "selection three ways, each with its own switch: when the judge cannot answer, the two best matches are forced instead of none; with more "
+      + "than 12 entries, the judge is asked only about the 12 best matches; and when the judge rates two entries the same, the better match goes "
+      + "first. No model call.",
+    where: settingsAt("#so-wi-lexical-fallback", "World & lore › Word-match lore when the judge is silent"),
+    settings: ["worldInfo.lexicalFallback", "worldInfo.lexicalPrefilter", "worldInfo.lexicalTiebreak"], doc: "setup/settings-reference.md", status: "shipped", needs: ["story"],
+  },
+  {
+    id: "lore-hold-round", name: "Keep the lore picks for a round", area: "world", audience: "author",
+    oneLine: "Lore is chosen once per message of yours and kept while the other characters reply.",
+    what: "Before, the judge was asked about lore before every character's reply. Now its answer is kept for the round, until your next message, a "
+      + "change of checkpoint, or a lore entry newly named in the chat. Each character still gets only the entries meant for them. Fewer judge calls.",
+    where: settingsAt("#so-wi-hold-round", "World & lore › Keep the lore picks for a round"),
+    settings: ["worldInfo.holdRound"], doc: "setup/settings-reference.md", status: "shipped", needs: ["story"],
+  },
+  {
+    id: "lore-prefer-known", name: "Prefer lore you have met", area: "world", audience: "author",
+    oneLine: "Lore about people, places and things you have not met ranks a little lower.",
+    what: "An entry that names someone or something in the story's codex you have not met yet loses a little of the judge's rating before the cut, and "
+      + "is never forced by word match alone. Characters may still know it; this only makes it less likely to be put in front of them.",
+    where: settingsAt("#so-wi-prefer-known", "World & lore › Prefer lore you have met"),
+    settings: ["worldInfo.preferKnown"], doc: "setup/settings-reference.md", status: "shipped", needs: ["story"],
+  },
+  {
     id: "path-arc", name: "Pace by the road ahead", area: "authoring", audience: "author",
     oneLine: "The dramatic shape follows the turning points left on the way to an ending, and eases off after a climax.",
     what: "Where a beat has no tension target of its own, the story's dramatic shape is read at how far along the road the chat is: the turning points already "

@@ -1,16 +1,18 @@
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { namedEntries } from '../../src/judge/loreLexical.ts';
 import { crossVoiceHits, partyNames, trimCrossVoice, type VoiceParty } from '../../src/talk/crossVoice.ts';
 import { distinctReplies, laneChatDirs, loadGroupChats, loadSessionChats, type CorpusChat } from './lib/voiceCorpus.mts';
 import { capitalisedChats, chatDrift, driftVerdict, nameNearMisses, nameVocabulary, DRIFT_FLOORS, type DriftReply } from './lib/voiceDrift.mts';
 
-const USAGE = `Usage: node scripts/debug/so-voice-census.mts <cross|names|drift|all> [--root C:/dev/so-lanes] [--sessions C:/dev/so-sessions.git]
+const USAGE = `Usage: node scripts/debug/so-voice-census.mts <cross|names|drift|hold|all> [--root C:/dev/so-lanes] [--sessions C:/dev/so-sessions.git]
 
 v3.0 42a G offline voice counts over the lane group chats and the private session chat dumps (read through git, deduplicated). Prints counts only, never chat text.
   cross   G1: replies with another member's or the player's header line, prose attribution, and what the trim keeps
   names   G3: near-miss spellings of speaker names per 1000 member replies
-  drift   G2: character 3-gram distance per position bucket, own and between members, card examples where readable`;
+  drift   G2: character 3-gram distance per position bucket, own and between members, card examples where readable
+  hold    G6: lore-select judge rounds per member generation, asked per message (before) vs held across a round (after)`;
 
 const argValue = (args: string[], name: string) => { const at = args.indexOf(name); return at >= 0 ? args[at + 1] ?? null : null; };
 
@@ -136,9 +138,44 @@ export const driftCensus = (chats: readonly CorpusChat[], cards: Record<string, 
   };
 };
 
+export const LORE_WINDOW = 8;
+
+export const holdCensus = (chats: readonly CorpusChat[]) => {
+  let before = 0;
+  let after = 0;
+  let roundsMulti = 0;
+  let beforeMulti = 0;
+  let afterMulti = 0;
+  for (const chat of chats) {
+    const entities = [...chat.members, ...chat.players].map((name, uid) => ({ world: 'cast', uid, comment: name, content: '', keys: [name] }));
+    let lastKey: string | null = null;
+    let playerTurn = -1;
+    let round = { generations: 0, asks: 0 };
+    const close = () => {
+      if (round.generations >= 2) { roundsMulti += 1; beforeMulti += round.generations; afterMulti += round.asks; }
+      round = { generations: 0, asks: 0 };
+    };
+    chat.messages.forEach((message, index) => {
+      if (message.user) {
+        playerTurn = index;
+        close();
+        return;
+      }
+      const window = chat.messages.slice(Math.max(0, index - LORE_WINDOW), index);
+      const key = `${playerTurn}|${namedEntries(entities, window).join(',')}`;
+      before += 1;
+      round.generations += 1;
+      if (key !== lastKey) { after += 1; round.asks += 1; lastKey = key; }
+    });
+    close();
+  }
+  return { generations: before, asksBefore: before, asksAfter: after, ratio: before ? Number((after / before).toFixed(4)) : null,
+    multiMemberRounds: roundsMulti, multiBefore: beforeMulti, multiAfter: afterMulti, multiRatio: beforeMulti ? Number((afterMulti / beforeMulti).toFixed(4)) : null, floor: 0.6 };
+};
+
 const main = () => {
   const [command, ...args] = process.argv.slice(2);
-  if (!command || !['cross', 'names', 'drift', 'all'].includes(command)) {
+  if (!command || !['cross', 'names', 'drift', 'hold', 'all'].includes(command)) {
     console.log(USAGE);
     process.exit(command ? 1 : 0);
   }
@@ -148,6 +185,7 @@ const main = () => {
   const out: Record<string, unknown> = {};
   if (command === 'cross' || command === 'all') out.cross = crossCensus(chats);
   if (command === 'names' || command === 'all') out.names = nameCensus(chats);
+  if (command === 'hold' || command === 'all') out.hold = holdCensus(chats);
   if (command === 'drift' || command === 'all') out.drift = driftCensus(chats, readCardExamples(root));
   console.log(JSON.stringify(out, null, 1));
 };

@@ -20,6 +20,7 @@ import { stagedPath } from "../worldInfoGates";
 import type { Disposers, WindowAccess } from "./types";
 import type { LorePinDeps } from "../lorePins";
 import { log } from "@utils/log";
+import { isRecord } from "@utils/guards";
 
 const chatId = () => getContext().chatId ?? null;
 
@@ -104,6 +105,25 @@ export const startLore = (disposers: Disposers, judgeRuntime: JudgeRuntime, gene
     getScanBuffer: readScanBuffer,
     getDrafted: draftedCardName,
     getMember: draftedLoreMember,
+    lexical: () => {
+      const settings = runtimeManager.getEffectiveSettings().worldInfo;
+      return { fallback: settings.lexicalFallback, prefilter: settings.lexicalPrefilter, tiebreak: settings.lexicalTiebreak, hold: settings.holdRound, preferKnown: settings.preferKnown };
+    },
+    getPlayerTurn: () => {
+      const rows = getContext().chat ?? [];
+      for (let index = rows.length - 1; index >= 0; index -= 1) {
+        const row = rows[index];
+        if (isRecord(row) && row.is_user === true) return index;
+      }
+      return null;
+    },
+    getUnknownNames: async () => {
+      const story = runtimeManager.getStory();
+      const values = runtimeManager.getEngineState()?.blackboard.values;
+      if (!story || !values) return [];
+      const { knownEntities, unknownEntityNames } = await import("@engine/codex");
+      return unknownEntityNames(story, knownEntities(story, values, runtimeManager.getEnabledCharacterIds()));
+    },
     ownership: runtimeManager.getOwnership(),
   });
   globalThis.storyOrchestratorLore = { selector: lore, willAddUserMessage };
@@ -153,18 +173,38 @@ export const startLore = (disposers: Disposers, judgeRuntime: JudgeRuntime, gene
     selection: () => lore.completeSelection(),
   });
 
-  const forcedThisRun = { picks: [] as Array<{ world: string; uid: number; comment: string }> };
+  const forcedThisRun = { picks: [] as Array<{ world: string; uid: number; comment: string }>, all: [] as Array<{ world: string; uid: number }> };
+  const budget = { stop: null as (() => void) | null, disposed: false };
+  disposers.push(() => { budget.disposed = true; budget.stop?.(); });
+  void import("../loreBudgetHost").then(({ startLoreBudget }) => {
+    if (budget.disposed) return;
+    budget.stop = startLoreBudget({
+      enabled: () => runtimeManager.getEffectiveSettings().worldInfo.budgetEvidence,
+      chatId,
+      ownedChat: () => runtimeManager.getLoadedChatId(),
+      story: () => runtimeManager.getStory(),
+      loud: () => generation.snapshot().outermost !== null && !withholds(innermostType(generation)),
+      forced: () => forcedThisRun.all,
+      notify: () => runtimeManager.notify(),
+    });
+  });
   const select = (trigger: LoreSelectTrigger, generationType?: string) => lore.select(trigger, generationType)
-    .then((selection) => { if (selection) { forcedThisRun.picks = selection.picks; loreWatch.forced(selection.picks); } })
+    .then((selection) => { if (selection) { forcedThisRun.picks = selection.picks; forcedThisRun.all = selection.picks; loreWatch.forced(selection.picks); } })
     .catch((error) => log.warn("lore-select failed", error));
   const timing = loreSelectTiming({ active: () => lore.active(), willAddUserMessage, select });
   const pin = async (type: string) => {
     const { pinLore } = await import("../lorePins");
     const plan = await pinLore(lorePinDeps(), withholds(type));
-    if (plan?.pinned.length) loreWatch.forced([...forcedThisRun.picks, ...plan.pinned]);
+    if (plan?.pinned.length) {
+      forcedThisRun.all = [...forcedThisRun.picks, ...plan.pinned];
+      loreWatch.forced([...forcedThisRun.picks, ...plan.pinned]);
+    }
   };
   const onGenerationStarted: typeof timing.onGenerationStarted = async (type, params, dryRun) => {
-    if (!dryRun) forcedThisRun.picks = [];
+    if (!dryRun) {
+      forcedThisRun.picks = [];
+      forcedThisRun.all = [];
+    }
     await timing.onGenerationStarted(type, params, dryRun);
   };
   const onIntercept = async (type: string, aborted: boolean) => {
