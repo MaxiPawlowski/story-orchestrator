@@ -74,6 +74,50 @@ never retuned.
   holds an exit until the nth player turn and `urgent` bypasses; (baseline, no target) `exit-on-entry` count over the test
   fixture stories.
 
+## Agent G items and floors (declared before measuring, 2026-10-31)
+
+Branch `v3.0-42a-g`. No GPU, no lanes, no ST (brief). Corpus for the offline counts: the group chats under
+`C:\dev\so-lanes\*\data\default-user\group chats` (seeded copies, deduplicated by speaker + text), counts only.
+Floors are informational unless marked hard; a miss is recorded, never retuned.
+
+- G1 cross-voice (`talk.crossVoiceTrim`, on): detector `talk/crossVoice.ts` (a line headed by another member's or the
+  player's name; `"…," Name said` prose for another member or the player, readout only). S0 baseline: header hits and
+  prose hits per 100 member replies; research stop lines recorded (voice-community P1: under 1 in 50 replies; voice-research
+  P3: under 1 per 100), the switch is built either way (plan lists it). Trim at the reply-repair chain right after the
+  thought-leak pass: cut from the first foreign header line. Hard: `extra.reasoning` never edited; a reply that would keep
+  fewer than 40 visible characters is kept as written (journaled); story chat and member replies only; after the trim the
+  corpus has 0 header hits in trimmed replies.
+- G2 voice drift scorer (yardstick, no switch): `scripts/debug/lib/voiceDrift.mts` + `so-voice-census.mts drift`;
+  character 3-gram cosine distance per member and position bucket (replies 1-10, 11-30, 31-60, 61+): between members,
+  to the member's own first bucket, to the card's `mes_example` when the card is readable. Floors (voice-research P1 E
+  thresholds, frozen now): own-voice distance at 61+ <= 1.25x the 11-30 bucket; between-member distance at 61+ >= 0.8x
+  the 11-30 bucket. Baseline on chats with a member past 61 replies.
+- G3 DRY name breakers (`talk.dryNames`, on): the overlay appends roster card names, their given names, aliases and the
+  persona name to the request's own `dry_sequence_breakers` (textgen, loud story-chat requests, only when the request
+  carries the key; never replaces, never an install write). S0 baseline: near-miss spellings (edit distance 1-2, same
+  initial, name length >= 4) of speaker names per 1000 member replies; research stop line 0 in a large sample, recorded.
+  Hard: append-only, idempotent, request-scoped (unit tests).
+- G4 lore budget evidence (`worldInfo.budgetEvidence`, on): read-only `WORLDINFO_SCAN_DONE` observer; an entry in
+  `new.all` and not in `new.successful` while `budget.overflowed`, minus failed probability checks, is "cut by budget".
+  Check `lore-budget-starved` (author, degrades): a story-book entry we forced, pinned or gated on was cut in >= 2 of
+  the last 10 loud scans; names the book that held the most budget. Author console row "cut by budget". Hard: firing
+  fixture; no host write. No offline baseline (needs scans): live row in the GPU queue.
+- G5 BM25 lexical arm (`worldInfo.lexicalFallback`, `worldInfo.lexicalPrefilter`, `worldInfo.lexicalTiebreak`, on):
+  pure `judge/loreLexical.ts` (BM25 over comment + keys + content, query = window with the newest line x2, roster names
+  and aliases, plural/possessive folding). Measured on `lore.json` (11 rows, judge answers replayed from its golden) and
+  `lore-relevance.json` (17 graded rows, golden answers). Floors (lore-research P1, lore-community P3): (a) fallback:
+  lexical precision@4 >= 0.6 and recall of `needed` in the top 4 >= 0.8 on lore-relevance, lexical recall@2 >= 0.6 on
+  lore.json; (b) prefilter M = 12: recall of judge picks inside the top M >= 0.95, calibration recall drops <= 1 row;
+  (c) tiebreak: tie rate falls and nDCG@4 does not drop.
+- G6 hold lore across a round (`worldInfo.holdRound`, on): the judge's scores are reused until a new player message, a
+  checkpoint change or a change in the set of entries named in the window; picks are still cut per drafted member (member
+  filters). Offline over the corpus: lore-select judge rounds per player round before (one per member generation) and
+  after. Floor: after <= 0.6x before on chats with multi-member rounds. Hard: a player message always reselects;
+  checkpoint or entity change reselects (unit tests).
+- G7 prefer known entities (`worldInfo.preferKnown`, on; owner decision 1): a candidate naming a codex entity the player
+  has not met loses 0.1 of its judge p before the cut and is never forced by the lexical fallback. Hard: both rules
+  (unit tests). Offline: the lore fixtures carry no codex, so before = after there (structural, recorded).
+
 ## Gate record F
 
 2026-10-31, branch `v3.0-42a-f`.
