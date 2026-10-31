@@ -61,3 +61,26 @@ Each a spike behind `spikes.<id>` (lazy `runtime/spikes/`), CPU-built ahead, dec
   floors: E0 hit@4 and lore precision@4 up.
 
 Lore budget cap: for this one case the owner keeps ST settings unchanged (warning + campaign guideline instead).
+
+## Phase 2 agent P — progression and director (floors committed before measuring)
+
+Sources: `research/progression-products.md` P1, `research/progression-research.md` P2, `research/director-research.md` P1,
+`research/director-products.md` P1. Every switch on by default; floors informational, never retuned after the run.
+
+- P1 stuck ladder (`pacing.stuckLadder`): authored `checkpoints[].leads` (1-4) + `stuck_after` (1-20, default 6) on gated
+  checkpoints. Rung derived from the boundary log + player turn ids (no slice, no model call): quiet player turns since
+  the last watched exit key moved; rung 1 at `stuck_after`, +1 every 3 quiet turns; rung k shows lead k, past the last
+  lead (or with none from rung 2) one generic line. Never forces completion. Hard floors: rung table on fixtures, reset
+  on a watched-key move, same rung on a replayed log (rollback = replay), no line on open stretches/finals/counter-only
+  exits. Studio warning `one-clue-exit`: fires on a one-key fixture, silent with 2+ leads, an alternate or a counter leaf.
+  Baseline: count of fixture checkpoints it flags. GPU row M43-P1: median turns to exit on a stuck fixture -30% or more,
+  heavy-handed/forced flags at most control + 1 (blind rating owner-gated).
+- P2 judge director critic (`judge.uses.directorCritic`): five nouls (player-act, contradicts, outcome-name, new-person,
+  follows-thread), verdict in code, falls back to the LLM critic when the judge is off/unavailable. Floors on labelled
+  director drafts (recorded director answers + authored synthetic cases, no campaign text): player-act recall >= 0.9,
+  false refusals <= 0.15. Live row stays M21.
+- P3 multi-lead turning points (`stagecraft.livingLeads`): director `opens_when` may be a list of 2-3 leads, way-in gate
+  `any[lead..., pace]`, still one transition per boundary; every new lead counts against `LIVING_MAX_NEW_QUALITIES`.
+  Hard floors: recorded single-lead goldens replay unchanged; a 3-lead draft builds one transition with an any-gate;
+  impossible/open-on-arrival leads stay refused (0 on the goldens).
+- P4 Studio fields for checkpoint `min_turns` and transition `urgent` with stories (no switch).
