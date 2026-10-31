@@ -23,6 +23,7 @@ export const checkRushDiagnostics = ({ draft, push }: RushRun) => {
     if (gateKeys(transition.gate).some((key) => TIME_KEYS.includes(key))) return;
     const to = byId.get(transition.to)?.name ?? transition.to;
     push("exit-on-entry", "info", `transitions.${index}.gate`,
-      `the exit to "${to}" can open on the turn the story enters "${from.name}" (tension ${from.tension_target}); set min_turns on the checkpoint, add a turn count to the gate, or mark the exit urgent`);
+      `the exit to "${to}" can open on the turn the story enters "${from.name}" (tension ${from.tension_target}); `
+        + "set min_turns on the checkpoint, add a turn count to the gate, or mark the exit urgent");
   });
 };
