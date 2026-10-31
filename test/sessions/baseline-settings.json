@@ -70,8 +70,8 @@
       "patterns": true,
       "deferrals": true,
       "deferredOutOfPrompt": false,
-      "historyNotes": false,
-      "outwardNarration": false,
+      "historyNotes": true,
+      "outwardNarration": true,
       "injectionDepths": {
         "facts": 4,
         "session_details": 3,

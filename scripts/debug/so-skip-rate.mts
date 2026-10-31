@@ -63,11 +63,24 @@ const chatTail = (page: Page, count = 8) => page.evaluate((count) => {
   return ctx.chat.slice(-count).map((row) => `${String(row.name ?? '')}: ${String(row.mes ?? '')}`);
 }, count);
 
+const skipReady = (page: Page, timeoutMs = 300000) => page.evaluate(async (timeoutMs) => {
+  const rt = (globalThis as unknown as { storyOrchestratorRuntime: { getSnapshot(): { skip?: { enabled: boolean } } } }).storyOrchestratorRuntime;
+  const sleep = (ms: number) => new Promise((done) => setTimeout(done, ms));
+  const until = Date.now() + timeoutMs;
+  let quiet = 0;
+  while (Date.now() < until && quiet < 6) {
+    quiet = !document.body.dataset.generating && rt.getSnapshot().skip?.enabled ? quiet + 1 : 0;
+    await sleep(500);
+  }
+  return quiet >= 6;
+}, timeoutMs);
+
 async function capture(page: Page, out: string, lines: string[], n: number) {
   await mkdir(out, { recursive: true });
   const file = join(out, 'states.jsonl');
   const done = (await readJsonl<CapturedState>(file)).length;
   for (let index = done; index < n; index += 1) {
+    await skipReady(page);
     const chat = await chatTail(page);
     const visible = await visibleOf(page);
     const start = await page.evaluate(() => (globalThis as unknown as { SillyTavern: { getContext(): { chat: unknown[] } } }).SillyTavern.getContext().chat.length);

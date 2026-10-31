@@ -182,8 +182,8 @@ Generated from the feature registry. "Experimental" means not yet measured; it i
 | Characters | Voice and delivery | Each character is told privately how they word things. |  |
 | Characters | Reply polish | Checks what a reply would read like with a character's off-voice words removed, without changing the chat. | Experimental |
 | Characters | Rumors and gossip | News a story declares travels between characters along the channels it authors, and may change on the way. |  |
-| Characters | Time and place notes in the history | Messages where the scene or the time changed carry a short note of the day and place. | Off by default |
-| Characters | Narrate only what can be seen | The narrator shows other characters' feelings through what they say and do. | Off by default |
+| Characters | Time and place notes in the history | Messages where the scene or the time changed carry a short note of the day and place. |  |
+| Characters | Narrate only what can be seen | The narrator shows other characters' feelings through what they say and do. |  |
 | Characters | A swipe sees the reply it replaces | A new swipe is told which reply you threw away, so it writes something else. | Off by default |
 | Characters | Skip ahead | Skip travel, waiting or routine: one narrator reply tells the time passing and stops where you are needed. | Off by default |
 | World | Story lorebook switching | Story lorebook entries switch on and off as the story moves. |  |

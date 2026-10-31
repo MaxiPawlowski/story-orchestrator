@@ -180,9 +180,9 @@ export const SETTING_COPY_TOOLS = {
     "Adds the lore entry a story binds to the current place, and to a place or person just met, to the next replies, even when no keyword names it. "
       + "An entry the story keeps switched off, or one that would give away a secret, is left out."),
   "memory.historyNotes": copy("Time and place notes (trial)",
-    "Adds a short note of the day and place to the first message after the scene or the time of day changed, in the prompt only. Off until it is rated."),
+    "Adds a short note of the day and place to the first message after the scene or the time of day changed, in the prompt only. On since its blind rating passed."),
   "memory.outwardNarration": copy("Narrate only what can be seen (trial)",
-    "Asks a narrator that sees the cast's private aims to show feelings through speech and action, never as reported thoughts. Off until it is rated."),
+    "Asks a narrator that sees the cast's private aims to show feelings through speech and action, never as reported thoughts. On since its blind rating passed."),
   "talk.swipeContrast": copy("Swipes see the reply they replace (trial)",
     "When you swipe for a new reply, the visible text of the reply you threw away is shown once, marked as rejected, so the new reply differs. Off until it is rated."),
   "sprites.cardOverlay": copy("Current character state in replies",

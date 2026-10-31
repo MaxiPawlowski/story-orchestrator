@@ -143,3 +143,8 @@ Gates (branch tree `b2c47f1d`, shared by plans 31 and 34):
 - UI-rework-zone files touched: `src/components/settings/PlayGroups.tsx` (CharacterStateGroup trial rows, lore-pins state),
   `src/components/settings/WorldInfoGatingGroup.tsx` (`#so-wi-lore-pins` row), `src/studio/mutations.ts` (`setRequirements`
   keeps the bindings).
+## Rating record 2026-10-30 (GPU G1, lane 41)
+
+ARMS-34S1 (notes): **PASS**, Sol 25 pairs. Preference on 25 / off 0; categories +0.28/+3.04/+0.12/+0.08; flags 1 vs 19; closure
+25/25; echo 0; place/day-part contradictions 2 vs 20 (down 0.90, floor 0.5). Full numbers with ARMS-31S1/31S2 in plan 31's
+Rating record. `memory.historyNotes` default flipped to on in branch `v3.0-g1-defaults`. Still owed: 34 S2 live gate, S0.

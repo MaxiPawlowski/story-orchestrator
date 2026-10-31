@@ -10,9 +10,9 @@ const voices: CastVoice[] = [
 const hiding = { id: "h", subject: "Kael", tag: "hiding", hiddenFrom: "Lyria", content: "the theft", status: "active", source: "extractor", createdAt: 0 } as unknown as EpistemicEntry;
 
 describe("v3.0 31 S1 outward narration clause", () => {
-  test("the switch is off by default (prompt layout waits for its blind rating)", () => {
-    expect(sanitizeGlobalSettings(undefined).memory.outwardNarration).toBe(false);
-    expect(sanitizeGlobalSettings({ memory: { outwardNarration: true } }).memory.outwardNarration).toBe(true);
+  test("the switch is on by default since its blind rating passed; only an explicit false turns it off", () => {
+    expect(sanitizeGlobalSettings(undefined).memory.outwardNarration).toBe(true);
+    expect(sanitizeGlobalSettings({ memory: { outwardNarration: false } }).memory.outwardNarration).toBe(false);
   });
 
   test("the clause text is pinned and static, so the prompt head does not move", () => {
