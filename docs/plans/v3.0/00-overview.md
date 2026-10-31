@@ -662,3 +662,9 @@ Branch `v3.0-owner-1031` (owner "as recommended"): HF-REGEN for the `/comment` t
   ST source. A lane would need this build served without staging into the owner's ST, which this run was told not to do:
   owed, one no-model lane check (announce on, `/cp` transition, send, regenerate, swipe).
 - Gates: `npm run gates:quick` green (55.3s). `npm run gates` (no `--resume`, Storybook included): run 1 red (codeHealth S3: `effectsApplier.ts` over the file budget, queue moved to `TransitionNoteQueue`), run 2 all green in 343.9s on `07aa15c08` (jest 11,064 passed / 1 skipped, test:debug 1,733, Storybook 191 suites / 1,133 tests, replay, release, plugin, lint, typechecks, build). Not staged.
+
+## Adolion pin merge 2026-10-31
+
+- Branch `v3.0-adolion-pin-1031` `2aa4a4f3` (pin `e11ceb95`, regenerated charters, cards doc, runs index; no campaign content here), master `1ccb416b` merged.
+- `npm run gates:quick` green (125.0s). `npm run gates` (no `--resume`, Storybook included): all green in 410.2s (jest 11,064 passed / 1 skipped, test:debug 1,733, Storybook 191 suites / 1,133 tests, replay, release, plugin, lint, typechecks, build).
+- Not staged, not reinstalled into any ST; lanes reseed from the new pin on their next `adolion-fresh.mts seed`.
