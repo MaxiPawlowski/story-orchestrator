@@ -9,7 +9,7 @@ import { parseDirectorDraft } from "./parse";
 import { findFrontier, livingAutonomy } from "./frontier";
 import { buildDirectorOps, checkDirectorOps, planChapter } from "./plan";
 import { renderDirectorPrompt, type DirectorInput } from "./prompt";
-import { runDirector } from "./direct";
+import { CRITIC_UNREADABLE, runDirector } from "./direct";
 import { createLivingState, LIVING_PACE_TURNS, LIVING_STUB_TURNS, type DirectorDraft, type LivingOp, type LivingOpPayload, type LivingRuntimeState } from "./types";
 
 const fixture = (name: string): Record<string, unknown> => JSON.parse(readFileSync(join(__dirname, "../../../test/fixtures", `${name}.story.json`), "utf8"));
@@ -328,6 +328,19 @@ describe("runDirector", () => {
     expect(outcome.status).toBe("ok");
     expect(model.prompts[1]).toContain("narrates the player's own act");
     expect(outcome.status === "ok" && outcome.anchorId).toBe("liv_1");
+  });
+
+  it("defect: an unreadable critic verdict fails closed: one re-read, then the draft is retried and refused", async () => {
+    const run = { story, raw, frontierId: "liv_open", values: {}, latched: {}, sealsOn: true, input, guard: { playerNames: [], restatesSecret: () => false }, critic: true };
+    const model = scripted([good, "not a verdict", "[1, 2]", good, "garbled", "still garbled"]);
+    const outcome = await runDirector(run, model, { role: "authoring", pass: "living" });
+    expect(outcome.status).toBe("refused");
+    expect(outcome.status === "refused" && outcome.issues).toEqual([CRITIC_UNREADABLE]);
+    expect(outcome.status === "refused" && outcome.refusal.stage).toBe("critic");
+    expect(model.prompts).toHaveLength(6);
+    expect(model.prompts[3]).toContain(CRITIC_UNREADABLE);
+    const reread = await runDirector(run, scripted([good, "garbled", JSON.stringify({ pass: true, issues: [] })]), { role: "authoring", pass: "living" });
+    expect(reread.status).toBe("ok");
   });
 
   it("repairs JSON syntax locally before spending a retry, and still retries an unrepairable answer", async () => {
