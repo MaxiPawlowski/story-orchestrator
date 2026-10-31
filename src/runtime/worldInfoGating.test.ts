@@ -12,7 +12,8 @@ const deferred = () => {
 };
 
 const harness = (options: { mode?: "file" | "scan"; confirm?: boolean; capability?: "present" | "absent"; library?: unknown[]; ledger?: Record<string, string[]> } = {}) => {
-  const settings: WorldInfoSettings = { gatingMode: options.mode ?? "file", normalized: options.ledger ?? {}, normalizedFrom: {}, scanMemory: false, keptGlobal: [], lateLore: true, lateLoreDepth: 4, lorePins: true, seededChance: true };
+  const settings: WorldInfoSettings = { gatingMode: options.mode ?? "file", normalized: options.ledger ?? {}, normalizedFrom: {}, scanMemory: false, keptGlobal: [], lateLore: true, lateLoreDepth: 4, lorePins: true, seededChance: true,
+    budgetEvidence: true, lexicalFallback: true, lexicalPrefilter: true, lexicalTiebreak: true, holdRound: true, preferKnown: true };
   const disk = new Map<string, Map<string, boolean | null>>([
     ["Ruins", new Map<string, boolean | null>([["CP1", false], ["CP2", false], ["Other", false], ["Off by hand", true], ["No key", null]])],
   ]);

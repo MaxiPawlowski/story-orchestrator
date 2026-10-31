@@ -112,7 +112,8 @@ export function readLore(answers: Record<string, JudgeAnswer>, entries: LoreEntr
 
 export const loreTopK = (scope: Pick<LoreScope, "topK">) => Math.max(1, Math.min(LORE_MAX_TOP_K, Math.round(scope.topK ?? LORE_TOP_K)));
 
-export function pickLore(scored: LorePick[], scope: Pick<LoreScope, "topK" | "minP">): LorePick[] {
+export function pickLore(scored: LorePick[], scope: Pick<LoreScope, "topK" | "minP">, tiebreak?: ReadonlyMap<string, number>): LorePick[] {
   const minP = scope.minP ?? LORE_MIN_P;
-  return scored.filter((pick) => pick.p >= minP).sort((left, right) => right.p - left.p || left.entry.uid - right.entry.uid).slice(0, loreTopK(scope));
+  const lexical = (pick: LorePick) => tiebreak?.get(loreKey(pick.entry)) ?? 0;
+  return scored.filter((pick) => pick.p >= minP).sort((left, right) => right.p - left.p || lexical(right) - lexical(left) || left.entry.uid - right.entry.uid).slice(0, loreTopK(scope));
 }

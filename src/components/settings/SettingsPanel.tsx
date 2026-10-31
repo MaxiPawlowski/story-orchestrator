@@ -224,6 +224,18 @@ const WorldPage = ({ snapshot, manager, navigate }: PageProps) => {
         read={(settings) => settings.worldInfo.lorePins} write={(on) => setGlobalSettings({ worldInfo: { lorePins: on } })} />}
       {snapshot.ui.authorView && <GlobalCheck id="so-wi-seeded-chance" setting="worldInfo.seededChance" manager={manager}
         read={(settings) => settings.worldInfo.seededChance} write={(on) => setGlobalSettings({ worldInfo: { seededChance: on } })} />}
+      {snapshot.ui.authorView && <GlobalCheck id="so-wi-budget-evidence" setting="worldInfo.budgetEvidence" manager={manager}
+        read={(settings) => settings.worldInfo.budgetEvidence} write={(on) => setGlobalSettings({ worldInfo: { budgetEvidence: on } })} />}
+      {snapshot.ui.authorView && <GlobalCheck id="so-wi-lexical-fallback" setting="worldInfo.lexicalFallback" manager={manager}
+        read={(settings) => settings.worldInfo.lexicalFallback} write={(on) => setGlobalSettings({ worldInfo: { lexicalFallback: on } })} />}
+      {snapshot.ui.authorView && <GlobalCheck id="so-wi-lexical-prefilter" setting="worldInfo.lexicalPrefilter" manager={manager}
+        read={(settings) => settings.worldInfo.lexicalPrefilter} write={(on) => setGlobalSettings({ worldInfo: { lexicalPrefilter: on } })} />}
+      {snapshot.ui.authorView && <GlobalCheck id="so-wi-lexical-tiebreak" setting="worldInfo.lexicalTiebreak" manager={manager}
+        read={(settings) => settings.worldInfo.lexicalTiebreak} write={(on) => setGlobalSettings({ worldInfo: { lexicalTiebreak: on } })} />}
+      {snapshot.ui.authorView && <GlobalCheck id="so-wi-hold-round" setting="worldInfo.holdRound" manager={manager}
+        read={(settings) => settings.worldInfo.holdRound} write={(on) => setGlobalSettings({ worldInfo: { holdRound: on } })} />}
+      {snapshot.ui.authorView && <GlobalCheck id="so-wi-prefer-known" setting="worldInfo.preferKnown" manager={manager}
+        read={(settings) => settings.worldInfo.preferKnown} write={(on) => setGlobalSettings({ worldInfo: { preferKnown: on } })} />}
     </Section>
     <Section title="Lore features" level={3}>
       <FeatureLinkRow feature="memoryLore" snapshot={snapshot} navigate={navigate} />

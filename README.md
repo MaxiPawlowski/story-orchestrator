@@ -189,6 +189,8 @@ Generated from the feature registry. "Experimental" means not yet measured; it i
 | Characters | Narrate only what can be seen | The narrator shows other characters' feelings through what they say and do. |  |
 | Characters | A swipe sees the reply it replaces | A new swipe is told which reply you threw away, so it writes something else. | Off by default |
 | Characters | Skip ahead | Skip travel, waiting or routine: one narrator reply tells the time passing and stops where you are needed. | Off by default |
+| Characters | Cut lines written for someone else | A reply that goes on to write another character's lines, or yours, is cut where those lines begin. |  |
+| Characters | Protect names from the repetition penalty | The DRY repetition penalty no longer bends the cast's names into misspellings. |  |
 | World | Story lorebook switching | Story lorebook entries switch on and off as the story moves. |  |
 | World | Story lorebooks | A story's lorebooks load only in the chats that play it. |  |
 | World | Memory can trigger lore | Established facts and scene history can activate lorebook entries. |  |
@@ -203,6 +205,10 @@ Generated from the feature registry. "Experimental" means not yet measured; it i
 | World | Scene test | Before the living director writes a turning point, a seeded draw may tell it the scene arrives changed or that the world acts first. | Experimental |
 | World | Lore for where you are | The lore entry for the current place, and for whoever was just met, is in the next reply. |  |
 | World | Same lore on a swipe | A story lorebook entry with a trigger chance gives the same answer for every swipe and replay of one turn. |  |
+| World | Lore cut by the budget | Records which story lore entries matched but did not fit SillyTavern's lore budget, and warns when the budget has no cap. |  |
+| World | Word-match lore | Matches lore entries against the recent chat by their words: a fallback when the judge is silent, a shortlist for the judge and a tie-break. |  |
+| World | Keep the lore picks for a round | Lore is chosen once per message of yours and kept while the other characters reply. |  |
+| World | Prefer lore you have met | Lore about people, places and things you have not met ranks a little lower. |  |
 | Images | Live close-shot head | A rigged close shot breathes, blinks, sways, gestures and talks as a reply streams. | Experimental |
 | Images | Prepared cast presentation | Review and accept each character's base and bust before sprites, poses and live heads use them. | Experimental |
 | Images | Reference views | Draw an accepted character three-quarter left and right, in profile and from behind, then accept or cancel all six views. | Experimental |

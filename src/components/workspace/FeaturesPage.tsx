@@ -114,8 +114,13 @@ export const FeaturesPage = ({ snapshot, manager, scope, expanded, navigate, pro
   };
   const extra = (feature: StoryFeatureId): ReactNode => {
     if (feature === "speakers" && install) {
-      return <CheckRow id="so-keep-last-question" setting="talk.keepLastQuestion" checked={getGlobalSettings().talk.keepLastQuestion}
-        onChange={(on) => { setGlobalSettings({ talk: { keepLastQuestion: on } }); manager.notify(); refresh((count) => count + 1); }} />;
+      const talk = getGlobalSettings().talk;
+      const save = (patch: Partial<typeof talk>) => { setGlobalSettings({ talk: patch }); manager.notify(); refresh((count) => count + 1); };
+      return <>
+        <CheckRow id="so-keep-last-question" setting="talk.keepLastQuestion" checked={talk.keepLastQuestion} onChange={(on) => save({ keepLastQuestion: on })} />
+        <CheckRow id="so-cross-voice-trim" setting="talk.crossVoiceTrim" checked={talk.crossVoiceTrim} onChange={(on) => save({ crossVoiceTrim: on })} />
+        <CheckRow id="so-dry-names" setting="talk.dryNames" checked={talk.dryNames} onChange={(on) => save({ dryNames: on })} />
+      </>;
     }
     if (feature === "inner") return <InnerHarvestNotes snapshot={snapshot} />;
     if (feature === "pacing" && !install) {

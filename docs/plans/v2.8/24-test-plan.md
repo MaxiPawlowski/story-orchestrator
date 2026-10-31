@@ -471,6 +471,12 @@ real-model carrier, or why none is needed.
 | retrieval-query | D + RP | retrievalQuery.test, retrievalWindow.measure, e0Window (E0 arm f) | MW1-B4 (GPU, owed) |
 | seeded-lore-chance | D | loreChance.test (same boundary identical, 50% over 400 boundaries = 193), checksRegistry (lore-weighted-groups) | M42-F1 (no-model lane, owed) |
 | path-arc | D + RP | arc.measure (path never decreases, 280/280 paths reach the shape end, no escalate in relax), pathArc.test, runtimeManager pacing | M42-F5 (GPU, owed) |
+| cross-voice-trim | D | crossVoice.test, crossVoicePass.test (cut at the first foreign header, thinking untouched, short reply kept), so-voice-census cross (0 of 1768 corpus replies trimmed) | M42-G1 (GPU, owed) |
+| dry-names | D | dryNames.test (append-only, idempotent, loud story-chat textgen only), so-voice-census names (3 near misses / 1768) | M42-G3 (GPU, owed) |
+| lore-budget-evidence | D | loreBudget.test (cut = successful and not activated while overflowed, 2 of 10, uncapped warning), checksRegistry (lore-budget-starved, lore-budget-uncapped) | M42-G4 (no-model lane, owed) |
+| lore-lexical | D | loreLexical.measure (lore-relevance + lore.json goldens), loreSelectLexical.test (fallback, prefilter, tiebreak) | M42-G5 (judge + GPU, owed) |
+| lore-hold-round | D | loreSelectLexical.test (held until a player message, checkpoint or named-entry change), so-voice-census hold (multi-member rounds 0.54x) | M42-G6 (judge, owed) |
+| lore-prefer-known | D | loreSelectLexical.test (unknown entity -0.1, never a lexical force) | M42-G7 (GPU, owed) |
 
 Every judge use also gets the judge-off column through J11's off arm (CL).
 

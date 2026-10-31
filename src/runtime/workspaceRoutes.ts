@@ -70,7 +70,7 @@ export const FEATURE_INSTALL_HOMES: Partial<Record<StoryFeatureId, { page: Works
 };
 
 const CHAT_SETTINGS = /^(story-library|so-group-story|so-chat-|so-author-view-switch|so-shape-override|so-restart-story|so-delete-story|so-export-state|so-story-identity|so-make-group|so-read-now)/;
-const FEATURE_EXTRAS: Record<string, StoryFeatureId> = { "so-keep-last-question": "speakers", "so-inner-harvest": "inner" };
+const FEATURE_EXTRAS: Record<string, StoryFeatureId> = { "so-keep-last-question": "speakers", "so-cross-voice-trim": "speakers", "so-dry-names": "speakers", "so-inner-harvest": "inner" };
 const SETTINGS_PAGES: Array<[RegExp, WorkspacePage, string?]> = [
   [/^(so-entry-|so-open-studio|so-new-story|so-getting-started|so-continue)/, "library"],
   [/^(so-presence-|so-hud-|so-your-move-|so-inline-|so-briefing-|so-player-setup|so-announce-transitions|so-device-display)/, "display"],

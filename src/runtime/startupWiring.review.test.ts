@@ -39,6 +39,8 @@ jest.mock("@services/STAPI", () => ({
   loadScanLorebook: async () => null,
   listGlobalLorebooks: () => [],
   deactivateGlobalLorebook: async () => ({ ok: true, name: "" }),
+  observeWorldInfoScanDone: () => () => undefined,
+  readWorldInfoBudgetCap: () => null,
   observeWorldInfoScans: () => ({ reassert: () => undefined, ordered: false, dispose: () => undefined }),
   loadedEntries: () => [],
   settingsReady: async () => {},
