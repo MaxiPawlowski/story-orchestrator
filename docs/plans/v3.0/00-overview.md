@@ -681,3 +681,35 @@ Branch `v3.0-owner-1031` (owner "as recommended"): HF-REGEN for the `/comment` t
 - Branch `v3.0-adolion-pin-1031` `2aa4a4f3` (pin `e11ceb95`, regenerated charters, cards doc, runs index; no campaign content here), master `1ccb416b` merged.
 - `npm run gates:quick` green (125.0s). `npm run gates` (no `--resume`, Storybook included): all green in 410.2s (jest 11,064 passed / 1 skipped, test:debug 1,733, Storybook 191 suites / 1,133 tests, replay, release, plugin, lint, typechecks, build).
 - Not staged, not reinstalled into any ST; lanes reseed from the new pin on their next `adolion-fresh.mts seed`.
+
+## CPU batch 2026-10-31 (v3.0-cpu-1031b)
+
+Branch `v3.0-cpu-1031b` (GPU paused: no model lanes, controller, ComfyUI or image jobs; nothing staged into ST).
+
+- HF-REGEN live check: see §Owner answers 2026-10-31, Live (PASS twice on lane 30, scenario `test/scenarios/v30-hf-regen-lane.json`).
+- Image rows never the last row: a picture posted as its own chat row (placement `"message"`, or `"inline"` with no reply to attach to,
+  also the prepared-cast tool) waits in `ImageRowQueue` (`src/image/imageRows.ts`, host singleton `imageRowsHost.ts` `placeImage`) and
+  posts on the next `GENERATION_STARTED` of type `normal` (same `postsBeforeGeneration` rule as the transition note), before the player's
+  row, so the reply stays last for swipe and Regenerate. Dropped, with the picture file deleted, when another chat is open, the row it
+  followed is gone (Regenerate) or the reply it illustrates changed (swipe, edit); a refused post is logged and keeps the file. Subscribed
+  in `image/start.ts`, cleared (files deleted) when images stop. Setting copy for placement updated, settings reference regenerated.
+  Tests: `src/image/imageRows.test.ts`. Not live (needs image generation); waiting rows do not survive a reload (file stays orphaned).
+- `laneLoadAndStops.test.mts` flake: `revealSettingsControl` (`so-ui.mts`) takes `now`/`sleep`; both poll tests run on a fake clock and
+  assert exact read counts (7 reads over 30 ms at 5 ms; mounted on the third read). No wall time left in the test.
+- UI defects from the 29 p3 record: see `29-ui-rework.md` §CPU batch 2026-10-31.
+- Found while screenshotting, fixed: the lazy-failure icon rule in `styles/status.css` held a raw form feed instead of `\f057` (since
+  29 p3 `7f0bf930`). In the Tailwind sheet that is a bad string, so Chrome dropped every rule after it up to the stylesheet's recovery:
+  all scoped utilities (`flex-col`, `flex-wrap`, ...). Visible as a collapsed Studio (graph toolbar and checkpoint editor squeezed
+  into one-letter columns) on master `0f1c2da5` too (lane 30, staged build). Two tests held raw backspaces where `\b` was meant
+  (`settingsReference.test.ts`, `guide.test.ts`), so their regexes never matched; with a real `\b` the guide check passes and the
+  settings check's `Settings` prefix contradicted its own next line (rows read "Settings → Features → …"), so it now forbids only the
+  removed "Story drawer". Guard `src/runtime/controlChars.guard.test.ts` (no C0 control characters in src text, planted control).
+- Sprite copy list (owner): `so-sprite-copy.mts` default dry run, set `so_presentation_v1`, from lanes 42, 35 and 31 (the three holding it):
+  109 files each, copy 0, same 109, conflict 0: the owner's install already has every file. Nothing written to the owner install
+  (reports in each lane's `debug/sprite-copy/`). List: `C:\dev\so-lanes\sprite-copy-dryrun-1031.txt`.
+- Gates: `npm run gates:quick` green per item. `npm run gates` (no `--resume`, Storybook included): run 1 red (test:debug: the worktree's
+  copied campaign story index was built at the old pin `c5723c53`, rebuilt with `so-session.mts index` at `e11ceb95`; jest: errorCopy row
+  for the image drop log, arrival golden missing the new scenario; Storybook: four image stories failed on `start.ts` importing
+  `stHost/events`, the subscription moved into `stHost/imageSurface.ts` `onGenerationStart`, mocked), run 2 all green in 382.5s on
+  `2cf25175` (jest 11,076 passed / 1 skipped, test:debug 1,734, Storybook 191 suites / 1,135 tests, replay, release, plugin, lint,
+  typechecks, build). Not staged, not installed.

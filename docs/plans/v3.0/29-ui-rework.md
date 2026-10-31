@@ -457,3 +457,27 @@ Branch `v3.0-owner-1031`, owner "as recommended".
   `MobileSettingsListKeepsTheLastPage` (asserts on a phone viewport, skips its narrow half on a wide runner like its sibling).
 - Q3 closing the start pane = Skip, "keep" = keep: rule kept, no change.
 - Gate record: see `00-overview.md` §Owner answers 2026-10-31 (one branch with HF-REGEN).
+
+## CPU batch 2026-10-31
+
+Branch `v3.0-cpu-1031b`; the four "Found, not fixed" rows of the p3 screenshot pass, kit and tokens only.
+
+- Getting started "Show me" on its own line: each step is a row of icon, text column (`min-w-0 flex-1`: title, "(optional)", consequence)
+  and the button (`shrink-0`) beside it. Story `Settings/GettingStarted` `Phone` asserts the button sits on the row's first line, right
+  of the title.
+- Light palette disabled fields: ST's `input:disabled, textarea:disabled { filter: brightness(0.5) }` turned a light field into a dark grey
+  block with dark text. Kit rule `:is(.so-field, .text_pole):disabled` in our roots: no filter, opacity 0.6, dashed border. Story
+  `Kit/Field` `Disabled`.
+- Phone Author tab row scrolled without a hint: kit `TabList` (horizontal) measures itself (`tabOverflow`, scroll + ResizeObserver) and
+  sets `data-overflow="start|end|both"`; `kit.css` fades that edge with `mask-image` over the new token `--so-mask`. Every horizontal kit
+  tab row gets it. Story `Kit/Tabs` `ScrollHint`, jest `components/ui/tabOverflow.test.ts`.
+- Graph edge label wrapped before its value: Cytoscape wraps at any whitespace (no-break space included), so `edgeLabelLines`
+  (`components/studio/graphPanelUtils.ts`) breaks the label itself into lines of at most 24 characters, keeping a comparison and its
+  value together; lines that short never wrap again inside the 180px label width. jest in `graphPanelUtils.test.ts`.
+- Screenshots: lane 30 (no-model, images/sprites/judge/living/extraction off, model and plugin requests blocked in the page), this
+  branch's `dist/` routed into the lane browser (nothing staged), SO-UI cards + group + `character-life` as `SO-UI CPU 1031b lab`:
+  library Getting started, Story settings with the story select disabled for the shot, Author console tab row, Studio graph; 1920x1080
+  and 390x844, dark + light, 16 shots in `C:\dev\so-lanes\ui-review\cpu-1031b\` (driver `driver-tmp-cpu1031b-shots.mts.txt`, records
+  `desktop-record.json`, `mobile-record.json`: "Show me" offset 0 on every row, disabled style `filter none / opacity 0.6 / dashed`,
+  phone tab row `data-overflow: end`, Studio `flex-direction: column` applied). Cleanup leaked 0, library 0, page errors 0; lane stopped.
+  `master-check\` holds the same Studio shot on the staged master build (collapsed layout, see `00-overview.md` §CPU batch 2026-10-31).
