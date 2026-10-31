@@ -36,3 +36,83 @@ point; story-state lore query + alias pass; example-dialogue drop warning.
 ## GPU wave (owner "resume")
 Rating rows: others-speak clause, persona re-anchor, typed redirect, multi-draft pick, chapter spine, reserved lore
 slot, in-character thinking clause, plus each 41/42 switch A/B.
+
+## Agent F items and floors (declared before measuring, 2026-10-31)
+
+Branch `v3.0-42a-f`. No GPU, no lanes, no ST (brief). Floors are informational unless marked hard; a miss is recorded,
+never retuned.
+
+- F1 seeded lore chance (defect, `worldInfo.seededChance`, on): story-book entries with `useProbability` and
+  `probability < 100` resolved on the scan copy by `runtime/chance.ts` keyed chat, story, boundary, book, uid (pass:
+  `useProbability` off, fail: `disable`); sticky entries skipped (ST checks `disable` before sticky, world-info.js:4801/4899,
+  roll :5041). Scan mode only. Inclusion groups with 2+ members and no priority entry (weighted roll :5453) = author info
+  check `lore-weighted-groups`. Floors (hard): same boundary = identical scan copies; 50% entry over 400 boundaries fires in
+  (170, 230).
+- F2 critic fail-closed (defect): unreadable verdict is re-read once, then the issue
+  "the critic's verdict could not be read" goes through the ordinary retry/refusal (stage `critic`). Floor (hard): the
+  regression test.
+- F3 transition timing scorer (yardstick, no switch): `pacing/timing.ts` + labelled corpus `test/fixtures/timing/`
+  (synthetic public fixtures; recorded reads written as reader answers; gold first message per exit, or never), replayed
+  through the real `StoryEngine` with the one-boundary read lag. Floors (progression-research P1): spurious <= 1/40 exits,
+  early <= 2/40, median late <= 1 player turn, missed <= 2/40; counts per deciding source (shared read, typed judge, stall
+  judge, mechanical). The live arm (real reads) is a GPU row.
+- F4 railroad readout (author-only, no switch, lazy): per living transition the leaf of the way-in gate that held
+  (`lead`, `stub`, or only `player_turns_in_checkpoint` = pace-forced), refusal streaks, branches per anchor. Floor: pace-forced
+  share <= 1/3 of living transitions per session (estimate, owner decision). Baseline over whatever recorded boundary logs
+  exist locally (lane chat blobs), counts only.
+- F5 path-aware expected tension + relax window (`pacing.arcProgress`, `"path"` default, `"anchors"` = before): progress =
+  visited anchors / (visited + anchors on the shortest remaining path to an ending) plus an in-checkpoint ramp
+  (player turns / `target_turn_length`, default 6, capped at that checkpoint's share); after 2+ committed boundaries at smoothed
+  >= critical, once it drops below critical, expected is capped at tense for 3 boundaries unless the active checkpoint's
+  `tension_target` is `peak`. Floors: (hard) zero escalate hints inside a relax window; (hard) path progress never decreases
+  along a played path; (before -> after) share of played paths on the branchy fixtures whose final anchor reaches progress
+  >= 0.95: after = 100%; (informational) relax windows per 50 boundaries in 1..4 on recorded tension series, if any exist.
+- F6 anti-rush: Studio info diagnostic `exit-on-entry` (an exit of an anchor with `tension_target` >= tense whose gate has no
+  turn counter leaf) and optional authored `checkpoints[].min_turns` (compiled at validation into an extra leaf
+  `player_turns_in_checkpoint >= n` ANDed into every exit not marked `urgent: true`; the counter is declared as a code int if
+  missing). No switch: `min_turns` is absent unless authored, the diagnostic changes no play. Floors: (hard) `min_turns`
+  holds an exit until the nth player turn and `urgent` bypasses; (baseline, no target) `exit-on-entry` count over the test
+  fixture stories.
+
+## Gate record F
+
+2026-10-31, branch `v3.0-42a-f`.
+
+- `npm run gates` (Storybook included, no `--resume`) on `7d4b1cab6`: **all green in 711.6s** (typecheck,
+  typecheck:test, test 990 suites, test:replay, build, debug:typecheck, test:debug, test:plugin, lint, test:release,
+  test-storybook:ci). After it, docs only: plan 24 matrix rows, master `2f7d5252d` merged (docs only); not re-gated.
+- Main bundle 1,249,116 B (budget 1,300,000). Railroad readout rides the lazy author-console chunk; `pacing/arc.ts`,
+  `runtime/loreChance.ts` are in the main bundle (synchronous scan and pacing paths, ~3 KB).
+- F1 seeded lore chance (`worldInfo.seededChance`, on): hard floors met. Same boundary = identical scan copies
+  (`loreChance.test` defect case, fails without the pass: the module did not exist); 50% entry fired 193/400 (floor
+  170..230). Sticky entries and other books untouched; scan mode only (file mode keeps ST's roll). Info check
+  `lore-weighted-groups` with a firing fixture.
+- F2 critic fail-closed: unreadable verdict re-read once (`CRITIC_READS` 2), then "the critic's verdict could not be
+  read" goes through the draft retry and a `critic` refusal; regression case in `living.test.ts`.
+- F3 timing scorer (`pacing/timing.ts`, `timing.measure.test.ts`, 5 fixtures / 40 labelled exits in
+  `test/fixtures/timing/`). Baseline, structural arm (recorded reads = a correct reader, one-boundary read lag):
+  early 0/40, missed 0/40, spurious 0/40 (20 never-exits quiet), on time 7, late 13, median lag 1 player turn, max 1.
+  By source: shared read 5 on time / 10 late, typed judge 1/1, stall judge 1/1, mechanical 0/1 (the counter starts one
+  turn late because the exit before it fired late). All floors met. The number measures the pipeline's lag only; the
+  reader's own errors need the live arm (M42-F3).
+- F4 railroad readout (`runtime/railroadView.ts`, `RailroadPanel` in Author › Health). Deviation: counted over way-ins
+  (frontier -> `_way` stub) only; a stub's arrival (`LIVING_STUB_TURNS` 1) is a bridge and would read as pace-forced.
+  Baseline over the lane chat blobs in `C:\dev\so-lanes` (538 chats, 69 distinct logs, counts only): 6 chats with living
+  play, 7 way-ins, 2 pace-forced = 0.29 pooled (floor <= 1/3 met pooled); per session 2 of 6 sessions above 1/3 (one
+  way-in each); 8 quiet runs of 2+ player turns, longest 11; 2 branches.
+- F5 path arc + relax (`pacing.pathArc`, on; boolean instead of the declared `"anchors" | "path"` enum, off = anchors).
+  Hard: path progress never decreased on any of 280 played paths of 81 fixture stories; zero escalate hints inside a relax
+  window (synthetic series), window = 3 boundaries, `peak` beats exempt. Before -> after: paths whose final anchor reaches
+  progress >= 0.95: 276/280 -> 280/280 (branchy paths 0/4 -> 4/4). Informational miss: relax windows per 50 boundaries =
+  0 over 28 recorded tension series / 767 boundaries, because no recorded series ever reached critical (floor 1..4).
+  `runtimeManager.test` pacing case now expects 0 at the start anchor (path) and 0.5 with the switch off.
+- F6 anti-rush: info diagnostic `exit-on-entry` (`studio/rushDiagnostics.ts`, via `hookDiagnostics`) + authored
+  `checkpoints[].min_turns` (1..20) and `transitions[].urgent`, compiled in `validate/dwell.ts` (idempotent; declares
+  `player_turns_in_checkpoint` when missing; refused on an open stretch). No switch (absent unless authored). Hard:
+  `dwell.test` holds a non-urgent exit to the 3rd player turn, urgent fires on the 1st, storyDiff sees the change.
+  Baseline: 13 findings on 4 of 81 fixture stories (every exit of a tense-or-hotter anchor); the Sun Ruins example keeps
+  one (its finale exit), allowed in `exampleStory.test`.
+- Other test changes: `arrival-findings.json` golden re-recorded (adds the 5 timing fixtures, all empty);
+  `settingsAreas.test` pacing defaults; the `pacing` feature now owns `pacing.hintEnabled` only.
+- No live gate: no ST, no lanes, no GPU (brief). GPU rows M42-F1/F3/F5/F4-F6 in `gpu-queue-2026-10-30.md`. Studio has no
+  form field for `min_turns`/`urgent` yet (JSON only).

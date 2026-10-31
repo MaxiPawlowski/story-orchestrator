@@ -1,6 +1,7 @@
 import type { BoundaryLogEntry, EngineState, NormalizedStory } from "@engine/index";
 import { gateKeys } from "@engine/index";
 import { lastChanges, type KeyChange } from "./boundaryDigest";
+import { railroadView, type RailroadView } from "./railroadView";
 import { outgoingGateRows, qualityLabel, type GateRow } from "./gateReadout";
 import { buildSecretGrid, type SecretGridInputs, type SecretGridView } from "./whoKnows";
 
@@ -49,6 +50,7 @@ export interface ConsoleAuthorView {
   gates: GateRow[];
   keys: Record<string, StateKeyMeta>;
   secrets: SecretGridView | null;
+  railroad: RailroadView | null;
 }
 
 export interface ConsoleSources {
@@ -69,7 +71,8 @@ export function consoleAuthorSlice(story: NormalizedStory | null, state: EngineS
   const keys = Object.fromEntries([...new Set([...Object.keys(values), ...gates])].map((key) => [key, {
     label: qualityLabel(story, key), group: stateGroupOf(key, gates), ...(changes[key] ? { changedAt: changes[key] } : {}),
   }]));
-  return { gates: outgoingGateRows(story, active, values), keys, secrets: grid(sources.secretGrid) };
+  const railroad = railroadView(sources.boundaryLog);
+  return { gates: outgoingGateRows(story, active, values), keys, secrets: grid(sources.secretGrid), railroad: railroad.living || railroad.quietRuns ? railroad : null };
 }
 
 export interface ProposalCounts {

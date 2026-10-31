@@ -27,7 +27,8 @@
       "replyEffort": "medium"
     },
     "pacing": {
-      "hintEnabled": true
+      "hintEnabled": true,
+      "pathArc": true
     },
     "display": {
       "announceTransitions": false,
@@ -207,7 +208,8 @@
       "scanMemory": true,
       "lateLore": true,
       "lateLoreDepth": 4,
-      "lorePins": true
+      "lorePins": true,
+      "seededChance": true
     },
     "image": {
       "enabled": false,

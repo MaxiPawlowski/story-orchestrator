@@ -28,6 +28,19 @@ const clean: Story = {
   roster: [],
 };
 
+describe("v3.0 42a F6: exit-on-entry", () => {
+  const hits = (draft: Story) => runDiagnostics(draft).filter((entry) => entry.code === "exit-on-entry").map((entry) => entry.path);
+  const tense = (patch: Partial<Story["checkpoints"][number]> = {}): Story => ({ ...clean, checkpoints: [{ ...clean.checkpoints[0], type: "anchor", tension_target: "tense", ...patch }, clean.checkpoints[1]] });
+  it("names an exit of a tense anchor with no turn count, and stays quiet for min_turns, urgent, a counter leaf or a calm beat", () => {
+    expect(hits(tense())).toEqual(["transitions.0.gate"]);
+    expect(hits(tense({ min_turns: 2 }))).toEqual([]);
+    expect(hits(tense({ tension_target: "stirring" }))).toEqual([]);
+    expect(hits({ ...tense(), transitions: [{ ...clean.transitions[0], urgent: true }] })).toEqual([]);
+    expect(hits({ ...tense(), qualities: [...clean.qualities, { key: "player_turns_in_checkpoint", type: "int", source: "code", rubric: "t" }],
+      transitions: [{ ...clean.transitions[0], gate: { all: [{ q: "trust", op: ">=", v: 1 }, { q: "player_turns_in_checkpoint", op: ">=", v: 2 }] } }] })).toEqual([]);
+  });
+});
+
 describe("agenda pace without chapters (owner decision 2026-10-07)", () => {
   const paceHits = (draft: Story) => runDiagnostics(draft).filter((entry) => entry.code === "agenda-pace-no-chapters");
   const withAgenda = (pace: "per_chapter" | "per_n_boundaries"): Story => ({
@@ -239,6 +252,7 @@ describe("runDiagnostics", () => {
       ...runDiagnostics({ ...clean, roster: [{ id: "arin", name: "Arin" }], checkpoints: [
         { ...clean.checkpoints[0], talk_control: { lead: "Arin", lead_max_consecutive: 2, chain: { mode: "scripted", sequence: ["Arin"] } } }, clean.checkpoints[1],
       ] }),
+      ...runDiagnostics({ ...clean, checkpoints: [{ ...clean.checkpoints[0], type: "anchor", tension_target: "critical" }, clean.checkpoints[1]] }),
     ];
     const counts = new Map<string, number>();
     diagnostics.forEach((entry) => counts.set(entry.code, (counts.get(entry.code) ?? 0) + 1));

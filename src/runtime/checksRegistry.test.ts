@@ -51,6 +51,7 @@ const everything = (overrides: Record<string, unknown> = {}): RuntimeSnapshot =>
   lifeAuthor: { rows: [], scopeOverflow: ["rel_arin_player_trust"], proposals: [] },
   wiGating: { mode: "scan", drift: [{ lorebook: "Ruins", comment: "CP2" }], missingKey: [] },
   globalStoryLore: ["Ruins Lore"],
+  loreWeightedGroups: ["weather"],
   orphanedLorebooks: [{ name: "Story Orchestrator - Old - c0", detail: "4 memories", label: "the old chat" }],
   stylesMissing: true,
   stateSize: { blobChars: 9 * 1024 * 1024, libraryChars: 0 },

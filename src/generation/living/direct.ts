@@ -11,6 +11,8 @@ import type { DirectorDraft, DirectorRefusal, LivingOpPayload, RefusalStage } fr
 export const DIRECTOR_ATTEMPTS = 2;
 export const DIRECTOR_MAX_TOKENS = 1024;
 const UNREADABLE_VERDICTS = ["Invalid critic JSON", "Invalid critic verdict"];
+export const CRITIC_READS = 2;
+export const CRITIC_UNREADABLE = "the critic's verdict could not be read";
 
 export interface DirectorRun {
   story: NormalizedStory;
@@ -134,7 +136,11 @@ async function critique(run: Pick<DirectorRun, "input" | "guard">, draft: Direct
     name: draft.anchor.name, objective: draft.anchor.objective,
     player: run.guard.playerNames.find((name) => name.trim()) ?? "the player", cast: run.input.cast.map((member) => member.name),
   });
-  const verdict = parseCriticVerdict(await askText(model, prompt, { ...ask, pass: "critic", maxTokens: 384 }));
-  if (verdict.pass || UNREADABLE_VERDICTS.includes(verdict.issues.join(""))) return [];
-  return verdict.issues.length ? verdict.issues : ["the critic refused it"];
+  for (let read = 1; read <= CRITIC_READS; read += 1) {
+    const verdict = parseCriticVerdict(await askText(model, prompt, { ...ask, pass: "critic", maxTokens: 384 }));
+    if (verdict.pass) return [];
+    if (UNREADABLE_VERDICTS.includes(verdict.issues.join(""))) continue;
+    return verdict.issues.length ? verdict.issues : ["the critic refused it"];
+  }
+  return [CRITIC_UNREADABLE];
 }

@@ -222,6 +222,8 @@ const WorldPage = ({ snapshot, manager, navigate }: PageProps) => {
         onChoose={(mode) => void (mode === "scan" ? wiGating()?.requestScan() : wiGating()?.requestFile())} onRenormalize={() => void wiGating()?.renormalize()} />
       {snapshot.ui.authorView && <GlobalCheck id="so-wi-lore-pins" setting="worldInfo.lorePins" manager={manager}
         read={(settings) => settings.worldInfo.lorePins} write={(on) => setGlobalSettings({ worldInfo: { lorePins: on } })} />}
+      {snapshot.ui.authorView && <GlobalCheck id="so-wi-seeded-chance" setting="worldInfo.seededChance" manager={manager}
+        read={(settings) => settings.worldInfo.seededChance} write={(on) => setGlobalSettings({ worldInfo: { seededChance: on } })} />}
     </Section>
     <Section title="Lore features" level={3}>
       <FeatureLinkRow feature="memoryLore" snapshot={snapshot} navigate={navigate} />
@@ -262,6 +264,8 @@ const AuthoringPage = ({ snapshot, manager, navigate }: PageProps) => (
         read={(settings) => settings.memory.strengthRetention === true} write={(on) => manager.setMemorySettings({ strengthRetention: on })} />
       <GlobalCheck id="so-retrieval-query" setting="memory.retrievalQuery" manager={manager}
         read={(settings) => settings.memory.retrievalQuery === true} write={(on) => manager.setMemorySettings({ retrievalQuery: on })} />
+      <GlobalCheck id="so-authoring-path-arc" setting="pacing.pathArc" manager={manager}
+        read={(settings) => settings.pacing.pathArc} write={(on) => setGlobalSettings({ pacing: { pathArc: on } })} />
       <GlobalCheck id="so-swipe-contrast" setting="talk.swipeContrast" manager={manager}
         read={(settings) => settings.talk.swipeContrast} write={(on) => setGlobalSettings({ talk: { swipeContrast: on } })} />
     </Section>}

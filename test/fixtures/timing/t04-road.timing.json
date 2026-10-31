@@ -1,0 +1,420 @@
+{
+ "id": "t04-road",
+ "story": {
+  "id": "t04-road",
+  "title": "Long road",
+  "description": "Timing fixture.",
+  "qualities": [
+   {
+    "key": "player_turns_in_checkpoint",
+    "type": "int",
+    "source": "code",
+    "rubric": "Player turns in this checkpoint."
+   },
+   {
+    "key": "side0_open",
+    "type": "bool",
+    "source": "extractor",
+    "latching": true,
+    "rubric": "Did side event 0 happen?"
+   },
+   {
+    "key": "e0",
+    "type": "bool",
+    "source": "extractor",
+    "latching": true,
+    "rubric": "Has the ford is crossed?"
+   },
+   {
+    "key": "side1_open",
+    "type": "bool",
+    "source": "extractor",
+    "latching": true,
+    "rubric": "Did side event 1 happen?"
+   },
+   {
+    "key": "side2_open",
+    "type": "bool",
+    "source": "extractor",
+    "latching": true,
+    "rubric": "Did side event 2 happen?"
+   },
+   {
+    "key": "e2",
+    "type": "bool",
+    "source": "extractor",
+    "latching": true,
+    "rubric": "Has the bridge toll is paid?"
+   },
+   {
+    "key": "side3_open",
+    "type": "bool",
+    "source": "extractor",
+    "latching": true,
+    "rubric": "Did side event 3 happen?"
+   },
+   {
+    "key": "e3",
+    "type": "bool",
+    "source": "extractor",
+    "latching": true,
+    "rubric": "Has the gate town is reached?"
+   }
+  ],
+  "checkpoints": [
+   {
+    "id": "s0",
+    "name": "Stage 0",
+    "objective": "Stage 0 of Long road.",
+    "type": "anchor",
+    "start": true
+   },
+   {
+    "id": "s1",
+    "name": "Stage 1",
+    "objective": "Stage 1 of Long road.",
+    "type": "anchor"
+   },
+   {
+    "id": "s2",
+    "name": "Stage 2",
+    "objective": "Stage 2 of Long road.",
+    "type": "anchor"
+   },
+   {
+    "id": "s3",
+    "name": "Stage 3",
+    "objective": "Stage 3 of Long road.",
+    "type": "anchor"
+   },
+   {
+    "id": "s4",
+    "name": "Stage 4",
+    "objective": "Stage 4 of Long road.",
+    "type": "anchor"
+   },
+   {
+    "id": "side0",
+    "name": "Side 0",
+    "objective": "A path the story did not take (0).",
+    "type": "anchor"
+   },
+   {
+    "id": "side1",
+    "name": "Side 1",
+    "objective": "A path the story did not take (1).",
+    "type": "anchor"
+   },
+   {
+    "id": "side2",
+    "name": "Side 2",
+    "objective": "A path the story did not take (2).",
+    "type": "anchor"
+   },
+   {
+    "id": "side3",
+    "name": "Side 3",
+    "objective": "A path the story did not take (3).",
+    "type": "anchor"
+   }
+  ],
+  "transitions": [
+   {
+    "from": "s0",
+    "to": "side0",
+    "priority": 2,
+    "gate": {
+     "q": "side0_open",
+     "op": "==",
+     "v": true
+    }
+   },
+   {
+    "from": "s0",
+    "to": "s1",
+    "priority": 1,
+    "gate": {
+     "q": "e0",
+     "op": "==",
+     "v": true
+    }
+   },
+   {
+    "from": "s1",
+    "to": "side1",
+    "priority": 2,
+    "gate": {
+     "q": "side1_open",
+     "op": "==",
+     "v": true
+    }
+   },
+   {
+    "from": "s1",
+    "to": "s2",
+    "priority": 1,
+    "gate": {
+     "q": "player_turns_in_checkpoint",
+     "op": ">=",
+     "v": 3
+    }
+   },
+   {
+    "from": "s2",
+    "to": "side2",
+    "priority": 2,
+    "gate": {
+     "q": "side2_open",
+     "op": "==",
+     "v": true
+    }
+   },
+   {
+    "from": "s2",
+    "to": "s3",
+    "priority": 1,
+    "gate": {
+     "q": "e2",
+     "op": "==",
+     "v": true
+    }
+   },
+   {
+    "from": "s3",
+    "to": "side3",
+    "priority": 2,
+    "gate": {
+     "q": "side3_open",
+     "op": "==",
+     "v": true
+    }
+   },
+   {
+    "from": "s3",
+    "to": "s4",
+    "priority": 1,
+    "gate": {
+     "q": "e3",
+     "op": "==",
+     "v": true
+    }
+   }
+  ],
+  "roster": []
+ },
+ "transcript": [
+  {
+   "id": 0,
+   "speaker": "Player",
+   "user": true,
+   "text": "I look around and keep going."
+  },
+  {
+   "id": 1,
+   "speaker": "Narrator",
+   "user": false,
+   "text": "The scene moves on quietly."
+  },
+  {
+   "id": 2,
+   "speaker": "Player",
+   "user": true,
+   "text": "I look around and keep going."
+  },
+  {
+   "id": 3,
+   "speaker": "Narrator",
+   "user": false,
+   "text": "The scene moves on quietly."
+  },
+  {
+   "id": 4,
+   "speaker": "Player",
+   "user": true,
+   "text": "I look around and keep going."
+  },
+  {
+   "id": 5,
+   "speaker": "Narrator",
+   "user": false,
+   "text": "At last the ford is crossed."
+  },
+  {
+   "id": 6,
+   "speaker": "Player",
+   "user": true,
+   "text": "I look around and keep going."
+  },
+  {
+   "id": 7,
+   "speaker": "Narrator",
+   "user": false,
+   "text": "The scene moves on quietly."
+  },
+  {
+   "id": 8,
+   "speaker": "Player",
+   "user": true,
+   "text": "I look around and keep going."
+  },
+  {
+   "id": 9,
+   "speaker": "Narrator",
+   "user": false,
+   "text": "The scene moves on quietly."
+  },
+  {
+   "id": 10,
+   "speaker": "Player",
+   "user": true,
+   "text": "I look around and keep going."
+  },
+  {
+   "id": 11,
+   "speaker": "Narrator",
+   "user": false,
+   "text": "The scene moves on quietly."
+  },
+  {
+   "id": 12,
+   "speaker": "Player",
+   "user": true,
+   "text": "I look around and keep going."
+  },
+  {
+   "id": 13,
+   "speaker": "Narrator",
+   "user": false,
+   "text": "The scene moves on quietly."
+  },
+  {
+   "id": 14,
+   "speaker": "Player",
+   "user": true,
+   "text": "I look around and keep going."
+  },
+  {
+   "id": 15,
+   "speaker": "Narrator",
+   "user": false,
+   "text": "The scene moves on quietly."
+  },
+  {
+   "id": 16,
+   "speaker": "Player",
+   "user": true,
+   "text": "I look around and keep going."
+  },
+  {
+   "id": 17,
+   "speaker": "Narrator",
+   "user": false,
+   "text": "The scene moves on quietly."
+  },
+  {
+   "id": 18,
+   "speaker": "Player",
+   "user": true,
+   "text": "I make sure that the bridge toll is paid."
+  },
+  {
+   "id": 19,
+   "speaker": "Narrator",
+   "user": false,
+   "text": "The scene moves on quietly."
+  },
+  {
+   "id": 20,
+   "speaker": "Player",
+   "user": true,
+   "text": "I look around and keep going."
+  },
+  {
+   "id": 21,
+   "speaker": "Narrator",
+   "user": false,
+   "text": "The scene moves on quietly."
+  },
+  {
+   "id": 22,
+   "speaker": "Player",
+   "user": true,
+   "text": "I look around and keep going."
+  },
+  {
+   "id": 23,
+   "speaker": "Narrator",
+   "user": false,
+   "text": "The scene moves on quietly."
+  },
+  {
+   "id": 24,
+   "speaker": "Player",
+   "user": true,
+   "text": "I look around and keep going."
+  },
+  {
+   "id": 25,
+   "speaker": "Narrator",
+   "user": false,
+   "text": "At last the gate town is reached."
+  },
+  {
+   "id": 26,
+   "speaker": "Player",
+   "user": true,
+   "text": "I look around and keep going."
+  },
+  {
+   "id": 27,
+   "speaker": "Narrator",
+   "user": false,
+   "text": "The scene moves on quietly."
+  }
+ ],
+ "reads": [
+  {
+   "after": 5,
+   "origin": "read-t04-road-0",
+   "deltas": [
+    {
+     "q": "e0",
+     "v": true,
+     "evidenceAt": 5
+    }
+   ]
+  },
+  {
+   "after": 19,
+   "origin": "read-t04-road-2",
+   "deltas": [
+    {
+     "q": "e2",
+     "v": true,
+     "evidenceAt": 18
+    }
+   ]
+  },
+  {
+   "after": 25,
+   "origin": "read-t04-road-3",
+   "deltas": [
+    {
+     "q": "e3",
+     "v": true,
+     "evidenceAt": 25
+    }
+   ]
+  }
+ ],
+ "gold": {
+  "s0->s1": 5,
+  "s0->side0": null,
+  "s1->s2": 10,
+  "s1->side1": null,
+  "s2->s3": 18,
+  "s2->side2": null,
+  "s3->s4": 25,
+  "s3->side3": null
+ }
+}

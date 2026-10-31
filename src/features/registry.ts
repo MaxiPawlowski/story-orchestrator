@@ -16,6 +16,7 @@ import { START_FEATURES } from "./startFeatures";
 import { CARRY_FEATURES } from "./carryFeatures";
 import { GROUNDING_FEATURES } from "./groundingFeatures";
 import { RETENTION_FEATURES } from "./retentionFeatures";
+import { MECHANICS_FEATURES } from "./mechanicsFeatures";
 import { SKIP_FEATURES } from "./skipFeatures";
 import { chatAt, drawerAt, featureAt, settingsAt, studioAt } from "./where";
 import { IMAGE_FEATURES } from "./imageFeatures";
@@ -183,7 +184,7 @@ const CORE_FEATURES: readonly Feature[] = [
     oneLine: "Measures the scene's tension and nudges replies toward the story's intended shape.",
     what: "Each turn's tension is measured and compared with what the story expects at this point. A quiet note in the prompt asks the reply to build the tension up or let it cool.",
     where: featureAt("pacing", "enabled", "Tension and pacing"),
-    settings: ["pacing"], guideTopic: "tension", doc: authorGuideDoc("tension"), status: "shipped", needs: ["story"],
+    settings: ["pacing.hintEnabled"], guideTopic: "tension", doc: authorGuideDoc("tension"), status: "shipped", needs: ["story"],
   },
   {
     id: "memory", name: "Story memory", area: "memory", audience: "player",
@@ -475,7 +476,7 @@ const POLICY_TARGETS: Record<string, [import("@engine/featurePolicy").StoryFeatu
 export const SOURCE_FEATURES: readonly Feature[] = [
   ...CORE_FEATURES, ...PRESENCE_FEATURES, ...GAME_FEATURES, ...LIFE_FEATURES, ...LIVING_FEATURES, ...JUDGE_USE_KEYS.map(judgeUseFeature),
   ...RECAP_FEATURES, ...PROMISE_FEATURES, ...THREAD_FEATURES, ...DELIVERY_FEATURES, ...POLISH_FEATURES, ...AUDIENCE_FEATURES,
-  ...GROUNDING_FEATURES, ...SKIP_FEATURES, ...RETENTION_FEATURES,
+  ...GROUNDING_FEATURES, ...SKIP_FEATURES, ...RETENTION_FEATURES, ...MECHANICS_FEATURES,
 ];
 
 export const FEATURES: readonly Feature[] = SOURCE_FEATURES.map((feature) => {

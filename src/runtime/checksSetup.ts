@@ -299,6 +299,17 @@ export const IMAGE_CHECKS: readonly Check[] = [
 
 export const INFO_SETUP_CHECKS: readonly Check[] = [
   {
+    id: "lore-weighted-groups", area: "lore", scope: "story", audience: "author", severity: "info", feature: "seeded-lore-chance",
+    detect: (snapshot) => {
+      const groups = snapshot.loreWeightedGroups ?? [];
+      return groups.length ? {
+        consequence: "An inclusion group in a story lorebook picks its entry at random on every generation, so a swipe can get different lore.",
+        detail: `Groups with no priority entry: ${groups.join(", ")}. Give one entry Prioritize to make the pick fixed.`,
+        target: { kind: "setting", id: "so-wi-seeded-chance" },
+      } : null;
+    },
+  },
+  {
     id: "look-sprites-missing", area: "image", scope: "story", audience: "author", severity: "info", feature: "sprite-builder",
     detect: (snapshot) => {
       const issues = snapshot.spriteLookIssues ?? [];

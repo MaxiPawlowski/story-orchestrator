@@ -179,6 +179,8 @@ export const SETTING_COPY_TOOLS = {
   "worldInfo.lorePins": copy("Lore for where you are",
     "Adds the lore entry a story binds to the current place, and to a place or person just met, to the next replies, even when no keyword names it. "
       + "An entry the story keeps switched off, or one that would give away a secret, is left out."),
+  "worldInfo.seededChance": copy("Same lore on a swipe",
+    "Decides a story lorebook entry's trigger chance once per turn from a seed, so swipes and replays of that turn get the same lore. Sticky entries keep SillyTavern's roll."),
   "memory.historyNotes": copy("Time and place notes (trial)",
     "Adds a short note of the day and place to the first message after the scene or the time of day changed, in the prompt only. On since its blind rating passed."),
   "memory.outwardNarration": copy("Narrate only what can be seen (trial)",
@@ -189,6 +191,9 @@ export const SETTING_COPY_TOOLS = {
     "A full memory tier moves its weakest memory to the archive instead of deleting the oldest; a memory a reply used gets stronger. No model call. Not rated yet."),
   "memory.retrievalQuery": copy("Pick memories from the last few messages (trial)",
     "Scores memories against the last four messages, the speaking character and who is on stage, on one scale, with recency from the chat. Not rated yet."),
+  "pacing.pathArc": copy("Pace by the road ahead (trial)",
+    "The story's dramatic shape counts the turning points left on the shortest way to an ending and how long the current scene has run, "
+      + "and after a climax eases off for three replies. No model call. Not rated yet."),
   "talk.swipeContrast": copy("Swipes see the reply they replace (trial)",
     "When you swipe for a new reply, the visible text of the reply you threw away is shown once, marked as rejected, so the new reply differs. Off until it is rated."),
   "sprites.cardOverlay": copy("Current character state in replies",

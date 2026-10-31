@@ -73,11 +73,11 @@ describe("v2.7 plan 29 fixed defaults", () => {
     const settings = sanitizeGlobalSettings(stored);
     expect(settings.extraction).not.toHaveProperty("reconciliationMultiplier");
     expect(settings.extraction.cadence).toBe(4);
-    expect(settings.pacing).toEqual({ hintEnabled: false });
+    expect(settings.pacing).toEqual({ hintEnabled: false, pathArc: true });
     expect(settings.talk.chain).toEqual({ enabled: true, max: 2 });
     const defaults = defaultGlobalSettings();
     expect(defaults.extraction).not.toHaveProperty("reconciliationMultiplier");
-    expect(defaults.pacing).toEqual({ hintEnabled: true });
+    expect(defaults.pacing).toEqual({ hintEnabled: true, pathArc: true });
     expect(defaults.talk.chain).not.toHaveProperty("stopOnTransition");
   });
 

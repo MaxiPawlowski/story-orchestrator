@@ -19,10 +19,12 @@ describe("example story: Quest for the Sun Ruins", () => {
     expect(isValidationErrorList(parsed)).toBe(false);
   });
 
-  it("has zero diagnostics, warnings included, beside the D6 evidence suggestion it leaves for the player session", () => {
-    const diagnostics = runDiagnostics(exampleJson);
+  it("has zero diagnostics, warnings included, beside the D6 evidence suggestion and the finale's exit-on-entry note it leaves for the player session", () => {
+    const all = runDiagnostics(exampleJson);
+    expect(all.filter((entry) => entry.code === "exit-on-entry").map((entry) => entry.path)).toEqual(["transitions.9.gate"]);
+    const diagnostics = all.filter((entry) => entry.code !== "exit-on-entry");
     expect(diagnostics.filter((entry) => entry.code !== "quality-outcome-player-evidence")).toEqual([]);
-    expect(diagnostics.every((entry) => entry.severity === "info")).toBe(true);
+    expect(all.every((entry) => entry.severity === "info")).toBe(true);
     expect(diagnostics.map((entry) => exampleJson.qualities[Number(entry.path.split(".")[1])].key)).toEqual(["approached_board", "mission_accepted", "riddle_answer", "chamber_entered", "artifact_secured"]);
   });
 

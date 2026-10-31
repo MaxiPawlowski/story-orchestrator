@@ -61,16 +61,18 @@ export const SETTING_CONTROLS: Record<string, string> = {
   "talk.keepLastQuestion": "so-keep-last-question",
   "worldInfo.gatingMode": "so-wi-gating-mode",
   "worldInfo.lorePins": "so-wi-lore-pins",
+  "worldInfo.seededChance": "so-wi-seeded-chance",
   "memory.historyNotes": "so-history-notes",
   "memory.outwardNarration": "so-outward-narration",
   "memory.mentionLedger": "so-mention-ledger",
   "memory.strengthRetention": "so-strength-retention",
   "memory.retrievalQuery": "so-retrieval-query",
   "talk.swipeContrast": "so-swipe-contrast",
+  "pacing.pathArc": "so-authoring-path-arc",
 };
 
-const AUTHOR_SETTINGS: ReadonlySet<string> = new Set(["worldInfo.lorePins", "memory.historyNotes", "memory.outwardNarration", "talk.swipeContrast",
-  "memory.mentionLedger", "memory.strengthRetention", "memory.retrievalQuery"]);
+const AUTHOR_SETTINGS: ReadonlySet<string> = new Set(["worldInfo.lorePins", "worldInfo.seededChance", "memory.historyNotes", "memory.outwardNarration", "talk.swipeContrast",
+  "memory.mentionLedger", "memory.strengthRetention", "memory.retrievalQuery", "pacing.pathArc"]);
 
 const firstSentence = (text: string): string => /^(.+?[.!?])(\s|$)/.exec(text)?.[1] ?? text;
 const copyOf = (key: string): SettingCopy | undefined => (SETTING_COPY as Record<string, SettingCopy>)[key];

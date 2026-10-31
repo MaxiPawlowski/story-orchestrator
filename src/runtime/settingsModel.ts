@@ -63,7 +63,7 @@ export const sanitizeInlineSettings = (value: unknown): InlineSettings => {
 export interface GlobalSettings {
   featureSwitches?: Partial<Record<"agency" | "meanwhile" | "thinking", boolean>>;
   extraction: ExtractionRuntimeSettings;
-  pacing: { hintEnabled: boolean };
+  pacing: { hintEnabled: boolean; pathArc: boolean };
   display: {
     announceTransitions: boolean; hudEnabled: boolean; yourMove: boolean; briefing: boolean; briefingDraft: boolean; playerSetup: boolean; inline: InlineSettings; presence: PresenceSettings;
   };
@@ -163,6 +163,7 @@ export interface WorldInfoSettings {
   lateLore: boolean;
   lateLoreDepth: number;
   lorePins: boolean;
+  seededChance: boolean;
 }
 
 export const DEFAULT_LATE_LORE_DEPTH = 4;
@@ -173,7 +174,7 @@ export const clampLateLoreDepth = (value: unknown, fallback: number = DEFAULT_LA
   typeof value === "number" && Number.isFinite(value) ? Math.min(LATE_LORE_DEPTH_MAX, Math.max(LATE_LORE_DEPTH_MIN, Math.round(value))) : fallback;
 
 export const defaultWorldInfoSettings = (): WorldInfoSettings => ({
-  gatingMode: "scan", normalized: {}, normalizedFrom: {}, scanMemory: true, keptGlobal: [], lateLore: true, lateLoreDepth: DEFAULT_LATE_LORE_DEPTH, lorePins: true,
+  gatingMode: "scan", normalized: {}, normalizedFrom: {}, scanMemory: true, keptGlobal: [], lateLore: true, lateLoreDepth: DEFAULT_LATE_LORE_DEPTH, lorePins: true, seededChance: true,
 });
 
 const sanitizeProvenance = (value: unknown): Record<string, NormalizedFrom[]> => {
@@ -211,6 +212,7 @@ const sanitizeWorldInfoSettings = (value: unknown): WorldInfoSettings => {
     lateLore: typeof value.lateLore === "boolean" ? value.lateLore : defaultWorldInfoSettings().lateLore,
     lateLoreDepth: clampLateLoreDepth(value.lateLoreDepth),
     lorePins: value.lorePins !== false,
+    seededChance: value.seededChance !== false,
   };
 };
 
@@ -250,7 +252,7 @@ export const defaultStagecraftSettings = (): StagecraftSettings => ({
 
 export const defaultGlobalSettings = (): GlobalSettings => ({
   extraction: defaultExtractionSettings(),
-  pacing: { hintEnabled: true },
+  pacing: { hintEnabled: true, pathArc: true },
   display: {
     announceTransitions: false, hudEnabled: true, yourMove: true, briefing: true, briefingDraft: true, playerSetup: true, inline: defaultInlineSettings(), presence: defaultPresenceSettings(),
   },
@@ -342,7 +344,7 @@ export const sanitizeGlobalSettings = (value: unknown): GlobalSettings => {
       ...(isReplyEffort(replyEffort) ? { replyEffort } : {}),
       ...sanitizeReadPrompt({ readLayout, promiseAddressee }),
     },
-    pacing: { hintEnabled: pacing.hintEnabled !== false },
+    pacing: { hintEnabled: pacing.hintEnabled !== false, pathArc: pacing.pathArc !== false },
     display: {
       announceTransitions: display.announceTransitions === true, hudEnabled: display.hudEnabled !== false, yourMove: display.yourMove !== false, briefing: display.briefing !== false,
       briefingDraft: display.briefingDraft !== false, playerSetup: display.playerSetup !== false,

@@ -59,6 +59,7 @@ const startGating = (disposers: Disposers, exclusive: Parameters<typeof startSca
       },
       values: () => runtimeManager.getEngineState()?.blackboard.values ?? {},
       mirrorBook: () => runtimeManager.getMirrorBook(),
+      loreRoll: (book, uid) => runtimeManager.chance.loreRoll(book, uid),
       exclusive,
       ownership: runtimeManager.getOwnership(),
       journal: (summary, note) => runtimeManager.noteRecap(summary, note, "lore"),

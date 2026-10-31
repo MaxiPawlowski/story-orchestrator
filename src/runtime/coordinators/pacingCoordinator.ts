@@ -7,6 +7,7 @@ import type { ParsedDelta } from "@extraction/index";
 import {
   OPENING_LINE, asksPlayerDirection, composeGuidanceBlock, encounterOfferLine, leadLengthLine, getSteeringHint, pullLine, quietRead, tensionEvidenceFresh, updateEma, type EncounterOffer,
 } from "@pacing/index";
+import { relaxActive } from "@pacing/arc";
 import { PACING_HINT_DEPTH, PACING_HINT_EXTENSION_KEY } from "@constants/defaults";
 import { INJECTION_REGISTRY } from "@constants/injectionRegistry";
 
@@ -35,6 +36,7 @@ export interface PacingCoordinatorDeps {
   ended?: () => boolean;
   onHoldChange?: () => void;
   leadLength?: () => { rosterId: string; name: string; words: number } | null;
+  pathArc?: () => boolean;
 }
 
 // Tension is written twice: optimistically while extractor deltas are queued (so the smoothed
@@ -127,7 +129,12 @@ export class PacingCoordinator {
   }
 
   expectedTension(): number | null {
-    return computeExpectedTension(this.deps.getStory(), this.deps.getState(), this.deps.getTensionTarget(), this.effectiveShape());
+    const state = this.deps.getState();
+    const arc = this.deps.pathArc?.() ? {
+      mode: "path" as const, playerTurns: playerTurnsInCheckpoint(state, this.deps.hosts.chat?.chatRows() ?? []),
+      relax: relaxActive(this.deps.getTension().history, this.deps.getStateLog()),
+    } : undefined;
+    return computeExpectedTension(this.deps.getStory(), state, this.deps.getTensionTarget(), this.effectiveShape(), arc);
   }
 
   updateSteering() {
