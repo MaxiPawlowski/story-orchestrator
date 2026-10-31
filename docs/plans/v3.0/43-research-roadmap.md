@@ -3,7 +3,7 @@
 One place for everything the 2026-10-31 research proposed, in phases. Sources: `research/memory-shortlist-2026-10-31.md`,
 `research/mechanics-shortlist-2026-10-31.md`, `research/context-census-2026-10-31.md` and their reports. Rules (owner):
 every upgrade its own switch, on by default, floor declared first, offline before→after, then a GPU A/B; CPU first;
-at most two code agents; no ST setting changes by us (warnings instead).
+at most two code agents; finished work is installed into the owner's ST as it merges.
 
 ## Phase 1 — CPU, in build (2026-10-31)
 - 41 memory wave 1: B merged (`a0d49e1d3`); A in build (real-token compaction, summary collapse guard, idle supersession,
@@ -39,6 +39,19 @@ at most two code agents; no ST setting changes by us (warnings instead).
 - Director: setup/payoff ledger; motive check; re-plan after divergence.
 - Lore: reserved budget slot for forced picks (if phase 4 rates it well).
 
-## Not planned (owner 2026-10-31)
-Check-miss clocks; phrase bans in llama.cpp; changing the owner's ST settings (lore cap stays a warning); graph DB;
-self-editing memory; prompt compression of play prompts. Reranker model download needs an owner OK.
+## Spikes for GPU time (owner 2026-10-31: not rejected, try them)
+Each a spike behind `spikes.<id>` (lazy `runtime/spikes/`), CPU-built ahead, decided on GPU by a floor declared first.
+- `checkClocks`: clocks that tick on check misses and give the narrator a pressure line; blind rating + turns-to-exit,
+  checked against the agenda overlap.
+- `phraseBans`: phrase bans with backtracking in the patched llama.cpp; floors: banned-phrase rate down, decode >= 95 %
+  of base, blind rating neutral or better.
+- `relationGraph`: entity-relation graph view over the ledger vs the flat ledger; multi-hop recall fixture +
+  contradiction rate.
+- `selfEditMemory`: a MemGPT-style core block the memory route edits by small deltas (never the play model); floors:
+  rollback ≡ replay property test, held-secret leak 0, long-horizon probe gain.
+- `promptCompress`: LLMLingua-style compression of history/lore on CPU; floors: tokens saved, blind rating neutral,
+  prefix-cache reuse not worse.
+- `cpuReranker`: small cross-encoder via llama.cpp `--reranking` for lore/recall (needs the owner's download OK);
+  floors: E0 hit@4 and lore precision@4 up.
+
+Lore budget cap: for this one case the owner keeps ST settings unchanged (warning + campaign guideline instead).
