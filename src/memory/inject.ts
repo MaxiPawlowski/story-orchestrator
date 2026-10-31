@@ -47,6 +47,7 @@ export interface InjectionOptions {
   scoreContext: ScoreContext;
   withheld?: ReadonlySet<string>;
   mentioned?: ReadonlySet<string>;
+  inWindow?: ReadonlySet<string>;
 }
 
 export function memoryExtensionKey(tier: MemoryTier): string {
@@ -54,7 +55,7 @@ export function memoryExtensionKey(tier: MemoryTier): string {
 }
 
 export type MemoryFate =
-  | "injected" | "quarantined" | "superseded" | "folded" | "other-speaker" | "private" | "near-duplicate" | "over-budget" | "pinned-overflow" | "mentioned";
+  | "injected" | "quarantined" | "superseded" | "folded" | "other-speaker" | "private" | "near-duplicate" | "over-budget" | "pinned-overflow" | "mentioned" | "in-window";
 
 export interface TierTrim {
   candidates: number;
@@ -66,13 +67,15 @@ export interface TierTrim {
   filtered: number;
 }
 
-const filteredFate = (entry: MemoryEntry, tier: MemoryTier, activeSpeakerId: string | null, withheld?: ReadonlySet<string>, mentioned?: ReadonlySet<string>): MemoryFate | null => {
+const filteredFate = (entry: MemoryEntry, tier: MemoryTier, activeSpeakerId: string | null, options: InjectionOptions): MemoryFate | null => {
+  const { withheld, mentioned, inWindow } = options;
   if (!isLive(entry)) return "quarantined";
   if (entry.supersededBy) return "superseded";
   if (entry.foldedInto && !isEstablished(entry)) return "folded";
   if (tier === "facts" && entry.characterId && entry.characterId !== activeSpeakerId) return "other-speaker";
   if (withheld?.has(entry.id)) return "private";
   if (mentioned?.has(entry.id) && !entry.pinned && !isEstablished(entry)) return "mentioned";
+  if (inWindow?.has(entry.id)) return "in-window";
   return null;
 };
 
@@ -88,7 +91,7 @@ function selectTierEntries(
 ): { entries: MemoryEntry[]; pinnedOverflow: number; trim: TierTrim } {
   const inTier = entries.filter((entry) => entry.tier === tier);
   const live = inTier.filter((entry) => {
-    const fate = filteredFate(entry, tier, activeSpeakerId, options.withheld, options.mentioned);
+    const fate = filteredFate(entry, tier, activeSpeakerId, options);
     if (fate) fates[entry.id] = fate;
     return fate === null;
   });

@@ -468,6 +468,7 @@ real-model carrier, or why none is needed.
 | swipe-contrast | D + RP (off until rated) | swipeContrast.test (loud swipe only, six clears, newest only, clip) | so-prompt-arms swipe, Sol blind 25 pairs (owed, GPU) |
 | mention-ledger | D + RP | used.test, usedDetector.measure (hold invariant 100%), mentionLedger.review, rollbackMentions | MW1-B2 (GPU, owed) |
 | strength-retention | D + RP | strength.test, rollbackReplay.property (use + cap ops), memory probes b-before/b-after | MW1-B3 (GPU, owed) |
+| recap-outside-window | D + RP | inWindow.test (span start through the short-term chain, pinned and decided kept, margin), promptWindow.test (oldest kept message from a real prompt shape), so-context-savings recap | M43-C1 (GPU, owed) |
 | retrieval-query | D + RP | retrievalQuery.test, retrievalWindow.measure, e0Window (E0 arm f) | MW1-B4 (GPU, owed) |
 | seeded-lore-chance | D | loreChance.test (same boundary identical, 50% over 400 boundaries = 193), checksRegistry (lore-weighted-groups) | M42-F1 (no-model lane, owed) |
 | path-arc | D + RP | arc.measure (path never decreases, 280/280 paths reach the shape end, no escalate in relax), pathArc.test, runtimeManager pacing | M42-F5 (GPU, owed) |
