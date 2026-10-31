@@ -1,0 +1,480 @@
+{
+ "id": "t02-archive",
+ "story": {
+  "id": "t02-archive",
+  "title": "Sunken archive",
+  "description": "Timing fixture.",
+  "qualities": [
+   {
+    "key": "side0_open",
+    "type": "bool",
+    "source": "extractor",
+    "latching": true,
+    "rubric": "Did side event 0 happen?"
+   },
+   {
+    "key": "e0",
+    "type": "bool",
+    "source": "extractor",
+    "latching": true,
+    "rubric": "Has the flooded stair is crossed?"
+   },
+   {
+    "key": "side1_open",
+    "type": "bool",
+    "source": "extractor",
+    "latching": true,
+    "rubric": "Did side event 1 happen?"
+   },
+   {
+    "key": "e1",
+    "type": "bool",
+    "source": "extractor",
+    "latching": true,
+    "rubric": "Has the index is read?"
+   },
+   {
+    "key": "side2_open",
+    "type": "bool",
+    "source": "extractor",
+    "latching": true,
+    "rubric": "Did side event 2 happen?"
+   },
+   {
+    "key": "e2",
+    "type": "bool",
+    "source": "extractor",
+    "latching": true,
+    "rubric": "Has the sealed case is opened?"
+   },
+   {
+    "key": "side3_open",
+    "type": "bool",
+    "source": "extractor",
+    "latching": true,
+    "rubric": "Did side event 3 happen?"
+   },
+   {
+    "key": "e3",
+    "type": "bool",
+    "source": "extractor",
+    "latching": true,
+    "rubric": "Has the archivist agrees to help?"
+   }
+  ],
+  "checkpoints": [
+   {
+    "id": "s0",
+    "name": "Stage 0",
+    "objective": "Stage 0 of Sunken archive.",
+    "type": "anchor",
+    "start": true
+   },
+   {
+    "id": "s1",
+    "name": "Stage 1",
+    "objective": "Stage 1 of Sunken archive.",
+    "type": "anchor"
+   },
+   {
+    "id": "s2",
+    "name": "Stage 2",
+    "objective": "Stage 2 of Sunken archive.",
+    "type": "anchor"
+   },
+   {
+    "id": "s3",
+    "name": "Stage 3",
+    "objective": "Stage 3 of Sunken archive.",
+    "type": "anchor"
+   },
+   {
+    "id": "s4",
+    "name": "Stage 4",
+    "objective": "Stage 4 of Sunken archive.",
+    "type": "anchor"
+   },
+   {
+    "id": "side0",
+    "name": "Side 0",
+    "objective": "A path the story did not take (0).",
+    "type": "anchor"
+   },
+   {
+    "id": "side1",
+    "name": "Side 1",
+    "objective": "A path the story did not take (1).",
+    "type": "anchor"
+   },
+   {
+    "id": "side2",
+    "name": "Side 2",
+    "objective": "A path the story did not take (2).",
+    "type": "anchor"
+   },
+   {
+    "id": "side3",
+    "name": "Side 3",
+    "objective": "A path the story did not take (3).",
+    "type": "anchor"
+   }
+  ],
+  "transitions": [
+   {
+    "from": "s0",
+    "to": "side0",
+    "priority": 2,
+    "gate": {
+     "q": "side0_open",
+     "op": "==",
+     "v": true
+    }
+   },
+   {
+    "from": "s0",
+    "to": "s1",
+    "priority": 1,
+    "gate": {
+     "q": "e0",
+     "op": "==",
+     "v": true
+    }
+   },
+   {
+    "from": "s1",
+    "to": "side1",
+    "priority": 2,
+    "gate": {
+     "q": "side1_open",
+     "op": "==",
+     "v": true
+    }
+   },
+   {
+    "from": "s1",
+    "to": "s2",
+    "priority": 1,
+    "gate": {
+     "q": "e1",
+     "op": "==",
+     "v": true
+    }
+   },
+   {
+    "from": "s2",
+    "to": "side2",
+    "priority": 2,
+    "gate": {
+     "q": "side2_open",
+     "op": "==",
+     "v": true
+    }
+   },
+   {
+    "from": "s2",
+    "to": "s3",
+    "priority": 1,
+    "gate": {
+     "q": "e2",
+     "op": "==",
+     "v": true
+    }
+   },
+   {
+    "from": "s3",
+    "to": "side3",
+    "priority": 2,
+    "gate": {
+     "q": "side3_open",
+     "op": "==",
+     "v": true
+    }
+   },
+   {
+    "from": "s3",
+    "to": "s4",
+    "priority": 1,
+    "gate": {
+     "q": "e3",
+     "op": "==",
+     "v": true
+    }
+   }
+  ],
+  "roster": []
+ },
+ "transcript": [
+  {
+   "id": 0,
+   "speaker": "Player",
+   "user": true,
+   "text": "I look around and keep going."
+  },
+  {
+   "id": 1,
+   "speaker": "Narrator",
+   "user": false,
+   "text": "The scene moves on quietly."
+  },
+  {
+   "id": 2,
+   "speaker": "Companion",
+   "user": false,
+   "text": "The companion keeps pace and says little."
+  },
+  {
+   "id": 3,
+   "speaker": "Player",
+   "user": true,
+   "text": "I look around and keep going."
+  },
+  {
+   "id": 4,
+   "speaker": "Narrator",
+   "user": false,
+   "text": "At last the flooded stair is crossed."
+  },
+  {
+   "id": 5,
+   "speaker": "Companion",
+   "user": false,
+   "text": "The companion keeps pace and says little."
+  },
+  {
+   "id": 6,
+   "speaker": "Player",
+   "user": true,
+   "text": "I look around and keep going."
+  },
+  {
+   "id": 7,
+   "speaker": "Narrator",
+   "user": false,
+   "text": "The scene moves on quietly."
+  },
+  {
+   "id": 8,
+   "speaker": "Companion",
+   "user": false,
+   "text": "The companion keeps pace and says little."
+  },
+  {
+   "id": 9,
+   "speaker": "Player",
+   "user": true,
+   "text": "I look around and keep going."
+  },
+  {
+   "id": 10,
+   "speaker": "Narrator",
+   "user": false,
+   "text": "The scene moves on quietly."
+  },
+  {
+   "id": 11,
+   "speaker": "Companion",
+   "user": false,
+   "text": "The companion keeps pace and says little."
+  },
+  {
+   "id": 12,
+   "speaker": "Player",
+   "user": true,
+   "text": "I look around and keep going."
+  },
+  {
+   "id": 13,
+   "speaker": "Narrator",
+   "user": false,
+   "text": "The scene moves on quietly."
+  },
+  {
+   "id": 14,
+   "speaker": "Companion",
+   "user": false,
+   "text": "Right then, the index is read."
+  },
+  {
+   "id": 15,
+   "speaker": "Player",
+   "user": true,
+   "text": "I look around and keep going."
+  },
+  {
+   "id": 16,
+   "speaker": "Narrator",
+   "user": false,
+   "text": "The scene moves on quietly."
+  },
+  {
+   "id": 17,
+   "speaker": "Companion",
+   "user": false,
+   "text": "The companion keeps pace and says little."
+  },
+  {
+   "id": 18,
+   "speaker": "Player",
+   "user": true,
+   "text": "I look around and keep going."
+  },
+  {
+   "id": 19,
+   "speaker": "Narrator",
+   "user": false,
+   "text": "The scene moves on quietly."
+  },
+  {
+   "id": 20,
+   "speaker": "Companion",
+   "user": false,
+   "text": "The companion keeps pace and says little."
+  },
+  {
+   "id": 21,
+   "speaker": "Player",
+   "user": true,
+   "text": "I make sure that the sealed case is opened."
+  },
+  {
+   "id": 22,
+   "speaker": "Narrator",
+   "user": false,
+   "text": "The scene moves on quietly."
+  },
+  {
+   "id": 23,
+   "speaker": "Companion",
+   "user": false,
+   "text": "The companion keeps pace and says little."
+  },
+  {
+   "id": 24,
+   "speaker": "Player",
+   "user": true,
+   "text": "I look around and keep going."
+  },
+  {
+   "id": 25,
+   "speaker": "Narrator",
+   "user": false,
+   "text": "The scene moves on quietly."
+  },
+  {
+   "id": 26,
+   "speaker": "Companion",
+   "user": false,
+   "text": "The companion keeps pace and says little."
+  },
+  {
+   "id": 27,
+   "speaker": "Player",
+   "user": true,
+   "text": "I look around and keep going."
+  },
+  {
+   "id": 28,
+   "speaker": "Narrator",
+   "user": false,
+   "text": "The scene moves on quietly."
+  },
+  {
+   "id": 29,
+   "speaker": "Companion",
+   "user": false,
+   "text": "The companion keeps pace and says little."
+  },
+  {
+   "id": 30,
+   "speaker": "Player",
+   "user": true,
+   "text": "I look around and keep going."
+  },
+  {
+   "id": 31,
+   "speaker": "Narrator",
+   "user": false,
+   "text": "The scene moves on quietly."
+  },
+  {
+   "id": 32,
+   "speaker": "Companion",
+   "user": false,
+   "text": "Right then, the archivist agrees to help."
+  },
+  {
+   "id": 33,
+   "speaker": "Player",
+   "user": true,
+   "text": "I look around and keep going."
+  },
+  {
+   "id": 34,
+   "speaker": "Narrator",
+   "user": false,
+   "text": "The scene moves on quietly."
+  },
+  {
+   "id": 35,
+   "speaker": "Companion",
+   "user": false,
+   "text": "The companion keeps pace and says little."
+  }
+ ],
+ "reads": [
+  {
+   "after": 4,
+   "origin": "read-t02-archive-0",
+   "deltas": [
+    {
+     "q": "e0",
+     "v": true,
+     "evidenceAt": 4
+    }
+   ]
+  },
+  {
+   "after": 14,
+   "origin": "read-t02-archive-1",
+   "deltas": [
+    {
+     "q": "e1",
+     "v": true,
+     "evidenceAt": 14
+    }
+   ]
+  },
+  {
+   "after": 22,
+   "origin": "read-t02-archive-2",
+   "deltas": [
+    {
+     "q": "e2",
+     "v": true,
+     "evidenceAt": 21
+    }
+   ]
+  },
+  {
+   "after": 32,
+   "origin": "read-t02-archive-3",
+   "deltas": [
+    {
+     "q": "e3",
+     "v": true,
+     "evidenceAt": 32
+    }
+   ]
+  }
+ ],
+ "gold": {
+  "s0->s1": 4,
+  "s0->side0": null,
+  "s1->s2": 14,
+  "s1->side1": null,
+  "s2->s3": 21,
+  "s2->side2": null,
+  "s3->s4": 32,
+  "s3->side3": null
+ }
+}
