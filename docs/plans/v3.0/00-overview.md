@@ -713,3 +713,19 @@ Branch `v3.0-cpu-1031b` (GPU paused: no model lanes, controller, ComfyUI or imag
   `stHost/events`, the subscription moved into `stHost/imageSurface.ts` `onGenerationStart`, mocked), run 2 all green in 382.5s on
   `2cf25175` (jest 11,076 passed / 1 skipped, test:debug 1,734, Storybook 191 suites / 1,135 tests, replay, release, plugin, lint,
   typechecks, build). Not staged, not installed.
+
+### Image rows across a reload (owner 2026-10-31)
+
+- A queued picture row's file path is kept in the open chat's metadata (`story_orchestrator_image_rows` `{chatId, paths}`, same lifetime as
+  the row, beside `story_orchestrator_image`; `stHost/image.ts` `imageRowRecord`/`imageWriteRowRecord`, WriteResult). Queue adds and saves;
+  a post drops the path before `imagePlace`, so the posted row and the record land in one chat save; a refused post re-adds it; drops and
+  `clear` forget a path once its delete succeeded (a 404 counts as removed).
+- `ImageRowQueue.sweep(chatId, owns)` runs at start and whenever the open chat changes (`image/start.ts`, manager subscription,
+  `beginRun(manager.getOwnership())` checked with the chat id before each delete and the record write): a recorded path still waiting in
+  this page is skipped, one any message shows (`extra.media` url or text) is kept and forgotten, the rest deleted through `imageDelete`;
+  a failed delete stays recorded for the next load. Placement copy never mentioned reload, unchanged.
+- Tests: `src/image/imageRows.test.ts` (13; reload with a pending path deletes it, a posted path is kept, waiting/other chat/lapsed run
+  skipped, failed delete kept). errorCopy row for the discard catch. Not run live (needs image generation).
+- Gates: `npm run gates:quick` green. `npm run gates` (no `--resume`, Storybook included): run 1 red (jest: errorCopy row missing), run 2
+  all green in 334.0s on `812cb196` (jest 11,081 passed / 1 skipped, test:debug 1,734, Storybook 1,135, replay, release, plugin, lint,
+  typechecks, build). Not staged, not installed.
