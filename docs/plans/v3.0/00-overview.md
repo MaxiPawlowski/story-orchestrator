@@ -656,11 +656,24 @@ Branch `v3.0-owner-1031` (owner "as recommended"): HF-REGEN for the `/comment` t
   unchanged). Setting copy updated (settings reference regenerated).
 - Tests: `effectsApplier.test.ts` "v3.0 HF-REGEN" (queue, type filter, Regenerate drop, rollback/chat/off drops, mid-round
   control) and the L2 J1.7 block; `runtimeManager.test.ts` announcement + C7 order; census row `wiring/generation.ts#onStarted`.
-- Not changed: image placement `"message"` (same trailing-row trap, opt-in); `test/scenarios/v30-hf-regen.json` stays the
-  host repro (it posts its own `/comment`).
-- Live: not run. jest proves the queue and drop rules; the host order (note before the player row on a real send) rests on
-  ST source. A lane would need this build served without staging into the owner's ST, which this run was told not to do:
-  owed, one no-model lane check (announce on, `/cp` transition, send, regenerate, swipe).
+- Not changed here: image placement `"message"` (fixed later the same day, §CPU batch 2026-10-31); `test/scenarios/v30-hf-regen.json`
+  stays the host repro (it posts its own `/comment`).
+- Live: run 2026-10-31 on master `0f1c2da5` (staged), no-model lane 30, `test/scenarios/v30-hf-regen-lane.json`
+  (`--sandbox --group "Group: Arin, DM Narrator"`, SO-UI fixture story), PASS twice in a row:
+  - announce switched on through `#so-announce-transitions` (Settings → Display, setting-toggle), restored after;
+  - `/cp set road_told true`, then a `/sendas` reply commits the boundary that fires camp → dawn: the note is queued, the reply stays
+    the last row, no system row;
+  - ST's own `Generate('normal')` (no backend: `online_status` `no_connection`, so it emits `GENERATION_STARTED` and returns; no
+    player row, no reply) posts `◈ Dawn` directly under that reply; the member's reply is a `/sendas` stand-in (no model);
+  - `/addswipe` on that last reply works (ST refuses it on a system row), swipe arrows show, pointer swipe right to the added swipe
+    and back left work; ST hides the arrows at Generate's start and the no-backend return skips the end of round that shows them,
+    so the scenario calls ST's `showSwipeButtons` there (recorded `swipesHiddenByNoBackendReturn: true`);
+  - ST's Regenerate as a pointer click (`#options_button` → `#option_regenerate`) deletes exactly the last reply and stops at the note;
+    the reply the note follows is unchanged.
+  - Cleanup: sandbox chat deleted, library 0, mirror books 0, reap prompts 0, residue clean; run-header diff around the batch shows
+    only the open chat moving (page on the welcome screen before, on the toy group after); inventories unchanged. Lane stopped.
+  - Not covered without a model: the real-reply order (note before the player row, then the member reply) and Regenerate's new
+    round; those rest on jest and ST source as before.
 - Gates: `npm run gates:quick` green (55.3s). `npm run gates` (no `--resume`, Storybook included): run 1 red (codeHealth S3: `effectsApplier.ts` over the file budget, queue moved to `TransitionNoteQueue`), run 2 all green in 343.9s on `07aa15c08` (jest 11,064 passed / 1 skipped, test:debug 1,733, Storybook 191 suites / 1,133 tests, replay, release, plugin, lint, typechecks, build). Not staged.
 
 ## Adolion pin merge 2026-10-31

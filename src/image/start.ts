@@ -1,8 +1,7 @@
 import type { RuntimeManager } from "@runtime/runtimeManager";
 import { StoryImageDirector } from "./runtime";
-import { registerImageSurface } from "@services/stHost/imageSurface";
+import { onGenerationStart, registerImageSurface } from "@services/stHost/imageSurface";
 import { setImageHealth } from "@runtime/imageHealth";
-import { subscribeToHostEvent } from "@services/stHost/events";
 import { imageRows } from "./imageRowsHost";
 
 let image: StoryImageDirector | null = null;
@@ -14,7 +13,7 @@ export function startImage(manager: RuntimeManager): StoryImageDirector {
   globalThis.storyOrchestratorImage = image;
   const stop = image.start();
   const unmount = registerImageSurface(image, (listener) => manager.subscribe(listener));
-  const offRows = subscribeToHostEvent("GENERATION_STARTED", (type, _options, dryRun) => imageRows.post(type, dryRun));
+  const offRows = onGenerationStart((type, dryRun) => imageRows.post(type, dryRun));
   dispose = () => { offRows(); unmount(); stop(); };
   return image;
 }
