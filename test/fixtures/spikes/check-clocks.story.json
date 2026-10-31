@@ -1,0 +1,42 @@
+{
+  "id": "spike-check-clocks",
+  "title": "checkClocks spike (jest)",
+  "description": "v3.0 43 spike checkClocks fixture: a sneak check (margin bands) rolled once per visit to the yard and a plain lockpick check; the yard and the lane loop so the sneak check can miss again on each revisit. The alarm clock ticks on sneak misses and weak sneaks.",
+  "qualities": [
+    { "key": "tried", "type": "bool", "source": "extractor", "rubric": "Did the player try to sneak past this turn?" },
+    { "key": "away", "type": "bool", "source": "extractor", "rubric": "Has the player left the yard for the lane?" },
+    { "key": "sneaked", "type": "bool", "source": "code", "rubric": "Whether the sneak succeeded." },
+    { "key": "sneak_degree", "type": "enum", "values": ["miss", "weak", "strong"], "source": "code", "rubric": "How well the sneak went." },
+    { "key": "picked", "type": "bool", "source": "code", "rubric": "Whether the lock gave." }
+  ],
+  "checkpoints": [
+    {
+      "id": "yard",
+      "name": "The Yard",
+      "objective": "The player tries to cross the yard unseen.",
+      "type": "anchor",
+      "start": true,
+      "checks": [
+        { "id": "sneak", "quality": "sneaked", "roll": { "sides": 20, "target": 11 }, "narrate": "public", "outcome": { "quality": "sneak_degree", "bands": "margin", "partial_margin": 4 }, "when": { "q": "tried", "op": "==", "v": true } }
+      ]
+    },
+    {
+      "id": "lane",
+      "name": "The Lane",
+      "objective": "The player waits in the lane behind the yard.",
+      "type": "anchor",
+      "checks": [
+        { "id": "lockpick", "quality": "picked", "roll": { "sides": 6, "target": 4 }, "narrate": "public" }
+      ]
+    }
+  ],
+  "transitions": [
+    { "from": "yard", "to": "lane", "priority": 1, "gate": { "q": "away", "op": "==", "v": true } },
+    { "from": "lane", "to": "yard", "priority": 1, "gate": { "q": "away", "op": "==", "v": false } }
+  ],
+  "roster": [],
+  "clocks": [
+    { "id": "alarm", "size": 4, "ticks_on": [{ "check": "sneak", "on": "miss" }, { "check": "sneak", "on": "weak" }], "near": { "at": 2, "line": "The guards are starting to look this way." }, "full_line": "Someone has raised the alarm." },
+    { "id": "rust", "size": 6, "ticks_on": [{ "check": "lockpick", "on": "miss", "ticks": 2 }], "checkpoints": ["lane"], "near": { "at": 4, "line": "The lock is starting to jam." } }
+  ]
+}
