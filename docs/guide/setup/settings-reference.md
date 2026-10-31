@@ -154,7 +154,7 @@ Optional pictures and character sprites; both need your own image setup. [More](
 | **Quality** | Settings → Images & stage → Illustrations | Install | Base is faster; hires adds an upscale pass and takes longer. | Per entry | `image.purposes.*.quality` |
 | **Shape** | Settings → Images & stage → Illustrations | Install | The picture's proportions. Auto lets the image-prompt model choose. | Per entry | `image.purposes.*.aspect` |
 | **Framing** | Settings → Images & stage → Illustrations | Install | How close the camera is: from a close-up to a wide view. | Per entry | `image.purposes.*.shot` |
-| **Where it appears** | Settings → Images & stage → Illustrations | Install | In the message, as its own message, or as the chat background. | Per entry | `image.purposes.*.placement` |
+| **Where it appears** | Settings → Images & stage → Illustrations | Install | In the message, as its own message (posted before your next message, so the reply stays last), or as the chat background. | Per entry | `image.purposes.*.placement` |
 | **Pictures to choose from** | Settings → Images & stage → Illustrations | Install | Draw this many and keep the best. Each extra one costs another render. | Per entry | `image.purposes.*.candidates` |
 | **Let the image-prompt model pick another model** | Settings → Images & stage → Illustrations | Install | The image-prompt model may switch this picture to a different image model when it fits better. | Per entry | `image.purposes.*.directorMayOverride` |
 | **Always add** | Settings → Images & stage → Illustrations | Install | Words added to every prompt of this kind. | Per entry | `image.purposes.*.extraPositive` |

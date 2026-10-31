@@ -2,7 +2,7 @@ import { isHostGenerating, listConnectionProfiles, getScannableEntries } from "@
 import { voiceChainPending } from "@runtime/voiceBusy";
 import { leaseOutsideTurns } from "../sprites/builder/textPriority";
 import {
-  imageChat, imageModel, imageSave, imageDelete, imagePlace, imageChatSettings, imageWriteChatSettings, type ImageMedia,
+  imageChat, imageModel, imageSave, imageDelete, imageChatSettings, imageWriteChatSettings, type ImageMedia,
 } from "@services/stHost/image";
 import { reserveGpu, releaseGpu, gpuBrokerStatus } from "@services/stHost/gpuBroker";
 import { loopbackUrl, setImageHealth, type ImageHealthView } from "@runtime/imageHealth";
@@ -16,6 +16,7 @@ import { imageMessages, parseImageReply, sceneForImage, assembleImagePrompt, dir
 import { renderStImage, stImageReadiness } from "@services/stHost/stImage";
 import { comfyDiscover, comfyRenderOwned, mediaStatus } from "@services/stHost/media";
 import { ImageQueue } from "./queue";
+import { imageRows, placeImage } from "./imageRowsHost";
 import { pickImageCheckpoint, resolveImageRoute, withCheckpointFile, type ImageArgs, type Route } from "./routing";
 import { automationAllowsCues, messageAlreadyDrawn, sanitizeImageChatState, sanitizeImageOverride, type AutomaticRoute, type ImageOverride, type ImageSettings } from "./settings";
 import { chooseRoute, qwenPrompt, refused, visibleNames, type QwenReadiness, type QwenReady, type RenderRoute, type RouteReason } from "./autoScene";
@@ -255,7 +256,7 @@ export class StoryImageDirector {
       this.manager.onRollback(() => this.queue.cancelAll()),
       this.manager.onEpochChanged(() => { this.pending.clear(); this.pendingTargets.clear(); this.queue.cancelAll(); }),
     ];
-    return () => { off.forEach((unsubscribe) => unsubscribe()); this.queue.cancelAll(); };
+    return () => { off.forEach((unsubscribe) => unsubscribe()); this.queue.cancelAll(); void imageRows.clear(); };
   }
 
   async onReply(messageId: number, type: unknown): Promise<void> {
@@ -474,7 +475,7 @@ export class StoryImageDirector {
         throw new Error("A visual pack or one of its files changed while this picture was drawn, so it was discarded.");
       }
       const media: ImageMedia = { url: candidate.path, type: "image", title: plan.caption, source: "generated", image_director: pictureRecord(plan, candidate) };
-      const placed = await imagePlace(plan.chatId, plan.target, plan.caption, media, plan.route.placement);
+      const placed = await placeImage(plan.chatId, plan.target, plan.targetText, plan.caption, media, plan.route.placement);
       if (!placed.ok) throw new Error(placed.reason);
       if (cueKey) {
         if (imageChat()?.id !== plan.chatId) return candidate.path;

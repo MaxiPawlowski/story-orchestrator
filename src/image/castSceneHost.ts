@@ -6,7 +6,8 @@ import type { PrimitiveValue, RosterMember } from "@engine/index";
 import { comfyFingerprint, comfyReference, comfyReleaseReference, comfyRenderOwned, spriteFileFingerprint } from "@services/stHost/media";
 import { discoverWaking } from "../sprites/builder/comfyWake";
 import { spriteCast } from "@services/stHost/sprites";
-import { imageChat, imageSave, imagePlace, imageDelete } from "@services/stHost/image";
+import { imageChat, imageSave, imageDelete } from "@services/stHost/image";
+import { placeImage } from "./imageRowsHost";
 import { reserveGpu, releaseGpu, renewGpu } from "@services/stHost/gpuBroker";
 import { anySignal } from "@utils/signals";
 import { verifyVisualSource, sourceStillCurrent } from "../sprites/visualHost";
@@ -208,7 +209,7 @@ export async function drawPreparedCast(manager: RuntimeManager, queue: ImageQueu
     guard();
     await packsCurrent(run.signal);
     guard();
-    const placed = await imagePlace(chat.id, target, "Prepared cast illustration", { url: result.path, type: "image", title: "Prepared cast illustration", source: "generated",
+    const placed = await placeImage(chat.id, target, targetText, "Prepared cast illustration", { url: result.path, type: "image", title: "Prepared cast illustration", source: "generated",
       image_director: { purpose: "cast-scene", recipe: CAST_SCENE_RECIPE, recipe_source: result.recipeSource, identities: identityRecord(identities),
         idle_wait_ms: result.waitedMs, ...(visual ? { visual: visualRecord(visual) } : {}) } }, "inline");
     if (!placed.ok) throw new Error(placed.reason);
