@@ -341,6 +341,6 @@ export function wireCoordinators(port: ManagerPort) {
   const storyUpdateDeps = storyUpdateDepsFor(port, expansion, living, patternsWiring.reconcile);
   return {
     memory, expansion, extraction, pacing, stagecraft, copilot, inner, game, meanwhile, living, rollbackDeps, storyUpdateDeps, recap, patterns, promises, witness, rumors,
-    carry, narrator, delivery, cues, echoes, polish: { port, memory }, speech, skip: wireSkip(port, pacing, speech, game),
+    carry, narrator, delivery, cues, echoes, polish: { port, memory }, speech, effects: port.effects, skip: wireSkip(port, pacing, speech, game),
   };
 }

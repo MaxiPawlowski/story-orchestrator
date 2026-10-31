@@ -27,6 +27,7 @@ export interface EffectsApplierHost extends Pick<EffectApplierDeps, "persist" | 
 export const hostEffectsApplier = (ownership: RunOwnership, { view, ...deps }: EffectsApplierHost): EffectsApplier => new EffectsApplier(ownership, {
   reads: { read: readEffectTarget }, restore: restoreEffectTarget, restoreCast: restoreCastFlags, ...deps,
   speakerNames: (name) => speakerNames(view.getStory(), name),
+  activeCheckpointId: () => view.getEngineState()?.activeCheckpointId ?? null,
   scope: () => {
     const state = view.getEngineState();
     return { entryStart: state?.checkpointStartedMessageId ?? -1, send: latestSend(speechRows(chatRows())), playerTurns: playerTurnIds(chatRows()), entry: entryKey(state) };

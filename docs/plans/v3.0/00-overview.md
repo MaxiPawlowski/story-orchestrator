@@ -636,6 +636,28 @@ Branch `v3.0-harvest-wave` (worktree `C:/dev/so-harvest-wave`), cut from `28c1be
   `memory.chapters.compact`, `talk.skipAhead`. GPU rows in `gpu-queue-2026-10-30.md`.
 - Owner decisions open from the defect check:
   - Regenerate after a trailing system row (group `regenerateGroup()` keeps SO's trailing row; new round lands under it):
-    confirmed, not fixed; options = DOM-level Regenerate intercept (needs a live gate) or refuse/hide.
+    confirmed; the transition note is fixed 2026-10-31 (§Owner answers 2026-10-31); image placement `"message"` still open.
   - Mid-chat-started story (`storyStart` > 0) now folds nothing; owner may want pre-story rows folded too.
 - Not run here: no GPU, lanes, staging or model calls; live gates for 31/32/33/34/40 stay owed (queue rows).
+
+## Owner answers 2026-10-31
+
+Branch `v3.0-owner-1031` (owner "as recommended"): HF-REGEN for the `/comment` transition note, player Q1-Q3
+(`29-ui-rework.md` §Owner answers 2026-10-31).
+
+- HF-REGEN: the note is never the last chat row. `EffectsApplier.announceText` queues it (chat id, active checkpoint, the
+  row it followed); `postPendingNotes` posts it on the next `GENERATION_STARTED` of type `normal` (not dry, never swipe,
+  continue, regenerate, quiet, impersonate) and before an NPC reply of the entered checkpoint. ST emits that event before
+  the player's row and before each group member's reply (`script.js:4299`, user row sent later inside `Generate`), so the
+  note lands after the reply that moved the story and before the next row. The reply stays last: swipe arrows stay on it and
+  group Regenerate deletes it as usual (`group-chats.js:167-188` stops only at a system row). Dropped with a journal line when
+  the row it followed is gone (Regenerate deleted it), the checkpoint moved back, another chat is open, or notes were switched
+  off. Wiring: `wiring/generation.ts` onStarted awaits `runtimeManager.postNotes` (in `managerDelegates.ts`, manager budget
+  unchanged); pure rules in `runtime/transitionNotes.ts`. Setting copy updated (settings reference regenerated).
+- Tests: `effectsApplier.test.ts` "v3.0 HF-REGEN" (queue, type filter, Regenerate drop, rollback/chat/off drops, mid-round
+  control) and the L2 J1.7 block; `runtimeManager.test.ts` announcement + C7 order; census row `wiring/generation.ts#onStarted`.
+- Not changed: image placement `"message"` (same trailing-row trap, opt-in); `test/scenarios/v30-hf-regen.json` stays the
+  host repro (it posts its own `/comment`).
+- Live: not run. jest proves the queue and drop rules; the host order (note before the player row on a real send) rests on
+  ST source. A lane would need this build served without staging into the owner's ST, which this run was told not to do:
+  owed, one no-model lane check (announce on, `/cp` transition, send, regenerate, swipe).

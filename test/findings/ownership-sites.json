@@ -425,9 +425,9 @@
       "status": "partial",
       "note": "PARTIAL: guarded entirely from its CALLER. It only formats the checkpoint line and awaits announceText (partial, same reason); commitBoundary checks ownsOpenChat before calling it. Any new caller must do the same."
     },
-    "src/runtime/effectsApplier.ts#EffectsApplier.announceText": {
-      "status": "partial",
-      "note": "PARTIAL: guarded entirely from its CALLER (was announceTransition's body until v2.6 plan 07 split it out for the chapter title card). The only write after its await is the journal line saying the note was refused; the /comment itself is the host call. commitBoundary and ChapterSeal.run check ownsOpenChat / their run before calling it. Any new caller must do the same."
+    "src/runtime/wiring/generation.ts#subscribeGenerationEvents.onStarted": {
+      "status": "local",
+      "note": "v3.0 HF-REGEN: awaits the queued transition notes (EffectsApplier.postPendingNotes, which re-checks chat, anchor row and checkpoint at post time) before feeding the generation lifecycle reducer. apply writes only that in-memory reducer and its dispatch, as before the await was added; nothing reaches a chat or a store from this body."
     },
     "src/runtime/chapterSeal.ts#ChapterSeal.run": {
       "status": "checked",

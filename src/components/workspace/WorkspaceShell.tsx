@@ -90,7 +90,7 @@ export const WorkspaceShell = ({ intent, storyTitle, authorView, onClose, badges
     if (!control) document.getElementById("so-workspace-content")?.scrollTo(0, 0);
   };
   const lastPage = lastPageValue(location);
-  useEffect(() => { writeLastPage(lastPage); }, [lastPage]);
+  useEffect(() => { if (lastPage) writeLastPage(lastPage); }, [lastPage]);
   useEffect(() => {
     setLocation(initial(intent));
     if (intent.control) setReveal({ control: intent.control, at: Date.now() });
