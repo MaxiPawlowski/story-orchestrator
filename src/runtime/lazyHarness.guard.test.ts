@@ -25,6 +25,7 @@ const SPIKES = [
   "src/runtime/spikes/promptCompress.ts",
   "src/runtime/spikes/phraseBans.ts",
   "src/runtime/spikes/cpuReranker.ts",
+  "src/runtime/spikes/intentRoute.ts",
 ];
 const SPIKE_PATTERN = /^src\/runtime\/spikes\//;
 const DROPPED_SPIKES = [

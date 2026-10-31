@@ -2,7 +2,7 @@ import {
   PLAYER_REF, agencyForCheckpoint, checkAttempted, checkRolledAt, checksAt, valueReader, type BoundaryLogEntry, type NormalizedStory, type PrimitiveValue, type StoryCheck,
 } from "@engine/index";
 import { isRecord } from "@utils/guards";
-import { withholds, type GenerationIntent } from "../generationLifecycle";
+import { routeIntent } from "./intentRoute";
 
 export const CLOCK_KEY = "story_orchestrator_clock_pressure";
 export const CLOCK_DEPTH = 5;
@@ -164,10 +164,5 @@ export const createClockSeam = (read: () => ClockInput | null, prompt: ClockProm
     held = true;
     record({ kind: "set", text: pressure });
   };
-  return (intent: GenerationIntent) => {
-    if (intent.kind === "opened") return withholds(intent.type) ? clear() : set();
-    if (intent.kind === "nested") return intent.withholds ? clear() : undefined;
-    if (intent.kind === "reapply") return set();
-    if (intent.kind === "closed") return clear();
-  };
+  return routeIntent(set, clear);
 };

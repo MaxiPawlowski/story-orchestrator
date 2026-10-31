@@ -2,7 +2,7 @@ import { PLAYER_REF, TENSION_CURRENT_KEY, agencyForCheckpoint, type ArcTemplate,
 import { getSteeringHint } from "@pacing/index";
 import { isRecord } from "@utils/guards";
 import { computeExpectedTension } from "../snapshot";
-import { withholds, type GenerationIntent } from "../generationLifecycle";
+import { routeIntent } from "./intentRoute";
 
 export const COMPLICATION_KEY = "story_orchestrator_complication";
 export const COMPLICATION_DEPTH = 5;
@@ -148,10 +148,5 @@ export const createComplicationSeam = (read: () => ReleaseInput | null, prompt: 
     held = true;
     record({ kind: "set", release });
   };
-  return (intent: GenerationIntent) => {
-    if (intent.kind === "opened") return withholds(intent.type) ? clear() : set();
-    if (intent.kind === "nested") return intent.withholds ? clear() : undefined;
-    if (intent.kind === "reapply") return set();
-    if (intent.kind === "closed") return clear();
-  };
+  return routeIntent(set, clear);
 };
