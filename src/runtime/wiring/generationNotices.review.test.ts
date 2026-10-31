@@ -20,6 +20,7 @@ jest.mock("../runtimeManager", () => ({
     getEngineState: () => null,
     getCachedSnapshot: () => ({ carry: { block: "PREVIOUSLY: the last run ended at the harbour." } }),
     onGenerationStarted: () => undefined,
+    postNotes: async () => undefined,
     setGenerationOpen: () => undefined,
     capturePayload: () => undefined,
     clearPrivateInjection: () => undefined,

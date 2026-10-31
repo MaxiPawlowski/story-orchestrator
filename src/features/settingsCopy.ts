@@ -73,7 +73,7 @@ export const SETTING_COPY = {
   ),
   "display.announceTransitions": copy(
     "Also post a chat note when the story moves on",
-    "Posts a short note in the chat when the story reaches a new turning point. The note lands just before the next reply, so the reply that moved the story stays last and you can still swipe or regenerate it.",
+    "Posts a short note in the chat when the story reaches a new turning point. The note lands just before the next reply, so you can still swipe or regenerate the reply that moved the story.",
   ),
   "display.briefing": copy(
     "Show the story briefing when a story starts",

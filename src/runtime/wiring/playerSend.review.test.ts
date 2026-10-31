@@ -35,6 +35,7 @@ const lore = {
   scanGating: { reassert: () => undefined },
   storyLore: { reassert: () => undefined },
   onGenerationStarted: async () => undefined,
+  postNotes: async () => undefined,
   onMessageSent: async () => { calls.lore += 1; },
 };
 
