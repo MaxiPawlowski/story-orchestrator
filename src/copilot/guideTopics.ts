@@ -155,6 +155,14 @@ export const GUIDE_TOPICS = {
     text: "calm, stirring, tense, critical or peak: the tension this beat aims for. Pacing compares it to the measured tension and steers. Good: calm for a camp, critical "
       + "for the ambush. A story with every beat at peak has no shape to steer toward. min_turns n: non-urgent exits wait n turns.",
   },
+  "stuck-leads": {
+    title: "Leads for a stuck player",
+    fields: "checkpoints[].leads, checkpoints[].stuck_after",
+    text: "leads: 1 to 4 short player-safe situations that make an exit reachable (\"a dockhand mentions the ledger moved\"); stuck_after n (1-20, default 6) "
+      + "player turns with no exit-gate quality changing. Then one lead per 3 quiet turns reaches the narrator as world pressure, never the player's act; "
+      + "past the last lead (or with none, from the second rung) a generic nudge. Never forces an exit. Not on an open stretch. "
+      + "one-clue-exit warns when every exit needs one extractor value and there are fewer than 2 leads, no turn-count fallback and no alternate.",
+  },
   guidance: {
     title: "Narrator guidance",
     fields: "checkpoints[].guidance",
@@ -446,7 +454,7 @@ export const DIAGNOSTIC_GUIDE_TOPIC: Record<DiagnosticCode, GuideTopicId> = {
   "story-kind-invalid": "story-basics",
   "opener-uses-player-name": "player",
   "npc-reply-directs-player": "npc-replies",
-  "opening-narrator-only": "opening-scene", "exit-on-entry": "tension",
+  "opening-narrator-only": "opening-scene", "exit-on-entry": "tension", "one-clue-exit": "stuck-leads",
   ...TALK_DIAGNOSTIC_TOPICS,
   "player-spoiler-risk": "player",
   "agenda-pace-no-chapters": "character-life",

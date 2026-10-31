@@ -6,6 +6,7 @@ import GateBuilder from "./GateBuilder";
 import GateReplayPanel from "./GateReplayPanel";
 import { Button } from "@components/ui/Button";
 import { StatusText } from "@components/ui/StatusText";
+import { Switch } from "@components/ui/Switch";
 
 const Field: React.FC<{ label: string; children: React.ReactNode }> = ({ label, children }) => (
   <label className="flex flex-col gap-1 text-sm">
@@ -98,6 +99,12 @@ const TransitionEditor: React.FC<{ initialIndex?: number }> = ({ initialIndex })
                   onChange={(event) => { const parsed = parseInt(event.target.value, 10); patch({ priority: Number.isFinite(parsed) ? parsed : 0 }); }}
                 />
               </Field>
+            </div>
+
+            <div className="flex items-center gap-2 text-sm">
+              <Switch id="so-transition-urgent" checked={selected.urgent === true} label="Urgent exit"
+                onChange={(on) => patch({ urgent: on ? true : undefined })} />
+              <span>Urgent: fires at once, ignoring the beat&apos;s minimum player turns</span>
             </div>
 
             <div className="flex flex-col gap-1">

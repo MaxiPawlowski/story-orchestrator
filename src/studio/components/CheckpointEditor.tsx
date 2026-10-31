@@ -190,10 +190,38 @@ const CheckpointBasics = ({ selected, roster, patch, onStart }: { selected: Chec
         <input type="number" className="text_pole st-input" value={selected.convergence_threshold ?? ""} onChange={(event) => patch({ convergence_threshold: optionalFloat(event.target.value) })} />
       </Field>
     </div>
+    {selected.type === "anchor" || selected.stretch?.mode !== "open" ? <DwellFields key={selected.id} selected={selected} patch={patch} /> : null}
     <GuidanceEditor guidance={selected.guidance} roster={roster} onChange={(guidance) => patch({ guidance })} />
     </Sec>
   </>
 );
+
+const leadsFrom = (text: string): string[] | undefined => {
+  const leads = text.split("\n").map((line) => line.trim()).filter(Boolean);
+  return leads.length ? leads : undefined;
+};
+
+const DwellFields = ({ selected, patch }: { selected: Checkpoint; patch: Patch }) => {
+  const [leadText, setLeadText] = useState((selected.leads ?? []).join("\n"));
+  return (
+    <div className="flex flex-col gap-3" data-so="dwell-fields">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <Field label="Minimum player turns">
+          <input type="number" min={1} max={20} aria-label="Minimum player turns" className="text_pole st-input" value={selected.min_turns ?? ""}
+            onChange={(event) => patch({ min_turns: optionalInt(event.target.value) })} />
+        </Field>
+        <Field label="Stuck after (player turns)">
+          <input type="number" min={1} max={20} aria-label="Stuck after" placeholder="6" className="text_pole st-input" value={selected.stuck_after ?? ""}
+            onChange={(event) => patch({ stuck_after: optionalInt(event.target.value) })} />
+        </Field>
+      </div>
+      <Field label="Leads for a stuck player (one per line, up to 4)">
+        <textarea aria-label="Leads" className="text_pole st-input min-h-[3rem]" value={leadText}
+          onChange={(event) => { setLeadText(event.target.value); patch({ leads: leadsFrom(event.target.value) }); }} />
+      </Field>
+    </div>
+  );
+};
 
 const MotivesEditor = ({ selected, draft }: { selected: Checkpoint; draft: Draft }) => {
   const mutate = useDraftStore((state) => state.mutate);

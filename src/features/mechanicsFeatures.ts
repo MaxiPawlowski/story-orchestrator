@@ -75,4 +75,14 @@ export const MECHANICS_FEATURES: readonly Feature[] = [
     where: settingsAt("#so-authoring-path-arc", "Authoring › Prompt trials"),
     settings: ["pacing.pathArc"], guideTopic: "tension", doc: authorGuideDoc("tension"), status: "shipped", needs: ["story"],
   },
+  {
+    id: "stuck-ladder", name: "Help a stuck player with leads", area: "authoring", audience: "author",
+    oneLine: "A gated scene that has stopped moving gets its authored leads one at a time, as world pressure.",
+    what: "When no quality an exit of the current scene reads has changed for the scene's stuck_after player turns (6 by default), the narrator's private "
+      + "direction carries the scene's first lead as something the world may make available; every three more quiet turns, the next lead; past the last one, "
+      + "a general nudge toward the objective. Any change to a watched quality starts the count again. It never moves the story on and makes no model call. "
+      + "Not rated yet.",
+    where: settingsAt("#so-authoring-stuck-ladder", "Authoring › Prompt trials"),
+    settings: ["pacing.stuckLadder"], guideTopic: "stuck-leads", doc: authorGuideDoc("stuck-leads"), status: "shipped", needs: ["story"],
+  },
 ];

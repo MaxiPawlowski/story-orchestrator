@@ -63,7 +63,7 @@ export const sanitizeInlineSettings = (value: unknown): InlineSettings => {
 export interface GlobalSettings {
   featureSwitches?: Partial<Record<"agency" | "meanwhile" | "thinking", boolean>>;
   extraction: ExtractionRuntimeSettings;
-  pacing: { hintEnabled: boolean; pathArc: boolean };
+  pacing: { hintEnabled: boolean; pathArc: boolean; stuckLadder: boolean };
   display: {
     announceTransitions: boolean; hudEnabled: boolean; yourMove: boolean; briefing: boolean; briefingDraft: boolean; playerSetup: boolean; inline: InlineSettings; presence: PresenceSettings;
   };
@@ -265,7 +265,7 @@ export const defaultStagecraftSettings = (): StagecraftSettings => ({
 
 export const defaultGlobalSettings = (): GlobalSettings => ({
   extraction: defaultExtractionSettings(),
-  pacing: { hintEnabled: true, pathArc: true },
+  pacing: { hintEnabled: true, pathArc: true, stuckLadder: true },
   display: {
     announceTransitions: false, hudEnabled: true, yourMove: true, briefing: true, briefingDraft: true, playerSetup: true, inline: defaultInlineSettings(), presence: defaultPresenceSettings(),
   },
@@ -357,7 +357,7 @@ export const sanitizeGlobalSettings = (value: unknown): GlobalSettings => {
       ...(isReplyEffort(replyEffort) ? { replyEffort } : {}),
       ...sanitizeReadPrompt({ readLayout, promiseAddressee }),
     },
-    pacing: { hintEnabled: pacing.hintEnabled !== false, pathArc: pacing.pathArc !== false },
+    pacing: { hintEnabled: pacing.hintEnabled !== false, pathArc: pacing.pathArc !== false, stuckLadder: pacing.stuckLadder !== false },
     display: {
       announceTransitions: display.announceTransitions === true, hudEnabled: display.hudEnabled !== false, yourMove: display.yourMove !== false, briefing: display.briefing !== false,
       briefingDraft: display.briefingDraft !== false, playerSetup: display.playerSetup !== false,

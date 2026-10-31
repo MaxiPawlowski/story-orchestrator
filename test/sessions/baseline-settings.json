@@ -28,7 +28,8 @@
     },
     "pacing": {
       "hintEnabled": true,
-      "pathArc": true
+      "pathArc": true,
+      "stuckLadder": true
     },
     "display": {
       "announceTransitions": false,
