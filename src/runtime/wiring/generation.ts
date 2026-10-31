@@ -138,6 +138,7 @@ export const subscribeGenerationEvents = (live: LiveParts, generation: Generatio
     lore.storyLore.reassert();
     const rearmed = rearmHostMacros();
     if (rearmed) log.warn(`SillyTavern's macro engine changed; ${rearmed} story macros were registered with the engine now in use`);
+    await runtimeManager.postNotes(args[0], args[2]);
     apply(generation.started(args, chatLastId() + 1));
     await lore.onGenerationStarted(typeof args[0] === "string" ? args[0] : undefined, args[1] as Record<string, unknown> | undefined, args[2] === true);
   };

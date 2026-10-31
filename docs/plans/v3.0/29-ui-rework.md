@@ -445,3 +445,15 @@ WP-S1 `99670706`, lane fixes `d297dbd9`, Storybook flake fix `ab4d2c28`; master 
   Storybook included) on `8c0e5573`: all green in 413.6s (jest 11,058 passed / 1 skipped, Storybook 191 suites / 1,132 tests, test:debug, replay,
   release, plugin, lint, typechecks).
 - Open: make `#so-coach-root` and the image review popup kit roots so their last raw buttons can move.
+
+## Owner answers 2026-10-31 (player gate questions)
+
+Branch `v3.0-owner-1031`, owner "as recommended".
+
+- Q1 long persona names wrap the phone identity control to two rows: accepted as is, no change.
+- Q2 phone resume after the settings list: fixed. The list view (`data-view="list"`, `location.list`) is not a page, so
+  `workspaceRoutes.ts` `lastPageValue` returns null for it and `WorkspaceShell` writes nothing; the route icon and the wand
+  reopen the page shown before the list. Test `workspaceRoutes.test.ts` "Q2", story `Workspace/Shell`
+  `MobileSettingsListKeepsTheLastPage` (asserts on a phone viewport, skips its narrow half on a wide runner like its sibling).
+- Q3 closing the start pane = Skip, "keep" = keep: rule kept, no change.
+- Gate record: see `00-overview.md` §Owner answers 2026-10-31 (one branch with HF-REGEN).

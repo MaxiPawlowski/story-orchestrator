@@ -28,6 +28,7 @@ import { heldOpenerLine, holdOpener, openerRelease } from "./openerDeferral";
 import { OpeningSequence, type NewChatOpening } from "./openingSequence";
 import { busyWork } from "./busy";
 import { ownPost } from "./playerSend";
+import { TransitionNoteQueue } from "./transitionNotes";
 
 // What a host effect changed, read back from the host as it is NOW. Every reader is a
 // QUESTION with an honest "cannot tell", so a reconcile never guesses: a target whose value cannot be
@@ -71,6 +72,7 @@ export interface EffectApplierDeps extends SpeakDeps {
    * Unifying them would move one of the two failures to the other's side of the line.
    */
   unsaved?: () => boolean;
+  activeCheckpointId?: () => string | null;
   roll?: (key: string) => number | null;
   speakerNames?: (name: string) => string[];
   awaitsPlayer?: () => boolean;
@@ -97,6 +99,9 @@ type EffectScope = { checkpointId: string | null; boundary: number; messageId: n
 export const NO_OPEN_GROUP = "the effect was not applied: stories play in group chats, and this chat is not one";
 
 const openChatId = () => String(getContext().chatId ?? "");
+
+const comment = (text: string) => executeSlashCommands(`/comment compact=true raw=false ${quoteSlashArg(text)}`, { silent: true });
+const postNote = async (text: string) => { const own = ownPost(); try { return Boolean(await comment(text)); } finally { own(); } };
 const openGroupId = () => String(getContext().groupId ?? "");
 
 const openingAwaitsPlayer = (extras: RuntimeExtras): boolean => extras.lastSelfInjectionMessageId === lastMessageId() && !playerHasSpoken();
@@ -106,6 +111,8 @@ export class EffectsApplier {
   constructor(private readonly ownership: RunOwnership, private readonly deps: EffectApplierDeps = {}) {}
 
   private appliedChat: string | null = null;
+  readonly notes = new TransitionNoteQueue({ post: postNote, journal: (summary, note) => this.deps.journal?.(summary, note),
+    moment: () => ({ chatId: openChatId(), lastMessageId: lastMessageId(), activeCheckpointId: this.deps.activeCheckpointId?.() ?? null }) });
   private applying: { key: string; run: RunGuard; opening: NewChatOpening; done: Promise<void> } | null = null;
   private readonly openings = new OpeningSequence({
     fire: (checkpoint, extras, allow) => this.fireNpcReplies(checkpoint, extras, "onEnter", undefined, [], allow),
@@ -115,26 +122,15 @@ export class EffectsApplier {
   });
   private readonly castWrites = new InFlight();
 
-  // The one thing a transition posts into the chat itself: a compact system note naming where the
-  // story moved (opt-out in settings), kept to one line.
-  // A transition the player was never told about leaves a trace: both ways out of this used to be silent.
   async announceTransition(checkpoint: Checkpoint | undefined, extras: RuntimeExtras, ownsOpenChat = true) {
     if (!checkpoint) return;
-    await this.announceText(transitionNoteText(checkpoint), extras, ownsOpenChat, `transition to "${checkpoint.name}"`);
+    await this.announceText(transitionNoteText(checkpoint), extras, ownsOpenChat, `transition to "${checkpoint.name}"`, checkpoint.id);
   }
 
-  async announceText(raw: string, extras: RuntimeExtras, ownsOpenChat = true, what = `"${raw}"`) {
+  async announceText(raw: string, extras: RuntimeExtras, ownsOpenChat = true, what = `"${raw}"`, cp?: string) {
     if (!extras.ui.announceTransitions) return;
-    const unannounced = `${what} was not announced`;
-    if (!ownsOpenChat) return this.deps.journal?.(unannounced, "the open chat is not the chat this boundary belongs to");
-    const own = ownPost();
-    try {
-      if (!(await executeSlashCommands(`/comment compact=true raw=false ${quoteSlashArg(raw.replace(/\s*\r?\n\s*/g, " ").trim())}`, { silent: true }))) {
-        this.deps.journal?.(unannounced, "the /comment that posts the note was refused");
-      }
-    } finally {
-      own();
-    }
+    if (!ownsOpenChat) return this.deps.journal?.(`${what} was not announced`, "the open chat is not the chat this boundary belongs to");
+    this.notes.queue(raw, what, extras, cp);
   }
 
   // The write-ahead rule for one effect: RECORD what is about to change (and what it
@@ -488,6 +484,7 @@ export class EffectsApplier {
     const view = this.deps.scope?.() ?? NO_SCOPE;
     let spoken = 0;
     for (let index = 0; index < replies.length; index += 1) {
+      if (this.notes.waiting) await this.notes.post("normal", false);
       if (!run.stillOwns()) return spoken;
       const reply = replies[index];
       if (!this.admits(reply, trigger, aliases)) continue;

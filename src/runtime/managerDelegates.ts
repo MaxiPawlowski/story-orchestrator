@@ -32,6 +32,7 @@ export abstract class CoordinatorDelegates {
   protected abstract readonly co: WiredCoordinators;
 
   get chapters() { return this.co.memory.chapters; }
+  postNotes(type: unknown, dryRun: unknown) { return this.co.effects().notes.post(type, dryRun, this.co.rollbackDeps.extras()); }
   get game() { return this.co.game; }
   get recap() { return this.co.recap; }
   get patterns() { return this.co.patterns; }

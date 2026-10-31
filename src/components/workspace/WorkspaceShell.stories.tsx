@@ -89,3 +89,21 @@ export const MobileIsMasterDetailWithOneBack: Story = {
     await waitFor(() => expect(modal).toHaveAttribute("data-view", "list"));
   },
 };
+
+export const MobileSettingsListKeepsTheLastPage: Story = {
+  args: { intent: { context: "story", page: "features" } },
+  parameters: { viewport: { defaultViewport: "mobile1" } },
+  play: async ({ canvasElement }) => {
+    const body = canvasElement.ownerDocument.body;
+    const page = within(body);
+    await page.findByRole("dialog");
+    const modal = body.querySelector("#so-workspace-modal") as HTMLElement;
+    await waitFor(() => expect(localStorage.getItem("so-workspace-last-page")).toBe("story/features"));
+    if (!window.matchMedia("(max-width: 699px)").matches) return;
+    await userEvent.click(body.querySelector("#so-workspace-context-orchestrator") as HTMLElement);
+    await waitFor(() => expect(modal).toHaveAttribute("data-view", "list"));
+    await expect(localStorage.getItem("so-workspace-last-page")).toBe("story/features");
+    await userEvent.click(body.querySelector("#so-workspace-page-judge") as HTMLElement);
+    await waitFor(() => expect(localStorage.getItem("so-workspace-last-page")).toBe("orchestrator/judge"));
+  },
+};

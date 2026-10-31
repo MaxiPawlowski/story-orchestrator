@@ -812,19 +812,28 @@ describe("T1-2: a cast change that drops a member the play just brought in says 
 describe("transition announcement leaves a trace when it is not posted (L2 J1.7)", () => {
   const checkpoint = { id: "cp2", name: "Accept the Mission", objective: "Take it.", type: "anchor" } as unknown as Checkpoint;
   const announcing = () => ({ ...makeExtras(), ui: { announceTransitions: true } } as unknown as RuntimeExtras);
+  const announceAndPost = async (applier: EffectsApplier, cp: Checkpoint = checkpoint, owns = true) => {
+    const extras = announcing();
+    await applier.announceTransition(cp, extras, owns);
+    await applier.notes.post("normal", false, extras, cp.id);
+  };
 
-  beforeEach(() => (executeSlashCommands as jest.Mock).mockReset());
+  beforeEach(() => {
+    (executeSlashCommands as jest.Mock).mockReset();
+    mockContext.chat = [{ mes: "one" }, { mes: "two" }];
+    mockContext.chatId = "chat-a";
+  });
 
   it("journals a refused /comment", async () => {
     (executeSlashCommands as jest.Mock).mockResolvedValueOnce(false);
     const journal = jest.fn();
-    await new EffectsApplier(testOwnership(), { journal }).announceTransition(checkpoint, announcing());
+    await announceAndPost(new EffectsApplier(testOwnership(), { journal }));
     expect(journal).toHaveBeenCalledWith('transition to "Accept the Mission" was not announced', "the /comment that posts the note was refused");
   });
 
   it("journals a transition it did not post because another chat is open", async () => {
     const journal = jest.fn();
-    await new EffectsApplier(testOwnership(), { journal }).announceTransition(checkpoint, announcing(), false);
+    await announceAndPost(new EffectsApplier(testOwnership(), { journal }), checkpoint, false);
     expect(executeSlashCommands).not.toHaveBeenCalled();
     expect(journal).toHaveBeenCalledWith('transition to "Accept the Mission" was not announced', "the open chat is not the chat this boundary belongs to");
   });
@@ -832,7 +841,7 @@ describe("transition announcement leaves a trace when it is not posted (L2 J1.7)
   it("control: a posted announcement journals nothing", async () => {
     (executeSlashCommands as jest.Mock).mockResolvedValueOnce(true);
     const journal = jest.fn();
-    await new EffectsApplier(testOwnership(), { journal }).announceTransition(checkpoint, announcing());
+    await announceAndPost(new EffectsApplier(testOwnership(), { journal }));
     expect(executeSlashCommands).toHaveBeenCalledWith(expect.stringContaining("Accept the Mission"), { silent: true });
     expect(journal).not.toHaveBeenCalled();
   });
@@ -840,7 +849,7 @@ describe("transition announcement leaves a trace when it is not posted (L2 J1.7)
   it("v3.0 19 fix 2: the note is posted on our own posting path, so its MESSAGE_SENT is never a player send", async () => {
     const seen: boolean[] = [];
     (executeSlashCommands as jest.Mock).mockImplementationOnce(async () => { seen.push(isPlayerSend(0, [{ is_user: true, mes: "Onward." }])); return true; });
-    await new EffectsApplier(testOwnership(), {}).announceTransition(checkpoint, announcing());
+    await announceAndPost(new EffectsApplier(testOwnership(), {}));
     expect(seen).toEqual([false]);
     expect(isPlayerSend(0, [{ is_user: true, mes: "Onward." }])).toBe(true);
   });
@@ -848,10 +857,82 @@ describe("transition announcement leaves a trace when it is not posted (L2 J1.7)
   it("T0-1: a name the objective already starts with is not printed twice", async () => {
     (executeSlashCommands as jest.Mock).mockResolvedValueOnce(true);
     const generated = { id: "gen_on-the-road_1", name: "Travel the north road toward Wendhope", objective: "Travel the north road toward Wendhope and let the party notice what the road is missing.", type: "intermediate" } as unknown as Checkpoint;
-    await new EffectsApplier(testOwnership(), {}).announceTransition(generated, announcing());
+    await announceAndPost(new EffectsApplier(testOwnership(), {}), generated);
     const posted = String((executeSlashCommands as jest.Mock).mock.calls[0][0]);
     expect(posted.split("Travel the north road toward Wendhope")).toHaveLength(2);
     expect(posted).not.toContain("let the party notice what the road is missing.");
+  });
+});
+
+describe("v3.0 HF-REGEN: the transition note is never the last chat row", () => {
+  const checkpoint = { id: "cp2", name: "Accept the Mission", objective: "Take it.", type: "anchor" } as unknown as Checkpoint;
+  const announcing = () => ({ ...makeExtras(), ui: { announceTransitions: true } } as unknown as RuntimeExtras);
+
+  beforeEach(() => {
+    (executeSlashCommands as jest.Mock).mockReset();
+    (executeSlashCommands as jest.Mock).mockResolvedValue(true);
+    mockContext.chat = [{ mes: "one" }, { mes: "two" }];
+    mockContext.chatId = "chat-a";
+  });
+
+  it("the boundary queues the note instead of posting it under the reply, so the reply stays last for regenerate and swipe", async () => {
+    const applier = new EffectsApplier(testOwnership(), {});
+    await applier.announceTransition(checkpoint, announcing());
+    expect(executeSlashCommands).not.toHaveBeenCalled();
+  });
+
+  it("a swipe, continue, regenerate, quiet, impersonate or dry run posts nothing; the next normal generation posts it before its reply", async () => {
+    const applier = new EffectsApplier(testOwnership(), {});
+    const extras = announcing();
+    await applier.announceTransition(checkpoint, extras);
+    for (const type of ["swipe", "continue", "regenerate", "quiet", "impersonate"]) await applier.notes.post(type, false, extras, "cp2");
+    await applier.notes.post("normal", true, extras, "cp2");
+    expect(executeSlashCommands).not.toHaveBeenCalled();
+    await applier.notes.post("normal", false, extras, "cp2");
+    expect(executeSlashCommands).toHaveBeenCalledTimes(1);
+    expect(String((executeSlashCommands as jest.Mock).mock.calls[0][0])).toMatch(/^\/comment compact=true raw=false .*Accept the Mission/);
+    await applier.notes.post("normal", false, extras, "cp2");
+    expect(executeSlashCommands).toHaveBeenCalledTimes(1);
+  });
+
+  it("group Regenerate deletes the reply first, so the note for it is dropped and journaled, never posted over the new round", async () => {
+    const journal = jest.fn();
+    const applier = new EffectsApplier(testOwnership(), { journal });
+    const extras = announcing();
+    await applier.announceTransition(checkpoint, extras);
+    mockContext.chat = [{ mes: "one" }];
+    await applier.notes.post("normal", false, extras, "cp2");
+    expect(executeSlashCommands).not.toHaveBeenCalled();
+    expect(journal).toHaveBeenCalledWith('transition to "Accept the Mission" was not announced', "the reply it followed was removed before the next reply");
+  });
+
+  it("a rolled-back transition, another chat or notes switched off drop the note", async () => {
+    const journal = jest.fn();
+    const applier = new EffectsApplier(testOwnership(), { journal });
+    const extras = announcing();
+    await applier.announceTransition(checkpoint, extras);
+    await applier.notes.post(undefined, false, extras, "cp1");
+    await applier.announceTransition(checkpoint, extras);
+    mockContext.chatId = "chat-b";
+    await applier.notes.post(null, false, extras, "cp2");
+    mockContext.chatId = "chat-a";
+    await applier.announceTransition(checkpoint, extras);
+    await applier.notes.post("normal", false, { ...extras, ui: { announceTransitions: false } } as unknown as RuntimeExtras, "cp2");
+    expect(executeSlashCommands).not.toHaveBeenCalled();
+    expect(journal.mock.calls.map((call) => call[1])).toEqual([
+      "the story stepped back before the next reply",
+      "another chat was open when the next reply started",
+      "transition notes were switched off before the next reply",
+    ]);
+  });
+
+  it("control: a note queued mid-round (rows added since) still posts at the next member's generation", async () => {
+    const applier = new EffectsApplier(testOwnership(), {});
+    const extras = announcing();
+    await applier.announceTransition(checkpoint, extras);
+    mockContext.chat = [{ mes: "one" }, { mes: "two" }, { mes: "three" }];
+    await applier.notes.post("normal", false, extras, "cp2");
+    expect(executeSlashCommands).toHaveBeenCalledTimes(1);
   });
 });
 

@@ -157,7 +157,7 @@ const CORE_FEATURES: readonly Feature[] = [
   {
     id: "transition-notes", name: "Chat note when the story moves on", area: "play", audience: "player",
     oneLine: "Optionally post a short chat note at each new turning point.",
-    what: "Off by default, because the note sits after the reply and stops you swiping that reply. The notes under messages show the same thing without that cost.",
+    what: "Off by default. The note lands just before the next reply, so swipe and regenerate still work. The notes under messages show the same without a chat row.",
     where: settingsAt("#so-announce-transitions", "Display › Also post a chat note"),
     settings: ["display.announceTransitions"], doc: "player/drawer-and-hud.md", status: "off-by-default", needs: ["story"],
     isOn: (settings) => settings.display.announceTransitions,

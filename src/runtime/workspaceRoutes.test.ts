@@ -79,4 +79,9 @@ describe("launchers reopen the last workspace page", () => {
     expect(resumeIntent("story/author", true)).toEqual({ context: "story", page: "author" });
     expect(resumeIntent("nowhere/at-all", true)).toEqual({ context: "story", page: "play" });
   });
+
+  it("Q2: the phone settings list is not a page, so the page before it stays the one to reopen", () => {
+    expect(lastPageValue({ context: "orchestrator", page: "library", list: true })).toBeNull();
+    expect(lastPageValue({ context: "orchestrator", page: "models", list: false })).toBe("orchestrator/models");
+  });
 });
