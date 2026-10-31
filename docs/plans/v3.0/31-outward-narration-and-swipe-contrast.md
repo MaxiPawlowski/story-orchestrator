@@ -171,3 +171,11 @@ sprites off, group "Group: Arin, DM Narrator". Recipe as above with `C:/dev/so-l
 Defaults (rule: off only until the rating passes): branch `v3.0-g1-defaults` flips `memory.outwardNarration` and
 `memory.historyNotes` to on (tests, feature status `shipped`, copy, guide, settings reference, session baseline, arm reset);
 `talk.swipeContrast` stays off, the miss recorded, the floor not retuned. Still owed: S0 baselines, 31 live gate (one swipe), 34 S2 live gate.
+
+## G1 defaults merge 2026-10-31
+
+- Branch `v3.0-g1-defaults` `e27d4569` (peer session; worktree idle, tip unchanged before touching it), master `51b65e5b` merged.
+- Fix on the branch: `SettingsPanel` story expects `historyNotes: false` after the click (default now on); `test/goldens/arrival-findings.json` re-recorded for the two HF scenarios the branch adds.
+- `npm run docs:settings` and `npm run docs:guide`: no content change (line endings only, discarded); the branch already carried the copy.
+- `npm run gates:quick` green (107.1s). `npm run gates` (no `--resume`, Storybook included): run 1 red (the two items above), run 2 red at test:debug only (`laneLoadAndStops.test.mts` "a control that never mounts", 30 ms poll under load; 3/3 green alone, no code change), run 3 all green in 401.3s (jest 11,058 passed / 1 skipped, test:debug 1,733, Storybook 191 suites / 1,132 tests, replay, release, plugin, lint, typechecks, build).
+- No live run: defaults flip only; the rating rows above are the evidence.
