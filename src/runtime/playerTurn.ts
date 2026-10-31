@@ -2,6 +2,14 @@ import { isInCharacterPlayerLine, isPlayerLine, type BoundaryContext } from "@en
 
 export { readableEndBefore } from "./stoppedReply";
 
+export const lastPlayerName = (rows: unknown[]): string => {
+  for (let index = rows.length - 1; index >= 0; index -= 1) {
+    const row = rows[index] as { is_user?: unknown; name?: unknown } | null;
+    if (row?.is_user === true && typeof row.name === "string" && row.name.trim()) return row.name.trim();
+  }
+  return "";
+};
+
 export function lastPlayerRow(chat: readonly unknown[]): number {
   for (let index = chat.length - 1; index > 0; index -= 1) {
     if (isPlayerLine(chat[index])) return index;

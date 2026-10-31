@@ -221,6 +221,8 @@ export interface MemoryEntry {
    *  scalar loses the older confirmation when the same fact is confirmed twice, so rollback could
    *  only subtract the newest increment and `rollback ≡ replay` would diverge. */
   confirmedAt?: Array<{ messageId: number; boundary?: number }>;
+  usedAt?: Array<{ messageId: number; boundary: number }>;
+  evictedAt?: { messageId: number; boundary: number };
   foldedInto?: string;
   contradicted?: boolean;
   characterId?: string;

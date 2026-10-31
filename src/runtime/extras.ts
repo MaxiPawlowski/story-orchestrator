@@ -17,6 +17,7 @@ import { sanitizeAgendaProposals } from "./agendaProposals";
 import { sanitizePromises } from "@memory/promises/state";
 import { sanitizeWitness } from "@memory/witness/state";
 import { sanitizeRumors } from "@memory/rumors/state";
+import { sanitizeMentions } from "@memory/used";
 import { sanitizePatterns } from "./patternsPort";
 import { sanitizeLivingState } from "@generation/living/sanitize";
 import { JUDGED_READ_LIMIT, VERIFY_DROP_LIMIT } from "./types";
@@ -464,6 +465,7 @@ export const hydrateExtras = (persisted: RuntimeExtras | undefined, read: () => 
   if (extras.promises) extras.promises = sanitizePromises(extras.promises);
   if (extras.witness) extras.witness = sanitizeWitness(extras.witness);
   if (extras.rumors) extras.rumors = sanitizeRumors(extras.rumors);
+  if (extras.mentions) extras.mentions = sanitizeMentions(extras.mentions);
   if (extras.cues) extras.cues = gameLayer()?.cues.sanitizeCues(extras.cues) ?? extras.cues;
   if (extras.echoes) extras.echoes = gameLayer()?.echoes.sanitizeEchoes(extras.echoes) ?? extras.echoes;
   const recap = sanitizeRecap(extras.recap);

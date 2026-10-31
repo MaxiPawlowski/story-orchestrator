@@ -404,16 +404,19 @@ describe("AS-14 D10: archive recall rides the scene-history block for one genera
     const r = recallPort({ current: "x", vectors: { present: true, match: [0] } });
     const ask = turn("Ronan, how did you lose your hand to the wyrm?");
     const first = await recall(r.port, ask, "normal");
+    const perRound = r.vectors.vectorQuery.mock.calls.length;
+    expect(perRound).toBeGreaterThan(0);
     commitBridge(r.port, true);
     expect(await recall(r.port, ask, "normal")).toBe(first);
     expect(r.vectors.vectorInsert).toHaveBeenCalledTimes(1);
-    expect(r.vectors.vectorQuery).toHaveBeenCalledTimes(1);
+    expect(r.vectors.vectorQuery).toHaveBeenCalledTimes(perRound);
     expect(r.prompt.setStoryExtensionPrompt.mock.calls[1][1]).toBe(r.prompt.setStoryExtensionPrompt.mock.calls[0][1]);
     await recall(r.port, turn("Ronan, tell me of the oath."), "normal");
-    expect(r.vectors.vectorQuery).toHaveBeenCalledTimes(2);
+    const second = r.vectors.vectorQuery.mock.calls.length;
+    expect(second).toBeGreaterThan(perRound);
     (r.port.host.memory().entries as MemoryEntry[]).push(folded("f5", "Ronan fears the guild", ["Ronan"]));
     await recall(r.port, turn("Ronan, tell me of the oath."), "normal");
-    expect(r.vectors.vectorQuery).toHaveBeenCalledTimes(3);
+    expect(r.vectors.vectorQuery.mock.calls.length).toBeGreaterThan(second);
   });
 
   it("T2-3: the message fold turns recall on, because a folded chapter leaves the prompt nothing else to recall from", async () => {

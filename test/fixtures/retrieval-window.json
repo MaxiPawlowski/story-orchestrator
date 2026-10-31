@@ -1,0 +1,68 @@
+{
+  "format": "so-retrieval-window/1",
+  "note": "v3.0 41 B4. Synthetic, public. Each case scores the shared pool plus its own rows; gold is one row id. Subsets: callback (the last line names nothing, an earlier line does), paraphrase (no lexical overlap with the gold row), distractor (the last line shares words with a wrong row, the window points at the gold).",
+  "cast": ["Mira", "Tobin", "Esk", "Kael"],
+  "boundary": 40,
+  "pool": [
+    { "id": "p01", "text": "The harvest festival is held in the market square each autumn.", "entities": ["market square"], "createdAt": 3 },
+    { "id": "p02", "text": "Kael owes the baker two silver coins.", "entities": ["Kael", "baker"], "createdAt": 6 },
+    { "id": "p03", "text": "The watchtower bell cracked during the winter storm.", "entities": ["watchtower"], "createdAt": 9 },
+    { "id": "p04", "text": "Mira grew up in the fishing village past the river ford.", "entities": ["Mira", "river ford"], "createdAt": 12 },
+    { "id": "p05", "text": "The tax collector arrives at the end of the month.", "entities": ["tax collector"], "createdAt": 15 },
+    { "id": "p06", "text": "Tobin keeps his tools in a locked chest at the smithy.", "entities": ["Tobin", "smithy"], "createdAt": 18 },
+    { "id": "p07", "text": "The orchard road floods every spring.", "entities": ["orchard road"], "createdAt": 21 },
+    { "id": "p08", "text": "Esk trades herbs with the travelling merchants.", "entities": ["Esk", "merchants"], "createdAt": 24 },
+    { "id": "p09", "text": "The old chapel has been closed since the fire.", "entities": ["old chapel"], "createdAt": 27 },
+    { "id": "p10", "text": "Kael once served as a guard for the magistrate.", "entities": ["Kael", "magistrate"], "createdAt": 30 },
+    { "id": "p11", "text": "The quarry road is the fastest way to the next town.", "entities": ["quarry road"], "createdAt": 33 },
+    { "id": "p12", "text": "Mira cannot stand the smell of the tannery.", "entities": ["Mira", "tannery"], "createdAt": 36 }
+  ],
+  "cases": [
+    { "id": "cb01", "subset": "callback", "gold": "g", "rows": [{ "id": "g", "text": "Tobin needs a new oak axle for the mill wheel.", "entities": ["Tobin", "mill wheel"], "createdAt": 4 }],
+      "window": ["Tobin, did you finish the repair on the mill wheel?", "Not yet. The axle split clean through.", "That is bad news.", "So what will you do about it?"] },
+    { "id": "cb02", "subset": "callback", "gold": "g", "rows": [{ "id": "g", "text": "Esk promised to brew a fever draught from moonwort for the miller's son.", "entities": ["Esk", "moonwort"], "createdAt": 5 }],
+      "window": ["Esk, the miller's son is burning with fever again.", "I said I would brew him a moonwort draught.", "Thank you.", "When will it be ready?"] },
+    { "id": "cb03", "subset": "callback", "gold": "g", "rows": [{ "id": "g", "text": "Kael lost the gate token somewhere near the dovecote.", "entities": ["Kael", "gate token"], "createdAt": 7 }],
+      "window": ["Kael, the guards want the gate token back.", "I dropped it near the dovecote, I think.", "Wonderful.", "Did you look for it yet?"] },
+    { "id": "cb04", "subset": "callback", "gold": "g", "rows": [{ "id": "g", "text": "Mira hid the silver locket inside the chimney of the bakery.", "entities": ["Mira", "silver locket"], "createdAt": 8 }],
+      "window": ["Mira, where is the silver locket?", "Somewhere safe, inside the bakery chimney.", "Clever.", "Can you fetch it for me now?"] },
+    { "id": "cb05", "subset": "callback", "gold": "g", "rows": [{ "id": "g", "text": "The ferryman refuses to cross after dark since the shipwreck.", "entities": ["ferryman", "shipwreck"], "createdAt": 10 }],
+      "window": ["We need to reach the far bank tonight.", "The ferryman will not cross after dark, not since the shipwreck.", "Then we wait.", "Is there no other way?"] },
+    { "id": "cb06", "subset": "callback", "gold": "g", "rows": [{ "id": "g", "text": "Tobin swore an oath to mend the wagon axle before the frost moon.", "entities": ["Tobin", "wagon axle"], "createdAt": 11 }],
+      "window": ["Tobin, the frost moon is three nights away.", "I know. I swore I would mend the wagon axle before it.", "Good.", "And if you fail?"] },
+    { "id": "cb07", "subset": "callback", "gold": "g", "rows": [{ "id": "g", "text": "The abbess at Corven is owed a favour by Esk.", "entities": ["Esk", "abbess", "Corven"], "createdAt": 13 }],
+      "window": ["A rider came from Corven today.", "The abbess. She will want the favour I owe her.", "What favour?", "Tell me more."] },
+    { "id": "cb08", "subset": "callback", "gold": "g", "rows": [{ "id": "g", "text": "Kael marked the smugglers' cave on a map he keeps in his boot.", "entities": ["Kael", "smugglers' cave"], "createdAt": 14 }],
+      "window": ["Kael, how do we find the smugglers' cave?", "I marked it on the map in my boot.", "Of course you did.", "Show me."] },
+    { "id": "pp01", "subset": "paraphrase", "gold": "g", "rows": [{ "id": "g", "text": "Esk is terrified of deep water.", "entities": ["Esk"], "createdAt": 16 }],
+      "window": ["The boat is ready.", "Esk will not step aboard.", "She panics whenever the river rises past her knees.", "Why is she like this?"] },
+    { "id": "pp02", "subset": "paraphrase", "gold": "g", "rows": [{ "id": "g", "text": "Tobin distrusts the magistrate's clerks.", "entities": ["Tobin"], "createdAt": 17 }],
+      "window": ["The court men are here for the census.", "Tobin spits whenever one of those pen pushers walks by.", "He thinks they lie.", "What is his problem with them?"] },
+    { "id": "pp03", "subset": "paraphrase", "gold": "g", "rows": [{ "id": "g", "text": "Mira is saving coins to buy passage south.", "entities": ["Mira"], "createdAt": 19 }],
+      "window": ["Mira skipped supper again.", "Every copper goes into that jar under her bed.", "She wants to leave this place.", "Where does she plan to go?"] },
+    { "id": "pp04", "subset": "paraphrase", "gold": "g", "rows": [{ "id": "g", "text": "Kael fears his brother will find him.", "entities": ["Kael"], "createdAt": 20 }],
+      "window": ["A stranger asked about Kael at the inn.", "Kael went pale and barred the door.", "He has been hiding from someone of his own blood.", "Who is after him?"] },
+    { "id": "pp05", "subset": "paraphrase", "gold": "g", "rows": [{ "id": "g", "text": "The well in the east ward is poisoned.", "entities": ["east ward"], "createdAt": 22 }],
+      "window": ["Three families fell sick this week.", "All of them draw water from the same spot.", "The healer says it is something in what they drink.", "What is making them ill?"] },
+    { "id": "ds01", "subset": "distractor", "gold": "g", "rows": [
+        { "id": "g", "text": "The guards at the north bridge take bribes after dark.", "entities": ["north bridge", "guards"], "createdAt": 23 },
+        { "id": "d", "text": "The north bridge was repaired last spring and is safe to cross.", "entities": ["north bridge"], "createdAt": 25 }],
+      "window": ["Kael says the guards there take coin after dark.", "Then we go late and bring silver.", "Fine.", "Is the north bridge safe tonight?"] },
+    { "id": "ds02", "subset": "distractor", "gold": "g", "rows": [
+        { "id": "g", "text": "Esk's herb garden was trampled by the magistrate's horses.", "entities": ["Esk", "herb garden"], "createdAt": 26 },
+        { "id": "d", "text": "The herb garden grows mint and sage by the south wall.", "entities": ["herb garden"], "createdAt": 28 }],
+      "window": ["Esk is furious with the magistrate.", "His riders went straight through her plants with their horses.", "Ruined everything.", "What happened to the herb garden?"] },
+    { "id": "ds03", "subset": "distractor", "gold": "g", "rows": [
+        { "id": "g", "text": "Mira stole the toll chest key from the counting room.", "entities": ["Mira", "toll chest"], "createdAt": 29 },
+        { "id": "d", "text": "The toll chest is kept in the counting room under guard.", "entities": ["toll chest", "counting room"], "createdAt": 31 }],
+      "window": ["Someone took the key from the counting room last night.", "Mira was seen near there, nervous.", "She had a reason to want it.", "Where is the toll chest key?"] },
+    { "id": "ds04", "subset": "distractor", "gold": "g", "rows": [
+        { "id": "g", "text": "Tobin broke the lantern on purpose to hide the smuggled crates.", "entities": ["Tobin", "lantern"], "createdAt": 32 },
+        { "id": "d", "text": "A spare lantern hangs in the stables.", "entities": ["lantern", "stables"], "createdAt": 34 }],
+      "window": ["The dock was dark when the crates came in.", "Tobin smashed the light himself, I saw it.", "So nobody could see the cargo.", "Why was the lantern broken?"] },
+    { "id": "ds05", "subset": "distractor", "gold": "g", "rows": [
+        { "id": "g", "text": "Kael sold the stolen relic to a merchant from the coast.", "entities": ["Kael", "relic"], "createdAt": 35 },
+        { "id": "d", "text": "The relic is displayed in the abbey on feast days.", "entities": ["relic", "abbey"], "createdAt": 37 }],
+      "window": ["A coast merchant left town with a heavy bundle.", "Kael counted new gold that same evening.", "He sold it, didn't he.", "Where is the relic now?"] }
+  ]
+}

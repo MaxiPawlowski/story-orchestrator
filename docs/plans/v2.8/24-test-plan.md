@@ -466,6 +466,9 @@ real-model carrier, or why none is needed.
 | history-notes | D + RP (off until rated) | historyNotes.test (40/40 cuts, frozen notes, rollback, 200 floor, echo strip) | so-prompt-arms notes, Sol blind 25 pairs (owed, GPU) |
 | outward-narration | D + RP (off until rated) | outwardNarration.test (clause pinned, inner voice untouched) | so-prompt-arms outward, Sol blind 25 pairs (owed, GPU) |
 | swipe-contrast | D + RP (off until rated) | swipeContrast.test (loud swipe only, six clears, newest only, clip) | so-prompt-arms swipe, Sol blind 25 pairs (owed, GPU) |
+| mention-ledger | D + RP | used.test, usedDetector.measure (hold invariant 100%), mentionLedger.review, rollbackMentions | MW1-B2 (GPU, owed) |
+| strength-retention | D + RP | strength.test, rollbackReplay.property (use + cap ops), memory probes b-before/b-after | MW1-B3 (GPU, owed) |
+| retrieval-query | D + RP | retrievalQuery.test, retrievalWindow.measure, e0Window (E0 arm f) | MW1-B4 (GPU, owed) |
 
 Every judge use also gets the judge-off column through J11's off arm (CL).
 

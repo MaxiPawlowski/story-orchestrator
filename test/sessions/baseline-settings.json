@@ -72,6 +72,9 @@
       "deferredOutOfPrompt": false,
       "historyNotes": true,
       "outwardNarration": true,
+      "mentionLedger": true,
+      "strengthRetention": true,
+      "retrievalQuery": true,
       "injectionDepths": {
         "facts": 4,
         "session_details": 3,

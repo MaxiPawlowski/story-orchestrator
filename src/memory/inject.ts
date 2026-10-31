@@ -3,7 +3,7 @@ import { INJECTION_REGISTRY } from "@constants/injectionRegistry";
 import { blockTokens, selectWithinBudget } from "./budget";
 import { isEstablished } from "./conflicts";
 import { isLive } from "./provenance";
-import { scoreEntry, type ScoreContext } from "./score";
+import { scoreAll, type ScoreContext } from "./score";
 import { MEMORY_TIERS, type MemoryEntry, type MemoryTier } from "./types";
 import { contentWords, wordOverlap, wordSimilarity } from "./words";
 
@@ -46,6 +46,7 @@ export interface InjectionOptions {
   tokenBudgets: Record<MemoryTier, number>;
   scoreContext: ScoreContext;
   withheld?: ReadonlySet<string>;
+  mentioned?: ReadonlySet<string>;
 }
 
 export function memoryExtensionKey(tier: MemoryTier): string {
@@ -53,7 +54,7 @@ export function memoryExtensionKey(tier: MemoryTier): string {
 }
 
 export type MemoryFate =
-  | "injected" | "quarantined" | "superseded" | "folded" | "other-speaker" | "private" | "near-duplicate" | "over-budget" | "pinned-overflow";
+  | "injected" | "quarantined" | "superseded" | "folded" | "other-speaker" | "private" | "near-duplicate" | "over-budget" | "pinned-overflow" | "mentioned";
 
 export interface TierTrim {
   candidates: number;
@@ -65,12 +66,13 @@ export interface TierTrim {
   filtered: number;
 }
 
-const filteredFate = (entry: MemoryEntry, tier: MemoryTier, activeSpeakerId: string | null, withheld?: ReadonlySet<string>): MemoryFate | null => {
+const filteredFate = (entry: MemoryEntry, tier: MemoryTier, activeSpeakerId: string | null, withheld?: ReadonlySet<string>, mentioned?: ReadonlySet<string>): MemoryFate | null => {
   if (!isLive(entry)) return "quarantined";
   if (entry.supersededBy) return "superseded";
   if (entry.foldedInto && !isEstablished(entry)) return "folded";
   if (tier === "facts" && entry.characterId && entry.characterId !== activeSpeakerId) return "other-speaker";
   if (withheld?.has(entry.id)) return "private";
+  if (mentioned?.has(entry.id) && !entry.pinned && !isEstablished(entry)) return "mentioned";
   return null;
 };
 
@@ -86,7 +88,7 @@ function selectTierEntries(
 ): { entries: MemoryEntry[]; pinnedOverflow: number; trim: TierTrim } {
   const inTier = entries.filter((entry) => entry.tier === tier);
   const live = inTier.filter((entry) => {
-    const fate = filteredFate(entry, tier, activeSpeakerId, options.withheld);
+    const fate = filteredFate(entry, tier, activeSpeakerId, options.withheld, options.mentioned);
     if (fate) fates[entry.id] = fate;
     return fate === null;
   });
@@ -94,7 +96,8 @@ function selectTierEntries(
   duplicates.forEach((id) => { fates[id] = "near-duplicate"; });
   const candidates = live.filter((entry) => !duplicates.has(entry.id));
   const budget = options.tokenBudgets[tier];
-  const score = (entry: MemoryEntry) => scoreEntry(entry, options.scoreContext) + (isEstablished(entry) ? ESTABLISHED_PRIORITY : 0);
+  const scores = scoreAll(candidates, options.scoreContext);
+  const score = (entry: MemoryEntry) => (scores.get(entry.id) ?? 0) + (isEstablished(entry) ? ESTABLISHED_PRIORITY : 0);
   const selection = selectWithinBudget(candidates, budget, score, INJECTION_DIVERSITY_FLOOR);
   const { kept: chosen } = selection;
   const cap = ROW_CAPS[tier];

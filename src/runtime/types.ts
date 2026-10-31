@@ -197,6 +197,9 @@ export interface MemoryRuntimeSettings {
   deferredOutOfPrompt?: boolean;
   historyNotes?: boolean;
   outwardNarration?: boolean;
+  mentionLedger?: boolean;
+  strengthRetention?: boolean;
+  retrievalQuery?: boolean;
   chapters?: Partial<ChapterSettings>;
 }
 

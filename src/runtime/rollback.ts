@@ -21,6 +21,7 @@ import { rollbackAgendaProposals } from "./agendaProposals";
 import { rollbackPromises } from "@memory/promises/state";
 import { rollbackWitness } from "@memory/witness/state";
 import { rollbackRumors } from "@memory/rumors/state";
+import { rollbackMentions } from "@memory/used";
 import { gameLayer } from "@engine/validate/gameLayer";
 import { rollbackPatterns } from "./patternsPort";
 import { rollbackRecap } from "./recapPort";
@@ -129,6 +130,7 @@ async function rollbackOnce(deps: RollbackDeps, messageId: number, decoded?: Dec
     if (extras.promises) extras.promises = rollbackPromises(extras.promises, messageId);
     if (extras.witness) extras.witness = rollbackWitness(extras.witness, messageId);
     if (extras.rumors) extras.rumors = rollbackRumors(extras.rumors, messageId);
+    if (extras.mentions) extras.mentions = rollbackMentions(extras.mentions, messageId);
     if (extras.cues) extras.cues = gameLayer()?.cues.rollbackCues(extras.cues, messageId, engine.serialize().boundary) ?? extras.cues;
     if (extras.echoes) extras.echoes = gameLayer()?.echoes.rollbackEchoes(extras.echoes, messageId, engine.serialize().boundary) ?? extras.echoes;
     if (extras.recap) extras.recap = rollbackRecap(extras.recap, engine.serialize().boundary);
