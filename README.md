@@ -189,6 +189,8 @@ Generated from the feature registry. "Experimental" means not yet measured; it i
 | Characters | Narrate only what can be seen | The narrator shows other characters' feelings through what they say and do. |  |
 | Characters | A swipe sees the reply it replaces | A new swipe is told which reply you threw away, so it writes something else. | Off by default |
 | Characters | Skip ahead | Skip travel, waiting or routine: one narrator reply tells the time passing and stops where you are needed. | Off by default |
+| Characters | Cut lines written for someone else | A reply that goes on to write another character's lines, or yours, is cut where those lines begin. |  |
+| Characters | Protect names from the repetition penalty | The DRY repetition penalty no longer bends the cast's names into misspellings. |  |
 | World | Story lorebook switching | Story lorebook entries switch on and off as the story moves. |  |
 | World | Story lorebooks | A story's lorebooks load only in the chats that play it. |  |
 | World | Memory can trigger lore | Established facts and scene history can activate lorebook entries. |  |

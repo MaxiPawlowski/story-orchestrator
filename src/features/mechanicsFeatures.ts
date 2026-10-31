@@ -13,6 +13,24 @@ export const MECHANICS_FEATURES: readonly Feature[] = [
     settings: ["worldInfo.seededChance"], doc: "setup/settings-reference.md", status: "shipped", needs: ["story"],
   },
   {
+    id: "cross-voice-trim", name: "Cut lines written for someone else", area: "characters", audience: "player",
+    oneLine: "A reply that goes on to write another character's lines, or yours, is cut where those lines begin.",
+    what: "Characters in a group sometimes keep writing after their own part, adding a line headed with another character's name or yours. "
+      + "Right after the reply arrives, before the story reads it, the reply is cut at the first such line. A reply that would be left nearly empty "
+      + "is kept as written and noted in the story log. Thinking is never changed. No model call.",
+    where: settingsAt("#so-cross-voice-trim", "Speaker direction › Cut lines written for someone else"),
+    settings: ["talk.crossVoiceTrim"], doc: "setup/settings-reference.md", status: "shipped", needs: ["group-chat", "story"],
+  },
+  {
+    id: "dry-names", name: "Protect names from the repetition penalty", area: "characters", audience: "player",
+    oneLine: "The DRY repetition penalty no longer bends the cast's names into misspellings.",
+    what: "DRY penalises repeating a stretch of text it has seen before, and a name the story uses often can come out misspelled. For each reply in "
+      + "the story's chat, the cast's names, their given names and aliases and your name are added to the request's own DRY sequence breakers. "
+      + "Only when the request already uses DRY (Text Completion); your preset is not changed.",
+    where: settingsAt("#so-dry-names", "Speaker direction › Protect names from the repetition penalty"),
+    settings: ["talk.dryNames"], doc: "setup/settings-reference.md", status: "shipped", needs: ["group-chat", "story"],
+  },
+  {
     id: "path-arc", name: "Pace by the road ahead", area: "authoring", audience: "author",
     oneLine: "The dramatic shape follows the turning points left on the way to an ending, and eases off after a climax.",
     what: "Where a beat has no tension target of its own, the story's dramatic shape is read at how far along the road the chat is: the turning points already "

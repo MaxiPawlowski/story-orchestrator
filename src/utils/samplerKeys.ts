@@ -109,3 +109,32 @@ export function applySamplerOverlay(payload: Record<string, unknown>, values: Sa
   }
   return { applied, skipped };
 }
+
+export const DRY_BREAKERS_KEY = "dry_sequence_breakers";
+
+export function appendSequenceBreakers(payload: Record<string, unknown>, names: readonly string[]): { added: string[]; form: "array" | "json" | null } {
+  const current = payload[DRY_BREAKERS_KEY];
+  let list: unknown[] | null = null;
+  let form: "array" | "json" | null = null;
+  if (Array.isArray(current)) {
+    list = current;
+    form = "array";
+  } else if (typeof current === "string") {
+    try {
+      const parsed: unknown = JSON.parse(current);
+      if (Array.isArray(parsed)) {
+        list = parsed;
+        form = "json";
+      }
+    } catch {
+      list = null;
+    }
+  }
+  if (!list || !form) return { added: [], form: null };
+  const present = new Set(list.filter((item): item is string => typeof item === "string"));
+  const added = [...new Set(names.map((name) => name.trim()).filter((name) => name && !present.has(name)))];
+  if (!added.length) return { added, form };
+  const next = [...list, ...added];
+  payload[DRY_BREAKERS_KEY] = form === "array" ? next : JSON.stringify(next);
+  return { added, form };
+}

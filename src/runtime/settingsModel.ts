@@ -69,7 +69,7 @@ export interface GlobalSettings {
   };
   copilot: CopilotRuntimeSettings;
   memory: MemoryRuntimeSettings;
-  talk: { enabled: boolean; chain: TalkChainSettings; keepLastQuestion: boolean; swipeContrast: boolean; skipAhead: boolean };
+  talk: { enabled: boolean; chain: TalkChainSettings; keepLastQuestion: boolean; swipeContrast: boolean; skipAhead: boolean; crossVoiceTrim: boolean; dryNames: boolean };
   stagecraft: StagecraftSettings;
   judge: JudgeSettings;
   worldInfo: WorldInfoSettings;
@@ -258,7 +258,7 @@ export const defaultGlobalSettings = (): GlobalSettings => ({
   },
   copilot: { enabled: true, ask: true },
   memory: defaultMemorySettings(),
-  talk: { enabled: true, chain: { enabled: true, max: TALK_CHAIN_MAX_DEFAULT }, keepLastQuestion: true, swipeContrast: false, skipAhead: false },
+  talk: { enabled: true, chain: { enabled: true, max: TALK_CHAIN_MAX_DEFAULT }, keepLastQuestion: true, swipeContrast: false, skipAhead: false, crossVoiceTrim: true, dryNames: true },
   stagecraft: defaultStagecraftSettings(),
   judge: defaultJudgeSettings(),
   worldInfo: defaultWorldInfoSettings(),
@@ -301,7 +301,7 @@ const sanitizeTalkChain = (value: unknown): TalkChainSettings => {
 const sanitizeTalkSettings = (value: unknown): GlobalSettings["talk"] => {
   const source = isRecord(value) ? value : {};
   return { enabled: source.enabled !== false, chain: sanitizeTalkChain(source.chain), keepLastQuestion: source.keepLastQuestion !== false, swipeContrast: source.swipeContrast === true,
-    skipAhead: source.skipAhead === true };
+    skipAhead: source.skipAhead === true, crossVoiceTrim: source.crossVoiceTrim !== false, dryNames: source.dryNames !== false };
 };
 
 const LIVING_FLAGS = ["livingEnabled", "branchingEnabled", "prefetchEnabled"] as const;

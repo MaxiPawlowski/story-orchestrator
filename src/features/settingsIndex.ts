@@ -59,6 +59,8 @@ export const SETTING_CONTROLS: Record<string, string> = {
   "sprites.profileId": "so-sprite-profile",
   "sprites.stage": "so-sprite-stage",
   "talk.keepLastQuestion": "so-keep-last-question",
+  "talk.crossVoiceTrim": "so-cross-voice-trim",
+  "talk.dryNames": "so-dry-names",
   "worldInfo.gatingMode": "so-wi-gating-mode",
   "worldInfo.lorePins": "so-wi-lore-pins",
   "worldInfo.seededChance": "so-wi-seeded-chance",
