@@ -186,3 +186,26 @@ floors unchanged (v2.9 11 stop rules). No GPU, no model lane was used for this p
   from the 10-26 lane 33 manifest (master prompts changed since), and an anchored row's anchor order can differ between two
   runs (s01 anchored: ranking is seeded by the sandbox chat id), so step 2's "exactly 7 rows differ" check cannot hold as
   written: compare prompt text, not shas. D1 rerun (send + Sol rating) is unblocked on the harness side.
+
+## D1 rerun 2026-10-31 (GPU queue G1 tail, F4 floor +0.5 unchanged)
+
+- Build: master `e4c9e9f0` staged (bundle `93465494d1b1`). Capture on no-model lane 35 (re-run `st-lanes.mts no-model 35` first: `branchingEnabled`, `createEnabled`, `briefingDraft` were on again and made every row not-runnable); send through `:18888`, owner controller config, Artemis 31B v1.1.
+- Harness port (UI rework moved the Ideas panel into the story sheet): branch `v3.0-lt06-ui-port` `b0266258` (not merged): `gen.mjs` opens through `#so-workspace-context-story`, waits `#so-sheet-ideas`, closes `#so-sheet-close`; 80 scenarios regenerated (selector-only diff, corpus sha unchanged `0fcb4134…`), `frozen.json` scenario hashes updated (floors untouched). Capture used `--corpus-dir` on that worktree.
+- T8 first: 4/4, deltas and rejected tiers 1.0 (`C:/dev/so-lanes/35/b2ext/t8-g`).
+- LT06 capture 80/80 (s22 anchored seed miss once, recaptured and merged); 7 bodies carry the dormant `(from earlier, not in this scene)` marker (s07-s12, s36, the stated reach). Send 80/80, 0 unsendable.
+- Rater Sol `openai/gpt-6.1-sol` (opencode, never -fast), `rate --pass both`, both passes complete (115 calls).
+- F1 usable 39/40 (rater), mechanical 40/40: pass.
+- F2 grounded 36/40 (rater; strict mechanical 32/40): pass.
+- F3 leaks: 0 needle hits in answers; rater flags 2 (s11/anchored, s18/current); 1 visible-needle row (s18/current, needle already shown in the prompt, needs an adjudicator): **FAIL** as scored (was 0 flags on 10-25).
+- F4 blind usefulness: mean **-0.15**, median 0, 11 wins / 13 ties / 16 losses, CI95 [-0.425, +0.15], floor +0.5: **MISS** (recorded, not retuned; ceiling stated before the run).
+- The 7 dormant-anchor rows: anchored minus current -1, -1, +1, -1, -1, -1, -2 (sum -6; was -3 before the change). The prompt change did not help on this corpus.
+- F5 one call per ask: 80/80: pass.
+- Evidence: `C:/dev/so-lanes/35/b2ext/lt06-g/` (manifest, bodies, responses, `rater/passA|passB`, score.json), logs `lt06-g.*.log`; void first capture `lt06-g-void-notrunnable/`. Not archived to so-sessions yet.
+
+Verdict: **F4 miss again (-0.15)**, F3 now fails on 2 rater flags (adjudication owed for s18/current). Owner question stands (gpu-queue §Unresolved D1): stop, or one round on the overlap cluster.
+
+## LT06 harness port merge 2026-10-31
+
+- Branch `v3.0-lt06-ui-port` `b0266258` (selector-only port to the story sheet, 80 scenarios + `frozen.json` hashes), master `380de870` merged at `e3598bd8`.
+- `npm run gates:quick` green (165.5s). `npm run gates` (no `--resume`, Storybook included): all green in 522.4s (jest 11,058 passed / 1 skipped, test:debug 1,733, Storybook 191 suites / 1,132 tests, replay, release, plugin, lint, typechecks, build).
+- No live run: harness-only change; the D1 rerun above already used this corpus.

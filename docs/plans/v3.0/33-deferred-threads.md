@@ -132,3 +132,9 @@ Deviations: the read contract asks for `[deferred]` whenever arcs are listed and
 read-contract flag, to stay off the memory-cpu read-prompt rewrite); reopen uses word containment; reopen at read time.
 Conflict surface with memory-cpu: `src/memory/contract.ts` `renderArcContractSection` (one spread line after the promise
 rule + a trailing const), `src/memory/parse.ts` `parseArcLine`, `src/extraction/parse.ts` arc tag regex.
+
+## H33-F: v2.9 06 F1-F3 rerun (2026-10-31, rides the D1 rerun)
+
+- Same run as v3.0 14 §D1 rerun 2026-10-31 (master `e4c9e9f0`, plan 33 merged): F1 39/40 pass, F2 36/40 pass, F3 FAIL (2 rater flags, 0 needle hits in answers).
+- Reach: the LT06 corpus holds no deferred arcs (0 of 40 situations), so the S4 amendment (deferred arc -> `dormant-thread`) changed no prompt in this run. This rerun is a no-regression check only; the amended anchors are unexercised. A corpus row with a put-off thread is owed (CPU) if S4 needs its own measurement.
+- Evidence: `C:/dev/so-lanes/35/b2ext/lt06-g/`.
