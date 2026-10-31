@@ -256,6 +256,12 @@ const AuthoringPage = ({ snapshot, manager, navigate }: PageProps) => (
         read={(settings) => settings.memory.historyNotes === true} write={(on) => manager.setMemorySettings({ historyNotes: on })} />
       <GlobalCheck id="so-outward-narration" setting="memory.outwardNarration" manager={manager}
         read={(settings) => settings.memory.outwardNarration === true} write={(on) => manager.setMemorySettings({ outwardNarration: on })} />
+      <GlobalCheck id="so-mention-ledger" setting="memory.mentionLedger" manager={manager}
+        read={(settings) => settings.memory.mentionLedger === true} write={(on) => manager.setMemorySettings({ mentionLedger: on })} />
+      <GlobalCheck id="so-strength-retention" setting="memory.strengthRetention" manager={manager}
+        read={(settings) => settings.memory.strengthRetention === true} write={(on) => manager.setMemorySettings({ strengthRetention: on })} />
+      <GlobalCheck id="so-retrieval-query" setting="memory.retrievalQuery" manager={manager}
+        read={(settings) => settings.memory.retrievalQuery === true} write={(on) => manager.setMemorySettings({ retrievalQuery: on })} />
       <GlobalCheck id="so-swipe-contrast" setting="talk.swipeContrast" manager={manager}
         read={(settings) => settings.talk.swipeContrast} write={(on) => setGlobalSettings({ talk: { swipeContrast: on } })} />
     </Section>}

@@ -16,7 +16,7 @@ import {
   arcDeferred, type ApplyArcSignalsResult, type ArcRead,
   type ArcEntry, type DerivedRecord, type EpistemicEntry, type LedgerBinding, type LedgerView, type MemoryEntry,
   type MemoryTier, type ParsedArcSignal, type ParsedEpistemicSignal, type ParsedLedgerSignal, type UncertainPair,
-  consolidateTierJudged, clearContradicted, sceneRangeFrom, rollingShortTerm, type ShortTermPlacement, innerRender,
+  consolidateTierJudged, clearContradicted, sceneRangeFrom, rollingShortTerm, type ShortTermPlacement, innerRender, stampUsed, retentionStamp,
 } from "@memory/index";
 import { PAIR_JACCARD_FLOOR } from "@judge/policy";
 import type { Provenance } from "@memory/provenance";
@@ -31,7 +31,7 @@ import type { JudgeRuntime } from "../judge";
 import { beginRun, type RunGuard, type RunOwnership } from "../runToken";
 import type { MemoryHosts } from "../hostPorts";
 import { computeEntryTokens, fitEntryToBlock, tokensFor } from "../entryTokens";
-import { lastPlayerRow } from "../playerTurn";
+import { lastPlayerName, lastPlayerRow } from "../playerTurn";
 import { enabledCharacterNames, rosterMemberName } from "../roster";
 import { VERIFY_DROP_LIMIT, type MemoryBackfillState, type MemoryRuntimeState, type VerifyDrop } from "../types";
 import { required } from "@utils/guards";
@@ -69,14 +69,6 @@ export interface MemoryCoordinatorDeps {
 // Owns everything that reads or writes extras.memory: tiers, arcs, canon, epistemic, ledger,
 // consolidation, World Info mirroring and prompt injection. The manager keeps the persist
 // boundary — this class only mutates the slice and asks for a save.
-const lastPlayerName = (rows: unknown[]): string => {
-  for (let index = rows.length - 1; index >= 0; index -= 1) {
-    const row = rows[index] as { is_user?: unknown; name?: unknown } | null;
-    if (row?.is_user === true && typeof row.name === "string" && row.name.trim()) return row.name.trim();
-  }
-  return "";
-};
-
 export class MemoryCoordinator {
   readonly injector: MemoryInjector = new MemoryInjector({
     getStory: () => this.deps.getStory(),
@@ -147,6 +139,10 @@ export class MemoryCoordinator {
 
   private boundaryStamp() { return this.deps.getState()?.boundary ?? 0; }
 
+  private retention(window: { to: number }) { return retentionStamp(this.state.settings, window.to, this.boundaryStamp()); }
+
+  stampUsed(ids: string[], at: { messageId: number; boundary: number }) { if (ids.length) this.patch(stampUsed(this.state, ids, at), false); }
+
   // What this write derived, what it was built from, and what it took away. Recorded
   // with the write, so a rollback past the input can drop the artifact and restore the removal.
   private record(input: Omit<DerivedRecord, "id" | "boundary" | "messageId"> & { messageId?: number }) {
@@ -192,7 +188,7 @@ export class MemoryCoordinator {
     const held = await this.queue.findHeld(entries);
     if (!run.stillOwns()) return;
     const written = addMemoryEntries(this.state, entries, window);
-    this.patch(capAllTiers(written.state, this.state.settings.tierBudgets));
+    this.patch(capAllTiers(written.state, this.state.settings.tierBudgets, this.retention(window)));
     this.queue.hold(held);
   }
 
@@ -201,7 +197,7 @@ export class MemoryCoordinator {
     await computeEntryTokens(this.deps.hosts.tokens, [entry]);
     if (!run.stillOwns()) return null;
     const written = addMemoryEntries(this.state, entry.text ? [entry] : [], window);
-    const capped = capAllTiers(expireScoped(written.state, "scene"), this.state.settings.tierBudgets);
+    const capped = capAllTiers(expireScoped(written.state, "scene"), this.state.settings.tierBudgets, this.retention(window));
     const sceneOccurrence = this.state.sceneCount + 1;
     const removed = disappearingEntries(this.state.entries, capped.entries);
     this.patch({ ...capped, sceneCount: sceneOccurrence });

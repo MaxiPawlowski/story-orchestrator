@@ -1,5 +1,6 @@
 import { fnv1a, stableStringify } from "@runtime/hash";
 import { clearOverride, withOverride, withValidity } from "./provenance";
+import { evictWeakest, stripUseAfter, type StampAt } from "./strength";
 import { contentWords, wordOverlap } from "./words";
 import type { MemoryEntry, MemoryExpiration, MemoryStoreState, MemoryTier, MemoryWriteLogEntry } from "./types";
 
@@ -84,7 +85,7 @@ export function addMemoryEntries(state: MemoryStoreState, entries: MemoryEntry[]
 // a derived artifact hands back was captured after the cut and arrives carrying links
 // the cut never had.
 export function stripLinksAfter(entry: MemoryEntry, messageId: number): MemoryEntry {
-  let next = entry;
+  let next = stripUseAfter(entry, messageId);
   if (entry.supersededAt && entry.supersededAt.messageId >= messageId) {
     const { supersededBy: _by, supersededAt: _at, ...rest } = next;
     next = rest;
@@ -191,7 +192,8 @@ export function editEntryText(state: MemoryStoreState, id: string, text: string,
   return { ...state, entries: state.entries.map((entry) => (entry.id === id ? { ...entry, text, tokens: undefined, ...withOverride(entry, "edit", at, boundary) } : entry)) };
 }
 
-export function capTier(state: MemoryStoreState, tier: MemoryTier, cap: number): MemoryStoreState {
+export function capTier(state: MemoryStoreState, tier: MemoryTier, cap: number, retention?: StampAt | null): MemoryStoreState {
+  if (retention) return evictWeakest(state, tier, cap, retention);
   const tierEntries = state.entries.filter((entry) => entry.tier === tier && !entry.foldedInto);
   if (tierEntries.length <= cap) return state;
   const pinned = tierEntries.filter((entry) => entry.pinned);
@@ -218,8 +220,8 @@ export const DEFAULT_TIER_TOKEN_BUDGETS: Record<MemoryTier, number> = {
 export const NARRATOR_HOLDINGS_WINDOW = 20;
 export const NARRATOR_HOLDINGS_TOKEN_BUDGET = 1000;
 
-export function capAllTiers(state: MemoryStoreState, budgets: Record<MemoryTier, number> = DEFAULT_TIER_BUDGETS): MemoryStoreState {
-  return (Object.keys(budgets) as MemoryTier[]).reduce((next, tier) => capTier(next, tier, budgets[tier]), state);
+export function capAllTiers(state: MemoryStoreState, budgets: Record<MemoryTier, number> = DEFAULT_TIER_BUDGETS, retention?: StampAt | null): MemoryStoreState {
+  return (Object.keys(budgets) as MemoryTier[]).reduce((next, tier) => capTier(next, tier, budgets[tier], tier === "short_term" ? null : retention), state);
 }
 
 export interface ShortTermLimits {

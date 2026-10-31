@@ -14,6 +14,8 @@ export * from "./ledger";
 export * from "./canon";
 export * from "./budget";
 export * from "./score";
+export * from "./strength";
+export * from "./used";
 export * from "./consolidate";
 export * from "./conflicts";
 export * from "./polarity";

@@ -6,12 +6,14 @@ import {
   type ScoreContext, castVoices, hasInnerVoice, innerRender, loadInnerRender, withoutLapsedIntents,
   type CastVoice, type EpistemicEntry, type MemoryEntry,
   heldSecrets, keptFrom, ledgerWithoutSecrets, sharedTierView, withoutSecretLines, withoutSecrets, writeMemoryBlocks, type HeldSecret,
+  buildMemoryInjection, heldForMember, raisedBy, type InjectionOptions, type MentionsState, type OfferedItem,
 } from "@memory/index";
+import { fnv1a } from "@utils/fnv";
 import { EPISTEMIC_INJECTION_DEPTH, EPISTEMIC_INJECTION_KEY, LEDGER_INJECTION_DEPTH } from "@constants/defaults";
 import type { ChapterPort } from "./chapterPort";
 import { gameLayer } from "@engine/validate/gameLayer";
 
-import { buildScoreContext } from "./scoreContext";
+import { buildScoreContext, forMember } from "./scoreContext";
 import { activeSpeakerId, enabledCharacterIds, nameForRosterId, namesForRosterId, rosterIdForName, rosterMemberName } from "./roster";
 import type { MemoryRuntimeState } from "./types";
 import type { InjectorHosts } from "./hostPorts";
@@ -19,6 +21,8 @@ import { hasNarratedSheet } from "./narratorSheetPort";
 import type { SecretGridInputs } from "./whoKnows";
 
 const storyKey = (story: NormalizedStory): string => story.id ?? story.title;
+
+const injectedOf = (fates: Record<string, string>): string[] => Object.entries(fates).filter(([, fate]) => fate === "injected").map(([id]) => id);
 
 export interface MemoryInjectorDeps {
   getStory: () => NormalizedStory | null;
@@ -67,6 +71,10 @@ export class MemoryInjector {
   private privateSources: Array<(rosterId: string) => string[]> = [];
   private stagingSources: PrivateStaging[] = [];
   private disclosureSources: Array<() => ReadonlyArray<{ entryId: string; member: string }>> = [];
+  private injectedIds = new Map<string, string[]>();
+  private restIds: string[] = [];
+  private mentions: () => MentionsState | null = () => null;
+  private drafted = new Map<string, { at: number; items: OfferedItem[] }>();
 
   constructor(private readonly deps: MemoryInjectorDeps) {}
 
@@ -79,12 +87,53 @@ export class MemoryInjector {
   }
 
   private scoreContext(): ScoreContext {
+    const story = this.deps.getStory();
+    const settings = this.state.settings;
     return buildScoreContext(this.hosts.chat, {
       boundary: this.deps.getState()?.boundary ?? 0,
-      rosterNames: this.deps.getStory()?.roster.map(rosterMemberName) ?? [],
+      rosterNames: story?.roster.map(rosterMemberName) ?? [],
       openArcs: this.deps.enabled() ? openArcTexts(withoutExcludedThreads(this.state.arcs, this.state.derived), ARC_OPEN_INJECT_LIMIT) : [],
-      weights: this.state.settings.scoreWeights,
+      weights: settings.scoreWeights,
+      query: settings.retrievalQuery !== false && story ? { cast: enabledCharacterIds(story, this.hosts.roster).map((id) => nameForRosterId(story, id)) } : null,
+      useRecency: settings.strengthRetention !== false,
     });
+  }
+
+  private mentionedFor(story: NormalizedStory, id: string, entries: MemoryEntry[]): Set<string> | undefined {
+    const mentions = this.mentions();
+    if (!mentions?.records.length) return undefined;
+    const rows = new Map(entries.map((entry) => [entry.id, entry]));
+    const player = [...this.hosts.chat.chatRows()].reverse().find((row) => (row as { is_user?: unknown } | null)?.is_user === true) as { mes?: unknown } | undefined;
+    const text = typeof player?.mes === "string" ? player.mes : "";
+    const cast = story.roster.flatMap((member) => namesForRosterId(story, member.id));
+    return heldForMember(mentions, id, this.deps.getState()?.boundary ?? 0, (rowId) => {
+      const row = rows.get(rowId);
+      return !row || raisedBy({ text: row.text, entities: row.entities, triggers: row.activationTriggers }, text, cast);
+    });
+  }
+
+  private memberOptions(story: NormalizedStory, id: string, options: InjectionOptions, entries: MemoryEntry[]): InjectionOptions {
+    return { ...options, scoreContext: forMember(options.scoreContext, namesForRosterId(story, id)), mentioned: this.mentionedFor(story, id, entries) };
+  }
+
+  offeredTo(rosterId: string, messageId: number): OfferedItem[] | null {
+    const capture = this.drafted.get(rosterId);
+    if (!capture || messageId > capture.at || capture.at - messageId > 1) return null;
+    this.drafted.delete(rosterId);
+    return capture.items;
+  }
+
+  private rowItems(ids: readonly string[]): OfferedItem[] {
+    const wanted = new Set(ids);
+    const rows = this.state.entries.filter((entry) => wanted.has(entry.id)).map((entry): OfferedItem => ({ id: entry.id, kind: "row", text: entry.text, triggers: entry.activationTriggers }));
+    const arcs = withoutExcludedThreads(this.state.arcs, this.state.derived).filter((arc) => arc.status === "open").map((arc): OfferedItem => ({ id: arc.id, kind: "arc", text: arc.text }));
+    return [...rows, ...arcs];
+  }
+
+  private captureDraft(rosterId: string) {
+    const lines = this.privateSources.flatMap((source) => source(rosterId)).flatMap((block) => block.split(/\r?\n/)).map((line) => line.trim()).filter(Boolean);
+    const items = [...this.rowItems(this.injectedIds.get(rosterId) ?? this.restIds), ...lines.map((line): OfferedItem => ({ id: `line:${fnv1a(line)}`, kind: "line", text: line }))];
+    this.drafted.set(rosterId, { at: this.hosts.chat.chatRows().length, items });
   }
 
   private options() {
@@ -136,6 +185,10 @@ export class MemoryInjector {
     return [block, this.lifeLines(story, id), this.sourcedLines(story, id)].filter(Boolean).join("\n\n");
   }
 
+  setMentions(source: () => MentionsState | null): void {
+    this.mentions = source;
+  }
+
   addDisclosureSource(source: () => ReadonlyArray<{ entryId: string; member: string }>): void {
     this.disclosureSources = [...this.disclosureSources, source];
   }
@@ -172,6 +225,8 @@ export class MemoryInjector {
       this.stagedPrivate.clear();
       this.rest = null;
       this.lastInjection = null;
+      this.injectedIds.clear();
+      this.restIds = [];
       if (this.state.pinnedOverflow) this.deps.setPinnedOverflow(0);
       return;
     }
@@ -181,6 +236,8 @@ export class MemoryInjector {
     const resting = sharedTierView(this.state.entries, secrets, null);
     const injection = applyMemoryInjection(this.hosts.prompt, resting.entries, speaker, this.state.settings.injectionDepths, { ...options, withheld: resting.withheld });
     this.lastInjection = memoryInjectionView(injection, this.highWater);
+    this.restIds = injectedOf(injection.fates);
+    this.injectedIds.clear();
     const pinnedOverflow = pinnedOverflowOf(injection.fates);
     if (pinnedOverflow !== this.state.pinnedOverflow) this.deps.setPinnedOverflow(pinnedOverflow);
 
@@ -203,7 +260,9 @@ export class MemoryInjector {
       for (const id of this.stagedIds(story)) {
         const names = namesForRosterId(story, id);
         const view = sharedTierView(this.state.entries, secrets, names);
-        const memory = capable ? buildMemoryInjectionBlocks(view.entries, id, { ...options, withheld: view.withheld }) : null;
+        const built = capable ? buildMemoryInjection(view.entries, id, { ...this.memberOptions(story, id, options, view.entries), withheld: view.withheld }) : null;
+        if (built) this.injectedIds.set(id, injectedOf(built.fates));
+        const memory = built?.blocks ?? null;
         if (memory) memory.facts = [memory.facts, withoutSecretLines(returning.get(id) ?? "", secrets, names)].filter(Boolean).join("\n");
         const shared = memory ? { memory, ledger: ledgerFor(names) } : null;
         this.stagedPrivate.set(id, { shared, epistemic: this.memberBlock(story, id, knowledge) });
@@ -292,6 +351,7 @@ export class MemoryInjector {
     const story = this.deps.getStory();
     if (!story || !this.stagedPrivate.size) return;
     const rosterId = this.draftedRosterId(chId);
+    if (rosterId) this.captureDraft(rosterId);
     if (rosterId && !this.stagedPrivate.has(rosterId)) {
       this.draft = { storyId: storyKey(story), rosterId };
       this.update();

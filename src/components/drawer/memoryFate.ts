@@ -11,6 +11,7 @@ export const FATE_LABELS: Record<MemoryFate, string> = {
   "near-duplicate": "held out: a newer row says the same",
   "over-budget": "trimmed: over budget",
   "pinned-overflow": "trimmed: pinned, did not fit",
+  mentioned: "held back: this character just said it",
 };
 
 export const tierOfKey = (key: string): MemoryTier | null => (key.startsWith(MEMORY_INJECTION_KEY_PREFIX) ? (key.slice(MEMORY_INJECTION_KEY_PREFIX.length) as MemoryTier) : null);

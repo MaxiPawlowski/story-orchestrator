@@ -238,6 +238,9 @@ export const defaultMemorySettings = (): MemoryRuntimeSettings => ({
   deferredOutOfPrompt: false,
   historyNotes: true,
   outwardNarration: true,
+  mentionLedger: true,
+  strengthRetention: true,
+  retrievalQuery: true,
 });
 
 export const defaultStagecraftSettings = (): StagecraftSettings => ({
@@ -276,6 +279,9 @@ const sanitizeInnerVoice = (memory: MemoryRuntimeSettings, defaults: MemoryRunti
   if (typeof memory.deferredOutOfPrompt !== "boolean") memory.deferredOutOfPrompt = defaults.deferredOutOfPrompt;
   memory.historyNotes = memory.historyNotes !== false;
   memory.outwardNarration = memory.outwardNarration !== false;
+  memory.mentionLedger = memory.mentionLedger !== false;
+  memory.strengthRetention = memory.strengthRetention !== false;
+  memory.retrievalQuery = memory.retrievalQuery !== false;
   return memory;
 };
 
