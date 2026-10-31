@@ -28,6 +28,8 @@ export const DIAGNOSTIC_CODES = [
   "house-rule-compound",
   "checkpoint-inherits-author-note",
   "world-info-rests-off",
+  "world-info-until-unknown",
+  "lore-path-over-budget",
   "motive-member-unknown",
   "motive-for-player",
   "chapter-missing",

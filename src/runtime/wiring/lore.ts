@@ -16,7 +16,7 @@ import { startLoreEvidence } from "../worldInfoEvidenceHost";
 import { startSamplerOverlay } from "../samplerOverlayHost";
 import { startScanGating } from "../worldInfoScanHost";
 import { startStoryLore } from "../storyLoreHost";
-import { stagedPath } from "../worldInfoGates";
+import { setLoreLifetimeReader, stagedPath } from "../worldInfoGates";
 import type { Disposers, WindowAccess } from "./types";
 import type { LorePinDeps } from "../lorePins";
 import { log } from "@utils/log";
@@ -93,6 +93,8 @@ const startReplyEffort = (disposers: Disposers, generation: GenerationLifecycle)
 };
 
 export const startLore = (disposers: Disposers, judgeRuntime: JudgeRuntime, generation: GenerationLifecycle, { chatLastId, recentWindow }: WindowAccess) => {
+  setLoreLifetimeReader(() => runtimeManager.getEffectiveSettings().worldInfo.loreLifetime);
+  disposers.push(() => setLoreLifetimeReader(() => true));
   const lore = new LoreSelector({
     judge: () => judgeRuntime,
     getStory: () => runtimeManager.getStory(),

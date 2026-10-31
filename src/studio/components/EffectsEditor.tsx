@@ -37,7 +37,7 @@ const StageTransitionFields: React.FC<{ value: TransitionEffect; onChange: (next
 
 const readStrings = (value: unknown): string[] => (Array.isArray(value) ? value.filter((entry): entry is string => typeof entry === "string") : []);
 
-interface WorldInfoEntry { lorebook: string; comments: string[] }
+interface WorldInfoEntry { lorebook: string; comments: string[]; until?: string; lasting?: true }
 
 const readAuthorNote = (value: unknown): { text: string; inject: boolean; rest: Record<string, unknown> } | null => {
   if (value === undefined || value === null) return null;
@@ -61,7 +61,7 @@ const readWorldInfoEntries = (value: unknown): WorldInfoEntry[] => {
       if (!isRecord(entry)) return null;
       const lorebook = typeof entry.lorebook === "string" ? entry.lorebook : typeof entry.book === "string" ? entry.book : "";
       const comments = Array.isArray(entry.comments) ? entry.comments.filter((item): item is string => typeof item === "string") : typeof entry.comment === "string" ? [entry.comment] : [];
-      return { lorebook, comments };
+      return { lorebook, comments, ...(typeof entry.until === "string" && entry.until ? { until: entry.until } : {}), ...(entry.lasting === true ? { lasting: true as const } : {}) };
     })
     .filter((entry): entry is WorldInfoEntry => entry !== null);
 };
@@ -129,7 +129,26 @@ const StringListInput: React.FC<{ label: string; values: string[]; onChange: (ne
   </div>
 );
 
-const WorldInfoList: React.FC<{ title: string; entries: WorldInfoEntry[]; onChange: (next: WorldInfoEntry[]) => void }> = ({ title, entries, onChange }) => (
+const endValue = (entry: WorldInfoEntry) => (entry.lasting ? "lasting" : entry.until && entry.until !== "chapter" ? `until:${entry.until}` : "chapter");
+
+const withEnd = (entry: WorldInfoEntry, value: string): WorldInfoEntry => {
+  const { until: _until, lasting: _lasting, ...rest } = entry;
+  if (value === "lasting") return { ...rest, lasting: true };
+  return value.startsWith("until:") ? { ...rest, until: value.slice("until:".length) } : rest;
+};
+
+const WorldInfoEnd: React.FC<{ label: string; entry: WorldInfoEntry; checkpointIds: string[]; onChange: (next: WorldInfoEntry) => void }> = ({ label, entry, checkpointIds, onChange }) => {
+  const ids = entry.until && entry.until !== "chapter" && !checkpointIds.includes(entry.until) ? [...checkpointIds, entry.until] : checkpointIds;
+  return (
+    <Select aria-label={label} value={endValue(entry)} onChange={(event) => onChange(withEnd(entry, event.target.value))}>
+      <option value="chapter">Ends with this chapter</option>
+      <option value="lasting">Lasting</option>
+      {ids.map((id) => <option key={id} value={`until:${id}`}>Until {id}</option>)}
+    </Select>
+  );
+};
+
+const WorldInfoList: React.FC<{ title: string; entries: WorldInfoEntry[]; checkpointIds?: string[]; onChange: (next: WorldInfoEntry[]) => void }> = ({ title, entries, checkpointIds, onChange }) => (
   <div className="flex flex-col gap-2">
     <span className="text-xs st-muted">{title}</span>
     {entries.map((entry, index) => (
@@ -147,6 +166,8 @@ const WorldInfoList: React.FC<{ title: string; entries: WorldInfoEntry[]; onChan
             onClick={() => onChange(entries.filter((_, itemIndex) => itemIndex !== index))} />
         </div>
         <StringListInput label="comment" values={entry.comments} onChange={(comments) => onChange(entries.map((item, itemIndex) => (itemIndex === index ? { ...item, comments } : item)))} />
+        {checkpointIds && <WorldInfoEnd label={`${title} entry ${index + 1} ends`} entry={entry} checkpointIds={checkpointIds}
+          onChange={(next) => onChange(entries.map((item, itemIndex) => (itemIndex === index ? next : item)))} />}
       </div>
     ))}
     <Button className="self-start" onClick={() => onChange([...entries, { lorebook: "", comments: [] }])}>+ {title} entry</Button>
@@ -351,8 +372,9 @@ const EffectsEditor: React.FC<{
   castable?: RosterMember[];
   backgroundNames?: string[];
   cardFields?: DeclaredCardField[];
+  checkpointIds?: string[];
   onChange: (next: CheckpointEffects) => void;
-}> = ({ effects, roster, castable = roster, backgroundNames = [], cardFields = [], onChange }) => {
+}> = ({ effects, roster, castable = roster, backgroundNames = [], cardFields = [], checkpointIds = [], onChange }) => {
   const emit = (next: CheckpointEffects) => {
     const cleaned: CheckpointEffects = { ...next };
     (Object.keys(cleaned) as Array<keyof CheckpointEffects>).forEach((key) => {
@@ -455,7 +477,8 @@ const EffectsEditor: React.FC<{
       </Section>
 
       <Section title="World info" enabled={worldInfo !== undefined} onToggle={(on) => emit({ ...effects, world_info: on ? { enable: [], disable: [] } : undefined })}>
-        <WorldInfoList title="enable" entries={readWorldInfoEntries(worldInfo?.enable)} onChange={(enable) => emit({ ...effects, world_info: { ...worldInfo, enable } })} />
+        <WorldInfoList title="enable" entries={readWorldInfoEntries(worldInfo?.enable)} checkpointIds={checkpointIds}
+          onChange={(enable) => emit({ ...effects, world_info: { ...worldInfo, enable } })} />
         <WorldInfoList title="disable" entries={readWorldInfoEntries(worldInfo?.disable)} onChange={(disable) => emit({ ...effects, world_info: { ...worldInfo, disable } })} />
       </Section>
 

@@ -28,6 +28,7 @@ import { PATTERN_CONSEQUENCES, checkPatternDiagnostics } from "./patternDiagnost
 import { CUE_CONSEQUENCES, checkCueDiagnostics } from "./cueDiagnostics";
 import { OFFER_CONSEQUENCES, checkOfferDiagnostics } from "./offerDiagnostics";
 import { ECHO_CONSEQUENCES, checkEchoDiagnostics } from "./echoDiagnostics";
+import { LORE_LIFETIME_CONSEQUENCES, checkLoreLifetime, type LoreFacts } from "./loreDiagnostics";
 
 export type DiagnosticSeverity = "blocking" | "warning" | "info";
 
@@ -101,10 +102,11 @@ export const DIAGNOSTIC_CONSEQUENCES: Record<(typeof DIAGNOSTIC_CODES)[number], 
   ...CUE_CONSEQUENCES,
   ...OFFER_CONSEQUENCES,
   ...ECHO_CONSEQUENCES,
+  ...LORE_LIFETIME_CONSEQUENCES,
 };
 
 // D: what the Studio needs to know about the install, not the story.
-export interface DiagnosticsContext extends InstallFacts, StageInventory {
+export interface DiagnosticsContext extends InstallFacts, StageInventory, LoreFacts {
   worldInfoGating?: "file" | "scan";
 }
 
@@ -493,20 +495,12 @@ const checkWorldInfoGating = (run: DiagnosticRun) => {
 };
 
 const DIAGNOSTIC_CHECKS = [
-  checkGates,
-  checkAnchorsReachable,
-  checkLatchingSnapshots,
-  checkQualitiesInScope,
-  checkStubs,
-  checkTalkAndAgency,
-  checkThresholds,
-  checkRatingScales,
-  checkOutcomeEvidence,
-  checkInheritedNotes,
+  checkGates, checkAnchorsReachable, checkLatchingSnapshots, checkQualitiesInScope, checkStubs,
+  checkTalkAndAgency, checkThresholds, checkRatingScales, checkOutcomeEvidence, checkInheritedNotes,
   checkLatchingPlaceholders, checkJudgeHints,
   checkLoreSelect,
   checkHouseRules,
-  checkSceneLocation, checkWorldInfoGating,
+  checkSceneLocation, checkWorldInfoGating, checkLoreLifetime,
   checkMotives,
   checkChapters,
   checkRequirementMembers,

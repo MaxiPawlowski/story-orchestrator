@@ -71,6 +71,8 @@ const ARMS: Record<string, { renders: ShowMeContext; hidden: ShowMeContext }> = 
   "#so-wi-lexical-fallback": { renders: context(null, { authorView: true }), hidden: context(null) },
   "#so-wi-hold-round": { renders: context(null, { authorView: true }), hidden: context(null) },
   "#so-wi-prefer-known": { renders: context(null, { authorView: true }), hidden: context(null) },
+  "#so-wi-lore-lifetime": { renders: context(null, { authorView: true }), hidden: context(null) },
+  "#so-wi-lore-state": { renders: context(null, { authorView: true }), hidden: context(null) },
   "#so-history-notes": { renders: context(null, { authorView: true }), hidden: context(null) },
   "#so-outward-narration": { renders: context(null, { authorView: true }), hidden: context(null) },
   "#so-mention-ledger": { renders: context(null, { authorView: true }), hidden: context(null) },

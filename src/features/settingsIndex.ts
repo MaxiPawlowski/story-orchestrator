@@ -70,6 +70,9 @@ export const SETTING_CONTROLS: Record<string, string> = {
   "worldInfo.lexicalTiebreak": "so-wi-lexical-tiebreak",
   "worldInfo.holdRound": "so-wi-hold-round",
   "worldInfo.preferKnown": "so-wi-prefer-known",
+  "worldInfo.loreLifetime": "so-wi-lore-lifetime",
+  "worldInfo.loreState": "so-wi-lore-state",
+  "worldInfo.loreAliases": "so-wi-lore-aliases",
   "memory.historyNotes": "so-history-notes",
   "memory.outwardNarration": "so-outward-narration",
   "memory.mentionLedger": "so-mention-ledger",
@@ -80,7 +83,8 @@ export const SETTING_CONTROLS: Record<string, string> = {
 };
 
 const AUTHOR_SETTINGS: ReadonlySet<string> = new Set(["worldInfo.lorePins", "worldInfo.seededChance", "worldInfo.budgetEvidence", "worldInfo.lexicalFallback",
-  "worldInfo.lexicalPrefilter", "worldInfo.lexicalTiebreak", "worldInfo.holdRound", "worldInfo.preferKnown", "memory.historyNotes", "memory.outwardNarration", "talk.swipeContrast",
+  "worldInfo.lexicalPrefilter", "worldInfo.lexicalTiebreak", "worldInfo.holdRound", "worldInfo.preferKnown",
+  "worldInfo.loreLifetime", "worldInfo.loreState", "worldInfo.loreAliases", "memory.historyNotes", "memory.outwardNarration", "talk.swipeContrast",
   "memory.mentionLedger", "memory.strengthRetention", "memory.retrievalQuery", "pacing.pathArc"]);
 
 const firstSentence = (text: string): string => /^(.+?[.!?])(\s|$)/.exec(text)?.[1] ?? text;

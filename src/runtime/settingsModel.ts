@@ -170,6 +170,9 @@ export interface WorldInfoSettings {
   lexicalTiebreak: boolean;
   holdRound: boolean;
   preferKnown: boolean;
+  loreLifetime: boolean;
+  loreState: boolean;
+  loreAliases: boolean;
 }
 
 export const DEFAULT_LATE_LORE_DEPTH = 4;
@@ -182,6 +185,7 @@ export const clampLateLoreDepth = (value: unknown, fallback: number = DEFAULT_LA
 export const defaultWorldInfoSettings = (): WorldInfoSettings => ({
   gatingMode: "scan", normalized: {}, normalizedFrom: {}, scanMemory: true, keptGlobal: [], lateLore: true, lateLoreDepth: DEFAULT_LATE_LORE_DEPTH, lorePins: true, seededChance: true,
   budgetEvidence: true, lexicalFallback: true, lexicalPrefilter: false, lexicalTiebreak: true, holdRound: true, preferKnown: true,
+  loreLifetime: true, loreState: true, loreAliases: true,
 });
 
 const sanitizeProvenance = (value: unknown): Record<string, NormalizedFrom[]> => {
@@ -226,6 +230,9 @@ const sanitizeWorldInfoSettings = (value: unknown): WorldInfoSettings => {
     lexicalTiebreak: value.lexicalTiebreak !== false,
     holdRound: value.holdRound !== false,
     preferKnown: value.preferKnown !== false,
+    loreLifetime: value.loreLifetime !== false,
+    loreState: value.loreState !== false,
+    loreAliases: value.loreAliases !== false,
   };
 };
 

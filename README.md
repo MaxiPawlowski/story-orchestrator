@@ -209,6 +209,8 @@ Generated from the feature registry. "Experimental" means not yet measured; it i
 | World | Word-match lore | Matches lore entries against the recent chat by their words: a fallback when the judge is silent, a shortlist for the judge and a tie-break. |  |
 | World | Keep the lore picks for a round | Lore is chosen once per message of yours and kept while the other characters reply. |  |
 | World | Prefer lore you have met | Lore about people, places and things you have not met ranks a little lower. |  |
+| World | Lore ends with its chapter | Lore a checkpoint switches on ends with its chapter, or at a checkpoint the story names, unless it is marked lasting. |  |
+| World | Scene state for lore | The lore pick hears where you are, who is on stage, open quests and what you have met, and nicknames find their entries. |  |
 | Images | Live close-shot head | A rigged close shot breathes, blinks, sways, gestures and talks as a reply streams. | Experimental |
 | Images | Prepared cast presentation | Review and accept each character's base and bust before sprites, poses and live heads use them. | Experimental |
 | Images | Reference views | Draw an accepted character three-quarter left and right, in profile and from behind, then accept or cancel all six views. | Experimental |
