@@ -11,6 +11,8 @@ with a floor stated first, one GPU A/B row per item in `gpu-queue-2026-10-30.md`
 2. Clocks on check misses: not built (overlaps agendas).
 3. In-character thinking clause: GPU wave only, built with its rating; thinking stays on.
 4. Phrase bans in the patched llama.cpp: not now (L).
+5. `worldInfo.lexicalPrefilter` ships off (owner, later 2026-10-31): shortlist recall 0.517 vs floor 0.95, calibration recall
+   26/30 -> 22/30 (Gate record G); fallback and tiebreak stay on.
 
 ## Wave 42a — CPU, two agents
 Agent F (fixes + progression/director):

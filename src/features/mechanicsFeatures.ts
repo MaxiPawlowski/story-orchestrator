@@ -44,8 +44,8 @@ export const MECHANICS_FEATURES: readonly Feature[] = [
     oneLine: "Matches lore entries against the recent chat by their words: a fallback when the judge is silent, a shortlist for the judge and a tie-break.",
     what: "A word-match score (BM25 over each entry's title, keys and text against the recent chat, the newest line counting double) helps lore "
       + "selection three ways, each with its own switch: when the judge cannot answer, the two best matches are forced instead of none; with more "
-      + "than 12 entries, the judge is asked only about the 12 best matches; and when the judge rates two entries the same, the better match goes "
-      + "first. No model call.",
+      + "than 12 entries, the judge is asked only about the 12 best matches (off by default: it dropped about half of the judge's picks); "
+      + "and when the judge rates two entries the same, the better match goes first. No model call.",
     where: settingsAt("#so-wi-lexical-fallback", "World & lore › Word-match lore when the judge is silent"),
     settings: ["worldInfo.lexicalFallback", "worldInfo.lexicalPrefilter", "worldInfo.lexicalTiebreak"], doc: "setup/settings-reference.md", status: "shipped", needs: ["story"],
   },

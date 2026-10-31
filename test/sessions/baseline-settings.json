@@ -214,7 +214,7 @@
       "seededChance": true,
       "budgetEvidence": true,
       "lexicalFallback": true,
-      "lexicalPrefilter": true,
+      "lexicalPrefilter": false,
       "lexicalTiebreak": true,
       "holdRound": true,
       "preferKnown": true
