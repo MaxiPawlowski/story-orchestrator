@@ -160,3 +160,54 @@ Floors are informational unless marked hard; a miss is recorded, never retuned.
   `settingsAreas.test` pacing defaults; the `pacing` feature now owns `pacing.hintEnabled` only.
 - No live gate: no ST, no lanes, no GPU (brief). GPU rows M42-F1/F3/F5/F4-F6 in `gpu-queue-2026-10-30.md`. Studio has no
   form field for `min_turns`/`urgent` yet (JSON only).
+
+## Gate record G
+
+2026-10-31, branch `v3.0-42a-g`.
+
+- `npm run gates` (Storybook included, no `--resume`) on ``9085d9ec1``: **all green in 527.7s (typecheck, typecheck:test, test, test:replay, build, debug:typecheck, test:debug, test:plugin, lint, test:release, test-storybook:ci). The run before it was red on one test only, the error-copy guard (a silent catch in the breaker parser, now logged); after the green run, docs only (this record, master docs merged), not re-gated**.
+- Main bundle 1,257,905 B (budget 1,300,000; +8.7 KB over F: settings/feature copy, `loreBudget.ts` (snapshot + checks),
+  `loreLexicalPlan.ts`, the breaker helper in `samplerKeys.ts`). The trim pass, DRY handler, budget observer host, BM25
+  scorer, codex lookup and `LoreBudgetPanel` ride lazy chunks.
+- Corpus (G1-G3, G6): lane group chats plus the 64 chat dumps in the private `so-sessions.git` (read through git), longest
+  copy per chat id, replies deduplicated by speaker + text: 258 chats, 1,768 distinct member replies. Counts only
+  (`node scripts/debug/so-voice-census.mts all`).
+- G1 cross-voice (`talk.crossVoiceTrim`, on): header lines for another member or the player 14 replies (0.79 per 100),
+  every one at offset 0 (the whole reply written under another name, mostly the narrator speaking as a member), so the
+  trim cuts 0 of 1,768 and keeps those 14 as written (journaled); prose attribution `"…," Name said` 20 (1.13 per 100,
+  mostly narrator replies voicing members), player 0. Stop lines: under voice-community P1 (1 in 50) for headers, under
+  voice-research P3 (1 per 100) for headers, over it for prose. Switch built per plan: pass after `thought-leak` in the
+  reply-repair chain, reasoning untouched, < 40 visible characters kept (hard floors met in `crossVoicePass.test`,
+  `crossVoice.test`; after-trim header hits 0). The prose shape is readout only.
+- G2 drift scorer (`scripts/debug/lib/voiceDrift.mts`, node tests): floors not measurable, no member reaches 61 replies
+  (max 40). Baseline on 44 chats / 67 members past 10 replies: own distance 11-30 = 0.107 (43 members), 31-60 = 0.149 (2);
+  between members 1-10 = 0.152, 11-30 = 0.136 (0.90x); distance to card `mes_example` (read from the lane card PNGs) in
+  1-10 = 0.347 (88 members). Rerun on any long session (M42-G2).
+- G3 DRY names (`talk.dryNames`, on): near-miss spellings 3 per 1,768 replies (1.7 per 1000, 3 spellings); research stop
+  line (0) not hit, so the GPU row stands. Method: candidates that are English words (seen lowercase in the corpus),
+  plurals, possessives or names established in 3+ chats are skipped; a first draft without those filters counted 80, nearly
+  all sentence-initial words. Overlay: appended to the request's own `dry_sequence_breakers` (array or JSON string, ST
+  textgen-settings.js:1634/1822), loud story-chat textgen only, idempotent, never replaces (hard, `dryNames.test`).
+- G4 budget evidence (`worldInfo.budgetEvidence`, on): host fact corrected from lore-community §2.8: `new.successful` still
+  holds budget-cut entries (only failed probability rolls leave it, world-info.js:5079), so cut = successful and not in
+  `activated.entries` while `budget.overflowed`; recorded in the v2 overview host facts. Checks `lore-budget-starved`
+  (author, degrades, 2 of the last 10 loud scans, names the book that used the budget) and, by owner decision 2026-10-31,
+  `lore-budget-uncapped` (player, info: ST `world_info_budget_cap` 0 and the story's own enabled entries over ~2,500
+  tokens by `estimateTokens`; says what it costs and how to set a cap; never a write). Firing fixtures in
+  `checksRegistry.test`, `loreBudget.test`; "Cut by budget" panel in Author › Prompt. No offline baseline (M42-G4).
+- G5 BM25 (`worldInfo.lexicalFallback`, `lexicalPrefilter`, `lexicalTiebreak`, all on per the features-on rule;
+  `loreLexical.measure.test`). lore-relevance (17 rows): judge precision@4 0.485 / nDCG@4 0.921 / tie 0.059; lexical
+  0.265 / 0.427. (a) fallback: precision@4 0.265 vs 0.6 MISS, needed in top 4 0.538 vs 0.8 MISS, lore.json recall@2 0.714
+  vs 0.6 met (fallback picks right 15 of 21). (b) prefilter M = 12: judge picks inside the pool 0.517 vs 0.95 MISS,
+  calibration recall 26/30 -> 22/30 (drop 4 vs <= 1) MISS; capped arm precision@4 0.324, nDCG 0.618. (c) tiebreak: tie rate
+  0.059 -> 0 met, nDCG 0.921 -> 0.919 (-0.002) MISS ("does not drop"), precision@4 unchanged. Not retuned. The prefilter
+  costs real recall on these fixtures: owner may want it off (Settings › World & lore, Author view).
+- G6 hold across a round (`worldInfo.holdRound`, on): judge asks per member generation over the corpus 2,532 -> 1,813
+  (0.72x); on the 672 multi-member rounds 1,567 -> 848 (0.54x, floor <= 0.6x met). Proxy: the named set is the chat's cast
+  names in the 8-message window (those chats' lore entries are not available offline). Hard: player message, checkpoint
+  and named-entry changes reselect; per-member filters still cut (`loreSelectLexical.test`).
+- G7 prefer known (`worldInfo.preferKnown`, on): -0.1 before the cut, never a lexical force (hard, `loreSelectLexical.test`);
+  fixtures carry no codex, so before = after there.
+- Ownership census: `LoreSelector.lexicalFallback` added as `delegate` (awaits `LoreSelector.forced`). Plan 24 matrix rows
+  added. GPU rows M42-G1..G7 in `gpu-queue-2026-10-30.md`.
+- No live gate: no ST, no lanes, no GPU (brief). Not built: an Author-view undo record for a trimmed reply (journal only).
