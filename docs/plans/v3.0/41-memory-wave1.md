@@ -96,3 +96,22 @@ Branch `v3.0-41-memory-b`. Four items, each its own switch under `memory.*`, on 
 
 `gpu-queue-2026-10-30.md` §Memory wave 1, agent B rows: MW1-B2 (~70 min), MW1-B3 (~120), MW1-B4 (~60), MW1-B1 (rides
 MW1-B2, CPU Sol labels). Floors for those rows are stated there, before any run.
+
+## Gate record B
+
+2026-10-31, branch `v3.0-41-memory-b`.
+
+- `npm run gates` (Storybook included, no `--resume`) on `3c9c8d310`: **all green in 563.4s** (build, typecheck,
+  typecheck:test, test, test:debug, test:replay, test:release, test:plugin, debug:typecheck, lint, test-storybook:ci).
+  Earlier full runs on the branch were red once each for: a dead export (`E0_WINDOW_ARM`, fixed), a missing plan 24
+  matrix row (fixed), and one unrelated timing flake per run under machine load (`patterns.test` P5 p95,
+  `so-scenario` H-a cleanup, GPU broker `imageCache` admission); each passed alone and in the final run.
+- Merged master `4c961c627` (docs only) after the green run; no code moved, not re-gated.
+- Main bundle 1,244,346 B (budget 1,300,000). Memory coordinator 560/560 effective lines (net zero: `lastPlayerName`
+  moved to `playerTurn.ts`).
+- New jest: `memory/used.test.ts`, `strength.test.ts`, `retrievalQuery.test.ts`, `e0Window.test.ts`,
+  `retrievalWindow.measure.test.ts`, `usedDetector.measure.test.ts`, `runtime/mentionLedger.review.test.ts`;
+  `rollbackReplay.property.test.ts` gains use + cap ops (planted control: breaking un-evict fails 4 cases);
+  `chapterRetained.review.test.ts` vectorfox case counts per round instead of exactly one query.
+- No live gate: no ST, no lanes, no GPU (brief). Payload goldens / prefix gate owed with the GPU rows. Floors F-B3 (@150)
+  and F-B4 (E0 private) missed; recorded, switches stay on.
