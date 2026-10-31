@@ -1,0 +1,102 @@
+{
+  "model": "none",
+  "_note": "v3.0 HF-REGEN live check, no backend. Announce transitions on (the #so-announce-transitions switch), /cp set opens the gate, a /sendas reply commits the boundary that fires the transition: the note is queued, not posted, and that reply stays the last row. A real ST Generate('normal') (no backend: it emits GENERATION_STARTED and returns) posts the note under the reply; a /sendas reply B stands in for the member's reply. ST hides the swipe arrows at Generate's start and, with no backend, returns before a round would show them again, so the step calls ST's showSwipeButtons as the end of a real round does. Then /addswipe and the swipe arrows on reply B (ST refuses /addswipe on a system row), and ST's Regenerate as a pointer click deletes reply B and stops at the note. Run: node scripts/debug/st-lanes.mts run <no-model lane> -- scripts/debug/so-scenario.mts run test/scenarios/v30-hf-regen-lane.json --sandbox --group \"Group: Arin, DM Narrator\".",
+  "requires": {
+    "lane": "no-model",
+    "group": "Group: Arin, DM Narrator",
+    "members": ["Arin", "DM Narrator"],
+    "judge": "off",
+    "why": "the note order and Regenerate/swipe on the last reply need a group chat; no reply is generated"
+  },
+  "steps": [
+    {
+      "log": true,
+      "eval": "for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; const ctx = SillyTavern.getContext(); if (!ctx.groupId || !ctx.chatId) throw new Error('needs a sandbox group chat'); for (let id = ctx.chat.length - 1; id >= 0; id -= 1) await ctx.deleteMessage(id, undefined, false); return { groupId: ctx.groupId, chatId: ctx.chatId, online: ctx.onlineStatus };"
+    },
+    {
+      "import_story": {
+        "id": "so-ui-hf-regen-lane",
+        "title": "SO-UI-HF-REGEN Lane",
+        "description": "Synthetic HF-REGEN fixture: one gate, one transition note.",
+        "qualities": [
+          { "key": "road_told", "type": "bool", "source": "extractor", "rubric": "Has Arin told the player about the road?" }
+        ],
+        "checkpoints": [
+          { "id": "camp", "name": "The campfire", "player_name": "The campfire", "player_text": "Talk with Arin by the fire.", "type": "anchor", "start": true, "objective": "Arin talks about the road." },
+          { "id": "dawn", "name": "Dawn", "player_name": "Dawn", "type": "anchor", "objective": "Break camp." }
+        ],
+        "transitions": [
+          { "from": "camp", "to": "dawn", "priority": 0, "gate": { "q": "road_told", "op": "==", "v": true } }
+        ],
+        "roster": [
+          { "id": "arin", "name": "Arin", "role": "a travelling guide" },
+          { "id": "narrator", "name": "DM Narrator", "role": "narrator", "view": "omniscient" }
+        ]
+      }
+    },
+    {
+      "log": true,
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.setExtractionSettings({ cadence: 0 }); const g = rt.getGlobalSettings(); if (g.image?.enabled !== false || g.sprites?.enabled !== false) throw new Error('images or sprites are on'); const wait = (ms) => new Promise((r) => setTimeout(r, ms)); const briefing = document.querySelector('dialog#so-briefing[open]'); if (briefing) { document.querySelector('[data-so=briefing-close]')?.click(); await wait(600); } if (!document.querySelector('#so-workspace-modal[open]')) document.querySelector('#so-drawer .drawer-toggle')?.click(); for (let i = 0; i < 40 && !document.querySelector('#so-workspace-context-orchestrator'); i += 1) await wait(150); document.querySelector('#so-workspace-context-orchestrator')?.click(); for (let i = 0; i < 40 && !document.querySelector('#so-workspace-page-display'); i += 1) await wait(150); document.querySelector('#so-workspace-page-display')?.click(); for (let i = 0; i < 40 && !document.querySelector('#so-announce-transitions'); i += 1) await wait(150); if (!document.querySelector('#so-announce-transitions')) throw new Error('#so-announce-transitions not rendered'); globalThis.__hfAnnounceBefore = g.display.announceTransitions; return { before: g.display.announceTransitions };"
+    },
+    { "ui": { "action": "setting-toggle", "selector": "#so-announce-transitions", "on": true } },
+    {
+      "log": true,
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const wait = (ms) => new Promise((r) => setTimeout(r, ms)); for (let i = 0; i < 20 && rt.getGlobalSettings().display.announceTransitions !== true; i += 1) await wait(150); if (rt.getGlobalSettings().display.announceTransitions !== true) throw new Error('announce did not land'); document.querySelector('#so-workspace-modal[open]')?.close(); await wait(400); return { announce: true, open: [...document.querySelectorAll('dialog[open]')].map((d) => d.id) };"
+    },
+    { "slash": "/sendas name=\"DM Narrator\" raw=false The campfire crackles at the edge of the road." },
+    { "wait": { "schedulerIdle": true, "quietMs": 1500, "timeoutMs": 60000 } },
+    { "slash": "/cp set road_told true" },
+    { "slash": "/sendas name=Arin raw=false Arin pokes the fire. The road was quiet, he says, too quiet." },
+    { "wait": { "checkpointIn": ["dawn"], "timeoutMs": 60000 } },
+    { "wait": { "schedulerIdle": true, "quietMs": 1500, "timeoutMs": 60000 } },
+    {
+      "keep": true,
+      "log": true,
+      "eval": "const ctx = SillyTavern.getContext(); const rows = ctx.chat.map((r, i) => ({ i, name: String(r.name), system: Boolean(r.is_system), user: Boolean(r.is_user), mes: String(r.mes).slice(0, 60) })); const last = rows.at(-1); if (last.system || last.name !== 'Arin') throw new Error('after the transition the last row is not Arin\\'s reply: ' + JSON.stringify(rows)); if (rows.some((r) => r.system)) throw new Error('the note was posted at once: ' + JSON.stringify(rows)); globalThis.__hfLane = { anchor: last.i }; return { stage: 'transition fired, note queued', checkpoint: globalThis.storyOrchestratorRuntime.getSnapshot().activeCheckpointId ?? null, rows };"
+    },
+    {
+      "keep": true,
+      "log": true,
+      "eval": "const ctx = SillyTavern.getContext(); const before = ctx.chat.length; let outcome = 'resolved'; try { await Promise.race([ctx.generate('normal'), new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 30000))]); } catch (e) { outcome = String(e?.message ?? e); } await new Promise((r) => setTimeout(r, 1500)); const rows = ctx.chat.map((r, i) => ({ i, name: String(r.name), system: Boolean(r.is_system), user: Boolean(r.is_user), mes: String(r.mes).slice(0, 60) })); const anchor = globalThis.__hfLane.anchor; const note = rows[anchor + 1]; if (!note?.system) throw new Error('GENERATION_STARTED normal did not post the note under the reply: ' + JSON.stringify(rows)); if (rows.slice(anchor + 2).some((r) => r.system)) throw new Error('a second system row: ' + JSON.stringify(rows)); globalThis.__hfLane.note = note.i; const host = await import('/script.js'); const hidden = host.swipesHidden; host.showSwipeButtons(); return { stage: 'Generate(normal) with no backend', outcome, swipesHiddenByNoBackendReturn: hidden, online: ctx.onlineStatus, added: ctx.chat.length - before, rows };"
+    },
+    { "slash": "/sendas name=Arin raw=false Arin stands and kicks dirt over the embers." },
+    { "wait": { "schedulerIdle": true, "quietMs": 1500, "timeoutMs": 60000 } },
+    { "slash": "/addswipe Arin stands, stretches, and shoulders his pack." },
+    { "wait": { "idle": true, "timeoutMs": 30000 } },
+    {
+      "keep": true,
+      "log": true,
+      "eval": "const ctx = SillyTavern.getContext(); const last = ctx.chat.at(-1); const lastEl = document.querySelector('#chat .mes.last_mes'); const shown = (sel) => { const el = lastEl?.querySelector(sel); return Boolean(el) && getComputedStyle(el).display !== 'none'; }; const out = { lastName: last.name, lastSystem: Boolean(last.is_system), swipes: last.swipes?.length ?? 0, swipeId: last.swipe_id ?? 0, noteIndex: globalThis.__hfLane.note, lastIndex: ctx.chat.length - 1, swipeLeft: shown('.swipe_left'), swipeRight: shown('.swipe_right') }; if (out.lastSystem || out.lastName !== 'Arin') throw new Error('last row is not reply B: ' + JSON.stringify(out)); if (out.swipes !== 2) throw new Error('/addswipe did not add a swipe to the last reply: ' + JSON.stringify(out)); if (!out.swipeLeft) throw new Error('no swipe arrows on the last reply: ' + JSON.stringify(out)); if (!(out.noteIndex < out.lastIndex)) throw new Error('the note is the last row'); return out;"
+    },
+    { "ui": { "action": "pointer-click", "selector": "#chat .mes.last_mes .swipe_right" } },
+    {
+      "keep": true,
+      "log": true,
+      "eval": "const wait = (ms) => new Promise((r) => setTimeout(r, ms)); const ctx = SillyTavern.getContext(); for (let i = 0; i < 30 && (ctx.chat.at(-1).swipe_id ?? 0) !== 1; i += 1) await wait(150); await wait(600); const last = ctx.chat.at(-1); if ((last.swipe_id ?? 0) !== 1 || last.swipes.length !== 2) throw new Error('swipe right did not move to the existing swipe 1: ' + JSON.stringify({ id: last.swipe_id, n: last.swipes?.length })); return { swipeId: last.swipe_id, mes: String(last.mes).slice(0, 60) };"
+    },
+    { "ui": { "action": "pointer-click", "selector": "#chat .mes.last_mes .swipe_left" } },
+    {
+      "keep": true,
+      "log": true,
+      "eval": "const wait = (ms) => new Promise((r) => setTimeout(r, ms)); const ctx = SillyTavern.getContext(); for (let i = 0; i < 30 && (ctx.chat.at(-1).swipe_id ?? 0) !== 0; i += 1) await wait(150); await wait(600); const last = ctx.chat.at(-1); if ((last.swipe_id ?? 0) !== 0) throw new Error('swipe left did not move back to swipe 0: ' + last.swipe_id); return { swipeId: last.swipe_id, mes: String(last.mes).slice(0, 60) };"
+    },
+    {
+      "log": true,
+      "eval": "const open = [...document.querySelectorAll('dialog[open]')].map((n) => n.id || n.className); if (open.length) throw new Error('a dialog is open over the chat: ' + JSON.stringify(open)); globalThis.__hfLane.beforeRegen = SillyTavern.getContext().chat.length; return { length: globalThis.__hfLane.beforeRegen };"
+    },
+    { "ui": { "action": "pointer-click", "selector": "#options_button", "expectVisible": "#option_regenerate" } },
+    { "ui": { "action": "pointer-click", "selector": "#option_regenerate" } },
+    {
+      "keep": true,
+      "log": true,
+      "eval": "const wait = (ms) => new Promise((r) => setTimeout(r, ms)); const ctx = SillyTavern.getContext(); const s = globalThis.__hfLane; for (let i = 0; i < 100 && ctx.chat.length >= s.beforeRegen; i += 1) await wait(150); await wait(1500); const rows = ctx.chat.map((r, i) => ({ i, name: String(r.name), system: Boolean(r.is_system), mes: String(r.mes).slice(0, 60) })); const out = { before: s.beforeRegen, after: rows.length, noteIndex: s.note, rows }; if (rows.length !== s.beforeRegen - 1) throw new Error('Regenerate did not delete exactly the last reply: ' + JSON.stringify(out)); if (!rows[s.note]?.system || rows.length !== s.note + 1) throw new Error('Regenerate did not stop at the note: ' + JSON.stringify(out)); if (rows[s.anchor]?.name !== 'Arin') throw new Error('the reply before the note changed'); return out;"
+    }
+  ],
+  "cleanup": {
+    "steps": [
+      {
+        "eval": "const rt = globalThis.storyOrchestratorRuntime; delete globalThis.__hfLane; for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; rt?.setUiSettings({ announceTransitions: globalThis.__hfAnnounceBefore === true }); delete globalThis.__hfAnnounceBefore; return { announce: rt?.getGlobalSettings().display.announceTransitions };"
+      }
+    ]
+  }
+}
