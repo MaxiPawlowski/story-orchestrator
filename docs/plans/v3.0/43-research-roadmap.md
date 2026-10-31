@@ -19,6 +19,12 @@ at most two code agents; finished work is installed into the owner's ST as it me
 - Context savings (census): dedupe the 33-token guidance/pacing line; empty sheet block skipped; recap tiers stop
   re-summarising messages still in the window (switch, rating in phase 4); move fixed instruction text below the
   cacheable prefix only where it rates neutral.
+- Lore lifetime (owner 2026-10-31): checkpoint `world_info` enables get an end ("this chapter" / until checkpoint X;
+  chapter close switches them off unless marked lasting), Studio warning when enabled entries along a path pass the
+  lore budget, guide update (stop "keep cast and truths on" without an end). Switch + before/after (campaign path
+  worst-case tokens from `check_lore_budget.py`).
+- Campaign lore trim: another model (owner never reads the campaign) moves the 5 over-budget stories onto lore
+  lifetimes; `check_lore_budget.py` must pass with the baseline file emptied; pin bump + reinstall.
 - Memory measurement: reply contradiction scorer (offline, calibrated on planted pairs); echo/vagueness floors for
   compaction ratings; probes extended to search archive recall (B3 at 150 could not see its gain).
 
