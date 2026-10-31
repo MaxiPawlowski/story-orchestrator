@@ -5,7 +5,7 @@ jest.mock("@services/STAPI", () => ({
 
 import { defaultGlobalSettings, sanitizeGlobalSettings } from "./settingsStore";
 
-const G42 = { budgetEvidence: true, lexicalFallback: true, lexicalPrefilter: true, lexicalTiebreak: true, holdRound: true, preferKnown: true };
+const G42 = { budgetEvidence: true, lexicalFallback: true, lexicalPrefilter: false, lexicalTiebreak: true, holdRound: true, preferKnown: true };
 
 describe("worldInfo settings (v2.5 plan 01)", () => {
   it("R7: defaults to per-chat (scan) gating with an empty ledger and no provenance", () => {
@@ -38,6 +38,13 @@ describe("worldInfo settings (v2.5 plan 01)", () => {
       Junk: "x",
     };
     expect(sanitizeGlobalSettings({ worldInfo: { normalized: {}, normalizedFrom } }).worldInfo.normalizedFrom).toEqual({ Ruins: [{ comment: "CP1", wasOn: true }] });
+  });
+
+  it("42a G: the lexical prefilter ships off (owner 2026-10-31); only an explicit true switches it on", () => {
+    expect(defaultGlobalSettings().worldInfo.lexicalPrefilter).toBe(false);
+    expect(sanitizeGlobalSettings({ worldInfo: { lexicalPrefilter: "yes" } }).worldInfo.lexicalPrefilter).toBe(false);
+    expect(sanitizeGlobalSettings({ worldInfo: { lexicalPrefilter: true } }).worldInfo.lexicalPrefilter).toBe(true);
+    expect([defaultGlobalSettings().worldInfo.lexicalFallback, defaultGlobalSettings().worldInfo.lexicalTiebreak]).toEqual([true, true]);
   });
 
   it("L4: memory scanning is on by default and an explicit false switches it off", () => {

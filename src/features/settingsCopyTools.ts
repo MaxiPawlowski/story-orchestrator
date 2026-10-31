@@ -187,7 +187,7 @@ export const SETTING_COPY_TOOLS = {
     "When the judge cannot answer in time, forces the two story lore entries whose words best match the recent chat instead of none. No model call."),
   "worldInfo.lexicalPrefilter": copy("Ask the judge about the best word matches only",
     "When a story has more than 12 lore entries to choose from, asks the judge only about the 12 whose words best match the recent chat. "
-      + "Fewer judge questions; may miss an entry the words do not name."),
+      + "Fewer judge questions; may miss an entry the words do not name. Off: in testing it dropped about half of the judge's picks."),
   "worldInfo.lexicalTiebreak": copy("Break lore ties by word match",
     "When the judge rates two lore entries the same, the one whose words better match the recent chat goes first."),
   "worldInfo.holdRound": copy("Keep the lore picks for a round",
