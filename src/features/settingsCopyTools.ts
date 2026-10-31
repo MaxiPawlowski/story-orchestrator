@@ -146,7 +146,7 @@ export const SETTING_COPY_TOOLS = {
   "image.purposes.*.quality": copy("Quality", "Base is faster; hires adds an upscale pass and takes longer."),
   "image.purposes.*.aspect": copy("Shape", "The picture's proportions. Auto lets the image-prompt model choose."),
   "image.purposes.*.shot": copy("Framing", "How close the camera is: from a close-up to a wide view."),
-  "image.purposes.*.placement": copy("Where it appears", "In the message, as its own message, or as the chat background."),
+  "image.purposes.*.placement": copy("Where it appears", "In the message, as its own message (posted before your next message, so the reply stays last), or as the chat background."),
   "image.purposes.*.candidates": copy("Pictures to choose from", "Draw this many and keep the best. Each extra one costs another render."),
   "image.purposes.*.directorMayOverride": copy("Let the image-prompt model pick another model", "The image-prompt model may switch this picture to a different image model when it fits better."),
   "image.purposes.*.extraPositive": copy("Always add", "Words added to every prompt of this kind."),

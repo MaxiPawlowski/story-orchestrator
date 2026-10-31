@@ -36,7 +36,7 @@ describe("in-plugin guide", () => {
     for (const page of PAGES) {
       const html = renderToStaticMarkup(createElement(GuideMarkdown, { doc: page.doc, body: page.body, homePage: HOME, onNavigate: () => undefined, assetSrc: (asset: string) => GUIDE_ASSETS[asset] }));
       expect(html).not.toMatch(/<script|onerror=/i);
-      const images = [...html.matchAll(/<img[^>]*>/g)].map((match) => match[0]);
+      const images = [...html.matchAll(/<img\b[^>]*>/g)].map((match) => match[0]);
       expect(images.filter((tag) => !/ src="data:image\/(?:png|jpeg|webp);base64,/.test(tag) || !/ alt="[^"]+"/.test(tag))).toEqual([]);
       const rendered = [...html.matchAll(/id="so-guide-h-([^"]*)"/g)].map((match) => match[1]);
       expect(rendered).toEqual(page.headings.map((heading) => heading.slug));

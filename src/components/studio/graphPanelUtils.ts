@@ -97,7 +97,7 @@ export const buildGraphElements = (draft: StoryGraphDraft, selectedId: string | 
     .map((edge) => {
       const text = edge.label || "";
       const fullLabel = edge.raw || text;
-      const label = text.length > 40 ? `${text.slice(0, 38)}…` : text;
+      const label = edgeLabelLines(text.length > 40 ? `${text.slice(0, 38)}…` : text);
       return {
         group: "edges" as const,
         data: { id: edge.id || edge._stableId, source: edge.from, target: edge.to, label, fullLabel },
@@ -105,6 +105,24 @@ export const buildGraphElements = (draft: StoryGraphDraft, selectedId: string | 
     });
 
   return [...laneNodes, ...nodes, ...edges];
+};
+
+const COMPARISON = /^(?:[<>]=?|[=!]=|=|≥|≤|≠)$/;
+export const EDGE_LINE_CHARS = 24;
+
+export const edgeLabelLines = (text: string, perLine = EDGE_LINE_CHARS): string => {
+  const units = text.split(" ").filter(Boolean).reduce<string[]>((acc, word, index, words) => {
+    if (index > 0 && COMPARISON.test(words[index - 1])) acc[acc.length - 1] += ` ${word}`;
+    else acc.push(word);
+    return acc;
+  }, []);
+  const lines = units.reduce<string[]>((acc, unit) => {
+    const last = acc[acc.length - 1];
+    if (last !== undefined && `${last} ${unit}`.length <= perLine) acc[acc.length - 1] = `${last} ${unit}`;
+    else acc.push(unit);
+    return acc;
+  }, []);
+  return lines.join("\n");
 };
 
 export const createGraphStyles = (themeColors: GraphThemeColors) => ([

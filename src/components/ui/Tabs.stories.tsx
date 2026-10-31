@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { Meta, StoryObj } from "@storybook/react";
-import { expect, userEvent, within } from "@storybook/test";
+import { expect, userEvent, waitFor, within } from "@storybook/test";
 import { Tab, TabList, TabPanel, Tabs, type TabsVariant } from "./Tabs";
 
 const SECTIONS = [{ id: "qualities", label: "Qualities" }, { id: "game", label: "Game" }, { id: "rules", label: "Story rules" }];
@@ -45,3 +45,30 @@ export const RovingKeyboard: Story = {
 export const Segmented: Story = { args: { variant: "segmented" } };
 
 export const Phone: Story = { parameters: { testViewport: { width: 390, height: 844 } } };
+
+const MANY = ["Health", "State", "Memory", "Prompt", "Proposals", "Activity", "Pipeline"];
+
+const Crowded = () => {
+  const [active, setActive] = useState("Health");
+  return (
+    <div style={{ width: 300 }}>
+      <Tabs value={active} onChange={setActive} idPrefix="kit-crowded-">
+        <TabList label="Author sections">{MANY.map((name) => <Tab key={name} value={name}>{name}</Tab>)}</TabList>
+      </Tabs>
+    </div>
+  );
+};
+
+export const ScrollHint: StoryObj<typeof Crowded> = {
+  render: () => <Crowded />,
+  play: async ({ canvasElement }) => {
+    const list = within(canvasElement).getByRole("tablist");
+    await waitFor(() => expect(list).toHaveAttribute("data-overflow", "end"));
+    list.scrollLeft = list.scrollWidth;
+    list.dispatchEvent(new Event("scroll"));
+    await waitFor(() => expect(list).toHaveAttribute("data-overflow", "start"));
+    list.scrollLeft = 20;
+    list.dispatchEvent(new Event("scroll"));
+    await waitFor(() => expect(list).toHaveAttribute("data-overflow", "both"));
+  },
+};

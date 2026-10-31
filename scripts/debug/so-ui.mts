@@ -112,8 +112,10 @@ export async function assignedRoleProfiles(page): Promise<Record<string, { id: s
   });
 }
 
-export async function revealSettingsControl(page, selector: string, { timeoutMs = 15000, pollMs = 250 } = {}) {
-  const deadline = Date.now() + timeoutMs;
+const sleepMs = (ms: number) => new Promise<void>((done) => setTimeout(done, ms));
+
+export async function revealSettingsControl(page, selector: string, { timeoutMs = 15000, pollMs = 250, now = Date.now, sleep = sleepMs } = {}) {
+  const deadline = now() + timeoutMs;
   for (;;) {
     const state = await evaluateInST(page, (wanted) => {
       const node = document.querySelector(wanted);
@@ -127,8 +129,8 @@ export async function revealSettingsControl(page, selector: string, { timeoutMs 
       }
       return { found: true, opened };
     }, selector);
-    if (state.found || Date.now() >= deadline) return state;
-    await new Promise((done) => setTimeout(done, pollMs));
+    if (state.found || now() >= deadline) return state;
+    await sleep(pollMs);
   }
 }
 

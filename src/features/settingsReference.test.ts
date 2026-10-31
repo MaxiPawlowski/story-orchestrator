@@ -66,7 +66,7 @@ describe("v2.7 plan 29 (finding 20): generated settings reference and README fea
 
   it("names current workspace locations, scopes and effective defaults", () => {
     const rows = settingRows();
-    expect(rows.filter((row) => /^(Settings|Story drawer)/.test(row.where)).map((row) => row.key)).toEqual([]);
+    expect(rows.filter((row) => /^Story drawer\b/.test(row.where)).map((row) => row.key)).toEqual([]);
     const row = (key: string) => rows.find((entry) => entry.key === key);
     expect(row("talk.enabled")).toMatchObject({ scope: "Install, story, chat", where: expect.stringContaining("Settings → Features → Speaker direction") });
     expect(row("display.hudEnabled")?.scope).toBe("Install, device");

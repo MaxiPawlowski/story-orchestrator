@@ -85,6 +85,7 @@ export const spriteBuiltInExpressionsActive = () => false;
 export const spriteCast = () => ({ members: [] });
 export const getScannableEntries = async () => [];
 export const registerImageSurface = () => () => {};
+export const onGenerationStart = () => () => {};
 export const imageComfyUrl = (url: string) => url;
 export const imageChat = () => ({
   id: "chat-storybook",

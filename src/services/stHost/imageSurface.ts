@@ -3,6 +3,10 @@ import type { StoryImageDirector } from "../../image/runtime";
 import type { ImageArgs } from "../../image/routing";
 import type { ImageRequest } from "../../image/prompt";
 import { isRecord } from "@utils/guards";
+import { subscribeToHostEvent } from "./events";
+
+export const onGenerationStart = (handler: (type: unknown, dryRun: unknown) => Promise<void>): (() => void) =>
+  subscribeToHostEvent("GENERATION_STARTED", (type, _options, dryRun) => handler(type, dryRun));
 
 const PURPOSES = ["scene", "character", "portrait", "user", "background", "free"] as const;
 const ALIASES: Record<string, ImageRequest["purpose"]> = { you: "character", face: "portrait", me: "user", bg: "background" };

@@ -1,5 +1,5 @@
 import type { Core } from "cytoscape";
-import { buildGraphElements, capFitZoom, CHAPTER_LANE_PREFIX, holdTapGate } from "./graphPanelUtils";
+import { buildGraphElements, capFitZoom, CHAPTER_LANE_PREFIX, edgeLabelLines, EDGE_LINE_CHARS, holdTapGate } from "./graphPanelUtils";
 
 describe("graph readability (v3.0 29 WP-S2)", () => {
   const draft = { start: "a", checkpoints: [{ id: "a", name: "A", transitions: [{ id: "t0", to: "b", label: "Trust ≥ 2 and a very long readable condition text", raw: "trust >= 2" }] }, { id: "b", name: "B" }] };
@@ -10,6 +10,17 @@ describe("graph readability (v3.0 29 WP-S2)", () => {
     const edge = elements.find((element) => element.group === "edges");
     expect(edge?.data.fullLabel).toBe("trust >= 2");
     expect(String(edge?.data.label).length).toBeLessThanOrEqual(39);
+  });
+
+  it("keeps a comparison on the line of its value, and no line wraps again inside the label width", () => {
+    expect(edgeLabelLines("SO-UI Guide's trust toward you ≥ 2")).toBe("SO-UI Guide's trust\ntoward you ≥ 2");
+    expect(edgeLabelLines("trust >= 2 AND NOT (alarm == true)")).toBe("trust >= 2 AND NOT\n(alarm == true)");
+    expect(edgeLabelLines("a very long sentence that keeps going on ≥ 12345").split("\n").every((line) => line.length <= EDGE_LINE_CHARS)).toBe(true);
+    expect(edgeLabelLines("short")).toBe("short");
+    expect(edgeLabelLines("")).toBe("");
+    const edge = buildGraphElements({ start: "a", checkpoints: [{ id: "a", name: "A", transitions: [{ id: "t", to: "b", label: "Guide's trust toward you ≥ 2" }] }, { id: "b", name: "B" }] }, null)
+      .find((element) => element.group === "edges");
+    expect(String(edge?.data.label).split("\n").at(-1)).toMatch(/≥ 2$/);
   });
 
   it("never fits a small graph above 1x", () => {

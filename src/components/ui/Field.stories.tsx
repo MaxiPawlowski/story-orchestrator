@@ -19,6 +19,23 @@ const meta = { title: "Kit/Field", component: Demo } satisfies Meta<typeof Demo>
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+export const Disabled: Story = {
+  render: () => (
+    <div className="so-section">
+      <label htmlFor="kit-locked">Locked by the story</label>
+      <TextInput id="kit-locked" size="lg" defaultValue="Readable when disabled" disabled />
+      <label htmlFor="kit-locked-select">Locked model</label>
+      <Select id="kit-locked-select" disabled defaultValue="a"><option value="a">Remote</option></Select>
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const input = within(canvasElement).getByLabelText("Locked by the story");
+    await expect(input).toBeDisabled();
+    await expect(getComputedStyle(input).filter).toBe("none");
+    await expect(Number(getComputedStyle(input).opacity)).toBeLessThan(1);
+  },
+};
+
 export const Sizes: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
