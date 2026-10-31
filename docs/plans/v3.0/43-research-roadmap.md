@@ -61,3 +61,21 @@ Each a spike behind `spikes.<id>` (lazy `runtime/spikes/`), CPU-built ahead, dec
   floors: E0 hit@4 and lore precision@4 up.
 
 Lore budget cap: for this one case the owner keeps ST settings unchanged (warning + campaign guideline instead).
+
+## Phase 2 agent C — context savings and memory measurement (2026-10-31)
+Branch `v3.0-43-c`. Floors declared here before any measurement; informational, never retuned.
+- C1 context savings: dedupe the guidance/pacing agency clause (no switch); empty sheet rows skipped (no switch);
+  `memory.recapOutsideWindow` (on, GPU rating row M43-C1); fixed instruction text above the prefix boundary only as an
+  offline arm until rated (GPU row M43-C2, no runtime switch until it rates neutral). Measured offline with the census
+  method (real Gemma vocab, `llama-tokenize` CPU) on recorded payloads. Floor C1: dedupe saves > 0 tokens on every prompt
+  that carried the duplicate; empty sheet saves > 0 on every prompt with an all-empty sheet; recap filter removes 0 rows
+  whose span starts before the observed window.
+- C2 reply contradiction checker (code only, no model): calibrated on `test/fixtures/memory/contradiction-pairs.json`
+  (32 planted minimal pairs, 8 per category). Floors: pair accuracy >= 0.6, recall >= 0.6, false alarm <= 0.1. A
+  contradiction rate from archived sessions is reported only if the calibration passes its floors; otherwise counts
+  are reported as "uncalibrated". Model-judged arm = GPU row M43-C3.
+- C3 echo/vagueness floors (memory-rp-community P2): echo rate = share of reply 8-grams also in messages 15-40 back;
+  specificity = named entities + numbers per 100 reply words. Floors for any "history leaves the prompt" arm: echo <=
+  base + 0.02 absolute, specificity >= 0.9 x base.
+- C4 long-horizon probes also query archive recall (after agent A's harness lands): floor = at 150 boundaries the
+  recall-included availability is >= the tier-only availability on every probe (recall never hides a row).
