@@ -449,14 +449,15 @@ export class ExtractionCoordinator {
     const summary = stripChannelNoise(await askText(this.deps.model, prompt, { role: "synthesis", pass: "shortTerm", maxTokens, signal: run.signal, refuseIncomplete: true }));
     if (!run.stillOwns()) return;
     const span = { from: fit.from, to: window.to };
-    const verdict = acceptCompaction({ summary, previous: previous?.text ?? null, window: fit.text, budgetTokens: maxTokens, count: (text) => this.budget("synthesis").meter.count(text) });
+    const accepted = acceptCompaction({ summary, previous: previous?.text ?? null, window: fit.text, budgetTokens: maxTokens, count: (text) => this.budget("synthesis").meter.count(text) });
+    const verdict = accepted.ok ? memory.judgeSummary(summary, previous?.text ?? null, fit.text) : accepted;
     if (!verdict.ok) {
       this.compactions.refused(key);
       return this.deps.journal?.("compaction-refused", `messages ${span.from}-${span.to}: the summary was ${verdict.reason}; the previous short-term entry is kept`);
     }
     this.compactions.accepted(key);
     const entry = this.newEntry({ provenance: this.provenanceFor(span, "short-term-compaction"), tier: "short_term",
-        text: summary, type: "scene", importance: 2, expiration: "session", entities: [], evidence: fit.text,
+        text: summary, type: "scene", importance: 2, expiration: "session", entities: verdict.entities, evidence: fit.text,
         messageId: span.to });
     await memory.replaceShortTerm(entry, span);
     memory.updateInjection();

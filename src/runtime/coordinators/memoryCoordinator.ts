@@ -21,6 +21,7 @@ import {
 import { PAIR_JACCARD_FLOOR } from "@judge/policy";
 import type { Provenance } from "@memory/provenance";
 import { sceneConflictValues } from "@memory/conflicts";
+import { judgeSummary } from "@memory/summaryGuard";
 import { MirrorSync, type MemoryMirrorSummary } from "../memoryMirror";
 import { MemoryInjector } from "../memoryInjector";
 import { CanonPort } from "../canonView";
@@ -219,6 +220,10 @@ export class MemoryCoordinator {
     this.record({ kind: "short_term", inputs, outputId: entry.id,
         range: window, removed: disappearingEntries(this.state.entries, entries), messageId: window.to });
     this.patch({ entries, shortTermSummaryEnd: window.to });
+  }
+
+  judgeSummary(summary: string, previous: string | null, window: string) {
+    return judgeSummary({ ...this.state, chapters: this.state.chapters ?? [] }, this.getEntities(), summary, previous, window);
   }
 
   shortTermEntry(): MemoryEntry | undefined {

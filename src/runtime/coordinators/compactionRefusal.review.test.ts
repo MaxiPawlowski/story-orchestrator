@@ -18,11 +18,13 @@ const stapi = {
 
 import { ExtractionCoordinator } from "./extractionCoordinator";
 import { testOwnership } from "../../../test/findings/testOwnership";
+import { judgeSummary } from "@memory/summaryGuard";
 
 const PREVIOUS = { id: "st-1", text: "Max met Mira at the ford.", tier: "short_term", pinned: false };
 
-function harness() {
+function harness(judge: (summary: string, previous: string | null, window: string) => unknown = () => ({ ok: true as const, entities: [] })) {
   const written: string[] = [];
+  const entities: string[][] = [];
   const journal: Array<[string, string]> = [];
   const coordinator = new ExtractionCoordinator({ hosts: fakeHosts(stapi), ownership: testOwnership(),
     getStory: () => ({ title: "S", qualityByKey: {}, checkpointById: {}, roster: [] }),
@@ -32,8 +34,8 @@ function harness() {
     memory: {
       enabled: true,
       shortTermSummaryEnd: -1,
-      shortTermEntry: () => PREVIOUS,
-      replaceShortTerm: async (entry: { text: string }) => { written.push(entry.text); },
+      judgeSummary: judge, shortTermEntry: () => PREVIOUS,
+      replaceShortTerm: async (entry: { text: string; entities: string[] }) => { written.push(entry.text); entities.push(entry.entities); },
       updateInjection: () => {},
     },
     getFiredTransitions: () => [],
@@ -48,7 +50,7 @@ function harness() {
     persist: async () => {},
     notify: () => {},
   } as never);
-  return { coordinator, written, journal };
+  return { coordinator, written, journal, entities };
 }
 
 beforeEach(() => { reply.text = "They crossed the river at dusk."; reply.calls = 0; });
@@ -78,5 +80,31 @@ describe("v2.8 69 K1: a refused compaction keeps the previous short-term entry",
     for (let attempt = 0; attempt < 4; attempt += 1) await run.coordinator.runShortTermCompaction();
     expect(reply.calls).toBe(2);
     expect(run.written).toEqual([]);
+  });
+});
+
+describe("v3.0 41 A2: the collapse guard refuses a summary that loses a name nothing else holds (memory.summaryGuard)", () => {
+  const state = (summaryGuard: boolean) => ({ settings: { summaryGuard }, entries: [], ledger: [], arcs: [], chapters: [] });
+  const guard = (on: boolean) => (summary: string, previous: string | null, window: string) => judgeSummary(state(on), ["Max", "Mira"], summary, previous, window);
+
+  it("refuses, journals the reason with a count only, and keeps the previous entry", async () => {
+    const run = harness(guard(true));
+    await run.coordinator.runShortTermCompaction();
+    expect(run.written).toEqual([]);
+    expect(run.journal).toEqual([["compaction-refused", expect.stringContaining("dropped-detail")]]);
+  });
+
+  it("an accepted summary records the names it holds on the row", async () => {
+    reply.text = "Max and Mira crossed the river at dusk.";
+    const run = harness(guard(true));
+    await run.coordinator.runShortTermCompaction();
+    expect(run.entities).toEqual([["Max", "Mira"]]);
+  });
+
+  it("switch off: today's behaviour, the summary replaces the entry with no entities", async () => {
+    const run = harness(guard(false));
+    await run.coordinator.runShortTermCompaction();
+    expect(run.written).toEqual(["They crossed the river at dusk."]);
+    expect(run.entities).toEqual([[]]);
   });
 });

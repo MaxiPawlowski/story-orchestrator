@@ -24,7 +24,7 @@ function harness({ group, coveredTo, capable = true }: { group: boolean; covered
       enabled: true,
       capable,
       shortTermSummaryEnd: -1,
-      shortTermEntry: () => null,
+      judgeSummary: () => ({ ok: true as const, entities: [] }), shortTermEntry: () => null,
       replaceShortTerm: async (entry: { text: string }, span: { to: number }) => { written.push({ text: entry.text, to: span.to }); },
       updateInjection: () => {},
     },
