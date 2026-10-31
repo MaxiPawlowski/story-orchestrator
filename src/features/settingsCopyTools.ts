@@ -191,6 +191,8 @@ export const SETTING_COPY_TOOLS = {
     "A full memory tier moves its weakest memory to the archive instead of deleting the oldest; a memory a reply used gets stronger. No model call. Not rated yet."),
   "memory.retrievalQuery": copy("Pick memories from the last few messages (trial)",
     "Scores memories against the last four messages, the speaking character and who is on stage, on one scale, with recency from the chat. Not rated yet."),
+  "pacing.pathArc": copy("Pace by the road ahead (trial)",
+    "The story's dramatic shape counts the turning points left on the shortest way to an ending and how long the current scene has run, and after a climax eases off for three replies. No model call. Not rated yet."),
   "talk.swipeContrast": copy("Swipes see the reply they replace (trial)",
     "When you swipe for a new reply, the visible text of the reply you threw away is shown once, marked as rejected, so the new reply differs. Off until it is rated."),
   "sprites.cardOverlay": copy("Current character state in replies",

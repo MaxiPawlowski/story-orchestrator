@@ -27,7 +27,8 @@
       "replyEffort": "medium"
     },
     "pacing": {
-      "hintEnabled": true
+      "hintEnabled": true,
+      "pathArc": true
     },
     "display": {
       "announceTransitions": false,

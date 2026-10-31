@@ -197,6 +197,7 @@ Tools for writing stories. [More, for authors](../author/README.md) (in the in-a
 | **Enable the wizard** | Settings → Library → Start → New story | Install | Turns on the story wizard in the Studio and the author's suggestion tools. It uses your authoring model and costs calls only while you use it. | On | `copilot.enabled` |
 | **Outlines per gap** | Settings → Judge → Outlines for the road ahead | Install | Write this many outlines for each gap in the story and keep the best one. Each extra outline is another run of the story model. | 1 | `judge.expansion.variants` |
 | **Best outline picked by** | Settings → Judge → Outlines for the road ahead | Install | Who picks the best outline: the judge's score, or the story model. | `code` | `judge.expansion.pick` |
+| **Pace by the road ahead (trial)** | Settings → Authoring → Prompt trials | Install | The story's dramatic shape counts the turning points left on the shortest way to an ending and how long the current scene has run, and after a climax eases off for three replies. No model call. Not rated yet. | On | `pacing.pathArc` |
 
 ## Setup
 

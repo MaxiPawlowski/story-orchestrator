@@ -184,7 +184,7 @@ const CORE_FEATURES: readonly Feature[] = [
     oneLine: "Measures the scene's tension and nudges replies toward the story's intended shape.",
     what: "Each turn's tension is measured and compared with what the story expects at this point. A quiet note in the prompt asks the reply to build the tension up or let it cool.",
     where: featureAt("pacing", "enabled", "Tension and pacing"),
-    settings: ["pacing"], guideTopic: "tension", doc: authorGuideDoc("tension"), status: "shipped", needs: ["story"],
+    settings: ["pacing.hintEnabled"], guideTopic: "tension", doc: authorGuideDoc("tension"), status: "shipped", needs: ["story"],
   },
   {
     id: "memory", name: "Story memory", area: "memory", audience: "player",

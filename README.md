@@ -230,6 +230,7 @@ Generated from the feature registry. "Experimental" means not yet measured; it i
 | Authoring | Story diagnostics | Says what each problem in a story costs it, before the technical detail. |  |
 | Authoring | Open stretches | Free play between two turning points, with no task. | Experimental |
 | Authoring | Quests, checks and panels | Side quests, visible stats, dice checks and milestones a story declares. | Experimental |
+| Authoring | Pace by the road ahead | The dramatic shape follows the turning points left on the way to an ending, and eases off after a climax. |  |
 | Setup | Carried thought | When no private intent is ready, a character keeps the aim from its own last thought. | Experimental |
 | Setup | Repair | Names the one thing missing and takes you to the setting that fixes it. |  |
 | Setup | Getting started | A short checklist: memory model first, then the optional judge and images. |  |

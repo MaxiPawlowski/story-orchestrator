@@ -72,6 +72,7 @@ const ARMS: Record<string, { renders: ShowMeContext; hidden: ShowMeContext }> = 
   "#so-mention-ledger": { renders: context(null, { authorView: true }), hidden: context(null) },
   "#so-strength-retention": { renders: context(null, { authorView: true }), hidden: context(null) },
   "#so-retrieval-query": { renders: context(null, { authorView: true }), hidden: context(null) },
+  "#so-path-arc": { renders: context(null, { authorView: true }), hidden: context(null) },
   "#so-swipe-contrast": { renders: context(null, { authorView: true }), hidden: context(null) },
   "#so-gpu-broker": { renders: context(null, { host: host({ gpuBroker: true }) }), hidden: context(null, { host: host({ gpuBroker: null }) }) },
   "#so-judge-local-systemone-local": { renders: context(null, { settings: settingsWith(localJudge) }), hidden: context(null) },
