@@ -17,6 +17,7 @@
 
 import { decodeDelete, messageKeys } from "@runtime/messageIdentity";
 import { applyConsolidation, type ConsolidationResult, type MatchSets } from "./consolidate";
+import { applyVerdicts } from "./supersedeVerdicts";
 import { disappearingEntries, recordDerived, type DerivedRecord } from "./derived";
 import { applyEpistemicSignals } from "./epistemic";
 import { pushBeat } from "./innerRender";
@@ -47,12 +48,12 @@ const FIELDS = ["condition", "location"];
 const TAGS = ["knows", "believes", "suspects", "intends"] as const;
 
 interface Op {
-  kind: "read" | "ledger" | "epistemic" | "intend" | "beat" | "consolidate" | "exclude" | "compact" | "seal" | "arc" | "resolve" | "bridge" | "skip" | "recap" | "hide" | "defer" | "reopen";
+  kind: "read" | "ledger" | "epistemic" | "intend" | "beat" | "consolidate" | "exclude" | "compact" | "seal" | "arc" | "resolve" | "bridge" | "skip" | "recap" | "hide" | "defer" | "reopen" | "verdict";
   messageId: number;
   index: number;
 }
 
-const KINDS: Op["kind"][] = ["read", "read", "ledger", "epistemic", "consolidate", "exclude", "compact", "seal"];
+const KINDS: Op["kind"][] = ["read", "read", "ledger", "epistemic", "consolidate", "exclude", "compact", "seal", "verdict"];
 const INNER_KINDS: Op["kind"][] = [
   "read", "read", "ledger", "epistemic", "intend", "beat", "consolidate", "exclude", "compact", "seal", "seal", "arc", "arc", "resolve", "bridge", "skip", "recap", "hide", "hide",
 ];
@@ -210,6 +211,16 @@ const stepWith = (shape: ShortTermPlacement) => (world: World, op: Op): World =>
     const from = world.shortTermSummaryEnd + 1;
     const derived = recordDerived(world.derived, { kind: "short_term", inputs, outputId: summary.id, range: { from, to: op.messageId }, removed: disappearingEntries(world.entries, entries), boundary: op.messageId, messageId: op.messageId });
     return { ...world, entries, shortTermSummaryEnd: op.messageId, derived };
+  }
+  if (op.kind === "verdict") {
+    const subject = SUBJECTS[op.index % SUBJECTS.length];
+    const open = world.entries.filter((entry) => entry.entities.includes(subject) && !entry.supersededBy && !entry.foldedInto);
+    if (open.length < 2) return world;
+    const pair = { existingId: open[open.length - 2].id, candidateId: open[open.length - 1].id };
+    const plan = op.index % 2 ? { supersede: [pair], independent: [] } : { supersede: [], independent: [pair] };
+    const applied = applyVerdicts(world, plan, { messageId: op.messageId, boundary: op.messageId });
+    const derived = applied.superseded.length ? recordDerived(world.derived, { kind: "dedup", inputs: [pair.candidateId, pair.existingId], removed: [], boundary: op.messageId, messageId: op.messageId }) : world.derived;
+    return { ...world, ...applied.state, derived };
   }
   // Consolidate: the newest fact supersedes the ones sharing its subject, which is M1's link.
   const subject = SUBJECTS[op.index % SUBJECTS.length];

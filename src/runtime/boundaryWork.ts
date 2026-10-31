@@ -9,6 +9,16 @@ import { log } from "@utils/log";
 
 export const CONSOLIDATION_CADENCE = 10;
 
+const loadVerdicts = () => import("./supersedeVerdicts");
+
+const verdictsWanted = (manager: RuntimeManager): boolean => {
+  const settings = manager.chapters?.host.memory().settings;
+  return Boolean(settings?.enabled && settings.supersedeVerdicts !== false);
+};
+
+const scheduleVerdicts = (manager: RuntimeManager, scheduler: ExtractionScheduler) =>
+  scheduler.schedule({ priority: 4, reason: "supersede-verdicts", run: async () => { await (await loadVerdicts()).askVerdicts(manager.chapters.host, () => manager.isGenerationOpen()); } });
+
 // Everything the runtime does *because* a boundary committed. One entry per behaviour, ordered by
 // `order`: adding boundary work means adding an entry here, never editing a fan-out callback
 // (finding I6). `when` decides, `run` acts — except where the probe itself is the condition
@@ -231,11 +241,25 @@ const WORK_ITEMS: BoundaryWorkItem[] = [
     },
   },
   {
+    id: "supersede-verdicts",
+    order: 69,
+    when: ({ result, manager }) => result.boundary > 0 && verdictsWanted(manager),
+    run: ({ manager, scheduler }) => {
+      void loadVerdicts().then((verdicts) => {
+        verdicts.applyReadyVerdicts(manager.chapters.host);
+        if (verdicts.verdictWork(manager.chapters.host).askable) scheduleVerdicts(manager, scheduler);
+      }).catch((error) => log.warn("supersession verdicts failed", error));
+    },
+  },
+  {
     id: "consolidation",
     order: 70,
     when: ({ result }) => result.boundary > 0 && result.boundary % CONSOLIDATION_CADENCE === 0,
     run: ({ manager, scheduler }) => {
-      scheduler.schedule({ priority: 4, reason: "consolidate", run: async () => { await manager.runConsolidation(); } });
+      scheduler.schedule({ priority: 4, reason: "consolidate", run: async () => {
+        const { uncertain } = await manager.runConsolidation();
+        if (uncertain.length && verdictsWanted(manager) && (await loadVerdicts()).queueVerdictPairs(manager.chapters.host, uncertain)) scheduleVerdicts(manager, scheduler);
+      } });
     },
   },
 ];
