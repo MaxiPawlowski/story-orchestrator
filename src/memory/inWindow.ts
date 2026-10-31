@@ -8,8 +8,11 @@ export const IN_WINDOW_MARGIN = 4;
 
 const SPAN_KINDS: ReadonlySet<DerivedRecord["kind"]> = new Set<DerivedRecord["kind"]>(["short_term", "scene_summary"]);
 
-export function recapSpanStart(entry: MemoryEntry, derived: readonly DerivedRecord[]): number | null {
-  const byOutput = new Map(derived.filter((record) => record.outputId && SPAN_KINDS.has(record.kind)).map((record) => [record.outputId as string, record]));
+const spanRecords = (derived: readonly DerivedRecord[]): ReadonlyMap<string, DerivedRecord> =>
+  new Map(derived.filter((record) => record.outputId && SPAN_KINDS.has(record.kind)).map((record) => [record.outputId as string, record]));
+
+export function recapSpanStart(entry: MemoryEntry, derived: readonly DerivedRecord[] | ReadonlyMap<string, DerivedRecord>): number | null {
+  const byOutput = derived instanceof Map ? derived : spanRecords(derived as readonly DerivedRecord[]);
   const startOf = (id: string, seen: Set<string>): number | null => {
     const record = byOutput.get(id);
     if (!record?.range || seen.has(id)) return null;
@@ -24,8 +27,9 @@ export function recapSpanStart(entry: MemoryEntry, derived: readonly DerivedReco
 export function recapInWindow(entries: readonly MemoryEntry[], derived: readonly DerivedRecord[], windowFrom: number | null, margin = IN_WINDOW_MARGIN): Set<string> {
   if (windowFrom === null || !Number.isFinite(windowFrom)) return new Set();
   const threshold = Math.max(0, windowFrom) + margin;
+  const byOutput = spanRecords(derived);
   return new Set(entries.filter((entry) => RECAP_TIERS.has(entry.tier) && !entry.pinned && !isEstablished(entry)).filter((entry) => {
-    const start = recapSpanStart(entry, derived);
+    const start = recapSpanStart(entry, byOutput);
     return start !== null && start >= threshold;
   }).map((entry) => entry.id));
 }
