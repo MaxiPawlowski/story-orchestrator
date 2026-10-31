@@ -1,6 +1,12 @@
 export interface NameSource {
   roster: ReadonlyArray<{ id: string; name?: string; aliases?: readonly string[] }>;
-  codex?: { people?: ReadonlyArray<{ member?: string; name?: string; aliases?: readonly string[] }> };
+  codex?: {
+    people?: ReadonlyArray<{ member?: string; name?: string; aliases?: readonly string[] }>;
+    places?: ReadonlyArray<{ name?: string; location?: string; aliases?: readonly string[] }>;
+  };
+  requirements?: { place_lore?: Readonly<Record<string, { entry: string }>> };
+  scene_read?: { locations?: readonly string[] };
+  factions?: ReadonlyArray<{ name: string }>;
 }
 
 export interface NameMember {
@@ -12,6 +18,7 @@ export interface NameMember {
 
 export interface NameIndex {
   members: NameMember[];
+  entities?: NameMember[];
 }
 
 export const SAME_CHARACTER_MIN_READS = 3;
@@ -21,15 +28,37 @@ const ARTICLE = /^(the|a|an)\s+/;
 export const foldName = (name: string): string => name.normalize("NFKD").replace(/[̀-ͯ]/g, "").toLowerCase()
   .replace(/[^\p{L}\p{N}\s'-]/gu, " ").replace(/\s+/g, " ").trim().replace(ARTICLE, "").trim();
 
-export const nameIndexOf = (source: NameSource | null | undefined): NameIndex => buildNameIndex(source ?? { roster: [] });
+export const nameIndexOf = (source: NameSource | null | undefined, entities = false): NameIndex => buildNameIndex(source ?? { roster: [] }, entities);
 
-export const buildNameIndex = (source: NameSource): NameIndex => ({
+const named = (name: string, aliases: readonly string[]): NameMember | null => {
+  const canonical = name.trim();
+  const folds = [...new Set([canonical, ...aliases].map(foldName).filter(Boolean))];
+  return canonical && folds.length ? { id: canonical, name: canonical, folds, tokens: foldName(canonical).split(" ").filter(Boolean) } : null;
+};
+
+export const entityNames = (source: NameSource): NameMember[] => {
+  const lore = source.requirements?.place_lore ?? {};
+  const places = (source.codex?.places ?? []).map((entry) => {
+    const name = entry.name?.trim() || entry.location?.trim() || "";
+    const bound = entry.location ? lore[entry.location]?.entry ?? "" : "";
+    return named(name, [entry.location ?? "", bound, ...(entry.aliases ?? [])]);
+  });
+  const people = (source.codex?.people ?? []).filter((entry) => !entry.member).map((entry) => named(entry.name ?? "", entry.aliases ?? []));
+  const covered = new Set(places.flatMap((entry) => entry?.folds ?? []));
+  const pinned = Object.entries(lore).filter(([place]) => !covered.has(foldName(place))).map(([place, binding]) => named(place, [binding.entry]));
+  const listed = [...(source.scene_read?.locations ?? []), ...(source.factions ?? []).map((faction) => faction.name)].map((name) => named(name, []));
+  const all = [...places, ...people, ...pinned, ...listed].filter((entry): entry is NameMember => entry !== null);
+  return all.filter((entry, at) => all.findIndex((other) => other.name === entry.name) === at);
+};
+
+export const buildNameIndex = (source: NameSource, entities = false): NameIndex => ({
   members: source.roster.map((member) => {
     const name = member.name?.trim() || member.id;
     const codex = (source.codex?.people ?? []).filter((entry) => entry.member === member.id).flatMap((entry) => [entry.name ?? "", ...(entry.aliases ?? [])]);
     const folds = [...new Set([name, member.id, ...(member.aliases ?? []), ...codex].map(foldName).filter(Boolean))];
     return { id: member.id, name, folds, tokens: foldName(name).split(" ").filter(Boolean) };
   }),
+  ...(entities ? { entities: entityNames(source) } : {}),
 });
 
 const only = <T,>(items: T[]): T | null => (items.length === 1 ? items[0] : null);
@@ -51,10 +80,16 @@ export const resolveName = (index: NameIndex, raw: string): NameMember | null =>
 
 export const canonicalName = (index: NameIndex, raw: string): string => resolveName(index, raw)?.name ?? raw;
 
+export const canonicalEntity = (index: NameIndex, raw: string): string => {
+  const folded = foldName(raw);
+  return (folded && only((index.entities ?? []).filter((entity) => entity.folds.includes(folded)))?.name) || raw;
+};
+
 const CHARACTER_TYPES = new Set(["character", "person", ""]);
 
 export const foldLedgerSignals = <T extends { entity: string; entityType: string }>(index: NameIndex, signals: readonly T[]): T[] =>
-  signals.map((signal) => (CHARACTER_TYPES.has(signal.entityType.trim().toLowerCase()) ? { ...signal, entity: canonicalName(index, signal.entity) } : signal));
+  signals.map((signal) => (CHARACTER_TYPES.has(signal.entityType.trim().toLowerCase()) ? { ...signal, entity: canonicalName(index, signal.entity) }
+    : index.entities?.length ? { ...signal, entity: canonicalEntity(index, signal.entity) } : signal));
 
 export const foldEpistemicSignals = <T extends { subject: string; hiddenFrom?: string }>(index: NameIndex, signals: readonly T[]): T[] =>
   signals.map((signal) => ({ ...signal, subject: canonicalName(index, signal.subject), ...(signal.hiddenFrom ? { hiddenFrom: canonicalName(index, signal.hiddenFrom) } : {}) }));

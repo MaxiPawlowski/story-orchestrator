@@ -197,6 +197,10 @@ export interface MemoryRuntimeSettings {
   deferredOutOfPrompt?: boolean;
   historyNotes?: boolean;
   outwardNarration?: boolean;
+  compactionTokens?: boolean;
+  summaryGuard?: boolean;
+  supersedeVerdicts?: boolean;
+  placeFold?: boolean;
   chapters?: Partial<ChapterSettings>;
 }
 

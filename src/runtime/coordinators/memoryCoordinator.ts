@@ -363,7 +363,7 @@ export class MemoryCoordinator {
   }
 
   applyLedger(signals: ParsedLedgerSignal[], messageId: number) {
-    const folded = foldLedgerSignals(nameIndexOf(this.deps.getStory()), signals);
+    const folded = foldLedgerSignals(nameIndexOf(this.deps.getStory(), this.state.settings.placeFold !== false), signals);
     const applied = applyLedgerSignals(this.state.ledger, folded, buildBoundKeySet(this.ledgerBindings()), { boundary: this.boundaryStamp(), messageId });
     this.patch({ ledger: capLedger(applied, undefined, undefined, this.deps.historyFloor?.() ?? null) }); this.updateInjection();
   }

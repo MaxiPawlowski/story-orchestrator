@@ -72,6 +72,10 @@
       "deferredOutOfPrompt": false,
       "historyNotes": true,
       "outwardNarration": true,
+      "compactionTokens": true,
+      "summaryGuard": true,
+      "supersedeVerdicts": true,
+      "placeFold": true,
       "injectionDepths": {
         "facts": 4,
         "session_details": 3,
