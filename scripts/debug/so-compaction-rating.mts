@@ -1,3 +1,4 @@
+import { execFile } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
@@ -5,8 +6,8 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DEFAULT_OPENCODE, DEFAULT_RATER_MODEL, opencodeRunner, refuseModel } from './lib/promptBatchRater.mts';
 import {
-  ARMS, armPrompts, buildPairs, FLOORS, hashOf, judgePrompt, packLeaks, parseJudge, stability, verdict,
-  type Arm, type Judged, type PairReply, type SealedKey,
+  ARMS, armPrompts, buildPairs, FLOORS, hashOf, isHistory, judgePrompt, packLeaks, parseJudge, parsePrompt, realCountsOf, stability, stTrims, tokensOf, verdict,
+  type Arm, type TrimRow, type Judged, type PairReply, type SealedKey,
 } from './lib/compactionRating.mts';
 
 const USAGE = `Usage: node scripts/debug/so-compaction-rating.mts <command> [...]
@@ -21,6 +22,10 @@ v3.0 40 (A3) blind rating: ST's message-by-message trim vs chunked history compa
   pack   [--out <dir>] [--seed <s>]       blind A/B pairs (pack.json) + sealed key (key.sealed.json)
   rate   [--out <dir>] [--model ${DEFAULT_RATER_MODEL}] [--opencode <exe>]   Sol pass over pack.json only; resumes
   score  [--out <dir>]                    unseal, aggregate, check the predeclared floors
+  trims  --payloads <a.jsonl,...> --tokenize <llama-tokenize.exe> --model <gguf> [--context 8192] [--read-lag 8]
+         CPU, vocabulary only (CUDA hidden). v3.0 41 A1: tokenizes the longest prompt of each chat with the play model's
+         tokenizer, then counts how often ST's real-token fit still drops messages after a compaction cut planned on the
+         chars/4 estimate vs on real tokens. Numbers only (trims.json)
 
 Default --out C:/dev/so-lanes/rating/a3-compaction (outside the public repo: prompts hold chat text).
 Floors (predeclared, never retuned): pairs >= ${FLOORS.minPairs}; compact preferred or tied >= ${FLOORS.preferShare};
@@ -77,6 +82,98 @@ async function arms(args: string[], out: string) {
   return { out, chats: chats.size, prompts: rows.length, compactionMoves: fired, candidates: points.length, chosen: chosen.length, stability: stable };
 }
 
+const tokenizeIds = (exe: string, model: string, file: string) => new Promise<number[]>((resolve, reject) => {
+  execFile(exe, ['-m', model, '-f', file, '--ids', '--log-disable'], { env: { ...process.env, CUDA_VISIBLE_DEVICES: '' }, maxBuffer: 1 << 28 }, (error, stdout) => {
+    if (error) return reject(error);
+    const line = stdout.trim().split(/\r?\n/).at(-1) ?? '';
+    try { resolve(JSON.parse(line)); } catch { reject(new Error(`llama-tokenize printed no id list: ${line.slice(0, 80)}`)); }
+  });
+});
+
+const quantiles = (values: number[]) => {
+  const sorted = [...values].sort((a, b) => a - b);
+  const at = (share: number) => Number(sorted[Math.min(sorted.length - 1, Math.floor(sorted.length * share))].toFixed(3));
+  return sorted.length ? { p10: at(0.1), p50: at(0.5), p90: at(0.9) } : null;
+};
+
+async function trims(args: string[], out: string) {
+  const files = (argValue(args, '--payloads') ?? '').split(',').filter(Boolean);
+  const exe = argValue(args, '--tokenize');
+  const model = argValue(args, '--model');
+  if (!files.length || !exe || !model) throw new Error('--payloads, --tokenize and --model are required');
+  const context = num(args, '--context', 8192);
+  const readLag = num(args, '--read-lag', 8);
+  const rows: Array<{ chat: string; member: string; index: number; prompt: string }> = [];
+  for (const file of files) {
+    for (const row of await readJsonl(file)) {
+      const prompt = row?.parsedBody?.prompt;
+      if (typeof prompt !== 'string' || !row.draftMemberName || row.parsedBody.stream !== true) continue;
+      rows.push({ chat: `${file}#${row.chatId}`, member: String(row.draftMemberName), index: Number(row.index), prompt });
+    }
+  }
+  const chats = new Map<string, typeof rows>();
+  rows.sort((left, right) => left.index - right.index).forEach((row) => chats.set(row.chat, [...(chats.get(row.chat) ?? []), row]));
+  const scratch = await mkdtemp(join(tmpdir(), 'so-trims-'));
+  const segments = new Map<string, number>();
+  const perChars: number[] = [];
+  let tokenized = 0;
+  try {
+    for (const list of chats.values()) {
+      const longest = list.reduce((best, row) => (row.prompt.length > best.prompt.length ? row : best));
+      const file = join(scratch, 'prompt.txt');
+      await writeFile(file, longest.prompt, 'utf-8');
+      const counts = realCountsOf(longest.prompt, await tokenizeIds(exe, model, file));
+      if (!counts) continue;
+      tokenized += 1;
+      counts.segments.forEach((value, raw) => segments.set(raw, value));
+      if (counts.headChars) perChars.push(counts.head / counts.headChars);
+    }
+  } finally {
+    await rm(scratch, { recursive: true, force: true });
+  }
+  const perChar = quantiles(perChars)?.p50 ?? 0.25;
+  const blank = (arm: TrimRow['arm']): TrimRow => ({ arm, prompts: 0, afterCut: 0, trimmedAfterCut: 0, trimmedBetweenCuts: 0, messagesTrimmed: 0 });
+  const totals: Record<TrimRow['arm'], TrimRow> = { estimate: blank('estimate'), real: blank('real') };
+  let covered = 0;
+  let history = 0;
+  const ratio: number[] = [];
+  const realOf = (raw: string) => segments.get(raw) ?? Math.ceil(raw.length * perChar);
+  for (const list of chats.values()) {
+    const last: Record<TrimRow['arm'], Map<string, number | null>> = { estimate: new Map(), real: new Map() };
+    for (const row of list) {
+      const parsed = parsePrompt(row.prompt);
+      for (const segment of parsed.body.filter(isHistory)) {
+        history += 1;
+        const counted = segments.get(segment.raw);
+        if (counted === undefined) continue;
+        covered += 1;
+        ratio.push(counted / Math.max(1, tokensOf(segment.text)));
+      }
+      const headReal = parsed.head.reduce((sum, segment) => sum + realOf(segment.raw), 0);
+      const tailReal = Math.ceil(parsed.tail.length * perChar);
+      for (const arm of ['estimate', 'real'] as const) {
+        const result = stTrims(row.prompt, context, readLag, (segment) => realOf(segment.raw), headReal, tailReal, arm);
+        const total = totals[arm];
+        total.prompts += 1;
+        total.messagesTrimmed += result.trimmed;
+        if (result.cutId !== null) {
+          total.afterCut += 1;
+          if (result.trimmed) total.trimmedAfterCut += 1;
+          if (result.trimmed && last[arm].get(row.member) === result.cutId) total.trimmedBetweenCuts += 1;
+        }
+        last[arm].set(row.member, result.cutId);
+      }
+    }
+  }
+  const summary = {
+    context, readLag, chats: chats.size, tokenizedChats: tokenized, prompts: rows.length, historySegmentsCovered: `${covered}/${history}`,
+    realOverEstimate: quantiles(ratio), headTokensPerChar: quantiles(perChars), arms: [totals.estimate, totals.real],
+  };
+  await mkdir(out, { recursive: true });
+  await writeJson(join(out, 'trims.json'), summary);
+  return summary;
+}
+
 const THOUGHT = /^\s*<\|channel>[\s\S]*?<channel\|>/;
 
 export const splitReasoning = (content: string): PairReply => {
@@ -171,6 +268,7 @@ export async function main(argv: string[]) {
   if (command === 'pack') return pack(args, out);
   if (command === 'rate') return rate(args, out);
   if (command === 'score') return score(out);
+  if (command === 'trims') return trims(args, out);
   console.log(USAGE);
   return null;
 }

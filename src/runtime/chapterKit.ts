@@ -26,7 +26,7 @@ export { buildChapterView };
 
 export { restingRecords };
 
-export { compact } from "./compactHistory";
+export { compact, primeCompaction } from "./compactHistory";
 
 export async function chapterSlash(manager: RuntimeManager, command: string, arg: string | undefined, dump: (text: string) => string, show: (text: string) => string): Promise<string> {
   const snapshot = manager.getSnapshot();
