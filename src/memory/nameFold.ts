@@ -28,7 +28,7 @@ const ARTICLE = /^(the|a|an)\s+/;
 export const foldName = (name: string): string => name.normalize("NFKD").replace(/[̀-ͯ]/g, "").toLowerCase()
   .replace(/[^\p{L}\p{N}\s'-]/gu, " ").replace(/\s+/g, " ").trim().replace(ARTICLE, "").trim();
 
-export const nameIndexOf = (source: NameSource | null | undefined, entities = false): NameIndex => buildNameIndex(source ?? { roster: [] }, entities);
+export const nameIndexOf = (source: NameSource | null | undefined, entities?: boolean): NameIndex => buildNameIndex(source ?? { roster: [] }, entities === true);
 
 const named = (name: string, aliases: readonly string[]): NameMember | null => {
   const canonical = name.trim();

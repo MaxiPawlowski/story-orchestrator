@@ -90,7 +90,7 @@ function harness() {
     ledgerEntityList: () => [],
     sceneStart: (to: number) => to,
     shortTermSummaryEnd: -1,
-    judgeSummary: () => ({ ok: true as const, entities: [] }), shortTermEntry: () => null,
+    getEntities: () => [], chapters: { host: { memory: () => ({ settings: { summaryGuard: false }, entries: [], ledger: [], arcs: [] }) } }, shortTermEntry: () => null,
     addSceneSummary: async () => { writes.push("addSceneSummary"); return null; },
     replaceShortTerm: async () => { writes.push("replaceShortTerm"); },
     updateInjection: () => {},

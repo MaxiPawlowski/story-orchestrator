@@ -21,7 +21,6 @@ import {
 import { PAIR_JACCARD_FLOOR } from "@judge/policy";
 import type { Provenance } from "@memory/provenance";
 import { sceneConflictValues } from "@memory/conflicts";
-import { judgeSummary } from "@memory/summaryGuard";
 import { MirrorSync, type MemoryMirrorSummary } from "../memoryMirror";
 import { MemoryInjector } from "../memoryInjector";
 import { CanonPort } from "../canonView";
@@ -222,10 +221,6 @@ export class MemoryCoordinator {
     this.patch({ entries, shortTermSummaryEnd: window.to });
   }
 
-  judgeSummary(summary: string, previous: string | null, window: string) {
-    return judgeSummary({ ...this.state, chapters: this.state.chapters ?? [] }, this.getEntities(), summary, previous, window);
-  }
-
   shortTermEntry(): MemoryEntry | undefined {
     return this.state.entries.find((entry) => entry.tier === "short_term");
   }
@@ -368,7 +363,7 @@ export class MemoryCoordinator {
   }
 
   applyLedger(signals: ParsedLedgerSignal[], messageId: number) {
-    const folded = foldLedgerSignals(nameIndexOf(this.deps.getStory(), this.state.settings.placeFold !== false), signals);
+    const folded = foldLedgerSignals(nameIndexOf(this.deps.getStory(), this.state.settings.placeFold), signals);
     const applied = applyLedgerSignals(this.state.ledger, folded, buildBoundKeySet(this.ledgerBindings()), { boundary: this.boundaryStamp(), messageId });
     this.patch({ ledger: capLedger(applied, undefined, undefined, this.deps.historyFloor?.() ?? null) }); this.updateInjection();
   }

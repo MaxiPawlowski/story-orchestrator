@@ -66,7 +66,7 @@ function shortTermHarness() {
     memory: {
       enabled: true,
       shortTermSummaryEnd: -1,
-      judgeSummary: () => ({ ok: true as const, entities: [] }), shortTermEntry: () => null,
+      getEntities: () => [], chapters: { host: { memory: () => ({ settings: { summaryGuard: false }, entries: [], ledger: [], arcs: [] }) } }, shortTermEntry: () => null,
       replaceShortTerm: async (entry: { text: string }) => { written.push(entry.text); },
       updateInjection: () => {},
     },

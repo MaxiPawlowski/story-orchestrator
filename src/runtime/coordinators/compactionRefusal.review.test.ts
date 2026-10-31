@@ -18,11 +18,10 @@ const stapi = {
 
 import { ExtractionCoordinator } from "./extractionCoordinator";
 import { testOwnership } from "../../../test/findings/testOwnership";
-import { judgeSummary } from "@memory/summaryGuard";
 
 const PREVIOUS = { id: "st-1", text: "Max met Mira at the ford.", tier: "short_term", pinned: false };
 
-function harness(judge: (summary: string, previous: string | null, window: string) => unknown = () => ({ ok: true as const, entities: [] })) {
+function harness(summaryGuard = false) {
   const written: string[] = [];
   const entities: string[][] = [];
   const journal: Array<[string, string]> = [];
@@ -34,7 +33,8 @@ function harness(judge: (summary: string, previous: string | null, window: strin
     memory: {
       enabled: true,
       shortTermSummaryEnd: -1,
-      judgeSummary: judge, shortTermEntry: () => PREVIOUS,
+      getEntities: () => ["Max", "Mira"], chapters: { host: { memory: () => ({ settings: { summaryGuard }, entries: [], ledger: [], arcs: [] }) } },
+      shortTermEntry: () => PREVIOUS,
       replaceShortTerm: async (entry: { text: string; entities: string[] }) => { written.push(entry.text); entities.push(entry.entities); },
       updateInjection: () => {},
     },
@@ -84,11 +84,8 @@ describe("v2.8 69 K1: a refused compaction keeps the previous short-term entry",
 });
 
 describe("v3.0 41 A2: the collapse guard refuses a summary that loses a name nothing else holds (memory.summaryGuard)", () => {
-  const state = (summaryGuard: boolean) => ({ settings: { summaryGuard }, entries: [], ledger: [], arcs: [], chapters: [] });
-  const guard = (on: boolean) => (summary: string, previous: string | null, window: string) => judgeSummary(state(on), ["Max", "Mira"], summary, previous, window);
-
   it("refuses, journals the reason with a count only, and keeps the previous entry", async () => {
-    const run = harness(guard(true));
+    const run = harness(true);
     await run.coordinator.runShortTermCompaction();
     expect(run.written).toEqual([]);
     expect(run.journal).toEqual([["compaction-refused", expect.stringContaining("dropped-detail")]]);
@@ -96,13 +93,13 @@ describe("v3.0 41 A2: the collapse guard refuses a summary that loses a name not
 
   it("an accepted summary records the names it holds on the row", async () => {
     reply.text = "Max and Mira crossed the river at dusk.";
-    const run = harness(guard(true));
+    const run = harness(true);
     await run.coordinator.runShortTermCompaction();
     expect(run.entities).toEqual([["Max", "Mira"]]);
   });
 
   it("switch off: today's behaviour, the summary replaces the entry with no entities", async () => {
-    const run = harness(guard(false));
+    const run = harness(false);
     await run.coordinator.runShortTermCompaction();
     expect(run.written).toEqual(["They crossed the river at dusk."]);
     expect(run.entities).toEqual([[]]);
