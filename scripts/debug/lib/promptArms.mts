@@ -209,7 +209,7 @@ export function armSettingStep(gate: ArmGate, arm: PromptArm): Step {
 }
 
 export function armResetEval(): string {
-  return `const root = SillyTavern.getContext().extensionSettings['story-orchestrator']; const rt = globalThis.storyOrchestratorRuntime; rt?.setMemorySettings?.({ outwardNarration: false, historyNotes: false }); if (root?.settings?.talk) delete root.settings.talk.swipeContrast; return { reset: true };`;
+  return `const root = SillyTavern.getContext().extensionSettings['story-orchestrator']; const rt = globalThis.storyOrchestratorRuntime; rt?.setMemorySettings?.({ outwardNarration: true, historyNotes: true }); if (root?.settings?.talk) delete root.settings.talk.swipeContrast; return { reset: true };`;
 }
 
 export function armHelpersStep(): Step {

@@ -24,13 +24,16 @@ import { createSkipPort } from "./skipPort";
 import { SWIPE_CONTRAST_CLEARS, swipeContrast } from "./swipeContrast";
 
 const defaults = () => sanitizeGlobalSettings(undefined);
-const offs = () => [defaults(), sanitizeGlobalSettings({
+const offs = () => [sanitizeGlobalSettings({
   extraction: { promiseAddressee: false }, talk: { swipeContrast: false, skipAhead: false },
   memory: { deferredOutOfPrompt: false, historyNotes: false, outwardNarration: false, chapters: { compact: false } },
 })];
 
 describe("harvest 2026-10-30 dooms P3: a default-off prompt setting leaves the prompt byte for byte as without the feature", () => {
-  it("ships all eight off", () => {
+  it("ships six off; outward narration and history notes ship on since their blind ratings passed", () => {
+    expect([defaults().memory.historyNotes, defaults().memory.outwardNarration]).toEqual([true, true]);
+    expect([defaults().memory.deferredOutOfPrompt, defaults().memory.chapters?.compact === true, defaults().talk.swipeContrast, defaults().talk.skipAhead])
+      .toEqual([false, false, false, false]);
     for (const settings of offs()) {
       expect(settings.extraction).not.toHaveProperty("readLayout");
       expect(settings.extraction).not.toHaveProperty("promiseAddressee");

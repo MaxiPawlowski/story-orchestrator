@@ -352,6 +352,8 @@
   "test/scenarios/v30-d2-offscreen-cue-on.json#0": [],
   "test/scenarios/v30-f3-inner-freshness.json#0": [],
   "test/scenarios/v30-f3-send-latency.json#0": [],
+  "test/scenarios/v30-hf-fold.json#0": [],
+  "test/scenarios/v30-hf-regen.json#0": [],
   "test/journeys/j11-expand.story.json#0": [],
   "test/journeys/j11-judge.story.json#0": [],
   "test/journeys/j11-lore.story.json#0": [],

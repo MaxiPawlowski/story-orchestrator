@@ -1,0 +1,180 @@
+{
+  "model": "any",
+  "_note": "v3.0 harvest defect check 2026-10-30 item 1 (SUMMARY.md §Defect check), row HF-REGEN, model lane, real generation. Reproduces Regenerate after a trailing SO system row in a group: one real turn (send_generate), then the /comment transition note exactly as EffectsApplier.announceText posts it (/comment compact=true raw=false, an is_system row), then ST's own Regenerate as a pointer click (#options_button, then #option_regenerate). Expected and asserted (host source, group-chats.js:167-188): regenerateGroup stops at the first is_system row from the end and deletes nothing, then runs a fresh round, so every row before the note is unchanged, the note stays where it was, the new reply lands directly under the note, and TurnBridge commits a new boundary. The scenario PASSES when it reproduces that; a different outcome fails with the counts. keep:true outputs hold replies/boundary/rows before the note, after it and after Regenerate, for the owner's decision (DOM intercept, refuse the note and message placement in groups, or accept). The image placement \"message\" row is not posted: images are off on the lane and the row needs ComfyUI; it is the same is_system shape (stHost/image.ts:123-133). Extraction cadence is pushed to 1000 so no read lands mid-check (restored by the runner). Talk control stays on (end-user path). Run: node scripts/debug/st-lanes.mts run <model lane> -- scripts/debug/so-scenario.mts run test/scenarios/v30-hf-regen.json --sandbox --group \"Group: Arin, DM Narrator\", twice.",
+  "requires": {
+    "lane": "model",
+    "group": "Group: Arin, DM Narrator",
+    "members": [
+      "Arin",
+      "DM Narrator"
+    ],
+    "why": "a real reply has to exist and ST's Regenerate has to run a real group round under the trailing /comment row"
+  },
+  "steps": [
+    {
+      "ext_setting": {
+        "extension": "story-orchestrator",
+        "key": [
+          "settings",
+          "image",
+          "enabled"
+        ],
+        "value": false
+      }
+    },
+    {
+      "ext_setting": {
+        "extension": "story-orchestrator",
+        "key": [
+          "settings",
+          "sprites",
+          "enabled"
+        ],
+        "value": false
+      }
+    },
+    {
+      "log": true,
+      "eval": "for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; const ctx = SillyTavern.getContext(); if (!ctx.groupId || !ctx.chatId) throw new Error('needs a sandbox group chat'); for (let id = ctx.chat.length - 1; id >= 0; id -= 1) await ctx.deleteMessage(id, undefined, false); if (ctx.chat.length !== 0) throw new Error('the sandbox chat still holds ' + ctx.chat.length + ' message(s)'); return { groupId: ctx.groupId, chatId: ctx.chatId, mainApi: ctx.mainApi };"
+    },
+    {
+      "import_story": {
+        "id": "so-v30-hf-regen",
+        "title": "SO-V30 HF-REGEN Campfire",
+        "description": "Synthetic HF-REGEN fixture: one campfire scene, so a real reply can be regenerated under a trailing system row.",
+        "qualities": [
+          {
+            "key": "road_told",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Has Arin told the player what he saw on the road?"
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "camp",
+            "name": "The campfire",
+            "player_name": "The campfire",
+            "player_text": "Talk with Arin by the fire.",
+            "type": "anchor",
+            "start": true,
+            "objective": "Arin talks with the player by the campfire about the road."
+          },
+          {
+            "id": "dawn",
+            "name": "Dawn",
+            "player_name": "Dawn",
+            "type": "anchor",
+            "objective": "Break camp."
+          }
+        ],
+        "transitions": [
+          {
+            "from": "camp",
+            "to": "dawn",
+            "priority": 0,
+            "gate": {
+              "q": "road_told",
+              "op": "==",
+              "v": true
+            }
+          }
+        ],
+        "roster": [
+          {
+            "id": "arin",
+            "name": "Arin",
+            "role": "a travelling guide"
+          },
+          {
+            "id": "narrator",
+            "name": "DM Narrator",
+            "role": "narrator",
+            "view": "omniscient"
+          }
+        ]
+      }
+    },
+    {
+      "slash": "/sendas name=\"DM Narrator\" raw=false The campfire crackles at the edge of the road. Arin sits across from you, turning a stick in the flames."
+    },
+    {
+      "log": true,
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.setExtractionSettings({ cadence: 1000 }); if (rt.getGlobalSettings().extraction.cadence !== 1000) throw new Error('cadence did not land: ' + rt.getGlobalSettings().extraction.cadence); if (!rt.getSnapshot().requirements?.ready) throw new Error('requirements not ready: ' + JSON.stringify(rt.getSnapshot().requirements)); if (rt.getGlobalSettings().image?.enabled !== false) throw new Error('images are still on: this row must not reach ComfyUI'); return { cadence: 1000, talk: rt.getTalkState().enabled };"
+    },
+    {
+      "send_generate": {
+        "text": "I sit by the fire and ask Arin what he saw on the road today.",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 2000,
+        "timeoutMs": 180000
+      }
+    },
+    {
+      "keep": true,
+      "log": true,
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const rows = ctx.chat.map((row, index) => ({ index, name: String(row?.name ?? ''), user: Boolean(row?.is_user), system: Boolean(row?.is_system), mes: String(row?.mes ?? '') })); const replies = rows.filter((row) => !row.user && !row.system && row.mes.trim()).length; const boundary = rt.getEngineState().boundary; if (!replies) throw new Error('no reply to regenerate: ' + JSON.stringify(rows.map((row) => [row.index, row.name, row.system]))); const last = rows[rows.length - 1]; if (last.user || last.system) throw new Error('the turn did not end on a reply: ' + JSON.stringify(last)); globalThis.__hfRegen = { before: { replies, boundary, length: rows.length, rows } }; return { stage: 'after the real turn', replies, boundary, chatLength: rows.length, lastSpeaker: last.name };"
+    },
+    {
+      "slash": "/comment compact=true raw=false \"HF-REGEN transition note: The road ahead.\""
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 1500,
+        "timeoutMs": 60000
+      }
+    },
+    {
+      "keep": true,
+      "log": true,
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const rows = ctx.chat.map((row, index) => ({ index, name: String(row?.name ?? ''), user: Boolean(row?.is_user), system: Boolean(row?.is_system), mes: String(row?.mes ?? '') })); const replies = rows.filter((row) => !row.user && !row.system && row.mes.trim()).length; const boundary = rt.getEngineState().boundary; const state = globalThis.__hfRegen; const note = rows[rows.length - 1]; if (!note.system || !note.mes.includes('HF-REGEN transition note')) throw new Error('the /comment row is not the trailing is_system row: ' + JSON.stringify(note)); if (rows.length !== state.before.length + 1) throw new Error('the note did not add exactly one row: ' + rows.length + ' vs ' + state.before.length); state.afterNote = { replies, boundary, length: rows.length, noteIndex: note.index, rows }; return { stage: 'after the /comment note', replies, boundary, boundaryDelta: boundary - state.before.boundary, chatLength: rows.length, noteIndex: note.index };"
+    },
+    {
+      "log": true,
+      "eval": "const briefing = document.querySelector('dialog#so-briefing[open]'); if (briefing) { document.querySelector('#so-briefing-start')?.click(); await new Promise((resolve) => setTimeout(resolve, 800)); } const open = [...document.querySelectorAll('dialog[open]')].map((node) => node.id || node.className); if (open.length) throw new Error('a dialog is open over the chat, a pointer click on the options menu would hit it: ' + JSON.stringify(open)); return { briefingClosed: Boolean(briefing) };"
+    },
+    {
+      "ui": {
+        "action": "pointer-click",
+        "selector": "#options_button",
+        "expectVisible": "#option_regenerate"
+      }
+    },
+    {
+      "ui": {
+        "action": "pointer-click",
+        "selector": "#option_regenerate"
+      }
+    },
+    {
+      "log": true,
+      "eval": "const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms)); const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error('timed out after ' + ms + ' ms: ' + what); await pause(150); } }; const visible = (el) => Boolean(el) && getComputedStyle(el).display !== 'none'; const generating = () => visible(document.querySelector('#mes_stop')) || !visible(document.querySelector('#send_but')); const started = await until(() => generating() || SillyTavern.getContext().chat.length > globalThis.__hfRegen.afterNote.length, 60000, 'Regenerate to start a round').then(() => true); let since = 0; await until(() => { if (generating()) { since = 0; return false; } since = since || Date.now(); return Date.now() - since > 3000; }, 420000, 'the regenerated round to finish'); return { started, chatLength: SillyTavern.getContext().chat.length };"
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 2000,
+        "timeoutMs": 180000
+      }
+    },
+    {
+      "keep": true,
+      "log": true,
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const rows = ctx.chat.map((row, index) => ({ index, name: String(row?.name ?? ''), user: Boolean(row?.is_user), system: Boolean(row?.is_system), mes: String(row?.mes ?? '') })); const replies = rows.filter((row) => !row.user && !row.system && row.mes.trim()).length; const boundary = rt.getEngineState().boundary; const state = globalThis.__hfRegen; const prior = state.afterNote; const changed = prior.rows.filter((row) => rows[row.index]?.mes !== row.mes || rows[row.index]?.system !== row.system || rows[row.index]?.name !== row.name).map((row) => row.index); const note = rows[prior.noteIndex]; const noteStays = Boolean(note?.system && note.mes.includes('HF-REGEN transition note')); const fresh = rows.slice(prior.length).filter((row) => !row.user && !row.system && row.mes.trim()); const out = { stage: 'after Regenerate', replies: { beforeNote: state.before.replies, afterNote: prior.replies, afterRegenerate: replies }, boundary: { beforeNote: state.before.boundary, afterNote: prior.boundary, afterRegenerate: boundary }, chatLength: { beforeNote: state.before.length, afterNote: prior.length, afterRegenerate: rows.length }, noteIndex: prior.noteIndex, noteStays, rowsChangedOrDeleted: changed, newReplies: fresh.map((row) => ({ index: row.index, name: row.name, chars: row.mes.length })), firstNewReplyIndex: fresh[0]?.index ?? null, landsUnderNote: fresh[0]?.index === prior.noteIndex + 1 }; const problems = []; if (rows.length < prior.length) problems.push('rows were deleted: chat shrank from ' + prior.length + ' to ' + rows.length); if (changed.length) problems.push('rows before Regenerate changed or went: ' + JSON.stringify(changed)); if (!noteStays) problems.push('the trailing note did not stay at ' + prior.noteIndex + ': ' + JSON.stringify(note)); if (!fresh.length) problems.push('no new reply landed after Regenerate'); else if (!out.landsUnderNote) problems.push('the new reply did not land directly under the note (first at ' + fresh[0].index + ')'); if (replies !== prior.replies + fresh.length) problems.push('reply count ' + replies + ' is not ' + prior.replies + ' + ' + fresh.length); if (!(boundary > prior.boundary)) problems.push('no new boundary committed: ' + prior.boundary + ' -> ' + boundary); out.outcome = problems.length ? 'not the confirmed outcome' : 'confirmed: the old reply stays, a new round lands under the trailing row and commits a new boundary'; if (problems.length) throw new Error(problems.join('; ') + ' :: ' + JSON.stringify(out)); return out;"
+    }
+  ],
+  "cleanup": {
+    "steps": [
+      {
+        "eval": "delete globalThis.__hfRegen; for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; return { cleared: true };"
+      }
+    ]
+  }
+}

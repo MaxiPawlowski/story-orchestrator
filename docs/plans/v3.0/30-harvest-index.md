@@ -125,3 +125,17 @@ Full gates 2026-10-31 on `v3.0-small-harvest` (master `ad7074f8` merged in):
 - Run 2 RED at `test-storybook:ci` (416.6 s): `Studio/CharacterTutorial ReviewBlocksATakenName` axe color-contrast, 1 node; no
   Studio file on this branch, green in runs 1 and 3: flaky (reported to the plan 29 session).
 - Run 3 `npm run gates -- --serial` (no --resume): all green in 907.3 s, Storybook included.
+## Defect check live rows 2026-10-30 (GPU G1, lane 41)
+
+Scenarios `test/scenarios/v30-hf-regen.json`, `v30-hf-fold.json`, each run twice with `so-scenario run … --sandbox --group
+"Group: Arin, DM Narrator"` on lane 41.
+
+- **HF-REGEN: reproduced** (18/18 twice). After a real turn and the `/comment` transition note (an `is_system` row), ST's
+  Regenerate deletes nothing: the old replies stay, the note stays at its index, a new group round lands directly under it
+  (2 replies) and TurnBridge commits a new boundary (4 -> 6). Host behaviour (group-chats.js `regenerateGroup`); the owner
+  decides: intercept, move the note, or accept.
+- **HF-FOLD: fixed behaviour confirmed, dry check, NOT green as a real-model gate** (24/24 twice). Route: Terra
+  (`openai/gpt-6.1-terra`) requested by the owner; none available (the harness plugin serves no OpenAI-compatible endpoint), so
+  ST's Chat Completion assembly ran against the local server (custom source `http://127.0.0.1:18888/v1`) with the CC send
+  blocked: no model call. Seal records ch1 0-7, ch2 8-15, keep_tail 2: one folded block 0-13, holes none, kept 14-19 once each
+  and in order, 16 CC messages, no folded marker in the prompt. Lane 41's main API restored to its Text Completion profile.

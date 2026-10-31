@@ -23,9 +23,9 @@ const live = (count: number) => Array.from({ length: count }, (_, index) => ({ m
 const copyOf = (rows: ReturnType<typeof live>): NoteRow[] => rows.map((row) => ({ ...row }));
 
 describe("v3.0 34 S1 history notes: what a note says", () => {
-  test("the switch is off by default (prompt layout waits for its blind rating)", () => {
-    expect(sanitizeGlobalSettings(undefined).memory.historyNotes).toBe(false);
-    expect(sanitizeGlobalSettings({ memory: { historyNotes: true } }).memory.historyNotes).toBe(true);
+  test("the switch is on by default since its blind rating passed; only an explicit false turns it off", () => {
+    expect(sanitizeGlobalSettings(undefined).memory.historyNotes).toBe(true);
+    expect(sanitizeGlobalSettings({ memory: { historyNotes: false } }).memory.historyNotes).toBe(false);
   });
 
   test("only a scene break or a time step carries a note, on the first message after its boundary", () => {

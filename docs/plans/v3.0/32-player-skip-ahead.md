@@ -152,3 +152,22 @@ Worktree `C:/dev/so-v30-32-skip`, from master `02cc9dbc`. No GPU, no lane, no st
 **UI-rework zone files touched.** `src/components/drawer/HudCard.tsx` (one optional button), `HudStrip.tsx` (prop
 pass-through), `HudStrip.stories.tsx` (three stories), `src/index.tsx` (one handler), `src/studio/components/AgencyEditor.tsx`
 (one checkbox). No check, narrative or pipeline change.
+## Rating record 2026-10-30 (GPU G1, lane 41)
+
+RP row: `so-skip-rate.mts capture` (25 states) on lane 41, then `rate` (Sol `openai/gpt-6.1-sol`), images and sprites off, local
+Artemis, thinking on. Group "Group: Arin, DM Narrator" on that lane holds four members (Luke, Ponticius, Arin, DM Narrator), so
+the typed-control reply often came from a non-narrator member. Floors informational, not retuned.
+
+- **MISS.** `landsAtThreshold` skip 14 of 25 (floor 20; control 5); `undisclosedReveal` skip 4 (floor 0; control 6).
+- Passed: rated 25; means skip vs control coherence 4.28/3.36, voice 3.84/1.60, guidance 2.68/1.72, continuity 4.16/3.16 (no
+  category below -0.2); flags voiceBleed 8/23, guidanceIgnored 9/14, leak 0/0; `decidesForPlayer` 0; thinking not closed 0/1;
+  Sol preferred skip 20, control 5.
+- `talk.skipAhead` stays off (`OFF_UNTIL_RATED` unchanged).
+- Harness fix: `capture` waited only for one reply, and Skip ahead refused mid-round ("Wait for the reply to finish"); it now
+  waits for `snapshot.skip.enabled` and no generation for 3 s before each state (`skipReady`, branch `v3.0-g1-defaults`).
+- Deviations: (1) at state 22 the story entered a `skip: false` beat; the story was restarted in the same chat (one turn
+  sent) and states 22-24 come from the opening beat again. (2) The pack's leak guard refused every prompt: the fixture's
+  story title "SO-V3032 Skip Ahead" and blurb sit in the reference block both replies share. Rated a copy
+  (`v30-32-rate-r`) with title and blurb replaced by neutral text; replies, chat and pairing byte-identical otherwise. Owed
+  fix: a neutral fixture title.
+- Evidence: `C:/dev/so-lanes/41/debug/v30-32-rate/` (capture), `v30-32-rate-r/` (`rated.jsonl`, `summary.json`).
