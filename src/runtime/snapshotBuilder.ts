@@ -95,9 +95,9 @@ const playerTransition = (story: NormalizedStory | null, boundaryLog: BoundaryLo
 
 const publishedIntro = (story: NormalizedStory | null) => story?.player_intro || story?.description || null;
 
-const weightedGroupsFor = (chatId: string | null): string[] | undefined => {
+const weightedGroupsFor = (chatId: string | null | undefined): string[] | undefined => {
   const view = loreChanceView();
-  return view && chatId !== null && view.chatId === chatId && view.weightedGroups.length ? view.weightedGroups : undefined;
+  return view && chatId && view.chatId === chatId && view.weightedGroups.length ? view.weightedGroups : undefined;
 };
 
 export interface SnapshotSources {
@@ -509,8 +509,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     loreForced: [...extras.judge.calls].reverse().find((call) => call.use === "lore") ?? null,
     judgeMeter: judgeMeterView(extras.judge),
     loreEvidence: loreEvidenceView(story, extras.memory.wiBook?.name ?? null),
-    scanGate: scanGateView(),
-    loreWeightedGroups: weightedGroupsFor(sources.chatId ?? null),
+    scanGate: scanGateView(), loreWeightedGroups: weightedGroupsFor(sources.chatId),
     wiGating: wiGatingStatus(),
     samplerOverlay: samplerOverlay.view(),
     stagecraftScope: curatorLorebooks(story), innerCast: castVoices(story, state?.activeCheckpointId ?? null),

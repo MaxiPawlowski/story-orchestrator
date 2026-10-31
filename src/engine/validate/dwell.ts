@@ -10,13 +10,13 @@ const sameLeaf = (gate: GateNode, turns: number): boolean => "q" in gate && gate
 
 export const holdsDwell = (gate: GateNode, turns: number): boolean => sameLeaf(gate, turns) || ("all" in gate && gate.all.some((entry) => sameLeaf(entry, turns)));
 
-export const readMinTurns = (value: unknown, path: string, errors: ValidationError[]): number | undefined => {
-  if (value === undefined) return undefined;
+export const readMinTurns = (value: unknown, path: string, errors: ValidationError[]): { min_turns?: number } => {
+  if (value === undefined) return {};
   if (typeof value !== "number" || !Number.isInteger(value) || value < 1 || value > MIN_TURNS_MAX) {
     addError(errors, path, `min_turns must be a whole number from 1 to ${MIN_TURNS_MAX}`);
-    return undefined;
+    return {};
   }
-  return value;
+  return { min_turns: value };
 };
 
 export const TURNS_QUALITY: Quality = { key: PLAYER_TURNS_KEY, type: "int", source: "code", rubric: "Player turns since the current checkpoint began." };

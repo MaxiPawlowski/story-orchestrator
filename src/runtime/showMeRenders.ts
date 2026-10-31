@@ -63,7 +63,7 @@ export const SHOW_ME_CONDITIONAL: Readonly<Record<string, Renders>> = {
   "#so-mention-ledger": ({ authorView }) => authorView,
   "#so-strength-retention": ({ authorView }) => authorView,
   "#so-retrieval-query": ({ authorView }) => authorView,
-  "#so-path-arc": ({ authorView }) => authorView,
+  "#so-authoring-path-arc": ({ authorView }) => authorView,
   "#so-swipe-contrast": ({ authorView }) => authorView,
   "#so-gpu-broker": ({ host }) => host.gpuBroker === true,
   "#so-judge-local-systemone-local": ({ settings }) => judgeProvidersInUse(settings.judge, wardenJudged(settings.stagecraft)).includes("systemone-local"),

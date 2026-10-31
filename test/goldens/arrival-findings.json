@@ -95,6 +95,11 @@
   "test/fixtures/timewindow02.story.json#0": [],
   "test/fixtures/timewindow03.story.json#0": [],
   "test/fixtures/timewindow04.story.json#0": [],
+  "test/fixtures/timing/t01-harbour.timing.json#0": [],
+  "test/fixtures/timing/t02-archive.timing.json#0": [],
+  "test/fixtures/timing/t03-market.timing.json#0": [],
+  "test/fixtures/timing/t04-road.timing.json#0": [],
+  "test/fixtures/timing/t05-vigil.timing.json#0": [],
   "test/fixtures/v15-cast.story.json#0": [
     {
       "index": 1,

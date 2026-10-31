@@ -264,7 +264,7 @@ const AuthoringPage = ({ snapshot, manager, navigate }: PageProps) => (
         read={(settings) => settings.memory.strengthRetention === true} write={(on) => manager.setMemorySettings({ strengthRetention: on })} />
       <GlobalCheck id="so-retrieval-query" setting="memory.retrievalQuery" manager={manager}
         read={(settings) => settings.memory.retrievalQuery === true} write={(on) => manager.setMemorySettings({ retrievalQuery: on })} />
-      <GlobalCheck id="so-path-arc" setting="pacing.pathArc" manager={manager}
+      <GlobalCheck id="so-authoring-path-arc" setting="pacing.pathArc" manager={manager}
         read={(settings) => settings.pacing.pathArc} write={(on) => setGlobalSettings({ pacing: { pathArc: on } })} />
       <GlobalCheck id="so-swipe-contrast" setting="talk.swipeContrast" manager={manager}
         read={(settings) => settings.talk.swipeContrast} write={(on) => setGlobalSettings({ talk: { swipeContrast: on } })} />

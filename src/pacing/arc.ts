@@ -3,13 +3,9 @@ import { TENSION_NUMERIC } from "./tension";
 
 export type ArcProgressMode = "anchors" | "path";
 
-export const ARC_PROGRESS_MODES: readonly ArcProgressMode[] = ["anchors", "path"];
-export const DEFAULT_ARC_PROGRESS: ArcProgressMode = "path";
 export const DEFAULT_TARGET_TURNS = 6;
 export const PEAK_RUN = 2;
 export const RELAX_BOUNDARIES = 3;
-
-export const isArcProgressMode = (value: unknown): value is ArcProgressMode => value === "anchors" || value === "path";
 
 const remainingCache = new WeakMap<NormalizedStory, Map<string, number>>();
 

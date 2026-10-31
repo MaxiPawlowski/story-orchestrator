@@ -68,7 +68,7 @@ export const SETTING_CONTROLS: Record<string, string> = {
   "memory.strengthRetention": "so-strength-retention",
   "memory.retrievalQuery": "so-retrieval-query",
   "talk.swipeContrast": "so-swipe-contrast",
-  "pacing.pathArc": "so-path-arc",
+  "pacing.pathArc": "so-authoring-path-arc",
 };
 
 const AUTHOR_SETTINGS: ReadonlySet<string> = new Set(["worldInfo.lorePins", "worldInfo.seededChance", "memory.historyNotes", "memory.outwardNarration", "talk.swipeContrast",
