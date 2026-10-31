@@ -44,6 +44,6 @@
 }
 
 :is(#drawer-manager, #so-hud-root, #story-orchestrator-settings, #so-studio-root, #so-studio-modal, #so-briefing-root, #so-briefing, #so-panels-root, #so-workspace-root, #so-workspace-modal) .so-lazy-failed::before {
-  content: "057";
+  content: "\f057";
   font: var(--fa-font-solid);
 }
