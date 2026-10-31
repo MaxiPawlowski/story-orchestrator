@@ -1,3 +1,4 @@
+import { log } from "./log";
 export type SamplerApi = "textgen" | "chat";
 
 export type SamplerValues = Record<string, number>;
@@ -126,8 +127,8 @@ export function appendSequenceBreakers(payload: Record<string, unknown>, names: 
         list = parsed;
         form = "json";
       }
-    } catch {
-      list = null;
+    } catch (error) {
+      log.debug("the DRY sequence breakers are not a JSON list; names not added", error);
     }
   }
   if (!list || !form) return { added: [], form: null };
