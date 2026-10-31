@@ -61,3 +61,27 @@ Each a spike behind `spikes.<id>` (lazy `runtime/spikes/`), CPU-built ahead, dec
   floors: E0 hit@4 and lore precision@4 up.
 
 Lore budget cap: for this one case the owner keeps ST settings unchanged (warning + campaign guideline instead).
+
+## Spikes CPU build (agent S, 2026-10-31)
+
+All six live under `src/runtime/spikes/` (lazy; `lazyHarness.guard.test.ts` lists them), each behind `spikes.<id>`
+(default on per the spike rule: only a literal false switches one off). Only `checkClocks` reaches play, and only in a
+story that authors `clocks`; the other five gate nothing live yet: their hooks are GPU-row prerequisites
+(`gpu-queue-2026-10-30.md` §Spikes, SP-*). Floors were set as constants in each module before its first measurement.
+
+Floors (declared before measuring; informational, never retuned):
+- checkClocks (`checkClocks.ts`): CK1 rollback ≡ replay 0 mismatches over 4 seeds x 60 random cuts (clocks are derived
+  from the boundary log, no compiled code key, so no rollback detector); a miss/weak ticks once per check per visit;
+  near line at `near.at`, `full_line` at full. GPU: blind rating neutral or better, turns-to-exit not longer, agenda
+  overlap readout.
+- relationGraph (`RELATION_FLOORS`): RG1 one-hop 2-hop recall@4 >= 0.75; RG2 gain over zero-hop >= 0.25; RG3 distractors
+  in top 4 <= 0.5 per case and <= zero-hop + 0.25. GPU: contradiction rate not up.
+- selfEditMemory: SM1 rollback ≡ replay 0 mismatches (4 seeds x 50 cuts); SM2 held-secret leak 0 over 200 adversarial
+  replies for the kept-out member (block and render); memory route only (`CORE_ROUTE_ROLE`). GPU: long-horizon probe gain.
+- promptCompress (`COMPRESS_FLOORS`): PC1 tokens saved >= 15% on history older than the last 2 messages; PC2-PC4 every
+  name, quoted line and number kept (1.0). GPU: blind rating neutral, prefix reuse not worse.
+- phraseBans (`PHRASE_BAN_FLOORS`): banned-phrase rate per 1,000 words <= half of control; decode >= 95% of base;
+  blind rating neutral or better. Request plumbing sends nothing unless `/props` reports `so_phrase_bans`.
+- cpuReranker (`RERANK_FLOORS`): E0 hit@4 >= 0.8 and above arm c; lore precision@4 >= lexical + 0.05; p95 <= 150 ms
+  per 8-doc call. No model downloaded (owner OK needed; the row names bge-reranker-v2-m3 Q8_0 ~0.6 GB, or
+  jina-reranker-v1-tiny-en F16 ~70 MB).
