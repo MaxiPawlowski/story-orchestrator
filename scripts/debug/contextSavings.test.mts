@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { dedupeHits, FIXED_SENTENCES, fixedHits, recapHits, SHARED_CLAUSES, SHEET_HEADER, sheetHits, untrimmedSet } from './so-context-savings.mts';
+import { dedupeHits, FIXED_SENTENCES, fixedHits, moveFixedText, recapHits, SHARED_CLAUSES, SHEET_HEADER, sheetHits, untrimmedSet } from './so-context-savings.mts';
 import type { LoudPrompt } from './lib/payloadChats.mts';
 
 const ROOT = join(import.meta.dirname, '..', '..');
@@ -35,4 +35,15 @@ test('recap counts blocks only while the chat is untrimmed; fixed counts sentenc
   const sentence = FIXED_SENTENCES[0];
   assert.deepEqual(fixedHits(`<|turn>system\n${sentence}<turn|>\n<|turn>user\nhi<turn|>\n`), []);
   assert.deepEqual(fixedHits(`<|turn>system\ncard<turn|>\n<|turn>system\n${sentence}<turn|>\n`), [sentence]);
+});
+
+test('the layout arm moves each fixed sentence once into the preamble and keeps everything else', () => {
+  const sentence = FIXED_SENTENCES[0];
+  const prompt = `<|turn>system\ncard<turn|>\n<|turn>user\nhi<turn|>\n<|turn>system\n${sentence} Keep the rain heavy.<turn|>\n<|turn>model\n`;
+  const moved = moveFixedText(prompt);
+  assert.ok(moved.startsWith(`<|turn>system\ncard\n\n${sentence}<turn|>`));
+  assert.equal(moved.split(sentence).length - 1, 1);
+  assert.ok(moved.includes('Keep the rain heavy.'));
+  assert.ok(moved.endsWith('<|turn>model\n'));
+  assert.equal(moveFixedText('<|turn>system\ncard<turn|>\nplain'), '<|turn>system\ncard<turn|>\nplain');
 });

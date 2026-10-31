@@ -3,7 +3,7 @@ import { readFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { parsePrompt, type Segment } from './compactionRating.mts';
 
-export interface LoudPrompt { chat: string; member: string; index: number; prompt: string; history: Segment[]; system: string }
+export interface LoudPrompt { chat: string; member: string; index: number; prompt: string; history: Segment[]; system: string; body?: Record<string, unknown> }
 
 export const chatHash = (text: string) => createHash('sha256').update(text, 'utf-8').digest('hex').slice(0, 8);
 
@@ -27,6 +27,7 @@ export function loudPrompt(row: unknown, file: string): LoudPrompt | null {
     chat: `${file}#${String(entry.chatId)}`, member: String(entry.draftMemberName), index: Number(entry.index), prompt,
     history: parsed.body.filter((segment) => segment.role !== 'system'),
     system: segments.filter((segment) => segment.role === 'system').map((segment) => segment.text).join('\n'),
+    body,
   };
 }
 

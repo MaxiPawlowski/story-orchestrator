@@ -1,11 +1,11 @@
 import { execFileSync } from 'node:child_process';
-import { existsSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { loudChats, turnText, type LoudPrompt } from './lib/payloadChats.mts';
+import { chatHash, loudChats, turnText, type LoudPrompt } from './lib/payloadChats.mts';
 
-const USAGE = `Usage: node scripts/debug/so-context-savings.mts --payloads <a.jsonl[,b.jsonl]> [--tokenizer <llama-tokenize.exe>] [--model <gguf>] [--estimate]
+const USAGE = `Usage: node scripts/debug/so-context-savings.mts [layout] --payloads <a.jsonl[,b.jsonl]> [--tokenizer <llama-tokenize.exe>] [--model <gguf>] [--estimate]
 
 v3.0 43 C item 1: tokens each context saving removes (or moves) per drafted loud request, measured offline on recorded
 payloads with the census method: per item, every distinct matched text is tokenised once with the real Gemma vocab
@@ -14,7 +14,10 @@ Counts only; never prints chat text.
   dedupe   agency clauses repeated between guidance and pacing (shipped, no switch)
   sheet    unset narrator-sheet rows, and the header when every row is unset (shipped, no switch)
   recap    recap blocks while the chat is untrimmed (memory.recapOutsideWindow; upper bound: rows of the first four messages stay)
-  fixed    static instruction sentences after the prefix boundary (offline arm only, GPU row M43-C2)`;
+  fixed    static instruction sentences after the prefix boundary (offline arm only, GPU row M43-C2)
+
+layout --out <dir> [--points 24]: writes points.jsonl in so-compaction-rating's shape (trim = as recorded, compact = the
+fixed sentences moved to the end of the system preamble), so its gen/pack/rate/score and so-echo-floors run unchanged.`;
 
 export const DEFAULT_TOKENIZER = 'C:/dev/tools/llama-b11888-cuda12.4/llama-tokenize.exe';
 export const DEFAULT_MODEL = 'C:/dev/models/hf/hub/models--TheDrummer--Artemis-31B-v1.1-GGUF/snapshots/65d0086759d0d45f728b610f48651d4a98d89ed4/Artemis-31B-v1m-Q4_K_M.gguf';
@@ -140,6 +143,39 @@ export async function measure(files: string[], options: { tokenizer: string; mod
   return result;
 }
 
+const PREAMBLE_END = '<turn|>';
+
+export function moveFixedText(prompt: string): string {
+  const headEnd = prompt.indexOf(PREAMBLE_END);
+  if (headEnd < 0) return prompt;
+  let tail = prompt.slice(headEnd);
+  const moved: string[] = [];
+  for (const sentence of FIXED_SENTENCES) {
+    tail = tail.replace(sentencePattern(sentence), (match) => {
+      if (!moved.includes(match)) moved.push(match);
+      return '';
+    });
+  }
+  if (!moved.length) return prompt;
+  const cleaned = tail.replace(/[ \t]{2,}/g, ' ').replace(/ +\n/g, '\n').replace(/\n +/g, '\n').replace(/<\|turn>system\n\s*<turn\|>\n?/g, '');
+  return `${prompt.slice(0, headEnd)}\n\n${moved.join('\n')}${cleaned}`;
+}
+
+export async function layoutArms(files: string[], out: string, limit: number) {
+  const chats = await loudChats(files);
+  const all = [...chats.values()].flat().filter((prompt) => fixedHits(prompt.prompt).length);
+  const step = Math.max(1, Math.floor(all.length / Math.max(1, limit)));
+  const chosen = all.filter((_, index) => index % step === 0).slice(0, limit);
+  mkdirSync(out, { recursive: true });
+  const points = chosen.map((prompt) => ({
+    id: chatHash(`${prompt.chat}|${prompt.index}`), chat: chatHash(prompt.chat), member: chatHash(prompt.member), index: prompt.index, cutId: 0,
+    body: prompt.body ?? {}, prompts: { trim: prompt.prompt, compact: moveFixedText(prompt.prompt) },
+  }));
+  writeFileSync(join(out, 'points.jsonl'), points.map((point) => JSON.stringify(point)).join('\n') + '\n', 'utf-8');
+  writeFileSync(join(out, 'manifest.json'), `${JSON.stringify({ format: 1, plan: 'v3.0 43 C M43-C2', arms: { trim: 'as recorded', compact: 'fixed instruction sentences moved to the end of the system preamble' }, points: points.map((point) => point.id) }, null, 1)}\n`, 'utf-8');
+  return { out, candidates: all.length, chosen: points.length, movedCharsMean: Math.round(points.reduce((sum, point) => sum + (point.prompts.trim.length - point.prompts.compact.length), 0) / Math.max(1, points.length)) };
+}
+
 const argValue = (args: string[], name: string) => { const at = args.indexOf(name); return at >= 0 ? args[at + 1] ?? null : null; };
 
 export async function main(argv: string[]) {
@@ -148,6 +184,7 @@ export async function main(argv: string[]) {
     console.log(USAGE);
     return null;
   }
+  if (argv[0] === 'layout') return layoutArms(files, argValue(argv, '--out') ?? 'C:/dev/so-lanes/rating/m43-c2-layout', Number(argValue(argv, '--points') ?? 24));
   return measure(files, { tokenizer: argValue(argv, '--tokenizer') ?? DEFAULT_TOKENIZER, model: argValue(argv, '--model') ?? DEFAULT_MODEL, estimate: argv.includes('--estimate') });
 }
 
