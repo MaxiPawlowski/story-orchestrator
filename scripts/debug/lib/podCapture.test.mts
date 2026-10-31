@@ -96,6 +96,7 @@ test('ssh command lines: the tunnel forwards only the llama port, exec pins the 
   assert.deepEqual(tunnel.slice(0, 4), ['-N', '-T', '-L', '127.0.0.1:18082:127.0.0.1:8080']);
   assert.ok(tunnel.includes('ExitOnForwardFailure=yes') && tunnel.includes('StrictHostKeyChecking=yes') && tunnel.includes('BatchMode=yes'));
   assert.equal(tunnel.at(-1), 'root@1.2.3.4');
+  assert.equal(tunnelArgs({ ...target, remotePort: 18080 })[3], '127.0.0.1:18082:127.0.0.1:18080');
   assert.equal(execArgs(target, 'echo hi').at(-1), 'echo hi');
   assert.match(tickCommand('/tmp/llama-server.log', 10, 100), /tail -c \+11 '\/tmp\/llama-server\.log' 2>\/dev\/null \| head -c 100$/);
   const split = splitTick(Buffer.from('0, 1, 2, 3, 4, 5, 6\n__SO_GPU_END__\n42\n__SO_SIZE_END__\nlog bytes\n'));

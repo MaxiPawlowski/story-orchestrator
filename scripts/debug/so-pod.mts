@@ -14,8 +14,10 @@ const USAGE = `Usage: node scripts/debug/so-pod.mts <command> <k> [...]
 Pod-side evidence for a RunPod llama-server pod k (lanes reach it through the tunnel 127.0.0.1:${POD_TUNNEL_BASE}+k).
 Everything lands in <so-lanes>/pods/<k>/ (outside the repo and outside ST's public/: the llama log is private evidence).
 
-  target <k> --host <ip> --ssh-port <port> [--pod-id <id>] [--key <file>] [--known-hosts <file>] [--host-key-alias <a>]
-                 [--remote-log <path>]
+  target <k> --host <ip> --ssh-port <port> [--pod-id <id>] [--key <file>] [--known-hosts <file|none>] [--host-key-alias <a>]
+                 [--remote-log <path>] [--remote-port <port, default 8080; Vast: 18080, its jupyter holds 8080>]
+                 (an explicit --known-hosts drops the RunPod host-key alias runpod-llm; a non-RunPod host such as Vast
+                 passes its own --key and --known-hosts, docs/plans/v3.0/vast-runbook.md)
                  record where pod k's sshd is (RunPod get-pod -> runtime ssh.direct; the port moves on every start
                  and restart, so re-run this after each one: a running 'up' picks the new port at its next reconnect)
   up <k> [--interval-ms <ms>]
@@ -62,9 +64,12 @@ export function parsePod(raw: string | undefined): number | null {
 export function targetFromArgs(pod: number, args: string[], env: NodeJS.ProcessEnv = process.env): PodTarget {
   const host = argValue(args, '--host');
   const sshPort = Number(argValue(args, '--ssh-port'));
+  const remotePort = Number(argValue(args, '--remote-port', '8080'));
+  if (!Number.isInteger(remotePort) || remotePort <= 0) throw new Error('--remote-port must be a port number (the box llama-server port)');
   if (!host || !Number.isInteger(sshPort) || sshPort <= 0) throw new Error('target needs --host <ip> and --ssh-port <port> (RunPod get-pod -> runtime ssh.direct, only while RUNNING)');
   const knownHostsDefault = env.SO_POD_KNOWN_HOSTS ?? 'C:/dev/comfy-pod/local/known_hosts';
-  const knownHosts = argValue(args, '--known-hosts') ?? (existsSync(knownHostsDefault) ? knownHostsDefault : null);
+  const knownHostsArg = argValue(args, '--known-hosts');
+  const knownHosts = knownHostsArg === 'none' ? null : knownHostsArg ?? (existsSync(knownHostsDefault) ? knownHostsDefault : null);
   return {
     host,
     sshPort,
@@ -73,8 +78,9 @@ export function targetFromArgs(pod: number, args: string[], env: NodeJS.ProcessE
     user: 'root',
     key: argValue(args, '--key') ?? env.SO_POD_SSH_KEY ?? resolve(homedir(), '.ssh', 'id_ed25519_runpod'),
     knownHosts,
-    hostKeyAlias: argValue(args, '--host-key-alias') ?? (knownHosts ? 'runpod-llm' : null),
+    hostKeyAlias: argValue(args, '--host-key-alias') ?? (knownHosts && knownHostsArg === null ? 'runpod-llm' : null),
     remoteLog: argValue(args, '--remote-log') ?? REMOTE_LOG,
+    remotePort,
   };
 }
 
