@@ -133,6 +133,7 @@ export const sanitizeHelpSettings = (value: unknown): HelpSettings => ({
 export const SPIKE_FLAGS = [
   "swipeBackCache", "sp6Complications",
   "reasoningEffect", "editReread", "thoughtCarry",
+  "checkClocks", "relationGraph", "selfEditMemory", "promptCompress", "phraseBans", "cpuReranker",
 ] as const;
 
 export type SpikeFlag = (typeof SPIKE_FLAGS)[number];

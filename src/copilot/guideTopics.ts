@@ -219,11 +219,12 @@ export const GUIDE_TOPICS = {
   },
   "experimental-effects": {
     title: "Experimental effects",
-    fields: "reasoning, effects.reasoning, complications",
+    fields: "reasoning, effects.reasoning, complications, clocks",
     text: "Reply thinking resolves checkpoint effects.reasoning, then story reasoning, then the install default (off, low, medium or high). Studio Story edits the story default. "
       + "The override switch is on by default; only an already-thinking llama.cpp setup is budgeted. Low gives 128 thought tokens and can break group reply form. "
       + "complications are lines released into a stalled beat, behind their own default-on spike switch, "
-      + "after complication_after (default 3) player turns in a row read below the tension target; a multi-reply turn counts once.",
+      + "after complication_after (default 3) player turns in a row read below the tension target; a multi-reply turn counts once. "
+      + "clocks (spike checkClocks) tick on check misses named in ticks_on; from near.at the near line rides each reply, full_line once full.",
   },
   gates: {
     title: "Gates",

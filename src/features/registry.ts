@@ -457,7 +457,11 @@ const CORE_FEATURES: readonly Feature[] = [
     oneLine: "Unmeasured trials.",
     what: "Each experiment sits behind its own switch, on by default so it is seen in play.",
     where: settingsAt("#so-diagnostics", "Diagnostics"),
-    settings: ["spikes.swipeBackCache", "spikes.sp6Complications", "spikes.reasoningEffect", "spikes.editReread"], doc: "setup/settings-reference.md", status: "experimental",
+    settings: [
+      "spikes.swipeBackCache", "spikes.sp6Complications", "spikes.reasoningEffect", "spikes.editReread",
+      "spikes.checkClocks", "spikes.relationGraph", "spikes.selfEditMemory", "spikes.promptCompress", "spikes.phraseBans", "spikes.cpuReranker",
+    ],
+    doc: "setup/settings-reference.md", status: "experimental",
   },
 ];
 

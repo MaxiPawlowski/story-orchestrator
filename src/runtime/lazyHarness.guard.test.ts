@@ -19,6 +19,12 @@ const SPIKES = [
   "src/runtime/spikes/swipeBack.ts",
   "src/runtime/spikes/swipeCache.ts",
   "src/runtime/spikes/thoughtCarry.ts",
+  "src/runtime/spikes/checkClocks.ts",
+  "src/runtime/spikes/relationGraph.ts",
+  "src/runtime/spikes/selfEditMemory.ts",
+  "src/runtime/spikes/promptCompress.ts",
+  "src/runtime/spikes/phraseBans.ts",
+  "src/runtime/spikes/cpuReranker.ts",
 ];
 const SPIKE_PATTERN = /^src\/runtime\/spikes\//;
 const DROPPED_SPIKES = [

@@ -227,6 +227,12 @@ its key to `false` in the extension's stored settings (`spikes` inside `extensio
 | reasoningEffect | Lets a scene set its own reply thinking budget, over the install's Reply thinking. | On | `spikes.reasoningEffect` |
 | editReread | After you edit the last reply, your next reply waits until the edit has been read, up to 15 seconds. | On | `spikes.editReread` |
 | thoughtCarry | When no private intent is ready for a character, a short aim from that character's own last thought stands in. | On | `spikes.thoughtCarry` |
+| checkClocks | In a story that declares clocks, a failed check ticks its clock and the narrator feels the pressure once the clock is nearly full. | On | `spikes.checkClocks` |
+| relationGraph | Builds a read-only map of who and what the story's memories connect, for an author view and a recall trial. Nothing in play reads it yet. | On | `spikes.relationGraph` |
+| selfEditMemory | A trial of short per-character notes kept by the memory model. Built and tested offline; nothing in play reads it yet. | On | `spikes.selfEditMemory` |
+| promptCompress | A trial of shortening older chat history before it is sent. Measured offline; nothing in play uses it yet. | On | `spikes.promptCompress` |
+| phraseBans | A trial of banning overused phrases on a patched local llama.cpp. Sends nothing until the server reports the feature. | On | `spikes.phraseBans` |
+| cpuReranker | A trial of a small local reranking model for lore and recall. Needs a model the owner has not downloaded; does nothing until then. | On | `spikes.cpuReranker` |
 
 ---
 
