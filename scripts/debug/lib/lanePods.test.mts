@@ -129,3 +129,16 @@ test('the local controller port is reachable only for a lane started with --allo
   assert.ok(offlineProblems(settings, 8110, { podPort: null }).some((problem) => problem.includes('18888')), 'control: without the opt-in the controller is refused');
   assert.ok(!offlineProblems(settings, 8110, { podPort: null, extraPorts: laneExtraPorts(null, true, {}) }).some((problem) => problem.includes('18888')));
 });
+
+test('extra ports (the local controller for --from-local) retarget too; without them the controller URL is left alone', () => {
+  const before = settings(['http://127.0.0.1:18888', 'http://127.0.0.1:18888/', 'http://127.0.0.1:1235']);
+  assert.deepEqual(retargetProfiles(before, 18081).changed, []);
+  const { next, changed } = retargetProfiles(before, 18081, [18888]);
+  assert.deepEqual((next.extension_settings as any).connectionManager.profiles.map((profile: any) => profile['api-url']), ['http://127.0.0.1:18081', 'http://127.0.0.1:18081/', 'http://127.0.0.1:1235']);
+  assert.deepEqual(changed.map((entry) => entry.name), ['P0', 'P1']);
+  assert.deepEqual(podPortsIn(next), [18081]);
+  const urls = retargetPodUrls({ textgen: { server_urls: { llamacpp: 'http://127.0.0.1:18888' } } }, 18081, [18888]);
+  assert.deepEqual(urls.changed, ['http://127.0.0.1:18888']);
+  assert.equal((urls.next as any).textgen.server_urls.llamacpp, 'http://127.0.0.1:18081');
+  assert.deepEqual(retargetPodUrls({ url: 'http://127.0.0.1:18888' }, 18081).changed, []);
+});

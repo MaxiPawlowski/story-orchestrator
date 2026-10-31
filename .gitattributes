@@ -1,1 +1,2 @@
 scripts/local/llama-patches/*.patch -text
+scripts/remote/*.sh text eol=lf
