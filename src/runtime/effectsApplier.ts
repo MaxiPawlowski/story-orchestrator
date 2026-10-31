@@ -484,7 +484,7 @@ export class EffectsApplier {
     const view = this.deps.scope?.() ?? NO_SCOPE;
     let spoken = 0;
     for (let index = 0; index < replies.length; index += 1) {
-      await this.notes.post("normal", false);
+      if (this.notes.waiting) await this.notes.post("normal", false);
       if (!run.stillOwns()) return spoken;
       const reply = replies[index];
       if (!this.admits(reply, trigger, aliases)) continue;

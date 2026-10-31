@@ -48,6 +48,8 @@ export class TransitionNoteQueue {
   private extras: Announcing | null = null;
   constructor(private readonly deps: NoteQueueDeps) {}
 
+  get waiting(): boolean { return this.pending.length > 0; }
+
   queue(raw: string, what: string, extras: Announcing, checkpointId?: string) {
     const { chatId, lastMessageId, activeCheckpointId } = this.deps.moment();
     this.extras = extras;
