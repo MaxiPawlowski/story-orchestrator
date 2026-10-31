@@ -34,6 +34,7 @@ export function loudPrompt(row: unknown, file: string): LoudPrompt | null {
 export async function loudChats(files: readonly string[]): Promise<Map<string, LoudPrompt[]>> {
   const chats = new Map<string, LoudPrompt[]>();
   for (const file of files) {
+    if (!existsSync(file)) throw new Error(`no payload file at ${file}`);
     for (const row of await readJsonl(file)) {
       const prompt = loudPrompt(row, file);
       if (prompt) chats.set(prompt.chat, [...(chats.get(prompt.chat) ?? []), prompt]);
