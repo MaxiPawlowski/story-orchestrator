@@ -661,3 +661,4 @@ Branch `v3.0-owner-1031` (owner "as recommended"): HF-REGEN for the `/comment` t
 - Live: not run. jest proves the queue and drop rules; the host order (note before the player row on a real send) rests on
   ST source. A lane would need this build served without staging into the owner's ST, which this run was told not to do:
   owed, one no-model lane check (announce on, `/cp` transition, send, regenerate, swipe).
+- Gates: `npm run gates:quick` green (55.3s). `npm run gates` (no `--resume`, Storybook included): run 1 red (codeHealth S3: `effectsApplier.ts` over the file budget, queue moved to `TransitionNoteQueue`), run 2 all green in 343.9s on `07aa15c08` (jest 11,064 passed / 1 skipped, test:debug 1,733, Storybook 191 suites / 1,133 tests, replay, release, plugin, lint, typechecks, build). Not staged.
