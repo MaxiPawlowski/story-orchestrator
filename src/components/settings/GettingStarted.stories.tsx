@@ -40,4 +40,15 @@ export const FoldsAwayWhenHidden: Story = {
   },
 };
 
-export const Phone: Story = { parameters: { testViewport: { width: 390, height: 844 } } };
+export const Phone: Story = {
+  parameters: { testViewport: { width: 390, height: 844 } },
+  play: async ({ canvasElement }) => {
+    for (const row of canvasElement.querySelectorAll<HTMLElement>('[data-so="getting-started-step"]')) {
+      const title = row.querySelector<HTMLElement>('[data-so="getting-started-title"]');
+      const button = row.querySelector<HTMLElement>('[data-so="getting-started-reveal"]');
+      if (!title || !button) continue;
+      await expect(Math.abs(button.getBoundingClientRect().top - row.getBoundingClientRect().top)).toBeLessThan(8);
+      await expect(button.getBoundingClientRect().left).toBeGreaterThan(title.getBoundingClientRect().left);
+    }
+  },
+};

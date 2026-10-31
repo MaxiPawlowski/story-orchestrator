@@ -1,4 +1,4 @@
-import { createContext, useContext, type ReactNode, type Ref } from "react";
+import { createContext, useContext, useEffect, useRef, useState, type ReactNode, type Ref } from "react";
 import { cx } from "./cx";
 import { roveWithin } from "./rovingKeys";
 
@@ -38,12 +38,39 @@ export interface TabListProps {
   id?: string;
 }
 
-export const TabList = ({ label, variant = "underline", orientation = "horizontal", children, className, id }: TabListProps) => (
-  <div id={id} role="tablist" aria-label={label} aria-orientation={orientation} data-variant={variant} className={cx("so-tablist", className)}
-    onKeyDown={(event) => { roveWithin(event, "[role=tab]", orientation); }}>
-    {children}
-  </div>
-);
+export type TabOverflow = "start" | "end" | "both";
+
+export const tabOverflow = ({ scrollLeft, scrollWidth, clientWidth }: { scrollLeft: number; scrollWidth: number; clientWidth: number }): TabOverflow | undefined => {
+  const before = scrollLeft > 1;
+  const after = scrollLeft + clientWidth < scrollWidth - 1;
+  return before && after ? "both" : before ? "start" : after ? "end" : undefined;
+};
+
+const useTabOverflow = (horizontal: boolean) => {
+  const ref = useRef<HTMLDivElement | null>(null);
+  const [overflow, setOverflow] = useState<TabOverflow | undefined>(undefined);
+  useEffect(() => {
+    const list = ref.current;
+    if (!list || !horizontal) return undefined;
+    const measure = () => setOverflow(tabOverflow(list));
+    measure();
+    list.addEventListener("scroll", measure, { passive: true });
+    const observer = typeof ResizeObserver === "function" ? new ResizeObserver(measure) : null;
+    observer?.observe(list);
+    return () => { list.removeEventListener("scroll", measure); observer?.disconnect(); };
+  }, [horizontal]);
+  return { ref, overflow };
+};
+
+export const TabList = ({ label, variant = "underline", orientation = "horizontal", children, className, id }: TabListProps) => {
+  const { ref, overflow } = useTabOverflow(orientation === "horizontal");
+  return (
+    <div ref={ref} id={id} role="tablist" aria-label={label} aria-orientation={orientation} data-variant={variant} data-overflow={overflow} className={cx("so-tablist", className)}
+      onKeyDown={(event) => { roveWithin(event, "[role=tab]", orientation); }}>
+      {children}
+    </div>
+  );
+};
 
 export interface TabProps {
   value: string;

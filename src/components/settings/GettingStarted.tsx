@@ -20,16 +20,15 @@ export function GettingStarted({ steps, dismissed, onReveal, onHide, installChec
       <div className="text-xs font-medium">{HELP_COPY.gettingStartedHeading}</div>
       <ol className="so-help-list flex flex-col gap-1">
         {steps.map((step) => (
-          <li key={step.id} data-so="getting-started-step" data-step={step.id} data-done={step.done} className="flex flex-col gap-0.5 text-xs">
-            <div className="flex flex-wrap items-center gap-2">
-              <i className={step.done ? "fa-solid fa-circle-check text-[var(--so-ok)]" : "fa-regular fa-circle"} aria-hidden="true" />
-              <span className="font-medium">{step.title}</span>
-              {step.optional && <span className="opacity-70">({HELP_COPY.optional})</span>}
-              {step.done
-                ? <StatusText as="span" tone="ok">{HELP_COPY.done}</StatusText>
-                : <Button type="button" data-so="getting-started-reveal" size="sm" onClick={() => onReveal(step.targetId)}>{HELP_COPY.showMe}</Button>}
+          <li key={step.id} data-so="getting-started-step" data-step={step.id} data-done={step.done} className="flex items-start gap-2 text-xs">
+            <i className={`${step.done ? "fa-solid fa-circle-check text-[var(--so-ok)]" : "fa-regular fa-circle"} mt-1`} aria-hidden="true" />
+            <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+              <span data-so="getting-started-title"><span className="font-medium">{step.title}</span>{step.optional && <span className="opacity-70"> ({HELP_COPY.optional})</span>}</span>
+              {!step.done && <div className="opacity-70">{step.consequence}</div>}
             </div>
-            {!step.done && <div className="opacity-70">{step.consequence}</div>}
+            {step.done
+              ? <StatusText as="span" tone="ok" className="shrink-0">{HELP_COPY.done}</StatusText>
+              : <Button type="button" data-so="getting-started-reveal" size="sm" className="shrink-0" onClick={() => onReveal(step.targetId)}>{HELP_COPY.showMe}</Button>}
           </li>
         ))}
       </ol>

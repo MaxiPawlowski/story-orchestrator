@@ -9,6 +9,7 @@
   --so-surface-3: color-mix(in srgb, var(--SmartThemeBodyColor) 9%, var(--SmartThemeBlurTintColor));
   --so-surface-solid: linear-gradient(var(--so-surface), var(--so-surface)), linear-gradient(var(--so-surface), var(--so-surface)), linear-gradient(var(--so-surface), var(--so-surface));
   --so-field: var(--black30a);
+  --so-mask: #000;
   --so-line: color-mix(in srgb, var(--SmartThemeBodyColor) 14%, transparent);
   --so-line-strong: var(--SmartThemeBorderColor);
   --so-blur: var(--SmartThemeBlurStrength);
