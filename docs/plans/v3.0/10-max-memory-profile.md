@@ -530,3 +530,14 @@ W0 upkeep 2026-10-30 (CPU only, worktree `C:\dev\so-a2`, no GPU, owner controlle
   server (EADDRINUSE) and a jest cache EPERM; then `orphans.win.test.mjs` timing out on `Get-CimInstance` at 100 % CPU
   (other sessions' gates). No code change between them and the green run.
 - Pushed `origin/v3.0-a2-maxmem`. Not merged to master (GPU-gated: A2-1, A2-2 J13, adoption).
+
+## Resume 2026-10-31 (GPU queue G2)
+
+### A2-1 light-sleep admission live re-check (00:32-00:54Z, `bench-controller/10/logs-a21/`)
+
+- Owner controller stopped first; owner `config.json` sha256 `d48e439da428…` before and after (backup `C:/dev/backups/story-orchestrator/controller-config-g2-*.json`). Candidate L (`ctl-L.json`, so5), script `run-a2-1.sh` = the smoke S2 protocol (fill 60, then 3 SDXL scenes each followed by an 8-request rotation) with `/status` captured after every image and a 2 s reserve sample.
+- Decision on every image: `swap-text`, 3 of 3. Reason names the numbers: "Light sleep skipped: about 3,984 (3,870, 3,870) MiB free after it, short of image 9,059 + reserve 1,024 MiB"; `lastResidency.lightSleep` = `{stage: estimate, fits: false, leftMiB -5,075/-5,189}`. As expected in §Light-sleep admission change: the loader estimate always swaps on this card, so no image streamed beside a sleeper.
+- GPU reserve held: lowest GPU free in 1,234 samples (1 s) **1,070 MiB** (Max reserve 1,024; the 10-29 smoke fell to 537 / 275 MiB).
+- Renders 3 of 3 ok; fitCorrection 0; 0 spills; 0 errors; reserve score pass (0 reserve errors, no crash); full sleeps 3, wakes 3 (~23 s each), 0 wake failures, 0 light sleeps.
+- Fill rotation: 60 requests, 0 errors, chat TTFT p50 4,708 ms, decode p50 43.7 tok/s. After each image all 7 chat requests were misses (TTFT p50 13.3-15.9 s): the swap costs the warm cache, the known M5 miss.
+- Verdict: **pass** (decision and reason in `/status`, reserve held live).
