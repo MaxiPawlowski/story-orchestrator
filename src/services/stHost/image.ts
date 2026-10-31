@@ -86,7 +86,32 @@ export async function imageSave(data: string, format: string, folder: string, na
 
 export async function imageDelete(path: string): Promise<WriteResult<{ path: string }>> {
   const response = await fetch("/api/images/delete", { method: "POST", headers: headers(), body: JSON.stringify({ path }) });
-  return response.ok ? wrote({ path }) : couldNot(`ST did not remove the unused image (${response.status}).`);
+  return response.ok || response.status === 404 ? wrote({ path }) : couldNot(`ST did not remove the unused image (${response.status}).`);
+}
+
+export function imageChatId(): string | null {
+  const id = getContext().chatId;
+  return typeof id === "string" && id ? id : null;
+}
+
+const ROWS_KEY = "story_orchestrator_image_rows";
+
+export function imageRowRecord(chatId: string): string[] {
+  const stored: unknown = getContext().chatMetadata[ROWS_KEY];
+  if (!isRecord(stored) || stored.chatId !== chatId || !Array.isArray(stored.paths)) return [];
+  return stored.paths.filter((path): path is string => typeof path === "string" && path.length > 0);
+}
+
+export async function imageWriteRowRecord(chatId: string, paths: string[], persist: boolean): Promise<WriteResult<{ chatId: string }>> {
+  const ctx = getContext();
+  if (ctx.chatId !== chatId) return couldNot("The waiting pictures belong to another chat.");
+  if (paths.length) ctx.chatMetadata[ROWS_KEY] = { chatId, paths: [...paths] };
+  else Reflect.deleteProperty(ctx.chatMetadata, ROWS_KEY);
+  if (!persist) return wrote({ chatId });
+  const save = await saveOpenChat("image-rows");
+  if (!save.ok) return save;
+  const observed = await save.observed;
+  return save.chatId === chatId && observed.ok ? wrote({ chatId }) : couldNot(observed.lost ?? "The waiting pictures were not saved to this chat.");
 }
 
 export async function imagePlace(chatId: string, target: number | null, caption: string, media: ImageMedia, placement: "inline" | "message" | "background"): Promise<WriteResult<{ placed: true }>> {
