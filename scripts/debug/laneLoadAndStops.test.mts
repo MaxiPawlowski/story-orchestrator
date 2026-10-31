@@ -50,11 +50,31 @@ test('the memory-profile select is revealed: every ancestor details opens', asyn
   assert.equal(lazy.open, true);
 });
 
+function fakeClock() {
+  const clock = { at: 0, slept: [] as number[] };
+  return { clock, now: () => clock.at, sleep: async (ms: number) => { clock.slept.push(ms); clock.at += ms; } };
+}
+
 test('a control that never mounts is reported not found after the wait, never as revealed', async () => {
   let reads = 0;
   g.document = { querySelector: () => { reads += 1; return null; } };
   const page = { evaluate: async (fn: (arg: unknown) => unknown, arg: unknown) => fn(arg) };
-  const state = await revealSettingsControl(page, '#so-extraction-profile', { timeoutMs: 30, pollMs: 5 });
+  const { clock, now, sleep } = fakeClock();
+  const state = await revealSettingsControl(page, '#so-extraction-profile', { timeoutMs: 30, pollMs: 5, now, sleep });
   assert.deepEqual(state, { found: false, opened: 0 });
-  assert.ok(reads > 2, 'it polled while the lazy group could still mount');
+  assert.equal(reads, 7, 'it polled at 0, 5, ... 30 ms while the lazy group could still mount');
+  assert.deepEqual(clock.slept, [5, 5, 5, 5, 5, 5]);
+});
+
+test('a control that mounts mid-wait is revealed on the poll that finds it', async () => {
+  let reads = 0;
+  const memory = details(false);
+  const select = { tagName: 'SELECT', parentElement: memory };
+  g.document = { querySelector: () => { reads += 1; return reads >= 3 ? select : null; } };
+  const page = { evaluate: async (fn: (arg: unknown) => unknown, arg: unknown) => fn(arg) };
+  const { clock, now, sleep } = fakeClock();
+  const state = await revealSettingsControl(page, '#so-extraction-profile', { timeoutMs: 30, pollMs: 5, now, sleep });
+  assert.deepEqual(state, { found: true, opened: 1 });
+  assert.equal(reads, 3);
+  assert.equal(clock.at, 10);
 });
