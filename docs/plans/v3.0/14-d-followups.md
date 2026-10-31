@@ -203,3 +203,9 @@ floors unchanged (v2.9 11 stop rules). No GPU, no model lane was used for this p
 - Evidence: `C:/dev/so-lanes/35/b2ext/lt06-g/` (manifest, bodies, responses, `rater/passA|passB`, score.json), logs `lt06-g.*.log`; void first capture `lt06-g-void-notrunnable/`. Not archived to so-sessions yet.
 
 Verdict: **F4 miss again (-0.15)**, F3 now fails on 2 rater flags (adjudication owed for s18/current). Owner question stands (gpu-queue §Unresolved D1): stop, or one round on the overlap cluster.
+
+## LT06 harness port merge 2026-10-31
+
+- Branch `v3.0-lt06-ui-port` `b0266258` (selector-only port to the story sheet, 80 scenarios + `frozen.json` hashes), master `380de870` merged at `e3598bd8`.
+- `npm run gates:quick` green (165.5s). `npm run gates` (no `--resume`, Storybook included): all green in 522.4s (jest 11,058 passed / 1 skipped, test:debug 1,733, Storybook 191 suites / 1,132 tests, replay, release, plugin, lint, typechecks, build).
+- No live run: harness-only change; the D1 rerun above already used this corpus.

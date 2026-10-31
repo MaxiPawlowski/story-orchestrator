@@ -14,18 +14,18 @@ export const GROUNDING_FEATURES: readonly Feature[] = [
   {
     id: "history-notes", name: "Time and place notes in the history", area: "characters", audience: "author",
     oneLine: "Messages where the scene or the time changed carry a short note of the day and place.",
-    what: "A trial, off until it is rated. The first message after the place or the time of day changed carries a note such as [Day 2, evening, the docks] in the prompt; "
+    what: "On since its blind rating passed. The first message after the place or the time of day changed carries a note such as [Day 2, evening, the docks] in the prompt; "
       + "the chat itself is not changed. A place the player has not learned is left out, and a note written once stays as it was. A reply that repeats a note has it taken out.",
     where: settingsAt("#so-history-notes", "Authoring › Prompt trials"),
-    settings: ["memory.historyNotes"], guideTopic: "story-time", doc: authorGuideDoc("story-time"), status: "off-by-default", needs: ["story"],
+    settings: ["memory.historyNotes"], guideTopic: "story-time", doc: authorGuideDoc("story-time"), status: "shipped", needs: ["story"],
   },
   {
     id: "outward-narration", name: "Narrate only what can be seen", area: "characters", audience: "author",
     oneLine: "The narrator shows other characters' feelings through what they say and do.",
-    what: "A trial, off until it is rated. A narrator that sees the cast's private aims is also asked to narrate only what the player could see or hear: "
+    what: "On since its blind rating passed. A narrator that sees the cast's private aims is also asked to narrate only what the player could see or hear: "
       + "no reported thoughts, explained motives or feelings stated as fact. What the narrator is told is unchanged.",
     where: settingsAt("#so-outward-narration", "Authoring › Prompt trials"),
-    settings: ["memory.outwardNarration"], guideTopic: "roster", doc: authorGuideDoc("roster"), status: "off-by-default", needs: ["story"],
+    settings: ["memory.outwardNarration"], guideTopic: "roster", doc: authorGuideDoc("roster"), status: "shipped", needs: ["story"],
   },
   {
     id: "swipe-contrast", name: "A swipe sees the reply it replaces", area: "characters", audience: "author",

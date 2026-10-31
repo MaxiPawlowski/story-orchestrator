@@ -1,0 +1,248 @@
+{
+  "model": "any",
+  "_note": "v3.0 harvest defect check 2026-10-30 item 3 (SUMMARY.md §Defect check, M05), row HF-FOLD, Chat Completion lane. Two sealed chapters with fold on must leave ONE leading folded block in ST's real CC prompt assembly (setOpenAIMessages, openai.js:578-647), with no ignored interior row between kept rows and the tail kept (unit twin: src/runtime/chapterFoldHole.review.test.ts). Story: three chapters, keep_tail 2 on the two that seal; 8 marked rows ([hf-r<index>]) in each, 4 in the third; each seal is the transition boundary's own seal (/cp set step N) with a mocked seal answer (storyOrchestratorDebugChapterSealResponse), so the records are deterministic. Before the fix the fold was two ranges (0-5, 8-13) and rows 6-7 (chapter 1's tail) were a hole; now it is one block 0-13 and rows 14-19 are kept. Capture: one real (non-dry) ST Generate for Arin (/trigger await=true), so the generate interceptor and the fold run (a dry run skips interceptors, script.js:4562); talkControlInterceptor is wrapped for that one call only (restored in finally and in cleanup) to read the IGNORE flags on the chat it was handed, and GENERATE_AFTER_DATA gives the CC messages ST built. The CC transport (**/api/backends/chat-completions/generate) is blocked for that call, so NO model call is made: the owner's Terra route has no OpenAI-compatible endpoint (the harness plugin serves only /status, /complete, /cancel, /agent/*), and the hole is decided before the request leaves. Asserts: the folded rows are exactly a leading run equal to [record 1 from .. record 2 to - keep_tail], no IGNORE flag after the first kept row, every CC message has string content, every kept marker is in the CC prompt once and in chat order, no folded marker reaches it. Lane needs: main API Chat Completion (requires.mainApi openai) with a status check that passes (Generate refuses with no_connection), e.g. a CC profile source custom at http://127.0.0.1:18888/v1 on the local Artemis server with custom_include_body chat_template_kwargs {enable_thinking: false}; lane 41 has only Text Completion profiles, so that profile has to be created (owner types any key). Run: node scripts/debug/st-lanes.mts run <CC lane> -- scripts/debug/so-scenario.mts run test/scenarios/v30-hf-fold.json --sandbox --group \"Group: Arin, DM Narrator\", twice.",
+  "requires": {
+    "lane": "model",
+    "group": "Group: Arin, DM Narrator",
+    "members": [
+      "Arin",
+      "DM Narrator"
+    ],
+    "mainApi": "openai",
+    "judge": "off",
+    "briefingDraft": "off",
+    "innerBeat": "off",
+    "why": "the M05 hole is in ST's Chat Completion assembly (setOpenAIMessages), so the main API must be Chat Completion and connected; seals are mocked so the judge stays off; the inner beat would make a model call inside the one Generate"
+  },
+  "steps": [
+    {
+      "ext_setting": {
+        "extension": "story-orchestrator",
+        "key": [
+          "settings",
+          "image",
+          "enabled"
+        ],
+        "value": false
+      }
+    },
+    {
+      "ext_setting": {
+        "extension": "story-orchestrator",
+        "key": [
+          "settings",
+          "sprites",
+          "enabled"
+        ],
+        "value": false
+      }
+    },
+    {
+      "log": true,
+      "eval": "for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; globalThis.storyOrchestratorDebugCuratorResponse = 'NONE'; const ctx = SillyTavern.getContext(); if (!ctx.groupId || !ctx.chatId) throw new Error('needs a sandbox group chat'); if (ctx.mainApi !== 'openai') throw new Error('needs main API Chat Completion (openai), the lane uses ' + ctx.mainApi); const script = await import('/script.js'); if (script.online_status === 'no_connection') throw new Error('the Chat Completion source is not connected (online_status no_connection): Generate would refuse before the interceptor, script.js:4391'); for (let id = ctx.chat.length - 1; id >= 0; id -= 1) await ctx.deleteMessage(id, undefined, false); if (ctx.chat.length !== 0) throw new Error('the sandbox chat still holds ' + ctx.chat.length + ' message(s)'); const openai = await import('/scripts/openai.js'); return { mainApi: ctx.mainApi, source: openai.oai_settings?.chat_completion_source ?? null, online: String(script.online_status).slice(0, 60) };"
+    },
+    {
+      "import_story": {
+        "id": "so-v30-hf-fold",
+        "title": "SO-V30 HF-FOLD Road",
+        "description": "Synthetic HF-FOLD fixture: three chapters on one road, two of them sealed and folded.",
+        "chapters": [
+          {
+            "id": "ch1",
+            "title": "The First Mile",
+            "player_title": "The First Mile",
+            "seal": {
+              "keep_tail": 2
+            }
+          },
+          {
+            "id": "ch2",
+            "title": "The Second Mile",
+            "player_title": "The Second Mile",
+            "seal": {
+              "keep_tail": 2
+            }
+          },
+          {
+            "id": "ch3",
+            "title": "The Third Mile",
+            "player_title": "The Third Mile"
+          }
+        ],
+        "qualities": [
+          {
+            "key": "step",
+            "type": "int",
+            "source": "extractor",
+            "monotonic": true,
+            "rubric": "How many miles has the party walked?"
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "mile1",
+            "name": "Mile one",
+            "objective": "Walk the first mile.",
+            "type": "anchor",
+            "start": true,
+            "chapter": "ch1"
+          },
+          {
+            "id": "mile2",
+            "name": "Mile two",
+            "objective": "Walk the second mile.",
+            "type": "anchor",
+            "chapter": "ch2"
+          },
+          {
+            "id": "mile3",
+            "name": "Mile three",
+            "objective": "Walk the third mile.",
+            "type": "anchor",
+            "chapter": "ch3"
+          }
+        ],
+        "transitions": [
+          {
+            "from": "mile1",
+            "to": "mile2",
+            "priority": 1,
+            "gate": {
+              "q": "step",
+              "op": ">=",
+              "v": 1
+            }
+          },
+          {
+            "from": "mile2",
+            "to": "mile3",
+            "priority": 1,
+            "gate": {
+              "q": "step",
+              "op": ">=",
+              "v": 2
+            }
+          }
+        ],
+        "roster": [
+          {
+            "id": "arin",
+            "name": "Arin",
+            "role": "a guide"
+          },
+          {
+            "id": "narrator",
+            "name": "DM Narrator",
+            "role": "narrator",
+            "view": "omniscient"
+          }
+        ]
+      }
+    },
+    {
+      "log": true,
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; globalThis.__hfFold = { chapters: JSON.parse(JSON.stringify(rt.getGlobalSettings().memory.chapters ?? {})) }; rt.setExtractionSettings({ cadence: 1000 }); rt.setMemorySettings({ chapters: { ...globalThis.__hfFold.chapters, seal: true, storySoFar: true, fold: true, chronicleTokens: 400, archiveRecall: false, compact: false, recap: false } }); const now = rt.getGlobalSettings().memory.chapters; if (now.seal !== true || now.storySoFar !== true || now.fold !== true || now.archiveRecall !== false || now.compact !== false) throw new Error('the chapter settings did not stick: ' + JSON.stringify(now)); if (rt.getSnapshot().memory.settings.enabled === false) throw new Error('memory is off, chapters cannot seal'); if (rt.getTalkState().enabled) rt.setTalkDirectionEnabled(false); if (rt.getTalkState().enabled) throw new Error('speaker direction is still on for this chat, it could stop the one Generate the check needs'); if (SillyTavern.getContext().chat.length !== 0) throw new Error('rows appeared before the story start'); return { chapters: now, talk: false };"
+    },
+    {
+      "log": true,
+      "eval": "const ctx = SillyTavern.getContext(); const say = async (command) => { const out = await ctx.executeSlashCommandsWithOptions(command); if (out?.isError) throw new Error(command + ' failed: ' + out.errorMessage); }; const post = async (count, chapter) => { for (let n = 0; n < count; n += 1) { const id = ctx.chat.length; if (n % 2 === 0) await say('/send compact=true I walk on with Arin through ' + chapter + ' [hf-r' + id + '].'); else await say('/sendas name=Arin raw=false Arin points out the road ahead in ' + chapter + ' [hf-r' + id + '].'); if (!String(ctx.chat[id]?.mes ?? '').includes('[hf-r' + id + ']')) throw new Error('row ' + id + ' did not land where expected: ' + JSON.stringify(ctx.chat[id]?.mes)); } }; await post(8, 'the first mile'); return { chatLength: ctx.chat.length };"
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 1500,
+        "timeoutMs": 60000
+      }
+    },
+    {
+      "eval": "globalThis.storyOrchestratorDebugSceneSummaryResponse = 'The pair kept walking the road.'; globalThis.storyOrchestratorDebugChapterSealResponse = 'SUMMARY:\\nHF-FOLD chapter one summary. The pair walked the road and talked.\\nSHORT:\\nHF-FOLD chapter one short: the pair walked on.\\nCONSEQUENCES:\\nPEOPLE:\\n- Arin: walks on\\nOPEN:'; return { armed: 'ch1' };"
+    },
+    {
+      "slash": "/cp set step 1"
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 1500,
+        "timeoutMs": 60000
+      }
+    },
+    {
+      "keep": true,
+      "log": true,
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; if (rt.getActiveCheckpointInfo()?.id !== 'mile2') throw new Error('did not reach mile2: ' + rt.getActiveCheckpointInfo()?.id); const records = rt.getSnapshot().memory.chapters ?? []; const record = records.find((entry) => entry.chapterId === 'ch1'); if (!record || record.status !== 'sealed') throw new Error('chapter ch1 did not seal on the transition: ' + JSON.stringify(records.map((entry) => [entry.chapterId, entry.status, entry.range]))); return { chapter: record.chapterId, status: record.status, range: record.range, chatLength: SillyTavern.getContext().chat.length };"
+    },
+    {
+      "log": true,
+      "eval": "const ctx = SillyTavern.getContext(); const say = async (command) => { const out = await ctx.executeSlashCommandsWithOptions(command); if (out?.isError) throw new Error(command + ' failed: ' + out.errorMessage); }; const post = async (count, chapter) => { for (let n = 0; n < count; n += 1) { const id = ctx.chat.length; if (n % 2 === 0) await say('/send compact=true I walk on with Arin through ' + chapter + ' [hf-r' + id + '].'); else await say('/sendas name=Arin raw=false Arin points out the road ahead in ' + chapter + ' [hf-r' + id + '].'); if (!String(ctx.chat[id]?.mes ?? '').includes('[hf-r' + id + ']')) throw new Error('row ' + id + ' did not land where expected: ' + JSON.stringify(ctx.chat[id]?.mes)); } }; await post(8, 'the second mile'); return { chatLength: ctx.chat.length };"
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 1500,
+        "timeoutMs": 60000
+      }
+    },
+    {
+      "eval": "globalThis.storyOrchestratorDebugSceneSummaryResponse = 'The pair kept walking the road.'; globalThis.storyOrchestratorDebugChapterSealResponse = 'SUMMARY:\\nHF-FOLD chapter two summary. The pair walked the road and talked.\\nSHORT:\\nHF-FOLD chapter two short: the pair walked on.\\nCONSEQUENCES:\\nPEOPLE:\\n- Arin: walks on\\nOPEN:'; return { armed: 'ch2' };"
+    },
+    {
+      "slash": "/cp set step 2"
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 1500,
+        "timeoutMs": 60000
+      }
+    },
+    {
+      "keep": true,
+      "log": true,
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; if (rt.getActiveCheckpointInfo()?.id !== 'mile3') throw new Error('did not reach mile3: ' + rt.getActiveCheckpointInfo()?.id); const records = rt.getSnapshot().memory.chapters ?? []; const record = records.find((entry) => entry.chapterId === 'ch2'); if (!record || record.status !== 'sealed') throw new Error('chapter ch2 did not seal on the transition: ' + JSON.stringify(records.map((entry) => [entry.chapterId, entry.status, entry.range]))); return { chapter: record.chapterId, status: record.status, range: record.range, chatLength: SillyTavern.getContext().chat.length };"
+    },
+    {
+      "log": true,
+      "eval": "const ctx = SillyTavern.getContext(); const say = async (command) => { const out = await ctx.executeSlashCommandsWithOptions(command); if (out?.isError) throw new Error(command + ' failed: ' + out.errorMessage); }; const post = async (count, chapter) => { for (let n = 0; n < count; n += 1) { const id = ctx.chat.length; if (n % 2 === 0) await say('/send compact=true I walk on with Arin through ' + chapter + ' [hf-r' + id + '].'); else await say('/sendas name=Arin raw=false Arin points out the road ahead in ' + chapter + ' [hf-r' + id + '].'); if (!String(ctx.chat[id]?.mes ?? '').includes('[hf-r' + id + ']')) throw new Error('row ' + id + ' did not land where expected: ' + JSON.stringify(ctx.chat[id]?.mes)); } }; await post(4, 'the third mile'); return { chatLength: ctx.chat.length };"
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 1500,
+        "timeoutMs": 60000
+      }
+    },
+    {
+      "keep": true,
+      "log": true,
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const records = (rt.getSnapshot().memory.chapters ?? []).filter((entry) => entry.status === 'sealed'); const first = records.find((entry) => entry.chapterId === 'ch1'); const second = records.find((entry) => entry.chapterId === 'ch2'); if (!first || !second) throw new Error('two sealed records are needed: ' + JSON.stringify(records.map((entry) => [entry.chapterId, entry.status]))); if (first.range.from !== 0 || second.range.from !== first.range.to + 1) throw new Error('the records are not contiguous from row 0 (a story start after row 0 folds nothing by design): ' + JSON.stringify([first.range, second.range])); if (second.range.to - 2 < first.range.to) throw new Error('chapter 2 is shorter than its keep_tail, chapter 1 tail would not need folding, the check would be vacuous'); const unmarked = ctx.chat.map((row, index) => [index, String(row?.mes ?? '').includes('[hf-r' + index + ']'), Boolean(row?.is_system)]).filter(([, marked, system]) => !marked || system); if (unmarked.length) throw new Error('the chat holds rows the marker check cannot place: ' + JSON.stringify(unmarked)); const block = (rt.getMemoryInjectionBlocks?.() ?? {}); globalThis.__hfFold.lastRow = ctx.chat.length - 1; return { records: [first.range, second.range], lastRow: globalThis.__hfFold.lastRow, expectedFold: [first.range.from, second.range.to - 2], oldBugRanges: [[first.range.from, first.range.to - 2], [second.range.from, second.range.to - 2]], injectionKeys: Object.keys(block) };"
+    },
+    {
+      "block_route": {
+        "pattern": "**/api/backends/chat-completions/generate"
+      }
+    },
+    {
+      "keep": true,
+      "log": true,
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const IGNORE = Symbol.for('ignore'); const original = globalThis.talkControlInterceptor; if (typeof original !== 'function') throw new Error('talkControlInterceptor is not installed'); globalThis.__hfFold.interceptor = original; const seen = { calls: 0 }; let data = null; const onData = (generated, dry) => { if (!dry) data = generated; }; globalThis.talkControlInterceptor = async function (chat, size, abort, type) { const result = await original.call(this, chat, size, abort, type); seen.calls += 1; seen.type = type; seen.rows = Array.isArray(chat) ? chat.map((row) => ({ ignored: Boolean(row?.extra?.[IGNORE]), mes: String(row?.mes ?? '') })) : null; return result; }; ctx.eventSource.on(ctx.eventTypes.GENERATE_AFTER_DATA, onData); let error = null; try { await ctx.executeSlashCommandsWithOptions('/trigger await=true \"Arin\"'); } catch (caught) { error = String(caught?.message ?? caught); } finally { globalThis.talkControlInterceptor = original; ctx.eventSource.removeListener(ctx.eventTypes.GENERATE_AFTER_DATA, onData); } if (globalThis.talkControlInterceptor !== original) throw new Error('the interceptor was not restored'); delete globalThis.__hfFold.interceptor; await new Promise((resolve) => setTimeout(resolve, 1500)); globalThis.__hfFold.seen = seen; globalThis.__hfFold.prompt = Array.isArray(data?.prompt) ? data.prompt.map((message) => (message && typeof message === 'object' ? { role: message.role, content: message.content } : { hole: true, value: String(message) })) : null; globalThis.__hfFold.promptShape = data ? (Array.isArray(data.prompt) ? 'messages' : typeof data.prompt) : 'none'; globalThis.__hfFold.error = error; return { interceptorCalls: seen.calls, type: seen.type ?? null, chatRows: seen.rows?.length ?? null, promptShape: globalThis.__hfFold.promptShape, messages: globalThis.__hfFold.prompt?.length ?? null, error };"
+    },
+    {
+      "unblock_route": {
+        "pattern": "**/api/backends/chat-completions/generate"
+      }
+    },
+    {
+      "keep": true,
+      "log": true,
+      "eval": "const state = globalThis.__hfFold; const records = (globalThis.storyOrchestratorRuntime.getSnapshot().memory.chapters ?? []).filter((entry) => entry.status === 'sealed'); const first = records.find((entry) => entry.chapterId === 'ch1'); const second = records.find((entry) => entry.chapterId === 'ch2'); const keepTail = 2; const problems = []; const seen = state.seen; if (!seen || seen.calls !== 1 || !seen.rows) throw new Error('the generate interceptor did not run exactly once on a real Generate: ' + JSON.stringify({ calls: seen?.calls, error: state.error })); if (state.promptShape !== 'messages' || !state.prompt) throw new Error('GENERATE_AFTER_DATA gave no CC messages array (' + state.promptShape + '): either the main API is not Chat Completion or ST threw while building the prompt (a hole reaches populateChatHistory as undefined, openai.js:948); error: ' + state.error); const marker = (text) => { const found = /\\[hf-r(\\d+)\\]/.exec(text); return found ? Number(found[1]) : null; }; const rows = seen.rows.map((row, position) => ({ position, ignored: row.ignored, id: marker(row.mes) })); const folded = rows.filter((row) => row.ignored); const kept = rows.filter((row) => !row.ignored); const firstKept = rows.findIndex((row) => !row.ignored); const holes = firstKept < 0 ? [] : rows.slice(firstKept).filter((row) => row.ignored).map((row) => row.position); if (!folded.length) problems.push('nothing folded: two sealed chapters with fold on folded no row'); if (holes.length) problems.push('ignored rows after the first kept row (the M05 hole): positions ' + JSON.stringify(holes)); const expected = []; for (let id = first.range.from; id <= second.range.to - keepTail; id += 1) expected.push(id); const foldedIds = folded.map((row) => row.id); if (JSON.stringify(foldedIds) !== JSON.stringify(expected)) problems.push('folded rows are not one block from record 1 through record 2 minus keep_tail: folded ' + JSON.stringify(foldedIds) + ', expected ' + JSON.stringify(expected)); const tail = []; for (let id = second.range.to - keepTail + 1; id <= state.lastRow; id += 1) tail.push(id); const keptIds = kept.map((row) => row.id).filter((id) => id !== null); if (JSON.stringify(keptIds) !== JSON.stringify(tail)) problems.push('kept rows are not the tail: kept ' + JSON.stringify(keptIds) + ', expected ' + JSON.stringify(tail)); const bad = state.prompt.filter((message) => message.hole || typeof message.content !== 'string').length; if (bad) problems.push(bad + ' CC message(s) without string content (a hole)'); const inPrompt = state.prompt.flatMap((message) => [...String(message.content ?? '').matchAll(/\\[hf-r(\\d+)\\]/g)].map((found) => Number(found[1]))); const leaked = inPrompt.filter((id) => expected.includes(id)); if (leaked.length) problems.push('folded rows reached the CC prompt: ' + JSON.stringify(leaked)); const ordered = inPrompt.filter((id) => tail.includes(id)); if (JSON.stringify(ordered) !== JSON.stringify(tail)) problems.push('the CC prompt does not hold every kept row once and in order: ' + JSON.stringify(ordered) + ' vs ' + JSON.stringify(tail)); const out = { records: records.map((entry) => ({ chapter: entry.chapterId, range: entry.range })), keepTail, interceptorRows: rows.length, folded: { count: folded.length, from: foldedIds[0] ?? null, to: foldedIds[foldedIds.length - 1] ?? null }, kept: keptIds, holes, ccMessages: state.prompt.length, ccRoles: state.prompt.map((message) => message.role).join(','), markersInPrompt: inPrompt, generateError: state.error }; if (problems.length) throw new Error(problems.join('; ') + ' :: ' + JSON.stringify(out)); return out;"
+    }
+  ],
+  "cleanup": {
+    "steps": [
+      {
+        "eval": "const rt = globalThis.storyOrchestratorRuntime; const state = globalThis.__hfFold; if (state?.interceptor && globalThis.talkControlInterceptor !== state.interceptor) globalThis.talkControlInterceptor = state.interceptor; if (state?.chapters) rt?.setMemorySettings({ chapters: state.chapters }); delete globalThis.__hfFold; for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; return { restored: Boolean(state?.chapters) };"
+      }
+    ]
+  }
+}

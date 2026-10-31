@@ -53,8 +53,8 @@ export const resumeIntent = (stored: string | null, authorView: boolean): Worksp
   const subOk = sub && SETTINGS_SUBPAGES[entry.id]?.[sub];
   return { context: context as WorkspaceContext, page: entry.id, ...(subOk ? { sub } : {}) };
 };
-export const lastPageValue = (location: { context: WorkspaceContext; page: WorkspacePage; sub?: string }): string =>
-  [location.context, location.page, location.sub].filter(Boolean).join("/");
+export const lastPageValue = (location: { context: WorkspaceContext; page: WorkspacePage; sub?: string; list?: boolean }): string | null =>
+  location.list ? null : [location.context, location.page, location.sub].filter(Boolean).join("/");
 export const repairIntent = (): WorkspaceIntent => ({ context: "story", page: "play", control: SETUP_CONTROL });
 export const modelsIntent = (): WorkspaceIntent => ({ context: "orchestrator", page: "models" });
 export const judgeIntent = (control?: string): WorkspaceIntent => ({ context: "orchestrator", page: "judge", ...(control ? { control } : {}) });

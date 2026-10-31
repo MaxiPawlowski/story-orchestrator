@@ -1476,6 +1476,8 @@ describe("RuntimeManager transition announcements and pending deltas", () => {
     manager.setUiSettings({ announceTransitions: true });
     (executeSlashCommands as jest.Mock).mockClear();
     await manager.setQuality("has_key", "true");
+    expect((executeSlashCommands as jest.Mock).mock.calls.filter(([command]) => String(command).startsWith("/comment"))).toHaveLength(0);
+    await manager.postNotes("normal", false);
     const commentCalls = (executeSlashCommands as jest.Mock).mock.calls.filter(([command]) => typeof command === "string" && command.startsWith("/comment"));
     expect(commentCalls).toHaveLength(1);
     expect(commentCalls[0][0]).toContain("compact=true");

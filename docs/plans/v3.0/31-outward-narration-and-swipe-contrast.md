@@ -151,3 +151,31 @@ Gates (branch tree `b2c47f1d`, shared by plans 31 and 34):
 - UI-rework-zone files touched: `src/components/settings/PlayGroups.tsx` (CharacterStateGroup trial rows, lore-pins state),
   `src/components/settings/WorldInfoGatingGroup.tsx` (`#so-wi-lore-pins` row), `src/studio/mutations.ts` (`setRequirements`
   keeps the bindings).
+## Rating record 2026-10-30 (GPU G1, lane 41)
+
+Rows ARMS-31S1, ARMS-31S2, ARMS-34S1 on the staged master build (restaged by the peer at 21:29Z, between outward and swipe), lane 41 (local controller, Artemis, thinking on), images and
+sprites off, group "Group: Arin, DM Narrator". Recipe as above with `C:/dev/so-lanes/41/debug/arms/<gate>`; rater Sol
+(opencode `openai/gpt-6.1-sol`), 25 pairs each, 0 failed, 0 incomplete. Floors informational, not retuned.
+
+- **outward (31 S1): PASS.** Preference on 13 / off 12. Categories on minus off: character +0.04, scene +0.12, prose -0.04,
+  agency -0.04. Flags 4 vs 6. Closure 25/25 both. Interior sentences 2 vs 4 (off < 10 positives: counts only). Secret
+  restatements Sol 0 (needle 1, not counted by the floor).
+- **swipe (31 S2): FAIL** on the one floor that measures the feature: "differs from the rejected reply" won by on in 2 of
+  25 (share 0.08, floor 0.6); a hand tally from labels + key agrees (on 2, off 19, tie 4). Everything else passed:
+  preference 13/12, categories +0.24/+0.36/+0.08/+0.48, flags 23 vs 24, closure 25/25, copied 8-word spans 0/0. Read: quoting
+  the rejected reply makes the new swipe resemble it more, not less (anchoring). Sol's notes on both arms flag the cast's
+  gender and invented player names (case material, not arm-specific).
+- **notes (34 S1): PASS.** Preference on 25 / off 0. Categories +0.28/+3.04/+0.12/+0.08. Flags 1 vs 19. Closure 25/25.
+  Echo 0. Place/day-part contradictions 2 vs 20 (down 0.90, floor 0.5).
+
+Defaults (rule: off only until the rating passes): branch `v3.0-g1-defaults` flips `memory.outwardNarration` and
+`memory.historyNotes` to on (tests, feature status `shipped`, copy, guide, settings reference, session baseline, arm reset);
+`talk.swipeContrast` stays off, the miss recorded, the floor not retuned. Still owed: S0 baselines, 31 live gate (one swipe), 34 S2 live gate.
+
+## G1 defaults merge 2026-10-31
+
+- Branch `v3.0-g1-defaults` `e27d4569` (peer session; worktree idle, tip unchanged before touching it), master `51b65e5b` merged.
+- Fix on the branch: `SettingsPanel` story expects `historyNotes: false` after the click (default now on); `test/goldens/arrival-findings.json` re-recorded for the two HF scenarios the branch adds.
+- `npm run docs:settings` and `npm run docs:guide`: no content change (line endings only, discarded); the branch already carried the copy.
+- `npm run gates:quick` green (107.1s). `npm run gates` (no `--resume`, Storybook included): run 1 red (the two items above), run 2 red at test:debug only (`laneLoadAndStops.test.mts` "a control that never mounts", 30 ms poll under load; 3/3 green alone, no code change), run 3 all green in 401.3s (jest 11,058 passed / 1 skipped, test:debug 1,733, Storybook 191 suites / 1,132 tests, replay, release, plugin, lint, typechecks, build).
+- No live run: defaults flip only; the rating rows above are the evidence.

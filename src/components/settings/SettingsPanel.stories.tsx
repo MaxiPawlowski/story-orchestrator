@@ -154,7 +154,7 @@ export const AuthorViewAddsPromptTrialsAndLorePins: Story = {
     await userEvent.click(canvasElement.querySelector("#so-swipe-contrast") as HTMLElement);
     await expect(getGlobalSettings().talk.swipeContrast).toBe(!before);
     await userEvent.click(canvasElement.querySelector("#so-history-notes") as HTMLElement);
-    await expect(args.manager.setMemorySettings).toHaveBeenCalledWith({ historyNotes: true });
+    await expect(args.manager.setMemorySettings).toHaveBeenCalledWith({ historyNotes: false });
     await userEvent.click(canvasElement.querySelector("#so-swipe-contrast") as HTMLElement);
   },
 };
