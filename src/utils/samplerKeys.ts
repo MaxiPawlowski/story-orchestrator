@@ -113,7 +113,9 @@ export function applySamplerOverlay(payload: Record<string, unknown>, values: Sa
 
 export const DRY_BREAKERS_KEY = "dry_sequence_breakers";
 
-export function appendSequenceBreakers(payload: Record<string, unknown>, names: readonly string[]): { added: string[]; form: "array" | "json" | null } {
+export const DRY_MAX_BREAKERS = 64;
+
+export function appendSequenceBreakers(payload: Record<string, unknown>, names: readonly string[], limit = DRY_MAX_BREAKERS): { added: string[]; dropped: string[]; form: "array" | "json" | null } {
   const current = payload[DRY_BREAKERS_KEY];
   let list: unknown[] | null = null;
   let form: "array" | "json" | null = null;
@@ -131,11 +133,15 @@ export function appendSequenceBreakers(payload: Record<string, unknown>, names: 
       log.debug("the DRY sequence breakers are not a JSON list; names not added", error);
     }
   }
-  if (!list || !form) return { added: [], form: null };
+  if (!list || !form) return { added: [], dropped: [], form: null };
   const present = new Set(list.filter((item): item is string => typeof item === "string"));
-  const added = [...new Set(names.map((name) => name.trim()).filter((name) => name && !present.has(name)))];
-  if (!added.length) return { added, form };
+  const distinct = new Set(list.map((item) => (typeof item === "string" ? item : JSON.stringify(item)))).size;
+  const fresh = [...new Set(names.map((name) => name.trim()).filter((name) => name && !present.has(name)))];
+  const room = Math.max(0, limit - distinct);
+  const added = fresh.slice(0, room);
+  const dropped = fresh.slice(room);
+  if (!added.length) return { added, dropped, form };
   const next = [...list, ...added];
   payload[DRY_BREAKERS_KEY] = form === "array" ? next : JSON.stringify(next);
-  return { added, form };
+  return { added, dropped, form };
 }
