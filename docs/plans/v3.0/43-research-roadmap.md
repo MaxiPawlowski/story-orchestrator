@@ -85,3 +85,25 @@ Floors (declared before measuring; informational, never retuned):
 - cpuReranker (`RERANK_FLOORS`): E0 hit@4 >= 0.8 and above arm c; lore precision@4 >= lexical + 0.05; p95 <= 150 ms
   per 8-doc call. No model downloaded (owner OK needed; the row names bge-reranker-v2-m3 Q8_0 ~0.6 GB, or
   jina-reranker-v1-tiny-en F16 ~70 MB).
+
+## Gate record S
+- 2026-10-31, branch `v3.0-43-s`. `npm run gates` (no --resume, Storybook included) green in 603 s on `391f11ef1`.
+  Earlier full runs went red on my own guard misses (ownership census, arrival golden, S3 budget, S8 duplicate seam,
+  error-copy row), all fixed. One red was `server-plugin/story-orchestrator-gpu/broker/comfyReclaim.test.mjs` (not
+  touched), which passed 3/3 alone and in the clean run: a timing flake under load.
+- Offline results (floors set before measuring, not retuned):
+  - checkClocks: CK1 0 mismatches (4 seeds x 60 cuts); tick, near and full rules pass. Wired: `spikes/install.ts` runs
+    the clock seam with the complication seam (shared `intentRoute.ts`); inert without authored `clocks`.
+  - relationGraph (12 cases): 2-hop recall@4 0.333 -> 0.833 (RG1, RG2 pass); distractors per case 0.333 -> 0.583,
+    RG3 ceiling 0.5 MISSED. Direct recall 0.958 both arms.
+  - selfEditMemory: SM1 0 mismatches (4 x 50); SM2 0 leaks over 200 adversarial replies. Version cap 40 per member
+    is a rollback floor like the engine horizon.
+  - promptCompress (49 public transcripts, 2,616 tokens): saved 11.47%, PC1 >= 15% MISSED; names, quotes and numbers
+    kept 1.0 (PC2-PC4 pass). The first run came before a sentence-split fix (dialogue tags after a quote) and gave the
+    same figure.
+  - phraseBans: baseline over 180 archived sessions (counts only) is 0.619 hits per 1,000 words, 102 of 1,277 replies.
+    Patch plan in `scripts/local/llama-patches/phrase-bans-plan.md`. Nothing was built and the controller was not touched.
+  - cpuReranker: plumbing and arms only. A lexical stand-in (not a model) scores hit@4 0.625 vs arm c 0.25 on the E0
+    synthetic pool, which only shows the adapter works. No model downloaded.
+- Deviations: five spikes have a flag but no live hook yet (the hooks are prerequisites in the GPU rows SP-RG/SM/PC/PB/CR).
+  The phraseBans overlay would break the "budget is the one overlay that adds keys" rule, so it needs an owner decision.
