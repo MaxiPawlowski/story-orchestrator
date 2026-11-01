@@ -186,3 +186,40 @@ prompts, 121 new replies), toy group lane 42 `v29gpu2` (41 chats, 226 prompts, 3
 - Gates: `npm run gates` all green in 858.9s (Storybook included, no --resume) on the merged tree; first full run failed
   `debug:typecheck` (script imported `src/memory/polarity.ts`, which pulls an aliased module) and was fixed before the cited run.
   `gates:quick` green before it.
+
+## Phase 3 agent M — memory wave 2, read-contract changes (2026-10-31)
+Branch `v3.0-43-m`. Sources: `research/memory-shortlist-2026-10-31.md` wave 2 and the four proposals it cites. Each item is its
+own switch under `memory.*`, on by default (owner rule); adoption formally needs `so-live-suite` x2 on the GPU (one row each in
+`gpu-queue-2026-10-30.md` §Memory wave 2). Every new read line or tag is optional, so recorded goldens keep parsing. Contract
+text appears only while the switch is on, so the off arm sends byte-identical read prompts.
+
+Floors, declared here before any measurement (informational, never retuned; the hard ones fail jest):
+- M0 (agent C's C4 leftover): at 150 boundaries the recall-included availability is >= the tier-only availability on every probe.
+- M1 `memory.neighbourRead` (agent-architectures P1): the read lists up to 12 live facts/session rows naming an entity or key the
+  window names, as per-read aliases `[m1]..`; a MEMORY/FACT line may carry `same=mN` (confirm: recallCount + confirmedAt, no row)
+  or `update=mN` (new row, old one superseded at the read's message).
+  - F-M1a: every existing recorded golden parses as before (the existing jest suites stay green, 0 changed parses).
+  - F-M1b (hard, planted fixture written before running): same/update route 100%; update on a locked, author-decided or pinned
+    row = plain add; unknown alias = add + audit note; a covered re-read confirms once; rollback past the read restores the store.
+  - F-M1c (hard): a held-secret row is never listed (resting filter).
+  - F-M1d cost: section <= 600 Gemma tokens at 12 rows of 200 chars.
+- M2 `memory.readKeys` (context-compression P2 keys half): up to 3 keys per MEMORY/FACT line, stored on the row; score counts a
+  named key like a trigger; archive recall matches keys like entities.
+  - F-M2a: keyed paraphrase fixture (question names a key absent from text and entities): hit@4 >= 0.8 with keys and > without.
+  - F-M2b (hard): a held-secret keyed row is never recalled for a kept-out member. F-M2c (hard): never > 3 keys, entity repeats dropped.
+  - cost: rules <= 60 tokens.
+- M3 `memory.relationRows` (knowledge-graphs P3): `[rel:Subject:relation] Object` / `[rel-end:...]` ledger rows keyed
+  subject|relation|object, so one subject holds several objects; ending = a new version `ended`; name fold on both ends; inverse
+  table (symmetric + opposites) queues conflicts.
+  - F-M3a (hard): 3 objects for one subject = 3 live rows; end = version, hidden from Current state; aliases fold both ends.
+  - F-M3b (hard): planted opposite pairs (direct and mirrored symmetric) detected 100%, non-opposites 0.
+  - cost: rules <= 120 tokens.
+- M4 `memory.socialActs` (game-narrative P3): optional `act=<helped|protected|lied|threatened|insulted|gifted|betrayed|confided>` on
+  a rel_ feeling DELTA; the engine keeps `act_log_<by>_<to>` (code string, newest 24, rollback detector `social-acts`) and
+  recounts authored gate leaves `{"act","by","to","within","count"}` compiled to `act_n_*` (exempt: recounted every boundary).
+  - F-M4a (hard): rollback ≡ replay, 0 mismatches over 4 seeds x 40 random cuts. F-M4b (hard): window counts exact at the edges.
+  - F-M4c (hard): a player act without the player's own line as evidence loses its act (feeling kept); member acts kept.
+  - cost: rule <= 80 tokens.
+- Probes after M1-M4: every kind x horizon row >= m0 (expected equal: the harness writes rows directly, no read).
+- GPU rows (owed, floors stated there): M43-M1..M4, live-suite tiers facts/rejected/deltas/ledger within 0.02 of the off arm x2,
+  plus per-item format adherence.
