@@ -21,11 +21,13 @@ Taken from the code as it is; when the code and this page disagree, fix one of t
 
 ## Type, spacing and controls
 
-- Panels stay at `1rem` whatever ST's font scale (owner decision); headings are 1.25rem (frame title) to 0.78rem
-  (uppercase section labels with letter spacing). Monospace only for commands, keys and ids.
-- Spacing comes from Tailwind's scale inside the mount roots (`gap-2`, `p-3`) or rem values in a feature's own
-  stylesheet (`.25rem` steps). No pixel layouts except hairlines.
-- **Every control is at least 44px tall** in the workspace and the tour card (buttons, selects, inputs, summaries).
+- Sizes are ST's and follow ST's font scale (owner 2026-11-01): `--so-base` is ST's `--mainFontSize`, the type scale is
+  `--so-text-xs|sm|(base)|lg|xl` (0.8 to 1.3 of it, 12px floor); headings run from `--so-text-xl` (frame title) down to
+  `--so-text-xs` (uppercase section labels with letter spacing). Monospace only for commands, keys and ids.
+- Spacing comes from Tailwind's scale inside the mount roots (`gap-2`, `p-3`; `--spacing` is `--so-base` x 0.2 there) or
+  `--so-space-*` / `calc(var(--so-base) * n)` in a feature's own stylesheet, never `rem`. No pixel layouts except hairlines.
+- Controls are ST's height (`--so-control-h`, about 26px at font scale 1); on a coarse pointer every control is at least
+  44px tall.
 - **Cards** are `.so-task-card` (padding `.75rem 1rem`, `.5rem` gap, `--st-border`, `.5rem` radius) with a
   `.so-card-heading` and an optional `.so-card-hint`; a page stacks them `1rem` apart. A divider is `border-t
   border-solid` (only the top edge is drawn). Buttons sit in a `.so-actions` row: they wrap as whole buttons at their

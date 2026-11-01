@@ -520,3 +520,40 @@ tomorrow". Plan and review list: `44-in-chat-elements.md`.
 - Bundle: main `dist/index.js` 1,296,095 B (master before: about 1,293,000; budget 1,300,000).
 - Gates: full `npm run gates` on the tree merged with master `2c8ae0177`: red only on `patterns.test.ts` P5 p95 timing
   (untouched, known flake); `--resume` all green. The clean full run is cited in the merge commit.
+
+## U: owner answers 3, 4, 6 (2026-11-01)
+
+Source: `research/self-imposed-rules-2026-10-31.md` §Owner answers. No switches (none natural).
+
+- **ST sizes (answer 3).** `tokens.css` `--so-base` = `var(--mainFontSize, 15px)`; type 0.8/0.9/1/1.15/1.3 of it (xs floor
+  12px), space 3/5/7.5/10/15px at scale 1, radius 3/5/10px, `--so-control-h` ST's control height `base*1.2+8px` (~26px),
+  44px on coarse pointers / under 700px, dialog `base*80`. `src/styles.css` rebinds Tailwind `--spacing` (`base*0.2`),
+  `--text-*`, `--radius-*` on the mount roots (compiled utilities read `var(--spacing, 0.25rem)`, so every utility follows).
+  Every `rem` in our CSS (166 values, 19 files) became `calc(var(--so-base) * n)`; guard `styleTokens.guard.test.ts`
+  (no `rem` in src CSS, planted control). Retired "panels stay 1rem" (gotchas, `docs/dev/style.md`, architecture §UI kit).
+  TSX arbitrary `rem` values (23 `min-h-[3rem]` etc.) left as is.
+- **Curator auto (answer 4).** `stagecraft.acceptMode` default `review` -> `auto` (settingsModel, registry copy, guide,
+  architecture). Unchanged: `auto` applies only to `{{// so:auto}}` entries; unmarked entries, new entries and constant
+  entries still wait; protected spans, gated entries, secret refusal and rollback revert stay.
+- **Wizard personas (answer 6).** Provisioning op `createPersona {name, description, title?}`: create-only (an existing
+  name refused case-insensitively), agent tool family `provision` (always waits, never auto-draft), card fields, applied
+  through `stHost/personaWrites.createPersona` (ST `/persona-create select=false`, run-owned, active persona kept), ledger
+  `applied`. Not in the staged wizard's provisioning stage (its recorded authoring goldens pin the stage's kinds). Prompt,
+  Repair copy, Studio diagnostic `requirement-persona-missing`, guide, wizard page and architecture say the wizard may
+  propose one; the player's start-step choice and the chat persona lock unchanged.
+
+## Gate record U
+
+- Live (sizes): lane 47 (no-model), bundle routed into the lane browser (before = staged slot, after = worktree `dist/`,
+  nothing staged), synthetic SO-UI cards + group + story, 8 surfaces (briefing, HUD + inline, story card, sheet, Play,
+  Settings Features/Display, Help panel, Studio Story) x font scale 1 / 1.25 x dark / light, desktop and 390x844: 144 shots
+  each phase. Probes: before, kit button 14px/28px tall and setting labels 16px at both scales (font scale ignored);
+  after, button 13.5px/26px at 1 and 16.9px/32px at 1.25, label 15px / 18.75px, nav item 26px / 31px; mobile controls
+  stay 35-37px (44px floor minus the small variant). 0 page errors, generation requests blocked (5-6 per run, no-model
+  lane), leaked 0, library clean, lane stopped. `C:\dev\so-lanes\ui-review\st-sizes\{before,after}\` (driver kept as `.mts.txt`).
+- Storybook: green after the setup-card padding floor moved from 12px to 7px (ST spacing, `SetupSection.stories.tsx`).
+- Bundle: main `dist/index.js` 1,293,061 B (+55 B vs master build; budget 1,300,000).
+- Gates: `npm run gates` all green in 498.6s (Storybook included, no --resume) on the tree merged with master `b57d6c43a`;
+  earlier full runs: red on the setup-card padding story (fixed), a merge conflict in the generated guide (regenerated), then
+  green 386.2s on the tree merged with `2c8ae0177` after one red on `consequences.test.ts` C6 p95 timing and a `--resume` red
+  on `patterns.test.ts` P5 timing (both untouched). New master CSS `inchat.css` had one `rem` fallback (now 15px). `gates:quick` green.

@@ -16,7 +16,7 @@ export interface ProvisioningScope {
   save?: (session: WizardSessionState) => void;
 }
 
-const recordCreated = (scope: ProvisioningScope, name: string, kind: "character" | "lorebook" | "group", draft?: Story): void => {
+const recordCreated = (scope: ProvisioningScope, name: string, kind: "character" | "lorebook" | "group" | "persona", draft?: Story): void => {
   const session = scope.session(draft) ?? newWizardSession(scope.sessionKey(draft));
   const books = session.createdLorebooks;
   const applied = session.applied.includes(name) ? session.applied : [...session.applied, name];
@@ -69,6 +69,14 @@ export async function applyProvisioning(scope: ProvisioningScope, op: Provisioni
       if (!existing) scope.save?.(session);
       scope.save?.(recordGrant(session, scope.storyScopeId(draft), lorebookFileId(op.lorebook), !op.revoke));
       return { ok: true, message: op.revoke ? `This story may no longer write into "${op.lorebook}".` : `This story may now write into "${op.lorebook}".` };
+    }
+    if (op.kind === "createPersona") {
+      if (!host.createPersona) return { ok: false, message: "This SillyTavern version cannot create personas from here." };
+      if (!run.stillOwns()) return lapsed();
+      const result = await host.createPersona({ name: op.name, description: op.description, title: op.title ?? "" }, run.stillOwns);
+      if (!result.ok) return { ok: false, message: `Could not create the persona "${op.name}": ${result.reason}.` };
+      recordCreated(scope, op.name, "persona", draft);
+      return { ok: true, message: `Created the persona "${op.name}". It is not selected; the player picks it at the start.`, created: op.name };
     }
     if (op.kind === "upsertLorebookEntry") {
       if (!run.stillOwns()) return lapsed();

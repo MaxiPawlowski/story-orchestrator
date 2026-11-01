@@ -145,7 +145,7 @@
 }
 
 :is(#so-panels-root, #so-workspace-modal, #drawer-manager) .so-sheet-bullets {
-  padding-left: 1.1rem;
+  padding-left: calc(var(--so-base) * 1.1);
   list-style: disc;
 }
 

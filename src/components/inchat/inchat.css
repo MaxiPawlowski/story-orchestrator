@@ -1,5 +1,5 @@
 #chat .so-slot:not(.so-inline-host) {
-  font-size: calc(var(--mainFontSize, 1rem) * 0.85);
+  font-size: calc(var(--mainFontSize, 15px) * 0.85);
   color: var(--so-fg);
 }
 

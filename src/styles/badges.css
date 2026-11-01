@@ -19,7 +19,7 @@
 .so-story-card {
   position: fixed;
   z-index: 3600;
-  max-width: 18rem;
+  max-width: calc(var(--so-base) * 18);
   padding: 6px 10px;
   font-size: 0.85em;
   line-height: 1.4;

@@ -10,10 +10,10 @@ const draft = (over: Partial<Story> = {}): Story => ({
   checkpoints: [{ id: "start", name: "Start", objective: "o", type: "anchor", start: true }], ...over,
 });
 
-describe("v2.7 34 the wizard drafts the player profile (D), and still never a persona", () => {
+describe("v2.7 34 the wizard drafts the player profile (D); a persona only through the reviewed createPersona card", () => {
   it("setPlayer is an edit tool backed by the mutation", () => {
     expect(AGENT_TOOLS.setPlayer).toMatchObject({ family: "edit", backedBy: "setPlayer" });
-    expect(Object.keys(AGENT_TOOLS).some((name) => /persona/i.test(name))).toBe(false);
+    expect(Object.entries(AGENT_TOOLS).filter(([name]) => /persona/i.test(name)).map(([name, spec]) => [name, spec.family])).toEqual([["createPersona", "provision"]]);
   });
 
   it("validates the profile through the story validator and refuses card fields", () => {

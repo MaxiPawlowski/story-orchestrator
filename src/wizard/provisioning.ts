@@ -53,7 +53,7 @@ export const personaRequirementProblem = (personas: readonly string[] | undefine
   if (!unknown.length) return null;
   const listed = environment.personaNames.length ? `Personas on this install: ${environment.personaNames.join(", ")}.` : "This install lists no persona.";
   return `requirements.personas names ${unknown.map((name) => `"${name}"`).join(", ")}, which ${unknown.length === 1 ? "is not a persona" : "are not personas"} on this install. ` +
-    "Personas are the author's own and are never created by the wizard, so a story that requires a missing one never starts: leave personas out, or name an existing one. " +
+    "A story that requires a missing persona never starts: leave personas out, name an existing one, or create it first (in SillyTavern, or the wizard's createPersona card the author confirms). " +
     listed;
 };
 
@@ -133,6 +133,14 @@ export function validateProvisioningOp(op: ProvisioningOp, environment: Provisio
       if (missing.length) return fail(`These cast members do not exist yet: ${missing.join(", ")}. Create their cards first.`);
       return OK;
     }
+    case "createPersona": {
+      if (!op.name.trim()) return fail("A persona needs a name.");
+      if (!op.description.trim()) return fail(`The persona "${op.name}" needs a description.`);
+      if (has(environment.personaNames, op.name)) {
+        return fail(`A persona called "${op.name}" already exists. The wizard only creates personas, it never edits yours: rename this one or drop the step.`);
+      }
+      return OK;
+    }
     default:
       return fail("Unknown provisioning step.");
   }
@@ -165,6 +173,8 @@ export function advanceEnvironment(environment: ProvisioningEnvironment, op: Pro
     }
     case "createGroup":
       return { ...environment, groupNames: [...environment.groupNames, op.name] };
+    case "createPersona":
+      return { ...environment, personaNames: [...environment.personaNames, op.name] };
     default:
       return environment;
   }
@@ -222,6 +232,8 @@ export function describeProvisioningOp(op: ProvisioningOp): { label: string; tar
       return { label: `Create the group "${op.name}" with ${op.members.join(", ") || "no members"}`, target: op.name };
     case "grantLorebook":
       return { label: `${op.revoke ? "Revoke" : "Allow"} this story${op.revoke ? "'s permission" : ""} to write into the existing lorebook "${op.lorebook}"`, target: op.lorebook };
+    case "createPersona":
+      return { label: `Create the persona "${op.name}"`, target: op.name };
     default:
       return { label: "Unknown provisioning step", target: "" };
   }
