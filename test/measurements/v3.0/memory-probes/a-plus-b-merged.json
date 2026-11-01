@@ -1,0 +1,862 @@
+{
+  "label": "A+B merged (4a92c509b)",
+  "floors": {
+    "availabilityAt60": 0.9,
+    "keptOutLeaks": 0
+  },
+  "rows": [
+    {
+      "kind": "single",
+      "horizon": 20,
+      "probes": 4,
+      "available": 4,
+      "share": 1
+    },
+    {
+      "kind": "single",
+      "horizon": 60,
+      "probes": 4,
+      "available": 1,
+      "share": 0.25
+    },
+    {
+      "kind": "single",
+      "horizon": 150,
+      "probes": 4,
+      "available": 1,
+      "share": 0.25
+    },
+    {
+      "kind": "update-fact",
+      "horizon": 20,
+      "probes": 4,
+      "available": 4,
+      "share": 1
+    },
+    {
+      "kind": "update-fact",
+      "horizon": 60,
+      "probes": 4,
+      "available": 1,
+      "share": 0.25
+    },
+    {
+      "kind": "update-fact",
+      "horizon": 150,
+      "probes": 4,
+      "available": 0,
+      "share": 0
+    },
+    {
+      "kind": "update-ledger",
+      "horizon": 20,
+      "probes": 4,
+      "available": 0,
+      "share": 0
+    },
+    {
+      "kind": "update-ledger",
+      "horizon": 60,
+      "probes": 4,
+      "available": 0,
+      "share": 0
+    },
+    {
+      "kind": "update-ledger",
+      "horizon": 150,
+      "probes": 4,
+      "available": 0,
+      "share": 0
+    },
+    {
+      "kind": "temporal",
+      "horizon": 20,
+      "probes": 4,
+      "available": 3,
+      "share": 0.75
+    },
+    {
+      "kind": "temporal",
+      "horizon": 60,
+      "probes": 4,
+      "available": 1,
+      "share": 0.25
+    },
+    {
+      "kind": "temporal",
+      "horizon": 150,
+      "probes": 4,
+      "available": 0,
+      "share": 0
+    },
+    {
+      "kind": "kept-out",
+      "horizon": 20,
+      "probes": 4,
+      "available": 4,
+      "share": 1
+    },
+    {
+      "kind": "kept-out",
+      "horizon": 60,
+      "probes": 4,
+      "available": 4,
+      "share": 1
+    },
+    {
+      "kind": "kept-out",
+      "horizon": 150,
+      "probes": 4,
+      "available": 4,
+      "share": 1
+    },
+    {
+      "kind": "secret-knower",
+      "horizon": 20,
+      "probes": 4,
+      "available": 4,
+      "share": 1
+    },
+    {
+      "kind": "secret-knower",
+      "horizon": 60,
+      "probes": 4,
+      "available": 4,
+      "share": 1
+    },
+    {
+      "kind": "secret-knower",
+      "horizon": 150,
+      "probes": 4,
+      "available": 4,
+      "share": 1
+    }
+  ],
+  "availabilityAt60": 0.458,
+  "keptOutLeaks": 0,
+  "total": 72,
+  "results": [
+    {
+      "id": "single-0",
+      "kind": "single",
+      "horizon": 20,
+      "member": "Mira",
+      "available": true,
+      "goldMissing": [],
+      "forbiddenFound": []
+    },
+    {
+      "id": "single-1",
+      "kind": "single",
+      "horizon": 20,
+      "member": "Tobin",
+      "available": true,
+      "goldMissing": [],
+      "forbiddenFound": []
+    },
+    {
+      "id": "kept-out-0",
+      "kind": "kept-out",
+      "horizon": 20,
+      "member": "Tobin",
+      "available": true,
+      "goldMissing": [],
+      "forbiddenFound": []
+    },
+    {
+      "id": "secret-knower-0",
+      "kind": "secret-knower",
+      "horizon": 20,
+      "member": "Mira",
+      "available": true,
+      "goldMissing": [],
+      "forbiddenFound": []
+    },
+    {
+      "id": "single-2",
+      "kind": "single",
+      "horizon": 20,
+      "member": "Esk",
+      "available": true,
+      "goldMissing": [],
+      "forbiddenFound": []
+    },
+    {
+      "id": "update-fact-0",
+      "kind": "update-fact",
+      "horizon": 20,
+      "member": "Mira",
+      "available": true,
+      "goldMissing": [],
+      "forbiddenFound": []
+    },
+    {
+      "id": "temporal-0",
+      "kind": "temporal",
+      "horizon": 20,
+      "member": "Mira",
+      "available": false,
+      "goldMissing": [
+        "comet",
+        "flood"
+      ],
+      "forbiddenFound": []
+    },
+    {
+      "id": "kept-out-1",
+      "kind": "kept-out",
+      "horizon": 20,
+      "member": "Esk",
+      "available": true,
+      "goldMissing": [],
+      "forbiddenFound": []
+    },
+    {
+      "id": "secret-knower-1",
+      "kind": "secret-knower",
+      "horizon": 20,
+      "member": "Tobin",
+      "available": true,
+      "goldMissing": [],
+      "forbiddenFound": []
+    },
+    {
+      "id": "single-3",
+      "kind": "single",
+      "horizon": 20,
+      "member": "Mira",
+      "available": true,
+      "goldMissing": [],
+      "forbiddenFound": []
+    },
+    {
+      "id": "update-ledger-0",
+      "kind": "update-ledger",
+      "horizon": 20,
+      "member": "Mira",
+      "available": false,
+      "goldMissing": [
+        "infirmary"
+      ],
+      "forbiddenFound": []
+    },
+    {
+      "id": "update-fact-1",
+      "kind": "update-fact",
+      "horizon": 20,
+      "member": "Tobin",
+      "available": true,
+      "goldMissing": [],
+      "forbiddenFound": []
+    },
+    {
+      "id": "temporal-1",
+      "kind": "temporal",
+      "horizon": 20,
+      "member": "Tobin",
+      "available": true,
+      "goldMissing": [],
+      "forbiddenFound": []
+    },
+    {
+      "id": "kept-out-2",
+      "kind": "kept-out",
+      "horizon": 20,
+      "member": "Mira",
+      "available": true,
+      "goldMissing": [],
+      "forbiddenFound": []
+    },
+    {
+      "id": "secret-knower-2",
+      "kind": "secret-knower",
+      "horizon": 20,
+      "member": "Esk",
+      "available": true,
+      "goldMissing": [],
+      "forbiddenFound": []
+    },
+    {
+      "id": "update-ledger-1",
+      "kind": "update-ledger",
+      "horizon": 20,
+      "member": "Tobin",
+      "available": false,
+      "goldMissing": [
+        "sexton lodge"
+      ],
+      "forbiddenFound": []
+    },
+    {
+      "id": "update-fact-2",
+      "kind": "update-fact",
+      "horizon": 20,
+      "member": "Esk",
+      "available": true,
+      "goldMissing": [],
+      "forbiddenFound": []
+    },
+    {
+      "id": "temporal-2",
+      "kind": "temporal",
+      "horizon": 20,
+      "member": "Esk",
+      "available": true,
+      "goldMissing": [],
+      "forbiddenFound": []
+    },
+    {
+      "id": "kept-out-3",
+      "kind": "kept-out",
+      "horizon": 20,
+      "member": "Tobin",
+      "available": true,
+      "goldMissing": [],
+      "forbiddenFound": []
+    },
+    {
+      "id": "secret-knower-3",
+      "kind": "secret-knower",
+      "horizon": 20,
+      "member": "Mira",
+      "available": true,
+      "goldMissing": [],
+      "forbiddenFound": []
+    },
+    {
+      "id": "update-ledger-2",
+      "kind": "update-ledger",
+      "horizon": 20,
+      "member": "Esk",
+      "available": false,
+      "goldMissing": [
+        "cooperage"
+      ],
+      "forbiddenFound": []
+    },
+    {
+      "id": "update-fact-3",
+      "kind": "update-fact",
+      "horizon": 20,
+      "member": "Mira",
+      "available": true,
+      "goldMissing": [],
+      "forbiddenFound": []
+    },
+    {
+      "id": "temporal-3",
+      "kind": "temporal",
+      "horizon": 20,
+      "member": "Mira",
+      "available": true,
+      "goldMissing": [],
+      "forbiddenFound": []
+    },
+    {
+      "id": "update-ledger-3",
+      "kind": "update-ledger",
+      "horizon": 20,
+      "member": "Mira",
+      "available": false,
+      "goldMissing": [
+        "ropewalk"
+      ],
+      "forbiddenFound": []
+    },
+    {
+      "id": "single-0",
+      "kind": "single",
+      "horizon": 60,
+      "member": "Mira",
+      "available": false,
+      "goldMissing": [
+        "floorboard"
+      ],
+      "forbiddenFound": []
+    },
+    {
+      "id": "single-1",
+      "kind": "single",
+      "horizon": 60,
+      "member": "Tobin",
+      "available": true,
+      "goldMissing": [],
+      "forbiddenFound": []
+    },
+    {
+      "id": "kept-out-0",
+      "kind": "kept-out",
+      "horizon": 60,
+      "member": "Tobin",
+      "available": true,
+      "goldMissing": [],
+      "forbiddenFound": []
+    },
+    {
+      "id": "secret-knower-0",
+      "kind": "secret-knower",
+      "horizon": 60,
+      "member": "Mira",
+      "available": true,
+      "goldMissing": [],
+      "forbiddenFound": []
+    },
+    {
+      "id": "single-2",
+      "kind": "single",
+      "horizon": 60,
+      "member": "Esk",
+      "available": false,
+      "goldMissing": [
+        "rain barrel"
+      ],
+      "forbiddenFound": []
+    },
+    {
+      "id": "update-fact-0",
+      "kind": "update-fact",
+      "horizon": 60,
+      "member": "Mira",
+      "available": false,
+      "goldMissing": [
+        "belfry"
+      ],
+      "forbiddenFound": []
+    },
+    {
+      "id": "temporal-0",
+      "kind": "temporal",
+      "horizon": 60,
+      "member": "Mira",
+      "available": false,
+      "goldMissing": [
+        "comet",
+        "flood"
+      ],
+      "forbiddenFound": []
+    },
+    {
+      "id": "kept-out-1",
+      "kind": "kept-out",
+      "horizon": 60,
+      "member": "Esk",
+      "available": true,
+      "goldMissing": [],
+      "forbiddenFound": []
+    },
+    {
+      "id": "secret-knower-1",
+      "kind": "secret-knower",
+      "horizon": 60,
+      "member": "Tobin",
+      "available": true,
+      "goldMissing": [],
+      "forbiddenFound": []
+    },
+    {
+      "id": "single-3",
+      "kind": "single",
+      "horizon": 60,
+      "member": "Mira",
+      "available": false,
+      "goldMissing": [
+        "hollow oak"
+      ],
+      "forbiddenFound": []
+    },
+    {
+      "id": "update-ledger-0",
+      "kind": "update-ledger",
+      "horizon": 60,
+      "member": "Mira",
+      "available": false,
+      "goldMissing": [
+        "infirmary"
+      ],
+      "forbiddenFound": []
+    },
+    {
+      "id": "update-fact-1",
+      "kind": "update-fact",
+      "horizon": 60,
+      "member": "Tobin",
+      "available": false,
+      "goldMissing": [
+        "boathouse"
+      ],
+      "forbiddenFound": []
+    },
+    {
+      "id": "temporal-1",
+      "kind": "temporal",
+      "horizon": 60,
+      "member": "Tobin",
+      "available": false,
+      "goldMissing": [
+        "wolf howl",
+        "landslide"
+      ],
+      "forbiddenFound": []
+    },
+    {
+      "id": "kept-out-2",
+      "kind": "kept-out",
+      "horizon": 60,
+      "member": "Mira",
+      "available": true,
+      "goldMissing": [],
+      "forbiddenFound": []
+    },
+    {
+      "id": "secret-knower-2",
+      "kind": "secret-knower",
+      "horizon": 60,
+      "member": "Esk",
+      "available": true,
+      "goldMissing": [],
+      "forbiddenFound": []
+    },
+    {
+      "id": "update-ledger-1",
+      "kind": "update-ledger",
+      "horizon": 60,
+      "member": "Tobin",
+      "available": false,
+      "goldMissing": [
+        "sexton lodge"
+      ],
+      "forbiddenFound": []
+    },
+    {
+      "id": "update-fact-2",
+      "kind": "update-fact",
+      "horizon": 60,
+      "member": "Esk",
+      "available": false,
+      "goldMissing": [
+        "kiln"
+      ],
+      "forbiddenFound": []
+    },
+    {
+      "id": "temporal-2",
+      "kind": "temporal",
+      "horizon": 60,
+      "member": "Esk",
+      "available": false,
+      "goldMissing": [
+        "eclipse",
+        "wedding"
+      ],
+      "forbiddenFound": []
+    },
+    {
+      "id": "kept-out-3",
+      "kind": "kept-out",
+      "horizon": 60,
+      "member": "Tobin",
+      "available": true,
+      "goldMissing": [],
+      "forbiddenFound": []
+    },
+    {
+      "id": "secret-knower-3",
+      "kind": "secret-knower",
+      "horizon": 60,
+      "member": "Mira",
+      "available": true,
+      "goldMissing": [],
+      "forbiddenFound": []
+    },
+    {
+      "id": "update-ledger-2",
+      "kind": "update-ledger",
+      "horizon": 60,
+      "member": "Esk",
+      "available": false,
+      "goldMissing": [
+        "cooperage"
+      ],
+      "forbiddenFound": []
+    },
+    {
+      "id": "update-fact-3",
+      "kind": "update-fact",
+      "horizon": 60,
+      "member": "Mira",
+      "available": true,
+      "goldMissing": [],
+      "forbiddenFound": []
+    },
+    {
+      "id": "temporal-3",
+      "kind": "temporal",
+      "horizon": 60,
+      "member": "Mira",
+      "available": true,
+      "goldMissing": [],
+      "forbiddenFound": []
+    },
+    {
+      "id": "update-ledger-3",
+      "kind": "update-ledger",
+      "horizon": 60,
+      "member": "Mira",
+      "available": false,
+      "goldMissing": [
+        "ropewalk"
+      ],
+      "forbiddenFound": []
+    },
+    {
+      "id": "single-0",
+      "kind": "single",
+      "horizon": 150,
+      "member": "Mira",
+      "available": false,
+      "goldMissing": [
+        "floorboard"
+      ],
+      "forbiddenFound": []
+    },
+    {
+      "id": "single-1",
+      "kind": "single",
+      "horizon": 150,
+      "member": "Tobin",
+      "available": true,
+      "goldMissing": [],
+      "forbiddenFound": []
+    },
+    {
+      "id": "kept-out-0",
+      "kind": "kept-out",
+      "horizon": 150,
+      "member": "Tobin",
+      "available": true,
+      "goldMissing": [],
+      "forbiddenFound": []
+    },
+    {
+      "id": "secret-knower-0",
+      "kind": "secret-knower",
+      "horizon": 150,
+      "member": "Mira",
+      "available": true,
+      "goldMissing": [],
+      "forbiddenFound": []
+    },
+    {
+      "id": "single-2",
+      "kind": "single",
+      "horizon": 150,
+      "member": "Esk",
+      "available": false,
+      "goldMissing": [
+        "rain barrel"
+      ],
+      "forbiddenFound": []
+    },
+    {
+      "id": "update-fact-0",
+      "kind": "update-fact",
+      "horizon": 150,
+      "member": "Mira",
+      "available": false,
+      "goldMissing": [
+        "belfry"
+      ],
+      "forbiddenFound": []
+    },
+    {
+      "id": "temporal-0",
+      "kind": "temporal",
+      "horizon": 150,
+      "member": "Mira",
+      "available": false,
+      "goldMissing": [
+        "comet",
+        "flood"
+      ],
+      "forbiddenFound": []
+    },
+    {
+      "id": "kept-out-1",
+      "kind": "kept-out",
+      "horizon": 150,
+      "member": "Esk",
+      "available": true,
+      "goldMissing": [],
+      "forbiddenFound": []
+    },
+    {
+      "id": "secret-knower-1",
+      "kind": "secret-knower",
+      "horizon": 150,
+      "member": "Tobin",
+      "available": true,
+      "goldMissing": [],
+      "forbiddenFound": []
+    },
+    {
+      "id": "single-3",
+      "kind": "single",
+      "horizon": 150,
+      "member": "Mira",
+      "available": false,
+      "goldMissing": [
+        "hollow oak"
+      ],
+      "forbiddenFound": []
+    },
+    {
+      "id": "update-ledger-0",
+      "kind": "update-ledger",
+      "horizon": 150,
+      "member": "Mira",
+      "available": false,
+      "goldMissing": [
+        "infirmary"
+      ],
+      "forbiddenFound": []
+    },
+    {
+      "id": "update-fact-1",
+      "kind": "update-fact",
+      "horizon": 150,
+      "member": "Tobin",
+      "available": false,
+      "goldMissing": [
+        "boathouse"
+      ],
+      "forbiddenFound": []
+    },
+    {
+      "id": "temporal-1",
+      "kind": "temporal",
+      "horizon": 150,
+      "member": "Tobin",
+      "available": false,
+      "goldMissing": [
+        "wolf howl",
+        "landslide"
+      ],
+      "forbiddenFound": []
+    },
+    {
+      "id": "kept-out-2",
+      "kind": "kept-out",
+      "horizon": 150,
+      "member": "Mira",
+      "available": true,
+      "goldMissing": [],
+      "forbiddenFound": []
+    },
+    {
+      "id": "secret-knower-2",
+      "kind": "secret-knower",
+      "horizon": 150,
+      "member": "Esk",
+      "available": true,
+      "goldMissing": [],
+      "forbiddenFound": []
+    },
+    {
+      "id": "update-ledger-1",
+      "kind": "update-ledger",
+      "horizon": 150,
+      "member": "Tobin",
+      "available": false,
+      "goldMissing": [
+        "sexton lodge"
+      ],
+      "forbiddenFound": []
+    },
+    {
+      "id": "update-fact-2",
+      "kind": "update-fact",
+      "horizon": 150,
+      "member": "Esk",
+      "available": false,
+      "goldMissing": [
+        "kiln"
+      ],
+      "forbiddenFound": []
+    },
+    {
+      "id": "temporal-2",
+      "kind": "temporal",
+      "horizon": 150,
+      "member": "Esk",
+      "available": false,
+      "goldMissing": [
+        "eclipse",
+        "wedding"
+      ],
+      "forbiddenFound": []
+    },
+    {
+      "id": "kept-out-3",
+      "kind": "kept-out",
+      "horizon": 150,
+      "member": "Tobin",
+      "available": true,
+      "goldMissing": [],
+      "forbiddenFound": []
+    },
+    {
+      "id": "secret-knower-3",
+      "kind": "secret-knower",
+      "horizon": 150,
+      "member": "Mira",
+      "available": true,
+      "goldMissing": [],
+      "forbiddenFound": []
+    },
+    {
+      "id": "update-ledger-2",
+      "kind": "update-ledger",
+      "horizon": 150,
+      "member": "Esk",
+      "available": false,
+      "goldMissing": [
+        "cooperage"
+      ],
+      "forbiddenFound": []
+    },
+    {
+      "id": "update-fact-3",
+      "kind": "update-fact",
+      "horizon": 150,
+      "member": "Mira",
+      "available": false,
+      "goldMissing": [
+        "dovecote"
+      ],
+      "forbiddenFound": []
+    },
+    {
+      "id": "temporal-3",
+      "kind": "temporal",
+      "horizon": 150,
+      "member": "Mira",
+      "available": false,
+      "goldMissing": [
+        "shipwreck",
+        "fair"
+      ],
+      "forbiddenFound": []
+    },
+    {
+      "id": "update-ledger-3",
+      "kind": "update-ledger",
+      "horizon": 150,
+      "member": "Mira",
+      "available": false,
+      "goldMissing": [
+        "ropewalk"
+      ],
+      "forbiddenFound": []
+    }
+  ]
+}
