@@ -36,6 +36,7 @@
       "hudEnabled": true,
       "yourMove": true,
       "compactThoughts": true,
+      "regenerateOwnRows": true,
       "inChat": {
         "dividers": true,
         "because": true,
@@ -242,7 +243,8 @@
       "preferKnown": true,
       "loreLifetime": true,
       "loreState": true,
-      "loreAliases": true
+      "loreAliases": true,
+      "editorMerge": true
     },
     "image": {
       "enabled": false,

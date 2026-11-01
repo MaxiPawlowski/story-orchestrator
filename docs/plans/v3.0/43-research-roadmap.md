@@ -595,3 +595,47 @@ rewrote the owner's `settings.json` and stripped 3 keys from `secrets.json`).
 - `npm run test:debug` (worktree): 1790 pass, 1 fail = `so-run-header.test.mts` "plan 08s nested manifest" (reads `dist/`,
   absent in a fresh worktree; passes in the main checkout).
 - `npm run gates:quick`: green (typecheck, defect replay 32/32). Scripts-only change, so no full `npm run gates`.
+## T: SillyTavern's own lorebook save and group Regenerate (owner 2026-11-01)
+
+Owner answer 1 of `research/self-imposed-rules-2026-10-31.md`: ST's own code and buttons may change. Both fixes are runtime
+overrides from the extension (lazy `stHost/hostOverrides.ts`, capability-checked, `WriteResult`, one switch each, on); no ST
+source patch was needed, so no patch file or apply script exists yet.
+
+- `worldInfo.editorMerge` (World & lore, feature `lore-editor-merge`): `stHost/worldInfoSaveGuard.ts` wraps the page's `fetch`
+  for `POST /api/worldinfo/edit`. When `worldInfoPending` recorded the copy the edit started from (now per handed-out object,
+  so an editor drawn before a story write keeps its own base), the save goes to the lore plugin's conditional commit; a 409
+  reads the server, merges (`stHost/lorebookMerge.ts`: entry by entry, then field by field, the editor winning a field both
+  changed, a uid both sides created moved to a free uid), retries up to 3 times, then puts the merged book in ST's cache
+  (`supersedeNextUpdate`, applied when ST announces `WORLDINFO_UPDATED`) and redraws the editor (`reloadEditor`). Without the
+  plugin it merges against the server read and posts through ST's route. No recorded base (new book, rename) passes through.
+- `display.regenerateOwnRows` (Display, feature `regenerate-own-rows`): `stHost/groupRegenerate.ts` binds a click handler on
+  `#option_regenerate` and moves it before ST's in the jQuery table (pointer and Ctrl+Enter). In a group, trailing rows marked
+  `extra.so_row` are deleted with ST's `deleteLastMessage`, then ST's own handler is re-triggered. The note marker is written by
+  `postOwnComment` (`stHost/ownRows.ts`, replaces the effects applier's raw `/comment`), the picture marker by `imagePlace`.
+  Foreign system rows and `/regenerate` (calls `regenerateGroup` directly) keep ST's behaviour.
+- Found live: ST's editor writes defaults into every entry it draws, so the first whole-entry merge kept the editor's stale
+  copy of the story-written entry; fixed by the field-level merge (regression test "live 2026-11-01").
+- Main bundle: +2 KB (`dist/index.js` 1,295,034 B of 1,300,000 on the branch build); the guard, merge and Regenerate code ride
+  the lazy `hostOverrides` chunk.
+
+## Gate record T
+
+- Tests (each regression fails without its fix): `lorebookMerge.test.ts` 6, `worldInfoSaveGuard.test.ts` 6 (stale editor no
+  longer overwrites; plugin-absent merge; 3-conflict refusal; pass-throughs), `worldInfoPending.test.ts` +3 (handout base,
+  supersede, refused save drops the cache), `groupRegenerate.test.ts` 6 (ST's loop modelled: alone it keeps the reply; with the
+  handler note + picture + replies go; foreign row, solo, generating, switch off untouched; handler order; install refusals).
+- Live, lane 38 (no-model, lane copy of the owner data), ST code copy `C:\dev\st-live-t` (staged + plugins installed there;
+  owner ST, lane 0 and the GPU untouched), images/sprites off, lore plugin loaded:
+  - `test/scenarios/v30-43t-regenerate-own-rows.json` PASS x3: note last row with `so_row: note`; switch off, pointer Regenerate
+    deletes nothing (4 rows -> 4); switch on, same click -> 2 rows (note and Arin's reply gone, back to the player row), no system
+    row left. Cleanup clean, 0 leaks.
+  - `test/scenarios/v30-43t-lore-editor-merge.json` PASS x2 (after the field merge; x2 RED before it): ST's editor open on a book,
+    entry 1 changed on the server, editor input on entry 0. Off: server keeps the hand edit and loses the other write (control).
+    On: commit 409, merge, server and ST's cache hold both. Books deleted, residue clean.
+  - Evidence: `C:\dev\so-lanes\ui-review\43t\` (runner logs + result records).
+- Gates: `npm run gates` (no --resume, Storybook included) all green in 383.6s on `623dc088d` (master `e599b883d` merged):
+  jest 11,581 passed / 3 skipped, Storybook 1,167 tests, test:debug, replay, release, plugin, lint, typechecks, build. Earlier
+  runs red: a merge conflict left in the tree, then the error-copy inventory (3 guard probe catches listed) and the arrival golden
+  (regenerate scenario listed); two later full runs green but master had moved. Main `dist/index.js` 1,298,194 B of 1,300,000.
+- Not done: `/regenerate` slash path (ST calls `regenerateGroup` directly; only a source patch would reach it); hidden rows the
+  player or other extensions post keep ST's behaviour; the lane runs used the ST code copy `C:\dev\st-live-t` (kept for reuse).

@@ -246,6 +246,14 @@ left of the reply. Click it to open or close the thinking; its buttons show only
 thinking as a small pill** in **Settings → Display** (or **This device**) switches back to SillyTavern's full-width
 bar. It applies in every chat, story or not.
 
+## Regenerate after a story note or picture
+
+In a group chat SillyTavern's Regenerate stops at the first system row from the end. When the last rows are the story's
+own scene note or picture (posted when a scene changes or an image is placed as its own message), Regenerate removes
+them first, so the reply above them is regenerated instead of a new round being added under them. Rows you or other
+extensions posted are left alone. **Regenerate removes the story's own note or picture first** in **Settings → Display**
+switches this off. The `/regenerate` command still runs SillyTavern's own Regenerate unchanged.
+
 ---
 
 [Playing a story](README.md)

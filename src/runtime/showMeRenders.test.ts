@@ -15,7 +15,7 @@ const SHOW_ME_ALWAYS = [
   "#so-sprite-mouth", "#so-wi-gating-mode", "#so-copilot-ask", "#so-help-open-guide", "#so-help-open-panel", "#so-help-tour",
   "#so-announce-transitions", "#so-briefing-draft", "#so-briefing-enabled", "#so-hud-enabled", "#so-inline-level", "#so-player-setup-enabled",
   "#so-presence-chapter-card", "#so-presence-continue-list", "#so-presence-group-card", "#so-presence-list-badges", "#so-presence-roll-chips",
-  "#so-presence-wand", "#so-your-move-enabled", "#so-compact-thoughts", "#so-in-chat-dividers", "#so-in-chat-because", "#so-in-chat-chips", "#so-in-chat-discovery", "#so-in-chat-gate-meter", "#so-entry-repair", "#so-group-story-select", "#so-new-story-wizard", "#so-open-studio",
+  "#so-presence-wand", "#so-your-move-enabled", "#so-compact-thoughts", "#so-in-chat-dividers", "#so-in-chat-because", "#so-in-chat-chips", "#so-in-chat-discovery", "#so-in-chat-gate-meter", "#so-regenerate-own-rows", "#so-wi-editor-merge", "#so-entry-repair", "#so-group-story-select", "#so-new-story-wizard", "#so-open-studio",
   "#story-library-select", "#so-keep-last-question",
   ...BUILT_JUDGE_USES.filter((use) => !AUTHOR_JUDGE_USES.includes(use)).map((use) => `#${judgeUseControlId(use)}`),
 ];

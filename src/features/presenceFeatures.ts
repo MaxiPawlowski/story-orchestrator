@@ -4,6 +4,15 @@ import { drawerAt, settingsAt } from "./where";
 
 export const PRESENCE_FEATURES: readonly Feature[] = [
   {
+    id: "regenerate-own-rows", name: "Regenerate past story rows", area: "play", audience: "player",
+    oneLine: "In a group chat, Regenerate removes the story's own note or picture left last, then regenerates the reply above it.",
+    what: "SillyTavern's group Regenerate stops at the first system row from the end. When that row is the story's own scene note or picture, it is removed first "
+      + "and SillyTavern's Regenerate then runs as usual. Rows you or other extensions posted are left alone. This changes SillyTavern's own Regenerate entry.",
+    where: settingsAt("#so-regenerate-own-rows", "Display › Regenerate removes the story's own note or picture first"),
+    settings: ["display.regenerateOwnRows"], doc: "player/drawer-and-hud.md", status: "shipped", needs: ["group-chat"],
+    isOn: (settings) => settings.display.regenerateOwnRows,
+  },
+  {
     id: "in-chat-dividers", name: "Scene and time dividers", area: "play", audience: "player",
     oneLine: "A labelled line between messages where the story's clock moves on or a new scene starts.",
     what: "Above the message where the story's time of day changes, or where a new scene begins, a thin line shows the new time (\"Day 3, evening\") or \"A new scene\". "

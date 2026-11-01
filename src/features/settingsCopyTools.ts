@@ -201,6 +201,9 @@ export const SETTING_COPY_TOOLS = {
     "Adds the place, who is on stage (with their other names), open quests and what you have met to the lore judge's question and to the word match. No extra model call."),
   "worldInfo.loreAliases": copy("Nicknames find lore",
     "A lore entry keyed on a character's or place's name also fires when the chat uses one of its other names from the story. Only for this story's lorebooks, never written to the files."),
+  "worldInfo.editorMerge": copy("Keep story lore when you edit a lorebook",
+    "SillyTavern's lorebook editor saves a whole book from the copy it shows. With this on, a save from the editor keeps any change the story wrote to that book "
+      + "since the editor opened it: the two are merged entry by entry, and where both changed the same entry the editor's version wins. Affects every lorebook."),
   "memory.historyNotes": copy("Time and place notes (trial)",
     "Adds a short note of the day and place to the first message after the scene or the time of day changed, in the prompt only. On since its blind rating passed."),
   "memory.outwardNarration": copy("Narrate only what can be seen (trial)",

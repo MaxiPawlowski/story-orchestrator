@@ -220,6 +220,8 @@ const WorldPage = ({ snapshot, manager, navigate }: PageProps) => {
         onKeep={() => { keepGlobalStoryLore(); manager.notify(); }} />
       <WorldInfoGatingGroup status={snapshot.wiGating ?? null} authorView={snapshot.ui.authorView}
         onChoose={(mode) => void (mode === "scan" ? wiGating()?.requestScan() : wiGating()?.requestFile())} onRenormalize={() => void wiGating()?.renormalize()} />
+      <GlobalCheck id="so-wi-editor-merge" setting="worldInfo.editorMerge" manager={manager}
+        read={(settings) => settings.worldInfo.editorMerge} write={(on) => setGlobalSettings({ worldInfo: { editorMerge: on } })} />
       {snapshot.ui.authorView && <GlobalCheck id="so-wi-lore-pins" setting="worldInfo.lorePins" manager={manager}
         read={(settings) => settings.worldInfo.lorePins} write={(on) => setGlobalSettings({ worldInfo: { lorePins: on } })} />}
       {snapshot.ui.authorView && <GlobalCheck id="so-wi-seeded-chance" setting="worldInfo.seededChance" manager={manager}

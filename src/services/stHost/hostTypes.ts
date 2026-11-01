@@ -215,6 +215,8 @@ export interface WorldInfoHostModule {
   // with `world`, decorators parsed and hashed, structured-cloned (world-info.js:4590). It emits
   // WORLDINFO_ENTRIES_LOADED on the way (:4604) and clones at :4638.
   getSortedEntries: () => Promise<HostScannableEntry[]>;
+  // world-info.js:1040: redraws the editor from the cache when it shows this book.
+  reloadEditor?: (file: string, loadIfNotSelected?: boolean) => void;
   [key: string]: unknown;
 }
 

@@ -142,6 +142,11 @@ export const SETTING_COPY = {
     "Show \"Your move.\" when the story hands the turn back",
     "A small chip in the status strip when the characters have finished and handed the turn to you, for the reply now on screen. A swipe or an edit of that reply takes it away.",
   ),
+  "display.regenerateOwnRows": copy(
+    "Regenerate removes the story's own note or picture first",
+    "In a group chat, SillyTavern's Regenerate stops at a system row. When the last rows are the story's own scene note or picture, Regenerate removes them first, "
+      + "so the reply above them is regenerated instead of a new round being added under them. Rows you or other extensions posted are left alone.",
+  ),
   "display.compactThoughts": copy(
     "Show the model's thinking as a small pill",
     "SillyTavern's \"Thought for …\" bar above a reply becomes a small rounded label at its top left. Click it to open or close the thinking as before; "

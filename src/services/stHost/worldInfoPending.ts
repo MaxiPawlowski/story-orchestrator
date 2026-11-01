@@ -17,7 +17,9 @@ export interface PendingWorldEdit {
 
 const baselines = new Map<string, string>();
 const edits = new Map<string, PendingWorldEdit>();
+const superseded = new Map<string, object | null>();
 let handedOut = new WeakSet<object>();
+let handoutBase = new WeakMap<object, string | null>();
 let clock: () => number = Date.now;
 let installed: (() => void) | null = null;
 let rawSet: ((name: string, data: unknown) => unknown) | null = null;
@@ -27,7 +29,8 @@ const isObject = (value: unknown): value is object => typeof value === "object" 
 // ST caches a fetched book with the same `set` its save uses (world-info.js:2054, :4183), so a set
 // alone does not say "unsaved edit". A load sets an object nobody has seen; a save sets one the cache
 // handed out before (`loadWorldInfo` returns the fetched object, or a clone through `get`). Each load
-// and each WORLDINFO_UPDATED records the copy the server holds: an edit's baseline.
+// and each WORLDINFO_UPDATED records the copy the server holds. An edit's baseline is the copy its
+// object was handed out from, so an editor still showing a book from before our write keeps its own base.
 export function watchPendingWorldSaves(now: () => number = Date.now): () => void {
   if (installed) return installed;
   const cache: HostCache = worldInfoModule.worldInfoCache;
@@ -38,23 +41,31 @@ export function watchPendingWorldSaves(now: () => number = Date.now): () => void
   rawSet = (name, data) => originalSet.call(cache, name, data);
   cache.set = function (this: unknown, name: string, data: unknown) {
     if (isObject(data) && handedOut.has(data)) {
-      edits.set(name, { at: now(), baseline: edits.get(name)?.baseline ?? baselines.get(name) ?? null });
+      edits.set(name, { at: now(), baseline: handoutBase.has(data) ? handoutBase.get(data) ?? null : edits.get(name)?.baseline ?? baselines.get(name) ?? null });
     } else if (isObject(data)) {
-      baselines.set(name, entriesImage(data));
+      const image = entriesImage(data);
+      baselines.set(name, image);
       handedOut.add(data);
+      handoutBase.set(data, image);
     }
     return originalSet.call(this, name, data);
   };
   if (typeof originalGet === "function") {
     cache.get = function (this: unknown, name: string) {
       const value = originalGet.call(this, name);
-      if (isObject(value)) handedOut.add(value);
+      if (isObject(value) && !handedOut.has(value)) {
+        handedOut.add(value);
+        handoutBase.set(value, edits.get(name)?.baseline ?? baselines.get(name) ?? null);
+      }
       return value;
     };
   }
   const off = subscribeToHostEvent("WORLDINFO_UPDATED", (name, data) => {
-    edits.delete(String(name));
-    if (isObject(data)) baselines.set(String(name), entriesImage(data));
+    const book = String(name);
+    edits.delete(book);
+    if (isObject(data)) handoutBase.set(data, entriesImage(data));
+    if (superseded.has(book)) return settleSuperseded(book);
+    if (isObject(data)) baselines.set(book, entriesImage(data));
   });
   installed = () => {
     off();
@@ -62,7 +73,9 @@ export function watchPendingWorldSaves(now: () => number = Date.now): () => void
     if (originalGet && cache.get !== originalGet) cache.get = originalGet;
     edits.clear();
     baselines.clear();
+    superseded.clear();
     handedOut = new WeakSet<object>();
+    handoutBase = new WeakMap<object, string | null>();
     clock = Date.now;
     rawSet = null;
     installed = null;
@@ -77,6 +90,33 @@ export function markWorldCommitted(name: string, data: object): WriteResult<{ ca
   if (!set) return couldNot("ST's lorebook cache cannot be written");
   set(name, data);
   return wrote({ cached: true });
+}
+
+export function editBaseline(name: string): string | null {
+  return edits.get(name)?.baseline ?? null;
+}
+
+// The save guard replaced what ST posted (a merge) or refused it; ST still announces its own copy, so
+// that announcement must not become the baseline. The server's copy goes into the cache instead, and
+// an editor showing the book is redrawn from it.
+export function supersedeNextUpdate(name: string, data: object | null): WriteResult<{ pending: true }> {
+  superseded.set(name, data);
+  return wrote({ pending: true });
+}
+
+function settleSuperseded(name: string): void {
+  const data = superseded.get(name);
+  superseded.delete(name);
+  if (data) markWorldCommitted(name, structuredClone(data));
+  else {
+    baselines.delete(name);
+    worldInfoModule.worldInfoCache.delete(name);
+  }
+  try {
+    worldInfoModule.reloadEditor?.(name);
+  } catch (error) {
+    log.warn("world info: the lorebook editor could not be redrawn after a merged save", { name, error });
+  }
 }
 
 export function pendingWorldEdit(name: string, now: number = clock()): PendingWorldEdit | null {
