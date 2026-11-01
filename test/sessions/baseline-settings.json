@@ -226,7 +226,10 @@
       "lexicalPrefilter": false,
       "lexicalTiebreak": true,
       "holdRound": true,
-      "preferKnown": true
+      "preferKnown": true,
+      "loreLifetime": true,
+      "loreState": true,
+      "loreAliases": true
     },
     "image": {
       "enabled": false,

@@ -1,4 +1,6 @@
-import { parseStoryOrThrow, type EngineState } from "@engine/index";
+import { parseStoryOrThrow, type EngineState, type NormalizedStory } from "@engine/index";
+import type { LoreState } from "@judge/loreState";
+import type { ScanBufferView } from "./loreKeyMatch";
 import { createJudgeGate, defaultJudgeSettings, type JudgeRequest, type JudgeSettings } from "@judge/index";
 import type { HostScannableEntry } from "@services/STAPI";
 import { JudgeRuntime } from "./judge";
@@ -33,6 +35,10 @@ const setup = (options: {
   fail?: boolean;
   lexical?: LoreLexicalOptions;
   unknown?: string[];
+  loreState?: LoreState;
+  aliases?: boolean;
+  story?: NormalizedStory;
+  buffer?: ScanBufferView;
 }) => {
   const settings: JudgeSettings = { ...defaultJudgeSettings(), enabled: true, uses: { ...defaultJudgeSettings().uses, loreSelect: true } };
   const requests: JudgeRequest[] = [];
@@ -57,7 +63,7 @@ const setup = (options: {
   const ownership: RunOwnership = { mint: (window) => mintToken(context, window), check: (token) => tokenMatches(context, token) };
   const selector = new LoreSelector({
     judge: () => judge,
-    getStory: () => story,
+    getStory: () => options.story ?? story,
     getState: () => ({ activeCheckpointId: state.checkpoint }) as unknown as EngineState,
     getWindow: () => state.window,
     getChatId: () => "chat-1",
@@ -67,6 +73,9 @@ const setup = (options: {
     lexical: () => options.lexical ?? ALL,
     getPlayerTurn: () => state.playerTurn,
     getUnknownNames: async () => options.unknown ?? [],
+    getLoreState: async () => options.loreState ?? null,
+    aliases: () => options.aliases ?? false,
+    getScanBuffer: () => options.buffer ?? null,
     ownership,
   });
   return { selector, requests, forced, state };
@@ -166,5 +175,31 @@ describe("prefer known entities (plan 42a G7)", () => {
     const env = setup({ entries: HARBOUR, fail: true, unknown: ["Odo"] });
     env.state.window = [{ speaker: "Max", text: "Where is Odo? Odo owes me rope." }];
     expect((await env.selector.select("GENERATION_STARTED"))?.picks.map((pick) => pick.uid)).not.toContain(2);
+  });
+});
+
+describe("scene state and aliases in lore-select (v3.0 43 L2)", () => {
+  it("sends the scene state to the judge and its names to the word match; without it the request is as before", async () => {
+    const loreState: LoreState = { place: "the harbour", cast: [{ name: "Mara", aliases: ["Cap"] }], quests: ["Find the pilot"], known: [] };
+    const env = setup({ entries: HARBOUR, loreState, lexical: NONE });
+    await env.selector.select("GENERATION_STARTED");
+    expect((env.requests[0].state as { scene: Record<string, unknown> }).scene).toEqual({ name: "The Dock", goal: "Board.", place: "the harbour", cast: ["Mara (also Cap)"], quests: ["Find the pilot"] });
+    const off = setup({ entries: HARBOUR, lexical: NONE });
+    await off.selector.select("GENERATION_STARTED");
+    expect((off.requests[0].state as { scene: Record<string, unknown> }).scene).toEqual({ name: "The Dock", goal: "Board." });
+  });
+
+  it("counts an entry a nickname will fire as left to the keyword scan, so the judge is not asked about it", async () => {
+    const aliased = parseStoryOrThrow({
+      id: "lex", title: "Lex", description: "", qualities: [], transitions: [], lore_select: { lorebooks: ["Lore"] },
+      checkpoints: [{ id: "dock", name: "The Dock", objective: "Board.", type: "anchor", start: true }],
+      roster: [{ id: "odo", name: "Odo", aliases: ["the ropeseller"] }],
+    });
+    const entries = [entry(2, "NPC - Odo", "Odo sells rope and gossip at the market.", ["Odo"]), entry(3, "Lore - Tides", "The tide turns twice a day.")];
+    const buffer: ScanBufferView = { messages: ["Ask the ropeseller."], depth: 4, caseSensitive: false, matchWholeWords: true };
+    const env = setup({ entries, story: aliased, aliases: true, buffer, lexical: NONE });
+    expect((await env.selector.select("GENERATION_STARTED"))?.left.map((row) => [row.uid, row.reason])).toEqual([[2, "keyword"]]);
+    const off = setup({ entries, story: aliased, aliases: false, buffer, lexical: NONE });
+    expect((await off.selector.select("GENERATION_STARTED"))?.left).toEqual([]);
   });
 });

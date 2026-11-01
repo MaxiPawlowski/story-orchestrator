@@ -1,7 +1,7 @@
 import type { NormalizedStory } from "@engine/index";
 import { storyRevision } from "./hash";
 import { applyScanGate, emptyScanGateStats, scanGatePlan, type ScanEntry, type ScanGate, type ScanGateStats } from "./scanGatePlan";
-import { earnedSwitches, earnedSwitchesKey, NO_EARNED_SWITCHES, releasePlan, type EarnedSwitches } from "./worldInfoGates";
+import { earnedSwitches, earnedSwitchesKey, loreLifetimeOn, NO_EARNED_SWITCHES, releasePlan, type EarnedSwitches } from "./worldInfoGates";
 import { bookKey } from "./worldInfoMatch";
 
 export interface ScanGuardSources {
@@ -53,7 +53,7 @@ export class ScanGuard {
     const story = owner === "no-story" ? null : this.sources.story();
     const path = owner === "story" ? this.sources.path() : [];
     const switches = owner === "story" ? earnedSwitches(story, this.sources.values?.() ?? {}) : NO_EARNED_SWITCHES;
-    const key = [owner, this.sources.openChat() ?? "", story ? `${story.id ?? ""}@${storyRevision(story)}` : "", path.join(">"), earnedSwitchesKey(switches),
+    const key = [owner, this.sources.openChat() ?? "", story ? `${story.id ?? ""}@${storyRevision(story)}` : "", path.join(">"), earnedSwitchesKey(switches), loreLifetimeOn() ? "life" : "",
       this.sources.libraryRevision()].join("|");
     if (this.memo?.key !== key) this.memo = { key, owner, gate: scanGuardGate(this.sources.library(), story, path, owner, switches) };
     return { owner: this.memo.owner, gate: this.memo.gate };

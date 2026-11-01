@@ -180,8 +180,9 @@ export const GUIDE_TOPICS = {
   "world-info": {
     title: "Beat lore",
     fields: "effects.world_info",
-    text: "{enable: [{lorebook, comments: [entry titles]}], disable: [...]} switches lorebook entries on and off along the story's path. Entries any beat names belong to the "
-      + "story: they rest off and are rebuilt per chat from the path, so a reopened chat matches a continuous one. The curator never writes a gated entry. Name entries by "
+    text: "{enable: [{lorebook, comments: [titles], until?, lasting?}], disable: [...]} switches lorebook entries along the path; they rest off and are rebuilt per chat "
+      + "from it. An enable ends when the path leaves its chapter, at until: \"<checkpoint id>\", or never with lasting: true. Keep one prompt's story lore under ~2,500 "
+      + "tokens (Studio warns): give cast and truths an end. The curator never writes a gated entry. Name entries by "
       + "their exact title (comment). Transitions carry no beat lore; an intermediate expanded into a generated stretch has its world_info played by the stretch's "
       + "first generated beat, so disable a passed scene there or it stays on through the downtime.",
   },
@@ -426,9 +427,8 @@ export const DIAGNOSTIC_GUIDE_TOPIC: Record<DiagnosticCode, GuideTopicId> = {
   "latching-enum-placeholder": "latching",
   "quality-rating-no-scale": "quality-reads",
   "quality-outcome-player-evidence": "quality-reads",
-  "house-rule-compound": "house-rules",
-  "checkpoint-inherits-author-note": "author-note",
-  "world-info-rests-off": "world-info",
+  "house-rule-compound": "house-rules", "checkpoint-inherits-author-note": "author-note",
+  "world-info-rests-off": "world-info", "world-info-until-unknown": "world-info", "lore-path-over-budget": "world-info",
   "motive-member-unknown": "drives-motives", "motive-for-player": "drives-motives",
   "chapter-missing": "chapters", "chapter-unknown": "chapters", "chapter-unreachable": "chapters",
   "chapter-no-exit": "chapters", "chapter-reentry": "chapters", "story-dead-end": "chapters",

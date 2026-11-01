@@ -194,6 +194,13 @@ export const SETTING_COPY_TOOLS = {
     "Asks the judge about lore once per message of yours and keeps the answer while the other characters reply, unless the checkpoint changes or a new entry is named. Fewer judge calls."),
   "worldInfo.preferKnown": copy("Prefer lore you have met",
     "Lowers a lore entry about a person, place or thing you have not met yet a little in the judge's ranking, and never forces it by word match. Characters can still know it."),
+  "worldInfo.loreLifetime": copy("Lore ends with its chapter",
+    "Lore a checkpoint switches on ends when the story leaves that checkpoint's chapter, or at the checkpoint the story names, unless the story marks it lasting. "
+      + "Off: it stays on until a checkpoint switches it off."),
+  "worldInfo.loreState": copy("Tell the lore pick where you are",
+    "Adds the place, who is on stage (with their other names), open quests and what you have met to the lore judge's question and to the word match. No extra model call."),
+  "worldInfo.loreAliases": copy("Nicknames find lore",
+    "A lore entry keyed on a character's or place's name also fires when the chat uses one of its other names from the story. Only for this story's lorebooks, never written to the files."),
   "memory.historyNotes": copy("Time and place notes (trial)",
     "Adds a short note of the day and place to the first message after the scene or the time of day changed, in the prompt only. On since its blind rating passed."),
   "memory.outwardNarration": copy("Narrate only what can be seen (trial)",

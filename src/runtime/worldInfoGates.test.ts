@@ -70,6 +70,60 @@ describe("worldInfoPlan", () => {
   });
 });
 
+describe("lore lifetime (v3.0 43 L1)", () => {
+  const chaptered = parseStoryOrThrow({
+    title: "Lifetimes",
+    description: "Lore lifetime fixture.",
+    qualities: [],
+    chapters: [{ id: "c1", title: "One" }, { id: "c2", title: "Two", final: true }],
+    checkpoints: [
+      { id: "a", name: "a", objective: "a", type: "anchor", start: true, chapter: "c1",
+        effects: { world_info: { enable: [{ lorebook: "Book", comments: ["Scene"] }, { lorebook: "Book", comments: ["Truth"], lasting: true },
+          { lorebook: "Book", comments: ["Guide"], until: "c" }] } } },
+      { id: "b", name: "b", objective: "b", type: "anchor", chapter: "c1" },
+      { id: "c", name: "c", objective: "c", type: "anchor", chapter: "c2", effects: { world_info: { enable: book(["Later"]) } } },
+      { id: "d", name: "d", objective: "d", type: "anchor", chapter: "c2", effects: { world_info: { enable: book(["Scene"]) } } },
+    ],
+    transitions: [],
+    roster: [],
+  });
+  const on = (path: string[], lifetime?: boolean) => planFor(worldInfoPlan(chaptered, path, [], [], lifetime), "Book")?.enable;
+
+  it("reads until and lasting off an enable", () => {
+    expect(readWorldInfoEffect({ enable: [{ lorebook: "B", comments: ["X"], until: " cp9 ", lasting: true }, { lorebook: "B", comments: ["Y"], lasting: "yes" }] }).enable)
+      .toEqual([{ lorebook: "B", comments: ["X"], until: "cp9", lasting: true }, { lorebook: "B", comments: ["Y"] }]);
+  });
+
+  it("keeps a chapter's lore on inside the chapter", () => {
+    expect(on(["a", "b"])).toEqual(["Scene", "Truth", "Guide"]);
+  });
+
+  it("ends chapter lore when the path leaves the chapter, keeps lasting lore, and ends until-lore at its checkpoint", () => {
+    expect(on(["a", "b", "c"])).toEqual(["Truth", "Later"]);
+  });
+
+  it("switches an ended entry on again when a later checkpoint enables it", () => {
+    expect(on(["a", "b", "c", "d"])).toEqual(["Scene", "Truth", "Later"]);
+  });
+
+  it("with the switch off, nothing ends on its own", () => {
+    expect(on(["a", "b", "c"], false)).toEqual(["Scene", "Truth", "Guide", "Later"]);
+  });
+
+  it("a story without chapters keeps lore until a checkpoint switches it off, unless until names one", () => {
+    const plain = story([
+      { id: "one", world_info: { enable: [{ lorebook: "Book", comments: ["Stays"] }, { lorebook: "Book", comments: ["Ends"], until: "two" }] } },
+      { id: "two" },
+    ]);
+    expect(planFor(worldInfoPlan(plain, ["one", "two"]), "Book")?.enable).toEqual(["Stays"]);
+  });
+
+  it("replays the same set however often it is rebuilt (rollback = replay)", () => {
+    expect(on(["a", "b", "c"])).toEqual(on(["a", "b", "c"]));
+    expect(on(["a"])).toEqual(["Scene", "Truth", "Guide"]);
+  });
+});
+
 describe("releasePlan", () => {
   const a = story([{ id: "a", world_info: { enable: [{ lorebook: "Shared", comments: ["A", "Both"] }] } }]);
   const b = story([{ id: "b", world_info: { enable: [{ lorebook: "Shared", comments: ["B", "Both"] }, { lorebook: "Own", comments: ["B own"] }] } }]);

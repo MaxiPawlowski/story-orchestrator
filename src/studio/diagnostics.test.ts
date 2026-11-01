@@ -253,6 +253,8 @@ describe("runDiagnostics", () => {
         { ...clean.checkpoints[0], talk_control: { lead: "Arin", lead_max_consecutive: 2, chain: { mode: "scripted", sequence: ["Arin"] } } }, clean.checkpoints[1],
       ] }),
       ...runDiagnostics({ ...clean, checkpoints: [{ ...clean.checkpoints[0], type: "anchor", tension_target: "critical" }, clean.checkpoints[1]] }),
+      ...runDiagnostics({ ...clean, checkpoints: [{ ...clean.checkpoints[0], effects: { world_info: { enable: [{ lorebook: "Book", comments: ["Big"], until: "ghost" }] } } },
+        clean.checkpoints[1]] }, { loreEntries: () => [{ comment: "Big", tokens: 3000, disabled: false, constant: true }] }),
     ];
     const counts = new Map<string, number>();
     diagnostics.forEach((entry) => counts.set(entry.code, (counts.get(entry.code) ?? 0) + 1));

@@ -52,6 +52,7 @@ const everything = (overrides: Record<string, unknown> = {}): RuntimeSnapshot =>
   wiGating: { mode: "scan", drift: [{ lorebook: "Ruins", comment: "CP2" }], missingKey: [] },
   globalStoryLore: ["Ruins Lore"],
   loreWeightedGroups: ["weather"],
+  exampleDrops: ["Arin"],
   loreBudget: { chatId: "c1", scans: 10, starved: [{ book: "Ruins Lore", uid: 3, comment: "Gate", via: "forced", count: 3 }], consumer: "Atlas", lastCut: [], cap: 0, storyTokens: 4000 },
   orphanedLorebooks: [{ name: "Story Orchestrator - Old - c0", detail: "4 memories", label: "the old chat" }],
   stylesMissing: true,

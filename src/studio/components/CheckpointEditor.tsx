@@ -262,6 +262,7 @@ const CheckpointBehaviour = ({ selected, draft, backgroundNames, patch }: { sele
         castable={draft.roster.filter((member) => !rosterMemberIsPlayer(member, draft))}
         backgroundNames={backgroundNames}
         cardFields={declaredCardFields(draft.roster, draft.player, draft.qualities)}
+        checkpointIds={draft.checkpoints.map((checkpoint) => checkpoint.id).filter((id) => id !== selected.id)}
         onChange={(next: CheckpointEffects) => patch({ effects: Object.keys(next).length ? next : undefined })}
       />
     </Sec>
