@@ -85,4 +85,13 @@ export const MECHANICS_FEATURES: readonly Feature[] = [
     where: settingsAt("#so-authoring-stuck-ladder", "Authoring › Prompt trials"),
     settings: ["pacing.stuckLadder"], guideTopic: "stuck-leads", doc: authorGuideDoc("stuck-leads"), status: "shipped", needs: ["story"],
   },
+  {
+    id: "living-leads", name: "Several ways into a written turning point", area: "authoring", audience: "author",
+    oneLine: "Each turning point the living director writes can be reached two or three different ways.",
+    what: "The living director answers the way into its next turning point as two or three leads that differ in kind (a place, a person, an object or a choice); "
+      + "any one of them, or the usual few turns of pace, heads the story there. Still one move per reply, and every lead is checked: none may already be true, "
+      + "each must be reachable, and at most two new story values count across all of them. No extra model call. Not rated yet.",
+    where: settingsAt("#so-authoring-living-leads", "Authoring › Prompt trials"),
+    settings: ["stagecraft.livingLeads"], guideTopic: "living-director", doc: authorGuideDoc("living-director"), status: "experimental", needs: ["story", "group-chat", "memory-profile"],
+  },
 ];

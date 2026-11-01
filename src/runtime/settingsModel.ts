@@ -260,7 +260,7 @@ export const defaultMemorySettings = (): MemoryRuntimeSettings => ({
 
 export const defaultStagecraftSettings = (): StagecraftSettings => ({
   curatorEnabled: true, acceptMode: "review", wardenEnabled: true, wardenAcceptMode: "review", agencyAcceptMode: "auto",
-  meanwhileAcceptMode: DEFAULT_MEANWHILE_ACCEPT_MODE, livingEnabled: true, branchingEnabled: true, prefetchEnabled: true, createEnabled: true, createRequireMeasured: false,
+  meanwhileAcceptMode: DEFAULT_MEANWHILE_ACCEPT_MODE, livingEnabled: true, branchingEnabled: true, prefetchEnabled: true, livingLeads: true, createEnabled: true, createRequireMeasured: false,
 });
 
 export const defaultGlobalSettings = (): GlobalSettings => ({
@@ -317,7 +317,7 @@ const sanitizeTalkSettings = (value: unknown): GlobalSettings["talk"] => {
     skipAhead: source.skipAhead === true, crossVoiceTrim: source.crossVoiceTrim !== false, dryNames: source.dryNames !== false };
 };
 
-const LIVING_FLAGS = ["livingEnabled", "branchingEnabled", "prefetchEnabled"] as const;
+const LIVING_FLAGS = ["livingEnabled", "branchingEnabled", "prefetchEnabled", "livingLeads"] as const;
 
 const livingFlags = (value: unknown): Record<(typeof LIVING_FLAGS)[number], boolean> => {
   const stored = isRecord(value) ? value : {};

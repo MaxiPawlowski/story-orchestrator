@@ -42,7 +42,10 @@ export function buildDirectorCriticRequest(input: DirectorCriticInput): JudgeReq
     questions: {
       playerAct: noul(
         "Does `next_scene.objective` decide or narrate what `player` does, says, chooses or feels?",
-        { true: "The objective has the player act, speak, agree, refuse, choose, go somewhere or feel something", false: "Only the world, other characters or events act; the player's response is left open" },
+        {
+          true: "The objective has the player act, speak, agree, refuse, choose, go somewhere or feel something",
+          false: "Only the world, other characters or events act; the player's response is left open",
+        },
       ),
       contradicts: noul(
         "Does `next_scene` contradict one of `established_facts`?",
@@ -73,7 +76,8 @@ export function readDirectorCritic(answers: Record<string, JudgeAnswer>): Direct
 
 export function directorCriticVerdict(read: DirectorCriticRead): { pass: boolean; issues: string[] } {
   const issues = [
-    ...(read.playerAct >= DIRECTOR_CRITIC_PLAYER_ACT_MAX ? [`The objective decides what the player does, says, chooses or feels (judge p ${read.playerAct}); write only what the world and the cast do.`] : []),
+    ...(read.playerAct >= DIRECTOR_CRITIC_PLAYER_ACT_MAX
+      ? [`The objective decides what the player does, says, chooses or feels (judge p ${read.playerAct}); write only what the world and the cast do.`] : []),
     ...(read.contradicts >= DIRECTOR_CRITIC_CONTRADICTS_MAX ? [`It contradicts an established fact (judge p ${read.contradicts}).`] : []),
     ...(read.outcomeName >= DIRECTOR_CRITIC_OUTCOME_MAX ? [`The name states how the scene ends (judge p ${read.outcomeName}); name a place or situation.`] : []),
     ...(read.newPerson >= DIRECTOR_CRITIC_NEW_PERSON_MAX ? [`It brings in a named person outside the cast and the canon (judge p ${read.newPerson}).`] : []),

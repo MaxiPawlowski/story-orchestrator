@@ -82,7 +82,7 @@ const JUDGE_USE_AREA: Partial<Record<JudgeUseKey, FeatureArea>> = {
   director: "characters", expressions: "images", loreSelect: "world", loreExclusive: "world", curatorFilter: "world", wardenLore: "world",
   memoryVerify: "memory", memoryPairs: "memory", sceneTrigger: "memory", sceneTracker: "memory", typedExtraction: "memory", stallCheck: "memory",
   expansionCritic: "authoring", expansionLookahead: "authoring", lookahead: "authoring", agencyCheck: "characters", houseRules: "characters", attentionCheck: "characters",
-  wardenVoice: "characters", divergence: "authoring",
+  wardenVoice: "characters", divergence: "authoring", directorCritic: "authoring",
   canonVerify: "memory", canonDraft: "authoring", pictureCue: "images", adversityTrend: "authoring", idleCheck: "authoring", toneCheck: "authoring", repetitionCheck: "authoring",
 };
 

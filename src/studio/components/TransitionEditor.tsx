@@ -15,6 +15,13 @@ const Field: React.FC<{ label: string; children: React.ReactNode }> = ({ label, 
   </label>
 );
 
+const UrgentToggle = ({ urgent, onChange }: { urgent: boolean; onChange: (on: boolean) => void }) => (
+  <div className="flex items-center gap-2 text-sm">
+    <Switch id="so-transition-urgent" checked={urgent} label="Urgent exit" onChange={onChange} />
+    <span>Urgent: fires at once, ignoring the beat&apos;s minimum player turns</span>
+  </div>
+);
+
 const TransitionEditor: React.FC<{ initialIndex?: number }> = ({ initialIndex }) => {
   const draft = useDraftStore((state) => state.draft);
   const mutate = useDraftStore((state) => state.mutate);
@@ -101,11 +108,7 @@ const TransitionEditor: React.FC<{ initialIndex?: number }> = ({ initialIndex })
               </Field>
             </div>
 
-            <div className="flex items-center gap-2 text-sm">
-              <Switch id="so-transition-urgent" checked={selected.urgent === true} label="Urgent exit"
-                onChange={(on) => patch({ urgent: on ? true : undefined })} />
-              <span>Urgent: fires at once, ignoring the beat&apos;s minimum player turns</span>
-            </div>
+            <UrgentToggle urgent={selected.urgent === true} onChange={(on) => patch({ urgent: on ? true : undefined })} />
 
             <div className="flex flex-col gap-1">
               <span className="text-xs st-muted">Gate</span>

@@ -25,6 +25,7 @@ export const JUDGE_USE_KEYS = [
   "attentionCheck",
   "wardenVoice",
   "divergence",
+  "directorCritic",
   "canonVerify",
   "canonDraft",
   "pictureCue",
@@ -217,6 +218,7 @@ export const JUDGE_USE_LABELS: Record<JudgeUseKey, string> = {
   expressions: "Sprite expressions",
   attentionCheck: "Answers the player (warden)",
   divergence: "Branch when the player goes off script",
+  directorCritic: "Living director review",
   wardenVoice: "In character (warden)",
 };
 
@@ -241,11 +243,12 @@ export const BUILT_JUDGE_USES: readonly JudgeUseKey[] = [
   "attentionCheck",
   "wardenVoice",
   "divergence",
+  "directorCritic",
   "canonVerify", "canonDraft", "pictureCue", "adversityTrend", "idleCheck", "toneCheck", "repetitionCheck",
 ];
 
 // Steering-grade usages, listed only in author view.
 export const AUTHOR_JUDGE_USES: readonly JudgeUseKey[] = [
-  "expansionCritic", "expansionLookahead", "agencyCheck", "houseRules", "wardenLore", "loreExclusive", "attentionCheck", "wardenVoice", "divergence",
+  "expansionCritic", "expansionLookahead", "agencyCheck", "houseRules", "wardenLore", "loreExclusive", "attentionCheck", "wardenVoice", "divergence", "directorCritic",
   "canonDraft", "adversityTrend", "idleCheck", "toneCheck", "repetitionCheck",
 ];

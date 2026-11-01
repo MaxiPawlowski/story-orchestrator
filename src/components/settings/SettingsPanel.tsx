@@ -280,6 +280,8 @@ const AuthoringPage = ({ snapshot, manager, navigate }: PageProps) => (
         read={(settings) => settings.pacing.pathArc} write={(on) => setGlobalSettings({ pacing: { pathArc: on } })} />
       <GlobalCheck id="so-authoring-stuck-ladder" setting="pacing.stuckLadder" manager={manager}
         read={(settings) => settings.pacing.stuckLadder} write={(on) => setGlobalSettings({ pacing: { stuckLadder: on } })} />
+      <GlobalCheck id="so-authoring-living-leads" setting="stagecraft.livingLeads" manager={manager}
+        read={(settings) => settings.stagecraft.livingLeads !== false} write={(on) => setGlobalSettings({ stagecraft: { livingLeads: on } })} />
       <GlobalCheck id="so-swipe-contrast" setting="talk.swipeContrast" manager={manager}
         read={(settings) => settings.talk.swipeContrast} write={(on) => setGlobalSettings({ talk: { swipeContrast: on } })} />
     </Section>}

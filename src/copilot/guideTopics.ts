@@ -374,15 +374,6 @@ export const GUIDE_TOPICS = {
       + "Limits: name 60 chars, objective 400. Save as story keeps reached turning points. Pace: a way in also opens after 3 player turns, a beat after 2.",
   },
   ...LIVING_TOPICS,
-  branching: {
-    title: "Branches that follow the player",
-    fields: "features.branching, features.prefetch, stagecraft.branchingEnabled, stagecraft.prefetchEnabled, judge.uses.divergence",
-    text: "Authored turning points with exits and an anchor after them; never where the living director writes. Exits' extraction_hint says what fits. "
-      + "Once per player turn that moved nowhere, the judge reads whether it fits an exit; only a turn that commits to an action counts (questions, talk, OOC "
-      + "never do). 2 counted 'none' in a row at p>=0.8, or one at p>=0.97, is divergence: the director writes liv_b<n>_way, rejoining the next anchor. "
-      + "Refusals alone never branch. Prefetch writes one way out ahead. One branch per turning point; a swipe takes it back. "
-      + "features.branching or features.prefetch off declines it for the story.",
-  },
   poses: {
     title: "Poses and character layers",
     fields: "poses.use, poses.custom, id, label, tags, framing, props, text, keypoints.format, keypoints.canvas, " +

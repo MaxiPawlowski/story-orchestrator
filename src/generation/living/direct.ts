@@ -6,6 +6,8 @@ import { parseDirectorDraft } from "./parse";
 import { buildBranchOps, buildDirectorOps, checkDirectorOps, planChapter } from "./plan";
 import { renderBranchPrompt, renderDirectorCriticPrompt, renderDirectorPrompt, type BranchContext, type DirectorInput } from "./prompt";
 import { refusalOf } from "./refusal";
+import { buildDirectorCriticRequest, canonFacts, directorCriticVerdict, readDirectorCritic } from "@judge/livingCritic";
+import type { JudgeAnswer, JudgeRequest } from "@judge/types";
 import type { DirectorDraft, DirectorRefusal, LivingOpPayload, RefusalStage } from "./types";
 
 export const DIRECTOR_ATTEMPTS = 2;
@@ -13,6 +15,8 @@ export const DIRECTOR_MAX_TOKENS = 1024;
 const UNREADABLE_VERDICTS = ["Invalid critic JSON", "Invalid critic verdict"];
 export const CRITIC_READS = 2;
 export const CRITIC_UNREADABLE = "the critic's verdict could not be read";
+
+export type DirectorJudge = (request: JudgeRequest) => Promise<Record<string, JudgeAnswer> | null>;
 
 export interface DirectorRun {
   story: NormalizedStory;
@@ -24,6 +28,7 @@ export interface DirectorRun {
   input: DirectorInput;
   guard: DraftGuardDeps;
   critic: boolean;
+  judgeCritic?: DirectorJudge;
 }
 
 export type DirectorOutcome =
@@ -130,11 +135,25 @@ export async function runBranch(run: BranchRun, model: ModelCall, ask: ModelAsk)
   return { status: "refused", issues: retry, refusal: refusalOf(stage, retry), attempts: DIRECTOR_ATTEMPTS, raw };
 }
 
-async function critique(run: Pick<DirectorRun, "input" | "guard">, draft: DirectorDraft, model: ModelCall, ask: ModelAsk): Promise<string[]> {
+async function judged(run: Pick<DirectorRun, "input" | "guard" | "judgeCritic">, draft: DirectorDraft, player: string): Promise<string[] | null> {
+  if (!run.judgeCritic) return null;
+  const request = buildDirectorCriticRequest({
+    player, cast: run.input.cast.map((member) => member.name), frontier: `"${run.input.frontier.name}" — ${run.input.frontier.objective}`,
+    facts: canonFacts(run.input.canon), threads: run.input.openThreads, name: draft.anchor.name, objective: draft.anchor.objective,
+  });
+  const answers = await run.judgeCritic(request).catch(() => null);
+  const read = answers ? readDirectorCritic(answers) : null;
+  return read ? directorCriticVerdict(read).issues : null;
+}
+
+async function critique(run: Pick<DirectorRun, "input" | "guard" | "judgeCritic">, draft: DirectorDraft, model: ModelCall, ask: ModelAsk): Promise<string[]> {
+  const player = run.guard.playerNames.find((name) => name.trim()) ?? "the player";
+  const verdict = await judged(run, draft, player);
+  if (verdict) return verdict;
   const prompt = renderDirectorCriticPrompt({
     premise: run.input.premise, canon: run.input.canon, frontier: `"${run.input.frontier.name}" — ${run.input.frontier.objective}`,
     name: draft.anchor.name, objective: draft.anchor.objective,
-    player: run.guard.playerNames.find((name) => name.trim()) ?? "the player", cast: run.input.cast.map((member) => member.name),
+    player, cast: run.input.cast.map((member) => member.name),
   });
   for (let read = 1; read <= CRITIC_READS; read += 1) {
     const verdict = parseCriticVerdict(await askText(model, prompt, { ...ask, pass: "critic", maxTokens: 384 }));

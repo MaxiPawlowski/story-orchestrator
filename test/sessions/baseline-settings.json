@@ -134,6 +134,7 @@
       "livingEnabled": true,
       "branchingEnabled": true,
       "prefetchEnabled": true,
+      "livingLeads": true,
       "createEnabled": true,
       "createRequireMeasured": false
     },
@@ -162,6 +163,7 @@
         "attentionCheck": true,
         "wardenVoice": true,
         "divergence": true,
+        "directorCritic": true,
         "canonVerify": true,
         "canonDraft": true,
         "pictureCue": true,
@@ -196,6 +198,7 @@
         "attentionCheck": "typesafe",
         "wardenVoice": "typesafe",
         "divergence": "typesafe",
+        "directorCritic": "typesafe",
         "warden": "typesafe",
         "canonVerify": "typesafe",
         "canonDraft": "typesafe",

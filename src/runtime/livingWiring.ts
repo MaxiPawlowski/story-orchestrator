@@ -11,6 +11,8 @@ import { livingInputs } from "./livingInputs";
 import type { JudgeRuntime } from "./judge";
 import type { RunOwnership } from "./runToken";
 import { findStoryRecord, saveStoryRecord } from "./storyLibrary";
+import { getGlobalSettings } from "./settingsStore";
+import { DIRECTOR_CRITIC_TIMEOUT_MS } from "@judge/policy";
 import type { LoadedStory, RuntimeExtras } from "./types";
 
 export interface LivingWiring {
@@ -75,6 +77,12 @@ export function wireLiving(wiring: LivingWiring): LivingPort {
       };
       const result = await judge.ask("divergence", request, { timeoutMs: DIVERGENCE_TIMEOUT_MS, summarize });
       return readDivergence(result.answers);
+    },
+    director: () => {
+      const judge = wiring.judge();
+      const leads = getGlobalSettings().stagecraft.livingLeads !== false;
+      if (!judge?.active("directorCritic")) return { leads };
+      return { leads, judgeCritic: async (request) => (await judge.ask("directorCritic", request, { timeoutMs: DIRECTOR_CRITIC_TIMEOUT_MS })).answers };
     },
     authorView: () => wiring.extras().ui.authorView,
     sealsOn: () => wiring.extras().memory.settings.chapters?.seal !== false,
