@@ -1,6 +1,6 @@
 import { test, afterEach } from 'node:test';
 import assert from 'node:assert/strict';
-import { judgeExpectation, pinVerdict, probeProfile, readRouting, selectMainProfile, type Routing } from './sessionPin.mts';
+import { judgeExpectation, pinVerdict, probeProfile, readRouting, selectMainProfile, sessionHarnessRoles, type Routing } from './sessionPin.mts';
 import { fakePage, fakeSt, install, uninstall } from './sessionFakes.mts';
 
 const realFetch = globalThis.fetch;
@@ -94,4 +94,14 @@ test('pin verdict: a clean routing passes; each wrong part is named', () => {
   assert.equal(judgeExpectation('off'), 'off');
   assert.equal(judgeExpectation({ director: false }), 'mixed');
   assert.equal(judgeExpectation('defaults'), 'on');
+});
+
+test('pin verdict: an authoring role on the opencode harness passes for a non-wizard card, and is recorded; a wizard card or another role still refuses it', () => {
+  const harnessed = routing({ roles: routing().roles.map((role) => (role.role === 'authoring' ? { ...role, profileId: 'harness:opencode:openai/gpt-6.1-sol', profileName: null } : role)) });
+  assert.deepEqual(pinVerdict(harnessed, probe, { ...expect, harnessRoles: sessionHarnessRoles('authored') }), { ok: true, problems: [], harnessRoutes: [{ role: 'authoring', route: 'harness:opencode:openai/gpt-6.1-sol' }] });
+  const wizard = pinVerdict(harnessed, probe, { ...expect, harnessRoles: sessionHarnessRoles('wizard') });
+  assert.equal(wizard.ok, false);
+  assert.match(wizard.problems.join(), /role "authoring" routes to the harness harness:opencode/);
+  const read = routing({ roles: routing().roles.map((role) => (role.role === 'read' ? { ...role, profileId: 'harness:opencode:x', profileName: null } : role)) });
+  assert.equal(pinVerdict(read, probe, { ...expect, harnessRoles: ['authoring'] }).ok, false);
 });

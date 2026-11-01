@@ -21,6 +21,7 @@ import { beginSession, DEFAULT_REPLAY_URL, endSession, laneSession, replayEnv, r
 import { REPLAY_PORT, type SessionStats } from './lib/replayStore.mts';
 import { listPlanLines, loadBatchLists, parseListSpec, selectList, type ListSelection } from './lib/batchLists.mts';
 import { journeyArmProblems, splitJourneyItem } from './lib/journeyArm.mts';
+import { BUNDLE_ROUTE_READY, copyBundle, LANE_BUNDLE_FILE, readLaneBundle, rowBundleProblems, writeLaneBundle, type LaneBundle, type RowBundle } from './lib/laneBundle.mts';
 
 const USAGE = `Usage: node scripts/debug/st-lanes.mts <command> [...]
 
@@ -50,7 +51,9 @@ is shared: llama-server serves LLM_PARALLEL requests at once and queues the rest
                                B1 measurement run, so-b1-*.mts, is refused under the same lane-load rule as batch).
                                Its output, page capture, server log slice and (pod lanes) tunnel + pod windows land in
                                <lane>/debug/runs/<stamp>-<script>/; for a B1 model run, an integration play or with
-                               --evidence a missing piece exits 3 (INCOMPLETE)
+                               --evidence a missing piece exits 3 (INCOMPLETE). [--bundle staged|<dir>] freezes the lane
+                               first (reload the page in the script); bundle.json in the run dir records the bundle the page
+                               is served at start and end, and a bundle that moved during the run exits 3
   replay <n...> on|off         point stopped lane n's llama.cpp profiles (and ST's llama.cpp server URL) at the replay backend
                                (so-replay.mts, 127.0.0.1:${REPLAY_PORT}/lane/<n>), recorded in <lane>/${LANE_REPLAY_FILE}; off puts the old URLs
                                back. start then lets the lane's firewall reach the replay port
@@ -66,7 +69,23 @@ is shared: llama-server serves LLM_PARALLEL requests at once and queues the rest
                                closed port (18079), so a cloud-only lane fails loudly on any pod call and
                                counts on no pod. The lane-load rule counts model lanes per pod. --from-local also moves
                                URLs at the local controller (127.0.0.1:18888, a lane seeded from today's install) to the pod
+  bundle <n...> freeze [--from staged|<dir>] | off | status
+                               freeze the extension bundle running lane n's page loads: a copy goes to <lane>/bundle/<sha>/
+                               and a detached so-bundle-route.mts holds a browser-context route in the lane browser that
+                               answers every /scripts/extensions/third-party/story-orchestrator/ request from it (ST's
+                               static public/ handler always wins over a user extension folder, so the copy cannot be
+                               served by the lane server), so an npm run stage of master no longer changes a running
+                               batch. --from staged (default) copies what the ST tree serves now; <dir> is a built checkout
+                               or worktree (its dist/ through the release allowlist) or a staged slot. Recorded in
+                               <lane>/bundle.json (pid of the route); the route ends with the lane browser (re-freeze after
+                               a lane restart). Reload the lane page afterwards (batch --bundle does). off stops the route;
+                               status reads what the page is served now
   batch --lanes 1,2 [--repeat 2] [--strict] [--group <id>] [--wi-gating scan|file] [--model <classes>] [--fresh-page] [--allow-load]
+        [--bundle staged|<dir>]
+                               --bundle freezes every batch lane first (bundle freeze) and reloads each lane page before its
+                               first row. Every row records bundle {frozen, start, end} (the served bundle sha at the row's
+                               start and end); a row that started off the frozen bundle or whose served bundle moved during
+                               it is INCOMPLETE
         [--replay <store> [--live-misses] | --record <store> [--upstream http://127.0.0.1:18888]] [--list <file>[:list,...]] <item...>
                                run items across lanes, one at a time per lane; an item is a journey
                                id (J3) or a scenario file (test/scenarios/x.json). --repeat runs each
@@ -324,7 +343,7 @@ async function status() {
   }));
 }
 
-type BatchResult = { item: string; lane: number; run: number; code: number; status: RowStatus; replay?: ReturnType<typeof replaySummary>; automated: string | null; cleanup: string | null; record: string | null; notRunnable: string | null; failures: string[]; log: string; ms: number; ramPauses?: RamPause[]; ramPausedMs?: number; evidence: { dir: string; complete: boolean; problems: string[]; warnings: string[]; attention: string[] } };
+type BatchResult = { item: string; lane: number; run: number; code: number; status: RowStatus; replay?: ReturnType<typeof replaySummary>; automated: string | null; cleanup: string | null; record: string | null; notRunnable: string | null; failures: string[]; log: string; ms: number; ramPauses?: RamPause[]; ramPausedMs?: number; bundle: RowBundle; evidence: { dir: string; complete: boolean; problems: string[]; warnings: string[]; attention: string[] } };
 
 export type RowStatus = 'GREEN' | 'RED' | 'INCOMPLETE' | 'NOT-RUNNABLE';
 
@@ -502,49 +521,56 @@ export const itemArgs = (item: string, strict: boolean, group: string | null, wi
 export const BETWEEN_RUNS_SETTLE_MS = 10_000;
 export const betweenRunsArgs = (run: number, freshPage = false): string[] | null => (run > 1 || freshPage ? ['scripts/debug/st-session.mts', 'reload'] : null);
 
-async function batch(lanes: number[], items: string[], repeat: number, strict: boolean, group: string | null, wiGating: string | null = null, model: string | null = null, freshPage = false, replay: BatchReplayPlan | null = null) {
+async function batch(lanes: number[], items: string[], repeat: number, strict: boolean, group: string | null, wiGating: string | null = null, model: string | null = null, freshPage = false, replay: BatchReplayPlan | null = null, bundleSource: string | null = null) {
+  const frozen = bundleSource ? await freezeLanes(lanes, bundleSource) : null;
   const backend = replay ? await ensureReplayBackend(replay) : null;
   if (backend) console.log(`replay backend (${replay?.mode}) ${backend.spawned ? `started on ${backend.store} (log ${backend.log})` : `already serving ${backend.store}`}`);
   const build = replay ? servedBundleSha() : null;
   try {
-    return await batchRows(lanes, items, repeat, strict, group, wiGating, model, freshPage, replay, build);
+    return await batchRows(lanes, items, repeat, strict, group, wiGating, model, freshPage, replay, build, frozen);
   } finally {
     if (backend?.spawned) await stopReplayBackend();
   }
 }
 
-async function batchRows(lanes: number[], items: string[], repeat: number, strict: boolean, group: string | null, wiGating: string | null, model: string | null, freshPage: boolean, replay: BatchReplayPlan | null, build: string | null) {
+async function batchRows(lanes: number[], items: string[], repeat: number, strict: boolean, group: string | null, wiGating: string | null, model: string | null, freshPage: boolean, replay: BatchReplayPlan | null, build: string | null, frozen: Record<number, LaneBundle> | null = null) {
   const queue = [...items];
   const results: BatchResult[] = [];
   const stamp = new Date().toISOString().replace(/[:.]/g, '-');
   await Promise.all(lanes.map(async (n) => {
     const dir = resolve(lanePaths(n).debug, 'batch', stamp);
     await mkdir(dir, { recursive: true });
+    let firstRow = true;
     for (let item = queue.shift(); item; item = queue.shift()) {
       for (let run = 1; run <= repeat; run += 1) {
         const rowDir = resolve(dir, rowDirName(item, run));
         await mkdir(rowDir, { recursive: true });
         const log = resolve(rowDir, ROW_FILES.runner);
-        const reloadArgs = betweenRunsArgs(run, freshPage);
+        const reloadArgs = betweenRunsArgs(run, freshPage || (Boolean(frozen) && firstRow));
+        firstRow = false;
         const reload = reloadArgs ? await runNode(reloadArgs, laneEnv(n), { logPath: resolve(rowDir, 'reload.log') }) : null;
-        if (reload) console.log(`lane ${n} ${item} run ${run}: page reloaded before the run (${run > 1 ? 'rule 11, clears the judge cache' : '--fresh-page: no dialog, generation or page state from the row before'}): code ${reload.code}`);
+        if (reload) console.log(`lane ${n} ${item} run ${run}: page reloaded before the run (${run > 1 ? 'rule 11, clears the judge cache' : freshPage ? '--fresh-page: no dialog, generation or page state from the row before' : '--bundle: the page loads the frozen bundle'}): code ${reload.code}`);
         if (reload) await sleep(BETWEEN_RUNS_SETTLE_MS);
         const ram = await waitForFreeRam(ramGateBytes(process.env), { freemem, sleep, log: (line) => console.log(line), now: Date.now }, `lane ${n} ${item} run ${run}`);
         const serverOffset = fileSize(lanePaths(n).log);
         const target = replay ? { url: DEFAULT_REPLAY_URL, session: laneSession(n) } : null;
         if (target) await beginSession(target, `${item}#${run}`, build);
+        const bundleStart = await pageBundleSha(n);
         const began = Date.now();
         const { code, output } = await runNode(itemArgs(item, strict, group, wiGating, model), { ...laneEnv(n), [ROW_DIR_ENV]: rowDir, ...(target ? replayEnv(target) : {}) }, { logPath: log });
         const ended = Date.now();
         const notRunnable = output.match(/^not-runnable: (.*)$/m)?.[1]?.trim() ?? null;
         const paths = recordPathsIn(output);
         const evidence = collectRowEvidence({ rowDir, lane: rowLane(n), start: began, end: ended, serverOffset, recordPath: paths.record, failurePath: paths.failure, notRunnable, expect: { record: true, page: true } });
+        const bundle: RowBundle = { frozen: frozen?.[n]?.sha256 ?? null, start: bundleStart, end: await pageBundleSha(n) };
+        const bundleProblems = rowBundleProblems(bundle);
+        if (bundleProblems.length && !notRunnable) { evidence.problems.push(...bundleProblems); evidence.complete = false; }
         const replayStats = target ? await endSession(target).catch(() => null) : null;
         const replayVerdict = replay ? replayRowVerdict(replayStats, replay.mode) : null;
         if (replay) await writeFile(resolve(rowDir, 'replay.json'), JSON.stringify(replayStats ?? { error: 'stats unreadable' }, null, 2), 'utf-8');
         if (replayVerdict && !notRunnable && replayVerdict.problems.length) { evidence.problems.push(...replayVerdict.problems); evidence.complete = false; }
         const result: BatchResult = {
-          item, lane: n, run, code, log, ms: ended - began, ...(ram.pauses.length ? { ramPauses: ram.pauses, ramPausedMs: ram.pausedMs } : {}), ...(replay ? { replay: replaySummary(replayStats) } : {}),
+          item, lane: n, run, code, log, ms: ended - began, bundle, ...(ram.pauses.length ? { ramPauses: ram.pauses, ramPausedMs: ram.pausedMs } : {}), ...(replay ? { replay: replaySummary(replayStats) } : {}),
           status: rowStatus(code, evidence.complete, notRunnable),
           evidence: { dir: rowDir, complete: evidence.complete, problems: evidence.problems, warnings: evidence.warnings, attention: evidence.attention },
           automated: output.match(/^automated: .*$/m)?.[0] ?? null,
@@ -564,9 +590,81 @@ async function batchRows(lanes: number[], items: string[], repeat: number, stric
   const summary = resolve(LANES_ROOT, `batch-${stamp}.json`);
   const incomplete = results.filter((result) => result.status === 'INCOMPLETE').map((result) => `${result.item} run ${result.run} (lane ${result.lane})`);
   const replayTotals = replay ? results.reduce((sum, row) => ({ replayed: sum.replayed + (row.replay?.replayed ?? 0), static: sum.static + (row.replay?.static ?? 0), live: sum.live + (row.replay?.live ?? 0), recorded: sum.recorded + (row.replay?.recorded ?? 0), refused: sum.refused + (row.replay?.refused ?? 0) }), { replayed: 0, static: 0, live: 0, recorded: 0, refused: 0 }) : null;
-  await writeFile(summary, JSON.stringify({ lanes, items, repeat, strict, model, ...(replay ? { replay: { ...replay, totals: replayTotals } } : {}), incomplete, results }, null, 2), 'utf-8');
+  await writeFile(summary, JSON.stringify({ lanes, items, repeat, strict, model, ...(frozen ? { bundle: Object.values(frozen).map((record) => ({ sha256: record.sha256, source: record.source })) } : {}), ...(replay ? { replay: { ...replay, totals: replayTotals } } : {}), incomplete, results }, null, 2), 'utf-8');
   for (const n of lanes) await writeFile(resolve(lanePaths(n).debug, 'batch', stamp, 'batch.json'), JSON.stringify({ lanes, items, repeat, strict, incomplete, results: results.filter((result) => result.lane === n) }, null, 2), 'utf-8').catch(() => undefined);
   return { summary, green: results.filter((result) => result.status === 'GREEN').length, runs: results.length, incomplete, ...(replayTotals ? { replay: replayTotals } : {}) };
+}
+
+const bundleSource = (source: string | null) => (!source || source === 'staged' ? SERVED_EXTENSION_DIR : resolve(source));
+
+const pidAlive = (pid: number | null | undefined) => {
+  if (!pid) return false;
+  try { process.kill(pid, 0); return true; } catch { return false; }
+};
+
+const routeReady = (n: number): { pid: number; sha256: string } | null => {
+  try { return JSON.parse(readFileSync(resolve(lanePaths(n).root, BUNDLE_ROUTE_READY), 'utf-8')); } catch { return null; }
+};
+
+async function stopBundleRoute(n: number) {
+  const record = readLaneBundle(lanePaths(n).root);
+  if (record?.pid && pidAlive(record.pid)) await killTree(record.pid);
+  await rm(resolve(lanePaths(n).root, BUNDLE_ROUTE_READY), { force: true });
+}
+
+async function pageBundleSha(n: number): Promise<string | null> {
+  const { output } = await runNode(['scripts/debug/so-bundle-route.mts', 'served'], laneEnv(n));
+  const line = output.split(/\r?\n/).reverse().find((row) => row.trim().startsWith('{'));
+  try { return line ? JSON.parse(line).sha256 ?? null : null; } catch { return null; }
+}
+
+async function freezeLane(n: number, source: string): Promise<LaneBundle> {
+  const lane = lanePaths(n);
+  if (!(await laneServer(n)).up || !existsSync(resolve(lane.debug, 'session.json'))) throw new Error(`lane ${n} is not running with its browser: start it first (the frozen bundle is a route in that browser)`);
+  await stopBundleRoute(n);
+  const record = copyBundle({ source, laneRoot: lane.root });
+  writeLaneBundle(lane.root, record);
+  const fd = await open(resolve(lane.root, 'bundle-route.out'), 'a');
+  const child = spawn(process.execPath, ['scripts/debug/so-bundle-route.mts', 'route', lane.root], { cwd: PROJECT_ROOT, env: { ...process.env, ...laneEnv(n) }, detached: true, stdio: ['ignore', fd.fd, fd.fd], windowsHide: true });
+  child.unref();
+  await fd.close();
+  const pinned = { ...record, pid: child.pid ?? null };
+  writeLaneBundle(lane.root, pinned);
+  for (let waited = 0; waited < 60_000; waited += 500) {
+    const ready = routeReady(n);
+    if (ready?.pid === child.pid && ready.sha256 === record.sha256) return pinned;
+    if (!pidAlive(child.pid)) break;
+    await sleep(500);
+  }
+  if (child.pid) await killTree(child.pid);
+  throw new Error(`lane ${n}: the bundle route did not come up (see ${resolve(lane.root, 'bundle-route.out')})`);
+}
+
+async function freezeLanes(lanes: number[], source: string): Promise<Record<number, LaneBundle>> {
+  const out: Record<number, LaneBundle> = {};
+  for (const n of lanes) {
+    out[n] = await freezeLane(n, bundleSource(source));
+    console.log(`lane ${n}: bundle ${out[n].sha256.slice(0, 8)} frozen from ${out[n].source} (${out[n].kind}), route pid ${out[n].pid}`);
+  }
+  return out;
+}
+
+async function laneBundleCommand(lanes: number[], mode: string, from: string | null) {
+  const out: unknown[] = [];
+  for (const n of lanes) {
+    if (mode === 'freeze') out.push({ lane: n, ...(await freezeLane(n, bundleSource(from))), next: `reload the lane page: st-lanes.mts run ${n} -- scripts/debug/st-session.mts reload` });
+    else if (mode === 'off') {
+      await stopBundleRoute(n);
+      await rm(resolve(lanePaths(n).root, LANE_BUNDLE_FILE), { force: true });
+      await rm(resolve(lanePaths(n).root, 'bundle'), { recursive: true, force: true });
+      out.push({ lane: n, frozen: false, next: `reload the lane page to load the staged bundle: st-lanes.mts run ${n} -- scripts/debug/st-session.mts reload` });
+    } else {
+      const record = readLaneBundle(lanePaths(n).root);
+      const up = (await laneServer(n)).up;
+      out.push({ lane: n, frozen: record, routing: Boolean(record?.pid && pidAlive(record.pid) && routeReady(n)?.pid === record.pid), page: up ? await pageBundleSha(n) : null, staged: servedBundleSha() });
+    }
+  }
+  return out;
 }
 
 export function runEvidenceRequired(script: string[], flags: string[]): boolean {
@@ -609,6 +707,11 @@ async function main() {
   }
   else if (command === 'stop') out = await Promise.all(laneNumbers(rest).map(stop));
   else if (command === 'status') out = await status();
+  else if (command === 'bundle') {
+    const mode = rest.find((arg) => arg === 'freeze' || arg === 'off' || arg === 'status');
+    if (!mode) { console.log(USAGE); process.exitCode = 2; return; }
+    out = await laneBundleCommand(laneNumbers(rest.filter((arg, index) => rest[index - 1] !== '--from')), mode, argValue('--from'));
+  }
   else if (command === 'replay') {
     const mode = rest.find((arg) => arg === 'on' || arg === 'off');
     if (!mode) { console.log(USAGE); process.exitCode = 2; return; }
@@ -631,21 +734,30 @@ async function main() {
     const script = rest.slice(at + 1);
     const load = (isIntegrationPlay(script) || isB1ModelRun(script)) && !rest.slice(0, at).includes('--allow-load') ? laneLoadProblem(await status(), Number(process.env.SO_MAX_LLM_LANES ?? DEFAULT_MAX_LLM_LANES)) : null;
     if (load) throw new Error(`run refused: ${load}`);
+    const own = rest.slice(0, at);
+    const bundleAt = own.indexOf('--bundle');
+    const frozen = bundleAt >= 0 ? (await freezeLanes([n], own[bundleAt + 1] ?? 'staged'))[n] : readLaneBundle(lanePaths(n).root);
     const stamp = new Date().toISOString().replace(/[:.]/g, '-');
     const rowDir = resolve(lanePaths(n).debug, 'runs', runRowName(stamp, script));
     await mkdir(rowDir, { recursive: true });
     const serverOffset = fileSize(lanePaths(n).log);
+    const bundleStart = await pageBundleSha(n);
     const began = Date.now();
     const { code, output } = await runNode(script, { ...laneEnv(n), [ROW_DIR_ENV]: rowDir }, { echo: true, logPath: resolve(rowDir, ROW_FILES.runner) });
     const required = runEvidenceRequired(script, rest.slice(0, at));
     const evidence = collectRowEvidence({ rowDir, lane: rowLane(n), start: began, end: Date.now(), serverOffset, recordPath: null, notRunnable: output.match(/^not-runnable: (.*)$/m)?.[1]?.trim() ?? null, expect: { record: false, page: required } });
+    const bundle: RowBundle = { frozen: frozen?.sha256 ?? null, start: bundleStart, end: await pageBundleSha(n) };
+    const bundleProblems = rowBundleProblems(bundle);
+    await writeFile(resolve(rowDir, 'bundle.json'), JSON.stringify({ ...bundle, problems: bundleProblems }, null, 2), 'utf-8');
+    if (bundleProblems.length) { evidence.problems.push(...bundleProblems); evidence.complete = false; }
+    console.log(`bundle: ${String(bundle.start).slice(0, 8)}${frozen ? ' (frozen)' : ''}${bundleProblems.length ? ` INCOMPLETE: ${bundleProblems.join('; ')}` : ''}`);
     console.log(`evidence: ${rowDir}${evidence.complete ? '' : ` (${required ? 'INCOMPLETE' : 'gaps'}: ${evidence.problems.join('; ')})`}`);
     for (const note of evidence.attention) console.log(`ATTENTION: ${note}`);
-    process.exitCode = code !== 0 ? code : required && !evidence.complete ? 3 : 0;
+    process.exitCode = code !== 0 ? code : (required && !evidence.complete) || bundleProblems.length ? 3 : 0;
     return;
   } else if (command === 'batch') {
     const lanes = refuseReservedLanes(String(argValue('--lanes', '1')).split(',').map(Number).filter(Boolean));
-    const flags = new Set(['--lanes', '--repeat', '--group', '--wi-gating', '--model', '--replay', '--record', '--upstream', '--list']);
+    const flags = new Set(['--lanes', '--repeat', '--group', '--wi-gating', '--model', '--replay', '--record', '--upstream', '--list', '--bundle']);
     const named = rest.filter((arg, index) => !arg.startsWith('--') && !flags.has(rest[index - 1] ?? ''));
     const lanesNow = await status();
     const replay = batchReplayPlan({ replay: argValue('--replay'), record: argValue('--record'), liveMisses: rest.includes('--live-misses'), model: argValue('--model'), upstream: argValue('--upstream') },
@@ -662,7 +774,7 @@ async function main() {
     if (load) throw new Error(`batch refused: ${load}`);
     const model = replay?.model ?? argValue('--model');
     if (model) parseModelFilter(model);
-    const result = await batch(lanes, items, Number(argValue('--repeat', '1')), rest.includes('--strict'), argValue('--group'), argValue('--wi-gating'), model, rest.includes('--fresh-page'), replay);
+    const result = await batch(lanes, items, Number(argValue('--repeat', '1')), rest.includes('--strict'), argValue('--group'), argValue('--wi-gating'), model, rest.includes('--fresh-page'), replay, argValue('--bundle'));
     process.exitCode = batchExitCode(result);
     out = result;
   } else { console.log(USAGE); process.exitCode = 2; return; }

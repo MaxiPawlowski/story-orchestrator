@@ -1,0 +1,150 @@
+{
+  "model": "none",
+  "_note": "v3.0 43 X (M42-F5 recipe gap, Vast batch 1): the live sessions peaked at smoothed 0.54, below critical 0.75, so no relax window opened. This no-model case drives the window on purpose with planted reads (alpha 0.3): peak, peak (2 reads >= critical = PEAK_RUN), then calm reads drop it to 0.70, 0.49, 0.343. With pacing.pathArc on the relax window caps the checkpoint's critical target to tense (0.5), so the hint stays hold (no escalate inside the window: the F5 floor's deterministic half). The last step reads the same state with pathArc off (restored in the same eval): expected 0.75, drift 0.407 > 0.3, escalate. Plumbing only (planted reads), not the model A/B.",
+  "requires": {
+    "lane": "no-model",
+    "group": "Group: Arin, DM Narrator",
+    "judge": "off"
+  },
+  "steps": [
+    {
+      "import_story": {
+        "title": "SO-M42-F5 Relax window",
+        "description": "M42-F5: a critical target, a peak, then a drop that opens the relax window.",
+        "arc_template": "rising",
+        "qualities": [
+          {
+            "key": "gate_open",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Has the gate been opened?"
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "siege",
+            "name": "The siege",
+            "objective": "Hold the wall.",
+            "type": "anchor",
+            "start": true,
+            "tension_target": "critical"
+          },
+          {
+            "id": "after",
+            "name": "After the siege",
+            "objective": "Count the losses.",
+            "type": "anchor"
+          }
+        ],
+        "transitions": [
+          {
+            "from": "siege",
+            "to": "after",
+            "priority": 1,
+            "gate": {
+              "q": "gate_open",
+              "op": "==",
+              "v": true
+            }
+          }
+        ],
+        "roster": []
+      }
+    },
+    {
+      "eval": "const before = globalThis.storyOrchestratorRuntime.getGlobalSettings().pacing; if (before.pathArc !== true) throw new Error('pacing.pathArc is off on this install; the on arm needs the default'); return before;"
+    },
+    {
+      "send": "Ladders slam against the wall and the first raiders climb."
+    },
+    {
+      "extract": {
+        "debugResponse": "DELTA q=tension_current value=\"peak\" evidence=\"Ladders slam against the wall\"",
+        "reason": "cadence"
+      }
+    },
+    {
+      "send": "Fire arrows rain on the gatehouse roof."
+    },
+    {
+      "extract": {
+        "debugResponse": "DELTA q=tension_current value=\"peak\" evidence=\"Fire arrows rain on the gatehouse roof\"",
+        "reason": "cadence"
+      }
+    },
+    {
+      "expect": {
+        "auditCount>=": 2,
+        "tension": {
+          "smoothed": {
+            "approx": 1
+          }
+        }
+      }
+    },
+    {
+      "send": "The raiders fall back from the wall and the field goes quiet."
+    },
+    {
+      "extract": {
+        "debugResponse": "DELTA q=tension_current value=\"calm\" evidence=\"the field goes quiet\"",
+        "reason": "cadence"
+      }
+    },
+    {
+      "expect": {
+        "tension": {
+          "smoothed": {
+            "approx": 0.7
+          },
+          "expected": {
+            "approx": 0.5
+          },
+          "hint": {
+            "direction": "hold"
+          }
+        }
+      }
+    },
+    {
+      "send": "Someone passes a waterskin along the wall."
+    },
+    {
+      "extract": {
+        "debugResponse": "DELTA q=tension_current value=\"calm\" evidence=\"passes a waterskin along the wall\"",
+        "reason": "cadence"
+      }
+    },
+    {
+      "send": "The wounded are carried down the stairs."
+    },
+    {
+      "extract": {
+        "debugResponse": "DELTA q=tension_current value=\"calm\" evidence=\"The wounded are carried down the stairs\"",
+        "reason": "cadence"
+      }
+    },
+    {
+      "expect": {
+        "tension": {
+          "smoothed": {
+            "approx": 0.343
+          },
+          "expected": {
+            "approx": 0.5
+          },
+          "hint": {
+            "direction": "hold"
+          }
+        }
+      }
+    },
+    {
+      "log": true,
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const on = rt.getSnapshot().tension; rt.setPacingSettings({ pathArc: false }); try { await new Promise((done) => setTimeout(done, 300)); const off = rt.getSnapshot().tension; if (on?.hint?.direction === 'escalate') throw new Error('escalate inside the relax window with pathArc on'); if (off?.hint?.direction !== 'escalate' || Math.abs((off?.expected ?? 0) - 0.75) > 0.01) throw new Error('control: with pathArc off the same state should escalate toward 0.75: ' + JSON.stringify(off)); return { on: { expected: on.expected, direction: on.hint.direction }, off: { expected: off.expected, direction: off.hint.direction } }; } finally { rt.setPacingSettings({ pathArc: true }); }"
+    },
+    {
+      "eval": "const pathArc = globalThis.storyOrchestratorRuntime.getGlobalSettings().pacing.pathArc; if (pathArc !== true) throw new Error('pacing.pathArc was not restored'); return { pathArc };"
+    }
+  ]
+}
