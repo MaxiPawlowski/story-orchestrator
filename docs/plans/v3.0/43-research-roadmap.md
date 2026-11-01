@@ -131,3 +131,40 @@ Floors (declared before measuring; informational, never retuned):
   `--reranking`; offline E0 / lore-relevance arms can run now without the GPU.
 - `phraseBans`: owner allows a second request-key overlay besides the reply thinking budget if SP-PB passes its floors
   ("everything is negotiable if it enhances performance"); the architecture rule changes only on adoption.
+
+## Gate record C (2026-10-31)
+Branch `v3.0-43-c`. Corpora (read-only, counts only): campaign lane 34 (3 payload files, 33 chats, 161 drafted loud
+prompts, 121 new replies), toy group lane 42 `v29gpu2` (41 chats, 226 prompts, 318 replies), test story lane 45 `s6h`
+(2 chats, 120 prompts, 156 replies). Tokens: Gemma vocab via `llama-tokenize` (CPU, `CUDA_VISIBLE_DEVICES=-1`, census method).
+- C1 dedupe (no switch, `runtime/promptDedupe.ts`, called from `pacingCoordinator.updateSteering`): the pacing hint drops an
+  agency clause the guidance block already carries. Test `promptDedupe.test.ts` fails before the fix. Campaign: 14 of 161
+  prompts carried the duplicate, 32 tokens each (448 total); toy and test story 0. Floor met (>0 on every carrier).
+- C1 empty sheet (no switch, `narratorSheet.ts`): an unset value sends no row; all unset = no block. Test fails before the fix.
+  Campaign: 2 prompts, 56 tokens each; others 0. Floor met.
+- C1 `memory.recapOutsideWindow` (on; `memory/inWindow.ts`, `runtime/promptWindow*.ts`, fate `in-window`): the oldest chat
+  message ST kept is read from each loud prompt (GENERATE_AFTER_DATA, probe = longest line, conservative on a miss, reset on
+  chat change); a recap row (session detail, short term through its predecessor chain, scene summary) whose span starts at or
+  after that message + 4 stays out; pinned and decided rows stay; unknown span = kept. Upper bound before trimming (recap
+  blocks while the chat is untrimmed): campaign 102 of 161 prompts, mean 168 / max 422 tokens when present (106 per prompt);
+  toy 30 prompts, 152 / 240; test story 10, 145. Floor (no row with an earlier span leaves) pinned by `inWindow.test.ts`.
+  GPU row M43-C1.
+- C1 fixed text: offline arm only (`so-context-savings.mts layout`, 24 points at `C:\dev\so-lanes\rating\m43-c2-layout`);
+  static sentences re-prefilled per turn: campaign 156 mean / 338 max, toy 125, test story 122. No runtime switch until
+  M43-C2 rates neutral (architecture rule: layout is quality-rated).
+- C2 contradiction checker (`so-contradiction-rate.mts`, `lib/contradictionScore.mts`, code only): calibration on the 32
+  planted pairs (written before the checker): pair accuracy 0.844, recall 0.875, false alarm 0.031 — floors met; misses
+  F07 T03 T07 K08, false alarm K07. One generic noise fix before the baseline (speaker prefixes, questions, claims under 3
+  content words), calibration unchanged by it. Caveat: pairs and checker share an author. Baseline (calibrated):
+  toy 1 / 318 replies (0.31 per 100; 0 at 1-20, 0.83 at 21-60, 0 at 61+), test story 0 / 156, campaign 0 / 121. Ledger
+  detector fires only on values another row of the same field shows (no history set), so ledger findings were 0. GPU/Sol row M43-C3.
+- C3 echo/vagueness (`so-echo-floors.mts`, `lib/echoFloors.mts`): baseline echo rate toy 0.0004, test story 0.0001,
+  campaign 0 (no campaign reply has 40 messages back); specificity 8.05 / 5.59 / 4.64 per 100 words. `score --out <dir>`
+  reads any so-compaction-rating dir (A3-R, M43-C2); H33-RP needs a pack in the same shape (none exists yet).
+  Not wired into `so-compaction-rating score` itself: agent A rewrote that file on `v3.0-41-memory-a` (unmerged).
+- C4 probes + archive recall: NOT DONE. Agent A's harness (`test/support/memoryProbes.ts`) was not on master by the end of
+  this run; a recall helper (`probeArchiveRecall`, built from `memory/archiveRecall.ts`) is drafted but uncommitted, owed after A merges.
+- Payload goldens: no c0 baseline is committed (`test/measurements/v2.7/payload/` holds README + prefix-declared only), so
+  there is nothing to declare against; changes are drop-only inside depth blocks (below the per-turn boundary).
+- Gates: `npm run gates` all green in 858.9s (Storybook included, no --resume) on the merged tree; first full run failed
+  `debug:typecheck` (script imported `src/memory/polarity.ts`, which pulls an aliased module) and was fixed before the cited run.
+  `gates:quick` green before it.
