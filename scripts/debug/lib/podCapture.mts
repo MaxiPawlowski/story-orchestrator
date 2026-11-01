@@ -23,7 +23,7 @@ export const POD_FILES = {
 export const podDir = (lanesRoot: string, pod: number) => resolve(lanesRoot, 'pods', String(pod));
 export const segmentLog = (dir: string, segment: number) => resolve(dir, `llama-server.${segment}.log`);
 
-export interface PodTarget { host: string; sshPort: number; localPort: number; podId: string | null; user: string; key: string; knownHosts: string | null; hostKeyAlias: string | null; remoteLog: string }
+export interface PodTarget { host: string; sshPort: number; localPort: number; podId: string | null; user: string; key: string; knownHosts: string | null; hostKeyAlias: string | null; remoteLog: string; remotePort?: number }
 
 export function readTarget(dir: string): PodTarget | null {
   const path = resolve(dir, POD_FILES.target);
@@ -48,7 +48,7 @@ export function sshBaseArgs(target: PodTarget): string[] {
   ];
 }
 
-export const tunnelArgs = (target: PodTarget, remotePort = 8080) => ['-N', '-T', '-L', `127.0.0.1:${target.localPort}:127.0.0.1:${remotePort}`, ...sshBaseArgs(target), '-o', 'ExitOnForwardFailure=yes', `${target.user}@${target.host}`];
+export const tunnelArgs = (target: PodTarget, remotePort = target.remotePort ?? 8080) => ['-N', '-T', '-L', `127.0.0.1:${target.localPort}:127.0.0.1:${remotePort}`, ...sshBaseArgs(target), '-o', 'ExitOnForwardFailure=yes', `${target.user}@${target.host}`];
 export const execArgs = (target: PodTarget, command: string) => [...sshBaseArgs(target), `${target.user}@${target.host}`, command];
 
 export const GPU_QUERY = 'index,utilization.gpu,utilization.memory,memory.used,memory.total,temperature.gpu,power.draw';

@@ -121,6 +121,18 @@
       "status": "checked",
       "note": "v2.7 20: mints a chat/story RunGuard before discovery, checks it together with the applied look before render, upload and stage application. Cached files are applied under the same check. The builder has its own upload guard."
     },
+    "src/runtime/spikes/cpuReranker.ts#createRerankClient": {
+      "status": "local",
+      "note": "Clears its own timeout in finally; the request is a read of a local reranker and the result is returned, nothing reaches a chat, store or host. Tests: spikes/cpuReranker.test.ts."
+    },
+    "src/runtime/spikes/cpuReranker.ts#createRerankClient>anonymous": {
+      "status": "local",
+      "note": "Same call as createRerankClient (the returned arrow): clears its own timer only. Tests: spikes/cpuReranker.test.ts."
+    },
+    "src/runtime/spikes/cpuReranker.ts#recordRerank": {
+      "status": "local",
+      "note": "Fills a score map and failure list allocated inside this call for an offline arm; no chat, store or host write. Tests: spikes/cpuReranker.test.ts."
+    },
     "src/runtime/spikes/editReread.ts#EditReread.cycle": {
       "status": "checked",
       "note": "v2.7 33 W1 (2026-10-07; dev-only import, install-wide flag spikes.editReread, default off): the run is minted when the settle window fires, and checked before the cycle starts, after its rollback, after the re-enqueue commit and after the read, before every write. The stats it bumps and the rollingBack flag are in-memory; the flag is set only around its own rollback so the scheduler does not queue a second re-read (editReread.review.test.ts)."

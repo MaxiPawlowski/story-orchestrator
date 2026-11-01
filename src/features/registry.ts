@@ -1,7 +1,7 @@
 import { JUDGE_ROUTE_KEYS, JUDGE_USE_KEYS, JUDGE_USES_OFF_BY_DEFAULT, AUTHOR_JUDGE_USES, routedProvider, type JudgeUseKey } from "@judge/settings";
 import { JUDGE_USE_COPY } from "@judge/useCopy";
 import type { GuideTopicId } from "@copilot/guideTopics";
-import type { GlobalSettings } from "@runtime/settingsModel";
+import { SPIKE_FLAGS, type GlobalSettings } from "@runtime/settingsModel";
 import { PRESENCE_FEATURES } from "./presenceFeatures";
 import { GAME_FEATURES } from "./gameFeatures";
 import { RECAP_FEATURES } from "./recapFeatures";
@@ -457,7 +457,7 @@ const CORE_FEATURES: readonly Feature[] = [
     oneLine: "Unmeasured trials.",
     what: "Each experiment sits behind its own switch, on by default so it is seen in play.",
     where: settingsAt("#so-diagnostics", "Diagnostics"),
-    settings: ["spikes.swipeBackCache", "spikes.sp6Complications", "spikes.reasoningEffect", "spikes.editReread"], doc: "setup/settings-reference.md", status: "experimental",
+    settings: SPIKE_FLAGS.filter((flag) => flag !== "thoughtCarry").map((flag) => `spikes.${flag}`), doc: "setup/settings-reference.md", status: "experimental",
   },
 ];
 

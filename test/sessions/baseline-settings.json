@@ -270,7 +270,13 @@
       "sp6Complications": true,
       "reasoningEffect": true,
       "editReread": true,
-      "thoughtCarry": true
+      "thoughtCarry": true,
+      "checkClocks": true,
+      "relationGraph": true,
+      "selfEditMemory": true,
+      "promptCompress": true,
+      "phraseBans": true,
+      "cpuReranker": true
     },
     "characters": {
       "delivery": true,

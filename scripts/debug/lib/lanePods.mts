@@ -24,7 +24,7 @@ export const podTunnelPort = (pod: number | null) => (pod === null ? CLOUD_SINK_
 
 const LOOPBACK = new Set(['127.0.0.1', 'localhost', '[::1]']);
 
-export function podPortOf(url: unknown): number | null {
+export function podPortOf(url: unknown, extraPorts: readonly number[] = []): number | null {
   if (typeof url !== 'string') return null;
   let parsed: URL;
   try {
@@ -34,17 +34,17 @@ export function podPortOf(url: unknown): number | null {
   }
   const port = Number(parsed.port);
   if (!LOOPBACK.has(parsed.hostname) || !Number.isInteger(port)) return null;
-  return port === CLOUD_SINK_PORT || (port >= POD_TUNNEL_BASE && port < POD_TUNNEL_BASE + MAX_PODS) ? port : null;
+  return port === CLOUD_SINK_PORT || (port >= POD_TUNNEL_BASE && port < POD_TUNNEL_BASE + MAX_PODS) || extraPorts.includes(port) ? port : null;
 }
 
-export function retargetProfiles(settings: unknown, port: number): { next: Record<string, unknown>; changed: Array<{ name: string; from: string; to: string }> } {
+export function retargetProfiles(settings: unknown, port: number, extraPorts: readonly number[] = []): { next: Record<string, unknown>; changed: Array<{ name: string; from: string; to: string }> } {
   if (!isRecord(settings)) throw new Error('settings.json is not an object');
   const extensions = isRecord(settings.extension_settings) ? settings.extension_settings : {};
   const manager = isRecord(extensions.connectionManager) ? extensions.connectionManager : {};
   const profiles = Array.isArray(manager.profiles) ? manager.profiles : [];
   const changed: Array<{ name: string; from: string; to: string }> = [];
   const next = profiles.map((profile) => {
-    if (!isRecord(profile) || podPortOf(profile['api-url']) === null) return profile;
+    if (!isRecord(profile) || podPortOf(profile['api-url'], extraPorts) === null) return profile;
     const from = String(profile['api-url']);
     const url = new URL(from);
     url.port = String(port);
@@ -57,21 +57,21 @@ export function retargetProfiles(settings: unknown, port: number): { next: Recor
 
 const POD_URL = /https?:\/\/(?:127\.0\.0\.1|localhost|\[::1\]):(\d+)/gi;
 
-const retargetStrings = (value: unknown, port: number, changed: string[]): unknown => {
+const retargetStrings = (value: unknown, port: number, changed: string[], extraPorts: readonly number[]): unknown => {
   if (typeof value === 'string') return value.replace(POD_URL, (url, found: string) => {
-    if (podPortOf(url) === null || Number(found) === port) return url;
+    if (podPortOf(url, extraPorts) === null || Number(found) === port) return url;
     changed.push(url);
     return url.slice(0, url.length - found.length) + String(port);
   });
-  if (Array.isArray(value)) return value.map((item) => retargetStrings(item, port, changed));
-  if (isRecord(value)) return Object.fromEntries(Object.entries(value).map(([key, item]) => [key, retargetStrings(item, port, changed)]));
+  if (Array.isArray(value)) return value.map((item) => retargetStrings(item, port, changed, extraPorts));
+  if (isRecord(value)) return Object.fromEntries(Object.entries(value).map(([key, item]) => [key, retargetStrings(item, port, changed, extraPorts)]));
   return value;
 };
 
-export function retargetPodUrls(settings: unknown, port: number): { next: Record<string, unknown>; changed: string[] } {
+export function retargetPodUrls(settings: unknown, port: number, extraPorts: readonly number[] = []): { next: Record<string, unknown>; changed: string[] } {
   if (!isRecord(settings)) throw new Error('settings.json is not an object');
   const changed: string[] = [];
-  return { next: retargetStrings(settings, port, changed) as Record<string, unknown>, changed };
+  return { next: retargetStrings(settings, port, changed, extraPorts) as Record<string, unknown>, changed };
 }
 
 export function podPortsIn(settings: unknown): number[] {
