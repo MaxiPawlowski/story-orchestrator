@@ -1,0 +1,36 @@
+html[data-so-compact-thoughts] #chat .mes_reasoning_header_block {
+  flex-grow: 0;
+}
+
+html[data-so-compact-thoughts] #chat .mes_reasoning_header {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  margin: 0 0 0.35em;
+  padding: 1px 8px;
+  padding-right: calc(0.55em + 14px);
+  border: 1px solid var(--SmartThemeBorderColor);
+  border-radius: 999px;
+  background-color: transparent;
+  font-size: calc(var(--mainFontSize) * 0.78);
+  line-height: 1.5;
+  opacity: 0.75;
+  transition: opacity var(--so-dur, 120ms) ease;
+}
+
+html[data-so-compact-thoughts] #chat .mes_reasoning_header:hover,
+html[data-so-compact-thoughts] #chat .mes_reasoning_details[open] .mes_reasoning_header,
+html[data-so-compact-thoughts] #chat .mes_reasoning_summary:focus-visible .mes_reasoning_header {
+  opacity: 1;
+}
+
+html[data-so-compact-thoughts] #chat .mes_reasoning_details .mes_reasoning_arrow {
+  right: 6px;
+  font-size: calc(var(--mainFontSize) * 0.6);
+  width: calc(var(--mainFontSize) * 0.6);
+  height: calc(var(--mainFontSize) * 0.6);
+}
+
+html[data-so-compact-thoughts] #chat .mes_reasoning_summary {
+  align-items: center;
+}

@@ -369,3 +369,32 @@ Floors, declared here before any measurement (informational, never retuned; the 
   `dist/index.js` 1,292,353 B (budget 1,300,000: 7.6 KB left; next main-bundle work should go lazy).
 - Not run: every GPU row (M43-M1..M4); no live browser gate (no lanes, no ST, no GPU per brief). CPU-only inputs: llama-tokenize
   with CUDA hidden.
+
+## H: restyle ST's own UI, self-imposed rules review (owner 2026-10-31)
+
+Owner: "you've been limiting to not editing sillytaverns own styles? thats not what i want at all. Please, add it, but review
+our previous plans for things that we've been limiting ourselves because of this rule. is there any other rule like this?"
+Follow-ups: "i want new elements on the chat", "let's be creative here".
+
+- `src/styles/host.css`: the one stylesheet that selects ST classes, outside the Tailwind scope, in the lazy styles chunk.
+  Each rule gated by `html[data-so-<flag>]` (set by `runtime/hostStyle.ts` from the snapshot) and scoped under `#chat`.
+  Guard `runtime/hostStyle.test.ts` (flag + `#chat` prefix on every selector; default on). Rules docs updated
+  (architecture §UI, gotchas Tailwind line).
+- First rule `display.compactThoughts` (on, device chip, Display → In the replies, feature `compact-thoughts`): ST's
+  "Thought for …" bar becomes a pill at the reply's top left (header block no grow, padding 1px 8px, transparent, 1px
+  `--SmartThemeBorderColor`, radius 999px, 0.78 × `--mainFontSize`, opacity 0.75 → 1 on hover / open).
+- Self-imposed rules review: `research/self-imposed-rules-2026-10-31.md` (recommendations only; no other rule changed).
+
+## Gate record H
+
+- Live: lane 60 (no-model), worktree `dist/` routed into the lane browser (nothing staged), SO-UI card + group, 4 messages,
+  reasoning written into 2 replies' `extra` via the chat API + reload. Probes desktop and 390x844: on = flag set, radius
+  999px, transparent, 1px border, 11.7px font, 157x22 px at the text's left edge (ST default 184x32, grey), opacity 0.75
+  closed / 1 open or hover, actions hidden closed and shown open; off = ST's bar back; back on = pill. Dark + light palette.
+  0 model calls, leaked 0, lane stopped. `C:\dev\so-lanes\ui-review\compact-thoughts\` (driver kept as `.mts.txt`).
+- Storybook: no story. The rule restyles ST's message markup, which needs ST's own `style.css` and `#chat`; Storybook loads
+  neither, so a story would show our rule over unstyled markup. The lane shots are the visual record.
+- Bundle: main `dist/index.js` 1,261,040 B (budget 1,300,000).
+- Gates: `npm run gates` all green in 474.1s (Storybook included, no --resume) on the tree merged with master `bc9b1532a`;
+  an earlier full run was red on the plan 24 matrix row + registry file budget (fixed: row added, feature moved to
+  `presenceFeatures.ts`) and one `patterns.test.ts` P5 p95 timing (58 ms vs 50, untouched, green since). `gates:quick` green.

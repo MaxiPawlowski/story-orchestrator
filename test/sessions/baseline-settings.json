@@ -35,6 +35,7 @@
       "announceTransitions": false,
       "hudEnabled": true,
       "yourMove": true,
+      "compactThoughts": true,
       "briefing": false,
       "briefingDraft": false,
       "playerSetup": false,

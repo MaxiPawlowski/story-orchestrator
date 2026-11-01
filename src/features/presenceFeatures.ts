@@ -4,6 +4,15 @@ import { drawerAt, settingsAt } from "./where";
 
 export const PRESENCE_FEATURES: readonly Feature[] = [
   {
+    id: "compact-thoughts", name: "Thinking pill", area: "play", audience: "player",
+    oneLine: "SillyTavern's \"Thought for …\" bar becomes a small pill at the top left of the reply.",
+    what: "The thinking bar above a reply shrinks to a small rounded label. Click it to open or close the thinking; its buttons show only while it is open. "
+      + "This restyles SillyTavern's own message view, in every chat.",
+    where: settingsAt("#so-compact-thoughts", "Display › Thinking pill"),
+    settings: ["display.compactThoughts"], doc: "player/drawer-and-hud.md", status: "shipped", needs: [],
+    isOn: (settings) => settings.display.compactThoughts,
+  },
+  {
     id: "story-badges", name: "Story marks in the lists", area: "play", audience: "player",
     oneLine: "Groups and chats that play a story carry a small icon in SillyTavern's lists.",
     what: "The group list, the welcome screen's recent chats and a group's past chats mark every chat that plays a story. A saga, a story its author marks as one, "

@@ -24,6 +24,7 @@ export const SETTING_CONTROLS: Record<string, string> = {
   "display.announceTransitions": "so-announce-transitions",
   "display.briefing": "so-briefing-enabled",
   "display.briefingDraft": "so-briefing-draft",
+  "display.compactThoughts": "so-compact-thoughts",
   "display.hudEnabled": "so-hud-enabled",
   "display.inline.level": "so-inline-level",
   "display.inline.window": "so-inline-window",

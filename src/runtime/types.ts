@@ -165,6 +165,7 @@ export interface UiRuntimeSettings {
   announceTransitions: boolean;
   hudEnabled: boolean;
   yourMove?: boolean;
+  compactThoughts?: boolean;
   briefing?: boolean;
   briefingDraft?: boolean;
   playerSetup?: boolean;
