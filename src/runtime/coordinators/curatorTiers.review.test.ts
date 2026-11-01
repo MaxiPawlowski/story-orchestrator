@@ -175,11 +175,12 @@ async function runW2(mode: "auto" | "review", entries: Entry[] = TIERED) {
 }
 
 describe("v2.7 02 C13 (SP8 W2): tier routing through the coordinator, no flag", () => {
-  it("constant auto-tier entries wait for review across enable, disable, rewrite and patch", async () => {
+  it("constant entries wait for review across enable, disable, rewrite and patch; the others apply", async () => {
     const entries = TIERED.map((entry) => ({ ...entry, constant: AUTO.has(entry.comment) }));
     const { decided, written } = await runW2("auto", entries);
-    expect(decided.map((entry) => entry.status)).toEqual(Array(8).fill("pending"));
-    expect(written).toEqual([]);
+    expect(decided.filter((entry) => AUTO.has(entry.comment)).map((entry) => entry.status)).toEqual(Array(4).fill("pending"));
+    expect(decided.filter((entry) => !AUTO.has(entry.comment)).map((entry) => entry.status)).toEqual(Array(4).fill("accepted"));
+    expect([...written].sort()).toEqual(TIERED.filter((entry) => !AUTO.has(entry.comment)).map((entry) => entry.comment).sort());
   });
 
   it("an author can approve a constant entry and its write rolls back", async () => {
@@ -196,14 +197,21 @@ describe("v2.7 02 C13 (SP8 W2): tier routing through the coordinator, no flag", 
     expect(run.book.get(14)!.content).toBe(TIERED[3].content);
   });
 
-  it("in auto, exactly the auto-tier ops are accepted and applied; the review-tier ops wait and are not written", async () => {
+  it("v3.0 43 K: in auto, every op on a non-constant entry is accepted and applied, marked or not", async () => {
     const { decided, after, written } = await runW2("auto");
     expect(decided).toHaveLength(8);
-    expect(decided.filter((entry) => AUTO.has(entry.comment)).map((entry) => entry.status)).toEqual(["accepted", "accepted", "accepted", "accepted"]);
-    expect(decided.filter((entry) => !AUTO.has(entry.comment)).map((entry) => entry.status)).toEqual(["pending", "pending", "pending", "pending"]);
-    expect(after.filter((entry) => AUTO.has(entry.comment)).map((entry) => entry.status)).toEqual(["applied", "applied", "applied", "applied"]);
-    expect(after.filter((entry) => !AUTO.has(entry.comment)).map((entry) => entry.status)).toEqual(["pending", "pending", "pending", "pending"]);
-    expect([...written].sort()).toEqual([...AUTO].sort());
+    expect(decided.map((entry) => entry.status)).toEqual(Array(8).fill("accepted"));
+    expect(after.map((entry) => entry.status)).toEqual(Array(8).fill("applied"));
+    expect([...written].sort()).toEqual(TIERED.map((entry) => entry.comment).sort());
+  });
+
+  it("v3.0 43 K: in auto, a constant entry still waits whether marked or not", async () => {
+    const entries = TIERED.map((entry) => ({ ...entry, constant: entry.comment === "Weather" || entry.comment === "Road" }));
+    const { decided, written } = await runW2("auto", entries);
+    expect(decided.filter((entry) => entry.status === "pending").map((entry) => entry.comment)).toEqual(["Weather", "Road"]);
+    expect(written).not.toContain("Weather");
+    expect(written).not.toContain("Road");
+    expect(written).toHaveLength(6);
   });
 
   it("control: in review all eight wait, and nothing is written", async () => {

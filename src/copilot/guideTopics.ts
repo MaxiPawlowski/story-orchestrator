@@ -266,7 +266,7 @@ export const GUIDE_TOPICS = {
     text: "The only lorebooks the World Info curator may edit. It edits entries and proposes a new one only for what two live facts name "
       + "(each waits for the author; createCap 0-20, default 5; the card names a likely duplicate). It never touches a beat-gated entry. "
       + "Empty list: no curator writes. exclude [{lorebook, comments}] names entries it is never shown or writes. "
-      + "{{// so:protect}} ... {{// so:end}} marks words it may never change or switch off; {{// so:auto}} lets its changes apply unreviewed in auto mode. "
+      + "{{// so:protect}} ... {{// so:end}} marks words it may never change or switch off; auto mode applies edits unreviewed (constant entries wait). "
       + "A new entry carries {{// so:created <chat>}}; deleting that chat asks whether to delete it. SillyTavern drops these markers before the prompt. "
       + "40+ entries: best 16 in full, the rest by title, never edited unseen.",
   },

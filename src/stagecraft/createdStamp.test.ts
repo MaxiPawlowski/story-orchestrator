@@ -43,7 +43,7 @@ describe("v2.8 A16: the so:created stamp on a curator-created entry", () => {
     expect(protectedRefusal({ kind: "rewrite", lorebook: "L", comment: "Oskar", text: stamped }, stamped)).toBeNull();
     expect(protectedRefusal({ kind: "patch", lorebook: "L", comment: "Oskar", anchor: "silver.\n{{// so:created", replace: "gold." }, stamped)).toContain("touches protected text");
     expect(protectedRefusal({ kind: "patch", lorebook: "L", comment: "Oskar", anchor: "a silver", replace: "a gold coin" }, stamped)).toBeNull();
-    expect(entryMarks(stamped)).toMatchObject({ tier: "review", spans: [], kinds: ["created"] });
+    expect(entryMarks(stamped)).toMatchObject({ spans: [], kinds: ["created"] });
   });
 
   it("the curator prompt is unchanged by the stamp vocabulary", () => {

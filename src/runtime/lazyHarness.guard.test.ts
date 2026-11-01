@@ -46,6 +46,9 @@ const LAZY_HEADROOM_V30 = ["src/memory/contract.ts", "src/extraction/contract.ts
   "src/components/panels/PanelFrame.tsx", "src/runtime/panelGeometry.ts", "src/runtime/panelStore.ts", "src/sprites/visualManifest.ts", "src/runtime/copilotProvisioning.ts", "src/wizard/interview.ts",
   "src/services/stHost/media.ts", "src/runtime/featureControls.ts"];
 
+const LAZY_HEADROOM_K = ["src/runtime/repair.ts", "src/runtime/checks.ts", "src/runtime/checksSetup.ts", "src/runtime/checksExtensions.ts", "src/runtime/checksGame.ts",
+  "src/runtime/checksPersona.ts", "src/runtime/checksSprites.ts", "src/runtime/checksTavernOs.ts", "src/runtime/talkControl.ts", "src/runtime/talkDirector.ts"];
+
 const LAZY_DELIVERY = ["src/runtime/delivery/kit.ts", "src/runtime/delivery/render.ts", "src/runtime/delivery/mine.ts"];
 
 const LAZY_POLISH = ["src/polish/plan.ts", "src/polish/guards.ts", "src/polish/windows.ts", "src/polish/prompt.ts", "src/polish/projection.ts", "src/polish/ledger.ts",
@@ -236,6 +239,13 @@ import "./runtime/spikes/toolTurnSummary";
     expect(LAZY_HEADROOM.filter((path) => !present.has(path))).toEqual([]);
     expect(staticReach(files).filter((path) => LAZY_HEADROOM.includes(path))).toEqual([]);
     expect([...reachableFrom(buildGraph(files, { includeDynamic: true }), ENTRY)].map(rel)).toEqual(expect.arrayContaining(LAZY_HEADROOM));
+  });
+
+  it("v3.0 43 K: the check registry and speaker direction load as their own chunks, preloaded before the runtime starts", () => {
+    const present = new Set(files.map(rel));
+    expect(LAZY_HEADROOM_K.filter((path) => !present.has(path))).toEqual([]);
+    expect(staticReach(files).filter((path) => LAZY_HEADROOM_K.includes(path))).toEqual([]);
+    expect([...reachableFrom(buildGraph(files, { includeDynamic: true }), ENTRY)].map(rel)).toEqual(expect.arrayContaining(LAZY_HEADROOM_K));
   });
 
   it("v3.0 24: read and pass prompts, judge use copy, floating panel frame, visual manifest helpers and wizard provisioning load as their own chunks", () => {

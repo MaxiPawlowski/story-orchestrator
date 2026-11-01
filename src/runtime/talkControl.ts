@@ -1,4 +1,5 @@
-import { TALK_CHAIN_MAX_CAP, TALK_CHAIN_MAX_DEFAULT, type RosterMember, type TalkControl, type TalkControlChain } from "@engine/index";
+import type { RosterMember, TalkControl } from "@engine/index";
+import { resolveChainConfig, type TalkChainConfig } from "./talkChain";
 import type { JudgeDirectorDecision, JudgeDirectorInput } from "@judge/index";
 import {
   addressedMembers, buildCandidates, directlyAddressed, chooseByRules, directorEnabled, findCandidate, latestPlayerLine, narrowByMention,
@@ -23,8 +24,7 @@ const revisionKey = (revision: SourceRevision | null): string => (revision ? `${
 const endedBy = (source: TalkDecisionSource): ChainEndReason => (source === "judge" || source === "director" ? source : "rules");
 
 export { DIRECTOR_TIMEOUT_MS } from "./talkDirector";
-export const DIRECTOR_MAX_TOKENS = 96;
-export const DIRECTOR_WINDOW_MESSAGES = 8;
+export { DIRECTOR_MAX_TOKENS, DIRECTOR_WINDOW_MESSAGES, resolveChainConfig, type TalkChainConfig } from "./talkChain";
 
 const LOUD_INTERCEPT_TYPE = "normal";
 const QUIET_WRAPPER_TYPES = new Set([...WITHHOLDING_TYPES, "swipe", "continue"]);
@@ -35,38 +35,6 @@ export interface TalkCheckpointInfo {
   objective: string;
   storyTitle: string;
 }
-
-/** The resolved chain config: the checkpoint's `talk_control.chain` over the install-wide defaults. */
-export interface TalkChainConfig {
-  enabled: boolean;
-  mode: "director" | "scripted";
-  max: number;
-  sequence: string[];
-  stopOnTransition: boolean;
-  holdExtraction: boolean;
-  stopOnPlayer: boolean;
-  yieldOnQuestion: boolean;
-}
-
-export const resolveChainConfig = (
-  control: TalkControl,
-  system: { enabled: boolean; max: number; stopOnTransition: boolean; holdExtraction: boolean },
-): TalkChainConfig | null => {
-  if (control.chain === false) return null;
-  const chain: TalkControlChain = control.chain ?? {};
-  const mode = chain.mode ?? "director";
-  const max = Math.min(TALK_CHAIN_MAX_CAP, Math.max(1, chain.max ?? system.max ?? TALK_CHAIN_MAX_DEFAULT));
-  return {
-    enabled: system.enabled,
-    mode,
-    max,
-    sequence: chain.sequence ?? [],
-    stopOnTransition: chain.stop_on_transition ?? system.stopOnTransition,
-    holdExtraction: chain.hold_extraction ?? system.holdExtraction,
-    stopOnPlayer: chain.stop_on_player !== false,
-    yieldOnQuestion: chain.yield_on_question !== false,
-  };
-};
 
 export interface TalkControlHost extends TalkPacingHost {
   isGroupChat(): boolean;

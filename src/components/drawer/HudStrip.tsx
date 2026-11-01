@@ -4,7 +4,7 @@ import { lazyRetry } from "@utils/lazyRetry";
 import { TENSION_LEVELS, type TensionLevel } from "@engine/schema";
 import { branchNoticeText, PLAYER_COPY, rollbackNoticeText, yourMoveAuthorTitle } from "@runtime/narrative";
 import { busyText, HUD_COPY, hudChipLabel, hudPendingText, hudSetupText, hudSetupTitle, hudTensionText, playerPendingCount } from "@runtime/pipeline";
-import { setupAlert, setupCounts } from "@runtime/repair";
+import { hudSetupAlert, hudSetupCounts } from "@runtime/repairPort";
 import type { RuntimeSnapshot } from "@runtime/types";
 import { SHEET_TEXT } from "@features/sheetCopy";
 import { IconButton } from "@components/ui/IconButton";
@@ -59,8 +59,8 @@ export const HudStrip = ({ snapshot, onOpenStory, onOpenSettings, card, sheet }:
   const working = busyText(snapshot.busy ?? []);
   const pipeline = snapshot.pipeline;
   const chip = working ?? (pipeline.state === "not-configured" && !snapshot.lastRollback ? null : hudChipLabel(pipeline.state, Boolean(snapshot.lastRollback), pipeline.waitingOn));
-  const alert = chip ? null : setupAlert(snapshot);
-  const counts = setupCounts(snapshot);
+  const alert = chip ? null : hudSetupAlert(snapshot);
+  const counts = hudSetupCounts(snapshot);
   const sheetAvailable = Boolean(sheet && card?.tabs.length);
   const onChip = () => {
     if (pipeline.needsSetup && onOpenSettings) onOpenSettings();

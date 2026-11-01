@@ -1,5 +1,5 @@
 import { SP8_CONTROLS, SP8_ENTRIES, SP8_VIOLATIONS } from "../../test/support/curatorSpikeCases";
-import { entryMarks, protectedRefusal, refuseProtected, routeByTier } from "./curatorTiers";
+import { entryMarks, protectedRefusal, refuseProtected, routeByMode } from "./curatorTiers";
 import { previewCuratorOp } from "./proposal";
 import type { CuratorEntryView, CuratorOpRecord } from "./types";
 
@@ -7,11 +7,11 @@ const views: CuratorEntryView[] = SP8_ENTRIES.map((entry) => ({ lorebook: "Story
 const viewOf = (comment: string) => views.find((view) => view.comment === comment)!;
 
 describe("v2.5 plan 09 SP8 W1: protected spans (pure)", () => {
-  it("reads the tier and the spans from ST comment markers, an unclosed span running to the end", () => {
+  it("reads the spans from ST comment markers, an unclosed span running to the end", () => {
     expect(entryMarks(viewOf("The Crown").content).spans.map((span) => span.text)).toEqual(["{{// so:protect}}The king died in the winter of 402.{{// so:end}}"]);
     expect(entryMarks(viewOf("The Vault").content).spans.map((span) => span.text)).toEqual(["{{// so:protect}}Only the abbot holds the key. Nobody else may enter."]);
-    expect(entryMarks("{{//so:AUTO}}Market day.").tier).toBe("auto");
-    expect(entryMarks("Market day.").tier).toBe("review");
+    expect(entryMarks("{{//so:AUTO}}Market day.")).toEqual({ spans: [], markers: [{ start: 0, end: 13 }], kinds: ["auto"] });
+    expect(entryMarks("Market day.")).toEqual({ spans: [], markers: [], kinds: [] });
     expect(entryMarks("{{// so:end}}stray").spans).toEqual([]);
   });
 
@@ -41,18 +41,21 @@ describe("v2.5 plan 09 SP8 W1: protected spans (pure)", () => {
   });
 });
 
-describe("v2.5 plan 09 SP8 W2: tier routing (pure)", () => {
-  const auto = { ...viewOf("The Ferry"), comment: "Market", content: "{{// so:auto}}Market day is Thursday." };
+describe("v3.0 43 K: accept-mode routing (pure)", () => {
+  const marked = { ...viewOf("The Ferry"), comment: "Market", content: "{{// so:auto}}Market day is Thursday." };
+  const constant = { ...viewOf("The Ferry"), comment: "Rules", content: "Speak plainly.", constant: true };
   const records: CuratorOpRecord[] = [
     { op: { kind: "disable", lorebook: "Story Lore", comment: "Market" }, status: "pending" },
     { op: { kind: "disable", lorebook: "Story Lore", comment: "The Ferry" }, status: "pending" },
+    { op: { kind: "disable", lorebook: "Story Lore", comment: "Rules" }, status: "pending" },
+    { op: { kind: "disable", lorebook: "Story Lore", comment: "Nowhere" }, status: "pending" },
   ];
 
-  it("accepts only auto-tier ops in auto mode", () => {
-    expect(routeByTier(records, [...views, auto], "auto").map((record) => record.status)).toEqual(["accepted", "pending"]);
+  it("accepts every op on a known non-constant entry in auto mode, marked or not", () => {
+    expect(routeByMode(records, [...views, marked, constant], "auto").map((record) => record.status)).toEqual(["accepted", "accepted", "pending", "pending"]);
   });
 
   it("leaves everything pending in review mode", () => {
-    expect(routeByTier(records, [...views, auto], "review").map((record) => record.status)).toEqual(["pending", "pending"]);
+    expect(routeByMode(records, [...views, marked, constant], "review").map((record) => record.status)).toEqual(["pending", "pending", "pending", "pending"]);
   });
 });

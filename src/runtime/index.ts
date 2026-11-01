@@ -16,7 +16,7 @@ import { installPersonaHost } from "./playerSetupPort";
 import { livePersonaHost } from "./personaHostLive";
 import { startEmptyReplyRecovery } from "./emptyReplyHost";
 import { runtimeManager } from "./runtimeManager";
-import { DIRECTOR_WINDOW_MESSAGES } from "./talkControl";
+import { DIRECTOR_WINDOW_MESSAGES } from "./talkChain";
 import { GenerationLifecycle } from "./generationLifecycle";
 import { settledWindowAccess } from "./settledWindow";
 import { readableLastId } from "./stoppedReply";

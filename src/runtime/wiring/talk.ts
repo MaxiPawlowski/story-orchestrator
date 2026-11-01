@@ -7,7 +7,9 @@ import { spikeSeams } from "../spikeSeams";
 import type { JudgeRuntime } from "../judge";
 import { routedProfileId } from "../requestBudget";
 import { runtimeManager } from "../runtimeManager";
-import { DIRECTOR_MAX_TOKENS, TalkController, type TalkControlHost } from "../talkControl";
+import type { TalkControlHost } from "../talkControl";
+import { DIRECTOR_MAX_TOKENS } from "../talkChain";
+import { loadTalkKit, talkKit } from "../talkPort";
 import { promptCost } from "../promptCost";
 import type { Disposers, LiveParts, WindowAccess } from "./types";
 import { presentRosterIds } from "../whereabouts";
@@ -124,7 +126,9 @@ const noteHistory = (chat: unknown[], type: string) => {
 };
 
 export const startTalk = (live: LiveParts, judgeRuntime: JudgeRuntime, window: WindowAccess, onLoreIntercept: (type: string, aborted: boolean) => Promise<void>) => {
-  live.talk = new TalkController(talkHost(live, judgeRuntime, window));
+  const host = talkHost(live, judgeRuntime, window);
+  const kit = talkKit();
+  if (kit) live.talk = new kit.TalkController(host);
   globalThis.talkControlInterceptor = gatedInterceptor(live.loudGate, () => Boolean(getActiveGroup()), async (chat, contextSize, abort, type) => {
     live.interceptEntry?.(type);
     runtimeManager.cueSwipe(type, (getContext().chat?.length ?? 0) - 1);
@@ -141,4 +145,6 @@ export const startTalk = (live: LiveParts, judgeRuntime: JudgeRuntime, window: W
     if (!aborted && Array.isArray(chat)) runtimeManager.chapters.compact(chat, type, getContext().chat ?? [], contextSize, readCoverageEnd(runtimeManager.getExtractionAudits()));
     if (!aborted && Array.isArray(chat)) noteHistory(chat, type);
   }, () => log.warn("speaker direction: a second reply started while one was already being written; it was stopped so the model is asked once"), holdForChat);
+  const interceptor = globalThis.talkControlInterceptor;
+  if (!kit) void loadTalkKit().then(({ TalkController }) => { if (globalThis.talkControlInterceptor === interceptor) live.talk = new TalkController(host); });
 };

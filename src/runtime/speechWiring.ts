@@ -7,7 +7,7 @@ import { getGlobalSettings } from "./settingsStore";
 import { TALK_CHAIN_FIXED } from "./settingsModel";
 import type { SpeechBudget, SpeechBudgetDeps } from "./speechBudget";
 import type { SpeechReservation } from "./speechLedger";
-import { resolveChainConfig } from "./talkControl";
+import { resolveChainConfig } from "./talkChain";
 
 type SpeechPortDeps = Pick<ManagerPort, "loaded" | "extras" | "engine" | "view" | "lifecycle" | "journal">;
 type SpeechUnit = typeof import("./speechUnit");
