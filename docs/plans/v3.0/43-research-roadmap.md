@@ -553,4 +553,7 @@ Source: `research/self-imposed-rules-2026-10-31.md` §Owner answers. No switches
   lane), leaked 0, library clean, lane stopped. `C:\dev\so-lanes\ui-review\st-sizes\{before,after}\` (driver kept as `.mts.txt`).
 - Storybook: green after the setup-card padding floor moved from 12px to 7px (ST spacing, `SetupSection.stories.tsx`).
 - Bundle: main `dist/index.js` 1,293,061 B (+55 B vs master build; budget 1,300,000).
-- Gates: see the merge line below.
+- Gates: `npm run gates` all green in 498.6s (Storybook included, no --resume) on the tree merged with master `b57d6c43a`;
+  earlier full runs: red on the setup-card padding story (fixed), a merge conflict in the generated guide (regenerated), then
+  green 386.2s on the tree merged with `2c8ae0177` after one red on `consequences.test.ts` C6 p95 timing and a `--resume` red
+  on `patterns.test.ts` P5 timing (both untouched). New master CSS `inchat.css` had one `rem` fallback (now 15px). `gates:quick` green.
