@@ -37,6 +37,13 @@
       "yourMove": true,
       "compactThoughts": true,
       "regenerateOwnRows": true,
+      "inChat": {
+        "dividers": true,
+        "because": true,
+        "chips": true,
+        "discovery": true,
+        "gateMeter": true
+      },
       "briefing": false,
       "briefingDraft": false,
       "playerSetup": false,

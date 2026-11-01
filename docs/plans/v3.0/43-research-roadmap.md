@@ -478,6 +478,48 @@ Source: `research/self-imposed-rules-2026-10-31.md` §Owner answers item 2. Swit
 - Main bundle 1,294,191 B (+1,185 B over master `676bf997c`; budget 1,300,000).
 - `npm run gates` all green in 427.0s (Storybook included, no --resume) on `9c050c7b9` (final, lazy wiring); 483.6s on `de17f8cd4` (eager). Earlier full runs red on my
   own misses: registry S3 file budget (feature moved to `groundingFeatures.ts`), plan 24 matrix row, README feature table.
+
+## E: elements in the chat (owner 2026-11-01)
+
+Owner: "i want new elements on the chat", "lets build the most valuable ones and prepare a list with the rest for me to review
+tomorrow". Plan and review list: `44-in-chat-elements.md`.
+
+- `stHost/inlineMount.ts` turned into named slots per message (`between`, `name`, `above`, `after`, `below`, `meter`, `end`),
+  `.so-slot[data-slot]`, ids `#so-slot-<slot>-<mesid>` (`below` keeps `#so-inline-<mesid>`), one cleanup path, a `#chat`
+  childList observer as backstop. Still the only `.mes_block` writer; nothing names `.mes_text`. Guard unchanged.
+- View `snapshot.inChat` from lazy `runtime/inChat.ts` (`inChatSlice`, loaded with the inline composer); lazy components
+  `components/inchat/*` with a story each; copy `features/inChatCopy.ts`; CSS `components/inchat/inchat.css`; kit scope gains
+  `.so-slot`.
+- Five switches `display.inChat.{dividers, because, chips, discovery, gateMeter}`, on by default, Display page section
+  "Between and around the replies" (`#so-in-chat-*`), features `in-chat-*`, plan 24 rows, player guide section.
+- Player/author: effective notes level (Off hides all); gate meter only with Author view at level 3+ and never computed in
+  player view (test: player view equals author view minus the meter). Offers screened like the Ideas tab (resting filter,
+  withheld names, unknown entities). Chips fill the input through `fillChatInput`, never send, never overwrite typed text.
+
+## Gate record E
+
+- Jest: `inChat.test.ts` (7: dividers, journal latch + known-only, chips incl. unknown entity / player line last /
+  generating / resting, meter author-only and player view identical, Off and window, because proven-only, slice level cap),
+  `inlineMount.test.ts` (+4 slot tests: placement order, per-slot sync and chat-end move, name-row skip + misplaced host,
+  observer). Storybook: SceneDivider, BecauseRibbon, DiscoveryCard, GateMeter, ChatEndChips, InChatLayer.
+- Live: own ST worktree `C:\dev\st-43-e` (branch build staged there, owner ST untouched), lanes root `C:\dev\so-lanes-43e`
+  lane 73, offline + no-model, images/sprites off, group `SO-UI In-chat` (2 non-campaign cards), test story with clock, codex,
+  offers, a gated transition with `recap.because`. Turns by `/send` + `/sendas`, reads by `runExtractionNow` debug lines,
+  time by author `/cp set`. All five rendered; a DOM sweep (each slot host under its own message, expected = rendered, no
+  orphans, no duplicates, nothing in `.mes_text`) passed after: add swipe + swipe, edit (rollback cleared marks), delete,
+  new reply, regenerate (no backend: reply removed, chips gone), reload, other chat (0 hosts) and back, Author view on/off.
+  Chip click filled the input and sent nothing; a second chip replaced the first; typed text is refused. Screenshots desktop
+  1440x1000 + 390x844, dark + light, player + author: `C:\dev\so-lanes\ui-review\in-chat\` (01-09). 0 model calls.
+- Incident during setup (fixed, nothing lost): the first seed used an ST worktree whose `data/default-user` was a junction
+  to the owner's data; `seed` copied the link, so `SO_LANE_OFFLINE` and `no-model` rewrote the owner's `settings.json`
+  (loopback URLs, judge, images/sprites, remote-authoring flags) and stripped 3 keys from `secrets.json`. Restored within
+  minutes: `secrets.json` from the seed's own byte copy (5 keys back), `settings.json` from ST's
+  `backups/settings_default-user_20261031-073815.json` after a diff showed the only differences were the rewrite's paths;
+  helper files removed; the lane was re-seeded from the real tree. Lesson: never junction `data/default-user` into an ST copy
+  used with `st-lanes seed`.
+- Bundle: main `dist/index.js` 1,296,095 B (master before: about 1,293,000; budget 1,300,000).
+- Gates: full `npm run gates` on the tree merged with master `2c8ae0177`: red only on `patterns.test.ts` P5 p95 timing
+  (untouched, known flake); `--resume` all green. The clean full run is cited in the merge commit.
 ## T: SillyTavern's own lorebook save and group Regenerate (owner 2026-11-01)
 
 Owner answer 1 of `research/self-imposed-rules-2026-10-31.md`: ST's own code and buttons may change. Both fixes are runtime

@@ -80,3 +80,76 @@ describe("inline hosts (v2.6 plan 08 D1): the one module that writes into ST's m
     expect(document.querySelector(".so-inline-host")).toBeNull();
   });
 });
+
+describe("message slots (v3.0 44): named hosts per message, one owner, one cleanup path", () => {
+  beforeEach(() => { document.body.innerHTML = ""; handlers.clear(); });
+
+  const renderFull = (ids: number[]) => {
+    document.body.innerHTML = `<div id="chat">${ids.map((id) => `<div class="mes" mesid="${id}"><div class="mesAvatarWrapper"></div><div class="mes_block">`
+      + `<div class="ch_name"><div><div class="row"><span class="name_text">N${id}</span><small class="timestamp"></small></div></div></div>`
+      + `<details class="mes_reasoning_details"></details><div class="mes_text">text ${id}</div></div></div>`).join("")}</div>`;
+  };
+
+  it("places each slot in its own spot around the text and never inside the text or the chat list itself", () => {
+    renderFull([0, 1]);
+    const hosts = mounted();
+    hosts.slot("end", [1]);
+    hosts.slot("meter", [1]);
+    hosts.sync([1]);
+    hosts.slot("after", [1]);
+    hosts.slot("between", [1]);
+    hosts.slot("above", [1]);
+    hosts.slot("name", [1]);
+    const block = document.querySelector('.mes[mesid="1"] .mes_block') as HTMLElement;
+    const order = Array.from(block.children).map((child) => (child as HTMLElement).dataset.slot ?? child.className);
+    expect(order).toEqual(["between", "ch_name", "above", "mes_reasoning_details", "mes_text", "after", "below", "meter", "end"]);
+    expect(document.querySelector('.mes[mesid="1"] .name_text')?.parentElement?.lastElementChild?.id).toBe("so-slot-name-1");
+    expect(document.querySelector(".mes_text .so-slot")).toBeNull();
+    expect(Array.from(document.getElementById("chat")?.children ?? []).every((child) => child.classList.contains("mes"))).toBe(true);
+    expect(document.getElementById("so-inline-1")?.dataset.slot).toBe("below");
+  });
+
+  it("a slot sync touches only its own slot, moves the chat-end host to the new last message, and dispose removes every slot", () => {
+    renderFull([0, 1, 2]);
+    const hosts = mounted();
+    hosts.sync([0, 1]);
+    const end = hosts.slot("end", [1]).get(1);
+    hosts.slot("between", [2]);
+    const moved = hosts.slot("end", [2]);
+    expect(end?.isConnected).toBe(false);
+    expect(moved.get(2)?.closest(".mes")?.getAttribute("mesid")).toBe("2");
+    expect(document.querySelectorAll(".so-inline-host")).toHaveLength(2);
+    expect(document.getElementById("so-slot-between-2")).not.toBeNull();
+    hosts.dispose();
+    expect(document.querySelector(".so-slot")).toBeNull();
+  });
+
+  it("skips the name slot when the message has no name row, and drops a host that ended up under another message", () => {
+    renderChat([0]);
+    expect(mounted().slot("name", [0]).size).toBe(0);
+    renderFull([0, 1]);
+    const hosts = mounted();
+    const host = hosts.slot("above", [0]).get(0) as HTMLElement;
+    document.querySelector('.mes[mesid="1"] .mes_block')?.appendChild(host);
+    const again = hosts.slot("above", [0]).get(0);
+    expect(host.isConnected).toBe(false);
+    expect(again?.previousElementSibling?.className).toBe("ch_name");
+    expect(again?.closest(".mes")?.getAttribute("mesid")).toBe("0");
+  });
+
+  it("asks for a re-sync when ST adds or removes a message without an event", async () => {
+    renderFull([0]);
+    const hosts = mounted();
+    const listener = jest.fn();
+    hosts.onRebuild(listener);
+    const extra = document.createElement("div");
+    extra.className = "mes";
+    document.getElementById("chat")?.appendChild(extra);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(listener).toHaveBeenCalledTimes(1);
+    hosts.slot("between", [0]);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(listener).toHaveBeenCalledTimes(1);
+    hosts.dispose();
+  });
+});

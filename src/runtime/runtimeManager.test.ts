@@ -8,7 +8,7 @@ import { RuntimeManager } from "./runtimeManager";
 import { BLOB_VERSION } from "./persistence";
 import { defaultInlineSettings } from "./settingsModel";
 import { setGlobalSettings } from "./settingsStore";
-import { defaultPresenceSettings } from "./displayToggles";
+import { defaultChatElements, defaultPresenceSettings } from "./displayToggles";
 import { control } from "../../test/findings/ledger";
 import { carriesInto, INJECTION_REGISTRY, type InjectionSpec } from "@constants/injectionRegistry";
 import { GenerationLifecycle } from "./generationLifecycle";
@@ -1546,7 +1546,7 @@ describe("RuntimeManager transition announcements and pending deltas", () => {
   it("defaults ui settings on hydrate and persists overrides", async () => {
     const manager = new RuntimeManager();
     await manager.importStory(JSON.stringify(gatedStory));
-    expect(manager.getSnapshot().ui).toEqual({ authorView: false, announceTransitions: false, hudEnabled: true, yourMove: true, compactThoughts: true, briefing: true, briefingDraft: true, playerSetup: true, inline: defaultInlineSettings(), presence: defaultPresenceSettings() });
+    expect(manager.getSnapshot().ui).toEqual({ authorView: false, announceTransitions: false, hudEnabled: true, yourMove: true, compactThoughts: true, inChat: defaultChatElements(), briefing: true, briefingDraft: true, playerSetup: true, inline: defaultInlineSettings(), presence: defaultPresenceSettings() });
     manager.setUiSettings({ authorView: true });
     const metadata = mockContext.chatMetadata.story_orchestrator as { stories: Record<string, { extras: { ui?: { authorView?: boolean } } }> };
     const storyId = Object.keys(metadata.stories)[0];

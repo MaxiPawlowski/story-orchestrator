@@ -36,6 +36,17 @@ export const sanitizePresenceSettings = (value: unknown): PresenceSettings => {
   };
 };
 
+export const CHAT_ELEMENTS = ["dividers", "because", "chips", "discovery", "gateMeter"] as const;
+export type ChatElement = (typeof CHAT_ELEMENTS)[number];
+export type ChatElementSettings = Record<ChatElement, boolean>;
+
+export const defaultChatElements = (): ChatElementSettings => ({ dividers: true, because: true, chips: true, discovery: true, gateMeter: true });
+
+export const sanitizeChatElements = (value: unknown): ChatElementSettings => {
+  const source = isRecord(value) ? value : {};
+  return { dividers: source.dividers !== false, because: source.because !== false, chips: source.chips !== false, discovery: source.discovery !== false, gateMeter: source.gateMeter !== false };
+};
+
 export const storyAllows = (display: StoryDisplay | null | undefined, toggle: PresenceToggle): boolean => display?.[STORY_TOGGLE_KEYS[toggle]] !== false;
 
 export const shownFor = (display: StoryDisplay | null | undefined, install: Pick<PresenceSettings, PresenceToggle>, toggle: PresenceToggle): boolean =>

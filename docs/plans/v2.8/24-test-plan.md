@@ -433,6 +433,11 @@ real-model carrier, or why none is needed.
 | compact-thoughts | D | hostStyle jest (flag, `#chat`-scoped host.css), lane 60 screenshots (v3.0 43 H) | none: no model |
 | regenerate-own-rows | D | groupRegenerate jest (ST's loop modelled, handler order), v30-43t-regenerate-own-rows (no-model lane, v3.0 43 T) | none: no model |
 | lore-editor-merge | D | lorebookMerge, worldInfoSaveGuard, worldInfoPending jest; v30-43t-lore-editor-merge (no-model lane, lore plugin, v3.0 43 T) | none: no model |
+| in-chat-dividers | D | inChat jest (clock moves, scene breaks, window), inlineMount slot jest, SceneDivider/InChatLayer Storybook, lane 73 live slot checks + screenshots (v3.0 44) | none: no model |
+| in-chat-because | D | inChat jest (proven line only, abstains on a coincidental write), consequences C1 corpus, BecauseRibbon Storybook, lane 73 live (v3.0 44) | none: no model |
+| in-chat-chips | D | inChat jest (offers screened for unknown entities and held secrets, your move, none after the player's line or while generating), ChatEndChips Storybook (fill, refusal), lane 73 live fill-never-sends (v3.0 44) | none: no model |
+| in-chat-discovery | D | inChat jest (latch boundary to message, known only), DiscoveryCard Storybook, lane 73 live (v3.0 44) | none: no model |
+| in-chat-gate-meter | D | inChat jest (author-only, player view identical without it), GateMeter Storybook, lane 73 live Author view (v3.0 44) | none: no model |
 | quests | RP | 36-Q5-scn, S-16, storyCheckWhen jest (checkpoint check `when`, 2026-10-16) | GS1.3, GS3.1, GS6.10 (check `when`) |
 | character-life | RP + CL | 37-D1..D3 | GS1.5, GS3.3, GS2.7 |
 | meanwhile-proposals | CL | agenda proposal tests | GS2.7; M16 carried |

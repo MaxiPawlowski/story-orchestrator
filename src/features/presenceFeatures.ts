@@ -13,6 +13,49 @@ export const PRESENCE_FEATURES: readonly Feature[] = [
     isOn: (settings) => settings.display.regenerateOwnRows,
   },
   {
+    id: "in-chat-dividers", name: "Scene and time dividers", area: "play", audience: "player",
+    oneLine: "A labelled line between messages where the story's clock moves on or a new scene starts.",
+    what: "Above the message where the story's time of day changes, or where a new scene begins, a thin line shows the new time (\"Day 3, evening\") or \"A new scene\". "
+      + "It reads the story clock and the scene breaks the story reader found; nothing is sent to the model.",
+    where: settingsAt("#so-in-chat-dividers", "Display › Scene and time dividers"),
+    settings: ["display.inChat.dividers"], doc: "player/drawer-and-hud.md", status: "shipped", needs: ["story"],
+    isOn: (settings) => settings.display.inChat.dividers,
+  },
+  {
+    id: "in-chat-because", name: "\"Because you…\" lines", area: "play", audience: "player",
+    oneLine: "Under the reply where your choice made a story step happen, a short line says so.",
+    what: "When the story can tell that something you wrote decided a step (a new place, a quest done, a milestone), a short line under that reply says why. "
+      + "It uses the same rules as the recap: when it is not sure, it shows nothing.",
+    where: settingsAt("#so-in-chat-because", "Display › \"Because you…\""),
+    settings: ["display.inChat.because"], doc: "player/drawer-and-hud.md", status: "shipped", needs: ["story"],
+    isOn: (settings) => settings.display.inChat.because,
+  },
+  {
+    id: "in-chat-chips", name: "Next-move chips", area: "play", audience: "player",
+    oneLine: "Under the last reply: the story's suggestions for your next move, one click puts one in the box where you type.",
+    what: "At the end of the chat, when it is your turn, small buttons show what the story suggests you could do here, plus Ideas for more. "
+      + "Clicking one fills the box where you type; you change or send it yourself.",
+    where: settingsAt("#so-in-chat-chips", "Display › Next-move chips"),
+    settings: ["display.inChat.chips"], doc: "player/drawer-and-hud.md", status: "shipped", needs: ["story"],
+    isOn: (settings) => settings.display.inChat.chips,
+  },
+  {
+    id: "in-chat-discovery", name: "Journal cards", area: "play", audience: "player",
+    oneLine: "A small card under the reply where a person or place goes into your journal.",
+    what: "When the story adds someone or somewhere to your journal, or you learn something new about them, a card under that reply names it. Open shows it in the story sheet.",
+    where: settingsAt("#so-in-chat-discovery", "Display › Journal cards"),
+    settings: ["display.inChat.discovery"], doc: "player/drawer-and-hud.md", status: "shipped", needs: ["story"],
+    isOn: (settings) => settings.display.inChat.discovery,
+  },
+  {
+    id: "in-chat-gate-meter", name: "Gate meter", area: "play", audience: "author",
+    oneLine: "Author view: under each reply, how close each way out of the checkpoint was.",
+    what: "In Author view, each reply carries a small meter per outgoing transition: how many of its conditions held after that reply, which are still missing, and where the story moved.",
+    where: settingsAt("#so-in-chat-gate-meter", "Display › Gate meter"),
+    settings: ["display.inChat.gateMeter"], doc: "player/drawer-and-hud.md", status: "shipped", needs: ["story"],
+    isOn: (settings) => settings.display.inChat.gateMeter,
+  },
+  {
     id: "compact-thoughts", name: "Thinking pill", area: "play", audience: "player",
     oneLine: "SillyTavern's \"Thought for …\" bar becomes a small pill at the top left of the reply.",
     what: "The thinking bar above a reply shrinks to a small rounded label. Click it to open or close the thinking; its buttons show only while it is open. "

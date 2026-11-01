@@ -11,7 +11,7 @@ import { isRecord } from "@utils/guards";
 import { DEFAULT_MEANWHILE_ACCEPT_MODE, isMeanwhileAcceptMode } from "./agendaProposals";
 import { defaultImageSettings, sanitizeImageSettings, type ImageSettings } from "../image/settings";
 import { defaultSpriteSettings, sanitizeSpriteSettings, type SpriteSettings } from "../sprites/settings";
-import { defaultPresenceSettings, sanitizePresenceSettings, type PresenceSettings } from "./displayToggles";
+import { defaultChatElements, defaultPresenceSettings, sanitizeChatElements, sanitizePresenceSettings, type ChatElementSettings, type PresenceSettings } from "./displayToggles";
 import { deltaFrom, overDefaults } from "./settingsDelta";
 
 // The system default for answering one player message with several voices. A checkpoint's own
@@ -65,7 +65,7 @@ export interface GlobalSettings {
   extraction: ExtractionRuntimeSettings;
   pacing: { hintEnabled: boolean; pathArc: boolean; stuckLadder: boolean };
   display: {
-    announceTransitions: boolean; hudEnabled: boolean; yourMove: boolean; compactThoughts: boolean; regenerateOwnRows: boolean;
+    announceTransitions: boolean; hudEnabled: boolean; yourMove: boolean; compactThoughts: boolean; regenerateOwnRows: boolean; inChat: ChatElementSettings;
     briefing: boolean; briefingDraft: boolean; playerSetup: boolean; inline: InlineSettings; presence: PresenceSettings;
   };
   copilot: CopilotRuntimeSettings;
@@ -288,7 +288,7 @@ export const defaultGlobalSettings = (): GlobalSettings => ({
   extraction: defaultExtractionSettings(),
   pacing: { hintEnabled: true, pathArc: true, stuckLadder: true },
   display: {
-    announceTransitions: false, hudEnabled: true, yourMove: true, compactThoughts: true, regenerateOwnRows: true,
+    announceTransitions: false, hudEnabled: true, yourMove: true, compactThoughts: true, regenerateOwnRows: true, inChat: defaultChatElements(),
     briefing: true, briefingDraft: true, playerSetup: true, inline: defaultInlineSettings(), presence: defaultPresenceSettings(),
   },
   copilot: { enabled: true, ask: true },
@@ -386,6 +386,7 @@ export const sanitizeGlobalSettings = (value: unknown): GlobalSettings => {
     display: {
       announceTransitions: display.announceTransitions === true, hudEnabled: display.hudEnabled !== false, yourMove: display.yourMove !== false, compactThoughts: display.compactThoughts !== false,
       regenerateOwnRows: display.regenerateOwnRows !== false,
+      inChat: sanitizeChatElements(display.inChat),
       briefing: display.briefing !== false,
       briefingDraft: display.briefingDraft !== false, playerSetup: display.playerSetup !== false,
       inline: sanitizeInlineSettings(display.inline),
