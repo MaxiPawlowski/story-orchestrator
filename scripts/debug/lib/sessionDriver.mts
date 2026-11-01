@@ -159,15 +159,21 @@ export async function defaultLiveDeps(): Promise<LiveDeps> {
 }
 
 const openChatId = (page: any) => evaluateInST(page, () => (globalThis as any).SillyTavern.getContext().chatId ?? null);
+const openPlace = (page: any): Promise<{ chatId: string | null; groupId: string | null }> => evaluateInST(page, () => {
+  const ctx = (globalThis as any).SillyTavern.getContext();
+  return { chatId: ctx.chatId ?? null, groupId: ctx.groupId ?? null };
+});
+
+export const isSessionPlace = (place: { chatId: string | null; groupId: string | null }, chat: LiveChat): boolean => place.chatId === chat.chatId && (!chat.groupId || place.groupId === chat.groupId);
 
 export async function ensureChat(page: any, chat: LiveChat | null, deps: Pick<LiveDeps, 'openChat'>) {
   if (!chat) return { chatId: await openChatId(page), reopened: false };
-  const open = await openChatId(page);
-  if (open === chat.chatId) return { chatId: open, reopened: false };
+  const open = await openPlace(page);
+  if (isSessionPlace(open, chat)) return { chatId: open.chatId, reopened: false };
   await deps.openChat(page, chat);
-  const after = await openChatId(page);
-  if (after !== chat.chatId) throw new Error(`the session chat ${chat.chatId} is not open and could not be reopened (open: ${String(after)})`);
-  return { chatId: after, reopened: true, from: open };
+  const after = await openPlace(page);
+  if (!isSessionPlace(after, chat)) throw new Error(`the session chat ${chat.chatId}${chat.groupId ? ` (group ${chat.groupId})` : ''} is not open and could not be reopened (open: ${String(after.chatId)}, group ${String(after.groupId)})`);
+  return { chatId: after.chatId, reopened: true, from: open.chatId };
 }
 
 export async function openSessionChat(page: any, chats: LiveChat[]): Promise<LiveChat> {

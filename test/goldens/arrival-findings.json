@@ -212,6 +212,7 @@
   "test/scenarios/live-v4-turn-types-real.json#0": [],
   "test/scenarios/live-v5-foreign-blob.json#0": [],
   "test/scenarios/live-v5b-adopt-imported.json#0": [],
+  "test/scenarios/m42-f5-relax-window.json#0": [],
   "test/scenarios/memory-mirror-file.json#0": [],
   "test/scenarios/payload/group-away-notice.json#0": [],
   "test/scenarios/payload/group-commitments.json#0": [],

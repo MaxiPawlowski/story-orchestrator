@@ -98,14 +98,26 @@ export async function getSessionStatus(): Promise<SessionStatus> {
   }
 }
 
-function sameOriginOrBlank(page: Page, stUrl: string): boolean {
-  const url = page.url();
-  if (!url || url === 'about:blank') return true;
+const isBlank = (url: string) => !url || url === 'about:blank';
+
+const sameOrigin = (url: string, stUrl: string): boolean => {
   try {
     return new URL(url).origin === new URL(stUrl).origin;
   } catch {
     return false;
   }
+};
+
+export function preferredPageIndex(urls: readonly string[], stUrl: string): number {
+  const live = urls.findIndex((url) => !isBlank(url) && sameOrigin(url, stUrl));
+  return live >= 0 ? live : urls.findIndex(isBlank);
+}
+
+export const laneOf = (env: NodeJS.ProcessEnv): number | null => (/^\d+$/.test(String(env.SO_LANE ?? '')) ? Number(env.SO_LANE) : null);
+
+export function attachFailurePolicy(env: NodeJS.ProcessEnv, endpointAnswers: boolean): { clear: boolean; fallback: 'ephemeral' | 'refuse' } {
+  const lane = laneOf(env);
+  return { clear: !endpointAnswers, fallback: lane !== null && lane !== 0 ? 'refuse' : 'ephemeral' };
 }
 
 function requestedViewport(): { width: number; height: number } | null {
@@ -144,7 +156,7 @@ async function pickPage(browser: Browser, stUrl: string): Promise<Page> {
   const contexts = browser.contexts();
   const context = contexts[0] || await browser.newContext({ viewport: { width: 1920, height: 1080 } });
   const pages = context.pages();
-  const existing = pages.find((page) => sameOriginOrBlank(page, stUrl));
+  const existing = pages[preferredPageIndex(pages.map((page) => page.url()), stUrl)];
   const page = existing || await context.newPage();
   const override = requestedViewport();
   const viewport = await measuredViewport(page);
@@ -162,20 +174,45 @@ async function pickPage(browser: Browser, stUrl: string): Promise<Page> {
   return page;
 }
 
-async function attachToSession(stUrl: string): Promise<ConnectResult | null> {
-  const session = await readSession();
-  if (!session?.cdpEndpoint) return null;
+async function attachOnce(session: DebugSession, stUrl: string): Promise<ConnectResult> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const browser = await Promise.race([
+    chromium.connectOverCDP(session.cdpEndpoint),
+    new Promise<never>((_, reject) => { timer = setTimeout(() => reject(new Error('CDP attach timed out.')), DEFAULT_TIMEOUT_MS); }),
+  ]).finally(() => clearTimeout(timer));
   try {
-    const browser = await Promise.race([
-      chromium.connectOverCDP(session.cdpEndpoint),
-      new Promise<never>((_, reject) => setTimeout(() => reject(new Error('CDP attach timed out.')), DEFAULT_TIMEOUT_MS)),
-    ]);
     const page = await pickPage(browser, session.stUrl || stUrl);
     return { browser, page, attached: true, session };
-  } catch {
-    await clearSession();
+  } catch (error) {
+    await browser.close().catch(() => undefined);
+    throw error;
+  }
+}
+
+const LANE_ATTACH_TRIES = 3;
+
+async function attachToSession(stUrl: string): Promise<ConnectResult | null> {
+  const session = await readSession();
+  const lane = laneOf(process.env);
+  if (!session?.cdpEndpoint) {
+    if (attachFailurePolicy(process.env, false).fallback === 'refuse') throw new Error(`lane ${lane} has no browser session (${SESSION_PATH}): start it (st-lanes.mts start ${lane}); a lane script never opens a browser of its own, whose page would hold no open chat and no tails`);
     return null;
   }
+  const tries = attachFailurePolicy(process.env, true).fallback === 'refuse' ? LANE_ATTACH_TRIES : 1;
+  let last: unknown = null;
+  for (let attempt = 1; attempt <= tries; attempt += 1) {
+    try {
+      return await attachOnce(session, stUrl);
+    } catch (error) {
+      last = error;
+      if (attempt < tries) await new Promise((done) => setTimeout(done, 5000 * attempt));
+    }
+  }
+  const answers = (await getSessionStatus()).running;
+  const policy = attachFailurePolicy(process.env, answers);
+  if (policy.clear) await clearSession();
+  if (policy.fallback === 'refuse') throw new Error(`lane ${lane}: could not attach to its browser at ${session.cdpEndpoint} in ${tries} tries (${last instanceof Error ? last.message : String(last)}; the endpoint ${answers ? 'answers, so the session file is kept' : 'does not answer'}); refusing to open a separate browser`);
+  return null;
 }
 
 export async function connectToST({

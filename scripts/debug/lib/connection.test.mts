@@ -7,7 +7,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { resolve } from 'node:path';
-import { browserProfileFor, debugDirFor, settleDialogs } from './connection.mts';
+import { attachFailurePolicy, browserProfileFor, debugDirFor, laneOf, preferredPageIndex, settleDialogs } from './connection.mts';
 
 const ROOT = resolve('C:/dev/story-orchestrator');
 const ST = { ST_ROOT: 'C:/dev/SillyTavern-MainBranch' };
@@ -83,4 +83,20 @@ test("control: Playwright's own defaults are kept (beforeunload accepted, anythi
   handlers[0](dialog('beforeunload'));
   handlers[0](dialog('confirm'));
   assert.deepEqual(calls, ['accept:beforeunload', 'dismiss:confirm']);
+});
+
+test('vast b1: a lane page with the session chat wins over a blank tab listed before it', () => {
+  const st = 'http://127.0.0.1:8146/';
+  assert.equal(preferredPageIndex(['about:blank', 'http://127.0.0.1:8146/'], st), 1);
+  assert.equal(preferredPageIndex(['http://127.0.0.1:8000/', 'about:blank'], st), 1);
+  assert.equal(preferredPageIndex(['http://127.0.0.1:8000/'], st), -1);
+});
+
+test('vast b1: a lane script never falls back to its own browser, and a slow attach keeps the session file', () => {
+  assert.equal(laneOf({ SO_LANE: '46' }), 46);
+  assert.equal(laneOf({}), null);
+  assert.deepEqual(attachFailurePolicy({ SO_LANE: '46' }, true), { clear: false, fallback: 'refuse' });
+  assert.deepEqual(attachFailurePolicy({ SO_LANE: '46' }, false), { clear: true, fallback: 'refuse' });
+  assert.deepEqual(attachFailurePolicy({}, true), { clear: false, fallback: 'ephemeral' });
+  assert.deepEqual(attachFailurePolicy({ SO_LANE: '0' }, false), { clear: true, fallback: 'ephemeral' });
 });
