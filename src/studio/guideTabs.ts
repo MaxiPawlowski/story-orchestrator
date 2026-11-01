@@ -10,7 +10,7 @@ export const STUDIO_TAB_GUIDE: Partial<Record<StudioTab, readonly GuideTopicId[]
   chapters: ["chapters", "consequences", "outcome", "carry-from"],
   qualities: ["qualities", "quality-rubric", "latching", "quality-reads", "chance-roll"],
   checkpoints: [
-    "checkpoints", "objective-agency", "open-stretches", "tension", "guidance", "drives-motives", "author-note", "world-info", "preset", "background", "stage-transition", "scenario",
+    "checkpoints", "objective-agency", "open-stretches", "tension", "stuck-leads", "guidance", "drives-motives", "author-note", "world-info", "preset", "background", "stage-transition", "scenario",
     "cast-changes",
     "opening-scene", "npc-replies", "talk-control", "talk-pacing", "convergence", "experimental-effects",
   ],

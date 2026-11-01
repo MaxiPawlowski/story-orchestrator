@@ -54,6 +54,7 @@ export const JUDGE_FIXTURE_REVISION: Partial<Record<JudgeReadinessKey, string>> 
   houseRules: "26340841970d",
   loreSelect: "9711db218ed5",
   wardenLore: "f7e3fb753e56",
+  directorCritic: "6cd4b56f8bb1",
 };
 
 export const MEASURED_FIXTURE_REVISION: Partial<Record<JudgeReadinessKey, string>> = {
@@ -80,6 +81,7 @@ export const MEASURED_FIXTURE_REVISION: Partial<Record<JudgeReadinessKey, string
   houseRules: "26340841970d",
   loreSelect: "9711db218ed5",
   wardenLore: "f7e3fb753e56",
+  directorCritic: "6cd4b56f8bb1",
 };
 
 /** The `use` string each call-ring row carries, mapped to the readiness rows it measures. */
@@ -98,6 +100,7 @@ export const RING_USE_TO_READINESS: Record<string, JudgeReadinessKey[]> = {
   warden: ["warden"],
   wardenLore: ["wardenLore"],
   divergence: ["divergence"],
+  directorCritic: ["directorCritic"],
 };
 
 export type ReadinessFacts = Partial<Record<JudgeReadinessKey, JudgeReadinessFact>>;

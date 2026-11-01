@@ -80,3 +80,15 @@ export const ProgressEffect: Story = {
     await expect(useDraftStore.getState().draft.transitions[0].effects?.progress?.anchor).toBe("cache");
   },
 };
+
+export const MarksAnExitUrgent: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const toggle = canvas.getByRole("switch", { name: "Urgent exit" });
+    await expect(toggle).toHaveAttribute("aria-checked", "false");
+    await userEvent.click(toggle);
+    await expect(useDraftStore.getState().draft.transitions[0].urgent).toBe(true);
+    await userEvent.click(toggle);
+    await expect(useDraftStore.getState().draft.transitions[0].urgent).toBeUndefined();
+  },
+};

@@ -2,7 +2,7 @@ import { isValidationErrorList, parseStory, type ApplyQueueEntry, type EngineSta
 import { focusCandidates } from "@pacing/focus";
 import { directorDisclosure } from "@generation/living/disclosure";
 import type { ModelCall, SchedulerJob } from "@extraction/index";
-import type { BranchOutcome, DirectorOutcome } from "@generation/living/direct";
+import type { BranchOutcome, DirectorJudge, DirectorOutcome } from "@generation/living/direct";
 import { refusalLine, refusalOf } from "@generation/living/refusal";
 import {
   branchTarget, divergenceSkip, followsPlayer, hasLiveBranch, latestPlayerTurn, markBranched, nextBranchId, stepDivergence, unmarkBranched,
@@ -63,6 +63,7 @@ export interface LivingCoordinatorDeps {
   sceneIds?: () => SceneIds | null;
   enabledIds?: () => string[];
   sceneDrawn?: (record: SceneTestRecord) => void;
+  director?: () => { leads: boolean; judgeCritic?: DirectorJudge };
 }
 
 export type LivingDecision = "accepted" | "rejected";
@@ -222,7 +223,7 @@ export class LivingCoordinator {
     try {
       const unit = await loadUnit();
       const outcome = await unit.directNext({
-        story, raw: loaded.raw, frontierId, state, sealsOn: this.deps.sealsOn(), inputs, model: this.deps.model, sceneTest,
+        story, raw: loaded.raw, frontierId, state, sealsOn: this.deps.sealsOn(), inputs, model: this.deps.model, sceneTest, ...this.deps.director?.(),
         signal: run.signal, debugResponse: debugResponse ?? this.deps.model.planted?.("living") ?? null,
       });
       return await this.record(outcome, base, run);
@@ -312,7 +313,7 @@ export class LivingCoordinator {
       const outcome = await unit.branchNext({
         story, raw: loaded.raw, sourceId, targetId, branchId: nextBranchId(story), state, why, ...(prepared ? { prepared: true } : {}),
         recent: await this.deps.recentTurns(), inputs: this.disclosed(story, state).inputs,
-        model: this.deps.model, signal: run.signal, debugResponse: debugResponse ?? this.deps.model.planted?.("living") ?? null,
+        model: this.deps.model, signal: run.signal, debugResponse: debugResponse ?? this.deps.model.planted?.("living") ?? null, judgeCritic: this.deps.director?.().judgeCritic,
       });
       return await this.record(outcome, base, run);
     } finally {

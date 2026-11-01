@@ -75,4 +75,23 @@ export const MECHANICS_FEATURES: readonly Feature[] = [
     where: settingsAt("#so-authoring-path-arc", "Authoring › Prompt trials"),
     settings: ["pacing.pathArc"], guideTopic: "tension", doc: authorGuideDoc("tension"), status: "shipped", needs: ["story"],
   },
+  {
+    id: "stuck-ladder", name: "Help a stuck player with leads", area: "authoring", audience: "author",
+    oneLine: "A gated scene that has stopped moving gets its authored leads one at a time, as world pressure.",
+    what: "When no quality an exit of the current scene reads has changed for the scene's stuck_after player turns (6 by default), the narrator's private "
+      + "direction carries the scene's first lead as something the world may make available; every three more quiet turns, the next lead; past the last one, "
+      + "a general nudge toward the objective. Any change to a watched quality starts the count again. It never moves the story on and makes no model call. "
+      + "Not rated yet.",
+    where: settingsAt("#so-authoring-stuck-ladder", "Authoring › Prompt trials"),
+    settings: ["pacing.stuckLadder"], guideTopic: "stuck-leads", doc: authorGuideDoc("stuck-leads"), status: "shipped", needs: ["story"],
+  },
+  {
+    id: "living-leads", name: "Several ways into a written turning point", area: "authoring", audience: "author",
+    oneLine: "Each turning point the living director writes can be reached two or three different ways.",
+    what: "The living director answers the way into its next turning point as two or three leads that differ in kind (a place, a person, an object or a choice); "
+      + "any one of them, or the usual few turns of pace, heads the story there. Still one move per reply, and every lead is checked: none may already be true, "
+      + "each must be reachable, and at most two new story values count across all of them. No extra model call. Not rated yet.",
+    where: settingsAt("#so-authoring-living-leads", "Authoring › Prompt trials"),
+    settings: ["stagecraft.livingLeads"], guideTopic: "living-director", doc: authorGuideDoc("living-director"), status: "experimental", needs: ["story", "group-chat", "memory-profile"],
+  },
 ];

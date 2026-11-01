@@ -37,7 +37,15 @@ export interface DirectorInput {
   ending: { finalAllowed: boolean; finalRequired: boolean };
   retry?: string[];
   sceneTest?: SceneSignal;
+  leads?: boolean;
 }
+
+const OPENS_ONE = `- "opens_when" says what must happen in play before the story heads there. It must NOT already be true now, and play must be able to make it true.`;
+const OPENS_LEADS = `- "opens_when" is a list of 2 or 3 leads: different observable steps, any one of which heads the story there `
+  + `(they differ in kind: a place, a person, an object or a choice). None may already be true now, and play must be able to make each one true.`;
+const OPENS_SHAPE = (leads: boolean) => (leads
+  ? `"opens_when":[{"reuse":{"q":"...","op":"==","v":true}},{"new":{"key":"...","rubric":"..."}}]`
+  : `"opens_when":{"new":{"key":"...","rubric":"..."}}`);
 
 const PATH_SHOWN = 8;
 export const DIRECTOR_STANDING_TITLE = "How groups regard the player (world pressure may follow from this)";
@@ -88,17 +96,19 @@ export function renderDirectorPrompt(input: DirectorInput): string {
     `- The name is a short scene heading of two to six words (at most ${LIVING_MAX_NAME_CHARS} characters) that names a place or situation, never an outcome.`,
     `- The objective is one or two sentences (at most ${LIVING_MAX_OBJECTIVE_CHARS} characters).`,
     LENGTH_LIMITS,
-    `- "opens_when" says what must happen in play before the story heads there. It must NOT already be true now, and play must be able to make it true.`,
+    input.leads ? OPENS_LEADS : OPENS_ONE,
     `  It belongs to the current turning point: a step the player is likely to take within a few turns while pursuing it, with what that scene already holds. `
       + `Never a detail that only the new turning point introduces, and never one exact action when several would do.`,
-    `  Either reuse a story value: {"reuse":{"q":"<key>","op":"==|!=|>=|<=|>|<|in","v":<literal>}} (only keys listed above with a reader that is not locked against it),`,
+    `  ${input.leads ? "Each lead either reuses" : "Either reuse"} a story value: {"reuse":{"q":"<key>","op":"==|!=|>=|<=|>|<|in","v":<literal>}} `
+      + `(only keys listed above with a reader that is not locked against it),`,
     `  or declare one new yes/no value: {"new":{"key":"short_snake_key","rubric":"Did <something observable> happen?"}}.`,
-    `- Declare at most ${LIVING_MAX_NEW_QUALITIES} new values in total, counting "opens_when". "snapshot" may set values the new turning point assumes on arrival.`,
+    `- Declare at most ${LIVING_MAX_NEW_QUALITIES} new values in total, counting ${input.leads ? "every lead in " : ""}"opens_when". `
+      + `"snapshot" may set values the new turning point assumes on arrival.`,
     `- Never put anything private (a character's hidden plan or secret) in the name, the objective or a rubric.`,
     `Agency policy:\n${renderAgencyPolicy(DEFAULT_AGENCY)}`,
     ...(input.retry?.length ? [`Your previous answer was refused: ${input.retry.join("; ")}. Fix exactly that.`] : []),
     `Return exact JSON only:`,
-    `{"name":"...","objective":"...","tension":"calm|stirring|tense|critical|peak","snapshot":{},"opens_when":{"new":{"key":"...","rubric":"..."}},`
+    `{"name":"...","objective":"...","tension":"calm|stirring|tense|critical|peak","snapshot":{},${OPENS_SHAPE(input.leads === true)},`
       + `"new_qualities":[],"builds_on":"<the thread you build on, or null>","new_chapter":false,"chapter_title":null,"final":false,"reason":"<one sentence, for the author>"}`,
   ].join("\n");
 }

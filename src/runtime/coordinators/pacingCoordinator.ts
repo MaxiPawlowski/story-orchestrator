@@ -5,7 +5,8 @@ import {
 } from "@engine/index";
 import type { ParsedDelta } from "@extraction/index";
 import {
-  OPENING_LINE, asksPlayerDirection, composeGuidanceBlock, encounterOfferLine, leadLengthLine, getSteeringHint, pullLine, quietRead, tensionEvidenceFresh, updateEma, type EncounterOffer,
+  OPENING_LINE, asksPlayerDirection, composeGuidanceBlock, encounterOfferLine, leadLengthLine, getSteeringHint, pullLine, quietRead, stuckLine, stuckRead, tensionEvidenceFresh, updateEma,
+  type EncounterOffer,
 } from "@pacing/index";
 import { relaxActive } from "@pacing/arc";
 import { PACING_HINT_DEPTH, PACING_HINT_EXTENSION_KEY } from "@constants/defaults";
@@ -38,6 +39,8 @@ export interface PacingCoordinatorDeps {
   onHoldChange?: () => void;
   leadLength?: () => { rosterId: string; name: string; words: number } | null;
   pathArc?: () => boolean;
+  stuckLadder?: () => boolean;
+  leadSafe?: (text: string) => boolean;
 }
 
 // Tension is written twice: optimistically while extractor deltas are queued (so the smoothed
@@ -166,10 +169,17 @@ export class PacingCoordinator {
   private stretchLine(story: NormalizedStory, active: Checkpoint | null, rows: readonly unknown[], turns: number): string | null {
     const stretch = openStretch(active);
     if (!active) return null;
-    if (!stretch) return openPhase(active, turns) ? OPENING_LINE : null;
+    if (!stretch) return openPhase(active, turns) ? OPENING_LINE : this.stuckLine(story, active, rows);
     const quiet = offersEncounters(active) ? quietRead({ story, state: this.deps.getState(), log: this.deps.getStateLog(), playerTurnIds: playerTurnIds(rows) }) : null;
     const offer = quiet?.holds ? encounterOfferLine(this.deps.getEncounters?.(active.id) ?? []) : "";
     return [pullLine(pullStage(stretch, turns), stretchDestination(story, active.id)), offer].filter(Boolean).join("\n");
+  }
+
+  private stuckLine(story: NormalizedStory, active: Checkpoint, rows: readonly unknown[]): string | null {
+    if (!this.deps.stuckLadder?.()) return null;
+    const read = stuckRead({ story, state: this.deps.getState(), log: this.deps.getStateLog(), playerTurnIds: playerTurnIds(rows) });
+    const safe = this.deps.leadSafe ?? (() => true);
+    return read ? stuckLine(read.rung, (active.leads ?? []).filter(safe)) : null;
   }
 
   private memberLine(story: NormalizedStory, active: Checkpoint | null) {

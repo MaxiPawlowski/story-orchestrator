@@ -66,6 +66,7 @@ export type DirectorOpening =
 export interface DirectorDraft {
   anchor: DirectorAnchorDraft;
   opensWhen: DirectorOpening;
+  alsoOpensWhen?: DirectorOpening[];
   newQualities: Array<{ key: string; type: "bool" | "int"; rubric: string }>;
   buildsOn: string | null;
   newChapter: boolean;

@@ -63,7 +63,7 @@ export const sanitizeInlineSettings = (value: unknown): InlineSettings => {
 export interface GlobalSettings {
   featureSwitches?: Partial<Record<"agency" | "meanwhile" | "thinking", boolean>>;
   extraction: ExtractionRuntimeSettings;
-  pacing: { hintEnabled: boolean; pathArc: boolean };
+  pacing: { hintEnabled: boolean; pathArc: boolean; stuckLadder: boolean };
   display: {
     announceTransitions: boolean; hudEnabled: boolean; yourMove: boolean; briefing: boolean; briefingDraft: boolean; playerSetup: boolean; inline: InlineSettings; presence: PresenceSettings;
   };
@@ -266,12 +266,12 @@ export const defaultMemorySettings = (): MemoryRuntimeSettings => ({
 
 export const defaultStagecraftSettings = (): StagecraftSettings => ({
   curatorEnabled: true, acceptMode: "review", wardenEnabled: true, wardenAcceptMode: "review", agencyAcceptMode: "auto",
-  meanwhileAcceptMode: DEFAULT_MEANWHILE_ACCEPT_MODE, livingEnabled: true, branchingEnabled: true, prefetchEnabled: true, createEnabled: true, createRequireMeasured: false,
+  meanwhileAcceptMode: DEFAULT_MEANWHILE_ACCEPT_MODE, livingEnabled: true, branchingEnabled: true, prefetchEnabled: true, livingLeads: true, createEnabled: true, createRequireMeasured: false,
 });
 
 export const defaultGlobalSettings = (): GlobalSettings => ({
   extraction: defaultExtractionSettings(),
-  pacing: { hintEnabled: true, pathArc: true },
+  pacing: { hintEnabled: true, pathArc: true, stuckLadder: true },
   display: {
     announceTransitions: false, hudEnabled: true, yourMove: true, briefing: true, briefingDraft: true, playerSetup: true, inline: defaultInlineSettings(), presence: defaultPresenceSettings(),
   },
@@ -325,7 +325,7 @@ const sanitizeTalkSettings = (value: unknown): GlobalSettings["talk"] => {
     skipAhead: source.skipAhead === true, crossVoiceTrim: source.crossVoiceTrim !== false, dryNames: source.dryNames !== false };
 };
 
-const LIVING_FLAGS = ["livingEnabled", "branchingEnabled", "prefetchEnabled"] as const;
+const LIVING_FLAGS = ["livingEnabled", "branchingEnabled", "prefetchEnabled", "livingLeads"] as const;
 
 const livingFlags = (value: unknown): Record<(typeof LIVING_FLAGS)[number], boolean> => {
   const stored = isRecord(value) ? value : {};
@@ -365,7 +365,7 @@ export const sanitizeGlobalSettings = (value: unknown): GlobalSettings => {
       ...(isReplyEffort(replyEffort) ? { replyEffort } : {}),
       ...sanitizeReadPrompt({ readLayout, promiseAddressee }),
     },
-    pacing: { hintEnabled: pacing.hintEnabled !== false, pathArc: pacing.pathArc !== false },
+    pacing: { hintEnabled: pacing.hintEnabled !== false, pathArc: pacing.pathArc !== false, stuckLadder: pacing.stuckLadder !== false },
     display: {
       announceTransitions: display.announceTransitions === true, hudEnabled: display.hudEnabled !== false, yourMove: display.yourMove !== false, briefing: display.briefing !== false,
       briefingDraft: display.briefingDraft !== false, playerSetup: display.playerSetup !== false,

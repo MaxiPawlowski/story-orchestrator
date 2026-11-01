@@ -1,4 +1,4 @@
-export const CALIBRATION_USES = ['director', 'memory-verify', 'memory-pairs', 'scene', 'lore', 'curator-filter', 'continuity', 'backgrounds', 'typed', 'stall', 'critic', 'variants', 'agency', 'house-rules'] as const;
+export const CALIBRATION_USES = ['director', 'memory-verify', 'memory-pairs', 'scene', 'lore', 'curator-filter', 'continuity', 'backgrounds', 'typed', 'stall', 'critic', 'variants', 'agency', 'house-rules', 'director-critic'] as const;
 export type CalibrationUse = (typeof CALIBRATION_USES)[number];
 
 export const FAMILY_USES: readonly CalibrationUse[] = ['scene', 'lore', 'curator-filter', 'continuity', 'backgrounds', 'typed', 'stall', 'critic', 'variants', 'agency', 'house-rules'];
@@ -27,5 +27,6 @@ export async function runUse(judge: any, use: CalibrationUse, ask: any, fixture:
     case 'stall': return judge.runStallCalibration(ask, fixture.rows);
     case 'critic': return judge.runCriticCalibration(ask, fixture.rows);
     case 'variants': return judge.runVariantCalibration(ask, fixture.rows);
+    case 'director-critic': return judge.runDirectorCriticCalibration(ask, fixture.rows);
   }
 }

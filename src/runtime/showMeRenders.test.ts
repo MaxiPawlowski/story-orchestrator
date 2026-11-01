@@ -78,6 +78,8 @@ const ARMS: Record<string, { renders: ShowMeContext; hidden: ShowMeContext }> = 
   "#so-retrieval-query": { renders: context(null, { authorView: true }), hidden: context(null) },
   "#so-recap-outside-window": { renders: context(null, { authorView: true }), hidden: context(null) },
   "#so-authoring-path-arc": { renders: context(null, { authorView: true }), hidden: context(null) },
+  "#so-authoring-stuck-ladder": { renders: context(null, { authorView: true }), hidden: context(null) },
+  "#so-authoring-living-leads": { renders: context(null, { authorView: true }), hidden: context(null) },
   "#so-swipe-contrast": { renders: context(null, { authorView: true }), hidden: context(null) },
   "#so-gpu-broker": { renders: context(null, { host: host({ gpuBroker: true }) }), hidden: context(null, { host: host({ gpuBroker: null }) }) },
   "#so-judge-local-systemone-local": { renders: context(null, { settings: settingsWith(localJudge) }), hidden: context(null) },

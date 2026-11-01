@@ -1,0 +1,1112 @@
+{
+  "revision": 1,
+  "source": "v3.0 43 P2: the 20 recorded living-director answers (DeepSeek flash, 2026-10-10; every objective acts through the cast or the world, so labelled acceptable) plus authored English synthetic drafts. No campaign text. Labels fixed before any judge call.",
+  "floors": {
+    "playerActRecall": 0.9,
+    "falseRefusalMax": 0.15
+  },
+  "rows": [
+    {
+      "id": "R-run1-hybrid-08",
+      "source": "test/goldens/live/living-director/run1/hybrid-08.json",
+      "input": {
+        "player": "Max",
+        "cast": [
+          "Hask",
+          "Narrator"
+        ],
+        "frontier": "\"The Ford\" — The river is low enough to cross at the ford.",
+        "facts": [],
+        "threads": [],
+        "name": "Hask at the Ford",
+        "objective": "Hask arrives at the ford with his cart and sees the crossing is passable; he tests the riverbed with his pole and asks what brought anyone out this way."
+      },
+      "labels": {
+        "playerAct": false,
+        "accept": true
+      }
+    },
+    {
+      "id": "R-run1-hybrid-10",
+      "source": "test/goldens/live/living-director/run1/hybrid-10.json",
+      "input": {
+        "player": "Max",
+        "cast": [
+          "Hask",
+          "Narrator"
+        ],
+        "frontier": "\"Hask at the Ford\" — Hask arrives at the ford with his cart and sees the crossing is passable; he tests the riverbed with his pole and asks what brought anyone out this way.",
+        "facts": [],
+        "threads": [],
+        "name": "The Ford Awash",
+        "objective": "The river is rising behind Hask without warning, and the ford he just tested is already changing—the crossing he found passable may not stay that way, and he must decide whether to press the cart across now or pull back."
+      },
+      "labels": {
+        "playerAct": false,
+        "accept": true
+      }
+    },
+    {
+      "id": "R-run1-hybrid-12",
+      "source": "test/goldens/live/living-director/run1/hybrid-12.json",
+      "input": {
+        "player": "Max",
+        "cast": [
+          "Hask",
+          "Narrator"
+        ],
+        "frontier": "\"Hask at the Ford\" — Hask arrives at the ford with his cart and sees the crossing is passable; he tests the riverbed with his pole and asks what brought anyone out this way.",
+        "facts": [],
+        "threads": [],
+        "name": "The Ford's Far Bank",
+        "objective": "The river runs low and clear over gravel, but a fresh scar of torn bank shows where the flood cut the far approach; Hask's cart stands at the water's edge, and the miller waits with his pole planted, watching the road behind."
+      },
+      "labels": {
+        "playerAct": false,
+        "accept": true
+      }
+    },
+    {
+      "id": "R-run1-premise-00",
+      "source": "test/goldens/live/living-director/run1/premise-00.json",
+      "input": {
+        "player": "Max",
+        "cast": [
+          "Maren",
+          "Tobin",
+          "Ysolde",
+          "Narrator"
+        ],
+        "frontier": "The opening: On a small fishing coast the harbour lanterns go out one by one each night, and nobody will say why. The harbourmaster, the innkeeper and a lighthouse keeper each know part of it.",
+        "facts": [],
+        "threads": [],
+        "name": "The Second Lantern Fails",
+        "objective": "Just after full dark, the second harbour lantern gutters and dies on its post, and a knot of fishermen on the quay stop talking the moment they notice who is watching. Maren crosses the boards toward them with a coil of rope and a face that says nothing is wrong."
+      },
+      "labels": {
+        "playerAct": false,
+        "accept": true
+      }
+    },
+    {
+      "id": "R-run1-premise-02",
+      "source": "test/goldens/live/living-director/run1/premise-02.json",
+      "input": {
+        "player": "Max",
+        "cast": [
+          "Maren",
+          "Tobin",
+          "Ysolde",
+          "Narrator"
+        ],
+        "frontier": "\"The Second Lantern Fails\" — Just after full dark, the second harbour lantern gutters and dies on its post, and a knot of fishermen on the quay stop talking the moment they notice who is watching. Maren crosses the boards toward them with a coil of rope and a face that says nothing is wrong.",
+        "facts": [],
+        "threads": [],
+        "name": "Maren Coils the Rope",
+        "objective": "Maren reaches the fishermen and, without lowering her voice, tells them the lamps are being trimmed back for the season and asks the newcomer to help her carry the spare wicks up from the store. The fishermen watch to see whether the newcomer takes the rope end she offers."
+      },
+      "labels": {
+        "playerAct": false,
+        "accept": true
+      }
+    },
+    {
+      "id": "R-run1-premise-04",
+      "source": "test/goldens/live/living-director/run1/premise-04.json",
+      "input": {
+        "player": "Max",
+        "cast": [
+          "Maren",
+          "Tobin",
+          "Ysolde",
+          "Narrator"
+        ],
+        "frontier": "\"Maren Coils the Rope\" — Maren reaches the fishermen and, without lowering her voice, tells them the lamps are being trimmed back for the season and asks the newcomer to help her carry the spare wicks up from the store. The fishermen watch to see whether the newcomer takes the rope end she offers.",
+        "facts": [],
+        "threads": [],
+        "name": "The Wicks in the Store",
+        "objective": "Down in the harbour store, the spare wicks Maren keeps are fewer than they should be, and the crate that held them has been prised open from beneath — salt-wet, splintered, as if something worked at it from the dark side of the wall. Maren sets the lantern down and waits to see what the newcomer makes of it."
+      },
+      "labels": {
+        "playerAct": false,
+        "accept": true
+      }
+    },
+    {
+      "id": "R-run1-premise-06",
+      "source": "test/goldens/live/living-director/run1/premise-06.json",
+      "input": {
+        "player": "Max",
+        "cast": [
+          "Maren",
+          "Tobin",
+          "Ysolde",
+          "Narrator"
+        ],
+        "frontier": "\"Maren Coils the Rope\" — Maren reaches the fishermen and, without lowering her voice, tells them the lamps are being trimmed back for the season and asks the newcomer to help her carry the spare wicks up from the store. The fishermen watch to see whether the newcomer takes the rope end she offers.",
+        "facts": [],
+        "threads": [],
+        "name": "The Harbour Store",
+        "objective": "Maren leads the way down to the harbour store and sets the lantern on the counter beside a crate of spare wicks. The store smells of tar and cold iron, and the crate lid sits slightly askew."
+      },
+      "labels": {
+        "playerAct": false,
+        "accept": true
+      }
+    },
+    {
+      "id": "R-run2-hybrid-15",
+      "source": "test/goldens/live/living-director/run2/hybrid-15.json",
+      "input": {
+        "player": "Max",
+        "cast": [
+          "Hask",
+          "Narrator"
+        ],
+        "frontier": "\"The Ford\" — The river is low enough to cross at the ford.",
+        "facts": [],
+        "threads": [],
+        "name": "The Miller's Toll",
+        "objective": "Hask stands at the ford with his cart and demands payment from anyone crossing, claiming the road and the water are his to charge for now that the bridge is gone."
+      },
+      "labels": {
+        "playerAct": false,
+        "accept": true
+      }
+    },
+    {
+      "id": "R-run2-hybrid-17",
+      "source": "test/goldens/live/living-director/run2/hybrid-17.json",
+      "input": {
+        "player": "Max",
+        "cast": [
+          "Hask",
+          "Narrator"
+        ],
+        "frontier": "\"The Ford\" — The river is low enough to cross at the ford.",
+        "facts": [],
+        "threads": [],
+        "name": "The Far Bank at Dusk",
+        "objective": "Across the low water, a lantern sways on the far bank where the road climbs away from the river; whoever carries it has not yet noticed the crossing is passable."
+      },
+      "labels": {
+        "playerAct": false,
+        "accept": true
+      }
+    },
+    {
+      "id": "R-run2-hybrid-19",
+      "source": "test/goldens/live/living-director/run2/hybrid-19.json",
+      "input": {
+        "player": "Max",
+        "cast": [
+          "Hask",
+          "Narrator"
+        ],
+        "frontier": "\"The Far Bank at Dusk\" — Across the low water, a lantern sways on the far bank where the road climbs away from the river; whoever carries it has not yet noticed the crossing is passable.",
+        "facts": [],
+        "threads": [],
+        "name": "The Lantern Halts",
+        "objective": "The lantern on the far bank stops moving, then swings low and still — the bearer has heard something across the water and now turns the light toward the crossing."
+      },
+      "labels": {
+        "playerAct": false,
+        "accept": true
+      }
+    },
+    {
+      "id": "R-run2-hybrid-21",
+      "source": "test/goldens/live/living-director/run2/hybrid-21.json",
+      "input": {
+        "player": "Max",
+        "cast": [
+          "Hask",
+          "Narrator"
+        ],
+        "frontier": "\"The Far Bank at Dusk\" — Across the low water, a lantern sways on the far bank where the road climbs away from the river; whoever carries it has not yet noticed the crossing is passable.",
+        "facts": [],
+        "threads": [],
+        "name": "Lantern on the Far Bank",
+        "objective": "Across the low water, a lantern sways on the far bank where the road climbs away from the river; whoever carries it has not yet noticed the crossing is passable."
+      },
+      "labels": {
+        "playerAct": false,
+        "accept": true
+      }
+    },
+    {
+      "id": "R-run2-hybrid-23",
+      "source": "test/goldens/live/living-director/run2/hybrid-23.json",
+      "input": {
+        "player": "Max",
+        "cast": [
+          "Hask",
+          "Narrator"
+        ],
+        "frontier": "\"Lantern on the Far Bank\" — Across the low water, a lantern sways on the far bank where the road climbs away from the river; whoever carries it has not yet noticed the crossing is passable.",
+        "facts": [],
+        "threads": [],
+        "name": "The Lantern Turns",
+        "objective": "The lantern on the far bank swings around and starts back down the slope toward the water, its bearer drawn by some sound or sign at the crossing—moving with purpose now, not wandering."
+      },
+      "labels": {
+        "playerAct": false,
+        "accept": true
+      }
+    },
+    {
+      "id": "R-run2-premise-00",
+      "source": "test/goldens/live/living-director/run2/premise-00.json",
+      "input": {
+        "player": "Max",
+        "cast": [
+          "Maren",
+          "Tobin",
+          "Ysolde",
+          "Narrator"
+        ],
+        "frontier": "The opening: On a small fishing coast the harbour lanterns go out one by one each night, and nobody will say why. The harbourmaster, the innkeeper and a lighthouse keeper each know part of it.",
+        "facts": [],
+        "threads": [],
+        "name": "The Lamp Room, After Dark",
+        "objective": "The lighthouse lamp goes dark for the first time since the newcomer arrived, and Ysolde is seen walking down the harbour road toward the inn with a covered hand-lantern, asking quietly whether anyone has a room for the night."
+      },
+      "labels": {
+        "playerAct": false,
+        "accept": true
+      }
+    },
+    {
+      "id": "R-run2-premise-02",
+      "source": "test/goldens/live/living-director/run2/premise-02.json",
+      "input": {
+        "player": "Max",
+        "cast": [
+          "Maren",
+          "Tobin",
+          "Ysolde",
+          "Narrator"
+        ],
+        "frontier": "\"The Lamp Room, After Dark\" — The lighthouse lamp goes dark for the first time since the newcomer arrived, and Ysolde is seen walking down the harbour road toward the inn with a covered hand-lantern, asking quietly whether anyone has a room for the night.",
+        "facts": [],
+        "threads": [],
+        "name": "A Room Above the Harbour",
+        "objective": "Ysolde takes the room beside the newcomer's, sets her covered lantern in the window, and tells Tobin—loud enough for the common room—that the light will not be lit again tonight, and perhaps not tomorrow."
+      },
+      "labels": {
+        "playerAct": false,
+        "accept": true
+      }
+    },
+    {
+      "id": "R-run2-premise-04",
+      "source": "test/goldens/live/living-director/run2/premise-04.json",
+      "input": {
+        "player": "Max",
+        "cast": [
+          "Maren",
+          "Tobin",
+          "Ysolde",
+          "Narrator"
+        ],
+        "frontier": "\"A Room Above the Harbour\" — Ysolde takes the room beside the newcomer's, sets her covered lantern in the window, and tells Tobin—loud enough for the common room—that the light will not be lit again tonight, and perhaps not tomorrow.",
+        "facts": [],
+        "threads": [],
+        "name": "The Common Room After Ysolde",
+        "objective": "Tobin closes the inn's shutters early and sets a chair against the door, telling the room that no boat goes out tonight and no lamp goes lit — and that Maren has already walked down to the harbour to count what's dark."
+      },
+      "labels": {
+        "playerAct": false,
+        "accept": true
+      }
+    },
+    {
+      "id": "R-run2-premise-06",
+      "source": "test/goldens/live/living-director/run2/premise-06.json",
+      "input": {
+        "player": "Max",
+        "cast": [
+          "Maren",
+          "Tobin",
+          "Ysolde",
+          "Narrator"
+        ],
+        "frontier": "\"The Common Room After Ysolde\" — Tobin closes the inn's shutters early and sets a chair against the door, telling the room that no boat goes out tonight and no lamp goes lit — and that Maren has already walked down to the harbour to count what's dark.",
+        "facts": [],
+        "threads": [],
+        "name": "The Harbour, After Shutters",
+        "objective": "Maren moves lantern to lantern along the quay, tallying which are dark, and does not look up at the inn's shuttered windows. The count is wrong — one lantern burns that should not."
+      },
+      "labels": {
+        "playerAct": false,
+        "accept": true
+      }
+    },
+    {
+      "id": "R-run2-premise-08",
+      "source": "test/goldens/live/living-director/run2/premise-08.json",
+      "input": {
+        "player": "Max",
+        "cast": [
+          "Maren",
+          "Tobin",
+          "Ysolde",
+          "Narrator"
+        ],
+        "frontier": "\"The Harbour, After Shutters\" — Maren moves lantern to lantern along the quay, tallying which are dark, and does not look up at the inn's shuttered windows. The count is wrong — one lantern burns that should not.",
+        "facts": [],
+        "threads": [],
+        "name": "The Lantern That Should Not Burn",
+        "objective": "Maren stops at the one lantern still lit, the one that has no wick left to give, and stands before it as though waiting for it to speak. She does not touch it, and she does not look toward the inn."
+      },
+      "labels": {
+        "playerAct": false,
+        "accept": true
+      }
+    },
+    {
+      "id": "R-run2-premise-09",
+      "source": "test/goldens/live/living-director/run2/premise-09.json",
+      "input": {
+        "player": "Max",
+        "cast": [
+          "Maren",
+          "Tobin",
+          "Ysolde",
+          "Narrator"
+        ],
+        "frontier": "\"The Harbour, After Shutters\" — Maren moves lantern to lantern along the quay, tallying which are dark, and does not look up at the inn's shuttered windows. The count is wrong — one lantern burns that should not.",
+        "facts": [],
+        "threads": [],
+        "name": "The Lantern That Burns",
+        "objective": "Maren finishes her tally and stands still before the one lantern still burning — a lamp she did not light, on a post that was dark an hour ago. She does not touch it. She waits, as if expecting someone to come and claim it."
+      },
+      "labels": {
+        "playerAct": false,
+        "accept": true
+      }
+    },
+    {
+      "id": "R-run2-premise-11",
+      "source": "test/goldens/live/living-director/run2/premise-11.json",
+      "input": {
+        "player": "Max",
+        "cast": [
+          "Maren",
+          "Tobin",
+          "Ysolde",
+          "Narrator"
+        ],
+        "frontier": "\"The Lantern That Burns\" — Maren finishes her tally and stands still before the one lantern still burning — a lamp she did not light, on a post that was dark an hour ago. She does not touch it. She waits, as if expecting someone to come and claim it.",
+        "facts": [],
+        "threads": [],
+        "name": "The Unclaimed Lamp",
+        "objective": "Maren stays by the burning lamp, waiting for whoever lit it to come forward. The harbour around them is dark except for this one flame, and the tide has begun to turn."
+      },
+      "labels": {
+        "playerAct": false,
+        "accept": true
+      }
+    },
+    {
+      "id": "R-run2-premise-13",
+      "source": "test/goldens/live/living-director/run2/premise-13.json",
+      "input": {
+        "player": "Max",
+        "cast": [
+          "Maren",
+          "Tobin",
+          "Ysolde",
+          "Narrator"
+        ],
+        "frontier": "\"The Unclaimed Lamp\" — Maren stays by the burning lamp, waiting for whoever lit it to come forward. The harbour around them is dark except for this one flame, and the tide has begun to turn.",
+        "facts": [],
+        "threads": [],
+        "name": "The Lamp That Burns",
+        "objective": "Maren stays by the burning lamp, waiting for whoever lit it to come forward. The harbour around them is dark except for this one flame, and the tide has begun to turn."
+      },
+      "labels": {
+        "playerAct": false,
+        "accept": true
+      }
+    },
+    {
+      "id": "P01",
+      "source": "synthetic, authored 2026-10-31, labels fixed before any judge call",
+      "input": {
+        "player": "Max",
+        "cast": [
+          "Maren",
+          "Tobin",
+          "Ysolde",
+          "Narrator"
+        ],
+        "frontier": "\"The Harbour, After Shutters\" — Maren moves lantern to lantern along the quay, tallying which are dark; one lantern burns that should not.",
+        "threads": [
+          "who keeps putting the harbour lanterns out"
+        ],
+        "facts": [],
+        "name": "The Newcomer Takes the Rope",
+        "objective": "Max takes the rope end from Maren and follows her down to the store, agreeing to help with the wicks."
+      },
+      "labels": {
+        "playerAct": true,
+        "accept": false
+      }
+    },
+    {
+      "id": "P02",
+      "source": "synthetic, authored 2026-10-31, labels fixed before any judge call",
+      "input": {
+        "player": "Max",
+        "cast": [
+          "Maren",
+          "Tobin",
+          "Ysolde",
+          "Narrator"
+        ],
+        "frontier": "\"The Harbour, After Shutters\" — Maren moves lantern to lantern along the quay, tallying which are dark; one lantern burns that should not.",
+        "threads": [
+          "who keeps putting the harbour lanterns out"
+        ],
+        "facts": [],
+        "name": "A Confidence at the Inn",
+        "objective": "Max decides to trust Ysolde and tells her about the dark lamp on the quay."
+      },
+      "labels": {
+        "playerAct": true,
+        "accept": false
+      }
+    },
+    {
+      "id": "P03",
+      "source": "synthetic, authored 2026-10-31, labels fixed before any judge call",
+      "input": {
+        "player": "Max",
+        "cast": [
+          "Hask",
+          "Narrator"
+        ],
+        "frontier": "\"The Ford\" — The bridge is gone; the miller Hask has found a shallow crossing downstream and stands at it with his cart.",
+        "threads": [
+          "how to cross the river now the bridge is gone"
+        ],
+        "facts": [],
+        "name": "Across the Ford",
+        "objective": "Max pays Hask's toll and crosses the ford beside the cart."
+      },
+      "labels": {
+        "playerAct": true,
+        "accept": false
+      }
+    },
+    {
+      "id": "P04",
+      "source": "synthetic, authored 2026-10-31, labels fixed before any judge call",
+      "input": {
+        "player": "Max",
+        "cast": [
+          "Hask",
+          "Narrator"
+        ],
+        "frontier": "\"The Ford\" — The bridge is gone; the miller Hask has found a shallow crossing downstream and stands at it with his cart.",
+        "threads": [
+          "how to cross the river now the bridge is gone"
+        ],
+        "facts": [],
+        "name": "The Road Back",
+        "objective": "Max refuses Hask's offer and turns back toward the village."
+      },
+      "labels": {
+        "playerAct": true,
+        "accept": false
+      }
+    },
+    {
+      "id": "P05",
+      "source": "synthetic, authored 2026-10-31, labels fixed before any judge call",
+      "input": {
+        "player": "Max",
+        "cast": [
+          "Maren",
+          "Tobin",
+          "Ysolde",
+          "Narrator"
+        ],
+        "frontier": "\"The Harbour, After Shutters\" — Maren moves lantern to lantern along the quay, tallying which are dark; one lantern burns that should not.",
+        "threads": [
+          "who keeps putting the harbour lanterns out"
+        ],
+        "facts": [],
+        "name": "The Lamp Room",
+        "objective": "Feeling uneasy, Max climbs to the lamp room alone to see why the light failed."
+      },
+      "labels": {
+        "playerAct": true,
+        "accept": false
+      }
+    },
+    {
+      "id": "P06",
+      "source": "synthetic, authored 2026-10-31, labels fixed before any judge call",
+      "input": {
+        "player": "Max",
+        "cast": [
+          "Selim",
+          "Hadra",
+          "Narrator"
+        ],
+        "frontier": "\"The Pass\" — The caravan reaches the foot of the mountain pass as the wind picks up and the water runs low.",
+        "threads": [
+          "whether the caravan can reach the oasis before the water runs out"
+        ],
+        "facts": [],
+        "name": "Into the Dunes",
+        "objective": "Max agrees to guide the caravan through the pass and leads the camels into the dunes."
+      },
+      "labels": {
+        "playerAct": true,
+        "accept": false
+      }
+    },
+    {
+      "id": "P07",
+      "source": "synthetic, authored 2026-10-31, labels fixed before any judge call",
+      "input": {
+        "player": "Max",
+        "cast": [
+          "Maren",
+          "Tobin",
+          "Ysolde",
+          "Narrator"
+        ],
+        "frontier": "\"The Harbour, After Shutters\" — Maren moves lantern to lantern along the quay, tallying which are dark; one lantern burns that should not.",
+        "threads": [
+          "who keeps putting the harbour lanterns out"
+        ],
+        "facts": [],
+        "name": "The Barred Door",
+        "objective": "Max sides with Tobin and bars the inn door against Ysolde."
+      },
+      "labels": {
+        "playerAct": true,
+        "accept": false
+      }
+    },
+    {
+      "id": "P08",
+      "source": "synthetic, authored 2026-10-31, labels fixed before any judge call",
+      "input": {
+        "player": "Max",
+        "cast": [
+          "Maren",
+          "Tobin",
+          "Ysolde",
+          "Narrator"
+        ],
+        "frontier": "\"The Harbour, After Shutters\" — Maren moves lantern to lantern along the quay, tallying which are dark; one lantern burns that should not.",
+        "threads": [
+          "who keeps putting the harbour lanterns out"
+        ],
+        "facts": [],
+        "name": "Maren's Coat",
+        "objective": "Max searches Maren's coat while she is turned away and finds the missing wicks."
+      },
+      "labels": {
+        "playerAct": true,
+        "accept": false
+      }
+    },
+    {
+      "id": "P09",
+      "source": "synthetic, authored 2026-10-31, labels fixed before any judge call",
+      "input": {
+        "player": "Max",
+        "cast": [
+          "Hask",
+          "Narrator"
+        ],
+        "frontier": "\"The Ford\" — The bridge is gone; the miller Hask has found a shallow crossing downstream and stands at it with his cart.",
+        "threads": [
+          "how to cross the river now the bridge is gone"
+        ],
+        "facts": [],
+        "name": "The Stuck Wheel",
+        "objective": "Max wades into the river to help Hask free the stuck cart wheel."
+      },
+      "labels": {
+        "playerAct": true,
+        "accept": false
+      }
+    },
+    {
+      "id": "P10",
+      "source": "synthetic, authored 2026-10-31, labels fixed before any judge call",
+      "input": {
+        "player": "Max",
+        "cast": [
+          "Maren",
+          "Tobin",
+          "Ysolde",
+          "Narrator"
+        ],
+        "frontier": "\"The Harbour, After Shutters\" — Maren moves lantern to lantern along the quay, tallying which are dark; one lantern burns that should not.",
+        "threads": [
+          "who keeps putting the harbour lanterns out"
+        ],
+        "facts": [],
+        "name": "The Burning Lamp",
+        "objective": "Max feels a surge of fear at the burning lamp and runs back toward the inn."
+      },
+      "labels": {
+        "playerAct": true,
+        "accept": false
+      }
+    },
+    {
+      "id": "P11",
+      "source": "synthetic, authored 2026-10-31, labels fixed before any judge call",
+      "input": {
+        "player": "Max",
+        "cast": [
+          "Selim",
+          "Hadra",
+          "Narrator"
+        ],
+        "frontier": "\"The Pass\" — The caravan reaches the foot of the mountain pass as the wind picks up and the water runs low.",
+        "threads": [
+          "whether the caravan can reach the oasis before the water runs out"
+        ],
+        "facts": [],
+        "name": "The Caravan Master's Coin",
+        "objective": "Max accepts Hadra's coin and swears to keep the route through the pass secret."
+      },
+      "labels": {
+        "playerAct": true,
+        "accept": false
+      }
+    },
+    {
+      "id": "P12",
+      "source": "synthetic, authored 2026-10-31, labels fixed before any judge call",
+      "input": {
+        "player": "Max",
+        "cast": [
+          "Maren",
+          "Tobin",
+          "Ysolde",
+          "Narrator"
+        ],
+        "frontier": "\"The Harbour, After Shutters\" — Maren moves lantern to lantern along the quay, tallying which are dark; one lantern burns that should not.",
+        "threads": [
+          "who keeps putting the harbour lanterns out"
+        ],
+        "facts": [],
+        "name": "A Night Above the Harbour",
+        "objective": "Max asks Tobin for a room and spends the night above the harbour."
+      },
+      "labels": {
+        "playerAct": true,
+        "accept": false
+      }
+    },
+    {
+      "id": "P13",
+      "source": "synthetic, authored 2026-10-31, labels fixed before any judge call",
+      "input": {
+        "player": "Max",
+        "cast": [
+          "Hask",
+          "Narrator"
+        ],
+        "frontier": "\"The Ford\" — The bridge is gone; the miller Hask has found a shallow crossing downstream and stands at it with his cart.",
+        "threads": [
+          "how to cross the river now the bridge is gone"
+        ],
+        "facts": [],
+        "name": "Up the Slope",
+        "objective": "Max follows the lantern bearer up the far slope, determined to learn who it is."
+      },
+      "labels": {
+        "playerAct": true,
+        "accept": false
+      }
+    },
+    {
+      "id": "P14",
+      "source": "synthetic, authored 2026-10-31, labels fixed before any judge call",
+      "input": {
+        "player": "Max",
+        "cast": [
+          "Maren",
+          "Tobin",
+          "Ysolde",
+          "Narrator"
+        ],
+        "frontier": "\"The Harbour, After Shutters\" — Maren moves lantern to lantern along the quay, tallying which are dark; one lantern burns that should not.",
+        "threads": [
+          "who keeps putting the harbour lanterns out"
+        ],
+        "facts": [],
+        "name": "The Common Room",
+        "objective": "Max is sure Ysolde is lying and says so in front of the whole common room."
+      },
+      "labels": {
+        "playerAct": true,
+        "accept": false
+      }
+    },
+    {
+      "id": "A01",
+      "source": "synthetic, authored 2026-10-31, labels fixed before any judge call",
+      "input": {
+        "player": "Max",
+        "cast": [
+          "Maren",
+          "Tobin",
+          "Ysolde",
+          "Narrator"
+        ],
+        "frontier": "\"The Harbour, After Shutters\" — Maren moves lantern to lantern along the quay, tallying which are dark; one lantern burns that should not.",
+        "threads": [
+          "who keeps putting the harbour lanterns out"
+        ],
+        "facts": [],
+        "name": "Tobin's Question",
+        "objective": "Tobin asks Max whether the lamp was lit when the boat came in, and waits for an answer."
+      },
+      "labels": {
+        "playerAct": false,
+        "accept": true
+      }
+    },
+    {
+      "id": "A02",
+      "source": "synthetic, authored 2026-10-31, labels fixed before any judge call",
+      "input": {
+        "player": "Max",
+        "cast": [
+          "Hask",
+          "Narrator"
+        ],
+        "frontier": "\"The Ford\" — The bridge is gone; the miller Hask has found a shallow crossing downstream and stands at it with his cart.",
+        "threads": [
+          "how to cross the river now the bridge is gone"
+        ],
+        "facts": [],
+        "name": "A Seat on the Cart",
+        "objective": "Hask offers Max a seat on the cart for a copper, then shrugs and starts across without waiting."
+      },
+      "labels": {
+        "playerAct": false,
+        "accept": true
+      }
+    },
+    {
+      "id": "A03",
+      "source": "synthetic, authored 2026-10-31, labels fixed before any judge call",
+      "input": {
+        "player": "Max",
+        "cast": [
+          "Selim",
+          "Hadra",
+          "Narrator"
+        ],
+        "frontier": "\"The Pass\" — The caravan reaches the foot of the mountain pass as the wind picks up and the water runs low.",
+        "threads": [
+          "whether the caravan can reach the oasis before the water runs out"
+        ],
+        "facts": [],
+        "name": "The Western Storm",
+        "objective": "A sandstorm rolls in from the west and Hadra orders the camels to kneel; the last water skin has a slow leak."
+      },
+      "labels": {
+        "playerAct": false,
+        "accept": true
+      }
+    },
+    {
+      "id": "A04",
+      "source": "synthetic, authored 2026-10-31, labels fixed before any judge call",
+      "input": {
+        "player": "Max",
+        "cast": [
+          "Maren",
+          "Tobin",
+          "Ysolde",
+          "Narrator"
+        ],
+        "frontier": "\"The Harbour, After Shutters\" — Maren moves lantern to lantern along the quay, tallying which are dark; one lantern burns that should not.",
+        "threads": [
+          "who keeps putting the harbour lanterns out"
+        ],
+        "facts": [],
+        "name": "An Empty Window",
+        "objective": "Ysolde leaves the inn before dawn, and her covered lantern is gone from the window."
+      },
+      "labels": {
+        "playerAct": false,
+        "accept": true
+      }
+    },
+    {
+      "id": "A05",
+      "source": "synthetic, authored 2026-10-31, labels fixed before any judge call",
+      "input": {
+        "player": "Max",
+        "cast": [
+          "Selim",
+          "Hadra",
+          "Narrator"
+        ],
+        "frontier": "\"The Pass\" — The caravan reaches the foot of the mountain pass as the wind picks up and the water runs low.",
+        "threads": [
+          "whether the caravan can reach the oasis before the water runs out"
+        ],
+        "facts": [],
+        "name": "The Unmarked Well",
+        "objective": "Selim points out an old well marked on no map and warns that the last caravan to drink there never arrived."
+      },
+      "labels": {
+        "playerAct": false,
+        "accept": true
+      }
+    },
+    {
+      "id": "A06",
+      "source": "synthetic, authored 2026-10-31, labels fixed before any judge call",
+      "input": {
+        "player": "Max",
+        "cast": [
+          "Hask",
+          "Narrator"
+        ],
+        "frontier": "\"The Ford\" — The bridge is gone; the miller Hask has found a shallow crossing downstream and stands at it with his cart.",
+        "threads": [
+          "how to cross the river now the bridge is gone"
+        ],
+        "facts": [],
+        "name": "Rising Water",
+        "objective": "Rain starts upriver; the water at the ford rises a hand's width while the far-bank lantern stops moving."
+      },
+      "labels": {
+        "playerAct": false,
+        "accept": true
+      }
+    },
+    {
+      "id": "A07",
+      "source": "synthetic, authored 2026-10-31, labels fixed before any judge call",
+      "input": {
+        "player": "Max",
+        "cast": [
+          "Maren",
+          "Tobin",
+          "Ysolde",
+          "Narrator"
+        ],
+        "frontier": "\"The Harbour, After Shutters\" — Maren moves lantern to lantern along the quay, tallying which are dark; one lantern burns that should not.",
+        "threads": [
+          "who keeps putting the harbour lanterns out"
+        ],
+        "facts": [],
+        "name": "The Far End of the Quay",
+        "objective": "Maren holds out a spare lantern and asks for a hand at the far end of the quay, then walks on without waiting for an answer."
+      },
+      "labels": {
+        "playerAct": false,
+        "accept": true
+      }
+    },
+    {
+      "id": "A08",
+      "source": "synthetic, authored 2026-10-31, labels fixed before any judge call",
+      "input": {
+        "player": "Max",
+        "cast": [
+          "Selim",
+          "Hadra",
+          "Narrator"
+        ],
+        "frontier": "\"The Pass\" — The caravan reaches the foot of the mountain pass as the wind picks up and the water runs low.",
+        "threads": [
+          "whether the caravan can reach the oasis before the water runs out"
+        ],
+        "facts": [],
+        "name": "Two Routes",
+        "objective": "Selim and Hadra argue over the high road and the gorge, and both turn to hear what Max will say."
+      },
+      "labels": {
+        "playerAct": false,
+        "accept": true
+      }
+    },
+    {
+      "id": "F01",
+      "source": "synthetic, authored 2026-10-31, labels fixed before any judge call",
+      "input": {
+        "player": "Max",
+        "cast": [
+          "Maren",
+          "Tobin",
+          "Ysolde",
+          "Narrator"
+        ],
+        "frontier": "\"The Harbour, After Shutters\" — Maren moves lantern to lantern along the quay, tallying which are dark; one lantern burns that should not.",
+        "threads": [
+          "who keeps putting the harbour lanterns out"
+        ],
+        "facts": [
+          "Ysolde left the harbour on the morning boat and has not come back."
+        ],
+        "name": "Ysolde at the Hearth",
+        "objective": "Ysolde sits in the common room and lights her covered lantern by the fire."
+      },
+      "labels": {
+        "playerAct": false,
+        "accept": false
+      }
+    },
+    {
+      "id": "F02",
+      "source": "synthetic, authored 2026-10-31, labels fixed before any judge call",
+      "input": {
+        "player": "Max",
+        "cast": [
+          "Hask",
+          "Narrator"
+        ],
+        "frontier": "\"The Ford\" — The bridge is gone; the miller Hask has found a shallow crossing downstream and stands at it with his cart.",
+        "threads": [
+          "how to cross the river now the bridge is gone"
+        ],
+        "facts": [
+          "The bridge over the river washed away in the spring flood."
+        ],
+        "name": "The Stone Bridge",
+        "objective": "Hask drives his cart over the old stone bridge while the river runs beneath."
+      },
+      "labels": {
+        "playerAct": false,
+        "accept": false
+      }
+    },
+    {
+      "id": "F03",
+      "source": "synthetic, authored 2026-10-31, labels fixed before any judge call",
+      "input": {
+        "player": "Max",
+        "cast": [
+          "Maren",
+          "Tobin",
+          "Ysolde",
+          "Narrator"
+        ],
+        "frontier": "\"The Harbour, After Shutters\" — Maren moves lantern to lantern along the quay, tallying which are dark; one lantern burns that should not.",
+        "threads": [
+          "who keeps putting the harbour lanterns out"
+        ],
+        "facts": [],
+        "name": "Maren Unmasked as the Lamp Thief",
+        "objective": "Tobin raises his lantern in the harbour store, and the missing wicks lie in the crate behind Maren."
+      },
+      "labels": {
+        "playerAct": false,
+        "accept": false
+      }
+    },
+    {
+      "id": "F04",
+      "source": "synthetic, authored 2026-10-31, labels fixed before any judge call",
+      "input": {
+        "player": "Max",
+        "cast": [
+          "Selim",
+          "Hadra",
+          "Narrator"
+        ],
+        "frontier": "\"The Pass\" — The caravan reaches the foot of the mountain pass as the wind picks up and the water runs low.",
+        "threads": [
+          "whether the caravan can reach the oasis before the water runs out"
+        ],
+        "facts": [],
+        "name": "The Caravan Reaches the Oasis Safely",
+        "objective": "The caravan crests the last dune as Selim counts the remaining water."
+      },
+      "labels": {
+        "playerAct": false,
+        "accept": false
+      }
+    },
+    {
+      "id": "F05",
+      "source": "synthetic, authored 2026-10-31, labels fixed before any judge call",
+      "input": {
+        "player": "Max",
+        "cast": [
+          "Hask",
+          "Narrator"
+        ],
+        "frontier": "\"The Ford\" — The bridge is gone; the miller Hask has found a shallow crossing downstream and stands at it with his cart.",
+        "threads": [
+          "how to cross the river now the bridge is gone"
+        ],
+        "facts": [],
+        "name": "The River Watch",
+        "objective": "Captain Orrin of the river watch rides up and orders Hask to stop charging for the crossing."
+      },
+      "labels": {
+        "playerAct": false,
+        "accept": false
+      }
+    },
+    {
+      "id": "F06",
+      "source": "synthetic, authored 2026-10-31, labels fixed before any judge call",
+      "input": {
+        "player": "Max",
+        "cast": [
+          "Maren",
+          "Tobin",
+          "Ysolde",
+          "Narrator"
+        ],
+        "frontier": "\"The Harbour, After Shutters\" — Maren moves lantern to lantern along the quay, tallying which are dark; one lantern burns that should not.",
+        "threads": [
+          "who keeps putting the harbour lanterns out"
+        ],
+        "facts": [],
+        "name": "Corvin's Claim",
+        "objective": "A stranger named Corvin steps off a fishing boat and claims the lighthouse is his."
+      },
+      "labels": {
+        "playerAct": false,
+        "accept": false
+      }
+    },
+    {
+      "id": "F07",
+      "source": "synthetic, authored 2026-10-31, labels fixed before any judge call",
+      "input": {
+        "player": "Max",
+        "cast": [
+          "Maren",
+          "Tobin",
+          "Ysolde",
+          "Narrator"
+        ],
+        "frontier": "\"The Harbour, After Shutters\" — Maren moves lantern to lantern along the quay, tallying which are dark; one lantern burns that should not.",
+        "threads": [
+          "who keeps putting the harbour lanterns out"
+        ],
+        "facts": [],
+        "name": "A Distant Coronation",
+        "objective": "Far to the south, a king's coronation is postponed after a quarrel over the crown."
+      },
+      "labels": {
+        "playerAct": false,
+        "accept": false
+      }
+    }
+  ]
+}

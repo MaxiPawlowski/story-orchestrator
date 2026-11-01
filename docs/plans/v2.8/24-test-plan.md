@@ -478,6 +478,9 @@ real-model carrier, or why none is needed.
 | lore-lexical | D | loreLexical.measure (lore-relevance + lore.json goldens), loreSelectLexical.test (fallback, prefilter, tiebreak) | M42-G5 (judge + GPU, owed) |
 | lore-hold-round | D | loreSelectLexical.test (held until a player message, checkpoint or named-entry change), so-voice-census hold (multi-member rounds 0.54x) | M42-G6 (judge, owed) |
 | lore-prefer-known | D | loreSelectLexical.test (unknown entity -0.1, never a lexical force) | M42-G7 (GPU, owed) |
+| stuck-ladder | D + RP | stuckLadder.review (rung table, reset on a watched move, rollback = replay), leadDiagnostics.test (one-clue-exit: 97 findings on 68 of 81 fixture stories) | M43-P1 (GPU, owed) |
+| living-leads | CL + RP | leads.test (one any-gate transition, every new lead counts, per-lead open/impossible refusal), directorGoldens (single-lead replay unchanged) | M43-P3 (GPU, owed) |
+| judge-use-director-critic | CL | livingCritic.test (recorded jev-1.13.0 answers: player-act recall 14/14, false refusals 1/28), leads.test (judge in the loop, fallback) | M43-P2 / M21 (owed) |
 
 Every judge use also gets the judge-off column through J11's off arm (CL).
 

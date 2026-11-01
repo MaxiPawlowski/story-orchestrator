@@ -71,6 +71,13 @@ export const JUDGE_READINESS: Record<JudgeReadinessKey, JudgeReadinessFact> = {
     measuredOn: null,
     recommendation: "Pure phrase miner; synthetic loop/fresh fixture passed twice. No provider call or provider calibration.",
   },
+  directorCritic: {
+    calibration: 0.9694,
+    latencyP50Ms: 141,
+    live: null,
+    measuredOn: MEASURED_ON,
+    recommendation: "One judge call instead of a second authoring-model call; player-act recall 14/14, false refusals 1/28 on labelled drafts (v3.0 43 P2). Live row M21 owed.",
+  },
   stallCheck: { calibration: 1, latencyP50Ms: 243, live: "J11.23", measuredOn: MEASURED_ON, recommendation: "The strongest measured use: both families clean." },
   memoryVerify: { calibration: 0.9722, latencyP50Ms: 236, live: "J11.7, J11.8", measuredOn: MEASURED_ON, recommendation: "Cheap against its 3000 ms budget." },
   warden: {

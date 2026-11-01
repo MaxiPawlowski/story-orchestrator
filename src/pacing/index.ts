@@ -3,3 +3,4 @@ export * from "./shapes";
 export * from "./steering";
 export * from "./guidance";
 export * from "./quiet";
+export * from "./stuck";

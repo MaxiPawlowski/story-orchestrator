@@ -211,6 +211,8 @@ Tools for writing stories. [More, for authors](../author/README.md) (in the in-a
 | **Outlines per gap** | Settings → Judge → Outlines for the road ahead | Install | Write this many outlines for each gap in the story and keep the best one. Each extra outline is another run of the story model. | 1 | `judge.expansion.variants` |
 | **Best outline picked by** | Settings → Judge → Outlines for the road ahead | Install | Who picks the best outline: the judge's score, or the story model. | `code` | `judge.expansion.pick` |
 | **Pace by the road ahead (trial)** | Settings → Authoring → Prompt trials | Install | The story's dramatic shape counts the turning points left on the shortest way to an ending and how long the current scene has run, and after a climax eases off for three replies. No model call. Not rated yet. | On | `pacing.pathArc` |
+| **Several ways into a written turning point (trial)** | Settings → Authoring → Prompt trials | Install | The living director gives each turning point it writes two or three different leads (a place, a person, an object or a choice), any one of which heads the story there, instead of one. Still one move per reply. No extra model call. Not rated yet. | On | `stagecraft.livingLeads` |
+| **Help a stuck player with leads (trial)** | Settings → Authoring → Prompt trials | Install | When no exit of a gated scene has moved for a few of your turns, the narrator gets the scene's authored leads one at a time as world pressure, then one general nudge. It never moves the story on for you. No model call. Not rated yet. | On | `pacing.stuckLadder` |
 
 ## Setup
 

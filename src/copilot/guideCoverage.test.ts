@@ -27,7 +27,7 @@ const CHECKPOINT: Record<keyof Checkpoint, Covered> = {
   id: "checkpoints", name: "checkpoints", objective: "checkpoints", player_name: "checkpoints", player_text: "checkpoints", type: "checkpoints",
   start: "checkpoints", state_snapshot: "checkpoints", tension_target: "tension", target_turn_length: "checkpoints", min_turns: "tension", effects: "world-info",
   talk_control: "talk-control", agency: "objective-agency", guidance: "guidance", convergence_threshold: "convergence", motives: "drives-motives",
-  chapter: "chapters", illustrate: "presentation", stretch: "open-stretches", checks: "checks", offers: "offers",
+  chapter: "chapters", illustrate: "presentation", stretch: "open-stretches", checks: "checks", offers: "offers", leads: "stuck-leads", stuck_after: "stuck-leads",
 };
 
 const EFFECTS: Record<keyof CheckpointEffects, Covered> = {
