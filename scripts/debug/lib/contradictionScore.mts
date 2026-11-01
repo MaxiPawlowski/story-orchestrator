@@ -1,4 +1,19 @@
-import { isNegative, polarityTokens, subjectOverlap, subjectTokens } from '../../../src/memory/polarity.ts';
+const NEGATORS = new Set(['not', 'no', 'never', 'nobody', 'nothing', 'none', 'neither', 'nor', 'nowhere', 'without']);
+const FUNCTION_WORDS = new Set(['the', 'and', 'for', 'with', 'from', 'into', 'onto', 'over', 'under', 'that', 'this', 'these', 'those', 'there', 'here',
+  'was', 'were', 'are', 'been', 'being', 'has', 'have', 'had', 'does', 'did', 'will', 'would', 'can', 'could', 'should',
+  'its', 'his', 'her', 'hers', 'their', 'they', 'them', 'she', 'him', 'you', 'your', 'our', 'who', 'whom', 'which',
+  'than', 'then', 'when', 'while', 'about', 'after', 'before', 'still', 'also', 'very', 'just', 'some', 'any', 'all', 'one']);
+
+export const polarityTokens = (text: string): string[] => String(text ?? '').toLowerCase().replace(/[’`]/g, "'").replace(/n't\b/g, ' not')
+  .replace(/[^\p{L}\p{N}\s]/gu, ' ').split(/\s+/).filter(Boolean);
+const isNegative = (text: string): boolean => polarityTokens(text).some((token) => NEGATORS.has(token));
+const subjectTokens = (text: string): Set<string> => new Set(polarityTokens(text).filter((token) => token.length >= 3 && !NEGATORS.has(token) && !FUNCTION_WORDS.has(token)));
+const subjectOverlap = (left: string, right: string): number => {
+  const a = subjectTokens(left);
+  const b = subjectTokens(right);
+  if (!a.size || !b.size) return 0;
+  return [...a].filter((token) => b.has(token)).length / new Set([...a, ...b]).size;
+};
 
 export const CATEGORIES = ['factual', 'temporal', 'knowledge', 'relationship'] as const;
 export type Category = typeof CATEGORIES[number];
