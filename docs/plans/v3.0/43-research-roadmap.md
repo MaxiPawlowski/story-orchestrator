@@ -683,6 +683,9 @@ Defects a running GPU batch found; branch `v3.0-43-h2`, not merged (the batch's 
   `lib/logScan.test.mts` (chunked scan, judge rate, settle default), `sessionTurns.test.mts` (until-boundary stops),
   `sessionCharters.test.mts` (6 parallel claims get 6 dirs), `lanePods.test.mts` (log level env).
 - Not run: no live model work, no lane, no ST, no GPU (the batch holds them). M43-M1..M4 rows need a rerun on H2 code.
+- Merge 2026-11-01: master `36e280afb` (43 K) merged in as `08cc56764` (conflicts: this doc, arrival golden; both sides kept);
+  `npm run gates:quick` green (97.6 s), full `npm run gates` (no --resume, Storybook included) **all green in 393.6 s** (jest
+  11,600 passed / 3 skipped, Storybook 1,167). Main `dist/index.js` 1,236,237 B. Merged to master `--no-ff`.
 
 ## K: bundle headroom and curator auto for every entry (owner 2026-11-01)
 
