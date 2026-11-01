@@ -223,3 +223,29 @@ Floors, declared here before any measurement (informational, never retuned; the 
 - Probes after M1-M4: every kind x horizon row >= m0 (expected equal: the harness writes rows directly, no read).
 - GPU rows (owed, floors stated there): M43-M1..M4, live-suite tiers facts/rejected/deltas/ledger within 0.02 of the off arm x2,
   plus per-item format adherence.
+
+### Results (offline, 2026-11-01; floors above committed first, `3ab283afa`)
+- M0 probes + archive recall (`test/support/memoryProbesRecall.ts`, option `runProbeSession({ recall: true })`, on by default in
+  the probe test; `test/measurements/v3.0/memory-probes/m0-recall.json`), every wave-1 switch on: tier-only availability@60
+  0.458 (as A+B merged), with recall **0.75** (single 1/4 -> 4/4, update-fact 1/4 -> 2/4, temporal 1/4 -> 4/4 at 60;
+  temporal 0/4 -> 1/4 at 150). Floor at 150: no probe hidden — **met**. One hide at 60 (update-fact-3: the evicted old
+  version "in the cellar" comes back through recall, because nothing superseded it without a model). Kept-out leaks 0.
+- M1 neighbour read: F-M1a met (all 143 extraction/memory suites green on the new parser, 0 changed parses); F-M1b met
+  (`neighbours.test.ts`: same/update routing, locked/decided/pinned refused, unknown alias, covered re-read confirms once,
+  rollback restores the store exactly); F-M1c met (0 held-secret rows listed through a real coordinator's resting view).
+  F-M1d cost **missed**: 12 rows of 200 chars = +688 Gemma tokens (floor 600); 12 short probe rows = +298 to +303.
+- M2 keys: F-M2a met, keyed paraphrase hit@4 **0 -> 1.0** (10 cases, `readKeys.measure.test.ts`; trivially 0 without keys,
+  since recall needs a named entity); F-M2b met (secret row keyed and archived never recalled, planted plain row is); F-M2c met.
+  Cost +59 tokens (floor 60, met).
+- M3 relation rows: F-M3a and F-M3b met (`relations.test.ts`). Cost +105 tokens (floor 120, met).
+- M4 social acts: F-M4a met (160 seeded cuts, 0 mismatches), F-M4b met (window edges), F-M4c met (player act without a player
+  line loses the act, member act kept), F-M4d met (`social-acts` detector, `social-act-windows` exempt, guard green). Pattern
+  kind `act` (`socialActPatterns.test.ts`). Cost +63 tokens (floor 80, met).
+- Probes after M1-M4 (`m-after.json`): every kind x horizon row identical to m0, tier-only and with recall (expected: the
+  harness writes rows directly, no read).
+- Tokens: Gemma vocab via `llama-tokenize` (CPU, `CUDA_VISIBLE_DEVICES=-1`), whole read prompt per arm minus the off arm
+  (off = 1,382 tokens on the fixture contract).
+- Deviations: acts store no text (verb, pair, boundary), so the "drop an act whose evidence restates a held secret" guard is
+  not built: nothing of the evidence reaches a prompt or a shared tier. Neighbours list memory rows only (no ledger rows;
+  ledger keys version themselves). The backlog read (`memorizeBacklog`) gets no neighbour list. Keys are used whenever a
+  row carries them, also after the switch is turned off.
