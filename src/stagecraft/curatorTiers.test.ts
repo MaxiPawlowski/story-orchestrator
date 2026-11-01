@@ -49,13 +49,14 @@ describe("v3.0 43 K: accept-mode routing (pure)", () => {
     { op: { kind: "disable", lorebook: "Story Lore", comment: "The Ferry" }, status: "pending" },
     { op: { kind: "disable", lorebook: "Story Lore", comment: "Rules" }, status: "pending" },
     { op: { kind: "disable", lorebook: "Story Lore", comment: "Nowhere" }, status: "pending" },
+    { op: { kind: "create", lorebook: "Story Lore", comment: "The Ferry", keys: ["ferry"], text: "A new ferry." }, status: "pending" },
   ];
 
-  it("accepts every op on a known non-constant entry in auto mode, marked or not", () => {
-    expect(routeByMode(records, [...views, marked, constant], "auto").map((record) => record.status)).toEqual(["accepted", "accepted", "pending", "pending"]);
+  it("v3.0 43 K2: accepts every op on a known entry in auto mode, constant or marked included; a create and an unknown entry wait", () => {
+    expect(routeByMode(records, [...views, marked, constant], "auto").map((record) => record.status)).toEqual(["accepted", "accepted", "accepted", "pending", "pending"]);
   });
 
   it("leaves everything pending in review mode", () => {
-    expect(routeByMode(records, [...views, marked, constant], "review").map((record) => record.status)).toEqual(["pending", "pending", "pending", "pending"]);
+    expect(routeByMode(records, [...views, marked, constant], "review").map((record) => record.status)).toEqual(["pending", "pending", "pending", "pending", "pending"]);
   });
 });

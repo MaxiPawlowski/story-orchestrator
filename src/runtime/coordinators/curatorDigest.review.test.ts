@@ -233,20 +233,20 @@ describe("C13-b curator digest through the coordinator", () => {
     expect(outcome.record!.dropped.join(" ")).toContain("touches protected text");
   });
 
-  it("auto mode accepts a title-only flip on any entry that is not constant, marked or not", async () => {
+  it("auto mode accepts a title-only flip on any entry, constant or marked included", async () => {
     const run = harness(entries(60, (entry) => {
       if (entry.uid === 7) return { ...entry, content: `{{// so:auto}}${entry.content}` };
       if (entry.uid === 8) return { ...entry, content: `{{// so:auto}}${entry.content}`, constant: true };
       return entry;
     }), { mode: "auto" });
     const outcome = await pass(run, "[disable] Place 7\n[disable] Place 8\n[disable] Place 9");
-    expect(outcome.record!.ops.map((entry) => [(entry.op as { comment: string }).comment, entry.status])).toEqual([["Place 7", "accepted"], ["Place 8", "pending"], ["Place 9", "accepted"]]);
-    expect(await run.coordinator.applyAccepted()).toBe(2);
-    expect(run.writes.map((write) => write.uid)).toEqual([7, 9]);
+    expect(outcome.record!.ops.map((entry) => [(entry.op as { comment: string }).comment, entry.status])).toEqual([["Place 7", "accepted"], ["Place 8", "accepted"], ["Place 9", "accepted"]]);
+    expect(await run.coordinator.applyAccepted()).toBe(3);
+    expect(run.writes.map((write) => write.uid)).toEqual([7, 8, 9]);
   });
 
-  it("a constant entry that is title-only still waits for review in auto mode", async () => {
-    const run = harness(entries(60, (entry) => (entry.uid === 7 ? { ...entry, constant: true, content: `{{// so:auto}}${entry.content}` } : entry)), { mode: "auto" });
+  it("a constant entry that is title-only still waits for review in review mode", async () => {
+    const run = harness(entries(60, (entry) => (entry.uid === 7 ? { ...entry, constant: true } : entry)), { mode: "review" });
     const outcome = await pass(run, "[disable] Place 7");
     expect(outcome.record!.ops[0].status).toBe("pending");
     expect(await run.coordinator.applyAccepted()).toBe(0);

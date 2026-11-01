@@ -306,7 +306,8 @@ const CORE_FEATURES: readonly Feature[] = [
     id: "curator", name: "Lorebook curator", area: "world", audience: "author",
     oneLine: "Proposes updates to the story's lorebook as play overtakes it.",
     what: "A background helper reads what happened and proposes switching entries on or off, or correcting text. "
-      + "It touches only the lorebooks the story lists, and never progress or memory. A change applies on its own by default, except on constant (always-on) entries, which wait for you.",
+      + "It touches only the lorebooks the story lists, and never progress or memory. "
+      + "A change to an existing entry applies on its own by default, constant (always-on) entries included; a new entry waits for you.",
     where: featureAt("curator", "enabled", "Lorebook curator"),
     settings: ["stagecraft.curatorEnabled", "stagecraft.acceptMode"], guideTopic: "stagecraft", doc: authorGuideDoc("stagecraft"), status: "shipped",
     needs: ["memory-profile"],
