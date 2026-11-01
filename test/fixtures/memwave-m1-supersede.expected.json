@@ -1,0 +1,50 @@
+{
+  "spec": {
+    "memoryRows": [
+      {
+        "id": "mem-key",
+        "text": "Tobin keeps the cellar key in the pantry.",
+        "entities": [
+          "Tobin"
+        ],
+        "keys": [
+          "cellar key"
+        ]
+      },
+      {
+        "id": "mem-cart",
+        "text": "Tobin's cart has a broken wheel.",
+        "entities": [
+          "Tobin"
+        ],
+        "keys": [
+          "cart"
+        ]
+      }
+    ]
+  },
+  "deltas": [
+    {
+      "q": "pantry_flooded",
+      "v": true,
+      "evidence": "The pantry flooded on Tuesday"
+    }
+  ],
+  "rejected": [],
+  "facts": {
+    "mustContain": [
+      "attic"
+    ]
+  },
+  "neighbours": {
+    "update": [
+      "mem-key"
+    ],
+    "distinct": [
+      {
+        "id": "mem-cart",
+        "needle": "key"
+      }
+    ]
+  }
+}

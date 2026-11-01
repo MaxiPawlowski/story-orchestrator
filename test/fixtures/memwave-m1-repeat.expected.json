@@ -1,0 +1,50 @@
+{
+  "spec": {
+    "memoryRows": [
+      {
+        "id": "mem-ferry",
+        "text": "The ferry crosses only at dawn.",
+        "entities": [
+          "ferry"
+        ],
+        "keys": [
+          "dawn"
+        ]
+      },
+      {
+        "id": "mem-bridge",
+        "text": "The old stone bridge upriver collapsed years ago.",
+        "entities": [
+          "bridge"
+        ],
+        "keys": [
+          "river crossing"
+        ]
+      }
+    ]
+  },
+  "deltas": [
+    {
+      "q": "toll_paid",
+      "v": true,
+      "evidence": "Wren counts two copper into the ferryman's palm and steps aboard."
+    }
+  ],
+  "rejected": [],
+  "facts": {
+    "mustContain": [
+      "toll"
+    ]
+  },
+  "neighbours": {
+    "same": [
+      "mem-ferry"
+    ],
+    "distinct": [
+      {
+        "id": "mem-ferry",
+        "needle": "toll"
+      }
+    ]
+  }
+}

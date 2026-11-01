@@ -1,0 +1,13 @@
+[
+  {
+    "index": 7,
+    "speaker": "Ferryman",
+    "text": "\"Dawn only, as always,\" the ferryman says. \"The ferry never crosses after sunrise. The toll is two copper now, not one.\""
+  },
+  {
+    "index": 8,
+    "speaker": "Wren",
+    "is_user": true,
+    "text": "Wren counts two copper into the ferryman's palm and steps aboard."
+  }
+]

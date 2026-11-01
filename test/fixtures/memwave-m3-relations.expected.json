@@ -1,0 +1,54 @@
+{
+  "spec": {
+    "epistemicLedgerCapable": true
+  },
+  "deltas": [
+    {
+      "q": "papers_signed",
+      "v": true,
+      "evidence": "Mira signs her apprentice papers under Tobin"
+    }
+  ],
+  "rejected": [],
+  "relations": {
+    "expect": [
+      {
+        "subject": "Mira",
+        "object": "Tobin",
+        "relation": [
+          "apprentice",
+          "student",
+          "works_for",
+          "work"
+        ]
+      },
+      {
+        "subject": "Mira",
+        "object": "Esk",
+        "relation": [
+          "partner",
+          "ally"
+        ]
+      },
+      {
+        "subject": "Mira",
+        "object": "Tobin",
+        "relation": [
+          "owe",
+          "debt"
+        ],
+        "ended": true
+      }
+    ],
+    "also": [
+      {
+        "subject": "Tobin",
+        "object": "Mira"
+      },
+      {
+        "subject": "Esk",
+        "object": "Mira"
+      }
+    ]
+  }
+}

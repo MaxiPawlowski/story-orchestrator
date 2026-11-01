@@ -1,0 +1,83 @@
+{
+  "title": "Market Rumour",
+  "description": "v3.0 43 H2 memwave (M43-M4 social acts): an act only reported, never shown by the player, keeps no player act.",
+  "qualities": [
+    {
+      "key": "message_count",
+      "type": "int",
+      "source": "code",
+      "monotonic": true,
+      "rubric": "Rendered boundary count."
+    },
+    {
+      "key": "stall_closed",
+      "type": "bool",
+      "source": "extractor",
+      "latching": true,
+      "rubric": "Has Mira closed her stall?"
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "start",
+      "name": "Start",
+      "objective": "Close the stall.",
+      "type": "anchor",
+      "start": true
+    },
+    {
+      "id": "next",
+      "name": "Next",
+      "objective": "Carry on.",
+      "type": "anchor"
+    }
+  ],
+  "transitions": [
+    {
+      "from": "start",
+      "to": "next",
+      "priority": 1,
+      "gate": {
+        "q": "stall_closed",
+        "op": "==",
+        "v": true
+      }
+    }
+  ],
+  "roster": [
+    {
+      "id": "mira",
+      "name": "Mira",
+      "relationships": [
+        {
+          "toward": "player",
+          "axes": [
+            "trust"
+          ],
+          "range": [
+            -3,
+            3
+          ],
+          "start": 0,
+          "step": 1
+        },
+        {
+          "toward": "tobin",
+          "axes": [
+            "trust"
+          ],
+          "range": [
+            -3,
+            3
+          ],
+          "start": 0,
+          "step": 1
+        }
+      ]
+    },
+    {
+      "id": "tobin",
+      "name": "Tobin"
+    }
+  ]
+}

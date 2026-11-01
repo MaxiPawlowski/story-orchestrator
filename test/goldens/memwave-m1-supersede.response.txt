@@ -1,0 +1,2 @@
+DELTA q=pantry_flooded value=true evidence="The pantry flooded on Tuesday, so I moved the cellar key up to the attic."
+FACT importance=2 update=m1 keys="cellar key" text="Tobin moved the cellar key to the attic after the pantry flooded." evidence="The pantry flooded on Tuesday, so I moved the cellar key up to the attic."

@@ -1,0 +1,23 @@
+[
+  {
+    "index": 50,
+    "speaker": "Narrator",
+    "text": "The river tears at the rope bridge. Mira slips and goes under."
+  },
+  {
+    "index": 51,
+    "speaker": "Tobin",
+    "text": "Tobin dives after her and hauls Mira onto the bank, coughing. \"I have you,\" he says, holding her above the water."
+  },
+  {
+    "index": 52,
+    "speaker": "Wren",
+    "is_user": true,
+    "text": "\"I was never near your boat last night, Mira,\" Wren says, though the mud on Wren's boots says otherwise."
+  },
+  {
+    "index": 53,
+    "speaker": "Mira",
+    "text": "Mira looks at the boots, then at Wren, and edges away toward Tobin without a word."
+  }
+]

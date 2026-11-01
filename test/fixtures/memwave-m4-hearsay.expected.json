@@ -1,0 +1,13 @@
+{
+  "deltas": [
+    {
+      "q": "stall_closed",
+      "v": true,
+      "evidence": "pulls the shutters of her stall closed"
+    }
+  ],
+  "rejected": [],
+  "acts": {
+    "expect": []
+  }
+}

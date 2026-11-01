@@ -1,0 +1,18 @@
+[
+  {
+    "index": 60,
+    "speaker": "Tobin",
+    "text": "\"Wren lied to you about the coins,\" Tobin tells Mira, \"I heard it in the square.\""
+  },
+  {
+    "index": 61,
+    "speaker": "Mira",
+    "text": "Mira frowns, says nothing, and pulls the shutters of her stall closed."
+  },
+  {
+    "index": 62,
+    "speaker": "Wren",
+    "is_user": true,
+    "text": "Wren arrives late with a basket of pears and finds the stall shut."
+  }
+]

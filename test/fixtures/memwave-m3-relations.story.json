@@ -1,0 +1,48 @@
+{
+  "title": "Glass Guild",
+  "description": "v3.0 43 H2 memwave (M43-M3 relation rows): several objects for one subject, one ending, one bystander with no relation.",
+  "qualities": [
+    {
+      "key": "message_count",
+      "type": "int",
+      "source": "code",
+      "monotonic": true,
+      "rubric": "Rendered boundary count."
+    },
+    {
+      "key": "papers_signed",
+      "type": "bool",
+      "source": "extractor",
+      "latching": true,
+      "rubric": "Has Mira signed her apprentice papers?"
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "start",
+      "name": "Start",
+      "objective": "Join the guild.",
+      "type": "anchor",
+      "start": true
+    },
+    {
+      "id": "next",
+      "name": "Next",
+      "objective": "Carry on.",
+      "type": "anchor"
+    }
+  ],
+  "transitions": [
+    {
+      "from": "start",
+      "to": "next",
+      "priority": 1,
+      "gate": {
+        "q": "papers_signed",
+        "op": "==",
+        "v": true
+      }
+    }
+  ],
+  "roster": []
+}

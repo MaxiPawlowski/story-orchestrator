@@ -1,0 +1,3 @@
+DELTA q=ferry_boarded value=true evidence="lifts the white dog onto the ferry."
+MEMORY type=fact importance=2 expiration=permanent entity="Mira,Ash" same=m1 text="Mira's dog Ash is old and grey and sleeps by the stove." evidence="Ash is old and grey and asleep by the stove at home."
+FACT importance=2 keys="stray,white dog" text="Wren named the white stray dog Burr and carried it onto the ferry." evidence="Then we call the stray Burr,"

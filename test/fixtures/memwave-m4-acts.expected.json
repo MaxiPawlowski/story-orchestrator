@@ -1,0 +1,32 @@
+{
+  "deltas": [
+    {
+      "q": "bank_reached",
+      "v": true,
+      "evidence": "hauls Mira onto the bank"
+    },
+    {
+      "q": "rel_mira_tobin_trust",
+      "v": 1,
+      "evidence": "Tobin dives after her and hauls Mira onto the bank"
+    },
+    {
+      "q": "rel_mira_player_trust",
+      "v": -1,
+      "evidence": "I was never near your boat last night, Mira,"
+    }
+  ],
+  "rejected": [],
+  "acts": {
+    "expect": [
+      {
+        "q": "rel_mira_tobin_trust",
+        "act": "protected"
+      },
+      {
+        "q": "rel_mira_player_trust",
+        "act": "lied"
+      }
+    ]
+  }
+}

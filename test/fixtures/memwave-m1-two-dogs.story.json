@@ -1,0 +1,48 @@
+{
+  "title": "Ferry Landing",
+  "description": "v3.0 43 H2 memwave (M43-M1 neighbour read): a new dog must stay a new row, never same= or update= on a stored dog.",
+  "qualities": [
+    {
+      "key": "message_count",
+      "type": "int",
+      "source": "code",
+      "monotonic": true,
+      "rubric": "Rendered boundary count."
+    },
+    {
+      "key": "ferry_boarded",
+      "type": "bool",
+      "source": "extractor",
+      "latching": true,
+      "rubric": "Has the stray been carried onto the ferry?"
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "start",
+      "name": "Start",
+      "objective": "Board the ferry.",
+      "type": "anchor",
+      "start": true
+    },
+    {
+      "id": "next",
+      "name": "Next",
+      "objective": "Carry on.",
+      "type": "anchor"
+    }
+  ],
+  "transitions": [
+    {
+      "from": "start",
+      "to": "next",
+      "priority": 1,
+      "gate": {
+        "q": "ferry_boarded",
+        "op": "==",
+        "v": true
+      }
+    }
+  ],
+  "roster": []
+}

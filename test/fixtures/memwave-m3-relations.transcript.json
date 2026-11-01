@@ -1,0 +1,23 @@
+[
+  {
+    "index": 40,
+    "speaker": "Narrator",
+    "text": "In the guild hall, Mira signs her apprentice papers under Tobin, the old glassblower."
+  },
+  {
+    "index": 41,
+    "speaker": "Tobin",
+    "text": "\"From today you work my furnace,\" Tobin says. \"And your debt to me is paid, Mira. The roof you mended settles it.\""
+  },
+  {
+    "index": 42,
+    "speaker": "Mira",
+    "text": "\"Then I owe you nothing,\" Mira says. \"Esk and I will run the night kiln together, as partners.\""
+  },
+  {
+    "index": 43,
+    "speaker": "Wren",
+    "is_user": true,
+    "text": "Wren watches a porter named Dov sweep the floor without a word to anyone."
+  }
+]

@@ -1,0 +1,48 @@
+{
+  "title": "Dawn Ferry",
+  "description": "v3.0 43 H2 memwave (M43-M1 neighbour read): a window that only repeats a stored fact tags it same=; the new toll is a new line.",
+  "qualities": [
+    {
+      "key": "message_count",
+      "type": "int",
+      "source": "code",
+      "monotonic": true,
+      "rubric": "Rendered boundary count."
+    },
+    {
+      "key": "toll_paid",
+      "type": "bool",
+      "source": "extractor",
+      "latching": true,
+      "rubric": "Has Wren paid the ferry toll?"
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "start",
+      "name": "Start",
+      "objective": "Cross the river.",
+      "type": "anchor",
+      "start": true
+    },
+    {
+      "id": "next",
+      "name": "Next",
+      "objective": "Carry on.",
+      "type": "anchor"
+    }
+  ],
+  "transitions": [
+    {
+      "from": "start",
+      "to": "next",
+      "priority": 1,
+      "gate": {
+        "q": "toll_paid",
+        "op": "==",
+        "v": true
+      }
+    }
+  ],
+  "roster": []
+}

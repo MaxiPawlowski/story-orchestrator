@@ -1,9 +1,13 @@
 import { parseStoryOrThrow, type BlackboardSnapshot, type NormalizedStory, type PrimitiveValue } from "@engine/index";
+import type { NeighbourRow } from "@memory/neighbours";
+import { provenance } from "@memory/provenance";
+import type { MemoryEntry } from "@memory/types";
 import { readContext, renderSharedReadPrompt, runningTotals } from "./contract";
+import { readMemoryParts, type ReadMemory } from "./readMemory";
 import { deriveScopeWithSources } from "./scope";
 import { SCOPE_SOURCES, type ScopeSource, type ScopeSourceContext } from "./scopeSources";
 import { CLEANED_FORM, cleanWindowMessage } from "./windowHygiene";
-import type { ReadLayout, ScopedQuality } from "./types";
+import type { ReadLayout, ScopedQuality, SharedReadWindow } from "./types";
 
 export interface FixtureTranscriptEntry {
   index: number;
@@ -11,6 +15,10 @@ export interface FixtureTranscriptEntry {
   text: string;
   is_user?: boolean;
 }
+
+export type ReadMemoryFlags = Omit<ReadMemory, "entries">;
+
+export type FixtureMemoryRow = Partial<MemoryEntry> & { id: string; text: string };
 
 export type FixtureScopeCaps = Partial<Record<ScopeSource["kind"], number | null>>;
 
@@ -29,6 +37,8 @@ export interface ExtractionFixtureSpec {
   scopeContext?: ScopeSourceContext;
   showValues?: boolean;
   readLayout?: ReadLayout;
+  memoryRows?: FixtureMemoryRow[];
+  readMemory?: ReadMemoryFlags | null;
 }
 
 export interface FixtureSourceRead {
@@ -44,7 +54,20 @@ export interface FixtureRun {
   scope: ScopedQuality[];
   prompt: string;
   sources: FixtureSourceRead[];
+  window: SharedReadWindow;
+  neighbours: NeighbourRow[] | null;
 }
+
+export const fixtureMemoryEntry = (row: FixtureMemoryRow): MemoryEntry => ({
+  tier: "facts", type: "fact", importance: 2, expiration: "permanent", entities: [], confidence: 1, activationTriggers: [], evidence: row.text,
+  createdAt: 1, messageId: 1, recallCount: 0, provenance: provenance({ source: "extractor", messageId: 1, boundary: 1, pass: "shared-read" }), ...row,
+});
+
+export const readMemoryFlags = (memory: ReadMemory | null): ReadMemoryFlags | null =>
+  (memory ? { neighbours: memory.neighbours, keys: memory.keys, relations: memory.relations, acts: memory.acts } : null);
+
+export const fixtureReadMemory = (flags: ReadMemoryFlags | null | undefined, rows: readonly FixtureMemoryRow[] = []): ReadMemory | null =>
+  (flags ? { ...flags, entries: flags.neighbours ? rows.map(fixtureMemoryEntry) : [] } : null);
 
 const emptyBlackboard = (): BlackboardSnapshot => ({ values: {}, versions: {}, latched: {} });
 
@@ -80,12 +103,14 @@ export function buildFixtureRun(spec: ExtractionFixtureSpec): FixtureRun {
     const cleaned = cleanWindowMessage({ name: entry.speaker, mes: entry.text, is_user: entry.is_user === true });
     return cleaned.keep ? [{ index: entry.index, messageId: entry.index, speaker: entry.speaker, text: cleaned.text, isUser: cleaned.isUser }] : [];
   });
+  const window: SharedReadWindow = { from, to, messages, form: CLEANED_FORM };
+  const memoryParts = readMemoryParts(fixtureReadMemory(spec.readMemory, spec.memoryRows), window, scope, { capable: spec.epistemicLedgerCapable });
   const canon = spec.canon ?? `Anchor ${activeCheckpointId}: ${story.checkpointById[activeCheckpointId]?.objective ?? ""}`;
   const prompt = renderSharedReadPrompt({
     storyTitle: story.title,
     activeCheckpointId,
     qualities: scope,
-    window: { from, to, messages, form: CLEANED_FORM },
+    window,
     canon,
     ...(spec.openArcs ? { openArcs: spec.openArcs } : {}),
     ...(spec.epistemicLedgerCapable ? { epistemicLedgerCapable: true } : {}),
@@ -93,6 +118,8 @@ export function buildFixtureRun(spec: ExtractionFixtureSpec): FixtureRun {
     ...readContext(story, activeCheckpointId),
     counted: runningTotals(scope, blackboard.values),
     ...(spec.readLayout ? { layout: spec.readLayout } : {}),
+    ...memoryParts.contract,
   });
-  return { story, activeCheckpointId, scope, prompt: spec.showValues ? withCurrentValues(prompt, scope, blackboard.values) : prompt, sources };
+  const shown = spec.showValues ? withCurrentValues(prompt, scope, blackboard.values) : prompt;
+  return { story, activeCheckpointId, scope, prompt: shown, sources, window, neighbours: memoryParts.rows };
 }
