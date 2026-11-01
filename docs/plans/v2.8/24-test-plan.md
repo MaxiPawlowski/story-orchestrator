@@ -344,6 +344,7 @@ real-model carrier, or why none is needed.
 | talk-chain | RP | voiceStart, talkChainYield | GS1.2, GS3.1 |
 | keep-last-question | RP | keepLastQuestion, keepLastQuestionPass | live hook check deferred to v3.0 19 (fresh opening hooks, real model) |
 | private-knowledge | RP + CL | PC-privacy, secret reviews | GS1.5; S-07/08/11/12/13 (CL) |
+| copier-filter | D | secretCopiers.review (kept-out, holder, resting, no-secret byte-identical, raw restored, filter-off control), stHost copierPrompts.test, v30-43v-copier-filter (S, no-model) | none: no model call |
 | inner-voice | RP | inner jest | GS1.2, GS1.5 |
 | thought-carry | D + CL + RP | thoughtCarry review test, v28-a13-thought-carry (no-model, live run owed) | GS1.5 player-clean with the spike on (L5-RP3 half); L5-RP1 coverage read owed (informational) |
 | lorebook-switching | CL | scanGate scenarios | GS2.6 |

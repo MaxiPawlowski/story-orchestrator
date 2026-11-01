@@ -438,3 +438,43 @@ Source: `gpu-queue-2026-10-30.md` §Vast batch 1 record (environment + harness d
 - Gates: `npm run gates` all green in 569.7s (Storybook included, no --resume) on the tree merged with master `2ecb699a1`; the
   first full run was red on `arrivalEquivalence.test.ts` (the new scenario missing from `test/goldens/arrival-findings.json`, re-recorded)
   and one Storybook play timeout (HelpPanel, untouched, green on the rerun). `gates:quick` and `test:debug` green.
+
+## Phase 2 agent V — Summarize and Vector Storage filtered per character (owner 2026-11-01 "sure")
+Source: `research/self-imposed-rules-2026-10-31.md` §Owner answers item 2. Switch `memory.copierFilter` (on), feature
+`copier-filter`, control `#so-copier-filter` (Models › Knowledge tracking).
+- How they inject (ST 7c3994196): Summarize sets `extension_prompts["1_memory"]` from its worker (memory/index.js:965), default
+  position IN_PROMPT. Vector Storage's generate interceptor `vectors_rearrangeChat` (manifest loading_order 100, ours 1) splices
+  the retrieved messages out of the chat copy and sets `"3_vectors"` (vectors/index.js:776-856). Both are read after the
+  interceptors (script.js:4564, 4700, 5647; openai.js:1389-1407); `setExtensionPrompt` makes a new entry object per call.
+- Design: runtime override, no ST patch. Our interceptor (after the drafted beat settles) rewrites `1_memory`; a wrapper
+  installed on `globalThis.vectors_rearrangeChat` rewrites `3_vectors` after Vector Storage runs. The view is
+  `withoutSecretLines(text, heldSecrets, drafted member names)` (`MemoryInjector.copierView`), the rule every shared tier
+  uses; a draft outside the roster gets the resting view; no draft or a withheld draft (impersonate, quiet) gets the raw text.
+  The raw text is kept per host entry object (`stHost/copierPrompts.ts`) and put back at `GENERATE_AFTER_DATA`, so
+  Summarize's next pass, its UI and the stored vectors never see the filtered text. With no held secret every member's
+  block is byte-identical. Host wiring is a lazy chunk (`runtime/copierFilterHost.ts`).
+- Check: `transcript-copiers` no longer names Summarize / Vector Storage while the switch is on; VectFox (no filter) and a
+  switched-off filter still raise it; its copy names the switch.
+- Not covered: a dry run (prompt preview, payload goldens) skips interceptors and shows the raw copier text; ST's prompt
+  itemization reads the values after `GENERATE_AFTER_DATA` (raw). Vector Storage's spliced-out messages leave the chat copy
+  for every member as before; a filtered line is dropped from the kept-out member's prompt, not put back into history.
+- Prompt cache: `1_memory` sits near the top (IN_PROMPT). It varies per member only while a held secret is restated in the
+  summary; then the kept-out member's prefix differs from the holder's from that block on. The RAM member cache keys per
+  member, so each member's prefix stays stable turn to turn until the summary or the secret set changes (a new summary
+  already broke the prefix). `3_vectors` already changes every turn (retrieval), so no new effect there.
+
+## Gate record V
+- 2026-11-01, branch `v3.0-43-v`. Tests: `runtime/secretCopiers.review.test.ts` (kept-out member loses the restating
+  sentences of both blocks and keeps the rest; holder verbatim after a kept-out draft; out-of-roster draft = resting; no secret
+  = byte-identical for every member; raw restored after assembly; new summary between drafts taken as raw; withheld draft =
+  raw; vectors wrapped once, unwrapped on dispose; check names only unfiltered copiers; negative control filter off carries
+  the secret), `stHost/copierPrompts.test.ts`.
+- No-model lane 61 (Summarize enabled on the lane copy, restored after; Vector Storage enabled with a canned-retrieval stub
+  standing in for the embedding backend; bundle frozen from the worktree, never staged): `test/scenarios/v30-43v-copier-filter.json`
+  green x2 on the eager build and x2 on the lazy build (`0de09685`). Ponticius (kept out): no secret text in the dry-run prompt,
+  plain line kept; Arin (holder): both copier lines present; host holds raw text after; `secretLeaks` [] ; filter off control
+  carries it. Real-model gate: not run (no model call on this path; the filter is code over prompt text) — flagged NOT green
+  for a real Summarize/Vector Storage retrieval, owed with the next model-lane batch.
+- Main bundle 1,294,191 B (+1,185 B over master `676bf997c`; budget 1,300,000).
+- `npm run gates` all green in 427.0s (Storybook included, no --resume) on `9c050c7b9` (final, lazy wiring); 483.6s on `de17f8cd4` (eager). Earlier full runs red on my
+  own misses: registry S3 file budget (feature moved to `groundingFeatures.ts`), plan 24 matrix row, README feature table.

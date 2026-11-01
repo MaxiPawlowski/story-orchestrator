@@ -4,6 +4,16 @@ import { settingsAt } from "./where";
 
 export const GROUNDING_FEATURES: readonly Feature[] = [
   {
+    id: "copier-filter", name: "Secrets kept out of Summarize and Vector Storage", area: "characters", audience: "author",
+    oneLine: "SillyTavern's summary and recalled messages reach each character without the secrets kept from them.",
+    what: "SillyTavern's Summarize and Vector Storage put the chat summary and recalled past messages into every character's prompt. Before each character "
+      + "replies, a line there that restates a secret kept from that character is left out of that character's prompt, by the same rule as the story's own memory. "
+      + "The summary, the stored vectors and the chat are not changed. Other extensions that copy the chat (VectFox) are still named in Repair.",
+    where: settingsAt("#so-copier-filter", "Models › Knowledge tracking"),
+    settings: ["memory.copierFilter"], doc: authorGuideDoc("drives-motives"), status: "shipped", needs: ["memory-profile", "group-chat"],
+    isOn: (settings) => settings.memory.copierFilter !== false && settings.memory.epistemicLedgerCapable,
+  },
+  {
     id: "lore-pins", name: "Lore for where you are", area: "world", audience: "author",
     oneLine: "The lore entry for the current place, and for whoever was just met, is in the next reply.",
     what: "A story can bind a lorebook entry to each place and to the people on its People page. The entry for where the party is now, and for a place or person met "
