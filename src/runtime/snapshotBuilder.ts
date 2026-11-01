@@ -231,7 +231,7 @@ const noGroupOf = () => noGroupView({
 
 let inlineComposer: ((sources: InlineSources) => InlineView) | null = null;
 let consoleSlice: typeof import("./authorConsole").consoleAuthorSlice | null = null;
-let inChatSlice: typeof import("./inChat").inChatSlice | null = null;
+let inChatSlice: (...args: Parameters<typeof import("./inChat").inChatSlice>) => RuntimeSnapshot["inChat"] = () => null;
 
 export const loadInlineComposer = async () => {
   inlineComposer = (await import("./inlineTimeline")).composeInlineTimeline;
@@ -537,7 +537,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     nextTurnBuckets: promptBuckets.view(nextTurnCost.ownTokens), nextTurnFold: fold,
     roleRoutes: roleHealth.view(),
     lore: extras.lore,
-    inline, castNames, inChat: inChatSlice?.(sources, story, state, castNames) ?? null,
+    inline, castNames, inChat: inChatSlice(sources, story, state, castNames),
     ...presenceSlices(sources, story, state, { castNames, openThreads }),
     ...modelCallSlices(extras),
   };
