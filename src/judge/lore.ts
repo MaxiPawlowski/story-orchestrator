@@ -21,6 +21,7 @@ export interface LoreScene {
   checkpointName: string;
   objective: string;
   window: Array<{ speaker: string; text: string }>;
+  state?: Record<string, string | string[]>;
 }
 
 export interface LorePick {
@@ -87,7 +88,7 @@ export function loreChunks(sizes: number[], room: number): number[][] {
 // recall to 67-74% against a 0.8 floor (verify notes and continuity facts, which are short, held in state at 98-100%).
 export function buildLoreRequests(candidates: LoreEntry[], scene: LoreScene, maxTokens = LORE_REQUEST_TOKENS): Array<{ request: JudgeRequest; entries: LoreEntry[] }> {
   const sceneState = {
-    scene: { name: scene.checkpointName, goal: scene.objective },
+    scene: { name: scene.checkpointName, goal: scene.objective, ...(scene.state ?? {}) },
     transcript: scene.window.map((line, index) => ({ id: `msg_${index + 1}`, speaker: line.speaker, text: line.text })),
   };
   const questions = candidates.map(loreQuestion);

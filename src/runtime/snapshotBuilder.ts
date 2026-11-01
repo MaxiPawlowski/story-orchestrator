@@ -31,7 +31,7 @@ import { findStoryRecord, listStoryRecords } from "./storyLibrary";
 import { orphanedLorebooks, reapDecisions } from "./mirrorReaper";
 import { loreEvidenceView } from "./worldInfoEvidence";
 import { samplerOverlay } from "./samplerOverlay";
-import { loreBudgetView, loreChanceView, scanGateView, wiGatingStatus } from "./worldInfoMode";
+import { exampleDropView, loreBudgetView, loreChanceView, scanGateView, wiGatingStatus } from "./worldInfoMode";
 import { globalStoryLore } from "./storyLore";
 import { stylesheetMissing } from "./stylesheet";
 import { stateSize } from "./stateSize";
@@ -97,7 +97,8 @@ const publishedIntro = (story: NormalizedStory | null) => story?.player_intro ||
 
 const loreViews = (chatId: string | null | undefined) => {
   const view = loreChanceView();
-  return { loreWeightedGroups: view && chatId && view.chatId === chatId && view.weightedGroups.length ? view.weightedGroups : undefined, loreBudget: loreBudgetView(chatId ?? null) };
+  return { loreWeightedGroups: view && chatId && view.chatId === chatId && view.weightedGroups.length ? view.weightedGroups : undefined, loreBudget: loreBudgetView(chatId ?? null),
+    exampleDrops: exampleDropView(chatId ?? null) };
 };
 
 export interface SnapshotSources {

@@ -187,6 +187,113 @@ prompts, 121 new replies), toy group lane 42 `v29gpu2` (41 chats, 226 prompts, 3
   `debug:typecheck` (script imported `src/memory/polarity.ts`, which pulls an aliased module) and was fixed before the cited run.
   `gates:quick` green before it.
 
+## Phase 2 agent P — progression and director (floors committed before measuring)
+
+Sources: `research/progression-products.md` P1, `research/progression-research.md` P2, `research/director-research.md` P1,
+`research/director-products.md` P1. Every switch on by default; floors informational, never retuned after the run.
+
+- P1 stuck ladder (`pacing.stuckLadder`): authored `checkpoints[].leads` (1-4) + `stuck_after` (1-20, default 6) on gated
+  checkpoints. Rung derived from the boundary log + player turn ids (no slice, no model call): quiet player turns since
+  the last watched exit key moved; rung 1 at `stuck_after`, +1 every 3 quiet turns; rung k shows lead k, past the last
+  lead (or with none from rung 2) one generic line. Never forces completion. Hard floors: rung table on fixtures, reset
+  on a watched-key move, same rung on a replayed log (rollback = replay), no line on open stretches/finals/counter-only
+  exits. Studio warning `one-clue-exit`: fires on a one-key fixture, silent with 2+ leads, an alternate or a counter leaf.
+  Baseline: count of fixture checkpoints it flags. GPU row M43-P1: median turns to exit on a stuck fixture -30% or more,
+  heavy-handed/forced flags at most control + 1 (blind rating owner-gated).
+- P2 judge director critic (`judge.uses.directorCritic`): five nouls (player-act, contradicts, outcome-name, new-person,
+  follows-thread), verdict in code, falls back to the LLM critic when the judge is off/unavailable. Floors on labelled
+  director drafts (recorded director answers + authored synthetic cases, no campaign text): player-act recall >= 0.9,
+  false refusals <= 0.15. Live row stays M21.
+- P3 multi-lead turning points (`stagecraft.livingLeads`): director `opens_when` may be a list of 2-3 leads, way-in gate
+  `any[lead..., pace]`, still one transition per boundary; every new lead counts against `LIVING_MAX_NEW_QUALITIES`.
+  Hard floors: recorded single-lead goldens replay unchanged; a 3-lead draft builds one transition with an any-gate;
+  impossible/open-on-arrival leads stay refused (0 on the goldens).
+- P4 Studio fields for checkpoint `min_turns` and transition `urgent` with stories (no switch).
+
+## Gate record P
+
+2026-11-01, branch `v3.0-43-p`.
+
+- `npm run gates` (Storybook included, no `--resume`) on `07fa24815`: **all green in 466.6s** (typecheck, typecheck:test,
+  test, test:replay, build, debug:typecheck, test:debug, test:plugin, lint, test:release, test-storybook:ci). Earlier runs on
+  this branch: red on a missing error-copy row (fixed), then red on `startupWiring.review` (`listGroupChats` mock, untouched
+  code, green in isolation 13/13) and `test:debug` childTree (untouched, timing), then red on missing plan 24 matrix rows
+  (fixed). Main bundle 1,273,160 B (budget 1,300,000).
+- P1 stuck ladder (`pacing.stuckLadder`, on): `checkpoints[].leads` (1-4, 240 chars) + `stuck_after` (1-20, default 6),
+  `validate/leads.ts`, `pacing/stuck.ts`, guidance tail via `pacingCoordinator.stuckLine`; leads filtered by `focusSafe`
+  (resting filter + unknown codex names). Hard floors met: rung table 0×5,1,1,1,2,2,2,3,3 over 13 turns; a group round of 3
+  replies = 1 turn; reset on a watched-key move; rollback = replay (deleted turns read like a fresh replay); no ladder on open
+  stretches or counter-only exits. Deviations: past the last lead it uses the generic line (no agency-alternate prompt; that
+  recovery is an author move); a dropped lead is skipped silently, no journal line (would repeat every steering refresh);
+  stall-judge verdicts reach it only through the values they write. `one-clue-exit` is **info**, not warning: baseline
+  97 findings on 68 of 81 fixture stories (121 checkpoints with exits), so a warning would flag most stories and the pinned
+  campaign; it keys on one specific leaf (q, op, v), so a choice between two values does not fire. Sun Ruins example keeps 6.
+- P2 judge director critic (`judge.uses.directorCritic`, on): `judge/livingCritic.ts` five nouls, verdict in code
+  (`policy.ts` DIRECTOR_CRITIC_*), fallback to the LLM critic on no/partial answer. Fixture `test/fixtures/judge/director-critic.json`
+  (20 recorded director answers labelled acceptable + 29 authored synthetic, labels committed in `39d99733d` before any call),
+  recorded 49 TypeSafe calls (jev-1.13.0, p50 141 ms) in `test/goldens/judge/director-critic.json`, replayed by
+  `livingCritic.test`. Floors met: player-act recall 14/14 = 1.0 (>= 0.9), false refusals 1/28 = 0.036 (<= 0.15; A01, a cast
+  question to the player at p 0.51). Informational: 1 of 2 contradiction cases missed (p 0.32 < 0.5); two recorded drafts sat
+  at p 0.48. Before (LLM critic, research note): 5 of 9 then 3 of 14 false refusals; not re-measured (needs the remote
+  authoring model). Live row M21 / M43-P2.
+- P3 multi-lead turning points (`stagecraft.livingLeads`, on): `opens_when` may be a list (max 3), prompt asks for 2-3 leads of
+  different kinds only when on; way-in = one transition `any[leads..., pace]`; every new lead counts toward the 2 new values;
+  each lead checked for open-on-arrival and impossible. Hard floors met: the 20 recorded single-lead goldens replay to the same
+  verdicts (0 impossible/open-on-arrival); 3-lead draft builds one transition. No offline before/after for pace-forced share
+  (needs played living sessions: M43-P3).
+- P4 Studio: checkpoint Pacing section gets Minimum player turns, Stuck after, Leads (hidden on an open stretch); transition
+  editor gets an Urgent switch. Stories `AuthorsDwellAndLeads`, `MarksAnExitUrgent`.
+- Docs: guide topics `stuck-leads` (new) and `living-director`; settings reference regenerated; plan 24 matrix rows; GPU rows
+  M43-P1..P3. No live gate: no ST, no lanes, no GPU (brief).
+
+## Phase 2 agent L (lore lifetime, scene state + aliases, example-dialogue drop)
+
+Branch `v3.0-43-l`. Floors declared before measuring (2026-10-31):
+- L1 lore lifetime (`worldInfo.loreLifetime`, on): worst-case per-prompt story lore along any simple path (constants switched on + the
+  largest keyword entries lore-select may force, top_k else 8; chars/4) must not rise on any fixture or pinned campaign story with the switch
+  on; informational: count of stories over 2,500 before vs after.
+- L2 scene state (`worldInfo.loreState`, on): offline lexical arm with state terms must not lose needed recall@4 or nDCG@4 against the
+  window-only arm on `lore-relevance.json`, nor recall@2 on `lore.json`. Judge arm with state needs re-recorded goldens (TypeSafe):
+  not run here (no lane copy used), so the judge half is unmeasured. Prefilter shortlist recall re-measured with state terms; recorded
+  against 0.95, default not flipped.
+- L2 aliases (`worldInfo.loreAliases`, on): nickname fixture `test/fixtures/lore-aliases.json`: every nickname row fires after the pass
+  (5 of 5), none before, and no row fires against its label.
+- L3 example-dialogue drop: check `voice-examples-pushed-out` fires on its fixture; info, read only.
+
+### Agent L results (2026-10-31)
+- L1 lore lifetime, switch `worldInfo.loreLifetime` (on). `effects.world_info.enable[]` takes `until: "chapter" | "<checkpoint id>"`
+  and `lasting: true`; default end = leaving the enabling checkpoint's chapter (stories without chapters: no default end). Compiled into
+  the path replay (`engine/worldInfoEffects.ts` `loreAlongPath`, used by `worldInfoPlan`, so scan and file modes and rollback agree);
+  scan/guard memo keys carry the switch. Studio: end picker per enable, diagnostics `lore-path-over-budget` (per-prompt meter over every
+  simple path, about 2,500 tokens, books loaded lazily through `runtime/loreTokenHost.ts`) and `world-info-until-unknown`. Guide: "Every
+  enable has an end" + lore budget, no more cast/truths kept on without an end.
+  - Worst-case per-prompt story lore (chars/4), off -> on: sun-ruins 1072 -> 1072 (no chapters). Pinned campaign stories S1..S9 (index
+    only): 2136->2102, 2240->2240, 1826->1686, 2831->2120, 2563->2348, 2504->2111, 2651->1980, 2738->2738, 2738->2217; over 2,500:
+    6 -> 1 (S8, no chapter change on its worst path). Floor (not rise) met. Every-entry meter (lore-budget-uncapped's sum) stays
+    28-35K: keyword world books dominate it. L1 numbers were taken during the build, before the floor commit; the floor is structural.
+- L2 scene state, switch `worldInfo.loreState` (on): place, cast switched on with aliases, active quest titles, met codex names
+  (`runtime/loreStateRead.ts`, lazy) join the judge request (`scene.place/cast/quests/known`, capped) and the BM25 terms. A stateless
+  request stays byte-identical (goldens intact). Offline (window speakers + objective as the fixture's state):
+  - lore-relevance (17 rows): lexical needed recall@4 0.5385 -> 0.5385, precision@4 0.2647 -> 0.2647, nDCG@4 0.4265 -> 0.4200: floor
+    MISSED by 0.0065 (recorded, not retuned; switch stays on per owner rule).
+  - lore.json (11 rows): lexical recall@2 0.7143 -> 0.7619; judge on the capped pool 22/30 -> 21/30 (full pool 26/30).
+  - Prefilter shortlist recall (judge picks kept by the 12-pool): 0.5172 -> 0.6207 with state terms; still below 0.95, default stays off.
+  - Judge half unmeasured: goldens not re-recorded (no TypeSafe batch from a lane copy run here); row M43-L2.
+- L2 aliases, switch `worldInfo.loreAliases` (on): `runtime/loreAliases.ts` adds a person's/place's other names (roster card name +
+  aliases, codex name + aliases; names two sets share dropped) to story-book entries keyed on one of them, on scan copies only (scan
+  mode), and lore-select counts such an entry as left to the keyword scan. Nickname fixture: 5/5 nickname rows fire after, 0 before,
+  0 rows against their label. Floor met.
+- L3 `voice-examples-pushed-out` (info, author, feature character-delivery): `GENERATE_BEFORE_COMBINE_PROMPTS` (Text Completion
+  only) read-only; fires when the drafted card has `mes_example`, examples are on "Gradual push-out" and `mesExmString` is empty.
+  Firing fixture in `checksRegistry.test.ts` + `exampleDrop.test.ts`. Chat Completion not read.
+- GPU rows M43-L1, L2, L2b, L3 in `gpu-queue-2026-10-30.md`. Plan 24 matrix rows `lore-lifetime`, `lore-state`.
+
+## Gate record L
+- `npm run gates:quick` green per item (331 s, then fixes for code-health S4/S8, error-copy and matrix rows).
+- `npm run gates` run 1 RED: `errorCopy.guard` (silent catch in loreTokenSource) and `suiteCoverage` (matrix rows) - fixed.
+- `npm run gates` run 2 RED only on `patterns.test.ts` P5 perf (p95 58.5 ms vs < 50, untouched timing test under machine load);
+  `npm run gates -- --resume` reran `test` green (559.6 s). Clean full run: see merge commit message.
+- No live/ST/GPU/model lanes used. Judge goldens not re-recorded.
 ## Phase 3 agent M — memory wave 2, read-contract changes (2026-10-31)
 Branch `v3.0-43-m`. Sources: `research/memory-shortlist-2026-10-31.md` wave 2 and the four proposals it cites. Each item is its
 own switch under `memory.*`, on by default (owner rule); adoption formally needs `so-live-suite` x2 on the GPU (one row each in

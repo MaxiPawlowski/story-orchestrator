@@ -236,6 +236,12 @@ const WorldPage = ({ snapshot, manager, navigate }: PageProps) => {
         read={(settings) => settings.worldInfo.holdRound} write={(on) => setGlobalSettings({ worldInfo: { holdRound: on } })} />}
       {snapshot.ui.authorView && <GlobalCheck id="so-wi-prefer-known" setting="worldInfo.preferKnown" manager={manager}
         read={(settings) => settings.worldInfo.preferKnown} write={(on) => setGlobalSettings({ worldInfo: { preferKnown: on } })} />}
+      {snapshot.ui.authorView && <GlobalCheck id="so-wi-lore-lifetime" setting="worldInfo.loreLifetime" manager={manager}
+        read={(settings) => settings.worldInfo.loreLifetime} write={(on) => setGlobalSettings({ worldInfo: { loreLifetime: on } })} />}
+      {snapshot.ui.authorView && <GlobalCheck id="so-wi-lore-state" setting="worldInfo.loreState" manager={manager}
+        read={(settings) => settings.worldInfo.loreState} write={(on) => setGlobalSettings({ worldInfo: { loreState: on } })} />}
+      {snapshot.ui.authorView && <GlobalCheck id="so-wi-lore-aliases" setting="worldInfo.loreAliases" manager={manager}
+        read={(settings) => settings.worldInfo.loreAliases} write={(on) => setGlobalSettings({ worldInfo: { loreAliases: on } })} />}
     </Section>
     <Section title="Lore features" level={3}>
       <FeatureLinkRow feature="memoryLore" snapshot={snapshot} navigate={navigate} />
@@ -288,6 +294,10 @@ const AuthoringPage = ({ snapshot, manager, navigate }: PageProps) => (
         read={(settings) => settings.memory.recapOutsideWindow === true} write={(on) => manager.setMemorySettings({ recapOutsideWindow: on })} />
       <GlobalCheck id="so-authoring-path-arc" setting="pacing.pathArc" manager={manager}
         read={(settings) => settings.pacing.pathArc} write={(on) => setGlobalSettings({ pacing: { pathArc: on } })} />
+      <GlobalCheck id="so-authoring-stuck-ladder" setting="pacing.stuckLadder" manager={manager}
+        read={(settings) => settings.pacing.stuckLadder} write={(on) => setGlobalSettings({ pacing: { stuckLadder: on } })} />
+      <GlobalCheck id="so-authoring-living-leads" setting="stagecraft.livingLeads" manager={manager}
+        read={(settings) => settings.stagecraft.livingLeads !== false} write={(on) => setGlobalSettings({ stagecraft: { livingLeads: on } })} />
       <GlobalCheck id="so-swipe-contrast" setting="talk.swipeContrast" manager={manager}
         read={(settings) => settings.talk.swipeContrast} write={(on) => setGlobalSettings({ talk: { swipeContrast: on } })} />
     </Section>}

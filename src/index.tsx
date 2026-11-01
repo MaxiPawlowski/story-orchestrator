@@ -37,6 +37,7 @@ import { loadPersistedRuntime } from "@runtime/persistence";
 import { branchFromOldest, continueFromBranch } from "@runtime/chatIdentity";
 import { jumpToMessage } from "@runtime/messageJumpHost";
 import { spriteInventory } from "@runtime/spriteStageHealth";
+import { createLoreTokenSource } from "@runtime/loreTokenSource";
 import type { RuntimeSnapshot, StoryLibraryRecord } from "@runtime/types";
 import { chatUpdateOutcome, NO_CHAT_OPEN, type ChatSaveAnswer } from "@runtime/librarySave";
 import { rekeyWizardSession } from "@runtime/wizardSessions";
@@ -91,8 +92,15 @@ const setStudioOpen = (next: boolean, intent?: StudioOpenIntent) => {
   studioListeners.forEach((listener) => listener());
 };
 
+const loreTokens = createLoreTokenSource(
+  (lorebook) => import("@runtime/loreTokenHost").then(({ readLoreTokens }) => readLoreTokens(lorebook)),
+  () => { void loadDraft().then(({ setDiagnosticsContext }) => setDiagnosticsContext(studioDiagnostics())); },
+);
+
 const studioDiagnostics = () => ({
   worldInfoGating: getGlobalSettings().worldInfo.gatingMode,
+  loreLifetime: getGlobalSettings().worldInfo.loreLifetime,
+  loreEntries: loreTokens.entries,
   characterNames: getAllCharacterNames,
   backgroundNames: listBackgrounds,
   personaNames: listPersonas,
@@ -111,6 +119,7 @@ const openStudio = async (intent?: StudioOpenIntent, storyId?: string) => {
     if (source) store.loadDraft(source, active?.hash ?? null);
     else store.newDraft();
   }
+  loreTokens.clear();
   setDiagnosticsContext(studioDiagnostics());
   setStudioOpen(true, intent);
 };

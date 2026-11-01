@@ -111,6 +111,12 @@ const JUDGE_USE_DETAILS: Record<JudgeUseKey, Omit<JudgeUseCopy, "label">> = {
       + "let the story director write a branch that follows you and later comes back. Not measured yet.",
     sends: "the last six chat messages, your persona name and a one-line description of each way forward from the current turning point",
   },
+  directorCritic: {
+    description: "Reviews each turning point the living director writes with five yes/no questions (does it decide what you do, contradict the canon, give away "
+      + "the ending in its name, bring in a stranger, ignore where the story is); code decides, and a refused draft is written again. Without the judge the "
+      + "authoring model reviews it as before.",
+    sends: "the drafted turning point's name and objective, the current turning point, the canon lines, the open threads, the cast and your persona name",
+  },
   wardenVoice: {
     description: "After a character reply, asks whether it sounds like that character, against their role, drive and feelings; a reply that does not gets a one-line note "
       + "in the next reply's prompt, never a rewrite. Not measured yet.",

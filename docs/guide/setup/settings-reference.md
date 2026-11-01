@@ -155,6 +155,9 @@ How a story's lorebooks are switched on, and the lorebook helper. [More](../setu
 | **Break lore ties by word match** | Settings → World & lore → Word-match lore when the judge is silent | Install | When the judge rates two lore entries the same, the one whose words better match the recent chat goes first. | On | `worldInfo.lexicalTiebreak` |
 | **Keep the lore picks for a round** | Settings → World & lore → Keep the lore picks for a round | Install | Asks the judge about lore once per message of yours and keeps the answer while the other characters reply, unless the checkpoint changes or a new entry is named. Fewer judge calls. | On | `worldInfo.holdRound` |
 | **Prefer lore you have met** | Settings → World & lore → Prefer lore you have met | Install | Lowers a lore entry about a person, place or thing you have not met yet a little in the judge's ranking, and never forces it by word match. Characters can still know it. | On | `worldInfo.preferKnown` |
+| **Lore ends with its chapter** | Settings → World & lore → Lore ends with its chapter | Install | Lore a checkpoint switches on ends when the story leaves that checkpoint's chapter, or at the checkpoint the story names, unless the story marks it lasting. Off: it stays on until a checkpoint switches it off. | On | `worldInfo.loreLifetime` |
+| **Tell the lore pick where you are** | Settings → World & lore → Tell the lore pick where you are | Install | Adds the place, who is on stage (with their other names), open quests and what you have met to the lore judge's question and to the word match. No extra model call. | On | `worldInfo.loreState` |
+| **Nicknames find lore** | Settings → World & lore → Tell the lore pick where you are | Install | A lore entry keyed on a character's or place's name also fires when the chat uses one of its other names from the story. Only for this story's lorebooks, never written to the files. | On | `worldInfo.loreAliases` |
 
 ## Images
 
@@ -215,6 +218,8 @@ Tools for writing stories. [More, for authors](../author/README.md) (in the in-a
 | **Outlines per gap** | Settings → Judge → Outlines for the road ahead | Install | Write this many outlines for each gap in the story and keep the best one. Each extra outline is another run of the story model. | 1 | `judge.expansion.variants` |
 | **Best outline picked by** | Settings → Judge → Outlines for the road ahead | Install | Who picks the best outline: the judge's score, or the story model. | `code` | `judge.expansion.pick` |
 | **Pace by the road ahead (trial)** | Settings → Authoring → Prompt trials | Install | The story's dramatic shape counts the turning points left on the shortest way to an ending and how long the current scene has run, and after a climax eases off for three replies. No model call. Not rated yet. | On | `pacing.pathArc` |
+| **Several ways into a written turning point (trial)** | Settings → Authoring → Prompt trials | Install | The living director gives each turning point it writes two or three different leads (a place, a person, an object or a choice), any one of which heads the story there, instead of one. Still one move per reply. No extra model call. Not rated yet. | On | `stagecraft.livingLeads` |
+| **Help a stuck player with leads (trial)** | Settings → Authoring → Prompt trials | Install | When no exit of a gated scene has moved for a few of your turns, the narrator gets the scene's authored leads one at a time as world pressure, then one general nudge. It never moves the story on for you. No model call. Not rated yet. | On | `pacing.stuckLadder` |
 
 ## Setup
 

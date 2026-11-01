@@ -18,6 +18,7 @@ import { loreEvidence } from "./worldInfoEvidence";
 import type { JudgeRuntime } from "./judge";
 import type { JournalRecordKind } from "./journal";
 import { requestBudgetFor } from "./requestBudget";
+import { pacingTrials } from "./stuckLeads";
 import { getGlobalSettings } from "./settingsStore";
 import { heldStoppedReply } from "./stoppedReply";
 import type { RollbackDeps } from "./rollback";
@@ -289,7 +290,7 @@ export function wireCoordinators(port: ManagerPort) {
     getTensionTarget: () => engine.activeCheckpoint?.tension_target,
     getTension: () => port.extras().tension,
     setTension: (next) => { port.extras().tension = next; },
-    getPacing: () => port.extras().pacing, pathArc: () => getGlobalSettings().pacing.pathArc,
+    getPacing: () => port.extras().pacing, ...pacingTrials(view, memory),
     ended: () => storyEnded(port.extras().memory.chapters ?? []),
     onHoldChange: lifecycle.notify,
   });

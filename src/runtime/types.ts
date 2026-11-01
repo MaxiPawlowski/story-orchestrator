@@ -489,6 +489,8 @@ export interface RuntimeSnapshot {
   /** Spike (author only): the last gated scan, per gated entry; null unless scan gating is active. */
   scanGate?: ScanGateView | null;
   loreWeightedGroups?: string[];
+  /** Cast members whose card example dialogue the last loud Text Completion prompt left out (author only). */
+  exampleDrops?: string[];
   loreBudget?: import("./loreBudget").LoreBudgetView;
   /** Lorebook gating mode, ledger summary and drift (install-wide). */
   wiGating?: WiGatingStatus | null;

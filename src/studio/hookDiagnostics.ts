@@ -1,13 +1,15 @@
 import type { Story } from "@engine/index";
 import { narratesPlayer } from "./cueDiagnostics";
 import { RUSH_CONSEQUENCES, checkRushDiagnostics } from "./rushDiagnostics";
+import { LEAD_CONSEQUENCES, checkLeadDiagnostics } from "./leadDiagnostics";
 
-type HookCode = "npc-reply-directs-player" | "opening-narrator-only" | keyof typeof RUSH_CONSEQUENCES;
+type HookCode = "npc-reply-directs-player" | "opening-narrator-only" | keyof typeof RUSH_CONSEQUENCES | keyof typeof LEAD_CONSEQUENCES;
 
 export const HOOK_CONSEQUENCES: Record<HookCode, string> = {
   "npc-reply-directs-player": "The character is told to write what the player does or to ask what the player does, so the reply may decide for the player or read like a game master's prompt.",
   "opening-narrator-only": "Only the narrator speaks before the player's first message, so nobody in the party turns to the player at the start.",
   ...RUSH_CONSEQUENCES,
+  ...LEAD_CONSEQUENCES,
 };
 
 export interface HookRun {
@@ -24,6 +26,7 @@ export const directsPlayer = (text: string): boolean => narratesPlayer(text) || 
 
 export const checkHookDiagnostics = ({ draft, push, startId }: HookRun) => {
   checkRushDiagnostics({ draft, push });
+  checkLeadDiagnostics({ draft, push });
   draft.checkpoints.forEach((checkpoint, index) => {
     (checkpoint.effects?.npc_replies ?? []).forEach((reply, at) => {
       if (reply.kind === "llm" && directsPlayer(reply.instruction ?? "")) {
