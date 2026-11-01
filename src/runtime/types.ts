@@ -205,6 +205,10 @@ export interface MemoryRuntimeSettings {
   mentionLedger?: boolean;
   strengthRetention?: boolean;
   retrievalQuery?: boolean;
+  neighbourRead?: boolean;
+  readKeys?: boolean;
+  relationRows?: boolean;
+  socialActs?: boolean;
   chapters?: Partial<ChapterSettings>;
 }
 

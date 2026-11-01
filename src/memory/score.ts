@@ -82,7 +82,7 @@ export function recencyWeights(count: number): number[] {
 
 export function evidenceAge(entry: MemoryEntry, evidence: NonNullable<ScoreContext["evidence"]>): number | null {
   const cast = new Set(evidence.cast.map(lower));
-  const terms = [...entry.entities, ...entry.activationTriggers].filter((term) => term && !cast.has(lower(term)));
+  const terms = [...entry.entities, ...entry.activationTriggers, ...(entry.keys ?? [])].filter((term) => term && !cast.has(lower(term)));
   const words = contentWords(entry.text);
   cast.forEach((name) => contentWords(name).forEach((word) => words.delete(word)));
   for (const row of evidence.rows) {
@@ -123,7 +123,8 @@ export function scoreTerms(entry: MemoryEntry, context: ScoreContext): ScoreTerm
   }
 
   const texts = parts ? parts.map((part) => part.text) : [turnText];
-  const activation = entry.activationTriggers.some((trigger) => trigger && texts.some((text) => text.includes(lower(trigger)))) ? 1 : 0;
+  const keyed = (entry.keys ?? []).some((key) => key.length >= 3 && texts.some((text) => termIn(text, lower(key))));
+  const activation = keyed || entry.activationTriggers.some((trigger) => trigger && texts.some((text) => text.includes(lower(trigger)))) ? 1 : 0;
   const contradiction = entry.contradicted ? 1 : 0;
 
   const openArcs = context.openArcs ?? [];

@@ -31,13 +31,13 @@ const archived = (entry: MemoryEntry) => Boolean(entry.foldedInto) && !entry.sup
 
 export function recallMentions(entries: readonly MemoryEntry[], text: string): string[] {
   if (!text.trim()) return [];
-  const entities = new Set(entries.filter(archived).flatMap((entry) => entry.entities.map(lower).filter(Boolean)));
+  const entities = new Set(entries.filter(archived).flatMap((entry) => [...entry.entities, ...(entry.keys ?? [])].map(lower).filter(Boolean)));
   return [...entities].filter((entity) => named(text, entity)).sort();
 }
 
 export function recallCandidates(entries: readonly MemoryEntry[], text: string): MemoryEntry[] {
   const mentioned = new Set(recallMentions(entries, text));
-  return mentioned.size ? entries.filter((entry) => archived(entry) && entry.entities.some((entity) => mentioned.has(lower(entity)))) : [];
+  return mentioned.size ? entries.filter((entry) => archived(entry) && [...entry.entities, ...(entry.keys ?? [])].some((entity) => mentioned.has(lower(entity)))) : [];
 }
 
 export function selectRecall(candidates: readonly MemoryEntry[], records: readonly ChapterRecord[], context: ScoreContext, options: RecallOptions = {}): RecallLine[] {

@@ -80,7 +80,7 @@ const SETTINGS_PAGES: Array<[RegExp, WorkspacePage, string?]> = [
   [/^(so-image-|so-sprite-|so-live-head|so-gpu-broker|so-stage-|so-device-sprites)/, "images"],
   [/^(so-wi-|so-lorebooks|so-story-lore|so-world-)/, "world"],
   [/^(so-copilot-|so-chapter-budget|so-authoring-|so-prompt-trials|so-history-notes|so-outward-narration|so-swipe-contrast|so-mention-ledger)/, "authoring"],
-  [/^(so-strength-retention|so-retrieval-query|so-recap-outside-window)/, "authoring"],
+  [/^(so-strength-retention|so-retrieval-query|so-recap-outside-window|so-neighbour-read|so-read-keys|so-relation-rows|so-social-acts)/, "authoring"],
   [/^(so-capabilities|so-host-|so-engine-status|so-diagnostics|so-copy-diagnostics|so-context-limit)/, "diagnostics"],
   [/^so-help-/, "help"],
 ];

@@ -3,7 +3,7 @@ import { isRecord } from "@utils/guards";
 import type { RecapSection, RecapView } from "./consequences";
 import type { LoadedStory, RuntimeExtras } from "./types";
 
-export type EffectKind = "transition" | "quest" | "milestone" | "check" | "agenda";
+export type EffectKind = "transition" | "quest" | "milestone" | "check" | "agenda" | "act";
 
 export interface CauseRef {
   key: string;

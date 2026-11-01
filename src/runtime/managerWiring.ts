@@ -53,6 +53,7 @@ import { createCarryActions } from "./carryPort";
 import { wireSpeech } from "./speechWiring";
 import { createSkipPort } from "./skipPort";
 import { gameLayer } from "@engine/validate/gameLayer";
+import { readMemoryFor } from "./readMemoryPort";
 
 const reconcileWith = (read: () => RuntimeExtras) => (previous: NormalizedStory, next: NormalizedStory): void => {
   const extras = read();
@@ -352,6 +353,6 @@ export function wireCoordinators(port: ManagerPort) {
   const storyUpdateDeps = storyUpdateDepsFor(port, expansion, living, patternsWiring.reconcile);
   return {
     memory, expansion, extraction, pacing, stagecraft, copilot, inner, game, meanwhile, living, rollbackDeps, storyUpdateDeps, recap, patterns, promises, witness, rumors, mentions,
-    carry, narrator, delivery, cues, echoes, polish: { port, memory }, speech, effects: port.effects, skip: wireSkip(port, pacing, speech, game),
+    carry, narrator, delivery, cues, echoes, polish: { port, memory }, speech, effects: port.effects, skip: wireSkip(port, pacing, speech, game), readMemory: readMemoryFor(port.extras, memory),
   };
 }

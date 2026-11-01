@@ -3,6 +3,7 @@ import {
   type AppliedQueueEntry, type BoundaryLogEntry, type EngineState, type GateLeaf, type GateNode, type NormalizedStory, type NormalizedTransition,
   type Milestone, type PrimitiveValue, type Quest, type QuestStatus, type RecapText, type StoryCheck, type Transition,
 } from "@engine/index";
+import { actPairs, parseActLog } from "@engine/socialActs";
 import { gameLayer } from "@engine/validate/gameLayer";
 import { playerRowRevision } from "@extraction/playerSpan";
 import { questMoveText } from "@features/gameCopy";
@@ -173,10 +174,16 @@ const agendaRefs = (story: NormalizedStory, entry: BoundaryLogEntry) => (story.l
   ? gameLayer()?.life.landedSteps(story, entry.before.blackboard.values, entry.after.blackboard.values) ?? [] : [])
   .map((landed) => ({ kind: "agenda" as const, id: `${landed.memberId}:${landed.agendaId}:${landed.index}`, visible: landed.step.public === true, authored: false, causes: [] }));
 
+const actRefs = (story: NormalizedStory, entry: BoundaryLogEntry) => actPairs(story.life).flatMap((pair) => {
+  const before = new Set(parseActLog(entry.before.blackboard.values[pair.log]).map((item) => `${item.boundary}:${item.act}`));
+  return parseActLog(entry.after.blackboard.values[pair.log]).filter((item) => !before.has(`${item.boundary}:${item.act}`))
+    .map((item) => ({ kind: "act" as const, id: item.act, from: pair.by, to: pair.to, visible: true, authored: false, causes: [] }));
+});
+
 export function deriveRefs(story: NormalizedStory, entry: BoundaryLogEntry, records: readonly CheckRecord[] = []): EffectRef[] {
   const at = { boundary: entry.boundary, messageId: entry.context.lastMessageId, chapterId: chapterOf(story, entry.before.activeCheckpointId) };
   const fired = entry.fired && entry.source === "gate" ? [transitionRef(story, entry, entry.fired)] : [];
-  return [...fired, ...questRefs(story, entry), ...milestoneRefs(story, entry), ...checkRefs(story, entry, records), ...agendaRefs(story, entry)]
+  return [...fired, ...questRefs(story, entry), ...milestoneRefs(story, entry), ...checkRefs(story, entry, records), ...agendaRefs(story, entry), ...actRefs(story, entry)]
     .map((ref): EffectRef => ({ ...ref, ...at }));
 }
 
@@ -198,7 +205,7 @@ const agendaStep = (story: NormalizedStory, id: string) => {
 };
 
 export function neutralText(story: NormalizedStory, ref: EffectRef): string | null {
-  if (!ref.visible) return null;
+  if (!ref.visible || ref.kind === "act") return null;
   if (ref.kind === "transition") {
     const target = ref.to ? story.checkpointById[ref.to] : undefined;
     const name = target ? playerCheckpointName(target) : null;

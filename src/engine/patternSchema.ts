@@ -1,4 +1,4 @@
-export const PATTERN_KINDS = ["transition", "quest", "milestone", "check"] as const;
+export const PATTERN_KINDS = ["transition", "quest", "milestone", "check", "act"] as const;
 export type PatternKind = (typeof PATTERN_KINDS)[number];
 
 export const PATTERNS_MAX = 16;
@@ -17,6 +17,7 @@ export const PATTERN_ATTRS = {
   quest: ["id", "to", "giver"],
   milestone: ["id"],
   check: ["id", "outcome", "quality"],
+  act: ["id", "by", "to"],
 } as const satisfies Record<PatternKind, readonly string[]>;
 
 export const PATTERN_QUEST_STATUSES = ["offered", "active", "done", "failed"] as const;

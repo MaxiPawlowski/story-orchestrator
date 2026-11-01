@@ -16,7 +16,7 @@ import type {
   SharedReadAudit,
 } from "@extraction/index";
 import {
-  innerRender, loadInnerRender, detectSceneBreakHeuristic, fitShortTerm,
+  innerRender, loadInnerRender, detectSceneBreakHeuristic, fitShortTerm, rowTags,
   generateMemoryId, parseEpistemicLine, parseEpistemicRetire, parseLedgerLine, provenance, summarizeScene, type ArcEntry,
   type MemoryEntry, type ParsedArcSignal, type ParsedEpistemicSignal, type ParsedLedgerSignal, type ParsedMemoryLine,
 } from "@memory/index";
@@ -253,12 +253,12 @@ export class ExtractionCoordinator {
     const memory = this.deps.memory;
     const newMemoryEntries: MemoryEntry[] = [
       ...facts.map((fact) => this.newEntry({ provenance: this.provenanceFor({ to: fact.messageId ?? audit.window.to }), tier: "facts",
-          text: fact.text, type: fact.type ?? "fact", importance: fact.importance, expiration: "permanent", entities: fact.entities ?? [],
+          text: fact.text, type: fact.type ?? "fact", importance: fact.importance, expiration: "permanent", entities: fact.entities ?? [], ...rowTags(fact),
           evidence: fact.evidence, characterId: fact.characterId, messageId: fact.messageId ?? audit.window.to })),
       ...memoryLines.map((line) => this.newEntry({ provenance: this.provenanceFor({ to: line.messageId ?? audit.window.to }), tier: line.tier,
           text: line.text, type: line.type, importance: line.importance, expiration: line.expiration,
           entities: line.entities, evidence: line.evidence, characterId: line.characterId,
-          messageId: line.messageId ?? audit.window.to })),
+          messageId: line.messageId ?? audit.window.to, ...rowTags(line) })),
     ];
     const memoryEnabled = memory.enabled;
     // The main extraction write path. `verifyEntries` is a judge pass, so it can be slow, and

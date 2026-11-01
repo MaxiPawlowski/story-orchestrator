@@ -14,7 +14,7 @@ import {
   type PatternsState, type PatternTombstone, type PublicPattern, type PatternGap,
 } from "./patternsPort";
 
-const KINDS: readonly string[] = ["transition", "quest", "milestone", "check"];
+const KINDS: readonly string[] = ["transition", "quest", "milestone", "check", "act"];
 
 export const patternRev = (pattern: StoryPattern): string =>
   fnv1a(stableStringify({ steps: pattern.steps, unless: pattern.unless ?? [], within: pattern.within ?? null, repeat: pattern.repeat ?? "once" }));
@@ -52,6 +52,7 @@ const attrsOf = (index: PatternIndex, ref: PatternRef & { to?: string; from?: st
   if (ref.kind === "transition") return put({ to: ref.to, from: ref.from, chapter: ref.to ? chapterOf(story, ref.to) ?? undefined : undefined });
   if (ref.kind === "quest") return put({ id: ref.id, to: ref.to, giver: (story.quests ?? []).find((quest) => quest.id === ref.id)?.giver });
   if (ref.kind === "milestone") return { id: ref.id };
+  if (ref.kind === "act") return put({ id: ref.id, by: ref.from, to: ref.to });
   return put({ id: ref.id, outcome: ref.to, quality: index.checks.get(ref.id)?.quality });
 };
 

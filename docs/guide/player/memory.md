@@ -48,6 +48,24 @@ Prompt trials**, and none calls a model.
 
 A swipe or edit takes back what the replaced reply counted as said or used.
 
+<a id="what-the-read-writes"></a>
+### What the story read may add
+
+Four more switches change what the story read is asked to write. All are on, sit in the same place, and add no model call.
+Each tag is optional, so a read that ignores them works as before.
+
+- **Read sees nearby memories.** The read is shown up to 12 stored memories about who and what it is reading, labelled
+  m1, m2... A new memory line may say it only repeats one (the stored memory is confirmed, nothing new is stored) or
+  changes one (the new line replaces it; the old one stays as history). Kept-out secrets are never shown to the read, and
+  locked or decided memories are never replaced.
+- **Lookup words on memories.** A memory may carry up to three short lookup words (an object, place or nickname). A reply
+  whose last messages use one of them finds the memory, and the archive brings it back.
+- **Relations with several partners.** The state notes can hold relations between two named people or things (ally of,
+  serves, owes), several at once; an ended relation stays as history and leaves Current state. Two opposite relations
+  (ally and enemy, trusts and distrusts) go to the conflict queue for you.
+- **Social acts behind feelings.** A feeling change can carry what was done (helped, lied, insulted...). Stories can count
+  those acts; an act of yours counts only when your own line shows it.
+
 ## Memorize an existing chat
 
 **Memorize chat** reads the whole chat history into memory, for a chat that started before the extension was on.
