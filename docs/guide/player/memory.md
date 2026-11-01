@@ -30,7 +30,7 @@ Filter by **Character**, and past 50 memories use **Find** to search.
 <a id="which-memories"></a>
 ### Which memories each reply gets
 
-Three switches decide which memories reach a reply. All are on; in Author view they sit under **Settings → Authoring →
+Four switches decide which memories reach a reply. All are on; in Author view they sit under **Settings → Authoring →
 Prompt trials**, and none calls a model.
 
 - **Pick memories from the last few messages.** Memories are scored against the last four messages (newer ones count
@@ -42,6 +42,9 @@ Prompt trials**, and none calls a model.
 - **Keep the memories the story uses.** A memory a reply used gets stronger; strength fades over turns. When a group is
   full, the weakest memory moves to the archive instead of the oldest being deleted, and the archive brings it back when
   the chat names it ("Recalled from earlier: …"). Pinned, locked and edited memories never move.
+- **Recap only what left the prompt.** A session detail, the recent-events summary or a scene summary stays out while
+  every message it sums up is still in the prompt word for word (with a four-message margin); once SillyTavern trims
+  those messages, it comes back. Pinned and decided memories always stay. The Memory tab shows such a row as held back.
 
 A swipe or edit takes back what the replaced reply counted as said or used.
 

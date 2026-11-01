@@ -173,6 +173,7 @@ Generated from the feature registry. "Experimental" means not yet measured; it i
 | Memory | Hold back what a character just said | A memory a character just brought up is left out of that character's next few replies, unless you raise it. |  |
 | Memory | Keep the memories the story uses | When a memory tier is full, the weakest memory leaves instead of the oldest, and it can still be recalled later. |  |
 | Memory | Pick memories from the last few messages | Which memories each reply gets is decided by the last few messages, the speaking character and who is on stage, not the last line alone. |  |
+| Memory | Recap only what left the prompt | A summary of messages that are still in the prompt word for word is left out until those messages leave it. |  |
 | Characters | Speaker direction | In a group, the story picks who should speak next. |  |
 | Characters | Several voices per turn | More than one character can answer one of your messages. |  |
 | Characters | One question when a character asks you | A character told to ask you one thing keeps only the last of its questions. |  |

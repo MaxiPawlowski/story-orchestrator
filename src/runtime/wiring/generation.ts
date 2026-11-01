@@ -24,6 +24,7 @@ import { generationWatch } from "../generationWatch";
 import { promptCost } from "../promptCost";
 import { attachPromptBuckets } from "../promptBucketsHost";
 import { attachPrefixDrift } from "../prefixDriftHost";
+import { attachPromptWindow } from "../promptWindowHost";
 import { roleHealth } from "../roleHealth";
 import { roleDefaultFrom, setRoleDefault } from "../passProfiles";
 import { modelCallLog } from "../modelCallLog";
@@ -112,6 +113,7 @@ export const attachGenerationObservers = (live: LiveParts, disposers: Disposers,
   disposers.push(modelCallLog.attach((record) => runtimeManager.recordModelCall(record)));
   disposers.push(attachPromptBuckets(() => runtimeManager.notify()));
   disposers.push(attachPrefixDrift(() => generation.snapshot()));
+  disposers.push(attachPromptWindow(() => generation.snapshot()));
   disposers.push(promptCost.attach({
     count: countTokens, budget: readPromptBudget, notify: () => runtimeManager.notify(), busy: () => generation.snapshot().outermost !== null, tokenizer: tokenizerIdentity,
   }));

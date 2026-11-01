@@ -201,6 +201,7 @@ export interface MemoryRuntimeSettings {
   summaryGuard?: boolean;
   supersedeVerdicts?: boolean;
   placeFold?: boolean;
+  recapOutsideWindow?: boolean;
   mentionLedger?: boolean;
   strengthRetention?: boolean;
   retrievalQuery?: boolean;

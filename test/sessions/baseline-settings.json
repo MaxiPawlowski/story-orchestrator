@@ -77,6 +77,7 @@
       "summaryGuard": true,
       "supersedeVerdicts": true,
       "placeFold": true,
+      "recapOutsideWindow": true,
       "mentionLedger": true,
       "strengthRetention": true,
       "retrievalQuery": true,

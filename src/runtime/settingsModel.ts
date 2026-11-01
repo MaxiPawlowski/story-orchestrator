@@ -258,6 +258,7 @@ export const defaultMemorySettings = (): MemoryRuntimeSettings => ({
   summaryGuard: true,
   supersedeVerdicts: true,
   placeFold: true,
+  recapOutsideWindow: true,
   mentionLedger: true,
   strengthRetention: true,
   retrievalQuery: true,
@@ -300,6 +301,7 @@ const sanitizeInnerVoice = (memory: MemoryRuntimeSettings, defaults: MemoryRunti
   memory.historyNotes = memory.historyNotes !== false;
   memory.outwardNarration = memory.outwardNarration !== false;
   for (const key of ["compactionTokens", "summaryGuard", "supersedeVerdicts", "placeFold"] as const) memory[key] = memory[key] !== false;
+  memory.recapOutsideWindow = memory.recapOutsideWindow !== false;
   memory.mentionLedger = memory.mentionLedger !== false;
   memory.strengthRetention = memory.strengthRetention !== false;
   memory.retrievalQuery = memory.retrievalQuery !== false;

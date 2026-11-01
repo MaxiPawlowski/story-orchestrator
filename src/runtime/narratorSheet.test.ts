@@ -184,6 +184,20 @@ describe("18 Q7: the public sheet reaches the narrator", () => {
       { key: "health", type: "int", source: "extractor", rubric: "Health.", display: { public: true, label: "Health", as: "meter", min: 0, max: 10, bands } }] }))).toThrow(/at most 80 characters/);
   });
 
+  test("43 C: an unset shown value sends no row, and a sheet with every value unset sends no block", () => {
+    const meters = parseStoryOrThrow(raw({ qualities: [
+      { key: "health", type: "int", source: "extractor", rubric: "Health.", display: { public: true, label: "Health", as: "meter", min: 0, max: 10 } },
+      { key: "mood", type: "int", source: "extractor", rubric: "Mood.", display: { public: true, label: "Mood", as: "meter", min: 0, max: 10 } },
+      bool("paid"), bool("heard_rumour"), bool("secret_plan"),
+    ] }));
+    const engine = play(meters, 1, 0);
+    expect(narratorLines(meters, engine.serialize(), [])).toEqual([]);
+    engine.enqueue({ source: "extractor", blackboardVersionSum: 0, deltas: [{ q: "health", v: 4, source: "extractor" }] });
+    engine.commitBoundary({ lastMessageId: 2, chatLength: 3 });
+    const lines = narratorLines(meters, engine.serialize(), []);
+    expect(lines).toEqual([SHEET_HEADER, "- Status: Health: 4/10"]);
+  });
+
   test("the check-outcome header names only listed consequences", () => {
     expect(CHECK_OUTCOME_HEADER).toMatch(/Narrate only the outcomes and consequences listed\. A failure means the attempt did not succeed; do not add costs the list does not name\.$/);
   });
