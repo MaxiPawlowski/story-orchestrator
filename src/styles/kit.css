@@ -1,4 +1,4 @@
-:is(#drawer-manager, #so-hud-root, #story-orchestrator-settings, #so-studio-root, #so-studio-modal, #so-briefing-root, #so-briefing, #so-panels-root, #so-workspace-root, #so-workspace-modal, .so-inline-host) {
+:is(#drawer-manager, #so-hud-root, #story-orchestrator-settings, #so-studio-root, #so-studio-modal, #so-briefing-root, #so-briefing, #so-panels-root, #so-workspace-root, #so-workspace-modal, .so-inline-host, .so-slot) {
   --so-btn-line: color-mix(in srgb, var(--so-fg) 28%, transparent);
   --so-focus: var(--so-accent);
 

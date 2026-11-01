@@ -1,0 +1,183 @@
+#chat .so-slot:not(.so-inline-host) {
+  font-size: calc(var(--mainFontSize, 15px) * 0.85);
+  color: var(--so-fg);
+}
+
+#chat .so-slot-end {
+  padding-right: 48px;
+}
+
+#chat .so-slot:empty {
+  display: none;
+}
+
+:is(#chat, #so-panels-root) .so-ic-divider {
+  display: flex;
+  align-items: center;
+  gap: var(--so-space-2);
+  margin: 0 0 var(--so-space-2);
+  color: var(--so-fg-subtle);
+  font-size: var(--so-text-xs);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+:is(#chat, #so-panels-root) .so-ic-divider-rule {
+  flex: 1;
+  height: 1px;
+  background: var(--so-line);
+}
+
+:is(#chat, #so-panels-root) .so-ic-divider-text {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--so-space-1);
+  min-width: 0;
+  overflow-wrap: anywhere;
+  text-align: center;
+}
+
+:is(#chat, #so-panels-root) .so-ic-because {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: var(--so-space-1) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+:is(#chat, #so-panels-root) .so-ic-because-line {
+  display: flex;
+  align-items: baseline;
+  gap: var(--so-space-2);
+  padding: 2px var(--so-space-2);
+  border-left: 3px solid var(--so-accent);
+  border-radius: 0 var(--so-radius-sm) var(--so-radius-sm) 0;
+  background: color-mix(in srgb, var(--so-accent) 10%, transparent);
+  font-style: italic;
+}
+
+:is(#chat, #so-panels-root) .so-ic-because-line > i {
+  color: var(--so-accent);
+  font-size: var(--so-text-xs);
+}
+
+:is(#chat, #so-panels-root) .so-ic-discovery {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--so-space-2);
+  margin: var(--so-space-2) 0 0;
+  padding: var(--so-space-2) var(--so-space-3);
+  border: 1px solid var(--so-line);
+  border-radius: var(--so-radius);
+  background: var(--so-surface-2);
+}
+
+:is(#chat, #so-panels-root) .so-ic-discovery-icon {
+  margin-top: 2px;
+  color: var(--so-info);
+}
+
+:is(#chat, #so-panels-root) .so-ic-discovery-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+:is(#chat, #so-panels-root) .so-ic-eyebrow {
+  color: var(--so-fg-muted);
+  font-size: var(--so-text-xs);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+:is(#chat, #so-panels-root) .so-ic-discovery-name {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+:is(#chat, #so-panels-root) .so-ic-discovery-facts {
+  margin: 0;
+  padding-left: 1.1em;
+  color: var(--so-fg-muted);
+}
+
+:is(#chat, #so-panels-root) .so-ic-meter {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: var(--so-space-1) 0 0;
+  padding: var(--so-space-1) var(--so-space-2);
+  border: 1px dashed var(--so-line);
+  border-radius: var(--so-radius-sm);
+  font-size: var(--so-text-xs);
+}
+
+:is(#chat, #so-panels-root) .so-ic-meter-moved {
+  display: flex;
+  align-items: center;
+  gap: var(--so-space-1);
+  color: var(--so-ok);
+}
+
+:is(#chat, #so-panels-root) .so-ic-meter-row {
+  display: grid;
+  grid-template-columns: minmax(6em, max-content) minmax(3em, 6em) max-content;
+  align-items: center;
+  gap: 2px var(--so-space-2);
+}
+
+:is(#chat, #so-panels-root) .so-ic-meter-to {
+  overflow-wrap: anywhere;
+}
+
+:is(#chat, #so-panels-root) .so-ic-meter-bar {
+  height: 6px;
+  border-radius: var(--so-radius-pill);
+  background: var(--so-line);
+  overflow: hidden;
+}
+
+:is(#chat, #so-panels-root) .so-ic-meter-bar > span {
+  display: block;
+  height: 100%;
+  background: var(--so-warn);
+}
+
+:is(#chat, #so-panels-root) .so-ic-meter-row[data-ready] .so-ic-meter-bar > span {
+  background: var(--so-ok);
+}
+
+:is(#chat, #so-panels-root) .so-ic-meter-count {
+  color: var(--so-fg-muted);
+  white-space: nowrap;
+}
+
+:is(#chat, #so-panels-root) .so-ic-meter-open {
+  grid-column: 1 / -1;
+  color: var(--so-fg-muted);
+  overflow-wrap: anywhere;
+}
+
+:is(#chat, #so-panels-root) .so-ic-chips {
+  display: flex;
+  flex-direction: column;
+  gap: var(--so-space-1);
+  margin: var(--so-space-2) 0 0;
+}
+
+:is(#chat, #so-panels-root) .so-ic-chips-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--so-space-1) var(--so-space-2);
+}
+
+:is(#chat, #so-panels-root) .so-ic-chips-row .so-btn {
+  min-height: 0;
+  padding: 2px var(--so-space-2);
+  white-space: normal;
+  text-align: left;
+}
