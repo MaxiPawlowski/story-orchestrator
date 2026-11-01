@@ -27,6 +27,24 @@ On each memory:
 
 Filter by **Character**, and past 50 memories use **Find** to search.
 
+<a id="which-memories"></a>
+### Which memories each reply gets
+
+Three switches decide which memories reach a reply. All are on; in Author view they sit under **Settings → Authoring →
+Prompt trials**, and none calls a model.
+
+- **Pick memories from the last few messages.** Memories are scored against the last four messages (newer ones count
+  more), the character about to speak and who is on stage, not the last line alone. A memory counts as recent when the
+  chat last mentioned it, never because it was already in a prompt.
+- **Hold back what a character just said.** When a character's reply restates a memory, that memory leaves that
+  character's own memory notes for the next six turns, so the same callback is not offered every reply. Your next
+  message brings it back at once if it names it. The other characters keep it.
+- **Keep the memories the story uses.** A memory a reply used gets stronger; strength fades over turns. When a group is
+  full, the weakest memory moves to the archive instead of the oldest being deleted, and the archive brings it back when
+  the chat names it ("Recalled from earlier: …"). Pinned, locked and edited memories never move.
+
+A swipe or edit takes back what the replaced reply counted as said or used.
+
 ## Memorize an existing chat
 
 **Memorize chat** reads the whole chat history into memory, for a chat that started before the extension was on.

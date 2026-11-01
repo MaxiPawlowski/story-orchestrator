@@ -32,7 +32,10 @@ export const worldInfoFilesHeld = (): boolean => scanGating || (!scanSettled && 
 
 export const setScanGatingActive = (active: boolean): void => {
   scanGating = active;
-  if (!active) lastScan = null;
+  if (!active) {
+    lastScan = null;
+    lastChance = null;
+  }
 };
 
 // What the last gated scan loaded and used, per gated entry, for the author view.
@@ -41,6 +44,19 @@ export const noteScanGate = (view: ScanGateView): void => {
 };
 
 export const scanGateView = (): ScanGateView | null => (scanGating ? lastScan : null);
+
+export interface LoreChanceView {
+  chatId: string | null;
+  weightedGroups: string[];
+}
+
+let lastChance: LoreChanceView | null = null;
+
+export const noteLoreChance = (view: LoreChanceView): void => {
+  lastChance = view;
+};
+
+export const loreChanceView = (): LoreChanceView | null => (scanGating ? lastChance : null);
 
 // The install-wide gating state the settings row and the Repair row read.
 export interface WiGatingStatus {
@@ -62,3 +78,5 @@ export const setWiGatingStatus = (status: WiGatingStatus | null): void => {
 };
 
 export const wiGatingStatus = (): WiGatingStatus | null => gatingStatus;
+
+export { loreBudgetView } from "./loreBudget";

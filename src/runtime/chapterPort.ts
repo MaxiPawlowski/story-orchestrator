@@ -48,7 +48,7 @@ export class ChapterPort {
   carried: string | null = null;
   bridgeHeld = false;
   recalled = false;
-  recallBand: { key: string; band: Set<string> | null } | null = null;
+  recallBand: { key: string; band: Map<string, number> | null } | null = null;
   compactedTo: number | null = null;
   compactMeter: CompactionMeter | null = null;
 

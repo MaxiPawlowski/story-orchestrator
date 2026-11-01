@@ -222,6 +222,20 @@ const WorldPage = ({ snapshot, manager, navigate }: PageProps) => {
         onChoose={(mode) => void (mode === "scan" ? wiGating()?.requestScan() : wiGating()?.requestFile())} onRenormalize={() => void wiGating()?.renormalize()} />
       {snapshot.ui.authorView && <GlobalCheck id="so-wi-lore-pins" setting="worldInfo.lorePins" manager={manager}
         read={(settings) => settings.worldInfo.lorePins} write={(on) => setGlobalSettings({ worldInfo: { lorePins: on } })} />}
+      {snapshot.ui.authorView && <GlobalCheck id="so-wi-seeded-chance" setting="worldInfo.seededChance" manager={manager}
+        read={(settings) => settings.worldInfo.seededChance} write={(on) => setGlobalSettings({ worldInfo: { seededChance: on } })} />}
+      {snapshot.ui.authorView && <GlobalCheck id="so-wi-budget-evidence" setting="worldInfo.budgetEvidence" manager={manager}
+        read={(settings) => settings.worldInfo.budgetEvidence} write={(on) => setGlobalSettings({ worldInfo: { budgetEvidence: on } })} />}
+      {snapshot.ui.authorView && <GlobalCheck id="so-wi-lexical-fallback" setting="worldInfo.lexicalFallback" manager={manager}
+        read={(settings) => settings.worldInfo.lexicalFallback} write={(on) => setGlobalSettings({ worldInfo: { lexicalFallback: on } })} />}
+      {snapshot.ui.authorView && <GlobalCheck id="so-wi-lexical-prefilter" setting="worldInfo.lexicalPrefilter" manager={manager}
+        read={(settings) => settings.worldInfo.lexicalPrefilter} write={(on) => setGlobalSettings({ worldInfo: { lexicalPrefilter: on } })} />}
+      {snapshot.ui.authorView && <GlobalCheck id="so-wi-lexical-tiebreak" setting="worldInfo.lexicalTiebreak" manager={manager}
+        read={(settings) => settings.worldInfo.lexicalTiebreak} write={(on) => setGlobalSettings({ worldInfo: { lexicalTiebreak: on } })} />}
+      {snapshot.ui.authorView && <GlobalCheck id="so-wi-hold-round" setting="worldInfo.holdRound" manager={manager}
+        read={(settings) => settings.worldInfo.holdRound} write={(on) => setGlobalSettings({ worldInfo: { holdRound: on } })} />}
+      {snapshot.ui.authorView && <GlobalCheck id="so-wi-prefer-known" setting="worldInfo.preferKnown" manager={manager}
+        read={(settings) => settings.worldInfo.preferKnown} write={(on) => setGlobalSettings({ worldInfo: { preferKnown: on } })} />}
     </Section>
     <Section title="Lore features" level={3}>
       <FeatureLinkRow feature="memoryLore" snapshot={snapshot} navigate={navigate} />
@@ -256,6 +270,14 @@ const AuthoringPage = ({ snapshot, manager, navigate }: PageProps) => (
         read={(settings) => settings.memory.historyNotes === true} write={(on) => manager.setMemorySettings({ historyNotes: on })} />
       <GlobalCheck id="so-outward-narration" setting="memory.outwardNarration" manager={manager}
         read={(settings) => settings.memory.outwardNarration === true} write={(on) => manager.setMemorySettings({ outwardNarration: on })} />
+      <GlobalCheck id="so-mention-ledger" setting="memory.mentionLedger" manager={manager}
+        read={(settings) => settings.memory.mentionLedger === true} write={(on) => manager.setMemorySettings({ mentionLedger: on })} />
+      <GlobalCheck id="so-strength-retention" setting="memory.strengthRetention" manager={manager}
+        read={(settings) => settings.memory.strengthRetention === true} write={(on) => manager.setMemorySettings({ strengthRetention: on })} />
+      <GlobalCheck id="so-retrieval-query" setting="memory.retrievalQuery" manager={manager}
+        read={(settings) => settings.memory.retrievalQuery === true} write={(on) => manager.setMemorySettings({ retrievalQuery: on })} />
+      <GlobalCheck id="so-authoring-path-arc" setting="pacing.pathArc" manager={manager}
+        read={(settings) => settings.pacing.pathArc} write={(on) => setGlobalSettings({ pacing: { pathArc: on } })} />
       <GlobalCheck id="so-swipe-contrast" setting="talk.swipeContrast" manager={manager}
         read={(settings) => settings.talk.swipeContrast} write={(on) => setGlobalSettings({ talk: { swipeContrast: on } })} />
     </Section>}

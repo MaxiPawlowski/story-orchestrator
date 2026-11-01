@@ -25,6 +25,8 @@ const PipelineSection = lazyRetry(() => import("./tabs/PipelineSection").then((m
 const PromptSection = lazyRetry(() => import("./tabs/PromptSection").then((module) => ({ default: module.PromptSection })));
 const PatternsPanel = lazyRetry(() => import("./PatternsPanel").then((module) => ({ default: module.PatternsPanel })));
 const SecretGridPanel = lazyRetry(() => import("./SecretGridPanel"));
+const RailroadPanel = lazyRetry(() => import("./RailroadPanel"));
+const LoreBudgetPanel = lazyRetry(() => import("./LoreBudgetPanel"));
 
 export interface DrawerDriver {
   context: ReturnType<RuntimeManager["getDriverContext"]>;
@@ -158,6 +160,7 @@ export const DrawerTabs = ({
               {active === "health" && (
                 <div data-so-tab="health">
                   <HealthSection snapshot={snapshot} onFixWithWizard={onFixWithWizard} onBranchFromOldest={onBranchFromOldest} onOpenRepair={onOpenRepair} />
+                  {authorView && snapshot.consoleAuthor?.railroad && <Lazy fallback={null}><RailroadPanel view={snapshot.consoleAuthor.railroad} /></Lazy>}
                 </div>
               )}
               {active === "state" && <SectionBody id="state"><StateSection snapshot={snapshot} onDecideMeanwhile={(id, status) => void manager.decideMeanwhile(id, status)} /></SectionBody>}
@@ -172,6 +175,7 @@ export const DrawerTabs = ({
                 <SectionBody id="prompt">
                   <PromptSection snapshot={snapshot} manager={manager}
                     onOpenOwner={(owner) => (owner === "config" ? onOpenSettings?.() : owner === "payload" ? undefined : setActive(owner))} />
+                  {authorView && snapshot.loreBudget && <Lazy fallback={null}><LoreBudgetPanel view={snapshot.loreBudget} /></Lazy>}
                 </SectionBody>
               )}
               {active === "proposals" && <SectionBody id="proposals"><ProposalsSection snapshot={snapshot} manager={manager} onOpenFact={openFact} /></SectionBody>}

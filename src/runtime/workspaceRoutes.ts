@@ -70,7 +70,7 @@ export const FEATURE_INSTALL_HOMES: Partial<Record<StoryFeatureId, { page: Works
 };
 
 const CHAT_SETTINGS = /^(story-library|so-group-story|so-chat-|so-author-view-switch|so-shape-override|so-restart-story|so-delete-story|so-export-state|so-story-identity|so-make-group|so-read-now)/;
-const FEATURE_EXTRAS: Record<string, StoryFeatureId> = { "so-keep-last-question": "speakers", "so-inner-harvest": "inner" };
+const FEATURE_EXTRAS: Record<string, StoryFeatureId> = { "so-keep-last-question": "speakers", "so-cross-voice-trim": "speakers", "so-dry-names": "speakers", "so-inner-harvest": "inner" };
 const SETTINGS_PAGES: Array<[RegExp, WorkspacePage, string?]> = [
   [/^(so-entry-|so-open-studio|so-new-story|so-getting-started|so-continue)/, "library"],
   [/^(so-presence-|so-hud-|so-your-move-|so-inline-|so-briefing-|so-player-setup|so-announce-transitions|so-device-display)/, "display"],
@@ -79,7 +79,7 @@ const SETTINGS_PAGES: Array<[RegExp, WorkspacePage, string?]> = [
   [/^so-model-source/, "images", "model-sources"],
   [/^(so-image-|so-sprite-|so-live-head|so-gpu-broker|so-stage-|so-device-sprites)/, "images"],
   [/^(so-wi-|so-lorebooks|so-story-lore|so-world-)/, "world"],
-  [/^(so-copilot-|so-chapter-budget|so-authoring-|so-prompt-trials|so-history-notes|so-outward-narration|so-swipe-contrast)/, "authoring"],
+  [/^(so-copilot-|so-chapter-budget|so-authoring-|so-prompt-trials|so-history-notes|so-outward-narration|so-swipe-contrast|so-mention-ledger|so-strength-retention|so-retrieval-query)/, "authoring"],
   [/^(so-capabilities|so-host-|so-engine-status|so-diagnostics|so-copy-diagnostics|so-context-limit)/, "diagnostics"],
   [/^so-help-/, "help"],
 ];

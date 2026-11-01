@@ -282,6 +282,16 @@ export const SETTING_COPY = {
     "When a character is told to turn to you with one question, such as the line right after a story's opening, and the reply asks several, "
       + "only the last question is kept and the rest of the line stays as written. A reply the trim would break is left alone, and thinking is never changed.",
   ),
+  "talk.crossVoiceTrim": copy(
+    "Cut lines written for someone else",
+    "When a character's reply goes on to a line headed with another character's name or yours, the reply is cut where that line begins. "
+      + "A reply the cut would leave nearly empty is kept as written, and thinking is never changed.",
+  ),
+  "talk.dryNames": copy(
+    "Protect names from the repetition penalty",
+    "Adds the cast's names and yours to the DRY repetition penalty's sequence breakers for each reply, so names are not bent into misspellings. "
+      + "Only when the reply request already uses DRY; your preset is not changed.",
+  ),
   "talk.skipAhead": copy(
     "Let me skip ahead",
     "Adds Skip ahead to the story card and /story skip: the narrator tells travel, waiting or routine in one reply, up to the next part of the day, "

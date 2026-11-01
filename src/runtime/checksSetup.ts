@@ -10,6 +10,7 @@ import { anyLost } from "./libraryIndexCore";
 import { PLAYER_COPY } from "./narrative";
 import { ROLE_OUTAGE_STATES, ROLE_PROBLEM_STATES } from "./roleHealth";
 import { mutedMembersText, REPAIR_PLAYER_COPY, TRANSPORT_PLAYER_TEXT } from "./pipeline";
+import { uncappedFinding } from "./loreBudget";
 
 export const REPAIR_TARGET_IDS = { memoryModel: "so-extraction-profile" } as const;
 
@@ -299,6 +300,29 @@ export const IMAGE_CHECKS: readonly Check[] = [
 
 export const INFO_SETUP_CHECKS: readonly Check[] = [
   {
+    id: "lore-budget-uncapped", area: "lore", scope: "story", audience: "player", severity: "info", feature: "lore-budget-evidence",
+    detect: (snapshot) => {
+      const found = uncappedFinding(snapshot.loreBudget);
+      return found ? {
+        consequence: "SillyTavern's lore budget has no token cap, so this story's lorebooks can fill the prompt and push older chat history out once a chat grows long.",
+        detail: `The story's own lorebooks hold about ${found.tokens} tokens and World Info "Budget Cap" is 0 (no cap). `
+          + "In SillyTavern's World Info settings, set Budget Cap (for example 2000). Nothing is changed for you.",
+        player: "Long chats may forget older messages sooner: a lore budget cap in SillyTavern's World Info settings fixes it.",
+      } : null;
+    },
+  },
+  {
+    id: "lore-weighted-groups", area: "lore", scope: "story", audience: "author", severity: "info", feature: "seeded-lore-chance",
+    detect: (snapshot) => {
+      const groups = snapshot.loreWeightedGroups ?? [];
+      return groups.length ? {
+        consequence: "An inclusion group in a story lorebook picks its entry at random on every generation, so a swipe can get different lore.",
+        detail: `Groups with no priority entry: ${groups.join(", ")}. Give one entry Prioritize to make the pick fixed.`,
+        target: { kind: "setting", id: "so-wi-seeded-chance" },
+      } : null;
+    },
+  },
+  {
     id: "look-sprites-missing", area: "image", scope: "story", audience: "author", severity: "info", feature: "sprite-builder",
     detect: (snapshot) => {
       const issues = snapshot.spriteLookIssues ?? [];
@@ -344,6 +368,19 @@ export const INFO_SETUP_CHECKS: readonly Check[] = [
 const megabytes = (chars: number) => `${(chars / (1024 * 1024)).toFixed(1)} MB`;
 
 export const DEGRADING_SETUP_CHECKS: readonly Check[] = [
+  {
+    id: "lore-budget-starved", area: "lore", scope: "story", audience: "author", severity: "degrades", feature: "lore-budget-evidence",
+    detect: (snapshot) => {
+      const view = snapshot.loreBudget;
+      if (!view?.starved.length) return null;
+      const names = view.starved.slice(0, 4).map((row) => `${row.comment || `${row.book} ${row.uid}`} (${row.count} of ${view.scans})`);
+      return {
+        consequence: "SillyTavern's lore budget ran out before entries this story needs, so replies went without them.",
+        detail: `Cut by the budget: ${names.join(", ")}.${view.consumer ? ` Most of the budget went to "${view.consumer}".` : ""} Raise the World Info budget or trim that book.`,
+        target: { kind: "setting", id: "so-wi-budget-evidence" },
+      };
+    },
+  },
   degrades({
     id: "library-lost-to-tab", area: "save", scope: "install", audience: "player", engineFree: true, feature: "stories",
     detect: (snapshot) => {

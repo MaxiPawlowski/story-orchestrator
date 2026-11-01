@@ -23,7 +23,8 @@ import { applyEpistemicSignals } from "./epistemic";
 import { pushBeat } from "./innerRender";
 import { applyLedgerSignals, buildLedgerView } from "./ledger";
 import { reverseMemoryState, type MemoryRollbackState, type SealSkip } from "./reverse";
-import { addMemoryEntries, createMemoryState, excludeEntry, hashMemoryText, rollingShortTerm, type ShortTermPlacement } from "./stores";
+import { addMemoryEntries, capTier, createMemoryState, excludeEntry, hashMemoryText, rollingShortTerm, type ShortTermPlacement } from "./stores";
+import { isEvicted, stampUsed } from "./strength";
 import type { ArcEntry, ChapterDisposition, ChapterRecord, ChronicleState, EpistemicEntry, InnerBeat, LedgerEntry, MemoryEntry } from "./types";
 import { foldChapter, foldEpistemic } from "./chapterFold";
 import { commitRecordBridge, markRecapSeen, pendingBridge, pushSealSkip, unfoldAt } from "./chapterUnfold";
@@ -48,7 +49,8 @@ const FIELDS = ["condition", "location"];
 const TAGS = ["knows", "believes", "suspects", "intends"] as const;
 
 interface Op {
-  kind: "read" | "ledger" | "epistemic" | "intend" | "beat" | "consolidate" | "exclude" | "compact" | "seal" | "arc" | "resolve" | "bridge" | "skip" | "recap" | "hide" | "defer" | "reopen" | "verdict";
+  kind: "read" | "ledger" | "epistemic" | "intend" | "beat" | "consolidate" | "exclude" | "compact" | "seal" | "arc" | "resolve" | "bridge" | "skip" | "recap" | "hide" | "defer" | "reopen"
+    | "use" | "cap" | "verdict";
   messageId: number;
   index: number;
 }
@@ -244,7 +246,7 @@ const rollbackTo = (world: World, messageId: number, boundary: number): World =>
 
 /** The ledger read model, which is what a player and the prompt actually see. */
 const ledgerView = (ledger: LedgerEntry[]) => buildLedgerView(ledger, [], {}, {}).map((row) => `${row.entity}|${row.field}=${row.value}`);
-const entryView = (entries: MemoryEntry[]) => entries.map((entry) => `${entry.id}${entry.supersededBy ? `->${entry.supersededBy}` : ""}${entry.foldedInto ? `@${entry.foldedInto}` : ""}|recall=${entry.recallCount}|confirmed=${(entry.confirmedAt ?? []).map((at) => at.messageId).join(",")}`).sort();
+const entryView = (entries: MemoryEntry[]) => entries.map((entry) => `${entry.id}${entry.supersededBy ? `->${entry.supersededBy}` : ""}${entry.foldedInto ? `@${entry.foldedInto}` : ""}|recall=${entry.recallCount}|confirmed=${(entry.confirmedAt ?? []).map((at) => at.messageId).join(",")}|used=${(entry.usedAt ?? []).map((at) => at.messageId).join(",")}|evicted=${entry.evictedAt?.messageId ?? ""}`).sort();
 const beliefView = (entries: EpistemicEntry[]) => entries.map((entry) => `${entry.subject}|${entry.tag}|${entry.content}${entry.supersededBy ? "|retired" : ""}|${entry.affirmedAt?.at(-1)?.messageId ?? ""}${entry.foldedInto ? `@${entry.foldedInto}` : ""}`).sort();
 const beatView = (beats: InnerBeat[] | undefined) => (beats ?? []).map((beat) => `${beat.memberId}@${beat.basedOnMessageId}`);
 const beliefKey = (beliefs: EpistemicEntry[], id: string) => {
@@ -386,6 +388,33 @@ const threadStep = (world: World, op: Op): World => {
     : withArcEvent(target, { kind: "reopened", ...at, span: playerSpan(op.messageId), quote: `thread ${op.index}` });
   return "reason" in next ? world : { ...world, arcs: world.arcs.map((arc) => (arc === target ? next : arc)) };
 };
+
+const retentionStep = (world: World, op: Op): World => {
+  if (op.kind === "use") {
+    const live = world.entries.filter((entry) => !entry.foldedInto && !entry.supersededBy);
+    const target = live[op.index % Math.max(1, live.length)];
+    return target ? { ...world, ...stampUsed(world, [target.id], { messageId: op.messageId, boundary: op.messageId }) } : world;
+  }
+  if (op.kind === "cap") return { ...world, ...capTier(world, "facts", 3, { messageId: op.messageId, boundary: op.messageId }) };
+  return step(world, op);
+};
+
+const RETENTION_KINDS: Op["kind"][] = ["read", "read", "read", "use", "use", "cap", "cap", "consolidate", "exclude", "compact", "seal", "ledger"];
+
+describe("v3.0 41 B3: rollback is replay across use stamps and strength eviction", () => {
+  it.each(SEEDS)("holds across random use and cap cycles (seed %i)", (seed) => randomCuts(seed, retentionStep, RETENTION_KINDS));
+
+  it("control: the generator stamps uses, evicts into the archive and evicts a row that was used", () => {
+    const worlds = SEEDS.map((seed) => {
+      const random = rng(seed);
+      return Array.from({ length: 60 }, (_, index): Op => ({ kind: RETENTION_KINDS[Math.floor(random() * RETENTION_KINDS.length)], messageId: index, index })).reduce(retentionStep, emptyWorld());
+    });
+    const entries = worlds.flatMap((world) => world.entries);
+    expect(entries.some((entry) => entry.usedAt?.length)).toBe(true);
+    expect(entries.some(isEvicted)).toBe(true);
+    expect(entries.some((entry) => !isEvicted(entry) && entry.usedAt?.length && !entry.foldedInto)).toBe(true);
+  });
+});
 
 const THREAD_KINDS: Op["kind"][] = ["read", "arc", "arc", "defer", "defer", "reopen", "reopen", "resolve", "seal", "bridge", "recap", "skip"];
 

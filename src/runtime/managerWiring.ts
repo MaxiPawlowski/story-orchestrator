@@ -43,6 +43,7 @@ import type { EffectsApplier } from "./effectsApplier";
 import { wireLiving } from "./livingWiring";
 import { createPromisePort } from "./promisePort";
 import { createWitnessPort } from "./witnessPort";
+import { createMentionPort } from "./mentionPort";
 import { createRumorPort, rumorRevision } from "./rumorPort";
 import { beginRun } from "./runToken";
 import { fnv1a } from "./hash";
@@ -96,6 +97,16 @@ function wirePromises(port: ManagerPort, memory: MemoryCoordinator) {
   });
   memory.injector.addPrivateSource((rosterId) => promises.reminder(rosterId));
   return promises;
+}
+
+function wireMentions(port: ManagerPort, memory: MemoryCoordinator) {
+  const mentions = createMentionPort({
+    getStory: port.view.getStory, extras: port.extras, chatRows: () => port.view.hosts.chat.chatRows(),
+    offeredTo: (rosterId, messageId) => memory.injector.offeredTo(rosterId, messageId), stampUsed: (ids, at) => memory.stampUsed(ids, at),
+    refresh: () => memory.updateInjection(), persist: () => { void port.lifecycle.persist(); },
+  });
+  memory.injector.setMentions(() => mentions.held());
+  return mentions;
 }
 
 function wirePatterns(port: ManagerPort, memory: MemoryCoordinator) {
@@ -219,7 +230,7 @@ export function wireCoordinators(port: ManagerPort) {
       journal: (summary, note) => port.journal("chapter", summary, note), playerName: () => getPlayerName(),
     },
   });
-  const promises = wirePromises(port, memory);
+  const promises = wirePromises(port, memory), mentions = wireMentions(port, memory);
   const rumors = wireRumors(port, memory), { port: patterns, ...patternsWiring } = wirePatterns(port, memory);
   const witness = createWitnessPort({ getStory: view.getStory, extras: port.extras, enabledIds: () => enabledCharacterIds(view.getStory(), view.hosts.roster) });
   memory.injector.addPrivateSource((rosterId) => gameLayer()?.carry.carryKnownLines(port.extras().carry, rosterId) ?? []);
@@ -277,7 +288,7 @@ export function wireCoordinators(port: ManagerPort) {
     getTensionTarget: () => engine.activeCheckpoint?.tension_target,
     getTension: () => port.extras().tension,
     setTension: (next) => { port.extras().tension = next; },
-    getPacing: () => port.extras().pacing,
+    getPacing: () => port.extras().pacing, pathArc: () => getGlobalSettings().pacing.pathArc,
     ended: () => storyEnded(port.extras().memory.chapters ?? []),
     onHoldChange: lifecycle.notify,
   });
@@ -340,7 +351,7 @@ export function wireCoordinators(port: ManagerPort) {
   };
   const storyUpdateDeps = storyUpdateDepsFor(port, expansion, living, patternsWiring.reconcile);
   return {
-    memory, expansion, extraction, pacing, stagecraft, copilot, inner, game, meanwhile, living, rollbackDeps, storyUpdateDeps, recap, patterns, promises, witness, rumors,
+    memory, expansion, extraction, pacing, stagecraft, copilot, inner, game, meanwhile, living, rollbackDeps, storyUpdateDeps, recap, patterns, promises, witness, rumors, mentions,
     carry, narrator, delivery, cues, echoes, polish: { port, memory }, speech, effects: port.effects, skip: wireSkip(port, pacing, speech, game),
   };
 }

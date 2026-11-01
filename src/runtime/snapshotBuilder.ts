@@ -31,7 +31,7 @@ import { findStoryRecord, listStoryRecords } from "./storyLibrary";
 import { orphanedLorebooks, reapDecisions } from "./mirrorReaper";
 import { loreEvidenceView } from "./worldInfoEvidence";
 import { samplerOverlay } from "./samplerOverlay";
-import { scanGateView, wiGatingStatus } from "./worldInfoMode";
+import { loreBudgetView, loreChanceView, scanGateView, wiGatingStatus } from "./worldInfoMode";
 import { globalStoryLore } from "./storyLore";
 import { stylesheetMissing } from "./stylesheet";
 import { stateSize } from "./stateSize";
@@ -94,6 +94,11 @@ const readerFields = (reader: { reader: "judge" | "llm"; confidence?: number } |
 const playerTransition = (story: NormalizedStory | null, boundaryLog: BoundaryLogEntry[]): NarrativeTransition | null => playerLastTransition(story, boundaryLog);
 
 const publishedIntro = (story: NormalizedStory | null) => story?.player_intro || story?.description || null;
+
+const loreViews = (chatId: string | null | undefined) => {
+  const view = loreChanceView();
+  return { loreWeightedGroups: view && chatId && view.chatId === chatId && view.weightedGroups.length ? view.weightedGroups : undefined, loreBudget: loreBudgetView(chatId ?? null) };
+};
 
 export interface SnapshotSources {
   loaded: LoadedStory | null;
@@ -504,7 +509,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     loreForced: [...extras.judge.calls].reverse().find((call) => call.use === "lore") ?? null,
     judgeMeter: judgeMeterView(extras.judge),
     loreEvidence: loreEvidenceView(story, extras.memory.wiBook?.name ?? null),
-    scanGate: scanGateView(),
+    scanGate: scanGateView(), ...loreViews(sources.chatId),
     wiGating: wiGatingStatus(),
     samplerOverlay: samplerOverlay.view(),
     stagecraftScope: curatorLorebooks(story), innerCast: castVoices(story, state?.activeCheckpointId ?? null),

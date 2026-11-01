@@ -27,7 +27,8 @@
       "replyEffort": "medium"
     },
     "pacing": {
-      "hintEnabled": true
+      "hintEnabled": true,
+      "pathArc": true
     },
     "display": {
       "announceTransitions": false,
@@ -76,6 +77,9 @@
       "summaryGuard": true,
       "supersedeVerdicts": true,
       "placeFold": true,
+      "mentionLedger": true,
+      "strengthRetention": true,
+      "retrievalQuery": true,
       "injectionDepths": {
         "facts": 4,
         "session_details": 3,
@@ -118,6 +122,8 @@
         "max": 3
       },
       "keepLastQuestion": true,
+      "crossVoiceTrim": true,
+      "dryNames": true,
       "swipeContrast": false,
       "skipAhead": false
     },
@@ -208,7 +214,14 @@
       "scanMemory": true,
       "lateLore": true,
       "lateLoreDepth": 4,
-      "lorePins": true
+      "lorePins": true,
+      "seededChance": true,
+      "budgetEvidence": true,
+      "lexicalFallback": true,
+      "lexicalPrefilter": false,
+      "lexicalTiebreak": true,
+      "holdRound": true,
+      "preferKnown": true
     },
     "image": {
       "enabled": false,
@@ -257,7 +270,13 @@
       "sp6Complications": true,
       "reasoningEffect": true,
       "editReread": true,
-      "thoughtCarry": true
+      "thoughtCarry": true,
+      "checkClocks": true,
+      "relationGraph": true,
+      "selfEditMemory": true,
+      "promptCompress": true,
+      "phraseBans": true,
+      "cpuReranker": true
     },
     "characters": {
       "delivery": true,

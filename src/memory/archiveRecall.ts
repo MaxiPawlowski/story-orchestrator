@@ -2,10 +2,12 @@ import { estimateTokens } from "./budget";
 import { nearDuplicateIds } from "./inject";
 import { isLive } from "./provenance";
 import { DEFAULT_SCORE_WEIGHTS, scoreEntry, type ScoreContext } from "./score";
+import { EVICTED_ARCHIVE } from "./strength";
 import type { ChapterRecord, MemoryEntry } from "./types";
 
 export const RECALL_LIMIT = 4;
 export const DEFAULT_RECALL_TOKENS = 200;
+export const EVICTED_RECALL_TITLE = "earlier";
 
 export interface RecallLine {
   entryId: string;
@@ -16,7 +18,7 @@ export interface RecallLine {
 export interface RecallOptions {
   limit?: number;
   tokens?: number;
-  semantic?: ReadonlySet<string> | null;
+  semantic?: ReadonlySet<string> | ReadonlyMap<string, number> | null;
 }
 
 const lower = (value: string) => value.trim().toLowerCase();
@@ -39,8 +41,9 @@ export function recallCandidates(entries: readonly MemoryEntry[], text: string):
 }
 
 export function selectRecall(candidates: readonly MemoryEntry[], records: readonly ChapterRecord[], context: ScoreContext, options: RecallOptions = {}): RecallLine[] {
-  const titles = new Map(records.map((record) => [record.id, record.playerTitle]));
+  const titles = new Map([...records.map((record): [string, string] => [record.id, record.playerTitle]), [EVICTED_ARCHIVE, EVICTED_RECALL_TITLE]]);
   const semantic = options.semantic ?? null;
+  const band = (id: string): number => (!semantic ? 0 : semantic instanceof Map ? semantic.get(id) ?? 0 : (semantic as ReadonlySet<string>).has(id) ? 1 : 0);
   const weight = context.weights?.semanticSimilarity ?? DEFAULT_SCORE_WEIGHTS.semanticSimilarity;
   const aboutWeight = context.weights?.entityOverlap ?? DEFAULT_SCORE_WEIGHTS.entityOverlap;
   const named = new Set(context.turnEntities.map(lower));
@@ -51,7 +54,7 @@ export function selectRecall(candidates: readonly MemoryEntry[], records: readon
     .filter((entry) => !repeats.has(entry.id))
     .map((entry, index) => ({
       entry, index,
-      score: about(entry) + (semantic ? scoreEntry(entry, { ...context, turnText: "" }) + (semantic.has(entry.id) ? weight : 0) : scoreEntry(entry, context)),
+      score: about(entry) + (semantic ? scoreEntry(entry, { ...context, turnText: "", queryParts: undefined }) + band(entry.id) * weight : scoreEntry(entry, context)),
     }))
     .sort((left, right) => right.score - left.score || left.index - right.index);
   const lines: RecallLine[] = [];

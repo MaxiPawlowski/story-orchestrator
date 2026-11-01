@@ -61,6 +61,8 @@ export const readTransition = (value: unknown, path: string, errors: ValidationE
   if (isRecord(value.effects)) transition.effects = value.effects as Transition["effects"];
   if (typeof value.extractor_trigger === "string") transition.extractor_trigger = value.extractor_trigger;
   if (typeof value.extraction_hint === "string") transition.extraction_hint = value.extraction_hint;
+  if (value.urgent !== undefined && typeof value.urgent !== "boolean") addError(errors, `${path}.urgent`, "urgent must be true or false");
+  if (value.urgent === true) transition.urgent = true;
   const check = value.check === undefined ? null : gameLayer()?.readCheck(value.check, `${path}.check`, errors) ?? null;
   return check ? { ...transition, check } : transition;
 };

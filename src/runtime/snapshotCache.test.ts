@@ -4,6 +4,8 @@
 jest.mock("@services/STAPI", () => ({
   settingsAreLoaded: () => true,
   observeSamplerPayloads: () => () => undefined,
+  observeWorldInfoScanDone: () => () => undefined,
+  readWorldInfoBudgetCap: () => null,
   observeWorldInfoScans: () => ({ reassert: () => undefined, ordered: false, dispose: () => undefined }),
   loadedEntries: () => [],
   readProfileContextLimit: () => ({ value: 8192, source: "default", reason: "no memory model profile is selected" }),

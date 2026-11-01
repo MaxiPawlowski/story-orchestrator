@@ -201,6 +201,9 @@ export interface MemoryRuntimeSettings {
   summaryGuard?: boolean;
   supersedeVerdicts?: boolean;
   placeFold?: boolean;
+  mentionLedger?: boolean;
+  strengthRetention?: boolean;
+  retrievalQuery?: boolean;
   chapters?: Partial<ChapterSettings>;
 }
 
@@ -480,6 +483,8 @@ export interface RuntimeSnapshot {
   loreEvidence?: LoreEvidenceView;
   /** Spike (author only): the last gated scan, per gated entry; null unless scan gating is active. */
   scanGate?: ScanGateView | null;
+  loreWeightedGroups?: string[];
+  loreBudget?: import("./loreBudget").LoreBudgetView;
   /** Lorebook gating mode, ledger summary and drift (install-wide). */
   wiGating?: WiGatingStatus | null;
   globalStoryLore?: string[];

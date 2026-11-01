@@ -3,7 +3,10 @@ import { estimateTokens } from "@memory/budget";
 import { renderChronicle } from "@memory/chronicle";
 import type { ArcEntry, ChapterRecord, EraLine, MemoryEntry } from "@memory/types";
 import { recallCandidates, recallMentions, renderRecall, selectRecall } from "@memory/archiveRecall";
-import { ARC_OPEN_INJECT_LIMIT, DEFAULT_DEDUP_THRESHOLDS, injectedThreads, labelMemoryBlock, memoryExtensionKey, openArcTexts, withoutExcludedThreads, type ScoreContext } from "@memory/index";
+import {
+  ARC_OPEN_INJECT_LIMIT, DEFAULT_DEDUP_THRESHOLDS, injectedThreads, isEvicted, labelMemoryBlock, memoryExtensionKey, openArcTexts, recencyWeights, withoutExcludedThreads,
+  type QueryPart, type ScoreContext,
+} from "@memory/index";
 import { buildChapterView, chapterNumber, chapterOf, chapterSettings, eraTarget, isEraId, jumpSeal, liveSkip, playerTitleOf, sealTarget, type ChapterSettings, type SealSkip } from "./chapters";
 import { sealAtState, type ChapterHost, type ChapterPort } from "./chapterPort";
 import { withholds } from "./generationLifecycle";
@@ -106,13 +109,29 @@ export const recallText = (chat: readonly unknown[], objective: string): string 
   return [turn?.mes ?? "", objective].filter((part) => part.trim()).join("\n");
 };
 
-export async function recallBand(host: VectorHost, query: string, candidates: readonly MemoryEntry[]): Promise<Set<string> | null> {
+export const RECALL_WINDOW = 3;
+export const RECALL_OBJECTIVE_WEIGHT = 0.15;
+
+export const recallParts = (chat: readonly unknown[], objective: string): QueryPart[] => {
+  const rows = chat.filter((row): row is { mes: string } => Boolean(row) && (row as { is_system?: unknown }).is_system !== true
+    && typeof (row as { mes?: unknown }).mes === "string" && Boolean((row as { mes: string }).mes.trim())).slice(-RECALL_WINDOW);
+  const weights = recencyWeights(rows.length);
+  const share = objective.trim() ? 1 - RECALL_OBJECTIVE_WEIGHT : 1;
+  return [...rows.map((row, index) => ({ text: row.mes, weight: weights[index] * share })), ...(objective.trim() ? [{ text: objective, weight: RECALL_OBJECTIVE_WEIGHT }] : [])];
+};
+
+export async function recallBand(host: VectorHost, query: string | readonly QueryPart[], candidates: readonly MemoryEntry[]): Promise<Map<string, number> | null> {
   if (!candidates.length || (await host.capabilityState("vectors")) === "absent") return null;
+  const parts = typeof query === "string" ? [{ text: query, weight: 1 }] : query;
   const collectionId = `so_recall_${Date.now()}_${Math.floor(Math.random() * 1e6)}`;
   try {
     await host.vectorInsert(collectionId, candidates.map((entry, index) => ({ hash: index, text: entry.text, index })), host.source);
-    const matches = await host.vectorQuery(collectionId, query, candidates.length, DEFAULT_DEDUP_THRESHOLDS.cosineSameTopic, host.source);
-    return new Set(matches.flatMap((match) => (candidates[match.index] ? [candidates[match.index].id] : [])));
+    const band = new Map<string, number>();
+    for (const part of parts) {
+      const matches = await host.vectorQuery(collectionId, part.text, candidates.length, DEFAULT_DEDUP_THRESHOLDS.cosineSameTopic, host.source);
+      matches.forEach((match) => { const entry = candidates[match.index]; if (entry) band.set(entry.id, (band.get(entry.id) ?? 0) + part.weight); });
+    }
+    return band;
   } catch (error) {
     log.warn("chapters: archive recall vectors unavailable, using keyword overlap", error);
     return null;
@@ -138,20 +157,24 @@ export async function recall(port: ChapterPort, chat: readonly unknown[], type: 
   const story = host.deps.getStory();
   const state = host.deps.getState();
   const settings = settingsOf(host);
-  if (!story || !state || !(settings.archiveRecall || settings.fold) || !memory.settings.enabled || withholds(type) || !recordsOf(host).length) return 0;
-  const text = recallText(chat, story.checkpointById[state.activeCheckpointId]?.objective ?? "");
+  const evicted = memory.settings.strengthRetention !== false && memory.entries.some(isEvicted);
+  if (!story || !state || !(settings.archiveRecall || settings.fold || evicted) || !memory.settings.enabled || withholds(type) || !(recordsOf(host).length || evicted)) return 0;
+  const objective = story.checkpointById[state.activeCheckpointId]?.objective ?? "";
+  const parts = memory.settings.retrievalQuery !== false ? recallParts(chat, objective) : null;
+  const text = parts ? parts.map((part) => part.text).join("\n") : recallText(chat, objective);
   const shown = (entries: MemoryEntry[]) => host.coordinator.injector.restingEntries(recallCandidates(entries, text));
   const candidates = shown(memory.entries);
   if (!candidates.length) return 0;
   const run = beginRun(host.deps.ownership);
   const bandKey = JSON.stringify([story.id, host.deps.hosts.vectors.source, text, candidates.map((entry) => [entry.id, entry.text])]);
-  const semantic = port.recallBand?.key === bandKey ? port.recallBand.band : await recallBand(host.deps.hosts.vectors, text, candidates);
+  const semantic = port.recallBand?.key === bandKey ? port.recallBand.band : await recallBand(host.deps.hosts.vectors, parts ?? text, candidates);
   if (!run.stillOwns()) return 0;
   port.recallBand = { key: bandKey, band: semantic };
   const live = host.memory();
   const context: ScoreContext = {
     boundary: state.boundary, lastMessageId: state.lastMessageId, turnText: text, turnEntities: recallMentions(live.entries, text),
     openArcs: openArcTexts(live.arcs, ARC_OPEN_INJECT_LIMIT), weights: live.settings.scoreWeights,
+    ...(parts ? { queryParts: parts } : {}), ...(live.settings.strengthRetention !== false ? { useRecency: true } : {}),
   };
   const lines = selectRecall(shown(live.entries), recordsOf(host), context, { tokens: settings.recallTokens, semantic });
   if (!lines.length) return 0;

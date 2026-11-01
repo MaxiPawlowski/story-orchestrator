@@ -79,6 +79,9 @@ export const startKeepLastQuestion = (disposers: Disposers) => {
   const pass = { stop: null as (() => void) | null, disposed: false };
   disposers.push(() => { pass.disposed = true; pass.stop?.(); });
   void import("../keepLastQuestionLive").then(({ startLiveKeepLastQuestion }) => { if (!pass.disposed) pass.stop = startLiveKeepLastQuestion(); });
+  const voice = { stop: null as (() => void) | null, disposed: false };
+  disposers.push(() => { voice.disposed = true; voice.stop?.(); });
+  void import("../crossVoiceLive").then(({ startLiveCrossVoice }) => { if (!voice.disposed) voice.stop = startLiveCrossVoice(); });
 };
 
 const trials = {

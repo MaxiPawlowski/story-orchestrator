@@ -1,7 +1,7 @@
 import { JUDGE_ROUTE_KEYS, JUDGE_USE_KEYS, JUDGE_USES_OFF_BY_DEFAULT, AUTHOR_JUDGE_USES, routedProvider, type JudgeUseKey } from "@judge/settings";
 import { JUDGE_USE_COPY } from "@judge/useCopy";
 import type { GuideTopicId } from "@copilot/guideTopics";
-import type { GlobalSettings } from "@runtime/settingsModel";
+import { SPIKE_FLAGS, type GlobalSettings } from "@runtime/settingsModel";
 import { PRESENCE_FEATURES } from "./presenceFeatures";
 import { GAME_FEATURES } from "./gameFeatures";
 import { RECAP_FEATURES } from "./recapFeatures";
@@ -15,6 +15,8 @@ import { AUDIENCE_FEATURES } from "./audienceFeatures";
 import { START_FEATURES } from "./startFeatures";
 import { CARRY_FEATURES } from "./carryFeatures";
 import { GROUNDING_FEATURES } from "./groundingFeatures";
+import { RETENTION_FEATURES } from "./retentionFeatures";
+import { MECHANICS_FEATURES } from "./mechanicsFeatures";
 import { SKIP_FEATURES } from "./skipFeatures";
 import { MEMORY_WAVE_FEATURES } from "./memoryWaveFeatures";
 import { chatAt, drawerAt, featureAt, settingsAt, studioAt } from "./where";
@@ -183,7 +185,7 @@ const CORE_FEATURES: readonly Feature[] = [
     oneLine: "Measures the scene's tension and nudges replies toward the story's intended shape.",
     what: "Each turn's tension is measured and compared with what the story expects at this point. A quiet note in the prompt asks the reply to build the tension up or let it cool.",
     where: featureAt("pacing", "enabled", "Tension and pacing"),
-    settings: ["pacing"], guideTopic: "tension", doc: authorGuideDoc("tension"), status: "shipped", needs: ["story"],
+    settings: ["pacing.hintEnabled"], guideTopic: "tension", doc: authorGuideDoc("tension"), status: "shipped", needs: ["story"],
   },
   {
     id: "memory", name: "Story memory", area: "memory", audience: "player",
@@ -456,7 +458,7 @@ const CORE_FEATURES: readonly Feature[] = [
     oneLine: "Unmeasured trials.",
     what: "Each experiment sits behind its own switch, on by default so it is seen in play.",
     where: settingsAt("#so-diagnostics", "Diagnostics"),
-    settings: ["spikes.swipeBackCache", "spikes.sp6Complications", "spikes.reasoningEffect", "spikes.editReread"], doc: "setup/settings-reference.md", status: "experimental",
+    settings: SPIKE_FLAGS.filter((flag) => flag !== "thoughtCarry").map((flag) => `spikes.${flag}`), doc: "setup/settings-reference.md", status: "experimental",
   },
 ];
 
@@ -475,7 +477,7 @@ const POLICY_TARGETS: Record<string, [import("@engine/featurePolicy").StoryFeatu
 export const SOURCE_FEATURES: readonly Feature[] = [
   ...CORE_FEATURES, ...PRESENCE_FEATURES, ...GAME_FEATURES, ...LIFE_FEATURES, ...LIVING_FEATURES, ...JUDGE_USE_KEYS.map(judgeUseFeature),
   ...RECAP_FEATURES, ...PROMISE_FEATURES, ...THREAD_FEATURES, ...DELIVERY_FEATURES, ...POLISH_FEATURES, ...AUDIENCE_FEATURES,
-  ...GROUNDING_FEATURES, ...SKIP_FEATURES, ...MEMORY_WAVE_FEATURES,
+  ...GROUNDING_FEATURES, ...SKIP_FEATURES, ...MEMORY_WAVE_FEATURES, ...RETENTION_FEATURES, ...MECHANICS_FEATURES,
 ];
 
 export const FEATURES: readonly Feature[] = SOURCE_FEATURES.map((feature) => {

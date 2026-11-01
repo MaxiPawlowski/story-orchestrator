@@ -63,13 +63,13 @@ export const sanitizeInlineSettings = (value: unknown): InlineSettings => {
 export interface GlobalSettings {
   featureSwitches?: Partial<Record<"agency" | "meanwhile" | "thinking", boolean>>;
   extraction: ExtractionRuntimeSettings;
-  pacing: { hintEnabled: boolean };
+  pacing: { hintEnabled: boolean; pathArc: boolean };
   display: {
     announceTransitions: boolean; hudEnabled: boolean; yourMove: boolean; briefing: boolean; briefingDraft: boolean; playerSetup: boolean; inline: InlineSettings; presence: PresenceSettings;
   };
   copilot: CopilotRuntimeSettings;
   memory: MemoryRuntimeSettings;
-  talk: { enabled: boolean; chain: TalkChainSettings; keepLastQuestion: boolean; swipeContrast: boolean; skipAhead: boolean };
+  talk: { enabled: boolean; chain: TalkChainSettings; keepLastQuestion: boolean; swipeContrast: boolean; skipAhead: boolean; crossVoiceTrim: boolean; dryNames: boolean };
   stagecraft: StagecraftSettings;
   judge: JudgeSettings;
   worldInfo: WorldInfoSettings;
@@ -133,6 +133,7 @@ export const sanitizeHelpSettings = (value: unknown): HelpSettings => ({
 export const SPIKE_FLAGS = [
   "swipeBackCache", "sp6Complications",
   "reasoningEffect", "editReread", "thoughtCarry",
+  "checkClocks", "relationGraph", "selfEditMemory", "promptCompress", "phraseBans", "cpuReranker",
 ] as const;
 
 export type SpikeFlag = (typeof SPIKE_FLAGS)[number];
@@ -163,6 +164,13 @@ export interface WorldInfoSettings {
   lateLore: boolean;
   lateLoreDepth: number;
   lorePins: boolean;
+  seededChance: boolean;
+  budgetEvidence: boolean;
+  lexicalFallback: boolean;
+  lexicalPrefilter: boolean;
+  lexicalTiebreak: boolean;
+  holdRound: boolean;
+  preferKnown: boolean;
 }
 
 export const DEFAULT_LATE_LORE_DEPTH = 4;
@@ -173,7 +181,8 @@ export const clampLateLoreDepth = (value: unknown, fallback: number = DEFAULT_LA
   typeof value === "number" && Number.isFinite(value) ? Math.min(LATE_LORE_DEPTH_MAX, Math.max(LATE_LORE_DEPTH_MIN, Math.round(value))) : fallback;
 
 export const defaultWorldInfoSettings = (): WorldInfoSettings => ({
-  gatingMode: "scan", normalized: {}, normalizedFrom: {}, scanMemory: true, keptGlobal: [], lateLore: true, lateLoreDepth: DEFAULT_LATE_LORE_DEPTH, lorePins: true,
+  gatingMode: "scan", normalized: {}, normalizedFrom: {}, scanMemory: true, keptGlobal: [], lateLore: true, lateLoreDepth: DEFAULT_LATE_LORE_DEPTH, lorePins: true, seededChance: true,
+  budgetEvidence: true, lexicalFallback: true, lexicalPrefilter: false, lexicalTiebreak: true, holdRound: true, preferKnown: true,
 });
 
 const sanitizeProvenance = (value: unknown): Record<string, NormalizedFrom[]> => {
@@ -211,6 +220,13 @@ const sanitizeWorldInfoSettings = (value: unknown): WorldInfoSettings => {
     lateLore: typeof value.lateLore === "boolean" ? value.lateLore : defaultWorldInfoSettings().lateLore,
     lateLoreDepth: clampLateLoreDepth(value.lateLoreDepth),
     lorePins: value.lorePins !== false,
+    seededChance: value.seededChance !== false,
+    budgetEvidence: value.budgetEvidence !== false,
+    lexicalFallback: value.lexicalFallback !== false,
+    lexicalPrefilter: value.lexicalPrefilter === true,
+    lexicalTiebreak: value.lexicalTiebreak !== false,
+    holdRound: value.holdRound !== false,
+    preferKnown: value.preferKnown !== false,
   };
 };
 
@@ -242,6 +258,9 @@ export const defaultMemorySettings = (): MemoryRuntimeSettings => ({
   summaryGuard: true,
   supersedeVerdicts: true,
   placeFold: true,
+  mentionLedger: true,
+  strengthRetention: true,
+  retrievalQuery: true,
 });
 
 export const defaultStagecraftSettings = (): StagecraftSettings => ({
@@ -251,13 +270,13 @@ export const defaultStagecraftSettings = (): StagecraftSettings => ({
 
 export const defaultGlobalSettings = (): GlobalSettings => ({
   extraction: defaultExtractionSettings(),
-  pacing: { hintEnabled: true },
+  pacing: { hintEnabled: true, pathArc: true },
   display: {
     announceTransitions: false, hudEnabled: true, yourMove: true, briefing: true, briefingDraft: true, playerSetup: true, inline: defaultInlineSettings(), presence: defaultPresenceSettings(),
   },
   copilot: { enabled: true, ask: true },
   memory: defaultMemorySettings(),
-  talk: { enabled: true, chain: { enabled: true, max: TALK_CHAIN_MAX_DEFAULT }, keepLastQuestion: true, swipeContrast: false, skipAhead: false },
+  talk: { enabled: true, chain: { enabled: true, max: TALK_CHAIN_MAX_DEFAULT }, keepLastQuestion: true, swipeContrast: false, skipAhead: false, crossVoiceTrim: true, dryNames: true },
   stagecraft: defaultStagecraftSettings(),
   judge: defaultJudgeSettings(),
   worldInfo: defaultWorldInfoSettings(),
@@ -281,6 +300,9 @@ const sanitizeInnerVoice = (memory: MemoryRuntimeSettings, defaults: MemoryRunti
   memory.historyNotes = memory.historyNotes !== false;
   memory.outwardNarration = memory.outwardNarration !== false;
   for (const key of ["compactionTokens", "summaryGuard", "supersedeVerdicts", "placeFold"] as const) memory[key] = memory[key] !== false;
+  memory.mentionLedger = memory.mentionLedger !== false;
+  memory.strengthRetention = memory.strengthRetention !== false;
+  memory.retrievalQuery = memory.retrievalQuery !== false;
   return memory;
 };
 
@@ -298,7 +320,7 @@ const sanitizeTalkChain = (value: unknown): TalkChainSettings => {
 const sanitizeTalkSettings = (value: unknown): GlobalSettings["talk"] => {
   const source = isRecord(value) ? value : {};
   return { enabled: source.enabled !== false, chain: sanitizeTalkChain(source.chain), keepLastQuestion: source.keepLastQuestion !== false, swipeContrast: source.swipeContrast === true,
-    skipAhead: source.skipAhead === true };
+    skipAhead: source.skipAhead === true, crossVoiceTrim: source.crossVoiceTrim !== false, dryNames: source.dryNames !== false };
 };
 
 const LIVING_FLAGS = ["livingEnabled", "branchingEnabled", "prefetchEnabled"] as const;
@@ -341,7 +363,7 @@ export const sanitizeGlobalSettings = (value: unknown): GlobalSettings => {
       ...(isReplyEffort(replyEffort) ? { replyEffort } : {}),
       ...sanitizeReadPrompt({ readLayout, promiseAddressee }),
     },
-    pacing: { hintEnabled: pacing.hintEnabled !== false },
+    pacing: { hintEnabled: pacing.hintEnabled !== false, pathArc: pacing.pathArc !== false },
     display: {
       announceTransitions: display.announceTransitions === true, hudEnabled: display.hudEnabled !== false, yourMove: display.yourMove !== false, briefing: display.briefing !== false,
       briefingDraft: display.briefingDraft !== false, playerSetup: display.playerSetup !== false,

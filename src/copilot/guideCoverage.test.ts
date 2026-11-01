@@ -25,7 +25,7 @@ const STORY: Record<keyof Story, Covered> = {
 
 const CHECKPOINT: Record<keyof Checkpoint, Covered> = {
   id: "checkpoints", name: "checkpoints", objective: "checkpoints", player_name: "checkpoints", player_text: "checkpoints", type: "checkpoints",
-  start: "checkpoints", state_snapshot: "checkpoints", tension_target: "tension", target_turn_length: "checkpoints", effects: "world-info",
+  start: "checkpoints", state_snapshot: "checkpoints", tension_target: "tension", target_turn_length: "checkpoints", min_turns: "tension", effects: "world-info",
   talk_control: "talk-control", agency: "objective-agency", guidance: "guidance", convergence_threshold: "convergence", motives: "drives-motives",
   chapter: "chapters", illustrate: "presentation", stretch: "open-stretches", checks: "checks", offers: "offers",
 };
@@ -37,7 +37,7 @@ const EFFECTS: Record<keyof CheckpointEffects, Covered> = {
 
 const TRANSITION: Record<keyof Transition, Covered> = {
   from: "transitions", to: "transitions", gate: "gates", priority: "transitions", effects: "convergence",
-  extractor_trigger: "transitions", extraction_hint: "transitions", check: "checks", recap: "consequences", recap_when: "consequences",
+  extractor_trigger: "transitions", extraction_hint: "transitions", check: "checks", recap: "consequences", recap_when: "consequences", urgent: "tension",
 };
 
 const ROSTER: Record<keyof RosterMember, Covered> = {

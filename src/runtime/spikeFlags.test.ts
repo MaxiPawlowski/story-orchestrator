@@ -6,6 +6,12 @@ const ALL_ON = {
   reasoningEffect: true,
   editReread: true,
   thoughtCarry: true,
+  checkClocks: true,
+  relationGraph: true,
+  selfEditMemory: true,
+  promptCompress: true,
+  phraseBans: true,
+  cpuReranker: true,
 };
 
 describe("v2.5 plan 09 rule 2: every spike flag is install-wide, on by default (owner decision 2026-10-09)", () => {

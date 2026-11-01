@@ -34,10 +34,12 @@ export interface ChanceSeams {
   derive: (view: DerivedQualityView) => Array<{ q: string; v: PrimitiveValue }>;
   npcRoll: (key: string) => number | null;
   talkRandom: () => (() => number) | null;
+  loreRoll: (book: string, uid: number) => number | null;
   ids: () => ChanceIds | null;
 }
 
 export const TALK_DRAW_KEY = "talk";
+export const LORE_DRAW_KEY = "wi";
 
 export const chanceGateValues = (qualities: readonly Quality[], ids: ChanceIds, view: DerivedQualityView): Array<{ q: string; v: PrimitiveValue }> =>
   qualities.flatMap(({ key, type, source, roll }) => {
@@ -47,6 +49,9 @@ export const chanceGateValues = (qualities: readonly Quality[], ids: ChanceIds, 
   });
 
 export const npcRollDraw = (ids: ChanceIds, boundary: number, key: string): number => unitDraw([ids.chatId, ids.storyId, boundary, key]);
+
+export const loreChanceDraw = (ids: ChanceIds, boundary: number, book: string, uid: number): number =>
+  unitDraw([ids.chatId, ids.storyId, boundary, LORE_DRAW_KEY, book, uid]);
 
 export const talkDrawStream = (ids: ChanceIds, boundary: number): (() => number) =>
   seededStream(chanceSeed([ids.chatId, ids.storyId, boundary, TALK_DRAW_KEY]));
@@ -74,6 +79,10 @@ export const createChanceSeams = (read: () => ChanceContext | null, record: (dra
     const unit = npcRollDraw(context, context.boundary, key);
     record({ kind: "npc", key, chatId: context.chatId, storyId: context.storyId, boundary: context.boundary, unit });
     return unit;
+  },
+  loreRoll: (book, uid) => {
+    const context = read();
+    return context ? loreChanceDraw(context, context.boundary, book, uid) : null;
   },
   talkRandom: () => {
     const context = read();

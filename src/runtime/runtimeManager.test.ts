@@ -7,6 +7,7 @@ import { GUIDANCE_PREAMBLE } from "@pacing/guidance";
 import { RuntimeManager } from "./runtimeManager";
 import { BLOB_VERSION } from "./persistence";
 import { defaultInlineSettings } from "./settingsModel";
+import { setGlobalSettings } from "./settingsStore";
 import { defaultPresenceSettings } from "./displayToggles";
 import { control } from "../../test/findings/ledger";
 import { carriesInto, INJECTION_REGISTRY, type InjectionSpec } from "@constants/injectionRegistry";
@@ -267,14 +268,20 @@ describe("RuntimeManager pacing", () => {
     expect(mockExtensionPrompts.story_orchestrator_pacing?.value).toContain("peak");
   });
 
-  it("falls back to the arc template when the checkpoint has no tension_target", async () => {
+  it("falls back to the arc template when the checkpoint has no tension_target: path progress by default, anchors with pacing.pathArc off", async () => {
     const manager = new RuntimeManager();
     await manager.importStory(JSON.stringify(story));
     await manager.applyExtractionAudit(tensionAudit("stirring", 0.25), []);
     mockContext.chat = [{ mes: "quiet camp" }];
     await manager.commitBoundary();
 
-    expect(manager.getSnapshot().tension.expected).toBe(0.5);
+    expect(manager.getSnapshot().tension.expected).toBe(0);
+    setGlobalSettings({ pacing: { pathArc: false } });
+    try {
+      expect(manager.getSnapshot().tension.expected).toBe(0.5);
+    } finally {
+      setGlobalSettings({ pacing: { pathArc: true } });
+    }
   });
 });
 

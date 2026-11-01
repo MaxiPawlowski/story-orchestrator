@@ -3,6 +3,7 @@ import {
   type ApplyQueueEntry, type ArcTemplate, type BoundaryLogEntry, type EngineState, type NormalizedStory,
 } from "@engine/index";
 import { expectedTension, getSteeringHint, levelToNumeric, numericToLevel } from "@pacing/index";
+import { anchorProgress, pathProgress, relaxCap, type ArcProgressMode } from "@pacing/arc";
 import type { NarrativeInput } from "./narrative";
 import type { ConvergenceReadout, PendingDeltaReadout, RuntimeSnapshot, StoryIdentity, StoryLibraryRecord } from "./types";
 
@@ -77,13 +78,25 @@ export const buildPossibleTransitions = (story: NormalizedStory | null, state: E
   });
 };
 
-export const computeExpectedTension = (story: NormalizedStory | null, state: EngineState | null, tensionTarget: string | undefined, shape: ArcTemplate | null): number | null => {
-  if (!story || !state) return null;
-  if (tensionTarget) return levelToNumeric(tensionTarget as Parameters<typeof levelToNumeric>[0]);
+export interface ArcInputs {
+  mode: ArcProgressMode;
+  playerTurns: number;
+  relax: boolean;
+}
+
+const shapedTension = (story: NormalizedStory, state: EngineState, shape: ArcTemplate | null, arc: ArcInputs | undefined): number | null => {
   if (!shape) return null;
-  const totalAnchors = story.checkpoints.filter((checkpoint) => checkpoint.type === "anchor").length;
-  if (!totalAnchors) return null;
-  return expectedTension(shape, state.visitedAnchors.length / totalAnchors);
+  const progress = arc?.mode === "path" ? pathProgress(story, state, arc.playerTurns) : anchorProgress(story, state);
+  return progress === null ? null : expectedTension(shape, progress);
+};
+
+export const computeExpectedTension = (
+  story: NormalizedStory | null, state: EngineState | null, tensionTarget: string | undefined, shape: ArcTemplate | null, arc?: ArcInputs,
+): number | null => {
+  if (!story || !state) return null;
+  const target = tensionTarget as Parameters<typeof levelToNumeric>[0] | undefined;
+  const expected = target ? levelToNumeric(target) : shapedTension(story, state, shape, arc);
+  return arc?.mode === "path" ? relaxCap(expected, arc.relax, target) : expected;
 };
 
 export const buildTensionSnapshot = (smoothed: number | null, expected: number | null, policy: AgencyPolicy = DEFAULT_AGENCY): RuntimeSnapshot["tension"] => ({
