@@ -30,6 +30,7 @@ import { onWizardSessionSave } from "./wizardSessions";
 import { startScheduler } from "./wiring/scheduler";
 import { startJudge, startScene } from "./wiring/judgeScene";
 import { startLore } from "./wiring/lore";
+import type { CopierFilter } from "./copierFilterHost";
 import { startKeepLastQuestion, startPromptTrials, startTalk } from "./wiring/talk";
 import { attachGenerationObservers, subscribeGenerationEvents } from "./wiring/generation";
 import { publishSpikeDebug } from "./spikeDebug";
@@ -165,6 +166,7 @@ export const RUNTIME_GLOBALS = [
   "storyOrchestratorScheduler", "storyOrchestratorLoreEvidence", "storyOrchestratorLore", "storyOrchestratorJudge",
   "storyOrchestratorLiveSuite", "storyOrchestratorScanGating", "storyOrchestratorStoryLore",
   "storyOrchestratorSpikes", "storyOrchestratorTalk", "storyOrchestratorAgendaProposals", "storyOrchestratorPrefixDrift",
+  "storyOrchestratorCopierFilter",
 ] as const;
 
 export function startRuntime() {
@@ -197,7 +199,17 @@ export function startRuntime() {
   startScene(live, runtimeDisposers, judgeRuntime, access);
   const generation = new GenerationLifecycle(isTurnMessageType);
   const lore = startLore(runtimeDisposers, judgeRuntime, generation, access);
-  startTalk(live, judgeRuntime, access, lore.onIntercept);
+  const copiers: { filter: CopierFilter | null; stopped: boolean } = { filter: null, stopped: false };
+  runtimeDisposers.push(() => { copiers.stopped = true; copiers.filter?.dispose(); copiers.filter = null; });
+  void import("./copierFilterHost").then(({ startCopierFilter }) => {
+    if (copiers.stopped) return;
+    copiers.filter = startCopierFilter(() => (runtimeManager.getEffectiveSettings().memory.copierFilter === false ? null : runtimeManager.copierView()));
+    globalThis.storyOrchestratorCopierFilter = { intercept: () => copiers.filter?.intercept() };
+  });
+  startTalk(live, judgeRuntime, access, async (type, aborted) => {
+    if (!aborted) copiers.filter?.intercept();
+    await lore.onIntercept(type, aborted);
+  });
   runtimeDisposers.push(installDraftGuard(() => Boolean(getActiveGroup())));
   startKeepLastQuestion(runtimeDisposers);
   startPromptTrials(runtimeDisposers);

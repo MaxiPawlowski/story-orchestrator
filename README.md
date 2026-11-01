@@ -196,6 +196,7 @@ Generated from the feature registry. "Experimental" means not yet measured; it i
 | Characters | Voice and delivery | Each character is told privately how they word things. |  |
 | Characters | Reply polish | Checks what a reply would read like with a character's off-voice words removed, without changing the chat. | Experimental |
 | Characters | Rumors and gossip | News a story declares travels between characters along the channels it authors, and may change on the way. |  |
+| Characters | Secrets kept out of Summarize and Vector Storage | SillyTavern's summary and recalled messages reach each character without the secrets kept from them. |  |
 | Characters | Time and place notes in the history | Messages where the scene or the time changed carry a short note of the day and place. |  |
 | Characters | Narrate only what can be seen | The narrator shows other characters' feelings through what they say and do. |  |
 | Characters | A swipe sees the reply it replaces | A new swipe is told which reply you threw away, so it writes something else. | Off by default |

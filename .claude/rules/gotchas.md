@@ -76,7 +76,7 @@ Product and host traps, each with the symptom that identifies it and where the g
 - **An occluded browser starves `requestAnimationFrame`** (~1 fps, 0 on a locked desktop): Playwright click times out "element is not stable". Count rAF callbacks before hunting a moving element. `st-session start` passes the anti-throttling flags; an older browser needs stop + start.
 - **A JS dialog on the shared CDP browser can kill a runner** (`No dialog is showing` uncaught, cleanup skipped). `lib/connection.mts` `settleDialogs(page)` handles it. After a lane-0 crash: `so-journey.mts restore-config`, then `so-run-header diff` and undo by hand.
 - **Vectors**: `/api/vector/query` drops scores server-side (src/endpoints/vectors.js), so dedup bands are two threshold queries (0.82 dup / 0.55 same-topic); Jaccard when absent. Consolidation runs only for tier groups ≥ `CONSOLIDATION_MIN_GROUP` (8).
-- **Third-party extensions here**: Presence hides most of the chat while a member is drafted (an extraction read then sees one member's view); Stepped Thinking "Separated" mode posts thoughts as real messages (boundaries). ST Summarize and Vector Storage copy the transcript and cannot be filtered (`transcript-copiers` check).
+- **Third-party extensions here**: Presence hides most of the chat while a member is drafted (an extraction read then sees one member's view); Stepped Thinking "Separated" mode posts thoughts as real messages (boundaries). ST Summarize and Vector Storage copy the transcript; their blocks are filtered per drafted member (`memory.copierFilter`), VectFox is not (`transcript-copiers` check). A dry run skips interceptors, so a prompt preview shows the raw copier text.
 
 ## Product traps
 

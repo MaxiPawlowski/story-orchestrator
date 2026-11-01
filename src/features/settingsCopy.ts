@@ -182,6 +182,11 @@ export const SETTING_COPY = {
     "The memory model also notes who knows what, and what each character is hiding, so characters do not know things they never saw. "
       + "Turn it off when the self-test says this model cannot do it.",
   ),
+  "memory.copierFilter": copy(
+    "Keep secrets out of Summarize and Vector Storage",
+    "SillyTavern's Summarize summary and Vector Storage's recalled messages go into every character's prompt. With this on, a line that restates a secret "
+      + "is left out of the prompt of each character it was kept from. The summary and the chat stay as they are.",
+  ),
   "memory.harvestReasoning": copy(
     "Read characters' reasoning for what they intend",
     "When a reply carries the character's reasoning, it is also read for what that character means to do. Needs knowledge tracking. Not measured yet.",

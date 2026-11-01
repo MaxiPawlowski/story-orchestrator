@@ -276,6 +276,7 @@ export const defaultMemorySettings = (): MemoryRuntimeSettings => ({
   readKeys: true,
   relationRows: true,
   socialActs: true,
+  copierFilter: true,
 });
 
 export const defaultStagecraftSettings = (): StagecraftSettings => ({
@@ -320,7 +321,7 @@ const sanitizeInnerVoice = (memory: MemoryRuntimeSettings, defaults: MemoryRunti
   memory.mentionLedger = memory.mentionLedger !== false;
   memory.strengthRetention = memory.strengthRetention !== false;
   memory.retrievalQuery = memory.retrievalQuery !== false;
-  for (const key of ["neighbourRead", "readKeys", "relationRows", "socialActs"] as const) memory[key] = memory[key] !== false;
+  for (const key of ["neighbourRead", "readKeys", "relationRows", "socialActs", "copierFilter"] as const) memory[key] = memory[key] !== false;
   return memory;
 };
 

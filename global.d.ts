@@ -78,6 +78,7 @@ declare global {
     emptyReply?: import("./src/runtime/emptyReply").EmptyReplyDebug;
   } & Partial<import("./src/runtime/spikes/install").SpikeDebug>) | undefined;
   var storyOrchestratorTalk: { chainPending: () => boolean } | undefined;
+  var storyOrchestratorCopierFilter: { intercept: () => void } | undefined;
   var storyOrchestratorPrefixDrift: import("./src/runtime/prefixDriftPort").PrefixDriftHandle | undefined;
   var storyOrchestratorAgendaProposals: import("./src/runtime/coordinators/agendaProposalCoordinator").AgendaProposalCoordinator | undefined;
   var storyOrchestratorScheduler: { nextReadWindow: () => import("./src/extraction/scheduler").NextReadWindow | null } | undefined;
