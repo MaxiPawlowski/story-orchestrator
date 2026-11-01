@@ -25,11 +25,13 @@ import { armRefusal, buildPack, packCandidates, packLeaks, PACK_SESSION_RULE, se
 import { AGENT_OPS, GOAL_AGENT_MODES, LIVE_VERBS, type AgentOp, type LiveChat, type LiveRequest, type LiveVerb } from './lib/sessionDriver.mts';
 import { BOOK_ANSWERS, type BookAnswer } from './lib/sessionDelete.mts';
 import { PRESET_OVERLAY_RECORD, profileProblems, replyEffortProblems, sessionOverlay, thinkingExpected } from './lib/presetOverlay.mts';
-import { DEFAULT_MAIN_PROFILE, DEFAULT_ORCHESTRATOR, judgeExpectation, pinVerdict } from './lib/sessionPin.mts';
+import { DEFAULT_MAIN_PROFILE, DEFAULT_ORCHESTRATOR, judgeExpectation, pinVerdict, sessionHarnessRoles } from './lib/sessionPin.mts';
 import { scoreRow } from './lib/sessionRubric.mts';
 import { meterSession, updateBudgetDocument, type BudgetRow } from './lib/sessionSpend.mts';
 import { renderRunbook } from './lib/sessionRunbook.mts';
 import { laneIssue, lanePorts } from './lib/laneRange.mts';
+import { readLaneBundle, servedBundleInPage, sessionBundleProblem } from './lib/laneBundle.mts';
+import { nextScriptLine, turnsStop } from './lib/sessionTurns.mts';
 
 const USAGE = `Usage: node scripts/debug/so-session.mts <command> [...]
 
@@ -37,7 +39,11 @@ v2.6 plan 14: one human play session per charter card, on its own adolion-fresh 
 
   start <charterId> [--lane n] [--profile <name>] [--orchestrator <regex>] [--age <hours>]
         [--media off|on] [--allow-comfy] [--no-seed] [--force-waiting] [--arm <label>] [--break-lease] [--judge-rate <n>]
-        [--preset-overlay <variant>] [--no-preset-overlay]
+        [--preset-overlay <variant>] [--no-preset-overlay] [--bundle staged|<dir>]
+      --bundle freezes the bundle the lane serves (st-lanes.mts bundle) before the reload, so an npm run stage
+      elsewhere cannot change the build under the session; the served bundle sha is pinned in session.json
+      (bundle) either way, and every later live verb but flag/shot/delete-chat is refused once the lane serves
+      another bundle
       the lane's judge plugin limit (SO_JUDGE_RATE_PER_MIN) is the account rate (SO_JUDGE_ACCOUNT_RATE_PER_MIN,
       default 1,200/min, TypeSafe's documented limit) x2 split over the running lanes plus this one, 10..480/min
       (lanes burst at different times); the plugin lowers it on a real TypeSafe 429; --judge-rate overrides it. A lane already up at another
@@ -62,6 +68,10 @@ v2.6 plan 14: one human play session per charter card, on its own adolion-fresh 
       start. --preset-overlay picks the variant (default thinking; fix = the thinking-off control);
       --no-preset-overlay seeds without it (the pre-overlay condition, recorded as such).
   setting <dir> <path> <json>                write one install-wide setting mid-session (a rating arm)
+  turns <dir> <lines.txt> [--until-boundary n] [--max-turns n] [--start-line n] [--chat id] [--timeout-ms n] [--arm <label>]
+      play the file's lines (one per line, cycled when it runs out) as turns until the session chat's boundary
+      reaches --until-boundary (a 150-boundary recipe) or --max-turns turns ran (default: one pass); stops at the
+      first failed turn. Each turn is an ordinary turn row in turns.jsonl
   turn <dir> "<line>" [--chat id] [--timeout-ms n] [--no-expect-reply] [--arm <label> [--gate C3|R4|Q-M]]
       one real turn on the open chat (refused when it is not one of the session's chats; --chat names
       another): send, wait for the reply(ies) and the scheduler, append to turns.jsonl with the
@@ -201,9 +211,15 @@ const killTree = (pid: number) => new Promise<void>((done) => {
 
 const isAlive = (pid: number) => { try { process.kill(pid, 0); return true; } catch { return false; } };
 
-function servedBuild() {
+const globalSlot = () => {
   const stRoot = configuredStRoot(process.env, REPO_ROOT);
-  const path = stRoot ? resolve(stRoot, 'public', 'scripts', 'extensions', 'third-party', 'story-orchestrator', 'dist', 'manifest.json') : null;
+  return stRoot ? resolve(stRoot, 'public', 'scripts', 'extensions', 'third-party', 'story-orchestrator') : null;
+};
+
+function servedBuild(laneRoot: string | null = null) {
+  const slot = globalSlot();
+  const frozen = laneRoot ? readLaneBundle(laneRoot) : null;
+  const path = frozen ? resolve(frozen.dir, 'dist', 'manifest.json') : slot ? resolve(slot, 'dist', 'manifest.json') : null;
   const manifest = path && existsSync(path) ? JSON.parse(readFileSync(path, 'utf-8')) : null;
   return {
     bundleSha256: manifest?.bundle?.sha256 ?? null, version: manifest?.extension?.version ?? null,
@@ -235,6 +251,7 @@ async function latestSession(card: Card) {
 export interface StartOptions {
   lane: number | null; allowComfy: boolean; seed: boolean; planned?: number | null; forceWaiting?: boolean;
   profile?: string; orchestrator?: string; age?: number | null; media?: 'on' | 'off'; arm?: string | null; breakLease?: boolean; judgeRate?: number | null; noPresetOverlay?: boolean; presetOverlay?: string | null;
+  bundle?: string | null;
 }
 
 export function planStart(doc: CardDoc, index: StoryIndex, card: Card, options: StartOptions, previous: { session: any } | null, sessions: SessionOnLane[] = []) {
@@ -265,7 +282,7 @@ export function planStart(doc: CardDoc, index: StoryIndex, card: Card, options: 
     refused: null,
     lane,
     seed,
-    pin: { profile: options.profile ?? DEFAULT_MAIN_PROFILE, orchestrator: options.orchestrator ?? DEFAULT_ORCHESTRATOR.source, judge: judgeExpectation(card.setup.settings?.judge ?? 'defaults') },
+    pin: { profile: options.profile ?? DEFAULT_MAIN_PROFILE, orchestrator: options.orchestrator ?? DEFAULT_ORCHESTRATOR.source, judge: judgeExpectation(card.setup.settings?.judge ?? 'defaults'), harnessRoles: sessionHarnessRoles(card.story.kind) },
     age: continuing ? options.age ?? null : null,
     open: {
       kind: card.story.kind,
@@ -357,6 +374,11 @@ async function start(id: string, options: StartOptions) {
     if (loadedRate !== judgeRate.perMinute) return fail('judge-rate', [`lane ${plan.lane} restarted and its judge plugin still runs at ${loadedRate ?? 'an unlogged'}/min, not ${judgeRate.perMinute}/min`]);
     warnings.push(`lane ${plan.lane} was restarted to bring its judge plugin to ${judgeRate.perMinute}/min`);
   }
+  if (options.bundle) {
+    const frozen = await run(['scripts/debug/st-lanes.mts', 'bundle', String(plan.lane), 'freeze', '--from', options.bundle === 'staged' ? 'staged' : resolve(options.bundle)]);
+    if (frozen.code !== 0) return fail('bundle', [`bundle freeze failed: ${frozen.output.slice(-800)}`]);
+    console.log(`      bundle ${readLaneBundle(lane.root)?.sha256.slice(0, 8) ?? '?'} frozen on lane ${plan.lane}`);
+  } else if (!readLaneBundle(lane.root)) warnings.push(`lane ${plan.lane} serves the global staged bundle (not frozen): an npm run stage elsewhere refuses this session's later turns; start with --bundle to freeze it`);
   const inventoryPath = resolve(lane.root, 'adolion-fresh', 'inventory-latest.json');
   const inventory = existsSync(inventoryPath) ? await readJson(inventoryPath) : null;
   const laneCommit = inventory?.commit ?? null;
@@ -420,7 +442,8 @@ async function start(id: string, options: StartOptions) {
   const session = {
     charter: card.id, tier: card.tier, title: card.title, number, dir: rel(dir), lane: plan.lane, laneUrl: lane.url,
     story: card.story, mode: card.setup.mode, startedAt: new Date().toISOString(), playFrom, stoppedAt: null,
-    build: { ...servedBuild(), laneCampaign: laneCommit, indexCommit: index.commit }, pids, viewport: plan.viewport, settingsPatch: plan.patch,
+    bundle: { sha256: pin.bundle?.sha256 ?? null, frozen: readLaneBundle(lane.root) },
+    build: { ...servedBuild(lane.root), laneCampaign: laneCommit, indexCommit: index.commit }, pids, viewport: plan.viewport, settingsPatch: plan.patch,
     settings: { baselineVersion: baseline.version, chain: plan.chain.map((step) => step.card), effective: 'effective-settings.json' },
     media, arm: plan.arm, logOffset: logSize(lane.log), host: effectiveRead.host, presetOverlay: { ...presets.overlay, liveAfterPin: pin.presets ?? null }, judgeRate: { ...judgeRate, loaded: loadedRate },
     pin: { profile: plan.pin.profile, orchestrator: plan.pin.orchestrator, judge: plan.pin.judge, verdict: pin.verdict, probe: pin.probe, routing: pin.routing },
@@ -798,8 +821,9 @@ async function live(cli: LiveCli) {
   const switchTarget = cli.verb === 'switch-chat-mid-gen' ? (session.chats ?? []).find((known: any) => known.chatId === cli.args.to) : null;
   const args = cli.verb === 'shot' ? { ...cli.args, seq: await nextSeq(dir) } : switchTarget ? { ...cli.args, toGroup: switchTarget.group ?? null, toGroupId: switchTarget.groupId ?? null } : cli.args;
   const tag = liveTag(session, cli, cardGates(findCard(await loadCards(), session.charter)));
+  const bundle = BUNDLE_FREE_VERBS.includes(cli.verb) ? null : session.bundle?.sha256 ?? null;
   const sessionChats = sessionChatsOf(session, cli.verb, cli.chat);
-  const record = await liveInLane(session.lane, viewportEnv, { verb: cli.verb, dir, chat, ...(sessionChats ? { sessionChats } : {}), args, options: cli.options, ...(tag ? { tag } : {}) });
+  const record = await liveInLane(session.lane, viewportEnv, { verb: cli.verb, dir, chat, ...(sessionChats ? { sessionChats } : {}), args, options: cli.options, ...(tag ? { tag } : {}), ...(bundle ? { bundle } : {}) });
   const row = await appendTurn(dir, record);
   let chats: ChatRef[] = session.chats ?? [];
   if (cli.verb === 'adopt' && record.ok && record.chat?.chatId) {
@@ -811,6 +835,33 @@ async function live(cli: LiveCli) {
   console.log(JSON.stringify(row, null, 2));
   if (record.ok === false) process.exitCode = 1;
   return row;
+}
+
+export const BUNDLE_FREE_VERBS: readonly LiveVerb[] = ['flag', 'shot', 'delete-chat'];
+
+async function turnsCommand(rest: string[]) {
+  const flags = new Set(['--chat', '--timeout-ms', '--arm', '--gate', '--until-boundary', '--max-turns', '--start-line']);
+  const positional = rest.filter((arg, index) => !arg.startsWith('--') && !flags.has(rest[index - 1] ?? ''));
+  const [dir, linesPath] = positional;
+  if (!dir || !linesPath) { console.log(USAGE); process.exitCode = 2; return; }
+  const lines = (await readFile(resolve(linesPath), 'utf-8')).split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+  if (!lines.length) throw new Error(`${linesPath} holds no line to play`);
+  const untilBoundary = argValue(rest, '--until-boundary') === null ? null : Number(argValue(rest, '--until-boundary'));
+  const maxTurns = argValue(rest, '--max-turns') === null ? (untilBoundary === null ? lines.length : Number.POSITIVE_INFINITY) : Number(argValue(rest, '--max-turns'));
+  const passOn = ['--chat', '--timeout-ms', '--arm', '--gate'].flatMap((flag) => (argValue(rest, flag) === null ? [] : [flag, String(argValue(rest, flag))]));
+  let at = Number(argValue(rest, '--start-line') ?? 0);
+  let played = 0;
+  let boundary: number | null = null;
+  for (;;) {
+    const stop = turnsStop({ played, maxTurns, boundary, untilBoundary });
+    if (stop) { console.log(`turns: ${stop} (${played} turn(s), boundary ${String(boundary)}, next line ${at})`); return; }
+    const line = nextScriptLine(lines, at);
+    at += 1;
+    const row: any = await live(parseLiveArgs('turn', [dir, line, ...passOn]));
+    played += 1;
+    boundary = typeof row?.boundary === 'number' ? row.boundary : boundary;
+    if (!row || row.ok === false) { console.log(`turns: stopped at a failed turn (${played} turn(s), boundary ${String(boundary)}, next line ${at})`); process.exitCode = 1; return; }
+  }
 }
 
 const looksLikeEvidence = (value: string) => /^\S+$/.test(value) && /[.:/\\]/.test(value);
@@ -1037,15 +1088,24 @@ async function settingRecord(page: any, path: string, value: unknown) {
 
 async function liveChild(input: string, output: string) {
   const [{ runCli }, { defaultLiveDeps, runLive }, reads] = await Promise.all([import('./lib/cli.mts'), import('./lib/sessionDriver.mts'), import('./lib/sessionPageReads.mts')]);
-  const request: Omit<LiveRequest, 'verb'> & { verb: LiveVerb | 'setting' } = await readJson(input);
+  const request: Omit<LiveRequest, 'verb'> & { verb: LiveVerb | 'setting'; bundle?: string } = await readJson(input);
   await runCli(async (page) => {
     let record: Record<string, any>;
+    const bundleStart = request.bundle ? (await servedBundleInPage(page)).sha256 : null;
+    const refused = request.bundle ? sessionBundleProblem(request.bundle, bundleStart) : null;
     try {
-      record = request.verb === 'setting'
-        ? await settingRecord(page, String((request.args as any).path), (request.args as any).value)
-        : await runLive(page, request as LiveRequest, await defaultLiveDeps());
+      record = refused
+        ? { kind: request.verb, at: new Date().toISOString(), ok: false, refused: 'bundle', problems: [refused] }
+        : request.verb === 'setting'
+          ? await settingRecord(page, String((request.args as any).path), (request.args as any).value)
+          : await runLive(page, request as LiveRequest, await defaultLiveDeps());
     } catch (error) {
       record = { kind: request.verb, at: new Date().toISOString(), ok: false, error: error instanceof Error ? error.message : String(error) };
+    }
+    if (request.bundle && !refused) {
+      const bundleEnd = (await servedBundleInPage(page).catch(() => ({ sha256: null }))).sha256;
+      const moved = sessionBundleProblem(request.bundle, bundleEnd);
+      record = { ...record, bundle: { start: bundleStart, end: bundleEnd }, ...(moved ? { ok: false, problems: [...(record.problems ?? []), `after the verb: ${moved}`] } : {}) };
     }
     try {
       const [observed, transcript] = await Promise.all([reads.readObservation(page), reads.readTranscript(page)]);
@@ -1133,11 +1193,12 @@ async function pagePhase(phase: 'settings' | 'effective' | 'pin' | 'open' | 'end
       if (!selected.ok) problems.push(String(selected.reason));
       const probe = await pinLib.probeProfile(page, plan.pin.profile);
       const routing = await pinLib.readRouting(page);
-      const verdict = pinLib.pinVerdict(routing, probe, { mainProfile: plan.pin.profile, orchestrator: new RegExp(plan.pin.orchestrator, 'i'), judge: plan.pin.judge });
-      out.verdict = { ok: verdict.ok && selected.ok, problems: [...problems, ...verdict.problems] };
+      const verdict = pinLib.pinVerdict(routing, probe, { mainProfile: plan.pin.profile, orchestrator: new RegExp(plan.pin.orchestrator, 'i'), judge: plan.pin.judge, harnessRoles: plan.pin.harnessRoles ?? [] });
+      out.verdict = { ok: verdict.ok && selected.ok, problems: [...problems, ...verdict.problems], ...(verdict.harnessRoutes ? { harnessRoutes: verdict.harnessRoutes } : {}) };
       out.probe = probe;
       out.routing = routing;
       out.presets = await reads.readLivePresets(page);
+      out.bundle = await servedBundleInPage(page);
     }
 
     if (phase === 'open') {
@@ -1359,9 +1420,10 @@ async function main() {
     await start(rest[0], {
       lane: lane === null ? null : Number(lane), allowComfy: rest.includes('--allow-comfy'), seed: !rest.includes('--no-seed'), forceWaiting: rest.includes('--force-waiting'),
       profile: argValue(rest, '--profile') ?? DEFAULT_MAIN_PROFILE, orchestrator: argValue(rest, '--orchestrator') ?? DEFAULT_ORCHESTRATOR.source, age: age === null ? null : Number(age),
-      media, arm: argValue(rest, '--arm'), breakLease: rest.includes('--break-lease'), noPresetOverlay: rest.includes('--no-preset-overlay'), presetOverlay: argValue(rest, '--preset-overlay'), judgeRate: argValue(rest, '--judge-rate') === null ? null : Number(argValue(rest, '--judge-rate')),
+      media, arm: argValue(rest, '--arm'), bundle: argValue(rest, '--bundle'), breakLease: rest.includes('--break-lease'), noPresetOverlay: rest.includes('--no-preset-overlay'), presetOverlay: argValue(rest, '--preset-overlay'), judgeRate: argValue(rest, '--judge-rate') === null ? null : Number(argValue(rest, '--judge-rate')),
     });
-  } else if ((LIVE_VERBS as readonly string[]).includes(command)) await live(parseLiveArgs(command as LiveVerb, rest));
+  } else if (command === 'turns') await turnsCommand(rest);
+  else if ((LIVE_VERBS as readonly string[]).includes(command)) await live(parseLiveArgs(command as LiveVerb, rest));
   else if (command === 'setting') await settingCommand(rest[0], rest[1], rest[2]);
   else if (command === 'lane') await laneCommand(rest);
   else if (command === 'rating-pack') {

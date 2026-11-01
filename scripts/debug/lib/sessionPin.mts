@@ -99,7 +99,11 @@ export async function probeProfile(page: any, name: string, timeoutMs = 120000):
   }, { wanted: name, timeoutMs });
 }
 
-export interface PinExpectations { mainProfile: string; orchestrator: RegExp; judge: 'on' | 'off' | 'mixed' }
+export interface PinExpectations { mainProfile: string; orchestrator: RegExp; judge: 'on' | 'off' | 'mixed'; harnessRoles?: readonly string[] }
+
+export const HARNESS_ROUTE = /^harness:/;
+
+export const sessionHarnessRoles = (storyKind: string | null | undefined): string[] => (storyKind === 'wizard' ? [] : ['authoring']);
 
 export function pinVerdict(routing: Routing, probe: Probe | null, expect: PinExpectations) {
   const problems: string[] = [];
@@ -107,17 +111,20 @@ export function pinVerdict(routing: Routing, probe: Probe | null, expect: PinExp
   if (!probe) problems.push(`the main profile "${expect.mainProfile}" was not probed`);
   else if (!probe.ok) problems.push(`the main profile "${expect.mainProfile}" did not answer a tiny probe: ${probe.error ?? 'no text'}`);
   const byRole = new Map(routing.roles.map((role) => [role.role, role]));
+  const harnessRoutes: Array<{ role: string; route: string }> = [];
   for (const role of PIN_ROLES) {
     const route = byRole.get(role);
     if (!route) { problems.push(`role "${role}" has no route in the snapshot`); continue; }
-    if (!route.profileName) problems.push(`role "${role}" routes to no profile`);
+    if (HARNESS_ROUTE.test(route.profileId ?? '') && (expect.harnessRoles ?? []).includes(role)) harnessRoutes.push({ role, route: String(route.profileId) });
+    else if (HARNESS_ROUTE.test(route.profileId ?? '')) problems.push(`role "${role}" routes to the harness ${route.profileId}; the session allows a harness route only for ${(expect.harnessRoles ?? []).join(', ') || 'no role'} (a wizard card pins authoring to a profile)`);
+    else if (!route.profileName) problems.push(`role "${role}" routes to no profile`);
     else if (!expect.orchestrator.test(route.profileName)) problems.push(`role "${role}" routes to "${route.profileName}", expected a profile matching ${expect.orchestrator}`);
     if (route.effort === null || route.effort === undefined) problems.push(`role "${role}" reports no reasoning effort`);
   }
   if (expect.judge === 'on' && routing.judge.enabled !== true) problems.push('the judge is off, the card expects it on');
   if (expect.judge === 'off' && routing.judge.enabled !== false) problems.push('the judge is on, the card switches it off');
   if (routing.judge.enabled && routing.judge.keyPresent !== true) problems.push(`the judge is on but its key is ${routing.judge.keyPresent === false ? 'absent' : 'unreadable'} (plugin http ${routing.judge.pluginHttp})`);
-  return { ok: problems.length === 0, problems };
+  return { ok: problems.length === 0, problems, ...(harnessRoutes.length ? { harnessRoutes } : {}) };
 }
 
 export const judgeExpectation = (judge: unknown): PinExpectations['judge'] => (judge === 'off' ? 'off' : judge && typeof judge === 'object' ? 'mixed' : 'on');
