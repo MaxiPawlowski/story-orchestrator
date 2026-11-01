@@ -123,6 +123,7 @@ Floors are informational unless marked hard; a miss is recorded, never retuned.
 ## Gate record F
 
 - Vast batch 1 (2026-11-01): M42-F1 PASS x2 (10/10 identical, 23/40 and 19/40 fires; payload diff not run), F3 live INCOMPLETE (no tool), F5 INCOMPLETE (tension never critical). `gpu-queue-2026-10-30.md` §Vast batch 1 record.
+- Vast batch 2 (2026-11-01): F5 ON-arm readout PASS (peaks 0.736 / 0.818, 0 escalate hints in 459 loud prompts; off arm and prefix gate not run). `gpu-queue-2026-10-30.md` §Vast batch 2 record.
 
 2026-10-31, branch `v3.0-42a-f`.
 
@@ -168,6 +169,7 @@ Floors are informational unless marked hard; a miss is recorded, never retuned.
 ## Gate record G
 
 - Vast batch 1 (2026-11-01): G4 PASS x2, G1 PASS (0 left after trim), G3 MISS (0 vs 0 near misses), G6 MISS (0.68x > 0.6x), G7 PASS on a proxy. Defect: `talk.dryNames` overflows llama.cpp's 64-entry breaker cap on 8 of 9 campaign stories (400, no reply). `gpu-queue-2026-10-30.md` §Vast batch 1 record.
+- Vast batch 2 (2026-11-01): G3 live cap confirm PASS (20-member story, 6 turns, 8 requests at 64 breakers, 0 HTTP 400). `gpu-queue-2026-10-30.md` §Vast batch 2 record.
 - G3 fix (2026-11-01, branch `v3.0-drynames-cap`): the limit is `LLAMA_DRY_MAX_SEQ_BREAKERS` = 64 (`include/llama.h`), counted by `tools/server/server-schema.cpp` over distinct exact strings of the whole list after dedupe (b11888-so6 source, same string in the so3/so6/b11889 binaries); the sampler (`src/llama-sampler.cpp`) only warns and stops past it. `appendSequenceBreakers` now appends at most 64 minus the preset's distinct entries (preset first, nothing when the preset alone has 64), names ordered drafted member, player, members on stage, rest; dropped names log at debug and journal `DRY_NAMES_CAPPED` once per chat. Regression `dryNames.test.ts` (30-member cast, 65-entry preset) fails before the fix.
 
 2026-10-31, branch `v3.0-42a-g`.

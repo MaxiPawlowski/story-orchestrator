@@ -240,6 +240,7 @@ MW1-B2, CPU Sol labels). Floors for those rows are stated there, before any run.
 ## Gate record B
 
 - Vast batch 1 (2026-11-01), GPU rows: MW1-B2 MISS (off - on 0.071 < 0.10), MW1-B1 MISS (precision 0.65 < 0.9; sample recall 0.87), MW1-B3/B4 INCOMPLETE; detail and bundle caveats in `gpu-queue-2026-10-30.md` §Vast batch 1 record.
+- Vast batch 2 (2026-11-01): MW1-B3 INCOMPLETE (both arms to 150, probes 0/4 everywhere; the shared 49152 KV overflowed from boundary ~45, replies "..."), MW1-B2 rerun not run (pin bump). `gpu-queue-2026-10-30.md` §Vast batch 2 record.
 
 2026-10-31, branch `v3.0-41-memory-b`.
 

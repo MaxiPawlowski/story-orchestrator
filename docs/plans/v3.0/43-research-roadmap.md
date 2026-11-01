@@ -369,6 +369,7 @@ Floors, declared here before any measurement (informational, never retuned; the 
   `dist/index.js` 1,292,353 B (budget 1,300,000: 7.6 KB left; next main-bundle work should go lazy).
 - Not run: every GPU row (M43-M1..M4); no live browser gate (no lanes, no ST, no GPU per brief). CPU-only inputs: llama-tokenize
   with CUDA hidden.
+- Vast batch 2 (2026-11-01): M43-M1..M4 INCOMPLETE (live suite blind to the switches: `runFixture` never passes `readMemory`; code fix + fixtures owed), C3 planted half PASS (Sol 31/32 = 0.969), C1 not run, P1 INCOMPLETE (no harness), P3 not run. `gpu-queue-2026-10-30.md` §Vast batch 2 record.
 
 ## H: restyle ST's own UI, self-imposed rules review (owner 2026-10-31)
 
