@@ -356,3 +356,16 @@ Floors, declared here before any measurement (informational, never retuned; the 
   not built: nothing of the evidence reaches a prompt or a shared tier. Neighbours list memory rows only (no ledger rows;
   ledger keys version themselves). The backlog read (`memorizeBacklog`) gets no neighbour list. Keys are used whenever a
   row carries them, also after the switch is turned off.
+
+## Gate record M
+- 2026-11-01, branch `v3.0-43-m`, merged master `f2c49ea07` (agents L, P, H work) before the cited run; conflicts were list
+  unions (settingsIndex author set, this plan doc) and regenerated guide/settings pages.
+- `npm run gates:quick` green after the merge (jest 317 s). Earlier quick runs red on lint max-len and code-health ratchets
+  (S3 file budgets in engine.ts/scheduler.ts/registry.ts, S4 wireCoordinators length, S8 dead exports and a local isRecord), all fixed
+  without raising a budget (engine.ts manual-boundary return folded to two lines; features moved into retentionFeatures.ts).
+- Full `npm run gates` (no --resume, Storybook included) on `95ebdaa02`: **all green in 528.0 s** (typecheck, build, typecheck:test,
+  test, test:replay, test:debug, debug:typecheck, test:plugin, test:release, lint, test-storybook:ci).
+- Budgets: memory coordinator 560/560, extraction coordinator 560/560, manager 700/700 (effective lines). Main bundle
+  `dist/index.js` 1,292,353 B (budget 1,300,000: 7.6 KB left; next main-bundle work should go lazy).
+- Not run: every GPU row (M43-M1..M4); no live browser gate (no lanes, no ST, no GPU per brief). CPU-only inputs: llama-tokenize
+  with CUDA hidden.
