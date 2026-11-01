@@ -2,7 +2,10 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { tmpdir } from 'node:os';
 import { testTempDirSync } from '../../lib/testTemp.mjs';
+
+process.env.SO_LANES_ROOT = tmpdir();
 import { bundleSha, copyBundle, frozenFileFor, readLaneBundle, rowBundleProblems, serveFrozen, servedBundleInPage, sessionBundleProblem, sourceKind, writeLaneBundle } from './laneBundle.mts';
 
 function slot(dir: string, sha: string, body = 'console.log(1)') {

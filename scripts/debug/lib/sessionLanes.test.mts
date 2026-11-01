@@ -5,7 +5,10 @@ import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { archiveLane, continuationsOf, dependencyRefusal, dependentsOf, executionOrder, lanePinVerdict, leaseFor, leaseRefusal, outstandingDependents, planDrift, planLanes, readLease, readSeedRecords, reseedRefusal, restoreLane, seedRecordOf, writeLease, judgeRateAction, judgeRatePlan, laneJudgeRate, loadedJudgeRate, runningLanes, JUDGE_ACCOUNT_RATE_PER_MIN } from './sessionLanes.mts';
 import { findCard, LANE_PLAN_PATH, loadCards } from '../so-session.mts';
+import { tmpdir } from 'node:os';
 import { testTempDir } from '../../lib/testTemp.mjs';
+
+process.env.SO_LANES_ROOT = tmpdir();
 
 test('AS-29 schedule: cards run tier by tier, and a cross-tier continuation keeps its lane reserved until its tier', async () => {
   const doc = await loadCards();

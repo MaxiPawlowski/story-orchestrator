@@ -7,7 +7,10 @@ import { belowCut, h6Verdict, installWindow, removeWindow, validateRecallSet, ty
 import { overheadFrom, rowsOf, scoreTrim, speakerFor, trimmedTurns, type TrimTurn } from './lib/trimArms.mts';
 import { positionals, readTurns } from './so-trim-arms.mts';
 import { planFrom } from './so-history-recall.mts';
+import { tmpdir } from 'node:os';
 import { testTempDirSync } from '../lib/testTemp.mjs';
+
+process.env.SO_LANES_ROOT = tmpdir();
 
 const rng = (seed: number) => () => {
   seed = (seed * 1664525 + 1013904223) % 4294967296;

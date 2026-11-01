@@ -1,4 +1,6 @@
-import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
+import { readFile, readdir } from 'node:fs/promises';
+import { harnessFs, laneFs } from '../lib/laneSafety.mjs';
+const { mkdir, writeFile } = harnessFs;
 import { resolve } from 'node:path';
 import type { Page } from 'playwright';
 import { runCli } from './lib/cli.mts';
@@ -27,7 +29,7 @@ async function prepare(lane: number) {
   const path = resolve(lanesRootFor(process.env, PROJECT_ROOT), String(lane), 'data', 'default-user', 'settings.json');
   const settings = JSON.parse(await readFile(path, 'utf-8'));
   const changed = lanePrepare(settings);
-  await writeFile(path, JSON.stringify(settings, null, 4), 'utf-8');
+  await laneFs.writeFile(path, JSON.stringify(settings, null, 4), 'utf-8');
   const problems = lanePrepareProblems(JSON.parse(await readFile(path, 'utf-8')));
   if (problems.length) throw new Error(`lane ${lane}: the read-back failed: ${problems.join('; ')}`);
   console.log(JSON.stringify({ lane, readBack: 'ok', was: changed.was, imageExtension: changed.extension }));

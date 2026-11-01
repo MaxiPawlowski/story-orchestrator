@@ -1,4 +1,6 @@
-import { readFile, writeFile, mkdir, copyFile, access, cp, readdir } from 'node:fs/promises';
+import { readFile, access, readdir } from 'node:fs/promises';
+import { harnessFs } from '../lib/laneSafety.mjs';
+const { copyFile, cp, mkdir, writeFile } = harnessFs;
 import { execFileSync } from 'node:child_process';
 import { resolve } from 'node:path';
 import assert from 'node:assert/strict';

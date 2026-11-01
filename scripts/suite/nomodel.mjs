@@ -1,5 +1,7 @@
 #!/usr/bin/env node
-import { existsSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
+import { laneFs } from "../lib/laneSafety.mjs";
+const { rmSync, writeFileSync } = laneFs;
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawn, spawnSync } from 'node:child_process';

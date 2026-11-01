@@ -1,5 +1,7 @@
 import { chromium, type Browser, type Page } from 'playwright';
-import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
+import { readFile } from 'node:fs/promises';
+import { harnessFs } from '../../lib/laneSafety.mjs';
+const { mkdir, rm, writeFile } = harnessFs;
 import { fileURLToPath } from 'node:url';
 import { resolve, dirname, relative, isAbsolute } from 'node:path';
 import { configuredStRoot, lanesRootFor } from '../../lib/stRoot.mjs';

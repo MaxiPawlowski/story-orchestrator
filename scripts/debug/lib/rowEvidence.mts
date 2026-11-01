@@ -1,4 +1,6 @@
-import { closeSync, copyFileSync, existsSync, mkdirSync, openSync, readdirSync, readFileSync, readSync, statSync, writeFileSync } from 'node:fs';
+import { closeSync, existsSync, readdirSync, readFileSync, readSync, statSync } from 'node:fs';
+import { harnessFs } from '../../lib/laneSafety.mjs';
+const { copyFileSync, mkdirSync, openSync, writeFileSync } = harnessFs;
 import { basename, resolve } from 'node:path';
 import { PAGE_CAPTURE_FILE, PAGE_SUMMARY_FILE } from './pageCapture.mts';
 import { podDir, POD_FILES, readJsonl, requestStats, SAMPLE_INTERVAL_MS, windowRows } from './podCapture.mts';

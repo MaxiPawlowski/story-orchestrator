@@ -1,5 +1,7 @@
 import { createHash } from 'node:crypto';
-import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
+import { harnessFs } from '../../lib/laneSafety.mjs';
+const { copyFileSync, mkdirSync, writeFileSync } = harnessFs;
 import { dirname, isAbsolute, relative, resolve } from 'node:path';
 
 export const LANE_DEBUG_DIRS = ['batch', 'runs', 'b1', 'screenshots', 'payload', 'p41', 'pose-latency', 'showcase-images'];

@@ -1,4 +1,5 @@
-import { appendFile, rm, writeFile } from 'node:fs/promises';
+import { laneFs } from '../lib/laneSafety.mjs';
+const { appendFile, rm, writeFile } = laneFs;
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { Route } from 'playwright';

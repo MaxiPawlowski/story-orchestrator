@@ -1,4 +1,6 @@
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { readFile } from 'node:fs/promises';
+import { harnessFs } from '../lib/laneSafety.mjs';
+const { mkdir, writeFile } = harnessFs;
 import { createHash } from 'node:crypto';
 import { resolve, join } from 'node:path';
 

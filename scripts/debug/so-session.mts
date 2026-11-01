@@ -1,6 +1,8 @@
 import { execFile, spawn } from 'node:child_process';
-import { existsSync, openSync, readFileSync, statSync } from 'node:fs';
-import { appendFile, mkdir, readdir, readFile, writeFile } from 'node:fs/promises';
+import { existsSync, readFileSync, statSync } from 'node:fs';
+import { readdir, readFile } from 'node:fs/promises';
+import { harnessFs } from '../lib/laneSafety.mjs';
+const { appendFile, mkdir, openSync, writeFile } = harnessFs;
 import { relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { configuredStRoot, lanesRootFor, REPO_ROOT } from '../lib/stRoot.mjs';
