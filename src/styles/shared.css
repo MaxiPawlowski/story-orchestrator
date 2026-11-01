@@ -8,8 +8,8 @@
 @media (min-width: 700px) {
   #drawer-manager .so-overview-layout {
     display: grid;
-    grid-template-columns: minmax(0, 1.2fr) minmax(18rem, 0.8fr);
-    gap: 0.8rem 1rem;
+    grid-template-columns: minmax(0, 1.2fr) minmax(calc(var(--so-base) * 18), 0.8fr);
+    gap: calc(var(--so-base) * 0.8) var(--so-base);
     align-items: start;
   }
 
@@ -17,18 +17,18 @@
 }
 :is(#story-orchestrator-settings, #so-workspace-modal, #drawer-manager, #so-panels-root) .so-task-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
-  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, calc(var(--so-base) * 15)), 1fr));
+  gap: calc(var(--so-base) * 0.75);
 }
 
 :is(#story-orchestrator-settings, #so-workspace-modal, #drawer-manager, #so-panels-root) .so-task-card {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: calc(var(--so-base) * 0.5);
   min-width: 0;
-  padding: 0.75rem 1rem;
+  padding: calc(var(--so-base) * 0.75) var(--so-base);
   border: 1px solid var(--st-border);
-  border-radius: 0.5rem;
+  border-radius: calc(var(--so-base) * 0.5);
   background: color-mix(in srgb, var(--st-bg-tint) 50%, transparent);
 }
 
@@ -39,20 +39,20 @@
 
 :is(#story-orchestrator-settings, #so-workspace-modal, #drawer-manager, #so-panels-root) .so-card-heading {
   margin: 0;
-  font-size: 1rem;
+  font-size: var(--so-base);
   font-weight: 600;
 }
 
 :is(#story-orchestrator-settings, #so-workspace-modal, #drawer-manager, #so-panels-root) summary.so-card-heading {
   cursor: pointer;
-  padding: 0.5rem 0;
+  padding: calc(var(--so-base) * 0.5) 0;
 }
 
 :is(#story-orchestrator-settings, #so-workspace-modal, #drawer-manager, #so-panels-root) .so-actions {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.5rem;
+  gap: calc(var(--so-base) * 0.5);
 }
 
 #drawer-manager {

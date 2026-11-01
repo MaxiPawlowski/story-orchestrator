@@ -199,9 +199,9 @@
   top: 38%;
   z-index: 21;
   transform: translate(-50%, -50%);
-  max-width: min(80%, 36rem);
-  padding: 0.75rem 1.5rem;
-  border-radius: 0.5rem;
+  max-width: min(80%, calc(var(--so-base) * 36));
+  padding: calc(var(--so-base) * 0.75) calc(var(--so-base) * 1.5);
+  border-radius: calc(var(--so-base) * 0.5);
   background: color-mix(in srgb, var(--black100) 72%, transparent);
   color: var(--white100);
   text-align: center;
@@ -211,14 +211,14 @@
 }
 
 :is(#so-vn-root, #so-stage-strip) .so-stage-chapter-label {
-  font-size: 0.8rem;
+  font-size: calc(var(--so-base) * 0.8);
   letter-spacing: 0.12em;
   text-transform: uppercase;
   opacity: 0.75;
 }
 
 :is(#so-vn-root, #so-stage-strip) .so-stage-chapter-title {
-  font-size: 1.4rem;
+  font-size: calc(var(--so-base) * 1.4);
   font-weight: 600;
 }
 

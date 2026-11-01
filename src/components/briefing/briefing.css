@@ -1,5 +1,5 @@
 dialog#so-briefing.so-dialog {
-  --so-dialog-window-w: 40rem;
+  --so-dialog-window-w: calc(var(--so-base) * 40);
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
   background-color: var(--so-surface);
@@ -109,13 +109,13 @@ dialog#so-briefing.so-dialog[open] {
 
 #so-briefing .so-briefing-image {
   width: 100%;
-  max-height: 14rem;
+  max-height: calc(var(--so-base) * 14);
   object-fit: cover;
   border-radius: 8px;
 }
 
 #so-briefing .so-briefing-blocks {
-  padding: 0.5rem 0.75rem;
+  padding: calc(var(--so-base) * 0.5) calc(var(--so-base) * 0.75);
   border-left: 3px solid var(--st-warning);
   background: color-mix(in srgb, var(--st-bg-tint) 70%, transparent);
 }
