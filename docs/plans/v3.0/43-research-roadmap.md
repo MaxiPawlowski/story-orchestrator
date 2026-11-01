@@ -61,3 +61,17 @@ Each a spike behind `spikes.<id>` (lazy `runtime/spikes/`), CPU-built ahead, dec
   floors: E0 hit@4 and lore precision@4 up.
 
 Lore budget cap: for this one case the owner keeps ST settings unchanged (warning + campaign guideline instead).
+
+## Phase 2 agent L (lore lifetime, scene state + aliases, example-dialogue drop)
+
+Branch `v3.0-43-l`. Floors declared before measuring (2026-10-31):
+- L1 lore lifetime (`worldInfo.loreLifetime`, on): worst-case per-prompt story lore along any simple path (constants switched on + the
+  largest keyword entries lore-select may force, top_k else 8; chars/4) must not rise on any fixture or pinned campaign story with the switch
+  on; informational: count of stories over 2,500 before vs after.
+- L2 scene state (`worldInfo.loreState`, on): offline lexical arm with state terms must not lose needed recall@4 or nDCG@4 against the
+  window-only arm on `lore-relevance.json`, nor recall@2 on `lore.json`. Judge arm with state needs re-recorded goldens (TypeSafe):
+  not run here (no lane copy used), so the judge half is unmeasured. Prefilter shortlist recall re-measured with state terms; recorded
+  against 0.95, default not flipped.
+- L2 aliases (`worldInfo.loreAliases`, on): nickname fixture `test/fixtures/lore-aliases.json`: every nickname row fires after the pass
+  (5 of 5), none before, and no row fires against its label.
+- L3 example-dialogue drop: check `voice-examples-pushed-out` fires on its fixture; info, read only.
