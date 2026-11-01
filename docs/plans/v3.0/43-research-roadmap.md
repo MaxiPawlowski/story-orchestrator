@@ -633,3 +633,9 @@ source patch was needed, so no patch file or apply script exists yet.
     entry 1 changed on the server, editor input on entry 0. Off: server keeps the hand edit and loses the other write (control).
     On: commit 409, merge, server and ST's cache hold both. Books deleted, residue clean.
   - Evidence: `C:\dev\so-lanes\ui-review\43t\` (runner logs + result records).
+- Gates: `npm run gates` (no --resume, Storybook included) all green in 383.6s on `623dc088d` (master `e599b883d` merged):
+  jest 11,581 passed / 3 skipped, Storybook 1,167 tests, test:debug, replay, release, plugin, lint, typechecks, build. Earlier
+  runs red: a merge conflict left in the tree, then the error-copy inventory (3 guard probe catches listed) and the arrival golden
+  (regenerate scenario listed); two later full runs green but master had moved. Main `dist/index.js` 1,298,194 B of 1,300,000.
+- Not done: `/regenerate` slash path (ST calls `regenerateGroup` directly; only a source patch would reach it); hidden rows the
+  player or other extensions post keep ST's behaviour; the lane runs used the ST code copy `C:\dev\st-live-t` (kept for reuse).
