@@ -1,5 +1,7 @@
 import { execSync } from 'node:child_process';
-import { appendFileSync, existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
+import { harnessFs, laneFs } from '../lib/laneSafety.mjs';
+const { appendFileSync, mkdirSync, writeFileSync } = harnessFs;
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { Page } from 'playwright';
@@ -100,12 +102,12 @@ export function seedSaga({ userDir, chatFile, group, story, profile = null, amou
     if (row.after?.disabled) disabled.add(row.target.member);
     else disabled.delete(row.target.member);
   }
-  mkdirSync(join(userDir, 'group chats'), { recursive: true });
-  writeFileSync(join(userDir, 'group chats', `${chatId}.jsonl`), readFileSync(chatFile));
+  laneFs.mkdirSync(join(userDir, 'group chats'), { recursive: true });
+  laneFs.writeFileSync(join(userDir, 'group chats', `${chatId}.jsonl`), readFileSync(chatFile));
   if (!entry.chats.includes(chatId)) entry.chats.push(chatId);
   entry.chat_id = chatId;
   entry.disabled_members = [...disabled];
-  writeFileSync(groupFile, JSON.stringify(entry, null, 4));
+  laneFs.writeFileSync(groupFile, JSON.stringify(entry, null, 4));
   const settingsPath = join(userDir, 'settings.json');
   const settings = JSON.parse(readFileSync(settingsPath, 'utf-8'));
   const root = settings.extension_settings['story-orchestrator'] ??= {};
@@ -125,7 +127,7 @@ export function seedSaga({ userDir, chatFile, group, story, profile = null, amou
     profileId = found.id;
   }
   settings.amount_gen = amountGen;
-  writeFileSync(settingsPath, JSON.stringify(settings, null, 4));
+  laneFs.writeFileSync(settingsPath, JSON.stringify(settings, null, 4));
   return { chatId, rows: lines.length - 1, group: entry.id, members: entry.members.length, enabled: entry.members.length - disabled.size, profileId, amountGen };
 }
 

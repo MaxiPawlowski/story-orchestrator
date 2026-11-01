@@ -1,5 +1,7 @@
-import { cpSync, existsSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
+import { laneFs } from '../../lib/laneSafety.mjs';
+const { cpSync, mkdirSync, renameSync, rmSync, writeFileSync } = laneFs;
 import { resolve } from 'node:path';
 import { loadAllowlist, neverIssues, stageList, stageTree } from '../../release/artifact.mjs';
 

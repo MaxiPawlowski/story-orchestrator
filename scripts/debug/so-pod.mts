@@ -1,5 +1,7 @@
 import { spawn } from 'node:child_process';
-import { appendFileSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
+import { harnessFs } from '../lib/laneSafety.mjs';
+const { appendFileSync, mkdirSync, rmSync, writeFileSync } = harnessFs;
 import { homedir } from 'node:os';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
