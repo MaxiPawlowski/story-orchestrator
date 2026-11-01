@@ -122,6 +122,8 @@ Floors are informational unless marked hard; a miss is recorded, never retuned.
 
 ## Gate record F
 
+- Vast batch 1 (2026-11-01): M42-F1 PASS x2 (10/10 identical, 23/40 and 19/40 fires; payload diff not run), F3 live INCOMPLETE (no tool), F5 INCOMPLETE (tension never critical). `gpu-queue-2026-10-30.md` §Vast batch 1 record.
+
 2026-10-31, branch `v3.0-42a-f`.
 
 - `npm run gates` (Storybook included, no `--resume`) on `7d4b1cab6`: **all green in 711.6s** (typecheck,
@@ -164,6 +166,8 @@ Floors are informational unless marked hard; a miss is recorded, never retuned.
   form field for `min_turns`/`urgent` yet (JSON only).
 
 ## Gate record G
+
+- Vast batch 1 (2026-11-01): G4 PASS x2, G1 PASS (0 left after trim), G3 MISS (0 vs 0 near misses), G6 MISS (0.68x > 0.6x), G7 PASS on a proxy. Defect: `talk.dryNames` overflows llama.cpp's 64-entry breaker cap on 8 of 9 campaign stories (400, no reply). `gpu-queue-2026-10-30.md` §Vast batch 1 record.
 
 2026-10-31, branch `v3.0-42a-g`.
 
