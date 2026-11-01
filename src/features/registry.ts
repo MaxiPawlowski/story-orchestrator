@@ -306,7 +306,7 @@ const CORE_FEATURES: readonly Feature[] = [
     id: "curator", name: "Lorebook curator", area: "world", audience: "author",
     oneLine: "Proposes updates to the story's lorebook as play overtakes it.",
     what: "A background helper reads what happened and proposes switching entries on or off, or correcting text. "
-      + "It touches only the lorebooks the story lists, and never progress or memory. Each change waits for your review by default.",
+      + "It touches only the lorebooks the story lists, and never progress or memory. A change to an entry marked {{// so:auto}} applies on its own by default; the rest wait for you.",
     where: featureAt("curator", "enabled", "Lorebook curator"),
     settings: ["stagecraft.curatorEnabled", "stagecraft.acceptMode"], guideTopic: "stagecraft", doc: authorGuideDoc("stagecraft"), status: "shipped",
     needs: ["memory-profile"],
@@ -326,7 +326,7 @@ const CORE_FEATURES: readonly Feature[] = [
     oneLine: "Markers in a lorebook entry keep words safe from the curator, or let its changes apply on their own.",
     what: "Inside an entry, text between {{// so:protect}} and {{// so:end}} is never changed or switched off by the curator. An entry carrying {{// so:auto}} takes the curator's "
       + "changes without review when its changes are set to apply on their own; every other entry still waits for you. "
-      + "Changes wait for your review by default. SillyTavern drops the markers before the prompt.",
+      + "A marked entry's change applies on its own by default. SillyTavern drops the markers before the prompt.",
     where: featureAt("curator", "acceptMode", "Protected and auto lore"),
     settings: [], guideTopic: "stagecraft", doc: authorGuideDoc("stagecraft"), status: "shipped",
     needs: ["memory-profile"],
