@@ -41,7 +41,9 @@ import { createLoreTokenSource } from "@runtime/loreTokenSource";
 import type { RuntimeSnapshot, StoryLibraryRecord } from "@runtime/types";
 import { chatUpdateOutcome, NO_CHAT_OPEN, type ChatSaveAnswer } from "@runtime/librarySave";
 import { rekeyWizardSession } from "@runtime/wizardSessions";
-import { provisionableMissing, type OneClickFix, type ShowMe } from "@runtime/repair";
+import type { OneClickFix, ShowMe } from "@runtime/repair";
+import { loadRepairKit } from "@runtime/repairPort";
+import { loadTalkKit } from "@runtime/talkPort";
 import type { StudioOpenIntent } from "./studio/StudioModal";
 import type { WizardHost } from "./studio/components/StudioCopilot";
 import { type DriverController } from "@components/drawer/DriverPanel";
@@ -54,11 +56,15 @@ import { log } from "@utils/log";
 import { applyHostStyle } from "@runtime/hostStyle";
 
 const storyParser = loadStoryParser().catch((error) => log.warn("the story reader did not load", error));
+const repairKit = loadRepairKit().catch((error) => log.warn("the setup checks did not load", error));
+const talkKit = loadTalkKit().catch((error) => log.warn("speaker direction did not load", error));
 await loadStylesheet(() => import("./styles.css" as string), (message, error) => log.warn(message, error));
 await loadGameLayer().catch((error) => log.warn("quests, checks and story panels did not load", error));
 await loadRecapKit().catch((error) => log.warn("the consequences recap did not load", error));
 await loadPatternsKit().catch((error) => log.warn("story patterns did not load", error));
 await storyParser;
+await repairKit;
+await talkKit;
 const manager = startRuntime();
 const loadDraft = () => import("./studio/draft");
 const ui = createMountRegistry();
@@ -144,7 +150,7 @@ const openWizardForRequirements = async () => {
   await openStudio({
     tab: "copilot",
     stage: "provisioning",
-    missing: provisionableMissing(requirements),
+    missing: (await loadRepairKit()).provisionableMissing(requirements),
   });
 };
 
