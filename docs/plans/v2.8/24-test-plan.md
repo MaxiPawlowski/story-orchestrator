@@ -477,6 +477,8 @@ real-model carrier, or why none is needed.
 | lore-lexical | D | loreLexical.measure (lore-relevance + lore.json goldens), loreSelectLexical.test (fallback, prefilter, tiebreak) | M42-G5 (judge + GPU, owed) |
 | lore-hold-round | D | loreSelectLexical.test (held until a player message, checkpoint or named-entry change), so-voice-census hold (multi-member rounds 0.54x) | M42-G6 (judge, owed) |
 | lore-prefer-known | D | loreSelectLexical.test (unknown entity -0.1, never a lexical force) | M42-G7 (GPU, owed) |
+| lore-lifetime | D + RP | worldInfoGates.test (chapter end, until, lasting, switch off), loreDiagnostics.test (lore-path-over-budget, world-info-until-unknown), lorePath.measure (campaign over budget 6 -> 1) | M43-L1 (GPU, owed) |
+| lore-state | D | loreState.test, loreStateRead.test, loreSelectLexical.test (state in the judge request, alias left to scan), loreAliases.test (nickname fixture 5/5), loreLexical.measure (state arms) | M43-L2 (TypeSafe re-record + GPU, owed), M43-L2b (no-model lane, owed) |
 
 Every judge use also gets the judge-off column through J11's off arm (CL).
 
