@@ -1,5 +1,5 @@
 {
-  "_note": "v3.0 A1 payload case group-story-read: the planted story read (no model call) in today's order and in extraction.readLayout stable-first, at two boundaries. Stable-first reads share every rule line (divergence at or after 'Active checkpoint:'); today's order diverges before the rules. Captures carry sideKey side:read-<layout>, so `prefix` pairs each layout with itself and reports (not gates) side pairs unless --side-fails. Run ONLY through `node scripts/debug/so-payload-golden.mts capture` (see group-opening.json for the probe and the tripwire). Capture owed: needs a staged lane (v3.0 cpu-memory-2026-10-30).",
+  "_note": "v3.0 A1 payload case group-story-read: the planted story read (no model call) in today's order and in extraction.readLayout stable-first, at two boundaries. Stable-first reads share every rule line (divergence at or after 'Active checkpoint:'); today's order diverges before the rules (the second read sits on another checkpoint: coins_spent 2 moves dock -> ferry at the boundary the extra /sendas commits). Captures carry sideKey side:read-<layout>, so `prefix` pairs each layout with itself and reports (not gates) side pairs unless --side-fails. Run ONLY through `node scripts/debug/so-payload-golden.mts capture` (see group-opening.json for the probe and the tripwire). Capture owed: needs a staged lane (v3.0 cpu-memory-2026-10-30).",
   "requires": {
     "authorView": true,
     "briefingDraft": "off",
@@ -56,9 +56,26 @@
             "type": "anchor",
             "start": true,
             "objective": "Hire the ferry."
+          },
+          {
+            "id": "ferry",
+            "name": "On the ferry",
+            "type": "anchor",
+            "objective": "Cross the river."
           }
         ],
-        "transitions": [],
+        "transitions": [
+          {
+            "from": "dock",
+            "to": "ferry",
+            "priority": 1,
+            "gate": {
+              "q": "coins_spent",
+              "op": ">=",
+              "v": 2
+            }
+          }
+        ],
         "requirements": {
           "members": [
             "Arin",
@@ -104,6 +121,17 @@
     },
     {
       "slash": "/cp set coins_spent 2"
+    },
+    {
+      "slash": "/sendas name=Arin raw=false Arin pushes off from the dock."
+    },
+    {
+      "wait": {
+        "checkpointIn": [
+          "ferry"
+        ],
+        "timeoutMs": 30000
+      }
     },
     {
       "wait": {

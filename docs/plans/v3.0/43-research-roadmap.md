@@ -398,3 +398,43 @@ Follow-ups: "i want new elements on the chat", "let's be creative here".
 - Gates: `npm run gates` all green in 474.1s (Storybook included, no --resume) on the tree merged with master `bc9b1532a`;
   an earlier full run was red on the plan 24 matrix row + registry file budget (fixed: row added, feature moved to
   `presenceFeatures.ts`) and one `patterns.test.ts` P5 p95 timing (58 ms vs 50, untouched, green since). `gates:quick` green.
+
+## X: Vast batch 1 harness fixes (2026-11-01)
+
+Source: `gpu-queue-2026-10-30.md` §Vast batch 1 record (environment + harness defects), evidence in so-sessions
+`evidence/phase-c/vast-b1-2026-11-01/` and `test/sessions/T1/T1-6-*` (counts only). Scripts and fixtures only, no `src/`.
+
+- Frozen bundle per batch: `st-lanes.mts bundle <n> freeze|off|status`, `batch --bundle`, `run --bundle`, `so-session start
+  --bundle` (`lib/laneBundle.mts`, `so-bundle-route.mts`). Copy in `<lane>/bundle/<sha>/`, served through a browser-context
+  route held by a detached process; a user-extension folder was tried first and fails (ST's `express.static(public)` runs
+  before the user extensions router, `src/server-main.js:242` vs `src/users.js:1219`). Rows record `bundle {frozen,start,end}`
+  read through the page (`dist/manifest.json` via fetch, so the route counts) and go INCOMPLETE when it moves; session
+  turns carry the pinned sha and are refused when the page serves another.
+- Lost chat: turns 5-40 of T1-6-6 (36/40) and T1-6-2 (35/43) reopened from `chatId null`, while the journal and console
+  tails stopped at turn 4 and the payload tail kept polling: the scripts ran in another browser. `connectToST` cleared the
+  lane's `session.json` on any attach failure (a 30 s CDP timeout under 100 % CPU) and every later script launched its own
+  headless Chromium. With `SO_LANE` set an attach now retries 3x, keeps the session file while the endpoint answers and
+  refuses instead of falling back; an ST-origin tab wins over a blank one; the session chat must match `groupId` too.
+- Payload tail: `/props` and `/status` polls are not captured (`PAYLOAD_POLL`); a closed capture page is re-picked from the
+  browser (`stPageOf`). Re-arm after a reload already worked (tested since v2.3); batch 1 never reloaded, it lost the page.
+- `so-session` pin: an authoring role on a harness route passes for a non-wizard card, recorded as `harnessRoutes`
+  (`sessionHarnessRoles`); a wizard card or any other role still refuses it.
+- `group-story-read` payload case: the control assumed the second read sat on another checkpoint, but the story had one;
+  added `ferry` + a `coins_spent >= 2` transition and a boundary after `/cp set`.
+- Recipe gaps: MW1-B3 driver `so-session.mts turns <dir> lines.txt --until-boundary 150`; M42-F5 window driver
+  `test/scenarios/m42-f5-relax-window.json`; MW1-B4 and M42-F3 gaps written into their rows (not built).
+
+## Gate record X
+
+- node:test: `laneBundle.test.mts` (6), `sessionTurns.test.mts` (2), new cases in `connection.test.mts` (2),
+  `sessionDriver.test.mts` (1), `sessionPin.test.mts` (1), `st-payload.test.mts` (2).
+- Live, lane 35 (no-model, not a Vast lane): `bundle 35 freeze --from <slot with a planted manifest sha>` + reload: the page
+  read the planted sha while the ST tree served `19b61fb0`, runtime up; `run` rows printed `bundle: … (frozen)`. Refrozen
+  from staged `19b61fb0`: `so-payload-golden capture --cases group-story-read` ok, 4 captures (classic shared 162 < rules
+  422; stable-first shared 5978 >= head 5958). `so-scenario run test/scenarios/m42-f5-relax-window.json --sandbox` green x2
+  (on: expected 0.5 hold; off: expected 0.75 escalate; pathArc restored). The lane-attach refusal fired once by accident
+  (a mangled `SO_DEBUG_DIR`): "lane 35 has no browser session … refusing".
+- Not live: `so-session start --bundle` and `turns` end to end (need an adolion-fresh model lane); covered by unit tests.
+- Gates: `npm run gates` all green in 569.7s (Storybook included, no --resume) on the tree merged with master `2ecb699a1`; the
+  first full run was red on `arrivalEquivalence.test.ts` (the new scenario missing from `test/goldens/arrival-findings.json`, re-recorded)
+  and one Storybook play timeout (HelpPanel, untouched, green on the rerun). `gates:quick` and `test:debug` green.

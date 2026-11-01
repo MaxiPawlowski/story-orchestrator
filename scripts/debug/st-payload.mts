@@ -23,8 +23,13 @@ function argValue(name, fallback) {
   return index >= 0 && process.argv[index + 1] ? process.argv[index + 1] : fallback;
 }
 
+export const PAYLOAD_URL = /\/api\/backends\/|\/api\/chat\/|\/api\/textgeneration\//;
+export const PAYLOAD_POLL = /\/(?:props|status)\/?(?:[?#]|$)/;
+
+export const payloadUrlWanted = (url: unknown, include: RegExp = PAYLOAD_URL, skip: RegExp = PAYLOAD_POLL): boolean => include.test(String(url)) && !skip.test(String(url));
+
 export async function armPayloadCapture(page) {
-  return evaluateInST(page, () => {
+  return evaluateInST(page, ({ include, skip }: { include: string; skip: string }) => {
     const key = '__soDebugPayloads';
     const state = globalThis[key] ||= { armed: false, entries: [], responses: [], currentDraftMember: null, nextIndex: 0, nextResponseIndex: 0, epoch: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}` };
     state.responses ||= [];
@@ -71,7 +76,9 @@ export async function armPayloadCapture(page) {
       if (!clone || typeof clone.text !== 'function') { done(null); return; }
       clone.text().then(done, () => done(null));
     };
-    const shouldCapture = (url) => String(url).includes('/api/backends/') || String(url).includes('/api/chat/') || String(url).includes('/api/textgeneration/');
+    const includeRule = new RegExp(include);
+    const skipRule = new RegExp(skip);
+    const shouldCapture = (url) => includeRule.test(String(url)) && !skipRule.test(String(url));
     const originalFetch = globalThis.fetch;
     globalThis.fetch = async function soDebugFetch(input: any, init: any = {}) {
       const url = typeof input === 'string' ? input : input?.url;
@@ -115,7 +122,7 @@ export async function armPayloadCapture(page) {
     });
     state.armed = true;
     return { armed: true, alreadyArmed: false, count: state.entries.length, epoch: state.epoch, nextIndex: state.nextIndex };
-  });
+  }, { include: PAYLOAD_URL.source, skip: PAYLOAD_POLL.source });
 }
 
 // Everything captured since `sinceIndex`, plus the arming epoch so a caller can tell a fresh page
@@ -187,7 +194,9 @@ export async function getPayloads(page, count = 1, member = null) {
 
 // v2.3 plan 01 §A0: keep every generation request of a played session on disk. The in-page ring
 // holds the last 100 and a reload wipes it, so the P0 record needs a drain loop, not a ring read.
-export async function persistPayloads(page, { out, intervalMs = 1000, onEntry = null, shouldStop = null, onReady = null } = {} as any) {
+export async function persistPayloads(initialPage, { out, intervalMs = 1000, onEntry = null, shouldStop = null, onReady = null, repick = null } = {} as any) {
+  let page = initialPage;
+  let repicked = 0;
   let announced = false;
   let epoch: string | null = null;
   let since = 0;
@@ -215,6 +224,12 @@ export async function persistPayloads(page, { out, intervalMs = 1000, onEntry = 
   let writeErrors = 0;
 
   const poll = async () => {
+    if (repick && typeof page?.isClosed === 'function' && page.isClosed()) {
+      const next = await repick();
+      if (!next) throw new Error('the captured page closed and no ST page is open in the browser');
+      page = next;
+      repicked += 1;
+    }
     let frame = await drainPayloads(page, since);
     if (!frame.armed || (epoch && frame.epoch !== epoch)) {
       if (epoch) {
@@ -291,7 +306,19 @@ export async function persistPayloads(page, { out, intervalMs = 1000, onEntry = 
   process.off('SIGINT', stop);
   process.off('SIGTERM', stop);
   const ok = writeErrors === 0 && dropped === 0 && unknownGaps === 0;
-  return { written, responses, dropped, rearmed, unknownGaps, writeErrors, epoch, ok };
+  return { written, responses, dropped, rearmed, unknownGaps, writeErrors, epoch, ok, ...(repicked ? { repicked } : {}) };
+}
+
+export async function stPageOf(browser, stUrl: string) {
+  const origin = new URL(stUrl).origin;
+  for (const context of browser?.contexts?.() ?? []) {
+    for (const candidate of context.pages()) {
+      try {
+        if (!candidate.isClosed() && new URL(candidate.url()).origin === origin) return candidate;
+      } catch {}
+    }
+  }
+  return null;
 }
 
 export async function watchPayloads(page, limit, timeoutMs = 60000) {
@@ -326,11 +353,12 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     const intervalMs = Number(argValue('--interval-ms', 1000));
     const ack = process.argv.includes('--ack') ? await import('./lib/sessionTails.mts') : null;
     if (ack) await ack.clearAcks(out);
-    runCli(async (page) => {
+    runCli(async (page, conn) => {
+      const stUrl = page.url();
       await armPayloadCapture(page);
-      console.log(`Persisting every capture → ${out} every ${intervalMs} ms. Ctrl-C to stop.`);
+      console.log(`Persisting every capture → ${out} every ${intervalMs} ms (status polls ${PAYLOAD_POLL.source} skipped). Ctrl-C to stop.`);
       const result = await persistPayloads(page, {
-        out, intervalMs,
+        out, intervalMs, repick: () => stPageOf(conn.browser, stUrl),
         onReady: ack ? (where) => ack.writeAck(ack.ackPaths(out).ready, { tail: 'payloads', ...where }) : null,
         shouldStop: ack ? ack.drainGate(ack.drainRequested(out)) : null,
       });
