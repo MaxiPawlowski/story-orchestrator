@@ -1,10 +1,12 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import { mkdir, readdir } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { REPO_ROOT } from '../../lib/stRoot.mjs';
+import { testTempDir } from '../../lib/testTemp.mjs';
 import {
-  comfyRefusal, coverageProblems, headerAllowProblems, JUDGE_USES, nextSessionNumber, renderCardsDocument, rubricProblems, rubricSummary, rubricTemplate, settingsPatch, UNEXERCISED, validateCardDoc, type CardDoc,
+  claimSessionNumber, comfyRefusal, coverageProblems, headerAllowProblems, JUDGE_USES, nextSessionNumber, renderCardsDocument, rubricProblems, rubricSummary, rubricTemplate, settingsPatch, UNEXERCISED, validateCardDoc, type CardDoc,
 } from './sessionCharters.mts';
 import { CARDS_DOC_PATH, findCard, loadCards, loadIndex, pinProblems, planStart, repinCharters, startProblems } from '../so-session.mts';
 
@@ -233,4 +235,15 @@ test('T4 headerAllow: a list is declared item by item, scalar paths whole, and g
   assert.match(headerAllowProblems('c', ['inventory.groupChats:-g/x'])[0], /cannot name group chats/);
   assert.match(headerAllowProblems('c', ['inventory.stories:x'])[0], /neither a run-header path nor/);
   assert.match(headerAllowProblems('c', [])[0], /non-empty list/);
+});
+
+test('43 H2: two starts of one card claim different session dirs (mkdir is the lock, EEXIST moves on)', async () => {
+  const root = await testTempDir('so-claim-');
+  const make = (name: string) => mkdir(resolve(root, name));
+  const claimed = await Promise.all(Array.from({ length: 6 }, () => claimSessionNumber([], 'T1-2', make)));
+  assert.deepEqual([...claimed].sort((a, b) => a - b), [1, 2, 3, 4, 5, 6]);
+  assert.deepEqual((await readdir(root)).sort(), ['T1-2-1', 'T1-2-2', 'T1-2-3', 'T1-2-4', 'T1-2-5', 'T1-2-6']);
+  assert.equal(await claimSessionNumber(['T1-2-1'], 'T1-2', make), 7);
+  await assert.rejects(claimSessionNumber([], 'T1-2', make, 3), /3 numbers from 1 were taken/);
+  await assert.rejects(claimSessionNumber([], 'T1-2', async () => { throw Object.assign(new Error('denied'), { code: 'EACCES' }); }), /denied/);
 });

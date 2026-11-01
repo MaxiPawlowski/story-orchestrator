@@ -1,0 +1,4 @@
+DELTA q=papers_signed value=true evidence="In the guild hall, Mira signs her apprentice papers under Tobin, the old glassblower."
+[rel:Mira:apprentice_of] Tobin
+[rel:Mira:partner_of] Esk
+[rel-end:Mira:owes] Tobin

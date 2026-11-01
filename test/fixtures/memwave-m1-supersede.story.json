@@ -1,0 +1,48 @@
+{
+  "title": "Flooded Pantry",
+  "description": "v3.0 43 H2 memwave (M43-M1 neighbour read): a changed stored fact is an update= of that row; an unrelated row about the same person stays untouched.",
+  "qualities": [
+    {
+      "key": "message_count",
+      "type": "int",
+      "source": "code",
+      "monotonic": true,
+      "rubric": "Rendered boundary count."
+    },
+    {
+      "key": "pantry_flooded",
+      "type": "bool",
+      "source": "extractor",
+      "latching": true,
+      "rubric": "Has the pantry flooded?"
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "start",
+      "name": "Start",
+      "objective": "Find out what happened to the pantry.",
+      "type": "anchor",
+      "start": true
+    },
+    {
+      "id": "next",
+      "name": "Next",
+      "objective": "Carry on.",
+      "type": "anchor"
+    }
+  ],
+  "transitions": [
+    {
+      "from": "start",
+      "to": "next",
+      "priority": 1,
+      "gate": {
+        "q": "pantry_flooded",
+        "op": "==",
+        "v": true
+      }
+    }
+  ],
+  "roster": []
+}

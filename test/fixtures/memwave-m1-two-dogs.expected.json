@@ -1,0 +1,62 @@
+{
+  "spec": {
+    "memoryRows": [
+      {
+        "id": "mem-ash",
+        "text": "Mira's dog Ash is old and grey and sleeps by the stove.",
+        "entities": [
+          "Mira",
+          "Ash"
+        ],
+        "keys": [
+          "dog"
+        ]
+      },
+      {
+        "id": "mem-pip",
+        "text": "Tobin's dog Pip is a brown terrier who digs up gardens.",
+        "entities": [
+          "Tobin",
+          "Pip"
+        ],
+        "keys": [
+          "dog",
+          "terrier"
+        ]
+      }
+    ]
+  },
+  "deltas": [
+    {
+      "q": "ferry_boarded",
+      "v": true,
+      "evidence": "lifts the white dog onto the ferry"
+    }
+  ],
+  "rejected": [],
+  "facts": {
+    "mustContain": [
+      "Burr"
+    ]
+  },
+  "neighbours": {
+    "distinct": [
+      {
+        "id": "mem-ash",
+        "needle": "Burr"
+      },
+      {
+        "id": "mem-pip",
+        "needle": "Burr"
+      },
+      {
+        "id": "mem-ash",
+        "needle": "white"
+      },
+      {
+        "id": "mem-pip",
+        "needle": "white"
+      }
+    ]
+  }
+}

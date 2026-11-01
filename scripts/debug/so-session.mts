@@ -7,17 +7,17 @@ import { relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { configuredStRoot, lanesRootFor, REPO_ROOT } from '../lib/stRoot.mjs';
 import {
-  BLIND_GATES, comfyRefusal, nextSessionNumber, renderCard, renderCardsDocument, rubricProblems, rubricSummary, rubricTemplate, settingsPatch, storyEntry, validateCardDoc,
+  BLIND_GATES, claimSessionNumber, comfyRefusal, renderCard, renderCardsDocument, rubricProblems, rubricSummary, rubricTemplate, settingsPatch, storyEntry, validateCardDoc,
   type BlindGate, type Card, type CardDoc, type MediaKind, type Premise, type StoryIndex, type StoryIndexEntry,
 } from './lib/sessionCharters.mts';
 import { digestSession, parseJsonl, parseLines, registerRows, renderFindings, REQUIRED_CAPTURES, type ChatMessage } from './lib/sessionDigest.mts';
 import {
-  archiveLane, DEFAULT_LANES, dependencyRefusal, JUDGE_LANE_RATE_ENV, judgeRateAction, judgeRatePlan, lanePinVerdict, laneFor, leaseFor, leaseRefusal, loadedJudgeRate, outstandingDependents, planDrift, planLanes, readLease, readSeedRecords, reseedRefusal, restoreLane, rootOf, runningLanes, seedRecordOf, sessionsUnder, writeLease,
+  archiveLane, DEFAULT_LANES, dependencyRefusal, JUDGE_LANE_RATE_ENV, JUDGE_LOADED_MARK, judgeRateAction, judgeRatePlan, lanePinVerdict, laneFor, leaseFor, leaseRefusal, loadedJudgeRate, outstandingDependents, planDrift, planLanes, readLease, readSeedRecords, reseedRefusal, restoreLane, rootOf, runningLanes, seedRecordOf, sessionsUnder, writeLease,
   type LanePlan, type SessionOnLane,
 } from './lib/sessionLanes.mts';
 import { applyOverBaseline, baselineProblems, effectiveProblems, effectiveSettings, hostImageGenerationProblems, hostSwipesProblems, loadBaseline, mediaPlan, overrideChain } from './lib/sessionBaseline.mts';
 import {
-  artifactInventory, artifactProblems, artifactWaivers, COMFY_REQUEST, comfyContacts, replyReasoning, featureProblems, newChats, requiredArtifacts, runtimeProblems, storyFeatures, trackChat, type ChatRef,
+  artifactInventory, artifactProblems, artifactWaivers, COMFY_LINE, COMFY_REQUEST, comfyContacts, replyReasoning, featureProblems, newChats, requiredArtifacts, runtimeProblems, storyFeatures, trackChat, type ChatRef,
 } from './lib/sessionArtifacts.mts';
 import { refresherFor, settingLanded } from './lib/sessionSetting.mts';
 import { ackPaths, readTailAcks, tailProblems, TAIL_FILES, TAIL_NAMES, waitFor, READY_TIMEOUT_MS, DRAIN_TIMEOUT_MS } from './lib/sessionTails.mts';
@@ -33,7 +33,9 @@ import { meterSession, updateBudgetDocument, type BudgetRow } from './lib/sessio
 import { renderRunbook } from './lib/sessionRunbook.mts';
 import { laneIssue, lanePorts } from './lib/laneRange.mts';
 import { readLaneBundle, servedBundleInPage, sessionBundleProblem } from './lib/laneBundle.mts';
-import { nextScriptLine, turnsStop } from './lib/sessionTurns.mts';
+import { nextScriptLine, rowBoundary, turnsStop } from './lib/sessionTurns.mts';
+import { grepLog } from './lib/logScan.mts';
+import { SETTLE_ENV, settleTimeoutMs } from './lib/sessionSettle.mts';
 
 const USAGE = `Usage: node scripts/debug/so-session.mts <command> [...]
 
@@ -41,7 +43,8 @@ v2.6 plan 14: one human play session per charter card, on its own adolion-fresh 
 
   start <charterId> [--lane n] [--profile <name>] [--orchestrator <regex>] [--age <hours>]
         [--media off|on] [--allow-comfy] [--no-seed] [--force-waiting] [--arm <label>] [--break-lease] [--judge-rate <n>]
-        [--preset-overlay <variant>] [--no-preset-overlay] [--bundle staged|<dir>]
+        [--preset-overlay <variant>] [--no-preset-overlay] [--bundle staged|<dir>] [--settle-ms <n>]
+      --settle-ms (or SO_SESSION_SETTLE_MS) bounds the wait for the opened chat to settle; default 180000 (60000 failed under load)
       --bundle freezes the bundle the lane serves (st-lanes.mts bundle) before the reload, so an npm run stage
       elsewhere cannot change the build under the session; the served bundle sha is pinned in session.json
       (bundle) either way, and every later live verb but flag/shot/delete-chat is refused once the lane serves
@@ -339,8 +342,10 @@ async function start(id: string, options: StartOptions) {
     const leased = leaseRefusal(await readLease(lane.root), sessions, card.id);
     if (leased) { console.error(leased); process.exitCode = 2; return null; }
   }
-  const number = nextSessionNumber(await sessionDirsOf(card.tier, card.id), card.id);
-  const dir = resolve(SESSIONS_ROOT, card.tier, `${card.id}-${number}`);
+  const tierDir = resolve(SESSIONS_ROOT, card.tier);
+  await mkdir(tierDir, { recursive: true });
+  const number = await claimSessionNumber(await sessionDirsOf(card.tier, card.id), card.id, (name) => mkdir(resolve(tierDir, name)));
+  const dir = resolve(tierDir, `${card.id}-${number}`);
   const viewportEnv: Record<string, string> = plan.viewport ? { ST_DEBUG_VIEWPORT: plan.viewport } : {};
   const warnings: string[] = [];
   let pids: Record<string, number | null> = {};
@@ -364,7 +369,7 @@ async function start(id: string, options: StartOptions) {
     if (status && status.headed !== true) await inLane(plan.lane, ['scripts/debug/st-session.mts', 'stop']);
     await must('st-lanes start', ['scripts/debug/st-lanes.mts', 'start', String(plan.lane), '--headed'], rateEnv);
   }
-  const readRate = async () => loadedJudgeRate(existsSync(lane.log) ? await readFile(lane.log, 'utf-8') : '');
+  const readRate = async () => loadedJudgeRate(grepLog(lane.log, (line) => line.includes(JUDGE_LOADED_MARK)).join('\n'));
   let loadedRate = await readRate();
   const rateAction = judgeRateAction(plan.lane, loadedRate, judgeRate.perMinute, sessions);
   if (rateAction.action === 'refuse') return fail('judge-rate', [rateAction.reason]);
@@ -573,7 +578,7 @@ const usesComfy = (media: { variant?: string } | null | undefined) => media?.var
 async function comfyGuard(session: any, dir: string) {
   if (usesComfy(session.media)) return [] as string[];
   const log = laneInfo(Number(session.lane)).log;
-  const server = existsSync(log) ? (await readFile(log)).subarray(Number(session.logOffset ?? 0)).toString('utf-8') : '';
+  const server = grepLog(log, (line) => COMFY_LINE.test(line), Number(session.logOffset ?? 0)).join('\n');
   const consoleRows = existsSync(resolve(dir, TAIL_FILES.console)) ? await readFile(resolve(dir, TAIL_FILES.console), 'utf-8') : '';
   return comfyContacts(server, consoleRows);
 }
@@ -861,7 +866,7 @@ async function turnsCommand(rest: string[]) {
     at += 1;
     const row: any = await live(parseLiveArgs('turn', [dir, line, ...passOn]));
     played += 1;
-    boundary = typeof row?.boundary === 'number' ? row.boundary : boundary;
+    boundary = rowBoundary(row, boundary);
     if (!row || row.ok === false) { console.log(`turns: stopped at a failed turn (${played} turn(s), boundary ${String(boundary)}, next line ${at})`); process.exitCode = 1; return; }
   }
 }
@@ -1147,7 +1152,7 @@ async function pagePhase(phase: 'settings' | 'effective' | 'pin' | 'open' | 'end
     const problems: string[] = [];
     const out: Record<string, unknown> = { phase, problems };
     const settle = async () => {
-      await navigation.waitForSettledChat(page, { quietMs: 1500, timeoutMs: 60000 });
+      await navigation.waitForSettledChat(page, { quietMs: 1500, timeoutMs: settleTimeoutMs() });
       const started = Date.now();
       while (Date.now() - started < 30000) {
         const saving = await evaluateInST(page, async () => Boolean(((await import(/* webpackIgnore: true */ '/script.js' as string)) as { isChatSaving?: boolean }).isChatSaving));
@@ -1419,6 +1424,9 @@ async function main() {
     const age = argValue(rest, '--age');
     const media = argValue(rest, '--media') ?? 'off';
     if (media !== 'on' && media !== 'off') { console.error('--media must be on or off'); process.exitCode = 2; return; }
+    const settleMs = argValue(rest, '--settle-ms');
+    if (settleMs !== null) process.env[SETTLE_ENV] = settleMs;
+    settleTimeoutMs();
     await start(rest[0], {
       lane: lane === null ? null : Number(lane), allowComfy: rest.includes('--allow-comfy'), seed: !rest.includes('--no-seed'), forceWaiting: rest.includes('--force-waiting'),
       profile: argValue(rest, '--profile') ?? DEFAULT_MAIN_PROFILE, orchestrator: argValue(rest, '--orchestrator') ?? DEFAULT_ORCHESTRATOR.source, age: age === null ? null : Number(age),

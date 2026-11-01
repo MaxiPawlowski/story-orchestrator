@@ -1,0 +1,264 @@
+{
+  "model": "any",
+  "_note": "v3.0 43 H2: M43-P1 stuck-ladder SKELETON, NOT RUN; schema-validated only. Arm = install setting pacing.stuckLadder (on/off), set before the run; the first step records which arm ran. Each turn records the active checkpoint and which lead the guidance block (story_orchestrator_guidance) shows. The ten player lines are FIXED and never act on a lead, so turns-to-exit cannot move between arms: the row's floor (median turns to exit -30%) needs a reacting player that reads the reply and follows a shown lead. That player is owed (gpu-queue M43-P1 note), not built here.",
+  "requires": {
+    "lane": "model",
+    "group": "Group: Arin, DM Narrator",
+    "members": [
+      "Arin",
+      "DM Narrator"
+    ],
+    "why": "real extraction decides the gate; the guidance block is code",
+    "judge": "off"
+  },
+  "steps": [
+    {
+      "eval": "for (const name of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[name]; globalThis.__soStuck = []; const on = globalThis.storyOrchestratorRuntime.getGlobalSettings().pacing.stuckLadder; return { stuckLadder: on };",
+      "log": true,
+      "keep": true
+    },
+    {
+      "import_story": {
+        "title": "SO-V3043H2 Stuck ladder",
+        "description": "v3.0 43 H2: M43-P1 stuck-ladder skeleton. A gated search with three leads; the scripted player never acts on them.",
+        "qualities": [
+          {
+            "key": "ledger_found",
+            "type": "bool",
+            "source": "extractor",
+            "latching": true,
+            "rubric": "Has the player found the missing harbour ledger?"
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "dock",
+            "name": "The dock",
+            "objective": "Find the missing harbour ledger.",
+            "type": "intermediate",
+            "start": true,
+            "stuck_after": 3,
+            "leads": [
+              "a dockhand mutters that the harbour ledger was moved last night",
+              "fresh scratches lead from the office to the back door",
+              "a creditor is asking every sailor for the ledger by name"
+            ]
+          },
+          {
+            "id": "office",
+            "name": "The office",
+            "objective": "Read the ledger.",
+            "type": "anchor"
+          }
+        ],
+        "transitions": [
+          {
+            "from": "dock",
+            "to": "office",
+            "priority": 1,
+            "gate": {
+              "q": "ledger_found",
+              "op": "==",
+              "v": true
+            }
+          }
+        ],
+        "roster": [
+          {
+            "id": "DM Narrator",
+            "name": "DM Narrator"
+          },
+          {
+            "id": "Arin",
+            "name": "Arin"
+          }
+        ]
+      }
+    },
+    {
+      "send_generate": {
+        "text": "I walk the length of the dock and look at the boats.",
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 1500,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const snap = rt.getSnapshot(); const guidance = String(ctx.extensionPrompts?.story_orchestrator_guidance?.value ?? ''); const leads = ['a dockhand mutters that the harbour ledger was moved last night', 'fresh scratches lead from the office to the back door', 'a creditor is asking every sailor for the ledger by name']; const shown = leads.findIndex((lead) => guidance.includes(lead)); const row = { turn: (globalThis.__soStuck ?? []).length + 1, checkpoint: snap.activeCheckpointId ?? null, boundary: snap.boundary ?? null, rungLead: shown >= 0 ? shown + 1 : null, guidanceChars: guidance.length }; globalThis.__soStuck = [...(globalThis.__soStuck ?? []), row]; return row;",
+      "log": true,
+      "keep": true
+    },
+    {
+      "send_generate": {
+        "text": "I ask the nearest sailor about the weather.",
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 1500,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const snap = rt.getSnapshot(); const guidance = String(ctx.extensionPrompts?.story_orchestrator_guidance?.value ?? ''); const leads = ['a dockhand mutters that the harbour ledger was moved last night', 'fresh scratches lead from the office to the back door', 'a creditor is asking every sailor for the ledger by name']; const shown = leads.findIndex((lead) => guidance.includes(lead)); const row = { turn: (globalThis.__soStuck ?? []).length + 1, checkpoint: snap.activeCheckpointId ?? null, boundary: snap.boundary ?? null, rungLead: shown >= 0 ? shown + 1 : null, guidanceChars: guidance.length }; globalThis.__soStuck = [...(globalThis.__soStuck ?? []), row]; return row;",
+      "log": true,
+      "keep": true
+    },
+    {
+      "send_generate": {
+        "text": "I sit on a crate and listen to the gulls.",
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 1500,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const snap = rt.getSnapshot(); const guidance = String(ctx.extensionPrompts?.story_orchestrator_guidance?.value ?? ''); const leads = ['a dockhand mutters that the harbour ledger was moved last night', 'fresh scratches lead from the office to the back door', 'a creditor is asking every sailor for the ledger by name']; const shown = leads.findIndex((lead) => guidance.includes(lead)); const row = { turn: (globalThis.__soStuck ?? []).length + 1, checkpoint: snap.activeCheckpointId ?? null, boundary: snap.boundary ?? null, rungLead: shown >= 0 ? shown + 1 : null, guidanceChars: guidance.length }; globalThis.__soStuck = [...(globalThis.__soStuck ?? []), row]; return row;",
+      "log": true,
+      "keep": true
+    },
+    {
+      "send_generate": {
+        "text": "I count the barrels stacked by the water.",
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 1500,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const snap = rt.getSnapshot(); const guidance = String(ctx.extensionPrompts?.story_orchestrator_guidance?.value ?? ''); const leads = ['a dockhand mutters that the harbour ledger was moved last night', 'fresh scratches lead from the office to the back door', 'a creditor is asking every sailor for the ledger by name']; const shown = leads.findIndex((lead) => guidance.includes(lead)); const row = { turn: (globalThis.__soStuck ?? []).length + 1, checkpoint: snap.activeCheckpointId ?? null, boundary: snap.boundary ?? null, rungLead: shown >= 0 ? shown + 1 : null, guidanceChars: guidance.length }; globalThis.__soStuck = [...(globalThis.__soStuck ?? []), row]; return row;",
+      "log": true,
+      "keep": true
+    },
+    {
+      "send_generate": {
+        "text": "I watch the tide come in for a while.",
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 1500,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const snap = rt.getSnapshot(); const guidance = String(ctx.extensionPrompts?.story_orchestrator_guidance?.value ?? ''); const leads = ['a dockhand mutters that the harbour ledger was moved last night', 'fresh scratches lead from the office to the back door', 'a creditor is asking every sailor for the ledger by name']; const shown = leads.findIndex((lead) => guidance.includes(lead)); const row = { turn: (globalThis.__soStuck ?? []).length + 1, checkpoint: snap.activeCheckpointId ?? null, boundary: snap.boundary ?? null, rungLead: shown >= 0 ? shown + 1 : null, guidanceChars: guidance.length }; globalThis.__soStuck = [...(globalThis.__soStuck ?? []), row]; return row;",
+      "log": true,
+      "keep": true
+    },
+    {
+      "send_generate": {
+        "text": "I buy a cup of tea from the stall.",
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 1500,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const snap = rt.getSnapshot(); const guidance = String(ctx.extensionPrompts?.story_orchestrator_guidance?.value ?? ''); const leads = ['a dockhand mutters that the harbour ledger was moved last night', 'fresh scratches lead from the office to the back door', 'a creditor is asking every sailor for the ledger by name']; const shown = leads.findIndex((lead) => guidance.includes(lead)); const row = { turn: (globalThis.__soStuck ?? []).length + 1, checkpoint: snap.activeCheckpointId ?? null, boundary: snap.boundary ?? null, rungLead: shown >= 0 ? shown + 1 : null, guidanceChars: guidance.length }; globalThis.__soStuck = [...(globalThis.__soStuck ?? []), row]; return row;",
+      "log": true,
+      "keep": true
+    },
+    {
+      "send_generate": {
+        "text": "I study the ropes on the mooring posts.",
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 1500,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const snap = rt.getSnapshot(); const guidance = String(ctx.extensionPrompts?.story_orchestrator_guidance?.value ?? ''); const leads = ['a dockhand mutters that the harbour ledger was moved last night', 'fresh scratches lead from the office to the back door', 'a creditor is asking every sailor for the ledger by name']; const shown = leads.findIndex((lead) => guidance.includes(lead)); const row = { turn: (globalThis.__soStuck ?? []).length + 1, checkpoint: snap.activeCheckpointId ?? null, boundary: snap.boundary ?? null, rungLead: shown >= 0 ? shown + 1 : null, guidanceChars: guidance.length }; globalThis.__soStuck = [...(globalThis.__soStuck ?? []), row]; return row;",
+      "log": true,
+      "keep": true
+    },
+    {
+      "send_generate": {
+        "text": "I wander back toward the harbour gate and then return.",
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 1500,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const snap = rt.getSnapshot(); const guidance = String(ctx.extensionPrompts?.story_orchestrator_guidance?.value ?? ''); const leads = ['a dockhand mutters that the harbour ledger was moved last night', 'fresh scratches lead from the office to the back door', 'a creditor is asking every sailor for the ledger by name']; const shown = leads.findIndex((lead) => guidance.includes(lead)); const row = { turn: (globalThis.__soStuck ?? []).length + 1, checkpoint: snap.activeCheckpointId ?? null, boundary: snap.boundary ?? null, rungLead: shown >= 0 ? shown + 1 : null, guidanceChars: guidance.length }; globalThis.__soStuck = [...(globalThis.__soStuck ?? []), row]; return row;",
+      "log": true,
+      "keep": true
+    },
+    {
+      "send_generate": {
+        "text": "I ask Arin what she thinks of the harbour.",
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 1500,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const snap = rt.getSnapshot(); const guidance = String(ctx.extensionPrompts?.story_orchestrator_guidance?.value ?? ''); const leads = ['a dockhand mutters that the harbour ledger was moved last night', 'fresh scratches lead from the office to the back door', 'a creditor is asking every sailor for the ledger by name']; const shown = leads.findIndex((lead) => guidance.includes(lead)); const row = { turn: (globalThis.__soStuck ?? []).length + 1, checkpoint: snap.activeCheckpointId ?? null, boundary: snap.boundary ?? null, rungLead: shown >= 0 ? shown + 1 : null, guidanceChars: guidance.length }; globalThis.__soStuck = [...(globalThis.__soStuck ?? []), row]; return row;",
+      "log": true,
+      "keep": true
+    },
+    {
+      "send_generate": {
+        "text": "I lean on the railing and wait.",
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 1500,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const snap = rt.getSnapshot(); const guidance = String(ctx.extensionPrompts?.story_orchestrator_guidance?.value ?? ''); const leads = ['a dockhand mutters that the harbour ledger was moved last night', 'fresh scratches lead from the office to the back door', 'a creditor is asking every sailor for the ledger by name']; const shown = leads.findIndex((lead) => guidance.includes(lead)); const row = { turn: (globalThis.__soStuck ?? []).length + 1, checkpoint: snap.activeCheckpointId ?? null, boundary: snap.boundary ?? null, rungLead: shown >= 0 ? shown + 1 : null, guidanceChars: guidance.length }; globalThis.__soStuck = [...(globalThis.__soStuck ?? []), row]; return row;",
+      "log": true,
+      "keep": true
+    },
+    {
+      "eval": "const rows = globalThis.__soStuck ?? []; const exit = rows.find((row) => row.checkpoint !== 'dock'); return { turns: rows.length, turnsToExit: exit ? exit.turn : null, firstLeadTurn: rows.find((row) => row.rungLead !== null)?.turn ?? null, rows };",
+      "log": true,
+      "keep": true
+    }
+  ]
+}

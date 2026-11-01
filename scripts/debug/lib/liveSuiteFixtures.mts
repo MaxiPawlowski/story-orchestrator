@@ -4,7 +4,7 @@ import { REPO_ROOT } from './bundleEntry.mts';
 
 export const FIX_DIR = join(REPO_ROOT, 'test/fixtures');
 
-export const FIXTURE_SETS = { extractor: /^extractor.*\.story\.json$/, time: /^timewindow.*\.story\.json$/, adversarial: /^adversarial.*\.story\.json$/ } as const;
+export const FIXTURE_SETS = { extractor: /^extractor.*\.story\.json$/, time: /^timewindow.*\.story\.json$/, adversarial: /^adversarial.*\.story\.json$/, memwave: /^memwave.*\.story\.json$/ } as const;
 
 export type FixtureSet = keyof typeof FIXTURE_SETS;
 

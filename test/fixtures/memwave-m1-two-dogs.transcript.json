@@ -1,0 +1,18 @@
+[
+  {
+    "index": 30,
+    "speaker": "Narrator",
+    "text": "A thin white dog trots up the ferry ramp, a stray none of them has seen before."
+  },
+  {
+    "index": 31,
+    "speaker": "Mira",
+    "text": "\"That is not Ash,\" Mira says. \"Ash is old and grey and asleep by the stove at home. And it is not Tobin's Pip either.\""
+  },
+  {
+    "index": 32,
+    "speaker": "Wren",
+    "is_user": true,
+    "text": "\"Then we call the stray Burr,\" Wren says, and lifts the white dog onto the ferry."
+  }
+]

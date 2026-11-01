@@ -641,6 +641,52 @@ source patch was needed, so no patch file or apply script exists yet.
 - Not done: `/regenerate` slash path (ST calls `regenerateGroup` directly; only a source patch would reach it); hidden rows the
   player or other extensions post keep ST's behaviour; the lane runs used the ST code copy `C:\dev\st-live-t` (kept for reuse).
 
+## H2: Vast batch 1 harness defects (2026-11-01)
+Defects a running GPU batch found; branch `v3.0-43-h2`, not merged (the batch's final `so-session stop` runs from master).
+- Live suite arms: `runFixture` -> `buildFixtureRun` never got the memory wave 2 flags, so the on and off arms of M43-M1..M4
+  sent byte-identical read prompts (any M row run before H2 measured nothing). Now the suite takes the arm from the
+  product's own `readMemoryOf` over the install's `memory.*` switches (`fixtureRun.ts` `readMemoryFlags`, `readMemory`,
+  fixture rows in `spec.memoryRows`) and builds the contract with `readMemoryParts` like `runSharedRead`. The result carries
+  `readMemory` and `wave` (`fixtureWaveTiers.ts`: listed aliases, tagged lines with resolved ids, keyed lines, relation
+  rows, acts kept after `screenActs`, dropped player acts).
+- Fixtures `--set memwave` (6, invented, outside the pinned extractor denominator): `m1-two-dogs` (a new dog never same=/update=
+  on a stored dog), `m1-supersede` (update= on the moved key, a same-person row untouched), `m1-repeat` (same= on a repeated
+  fact, new toll a new line), `m3-relations` (3 claims incl. an ending, a bystander with none), `m4-acts` (member act +
+  player act with the player's line), `m4-hearsay` (reported player act: no act kept). Hand-written ideal answers in
+  `test/goldens/memwave-*.response.txt` meet every stated expectation (jest). Scorer tiers `neighbours`/`relations`/`acts`
+  (`scripts/debug/lib/liveSuiteWave.mts`) are scored only while their switch is on; `report.wave` holds per-tier
+  precision/recall, `keys.share`, `tagged.share`, `actsDropped`. Not in the suite verdict (row floors are informational).
+- `so-session turns --until-boundary` read a number where a turn row holds `boundary {from,to}`: now `rowBoundary` reads `to`.
+- `so-session start` read the whole lane `server.log` (Invalid string length at 1.6 GB): judge rate, the stop's ComfyUI guard
+  and adolion-fresh's media check now scan it in 1 MiB chunks (`lib/logScan.mts` `grepLog`, lines over 64 KiB clipped,
+  offset past the end = rotated, scan from 0); adolion-fresh's log size is a stat.
+- Parallel starts of one card: the session dir is claimed with a non-recursive `mkdir` (EEXIST = taken, try the next number,
+  50 attempts), `claimSessionNumber`.
+- "open chat did not settle": 60 s -> 180 s default, `--settle-ms <n>` / `SO_SESSION_SETTLE_MS` (start page phases and live
+  verbs).
+- Lane ST log level: ST honours `SILLYTAVERN_LOGGING_MINLOGLEVEL` (`getConfigValue` env override, `setupLogLevel` silences
+  `console.debug` at 1; the llama.cpp props dumps are `console.debug`, text-completions.js). Lane start sets 1 unless the env
+  already names a level; `SO_LANE_ST_LOG_LEVEL` overrides. Cost: ST's debug-only `ComfyUI outputs:` line goes too (the
+  ComfyUI guard never relied on it; failed calls are `console.error`, the page tail sees answered calls).
+- M43-P1 skeleton: `test/scenarios/v30-43h2-stuck-ladder.json` (3 leads, `stuck_after` 3, 10 fixed lines, per-turn kept record
+  of checkpoint + shown lead); reacting-player note in the gpu-queue row. No player agent built.
+
+## Gate record H2
+- 2026-11-01, branch `v3.0-43-h2` on master `7dd851bac` (master unmoved at the cited run).
+- `npm run gates:quick` green (185.0 s). Full `npm run gates` first run red at `test`: the arrival golden (new story files
+  listed) and the promptCompress spike measurement (globs every transcript; its recorded corpus now excludes memwave, the
+  recorded numbers unchanged). Fixed, then full `npm run gates` (no --resume, Storybook included) on `a101b417b`: **all
+  green in 382.7 s** (jest 11,598 passed / 3 skipped, Storybook 1,167, test:debug 1,803, plugin, release, replay, lint,
+  typechecks, build). Main `dist/index.js` 1,298,183 B (new code in a lazy chunk).
+- Tests added: `src/extraction/fixtureRun.memwave.test.ts` (off arm byte-identical to a read without memory, on arm differs,
+  each switch adds only its part, flags = `readMemoryOf`, ideal answers, player act dropped), `scripts/debug/liveSuiteWave.test.mts`,
+  `lib/logScan.test.mts` (chunked scan, judge rate, settle default), `sessionTurns.test.mts` (until-boundary stops),
+  `sessionCharters.test.mts` (6 parallel claims get 6 dirs), `lanePods.test.mts` (log level env).
+- Not run: no live model work, no lane, no ST, no GPU (the batch holds them). M43-M1..M4 rows need a rerun on H2 code.
+- Merge 2026-11-01: master `36e280afb` (43 K) merged in as `08cc56764` (conflicts: this doc, arrival golden; both sides kept);
+  `npm run gates:quick` green (97.6 s), full `npm run gates` (no --resume, Storybook included) **all green in 393.6 s** (jest
+  11,600 passed / 3 skipped, Storybook 1,167). Main `dist/index.js` 1,236,237 B. Merged to master `--no-ff`.
+
 ## K: bundle headroom and curator auto for every entry (owner 2026-11-01)
 
 Two owner decisions on one branch (`v3.0-43-k`).

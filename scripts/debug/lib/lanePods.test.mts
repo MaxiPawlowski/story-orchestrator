@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { CLOUD_SINK_PORT, judgeShareEnv, laneHeaderField, parsePodArg, podLoadProblem, podPortOf, podPortsIn, podTunnelPort, readLanePod, retargetPodUrls, retargetProfiles } from './lanePods.mts';
+import { CLOUD_SINK_PORT, judgeShareEnv, laneHeaderField, laneLogEnv, parsePodArg, podLoadProblem, podPortOf, podPortsIn, podTunnelPort, readLanePod, retargetPodUrls, retargetProfiles } from './lanePods.mts';
 import { offlineProblems } from './laneModel.mts';
 import { laneLoadProblem } from '../st-lanes.mts';
 import { testTempDirSync } from '../../lib/testTemp.mjs';
@@ -141,4 +141,11 @@ test('extra ports (the local controller for --from-local) retarget too; without 
   assert.deepEqual(urls.changed, ['http://127.0.0.1:18888']);
   assert.equal((urls.next as any).textgen.server_urls.llamacpp, 'http://127.0.0.1:18081');
   assert.deepEqual(retargetPodUrls({ url: 'http://127.0.0.1:18888' }, 18081).changed, []);
+});
+
+test('43 H2: lane servers start at ST log level 1 (no console.debug /props dumps) unless told otherwise', () => {
+  assert.deepEqual(laneLogEnv({}), { SILLYTAVERN_LOGGING_MINLOGLEVEL: '1' });
+  assert.deepEqual(laneLogEnv({ SO_LANE_ST_LOG_LEVEL: '0' }), { SILLYTAVERN_LOGGING_MINLOGLEVEL: '0' });
+  assert.deepEqual(laneLogEnv({ SILLYTAVERN_LOGGING_MINLOGLEVEL: '2' }), {});
+  assert.throws(() => laneLogEnv({ SO_LANE_ST_LOG_LEVEL: 'debug' }), /0 \(debug\) to 3/);
 });

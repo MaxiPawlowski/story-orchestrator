@@ -1,0 +1,1 @@
+DELTA q=stall_closed value=true evidence="Mira frowns, says nothing, and pulls the shutters of her stall closed."

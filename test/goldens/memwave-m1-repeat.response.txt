@@ -1,0 +1,3 @@
+DELTA q=toll_paid value=true evidence="Wren counts two copper into the ferryman's palm and steps aboard."
+FACT importance=1 same=m1 text="The ferry crosses only at dawn." evidence="The ferry never crosses after sunrise."
+FACT importance=2 keys="toll,copper" text="The ferry toll is now two copper." evidence="The toll is two copper now, not one."

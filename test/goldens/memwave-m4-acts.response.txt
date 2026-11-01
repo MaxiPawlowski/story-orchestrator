@@ -1,0 +1,3 @@
+DELTA q=bank_reached value=true evidence="Tobin dives after her and hauls Mira onto the bank, coughing."
+DELTA q=rel_mira_tobin_trust value="up" act=protected evidence="Tobin dives after her and hauls Mira onto the bank, coughing."
+DELTA q=rel_mira_player_trust value="down" act=lied evidence="I was never near your boat last night, Mira,"

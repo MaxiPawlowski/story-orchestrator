@@ -11,12 +11,13 @@ import { DEFAULT_TIER_FLOORS, parseTierFloors, scoreLiveFixture, suiteVerdict, t
 import { discoverFixtures, FIX_DIR, FIXTURE_SETS } from './lib/liveSuiteFixtures.mts';
 import { fingerprintsOf, readRoleModel, type MeasurementFingerprints } from './lib/measurementFingerprint.mts';
 import { compareArms } from './lib/armCompare.mts';
+import { scoreWave, waveTotals, type WaveLive, type WaveOutcome } from './lib/liveSuiteWave.mts';
 import { captureChatFingerprint, firstChange } from './lib/chatUntouched.mts';
 import { captureHeader } from './so-run-header.mts';
 import { evaluateStop, NO_STOP_FLAG, stopRecord, withOneRetry, type StopItem, type StopRecord } from './lib/stopRule.mts';
 import { liveSuiteDeclaration, liveSuiteItem, stoppedVerdict } from './lib/liveSuiteStop.mts';
 
-const USAGE = `Usage: node scripts/debug/so-live-suite.mts run [--min 0.9] [--filter <substr>] [--record] [--judge] [--effort default|off|low|medium|high] [--profile <name|id>] [--arm <label>] [--set extractor|time|adversarial] [--no-stop]
+const USAGE = `Usage: node scripts/debug/so-live-suite.mts run [--min 0.9] [--filter <substr>] [--record] [--judge] [--effort default|off|low|medium|high] [--profile <name|id>] [--arm <label>] [--set extractor|time|adversarial|memwave] [--no-stop]
        node scripts/debug/so-live-suite.mts inventory|rescore [dir] [--out <file>] [--check]   (offline, v2.8 35: see so-live-rescore.mts)
        node scripts/debug/so-live-suite.mts compare <a-r1> <a-r2> <b-r1> <b-r2> [--declare prompt,scorer,model,config] [--out <file>]
                   (offline, v2.8 35 G5/G8: stable-pass, stable-fail, flaky, new, removed; regressed only on stable-pass to stable-fail;
@@ -80,6 +81,8 @@ async function runSuite(page, { min, filter, record, judge = false, floors = DEF
   const untouchedBefore = await captureChatFingerprint(page).catch(() => null);
   const results = [];
   const prompts: string[] = [];
+  const waveLives: WaveLive[] = [];
+  const waveOutcomes: WaveOutcome[] = [];
   let fingerprints: MeasurementFingerprints | null = null;
   const declaration = liveSuiteDeclaration(fixtures, { min, floors, record, arm });
   const items: StopItem[] = [];
@@ -102,8 +105,12 @@ async function runSuite(page, { min, filter, record, judge = false, floors = DEF
         if (typeof live.prompt === 'string') prompts.push(live.prompt);
         const { pass, expectedNorm, liveNorm, tiers } = scoreLiveFixture(fixture, live);
         const tierFailures = tiers.filter((row) => !row.pass);
+        const wave = scoreWave(fixture.expected, live);
+        waveLives.push(live);
+        waveOutcomes.push(...wave);
+        for (const row of wave.filter((entry) => !entry.pass)) console.log(`  ${row.tier}: ${row.detail}`);
         const sources = (live.deltas ?? []).map((d) => `${d.q}:${d.judge === undefined ? 'llm' : `judge@${d.judge}`}`);
-        results.push({ name: fixture.name, pass, tiers, expected: expectedNorm, live: liveNorm, ...(judge ? { sources, judged: live.judged?.answered ?? [] } : {}), ms: Date.now() - startedAt });
+        results.push({ name: fixture.name, pass, tiers, ...(wave.length ? { wave } : {}), expected: expectedNorm, live: liveNorm, ...(judge ? { sources, judged: live.judged?.answered ?? [] } : {}), ms: Date.now() - startedAt });
         for (const row of tierFailures) console.log(`  ${row.tier}: ${row.detail}`);
         if (record && judge) await writeFile(join(JUDGE_GOLDEN_DIR, `${fixture.name}.json`), `${JSON.stringify({ rawResponse: live.rawResponse, judged: live.judged ?? null }, null, 2)}\n`);
         else if (record) await writeFile(join(LIVE_GOLDEN_DIR, `${fixture.name}.response.txt`), `${live.rawResponse}\n`);
@@ -154,6 +161,7 @@ async function runSuite(page, { min, filter, record, judge = false, floors = DEF
     recorded: record,
     judge,
     fingerprints,
+    wave: waveTotals(waveLives, waveOutcomes),
     ...(arm ? { arm } : {}),
     ...(routed ? { profile: routed.profile, profilesRestored } : {}),
     ...(effort ? { effort, reasoning, effortsRestored } : {}),
@@ -206,5 +214,5 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     process.exit(1);
   }
   const expectCountRaw = argValue('--expect-count', '');
-  runCli((page) => runSuite(page, { min, filter, record, judge: process.argv.includes('--judge'), floors, floorsGiven: given, expectCount: expectCountRaw ? Number(expectCountRaw) : null, effort: parseEffortArm(argValue('--effort', '')), profile: argValue('--profile', '') || null, arm: argValue('--arm', '') || null, set: (['time', 'adversarial'] as const).find((name) => name === argValue('--set', 'extractor')) ?? 'extractor', noStop: process.argv.includes(NO_STOP_FLAG) }));
+  runCli((page) => runSuite(page, { min, filter, record, judge: process.argv.includes('--judge'), floors, floorsGiven: given, expectCount: expectCountRaw ? Number(expectCountRaw) : null, effort: parseEffortArm(argValue('--effort', '')), profile: argValue('--profile', '') || null, arm: argValue('--arm', '') || null, set: (['time', 'adversarial', 'memwave'] as const).find((name) => name === argValue('--set', 'extractor')) ?? 'extractor', noStop: process.argv.includes(NO_STOP_FLAG) }));
 }

@@ -2,7 +2,8 @@ import { runSharedRead } from "@extraction/sharedRead";
 import { readPromptOptions } from "@extraction/sharedReadEntry";
 import { askText, parseSharedReadResponse, type ExtractionReply, type ModelCall, type ModelPass, type PassRole } from "@extraction/index";
 import { windowOf } from "@extraction/chatRows";
-import { buildFixtureRun, type ExtractionFixtureSpec, type FixtureSourceRead } from "@extraction/fixtureRun";
+import { buildFixtureRun, readMemoryFlags, type ExtractionFixtureSpec, type FixtureSourceRead, type ReadMemoryFlags } from "@extraction/fixtureRun";
+import { waveTiers, type WaveTiers } from "@extraction/fixtureWaveTiers";
 import { applyRatingGrounding } from "@extraction/ratingGuard";
 import { liveReadTiers } from "@extraction/liveTiers";
 import { agendaStepKey, parseStoryOrThrow, StoryEngine, type EngineState, type PrimitiveValue } from "@engine/index";
@@ -42,6 +43,8 @@ export interface LiveFixtureResult {
   scope: string[];
   sources: FixtureSourceRead[];
   guarded: Array<{ q: string; v: unknown }>;
+  readMemory: ReadMemoryFlags | null;
+  wave: WaveTiers;
 }
 
 export interface MeanwhileCaseSpec {
@@ -195,7 +198,8 @@ export function registerLiveSuite(manager: RuntimeManager) {
     runFixture: async (spec, options = {}) => {
       await loadGameLayer();
       const layout = readPromptOptions(manager.getExtractionSettings()).readPrompt?.readLayout;
-      const hinted = { ...(layout ? { readLayout: layout } : {}), ...spec, story: withHints(spec.story, options.hints) };
+      const flags = readMemoryFlags(manager.readMemory());
+      const hinted = { ...(layout ? { readLayout: layout } : {}), ...spec, story: withHints(spec.story, options.hints), readMemory: flags };
       const first = buildFixtureRun(hinted);
       let judged: LiveFixtureResult["judged"];
       let judgedDeltas: LiveFixtureResult["deltas"] = [];
@@ -214,7 +218,7 @@ export function registerLiveSuite(manager: RuntimeManager) {
         }
       }
       const answered = judged?.answered ?? [];
-      const { story, prompt, sources } = answered.length ? buildFixtureRun({ ...hinted, excludeKeys: answered }) : first;
+      const { story, prompt, sources, window, neighbours } = answered.length ? buildFixtureRun({ ...hinted, excludeKeys: answered }) : first;
       const rawResponse = await askText(model, prompt, { role: "read", pass: "read", maxTokens: 512 });
       const parsed = parseSharedReadResponse(rawResponse, story, spec.blackboard?.values ?? {});
       const llmDeltas = parsed.deltas.filter((entry) => !answered.includes(entry.delta.q));
@@ -228,6 +232,8 @@ export function registerLiveSuite(manager: RuntimeManager) {
         scope: first.scope.map((entry) => entry.key),
         sources,
         guarded,
+        readMemory: flags,
+        wave: waveTiers(parsed, story, window, neighbours),
         ...(judged ? { judged } : {}),
       };
     },

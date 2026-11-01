@@ -109,6 +109,17 @@ export function podLoadProblem(lanes: Array<{ lane: number; serverUp: boolean; n
   return `${llm.length} lanes with a model are up${where} (${llm.join(', ')}), more than ${max}: one pod serves LLM_PARALLEL requests and the rest queue, so backend latency would read as red runs (T7: a 4-token completion took 56 s under 5 lanes). Stop a lane, make it a no-model lane, move it to another pod (st-lanes.mts pod <n> <k>), or pass --allow-load`;
 }
 
+export const ST_LOG_LEVEL_ENV = 'SILLYTAVERN_LOGGING_MINLOGLEVEL';
+export const LANE_LOG_LEVEL_ENV = 'SO_LANE_ST_LOG_LEVEL';
+export const LANE_LOG_LEVEL_DEFAULT = '1';
+
+export function laneLogEnv(env: Record<string, string | undefined> = process.env): Record<string, string> {
+  if (env[ST_LOG_LEVEL_ENV] !== undefined) return {};
+  const level = env[LANE_LOG_LEVEL_ENV] ?? LANE_LOG_LEVEL_DEFAULT;
+  if (!/^[0-3]$/.test(level)) throw new Error(`${LANE_LOG_LEVEL_ENV}=${level}: ST log levels are 0 (debug) to 3 (error)`);
+  return { [ST_LOG_LEVEL_ENV]: level };
+}
+
 export function judgeShareEnv(lanes: number): Record<string, string> {
   const share = Math.max(1, Math.floor(lanes));
   return { [JUDGE_ACCOUNT_RATE_ENV]: String(Math.max(1, Math.floor(JUDGE_ACCOUNT_RATE_PER_MIN / share))), [JUDGE_ACCOUNT_TOKENS_ENV]: String(Math.max(1, Math.floor(JUDGE_ACCOUNT_TOKENS_PER_SEC / share))) };

@@ -1,0 +1,83 @@
+{
+  "title": "River Crossing",
+  "description": "v3.0 43 H2 memwave (M43-M4 social acts): a member act and a player act, each on the feeling it moves.",
+  "qualities": [
+    {
+      "key": "message_count",
+      "type": "int",
+      "source": "code",
+      "monotonic": true,
+      "rubric": "Rendered boundary count."
+    },
+    {
+      "key": "bank_reached",
+      "type": "bool",
+      "source": "extractor",
+      "latching": true,
+      "rubric": "Has Mira been pulled onto the bank?"
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "start",
+      "name": "Start",
+      "objective": "Cross the river.",
+      "type": "anchor",
+      "start": true
+    },
+    {
+      "id": "next",
+      "name": "Next",
+      "objective": "Carry on.",
+      "type": "anchor"
+    }
+  ],
+  "transitions": [
+    {
+      "from": "start",
+      "to": "next",
+      "priority": 1,
+      "gate": {
+        "q": "bank_reached",
+        "op": "==",
+        "v": true
+      }
+    }
+  ],
+  "roster": [
+    {
+      "id": "mira",
+      "name": "Mira",
+      "relationships": [
+        {
+          "toward": "player",
+          "axes": [
+            "trust"
+          ],
+          "range": [
+            -3,
+            3
+          ],
+          "start": 0,
+          "step": 1
+        },
+        {
+          "toward": "tobin",
+          "axes": [
+            "trust"
+          ],
+          "range": [
+            -3,
+            3
+          ],
+          "start": 0,
+          "step": 1
+        }
+      ]
+    },
+    {
+      "id": "tobin",
+      "name": "Tobin"
+    }
+  ]
+}
