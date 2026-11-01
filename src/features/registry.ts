@@ -149,15 +149,6 @@ const CORE_FEATURES: readonly Feature[] = [
     isOn: (settings) => settings.display.hudEnabled && settings.display.yourMove,
   },
   {
-    id: "compact-thoughts", name: "Thinking pill", area: "play", audience: "player",
-    oneLine: "SillyTavern's \"Thought for …\" bar becomes a small pill at the top left of the reply.",
-    what: "The thinking bar above a reply shrinks to a small rounded label. Click it to open or close the thinking; its buttons show only while it is open. "
-      + "This restyles SillyTavern's own message view, in every chat.",
-    where: settingsAt("#so-compact-thoughts", "Display › Thinking pill"),
-    settings: ["display.compactThoughts"], doc: "player/drawer-and-hud.md", status: "shipped", needs: [],
-    isOn: (settings) => settings.display.compactThoughts,
-  },
-  {
     id: "inline-notes", name: "Notes under messages", area: "play", audience: "player",
     oneLine: "Small icons under replies: where the story moved, what it remembered, which lore it used.",
     what: "A reply can carry one quiet line saying what happened behind it, such as \"The story moved on · Remembered 2 things\". "

@@ -429,6 +429,7 @@ real-model carrier, or why none is needed.
 | skip-ahead | D + RP | skipAhead jest (option A span, no-clock copy, due scan: echo/rumor/commitment/quest/schedule, 20 due schedules stop at the first due point), skipGate jest (enablement, teller), skip review test (40 cuts: 0 stale directions, 0 time moves, 0 transitions; swipe re-arms, delete does not), speechBudget skip origin, agency skip validation, HudStrip StoryCardSkipAhead* Storybook; v30-32-skip-ahead (model lane, written, NOT run: unmerged branch, no staging) | v3.0 32 RP blind Sol pairs (`so-skip-rate.mts`, >= 25 skips vs typed control), owed: no GPU until the owner's resume; `talk.skipAhead` stays off until it passes |
 | public-sheet-narration | D + CL | narratorSheet jest, v28-18-q7-sheet (no-model) | S8 header clause via `so-q7-failure.mts` (`test/measurements/v2.8/18-s8/`, reply on Artemis per 70 D2, blind rater); GS6.2 narrator-only sheet (RP); S7 informational (RP, Artemis) |
 | your-move-chip | D | yourMove jest, talkControl jest, HudStrip Storybook, v28-68-your-move (no-model) | none: no model (68 Y1–Y6) |
+| compact-thoughts | D | hostStyle jest (flag, `#chat`-scoped host.css), lane 60 screenshots (v3.0 43 H) | none: no model |
 | quests | RP | 36-Q5-scn, S-16, storyCheckWhen jest (checkpoint check `when`, 2026-10-16) | GS1.3, GS3.1, GS6.10 (check `when`) |
 | character-life | RP + CL | 37-D1..D3 | GS1.5, GS3.3, GS2.7 |
 | meanwhile-proposals | CL | agenda proposal tests | GS2.7; M16 carried |
