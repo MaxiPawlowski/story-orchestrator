@@ -124,6 +124,24 @@ measure (that is agent B's retention and query work); the harness is in place fo
 
 ## Gate record A
 
+- 2026-10-31, branch `v3.0-41-memory-a`, base master `fabc9384a`, merged master up to `b8428ba47` (agent B's 41-b, 43-s,
+  43-c) before the final run. Conflicts were list unions (switch declarations, session baseline, registry spread,
+  property-test op kinds, this plan doc, the GPU queue); generated guide/settings pages regenerated.
+- Per item: `npm run gates:quick` (green except a passProfiles census row, fixed); jest per file as listed in each item.
+- Full `npm run gates` (no `--resume`, Storybook included) on `a6cd02e7a`: **all green in 808.9 s** (build, typecheck,
+  test, typecheck:test, test:replay, lint, debug:typecheck, test:release, test:debug, test:plugin, test-storybook:ci).
+  Earlier full runs: green 797.2 s before the master merges; two RED at test:plugin on
+  `server-plugin/story-orchestrator-gpu/broker/comfyReclaim.test.mjs` (free-first case waited 40 ms wall clock and lost
+  the race under parallel load; passes 3/3 alone). Fixed test-only (`waitMs: 5000` on that case), separate commit.
+- Coordinator budgets after merge: memory 560/560, extraction 560/560, manager 700/700 (effective lines). Main bundle
+  `dist/index.js` 1,239,194 B (budget 1,300,000); the verdict pass is a lazy chunk.
+- Probe harness: baseline master 0.375 at 60; agent A alone 0.375 (no change expected); A+B merged 0.458
+  (`a-plus-b-merged.json`); kept-out leaks 0 in every run.
+- CPU-only measurement inputs used: lane payload files (private, numbers only) and `llama-tokenize` with `CUDA_VISIBLE_DEVICES`
+  empty (vocabulary only). No ST :8000, no lanes, no GPU, no ComfyUI, no staging.
+- NOT run: every real-model row (MW1-PROBE-U, MW1-A1..A4 in the GPU queue); no live browser gate (no ST-facing UI built
+  beyond the Story → Features controls, which the featureStatus/featureControls tests and Storybook cover).
+
 ## Items (agent B): which memories survive and get injected
 
 Branch `v3.0-41-memory-b`. Four items, each its own switch under `memory.*`, on by default.
