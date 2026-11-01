@@ -29,4 +29,13 @@ export const RETENTION_FEATURES: readonly Feature[] = [
     where: settingsAt("#so-retrieval-query", "Authoring › Prompt trials"),
     settings: ["memory.retrievalQuery"], doc: "player/memory.md", status: "shipped", needs: ["story"],
   },
+  {
+    id: "recap-outside-window", name: "Recap only what left the prompt", area: "memory", audience: "author",
+    oneLine: "A summary of messages that are still in the prompt word for word is left out until those messages leave it.",
+    what: "After each reply the extension notes the oldest chat message SillyTavern kept in the prompt. A session detail, the recent-events summary or a scene "
+      + "summary whose messages all sit after it (with a four-message margin) is left out of the next prompts; once SillyTavern trims those messages, the summary "
+      + "comes back. Pinned rows and rows you decided always stay. Saves prompt tokens and prefill time before a long chat fills the context. No model call. Not rated yet.",
+    where: settingsAt("#so-recap-outside-window", "Authoring › Prompt trials"),
+    settings: ["memory.recapOutsideWindow"], doc: "player/memory.md", status: "shipped", needs: ["story"],
+  },
 ];

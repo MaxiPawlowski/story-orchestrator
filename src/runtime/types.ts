@@ -197,6 +197,7 @@ export interface MemoryRuntimeSettings {
   deferredOutOfPrompt?: boolean;
   historyNotes?: boolean;
   outwardNarration?: boolean;
+  recapOutsideWindow?: boolean;
   mentionLedger?: boolean;
   strengthRetention?: boolean;
   retrievalQuery?: boolean;

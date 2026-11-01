@@ -72,6 +72,7 @@ export const SETTING_CONTROLS: Record<string, string> = {
   "worldInfo.preferKnown": "so-wi-prefer-known",
   "memory.historyNotes": "so-history-notes",
   "memory.outwardNarration": "so-outward-narration",
+  "memory.recapOutsideWindow": "so-recap-outside-window",
   "memory.mentionLedger": "so-mention-ledger",
   "memory.strengthRetention": "so-strength-retention",
   "memory.retrievalQuery": "so-retrieval-query",
@@ -81,7 +82,7 @@ export const SETTING_CONTROLS: Record<string, string> = {
 
 const AUTHOR_SETTINGS: ReadonlySet<string> = new Set(["worldInfo.lorePins", "worldInfo.seededChance", "worldInfo.budgetEvidence", "worldInfo.lexicalFallback",
   "worldInfo.lexicalPrefilter", "worldInfo.lexicalTiebreak", "worldInfo.holdRound", "worldInfo.preferKnown", "memory.historyNotes", "memory.outwardNarration", "talk.swipeContrast",
-  "memory.mentionLedger", "memory.strengthRetention", "memory.retrievalQuery", "pacing.pathArc"]);
+  "memory.mentionLedger", "memory.strengthRetention", "memory.retrievalQuery", "memory.recapOutsideWindow", "pacing.pathArc"]);
 
 const firstSentence = (text: string): string => /^(.+?[.!?])(\s|$)/.exec(text)?.[1] ?? text;
 const copyOf = (key: string): SettingCopy | undefined => (SETTING_COPY as Record<string, SettingCopy>)[key];

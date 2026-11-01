@@ -13,8 +13,11 @@ type Values = Readonly<Record<string, PrimitiveValue>>;
 export const narratedQualities = (story: NormalizedStory): Quality[] =>
   story.qualities.filter((quality) => quality.display?.public === true && quality.display.narrate !== false);
 
+export const EMPTY_SHEET_TEXT = "—";
+
 export const sheetLines = (story: NormalizedStory, values: Values): string[] =>
-  sheetGroups(narratedQualities(story), values, null).flatMap((group) => group.items.map((item) => `- ${group.label}: ${item.label}${item.text ? `: ${item.text}` : ""}`));
+  sheetGroups(narratedQualities(story), values, null).flatMap((group) => group.items.filter((item) => item.text !== EMPTY_SHEET_TEXT)
+    .map((item) => `- ${group.label}: ${item.label}${item.text ? `: ${item.text}` : ""}`));
 
 export const warnLines = (story: NormalizedStory, values: Values): string[] => narratedQualities(story).flatMap((quality) => {
   const display = quality.display;
