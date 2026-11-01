@@ -11,10 +11,10 @@ import type { InChatChips, InChatDiscovery, InChatDivider, InChatMeter, InChatVi
 import { EMPTY_IN_CHAT } from "./inChatTypes";
 import { withheldNames } from "./playerProjection";
 import type { EffectRef } from "./recapPort";
-import { INLINE_WINDOW_DEFAULT, type InlineLevel } from "./settingsModel";
+import { effectiveInlineLevel, INLINE_WINDOW_DEFAULT, type InlineLevel } from "./settingsModel";
 import { makeScreen, offerRows } from "./suggestionAnchors";
 import type { TalkDecisionAudit } from "./talkStagecraftTypes";
-import type { UiRuntimeSettings } from "./types";
+import type { RuntimeExtras, UiRuntimeSettings } from "./types";
 import { deriveTurn } from "./yourMove";
 
 export const METER_OPEN_LIMIT = 3;
@@ -31,6 +31,15 @@ export interface InChatSources {
   audits: readonly SharedReadAudit[];
   recap: readonly EffectRef[];
   decisions: readonly TalkDecisionAudit[];
+  resting?: (text: string) => string;
+  enabled?: readonly string[];
+  generating?: boolean;
+}
+
+export interface InChatSnapshotSources {
+  boundaryLog: readonly BoundaryLogEntry[];
+  chat: readonly unknown[];
+  extras: Pick<RuntimeExtras, "ui" | "extraction" | "recap" | "talk">;
   resting?: (text: string) => string;
   enabled?: readonly string[];
   generating?: boolean;
@@ -119,6 +128,15 @@ export function inChatChips(sources: InChatSources, story: NormalizedStory, stat
   const ideas = sources.ui.presence ? presenceShown(story.display, sources.ui.presence).suggestions : false;
   return yours || offers.length || ideas ? { messageId: lastId, yours, offers, ideas } : null;
 }
+
+export const inChatSlice = (sources: InChatSnapshotSources, story: NormalizedStory | null, state: EngineState | null, castNames: Record<string, string>): InChatView => {
+  const { extras } = sources;
+  return composeInChat({
+    story, state, boundaryLog: sources.boundaryLog, chat: sources.chat, castNames, level: effectiveInlineLevel(extras.ui.inline?.level ?? 1, extras.ui.authorView),
+    ui: extras.ui, audits: extras.extraction.audits, recap: extras.recap?.refs ?? [], decisions: extras.talk.decisions,
+    resting: sources.resting, enabled: sources.enabled, generating: sources.generating,
+  });
+};
 
 export function composeInChat(sources: InChatSources): InChatView {
   const { story, state } = sources;

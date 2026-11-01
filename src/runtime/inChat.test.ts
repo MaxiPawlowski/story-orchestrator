@@ -2,7 +2,7 @@ import { parseStoryOrThrow, StoryEngine, CLOCK_READ_KEY, type BoundaryLogEntry, 
 import { deriveLife } from "@engine/life/derive";
 import type { SharedReadAudit } from "@extraction/index";
 import { chatFor, playBoundaries, POSTING } from "../../test/support/recapFixtures";
-import { composeInChat, inChatBecause, type InChatSources } from "./inChat";
+import { composeInChat, inChatBecause, inChatSlice, type InChatSources } from "./inChat";
 import { defaultChatElements, defaultPresenceSettings } from "./displayToggles";
 import { defaultInlineSettings, type InlineLevel } from "./settingsModel";
 import { messageRevision } from "./yourMove";
@@ -129,5 +129,18 @@ describe("in-chat elements (v3.0 44): one view composed from the snapshot source
     const coincidental = playBoundaries(POSTING, [[[{ q: "posting_choice", v: "taken" }]]], chat);
     expect(inChatBecause(POSTING, coincidental.engine.serialize(), coincidental.refs, chat, () => true)).toEqual({});
     expect(inChatBecause(POSTING, state, proven.refs, chat, (id) => id !== 2)).toEqual({});
+  });
+
+  it("the snapshot slice caps the level like the notes line: no Author view, no meter, whatever the stored level", () => {
+    const run = played();
+    run.turn({ door_open: true });
+    const extras = (authorView: boolean) => ({
+      ui: { authorView, announceTransitions: false, hudEnabled: true, inline: { ...defaultInlineSettings(), level: 4 as const } },
+      extraction: { audits: [] }, talk: { decisions: [] }, recap: undefined,
+    }) as unknown as Parameters<typeof inChatSlice>[0]["extras"];
+    const slice = (authorView: boolean) => inChatSlice({ boundaryLog: run.engine.stateLog as BoundaryLogEntry[], chat: run.chat, extras: extras(authorView) }, STORY, run.engine.serialize(), {});
+    expect(slice(false).author).toBe(false);
+    expect(slice(false).meter).toEqual({});
+    expect(Object.keys(slice(true).meter)).toEqual(["2"]);
   });
 });

@@ -231,12 +231,12 @@ const noGroupOf = () => noGroupView({
 
 let inlineComposer: ((sources: InlineSources) => InlineView) | null = null;
 let consoleSlice: typeof import("./authorConsole").consoleAuthorSlice | null = null;
-let inChatSlice: typeof import("./inChat").composeInChat | null = null;
+let inChatSlice: typeof import("./inChat").inChatSlice | null = null;
 
 export const loadInlineComposer = async () => {
   inlineComposer = (await import("./inlineTimeline")).composeInlineTimeline;
   consoleSlice = (await import("./authorConsole")).consoleAuthorSlice;
-  inChatSlice = (await import("./inChat")).composeInChat;
+  inChatSlice = (await import("./inChat")).inChatSlice;
 };
 
 const gateQualitiesOf = (story: NormalizedStory | null, activeId: string | undefined): string[] => (story && activeId
@@ -539,10 +539,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     nextTurnBuckets: promptBuckets.view(nextTurnCost.ownTokens), nextTurnFold: fold,
     roleRoutes: roleHealth.view(),
     lore: extras.lore,
-    inline, castNames, inChat: inChatSlice?.({
-      story, state, boundaryLog: sources.boundaryLog, chat: sources.chat, castNames, level: inline.level, ui: extras.ui, audits: extras.extraction.audits,
-      recap: extras.recap?.refs ?? [], decisions: extras.talk.decisions, resting: sources.resting, enabled: sources.enabled, generating: sources.generating,
-    }) ?? null,
+    inline, castNames, inChat: inChatSlice?.(sources, story, state, castNames) ?? null,
     ...presenceSlices(sources, story, state, { castNames, openThreads }),
     ...modelCallSlices(extras),
   };
