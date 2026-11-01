@@ -520,3 +520,41 @@ tomorrow". Plan and review list: `44-in-chat-elements.md`.
 - Bundle: main `dist/index.js` 1,296,095 B (master before: about 1,293,000; budget 1,300,000).
 - Gates: full `npm run gates` on the tree merged with master `2c8ae0177`: red only on `patterns.test.ts` P5 p95 timing
   (untouched, known flake); `--resume` all green. The clean full run is cited in the merge commit.
+
+## G2: lane writes can never reach the owner's data (safety fix, 2026-11-01)
+
+Trigger: the E incident above (an ST copy whose `data/default-user` was a junction; `seed` copied the link, offline/no-model
+rewrote the owner's `settings.json` and stripped 3 keys from `secrets.json`).
+
+- `scripts/lib/laneSafety.mjs`: `realPathDeep` (realpath through every junction/symlink, also for not-yet-existing files and
+  dangling links); protected roots = real `data/` and `data/default-user` of `.st-root`, `ST_ROOT` and `SO_OWNER_ST_ROOT`;
+  `laneFs` refuses any write whose real path is in a protected root or outside the real lanes root, and every write when the
+  lanes root itself sits in the owner's data or an ST tree; recursive `rm` refuses a tree holding a link into the owner's data;
+  `cp` always dereferences and fails if links remain; `harnessFs` refuses the owner's data only (reports, pods, evidence).
+  `servedTreeIssue`: an ST tree whose `data/` or `data/default-user` resolves outside itself, or a non-owner tree whose data
+  resolves to the owner's, is refused.
+- `st-lanes.mts` `seed` and `start` call `assertServedTree(ST_ROOT)` + `assertLaneDir`, and `seed` re-checks the copy for links;
+  every writer in `st-lanes` (seed, offline, no-model, restore-model, replay, pod, bundle, batch rows), `adolion-fresh`,
+  `laneBundle`, `sessionLanes` (lease, archive, restore), `so-bundle-route`, `p41Residue`, `suite/nomodel.mjs`, and the lane
+  writes of `so-trim-arms` / `so-pose-pick-cl` go through `laneFs`; `connection`, `rowEvidence`, `podCapture`,
+  `evidenceArchive`, `so-pod`, `so-session`, `so-showcase`, `saga-export-packs` through `harnessFs`.
+- Guard `scripts/lib/laneWriters.guard.test.mjs`: any script under `scripts/` that names a lane or data root and imports a
+  raw fs writer (named, namespace or `require`) fails unless it is an EXEMPT row with a reason (5 rows: read-only or
+  owner-run tools such as `so-sprite-copy --confirm` and `local/route-st.mjs`); planted controls.
+- Rules: `.claude/rules/debug-scripts.md` §Lanes, AGENTS.md "The owner's machine".
+
+## Gate record G2
+
+- `node --test scripts/lib/laneSafety.test.mjs`: 8/8 (real junctions in a temp tree: lane path junctioned to a fake owner
+  `default-user` refused for write/writeSync/rm, owner files byte-identical after; junction on the whole lane `data/` refused
+  for a not-yet-existing file; outside-lanes and outward junction refused, plain lane path passes; lanes root inside owner data
+  or an ST tree refuses all; ST copy with junctioned `data/default-user` or `data/` refused, owner tree and real copy pass;
+  `ST_ROOT` copy still protects the linked owner data; `cp` dereferences, recursive `rm` over a link into owner data refused;
+  harness fs).
+- `node --test scripts/lib/laneWriters.guard.test.mjs`: 4/4 (planted controls caught; 0 offenders).
+- Manual refusal: `ST_ROOT=<temp copy with junctioned default-user> SO_OWNER_ST_ROOT=<temp owner> st-lanes.mts seed 70` exit 1,
+  message names the junction, nothing written to the lanes root. No owner data used.
+- `npx tsc -p scripts/debug/tsconfig.json`: exit 0.
+- `npm run test:debug` (worktree): 1790 pass, 1 fail = `so-run-header.test.mts` "plan 08s nested manifest" (reads `dist/`,
+  absent in a fresh worktree; passes in the main checkout).
+- `npm run gates:quick`: green (typecheck, defect replay 32/32). Scripts-only change, so no full `npm run gates`.
