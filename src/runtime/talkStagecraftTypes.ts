@@ -38,6 +38,7 @@ export interface StagecraftSettings {
   livingEnabled?: boolean;
   branchingEnabled?: boolean;
   prefetchEnabled?: boolean;
+  livingLeads?: boolean;
   createEnabled: boolean;
   createRequireMeasured: boolean;
 }

@@ -480,6 +480,9 @@ real-model carrier, or why none is needed.
 | lore-prefer-known | D | loreSelectLexical.test (unknown entity -0.1, never a lexical force) | M42-G7 (GPU, owed) |
 | lore-lifetime | D + RP | worldInfoGates.test (chapter end, until, lasting, switch off), loreDiagnostics.test (lore-path-over-budget, world-info-until-unknown), lorePath.measure (campaign over budget 6 -> 1) | M43-L1 (GPU, owed) |
 | lore-state | D | loreState.test, loreStateRead.test, loreSelectLexical.test (state in the judge request, alias left to scan), loreAliases.test (nickname fixture 5/5), loreLexical.measure (state arms) | M43-L2 (TypeSafe re-record + GPU, owed), M43-L2b (no-model lane, owed) |
+| stuck-ladder | D + RP | stuckLadder.review (rung table, reset on a watched move, rollback = replay), leadDiagnostics.test (one-clue-exit: 97 findings on 68 of 81 fixture stories) | M43-P1 (GPU, owed) |
+| living-leads | CL + RP | leads.test (one any-gate transition, every new lead counts, per-lead open/impossible refusal), directorGoldens (single-lead replay unchanged) | M43-P3 (GPU, owed) |
+| judge-use-director-critic | CL | livingCritic.test (recorded jev-1.13.0 answers: player-act recall 14/14, false refusals 1/28), leads.test (judge in the loop, fallback) | M43-P2 / M21 (owed) |
 
 Every judge use also gets the judge-off column through J11's off arm (CL).
 

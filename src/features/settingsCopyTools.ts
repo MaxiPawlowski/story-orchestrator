@@ -216,6 +216,12 @@ export const SETTING_COPY_TOOLS = {
   "pacing.pathArc": copy("Pace by the road ahead (trial)",
     "The story's dramatic shape counts the turning points left on the shortest way to an ending and how long the current scene has run, "
       + "and after a climax eases off for three replies. No model call. Not rated yet."),
+  "stagecraft.livingLeads": copy("Several ways into a written turning point (trial)",
+    "The living director gives each turning point it writes two or three different leads (a place, a person, an object or a choice), any one of which heads "
+      + "the story there, instead of one. Still one move per reply. No extra model call. Not rated yet."),
+  "pacing.stuckLadder": copy("Help a stuck player with leads (trial)",
+    "When no exit of a gated scene has moved for a few of your turns, the narrator gets the scene's authored leads one at a time as world pressure, "
+      + "then one general nudge. It never moves the story on for you. No model call. Not rated yet."),
   "talk.swipeContrast": copy("Swipes see the reply they replace (trial)",
     "When you swipe for a new reply, the visible text of the reply you threw away is shown once, marked as rejected, so the new reply differs. Off until it is rated."),
   "sprites.cardOverlay": copy("Current character state in replies",

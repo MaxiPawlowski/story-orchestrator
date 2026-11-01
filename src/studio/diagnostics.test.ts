@@ -21,7 +21,7 @@ const clean: Story = {
   description: "",
   qualities: [{ key: "trust", type: "int", source: "extractor", rubric: "r" }],
   checkpoints: [
-    { id: "start", name: "Start", objective: "", type: "intermediate", start: true },
+    { id: "start", name: "Start", objective: "", type: "intermediate", start: true, leads: ["a stranger vouches for the party", "a token of goodwill turns up"] },
     { id: "cache", name: "Cache", objective: "", type: "anchor" },
   ],
   transitions: [{ from: "start", to: "cache", priority: 0, gate: { all: [{ q: "trust", op: ">=", v: 1 }] } }],

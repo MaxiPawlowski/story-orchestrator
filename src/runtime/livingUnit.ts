@@ -2,7 +2,7 @@ import { LIVING_OPENING_ID, type EngineState, type NormalizedStory } from "@engi
 import { livingChapterSize } from "@engine/validate/living";
 import { gameLayer } from "@engine/validate/gameLayer";
 import type { ModelCall } from "@extraction/modelRoute";
-import { runBranch, runDirector, type BranchOutcome, type DirectorOutcome } from "@generation/living/direct";
+import { runBranch, runDirector, type BranchOutcome, type DirectorJudge, type DirectorOutcome } from "@generation/living/direct";
 import { exitDescriptions } from "@generation/living/divergence";
 import { livingChapters } from "@generation/living/frontier";
 import { planChapter, suggestedTension, usesLivingChapters } from "@generation/living/plan";
@@ -23,6 +23,8 @@ export interface DirectNextInput {
   signal?: AbortSignal;
   debugResponse: string | null;
   sceneTest?: SceneTestRecord | null;
+  leads?: boolean;
+  judgeCritic?: DirectorJudge;
 }
 
 const MAX_PLANS = 8;
@@ -68,6 +70,7 @@ export function directorInput(input: DirectNextInput): DirectorInput {
     chapter: { number: chapterNumber, anchorsIn: plan.anchorsInChapter, size, mayClose: plan.anchorsInChapter >= size[0] && usesLivingChapters(story) },
     ending: { finalAllowed: false, finalRequired: false },
     ...(scene ? { sceneTest: scene } : {}),
+    ...(input.leads ? { leads: true } : {}),
   };
 }
 
@@ -75,6 +78,7 @@ export async function directNext(input: DirectNextInput): Promise<DirectorOutcom
   return runDirector({
     story: input.story, raw: input.raw, frontierId: input.frontierId, values: input.state.blackboard.values, latched: input.state.blackboard.latched ?? {},
     sealsOn: input.sealsOn, input: directorInput(input), guard: { playerNames: input.inputs.playerNames, restatesSecret: input.inputs.restatesSecret }, critic: true,
+    ...(input.judgeCritic ? { judgeCritic: input.judgeCritic } : {}),
   }, input.model, { role: "authoring", pass: "living", ...(input.signal ? { signal: input.signal } : {}), debugResponse: input.debugResponse, refuseIncomplete: true });
 }
 
@@ -92,6 +96,7 @@ export interface BranchNextInput {
   model: ModelCall;
   signal?: AbortSignal;
   debugResponse: string | null;
+  judgeCritic?: DirectorJudge;
 }
 
 export async function branchNext(input: BranchNextInput): Promise<BranchOutcome> {
@@ -105,5 +110,6 @@ export async function branchNext(input: BranchNextInput): Promise<BranchOutcome>
   return runBranch({
     story, raw: input.raw, frontierId: sourceId, targetId, branchId: input.branchId, context, values: state.blackboard.values, latched: state.blackboard.latched ?? {},
     input: director, guard: { playerNames: input.inputs.playerNames, restatesSecret: input.inputs.restatesSecret }, critic: true,
+    ...(input.judgeCritic ? { judgeCritic: input.judgeCritic } : {}),
   }, input.model, { role: "authoring", pass: "living", ...(input.signal ? { signal: input.signal } : {}), debugResponse: input.debugResponse, refuseIncomplete: true });
 }

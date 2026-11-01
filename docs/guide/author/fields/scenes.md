@@ -8,6 +8,7 @@ Each section is one guide topic. The Studio's "How to write this" and the wizard
 - [Objectives and player agency](#objective-agency)
 - [Open stretches](#open-stretches)
 - [Tension targets](#tension)
+- [Leads for a stuck player](#stuck-leads)
 - [The opening scene](#opening-scene)
 
 <a id="checkpoints"></a>
@@ -65,6 +66,19 @@ Fields: `checkpoints[].tension_target` (`calm`, `stirring`, `tense`, `critical`,
 - **Good.** `calm` at the gate, `stirring` when the party enters the flooded hall, `critical` in the ambush, `peak` at the finale.
 - **Bad.** Every beat at `peak`; a target at odds with the beat's objective (a quiet negotiation at `critical`).
 - **If wrong.** Pacing pushes the narrator the wrong way. The measured scale also overshoots on calm play (a calm scene can read as climbing toward "critical"), so do not rely on a gate over `tension_current` for a quiet beat.
+
+<a id="stuck-leads"></a>
+
+## Leads for a stuck player
+
+Topic `stuck-leads`.
+
+Fields: `checkpoints[].leads` (1 to 4 short texts, at most 240 characters each), `checkpoints[].stuck_after` (a whole number from 1 to 20, default 6) (`validate/leads.ts`, `pacing/stuck.ts`, `studio/leadDiagnostics.ts`).
+
+- **What it does.** With Settings › Authoring › Prompt trials › "Help a stuck player with leads" (`pacing.stuckLadder`, on by default), a gated beat (not an open stretch) counts the player turns since any quality an exit's gate reads last changed. At `stuck_after` quiet turns the narrator's private direction gets lead 1 as world pressure ("if it fits, let the world make this available … never resolve it for {{user}}"); every 3 further quiet turns it moves to the next lead. Past the last lead, or from the second step when the beat has no leads, one generic line asks for one concrete way toward the objective. Any change to a watched quality starts the count again. It never fires an exit and makes no model call; it is derived from the boundary log, so a rollback replays it exactly. A lead that names someone or something the player has not met, or restates a held secret, is skipped.
+- **Good.** Three leads that differ in kind, for "find who moved the ledger": `"a dockhand grumbles that the night clerk left early"`, `"the ledger's empty shelf has fresh scratches toward the back door"`, `"a creditor arrives asking for the ledger by name"`.
+- **Bad.** A lead that solves the beat (`"the clerk confesses"`), or one that writes the player (`"{{user}} decides to search the office"`).
+- **If wrong.** The warning `one-clue-exit` names a beat whose every exit needs one extractor value to change, with fewer than two leads, no turn-count fallback on an exit and no `agency.alternate`: "Every way out of this beat hangs on one clue: if the player misses it, the scene stalls with nothing to fall back on." This is the three-clue rule: give every conclusion the player must reach at least three ways to reach it.
 
 <a id="opening-scene"></a>
 

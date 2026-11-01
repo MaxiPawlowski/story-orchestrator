@@ -28,6 +28,7 @@ const FIXTURE_OF: Partial<Record<JudgeReadinessKey, string>> = {
   houseRules: "adolion-house-rules",
   loreSelect: "lore",
   wardenLore: "warden-lore",
+  directorCritic: "director-critic",
 };
 const revisionOf = (fixture: string) => createHash("sha256").update(JSON.stringify(JSON.parse(readFileSync(join(process.cwd(), "test/fixtures/judge", `${fixture}.json`), "utf8")))).digest("hex").slice(0, 12);
 

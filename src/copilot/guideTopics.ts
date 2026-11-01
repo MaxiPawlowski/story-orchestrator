@@ -155,6 +155,14 @@ export const GUIDE_TOPICS = {
     text: "calm, stirring, tense, critical or peak: the tension this beat aims for. Pacing compares it to the measured tension and steers. Good: calm for a camp, critical "
       + "for the ambush. A story with every beat at peak has no shape to steer toward. min_turns n: non-urgent exits wait n turns.",
   },
+  "stuck-leads": {
+    title: "Leads for a stuck player",
+    fields: "checkpoints[].leads, checkpoints[].stuck_after",
+    text: "leads: 1 to 4 short player-safe situations that make an exit reachable (\"a dockhand mentions the ledger moved\"); stuck_after n (1-20, default 6) "
+      + "player turns with no exit-gate quality changing. Then one lead per 3 quiet turns reaches the narrator as world pressure, never the player's act; "
+      + "past the last lead (or with none, from the second rung) a generic nudge. Never forces an exit. Not on an open stretch. "
+      + "one-clue-exit warns when every exit needs one extractor value and there are fewer than 2 leads, no turn-count fallback and no alternate.",
+  },
   guidance: {
     title: "Narrator guidance",
     fields: "checkpoints[].guidance",
@@ -367,15 +375,6 @@ export const GUIDE_TOPICS = {
       + "Limits: name 60 chars, objective 400. Save as story keeps reached turning points. Pace: a way in also opens after 3 player turns, a beat after 2.",
   },
   ...LIVING_TOPICS,
-  branching: {
-    title: "Branches that follow the player",
-    fields: "features.branching, features.prefetch, stagecraft.branchingEnabled, stagecraft.prefetchEnabled, judge.uses.divergence",
-    text: "Authored turning points with exits and an anchor after them; never where the living director writes. Exits' extraction_hint says what fits. "
-      + "Once per player turn that moved nowhere, the judge reads whether it fits an exit; only a turn that commits to an action counts (questions, talk, OOC "
-      + "never do). 2 counted 'none' in a row at p>=0.8, or one at p>=0.97, is divergence: the director writes liv_b<n>_way, rejoining the next anchor. "
-      + "Refusals alone never branch. Prefetch writes one way out ahead. One branch per turning point; a swipe takes it back. "
-      + "features.branching or features.prefetch off declines it for the story.",
-  },
   poses: {
     title: "Poses and character layers",
     fields: "poses.use, poses.custom, id, label, tags, framing, props, text, keypoints.format, keypoints.canvas, " +
@@ -446,7 +445,7 @@ export const DIAGNOSTIC_GUIDE_TOPIC: Record<DiagnosticCode, GuideTopicId> = {
   "story-kind-invalid": "story-basics",
   "opener-uses-player-name": "player",
   "npc-reply-directs-player": "npc-replies",
-  "opening-narrator-only": "opening-scene", "exit-on-entry": "tension",
+  "opening-narrator-only": "opening-scene", "exit-on-entry": "tension", "one-clue-exit": "stuck-leads",
   ...TALK_DIAGNOSTIC_TOPICS,
   "player-spoiler-risk": "player",
   "agenda-pace-no-chapters": "character-life",

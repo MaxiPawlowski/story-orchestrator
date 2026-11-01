@@ -280,6 +280,8 @@
       "verdict": "pass",
       "reason": "judge critic failure falls back to the model critic"
     },
+    { "site": "src/generation/living/direct.ts#judged", "kind": 3, "template": ".catch(() => null)",
+      "surface": "console", "rawError": false, "silentCatch": "probe", "verdict": "pass", "reason": "judge director critic failure falls back to the model critic" },
     {
       "site": "src/generation/generate.ts#generateVariants",
       "kind": 3,

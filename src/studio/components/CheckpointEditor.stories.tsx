@@ -237,3 +237,19 @@ export const SectionIndexNamesEverySection: Story = {
     await expect(canvasElement.querySelectorAll("[data-so-section]").length).toBe(10);
   },
 };
+
+export const AuthorsDwellAndLeads: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole("button", { name: /The Cache/ }));
+    await userEvent.type(canvas.getByLabelText("Minimum player turns"), "3");
+    await userEvent.type(canvas.getByLabelText("Stuck after"), "4");
+    await userEvent.type(canvas.getByLabelText("Leads"), "a dockhand mentions the ledger{enter}fresh scratches by the back door");
+    const draft = useDraftStore.getState().draft;
+    const cache = draft.checkpoints.find((checkpoint) => checkpoint.name === "The Cache");
+    await expect(cache?.min_turns).toBe(3);
+    await expect(cache?.stuck_after).toBe(4);
+    await expect(cache?.leads).toEqual(["a dockhand mentions the ledger", "fresh scratches by the back door"]);
+    await expect(importDraft(exportDraft(draft))).toEqual(draft);
+  },
+};

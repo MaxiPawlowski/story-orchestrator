@@ -6,11 +6,12 @@ import { stripReasoningBlocks } from "@extraction/parse";
 import { isRecord } from "@utils/guards";
 import { normalizeJsonText } from "@utils/json";
 import { repairJsonObject } from "@utils/jsonRepair";
-import type { DirectorDraft } from "./types";
+import type { DirectorDraft, DirectorOpening } from "./types";
 
 export type DirectorParse = { ok: true; draft: DirectorDraft } | { ok: false; issues: string[] };
 
 export const LIVING_MAX_RUBRIC_CHARS = 240;
+export const LIVING_MAX_LEADS = 3;
 
 export const wordsFor = (chars: number): number => Math.max(1, Math.floor(chars / 7 / 5) * 5);
 
@@ -85,6 +86,21 @@ const readReuseGate = (value: unknown, story: NormalizedStory, issues: string[])
   return { q: value.q, op: value.op as GateOperator, v: v as PrimitiveValue | PrimitiveValue[] };
 };
 
+const readOpening = (opens: unknown, story: NormalizedStory, issues: string[]): DirectorOpening | null => {
+  if (isRecord(opens) && isRecord(opens.new)) {
+    const key = typeof opens.new.key === "string" ? opens.new.key.trim().toLowerCase() : "";
+    if (!KEY.test(key)) issues.push("opens_when.new.key must be a short snake_case key");
+    const rubric = text(opens.new.rubric, "opens_when.new.rubric", LIVING_MAX_RUBRIC_CHARS, issues);
+    return { kind: "new", key, rubric };
+  }
+  if (isRecord(opens) && opens.reuse !== undefined) {
+    const gate = readReuseGate(opens.reuse, story, issues);
+    return gate ? { kind: "reuse", gate } : null;
+  }
+  issues.push("opens_when must be {new:{key,rubric}} or {reuse:{q,op,v}}");
+  return null;
+};
+
 const readSnapshot = (value: unknown, issues: string[]): Record<string, PrimitiveValue> => {
   if (value === undefined || value === null) return {};
   if (!isRecord(value)) {
@@ -116,19 +132,12 @@ export function parseDirectorDraft(raw: string, story: NormalizedStory): Directo
   const objective = text(cut ?? written, "objective", LIVING_MAX_OBJECTIVE_CHARS, issues);
   const tension = (TENSION_LEVELS as readonly string[]).includes(String(parsed.tension)) ? parsed.tension as TensionLevel : null;
   if (!tension) issues.push(`tension must be one of ${TENSION_LEVELS.join(", ")}`);
-  const opens = parsed.opens_when;
-  let opensWhen: DirectorDraft["opensWhen"] | null = null;
-  if (isRecord(opens) && isRecord(opens.new)) {
-    const key = typeof opens.new.key === "string" ? opens.new.key.trim().toLowerCase() : "";
-    if (!KEY.test(key)) issues.push("opens_when.new.key must be a short snake_case key");
-    const rubric = text(opens.new.rubric, "opens_when.new.rubric", LIVING_MAX_RUBRIC_CHARS, issues);
-    opensWhen = { kind: "new", key, rubric };
-  } else if (isRecord(opens) && opens.reuse !== undefined) {
-    const gate = readReuseGate(opens.reuse, story, issues);
-    opensWhen = gate ? { kind: "reuse", gate } : null;
-  } else {
-    issues.push("opens_when must be {new:{key,rubric}} or {reuse:{q,op,v}}");
-  }
+  const leads = Array.isArray(parsed.opens_when) ? parsed.opens_when : [parsed.opens_when];
+  if (!leads.length) issues.push("opens_when must list at least one lead");
+  if (leads.length > LIVING_MAX_LEADS) issues.push(`opens_when lists at most ${LIVING_MAX_LEADS} leads (it has ${leads.length})`);
+  const openings = leads.slice(0, LIVING_MAX_LEADS).map((opens) => readOpening(opens, story, issues));
+  const opensWhen = openings.length && openings.every(Boolean) ? openings[0] : null;
+  const alsoOpensWhen = opensWhen ? openings.slice(1) as DirectorOpening[] : [];
   const newQualities: DirectorDraft["newQualities"] = [];
   if (parsed.new_qualities !== undefined && parsed.new_qualities !== null) {
     if (!Array.isArray(parsed.new_qualities)) issues.push("new_qualities must be a list");
@@ -153,6 +162,7 @@ export function parseDirectorDraft(raw: string, story: NormalizedStory): Directo
     draft: {
       anchor: { name, objective, tension, snapshot, final: parsed.final === true },
       opensWhen,
+      ...(alsoOpensWhen.length ? { alsoOpensWhen } : {}),
       newQualities,
       buildsOn,
       newChapter: parsed.new_chapter === true,

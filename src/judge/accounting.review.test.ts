@@ -122,6 +122,7 @@ describe("T24 readiness by model (v2.4 plan 07)", () => {
       typed: ["typedExtraction"],
       stall: ["stallCheck"],
       critic: ["expansionCritic"],
+      directorCritic: ["directorCritic"],
       warden: ["warden"],
       wardenLore: ["wardenLore"],
       divergence: ["divergence"],
