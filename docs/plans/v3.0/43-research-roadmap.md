@@ -649,8 +649,8 @@ Two owner decisions on one branch (`v3.0-43-k`).
   (61,978 B freed). Moved, found with a per-module terser estimate over a non-concatenated stats build plus a dominator pass
   (what leaves main when one module goes lazy):
   - the check registry: `runtime/repair.ts`, `checks.ts`, `checksSetup.ts`, `checksExtensions.ts`, `checksGame.ts`,
-    `checksPersona.ts`, `checksSprites.ts`, `checksTavernOs.ts` behind `runtime/repairPort.ts` (`loadRepairKit`,
-    `installRepairKit`; the HUD reads `hudSetupAlert` / `hudSetupCounts`); `withDismissal` moved to `runtime/checkDismissal.ts`
+    `checksPersona.ts`, `checksSprites.ts`, `checksTavernOs.ts` behind `runtime/repairPort.ts` (`loadRepairKit`;
+    the HUD reads `hudSetupAlert` / `hudSetupCounts`); `withDismissal` moved to `runtime/checkDismissal.ts`
     (re-exported from `checks.ts`); "Fix with wizard" reads `provisionableMissing` through the kit;
   - speaker direction: `runtime/talkControl.ts`, `talkDirector.ts` (+ `talk/prompt`, `directAddress`, `parse`,
     `talkChainReads`, `talkPacingIdle`) behind `runtime/talkPort.ts`; the constants and `resolveChainConfig` moved to
@@ -658,8 +658,8 @@ Two owner decisions on one branch (`v3.0-43-k`).
   - Both kits load in parallel at the top of `index.tsx` and are awaited before `startRuntime()`, the pattern the game layer,
     recap and patterns kits use, so the HUD and the interceptor see them from the first render and the first generation:
     behaviour unchanged. They are not deferred past startup; only the main bundle shrinks. `startTalk` keeps a fallback (loads
-    the kit and attaches the controller when the runtime was started without it, as jest does). Storybook installs the repair
-    kit in `.storybook/preview.ts`. Guard: `lazyHarness.guard.test.ts` "v3.0 43 K" keeps all ten modules off the static entry
+    the kit and attaches the controller when the runtime was started without it, as jest does). Storybook loads the repair
+    kit in a global loader (`.storybook/preview.ts`). Guard: `lazyHarness.guard.test.ts` "v3.0 43 K" keeps all ten modules off the static entry
     graph.
   - Not moved (sync consumers at startup, no cheap seam): React (the HUD mounts at startup), `snapshotBuilder`, the
     coordinators, `narrative.ts`, `workspaceRoutes.ts` (5 KB, launcher intents are synchronous).

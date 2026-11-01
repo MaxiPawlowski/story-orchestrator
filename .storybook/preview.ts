@@ -4,11 +4,9 @@ import "./st-theme.css";
 import "../src/styles.css";
 import { installStoryParser } from "../src/engine/storyParser";
 import { parseStory } from "../src/engine/validate";
-import * as repairKit from "../src/runtime/repair";
-import { installRepairKit } from "../src/runtime/repairPort";
+import { loadRepairKit } from "../src/runtime/repairPort";
 
 installStoryParser(parseStory);
-installRepairKit(repairKit);
 
 export const mountRootFor = (title: string) => {
   if (title.startsWith("Workspace/")) return "so-workspace-root";
@@ -51,6 +49,7 @@ const withTheme: Decorator = (Story, context) => {
 
 const preview: Preview = {
   decorators: [withMountRoot, withTheme],
+  loaders: [async () => ({ repairKit: Boolean(await loadRepairKit()) })],
   globalTypes: {
     soTheme: {
       description: "SillyTavern theme",

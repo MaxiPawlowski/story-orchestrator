@@ -129,7 +129,7 @@ export const startTalk = (live: LiveParts, judgeRuntime: JudgeRuntime, window: W
   const host = talkHost(live, judgeRuntime, window);
   const kit = talkKit();
   if (kit) live.talk = new kit.TalkController(host);
-  const interceptor = gatedInterceptor(live.loudGate, () => Boolean(getActiveGroup()), async (chat, contextSize, abort, type) => {
+  globalThis.talkControlInterceptor = gatedInterceptor(live.loudGate, () => Boolean(getActiveGroup()), async (chat, contextSize, abort, type) => {
     live.interceptEntry?.(type);
     runtimeManager.cueSwipe(type, (getContext().chat?.length ?? 0) - 1);
     promptCost.noteGenerationBudget(contextSize);
@@ -145,6 +145,6 @@ export const startTalk = (live: LiveParts, judgeRuntime: JudgeRuntime, window: W
     if (!aborted && Array.isArray(chat)) runtimeManager.chapters.compact(chat, type, getContext().chat ?? [], contextSize, readCoverageEnd(runtimeManager.getExtractionAudits()));
     if (!aborted && Array.isArray(chat)) noteHistory(chat, type);
   }, () => log.warn("speaker direction: a second reply started while one was already being written; it was stopped so the model is asked once"), holdForChat);
-  globalThis.talkControlInterceptor = interceptor;
+  const interceptor = globalThis.talkControlInterceptor;
   if (!kit) void loadTalkKit().then(({ TalkController }) => { if (globalThis.talkControlInterceptor === interceptor) live.talk = new TalkController(host); });
 };

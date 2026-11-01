@@ -5,10 +5,6 @@ type RepairKit = typeof import("./repair");
 
 let kit: RepairKit | null = null;
 
-export const installRepairKit = (next: RepairKit): void => {
-  kit = next;
-};
-
 export const loadRepairKit = async (): Promise<RepairKit> => (kit ??= await import("./repair"));
 
 const NO_COUNTS: SetupCounts = { blocks: 0, degrades: 0 };
