@@ -31,6 +31,7 @@ computes the same value (`src/services/stHost/lorebookImage.ts`, vector pinned i
 
 Read, compare and replace run in one synchronous step, so on Node's single thread no other request, including
 SillyTavern's own `/api/worldinfo/edit`, lands between the comparison and the write. Story Orchestrator's writers never
-overwrite each other or a change the server already has. SillyTavern's own editor still saves unconditionally: its save
-landing in the same instant, from a copy older than ours, can still overwrite our write. That case remains best-effort
+overwrite each other or a change the server already has. SillyTavern's own editor saves through this commit too (the
+extension's `worldInfo.editorMerge`, on): its whole-book save is made conditional on the copy the editor drew, and a 409 is
+merged entry by entry before it is written. With the switch off, ST's editor saves unconditionally again: best-effort
 detection (the write's read-back), not prevention.

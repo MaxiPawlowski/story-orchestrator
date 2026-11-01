@@ -25,6 +25,23 @@ const nextUid = (taken: Set<string>): string => {
   return String(uid);
 };
 
+const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === "object" && value !== null && !Array.isArray(value);
+
+// ST's editor writes every field it draws back into the entry (world-info.js getWorldEntry, `noSave`
+// inputs), so an entry the author never touched still differs from the copy it was drawn from. Two
+// changed copies of one entry are merged field by field; only a field both changed is a conflict.
+function mergeFields(base: Record<string, unknown>, mine: Record<string, unknown>, theirs: Record<string, unknown>): { value: Record<string, unknown>; clashed: boolean } {
+  const value: Record<string, unknown> = {};
+  let clashed = false;
+  for (const key of new Set([...Object.keys(base), ...Object.keys(mine), ...Object.keys(theirs)])) {
+    const [b, m, t] = [canonical(base[key]), canonical(mine[key]), canonical(theirs[key])];
+    const kept = m === t || t === b ? mine[key] : m === b ? theirs[key] : mine[key];
+    if (m !== t && t !== b && m !== b) clashed = true;
+    if (kept !== undefined) value[key] = kept;
+  }
+  return { value, clashed };
+}
+
 const byUid = (a: string, b: string): number => {
   const [x, y] = [Number(a), Number(b)];
   return Number.isInteger(x) && Number.isInteger(y) ? x - y : a < b ? -1 : a > b ? 1 : 0;
@@ -42,6 +59,12 @@ export function mergeLorebookEntries(base: LoreEntries, mine: LoreEntries, their
     const keep = m === t || t === b ? mine[uid] : m === b ? theirs[uid] : undefined;
     if (m === t || t === b || m === b) {
       if (keep !== undefined) entries[uid] = keep;
+      continue;
+    }
+    if (isRecord(base[uid]) && isRecord(mine[uid]) && isRecord(theirs[uid])) {
+      const fields = mergeFields(base[uid] as Record<string, unknown>, mine[uid] as Record<string, unknown>, theirs[uid] as Record<string, unknown>);
+      entries[uid] = fields.value;
+      if (fields.clashed) conflicts.push(labelOf(uid, mine[uid], theirs[uid], base[uid]));
       continue;
     }
     entries[uid] = m === undefined ? theirs[uid] : mine[uid];

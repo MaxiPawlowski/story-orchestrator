@@ -20,11 +20,19 @@ describe("lorebook three-way merge (v3.0 43 T, ST editor save)", () => {
     expect(mergeLorebookEntries(base, { ...base }, { 1: entry(1, "b") }).entries).toEqual({ 1: entry(1, "b") });
   });
 
-  it("an entry both changed keeps the editor's version and names it; one the editor deleted but the story changed survives", () => {
+  it("a field both changed keeps the editor's version and names the entry; one the editor deleted but the story changed survives", () => {
     const base = { 0: entry(0, "a", "Harbor"), 1: entry(1, "b") };
     const merged = mergeLorebookEntries(base, { 0: entry(0, "hand", "Harbor") }, { 0: entry(0, "story", "Harbor"), 1: entry(1, "b changed") });
     expect(merged.entries).toEqual({ 0: entry(0, "hand", "Harbor"), 1: entry(1, "b changed") });
     expect(merged.conflicts).toEqual(['"Harbor"', '"e1"']);
+  });
+
+  it("live 2026-11-01: fields ST's editor fills in on every drawn entry do not hide the story's change to another field", () => {
+    const base = { 0: entry(0, "a"), 1: entry(1, "b") };
+    const drawn = (uid: number, content: string) => ({ ...entry(uid, content), selective: true, probability: 100, characterFilter: { names: [], tags: [], isExclude: false } });
+    const merged = mergeLorebookEntries(base, { 0: drawn(0, "hand"), 1: drawn(1, "b") }, { 0: entry(0, "a"), 1: entry(1, "story") });
+    expect(merged.entries).toEqual({ 0: drawn(0, "hand"), 1: drawn(1, "story") });
+    expect(merged.conflicts).toEqual([]);
   });
 
   it("two new entries on the same uid both survive: the story's moves to a free uid", () => {

@@ -430,6 +430,8 @@ real-model carrier, or why none is needed.
 | public-sheet-narration | D + CL | narratorSheet jest, v28-18-q7-sheet (no-model) | S8 header clause via `so-q7-failure.mts` (`test/measurements/v2.8/18-s8/`, reply on Artemis per 70 D2, blind rater); GS6.2 narrator-only sheet (RP); S7 informational (RP, Artemis) |
 | your-move-chip | D | yourMove jest, talkControl jest, HudStrip Storybook, v28-68-your-move (no-model) | none: no model (68 Y1–Y6) |
 | compact-thoughts | D | hostStyle jest (flag, `#chat`-scoped host.css), lane 60 screenshots (v3.0 43 H) | none: no model |
+| regenerate-own-rows | D | groupRegenerate jest (ST's loop modelled, handler order), v30-43t-regenerate-own-rows (no-model lane, v3.0 43 T) | none: no model |
+| lore-editor-merge | D | lorebookMerge, worldInfoSaveGuard, worldInfoPending jest; v30-43t-lore-editor-merge (no-model lane, lore plugin, v3.0 43 T) | none: no model |
 | quests | RP | 36-Q5-scn, S-16, storyCheckWhen jest (checkpoint check `when`, 2026-10-16) | GS1.3, GS3.1, GS6.10 (check `when`) |
 | character-life | RP + CL | 37-D1..D3 | GS1.5, GS3.3, GS2.7 |
 | meanwhile-proposals | CL | agenda proposal tests | GS2.7; M16 carried |
