@@ -781,3 +781,6 @@ Follow-up to K (owner: "all entries"). Branch `v3.0-43-k2`.
   - Regression once each: `v28-25-curator-constant-review.json` PASS (constant `accepted`, written at the boundary, reverted),
     `v27-d-02-c13-curator-tiers.json` PASS.
   - Each run's residue sweep dropped one untitled wizard session holding the fixture book (as before K2); cleanup clean.
+- Gates: `npm run gates` (no --resume, Storybook included) all green in 464.3s on `548dd40a2` (master merged in, already
+  current): jest 11,600 passed / 3 skipped, Storybook 1,167, test:debug, replay, release, plugin, lint, typechecks, build.
+  Main `dist/index.js` 1,236,237 B of 1,300,000.
