@@ -6,6 +6,8 @@
       "surface": "console", "rawError": false, "silentCatch": null, "verdict": "pass", "reason": "v2.8 69 K3 library index: the reason reaches only the debug log (libraryIndexPort warns); the player sees only the library-lost check, which never carries it." },
     { "site": "src/services/stHost/userFiles.ts#writeUserJson", "kind": 2, "template": "error instanceof Error ? error.message : String(error)",
       "surface": "console", "rawError": false, "silentCatch": null, "verdict": "pass", "reason": "v2.8 69 K3 library index: the reason reaches only the debug log (libraryIndexPort warns); the player sees only the library-lost check, which never carries it." },
+    { "site": "src/runtime/spikes/cpuReranker.ts#createRerankClient>callback", "kind": 3, "template": "catch {} #1",
+      "surface": "console", "rawError": false, "silentCatch": "probe", "verdict": "pass", "reason": "Spike reranker request that fails or times out answers the typed network or timeout result; the offline arm records it as a failure, nothing in play reads it." },
     { "site": "src/services/stHost/provisioning.ts#askCard", "kind": 3, "template": "catch {} #1",
       "surface": "author", "rawError": false, "silentCatch": "probe", "verdict": "pass", "reason": "A card read-back request that cannot reach the server is the typed unconfirmed read-back: the card may exist, is never created again, and the author can check again." },
     { "site": "src/extraction/sharedRead.ts#witnessContext", "kind": 3, "template": "catch {} #1",

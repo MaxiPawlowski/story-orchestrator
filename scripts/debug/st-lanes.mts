@@ -9,7 +9,7 @@ import { lanesRootFor, requireStRoot } from './../lib/stRoot.mjs';
 import { swipesOn } from './lib/adolionFresh.mts';
 import { isLaneNumber, laneIssue, lanePortIssue, lanePorts } from './lib/laneRange.mts';
 import { holderSummary, portHolder, portOwnership } from './lib/lanePortOwner.mts';
-import { firewalledServerEnv, laneExtraPorts, judgeEnabledIn, NO_MODEL_BACKUP, NO_MODEL_SETTINGS_BACKUP, OFFLINE_ENV, offlineProblems, offlineSettings, remoteAuthoringOn, stripModelSecrets, withJudgeEnabled, withRemoteAuthoringOff, withRemoteAuthoringRestored } from './lib/laneModel.mts';
+import { firewalledServerEnv, laneExtraPorts, LOCAL_CONTROLLER_PORT, judgeEnabledIn, NO_MODEL_BACKUP, NO_MODEL_SETTINGS_BACKUP, OFFLINE_ENV, offlineProblems, offlineSettings, remoteAuthoringOn, stripModelSecrets, withJudgeEnabled, withRemoteAuthoringOff, withRemoteAuthoringRestored } from './lib/laneModel.mts';
 import { judgeShareEnv, LANE_POD_FILE, parsePodArg, podLoadProblem, podPortsIn, podTunnelPort, readLanePod, retargetPodUrls, retargetProfiles } from './lib/lanePods.mts';
 import { ROW_DIR_ENV } from './lib/pageCapture.mts';
 import { ramGateBytes, waitForFreeRam, type RamPause } from './lib/ramGate.mts';
@@ -60,11 +60,12 @@ is shared: llama-server serves LLM_PARALLEL requests at once and queues the rest
                                draft, reply polish) off, read back (prior values kept in so-no-model-settings.json;
                                re-running it on a no-model lane re-applies the settings); the no-LLM scenarios with requires.lane no-model
   restore-model <n>            put stopped lane n's secrets back from that backup, switch the judge on and restore those features
-  pod <n> <k|cloud> [--pod-id <id>]
+  pod <n> <k|cloud> [--pod-id <id>] [--from-local]
                                point stopped lane n's pod-tunnel profiles (loopback 18080-18089) at pod k's
                                tunnel port 18080+k and record it in <lane>/pod.json; cloud points them at a
                                closed port (18079), so a cloud-only lane fails loudly on any pod call and
-                               counts on no pod. The lane-load rule counts model lanes per pod
+                               counts on no pod. The lane-load rule counts model lanes per pod. --from-local also moves
+                               URLs at the local controller (127.0.0.1:18888, a lane seeded from today's install) to the pod
   batch --lanes 1,2 [--repeat 2] [--strict] [--group <id>] [--wi-gating scan|file] [--model <classes>] [--fresh-page] [--allow-load]
         [--replay <store> [--live-misses] | --record <store> [--upstream http://127.0.0.1:18888]] [--list <file>[:list,...]] <item...>
                                run items across lanes, one at a time per lane; an item is a journey
@@ -464,14 +465,15 @@ const servedBundleSha = (): string | null => {
 
 const replaySummary = (stats: SessionStats | null) => (stats ? { mode: stats.mode, store: stats.store, identity: stats.identity, row: stats.row, replayed: stats.replayed, static: stats.static, live: stats.live, recorded: stats.recorded, refused: stats.refused, misses: stats.misses } : null);
 
-async function assignPod(n: number, pod: number | null, podId: string | null) {
+async function assignPod(n: number, pod: number | null, podId: string | null, fromLocal = false) {
   const lane = lanePaths(n);
   if ((await laneServer(n)).up) throw new Error(`lane ${n} is running: stop it first (st-lanes.mts stop ${n}), the server rewrites settings.json`);
   const settingsPath = resolve(lane.data, 'default-user', 'settings.json');
   if (!existsSync(settingsPath)) throw new Error(`lane ${n} is not seeded: ${settingsPath} is missing`);
   const port = podTunnelPort(pod);
-  const { next: profiled, changed } = retargetProfiles(JSON.parse(await readFile(settingsPath, 'utf-8')), port);
-  const { next, changed: echoes } = retargetPodUrls(profiled, port);
+  const extra = fromLocal ? [LOCAL_CONTROLLER_PORT] : [];
+  const { next: profiled, changed } = retargetProfiles(JSON.parse(await readFile(settingsPath, 'utf-8')), port, extra);
+  const { next, changed: echoes } = retargetPodUrls(profiled, port, extra);
   await writeFile(settingsPath, JSON.stringify(next, null, 4), 'utf-8');
   const ports = podPortsIn(JSON.parse(await readFile(settingsPath, 'utf-8')));
   if (ports.some((found) => found !== port)) throw new Error(`lane ${n}: pod-tunnel profiles read ${ports.join(', ')} after writing ${port}`);
@@ -618,7 +620,7 @@ async function main() {
     const [n] = laneNumbers(rest.slice(0, 1));
     const pod = parsePodArg(rest[1]);
     if (!n || pod === undefined) { console.log(USAGE); process.exitCode = 2; return; }
-    out = await assignPod(n, pod, argValue('--pod-id'));
+    out = await assignPod(n, pod, argValue('--pod-id'), rest.includes('--from-local'));
   }
   else if (command === 'env') {
     const [n] = laneNumbers(rest);

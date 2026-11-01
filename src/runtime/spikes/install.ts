@@ -7,6 +7,7 @@ import {
   composeComplication, createComplicationSeam, deriveReleases, logDirections, pendingRelease, readComplicationPools,
   type ComplicationEvent, type ComplicationRelease, type PromptPort, type ReleaseInput,
 } from "./sp6Complications";
+import { clockStates, createClockSeam, readStoryClocks, type ClockEvent, type ClockInput, type ClockState } from "./checkClocks";
 
 export interface SpikePort {
   flags(): SpikeSettings;
@@ -30,6 +31,8 @@ export interface SpikeDebug {
   draws: ChanceDraw[];
   events: ComplicationEvent[];
   complications: () => ComplicationView | null;
+  clocks: () => ClockState[] | null;
+  clockEvents: ClockEvent[];
 }
 
 export const SPIKE_DRAW_RING = 200;
@@ -54,6 +57,12 @@ export const complicationView = (port: SpikePort, spent?: ReadonlyMap<string, nu
   };
 };
 
+export const clockInput = (port: SpikePort): ClockInput | null => {
+  const story = port.story?.() ?? null;
+  const clocks = story ? readStoryClocks(port.raw()) : [];
+  return story && clocks.length ? { story, clocks, log: port.log?.() ?? [] } : null;
+};
+
 const ring = <T>(list: T[], item: T) => {
   list.push(item);
   if (list.length > SPIKE_DRAW_RING) list.shift();
@@ -61,9 +70,22 @@ const ring = <T>(list: T[], item: T) => {
 
 export const installSpikes = (port: SpikePort, publish: (debug: SpikeDebug | undefined) => void): (() => void) => {
   const spent = new Map<string, number>();
-  const debug: SpikeDebug = { draws: [], events: [], complications: () => complicationView(port, spent) };
-  const generation = port.prompt
+  const debug: SpikeDebug = {
+    draws: [], events: [], clockEvents: [], complications: () => complicationView(port, spent),
+    clocks: () => {
+      const input = clockInput(port);
+      return input ? clockStates(input) : null;
+    },
+  };
+  const complications = port.prompt
     ? createComplicationSeam(() => (port.flags().sp6Complications ? releaseInput(port) : null), port.prompt, (event) => ring(debug.events, event), spent)
+    : undefined;
+  const clocks = port.prompt ? createClockSeam(() => (port.flags().checkClocks ? clockInput(port) : null), port.prompt, (event) => ring(debug.clockEvents, event)) : undefined;
+  const generation = complications && clocks
+    ? (intent: Parameters<typeof clocks>[0]) => {
+      complications(intent);
+      clocks(intent);
+    }
     : undefined;
   const release = installSpikeSeams(generation ? { generation } : {});
   const unlisten = onChanceDraw((draw) => ring(debug.draws, draw));
