@@ -174,6 +174,10 @@ Generated from the feature registry. "Experimental" means not yet measured; it i
 | Memory | Keep the memories the story uses | When a memory tier is full, the weakest memory leaves instead of the oldest, and it can still be recalled later. |  |
 | Memory | Pick memories from the last few messages | Which memories each reply gets is decided by the last few messages, the speaking character and who is on stage, not the last line alone. |  |
 | Memory | Recap only what left the prompt | A summary of messages that are still in the prompt word for word is left out until those messages leave it. |  |
+| Memory | Read sees nearby memories | The story read sees the stored memories about who and what it is reading, and can mark a line as a repeat or a change of one. |  |
+| Memory | Lookup words on memories | The story read can give a memory up to three short lookup words, so it is found when the chat later uses one of them. |  |
+| Memory | Relations with several partners | The story read can record standing relations between two named people or things, several at once. |  |
+| Memory | Social acts behind feelings | A feeling change can carry what was done (helped, lied, insulted...), and story gates can count those acts over recent turns. |  |
 | Characters | Speaker direction | In a group, the story picks who should speak next. |  |
 | Characters | Several voices per turn | More than one character can answer one of your messages. |  |
 | Characters | One question when a character asks you | A character told to ask you one thing keeps only the last of its questions. |  |

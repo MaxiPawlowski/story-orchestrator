@@ -11,6 +11,7 @@ export interface BlackboardDelta {
   evidenceAt?: number;
   playerSpan?: PlayerSpan;
   beat?: string;
+  act?: string;
 }
 
 export interface PlayerSpan {

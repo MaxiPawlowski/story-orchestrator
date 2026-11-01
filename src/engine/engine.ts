@@ -7,6 +7,7 @@ import { selectFiring } from "./transitions";
 import { applyCardEntry } from "./cardFields";
 import { applyQuestRewards } from "./quests";
 import { gameLayer } from "./validate/gameLayer";
+import { actPass } from "./socialActs";
 import { rollbackMoved } from "./rollbackDetectors";
 
 export interface DerivedQualityView {
@@ -265,7 +266,7 @@ export class StoryEngine {
     this.lastMessageId = normalizedContext.lastMessageId;
     this.chatLength = normalizedContext.chatLength;
     blackboard.setWriteBoundary(this.boundary + 1, normalizedContext.lastMessageId);
-    const queue = this.queue.drainAtBoundary(blackboard);
+    const queue = actPass(story, this.queue.drainAtBoundary(blackboard), this.boundary + 1, blackboard);
     this.refreshMechanicalQualities(appliedKeys(queue, normalizedContext.lastMessageId));
     this.latchPass(this.boundary + 1);
 
@@ -345,15 +346,8 @@ export class StoryEngine {
     this.boundaryLog.push({ at: this.host.now(), boundary: this.boundary, before, after, fired: null, source: "manual", context: normalizedContext, queue, evaluated: null });
     if (this.boundaryLog.length > 200) this.boundaryLog.shift();
     this.recordSnapshot();
-    return {
-      boundary: this.boundary,
-      queue,
-      fired: null,
-      effects: checkpoint.effects ?? null,
-      activeCheckpointId: this.activeCheckpointId,
-      context: normalizedContext,
-      previousLastMessageId: before.lastMessageId,
-    };
+    return { boundary: this.boundary, queue, fired: null, effects: checkpoint.effects ?? null, activeCheckpointId: this.activeCheckpointId,
+      context: normalizedContext, previousLastMessageId: before.lastMessageId };
   }
 
   // `null` is not "boundary 0": it is "the state before this message is no longer retained", which

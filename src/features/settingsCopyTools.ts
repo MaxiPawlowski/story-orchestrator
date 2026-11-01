@@ -213,6 +213,17 @@ export const SETTING_COPY_TOOLS = {
     "A full memory tier moves its weakest memory to the archive instead of deleting the oldest; a memory a reply used gets stronger. No model call. Not rated yet."),
   "memory.retrievalQuery": copy("Pick memories from the last few messages (trial)",
     "Scores memories against the last four messages, the speaking character and who is on stage, on one scale, with recency from the chat. Not rated yet."),
+  "memory.neighbourRead": copy("Read sees nearby memories (trial)",
+    "The story read is shown up to 12 stored memories about who and what the window names, and may mark a line as a repeat or a change of one "
+      + "instead of adding a near copy. Not rated yet."),
+  "memory.readKeys": copy("Lookup words on memories (trial)",
+    "The story read may give each memory up to three short lookup words (an object, place or nickname), so scoring and recall find it when the chat uses that word. Not rated yet."),
+  "memory.relationRows": copy("Relations with several partners (trial)",
+    "The story read may record standing relations between two named people or things; one can hold a relation to several others, an ended one "
+      + "stays as history, opposites are queued as a conflict. Not rated yet."),
+  "memory.socialActs": copy("Social acts behind feelings (trial)",
+    "The story read may tag a feeling change with what was done (helped, lied, insulted...); story gates can count those acts over recent turns. "
+      + "Your acts need your own line as evidence. Not rated yet."),
   "pacing.pathArc": copy("Pace by the road ahead (trial)",
     "The story's dramatic shape counts the turning points left on the shortest way to an ending and how long the current scene has run, "
       + "and after a climax eases off for three replies. No model call. Not rated yet."),

@@ -470,6 +470,10 @@ real-model carrier, or why none is needed.
 | strength-retention | D + RP | strength.test, rollbackReplay.property (use + cap ops), memory probes b-before/b-after | MW1-B3 (GPU, owed) |
 | recap-outside-window | D + RP | inWindow.test (span start through the short-term chain, pinned and decided kept, margin), promptWindow.test (oldest kept message from a real prompt shape), so-context-savings recap | M43-C1 (GPU, owed) |
 | retrieval-query | D + RP | retrievalQuery.test, retrievalWindow.measure, e0Window (E0 arm f) | MW1-B4 (GPU, owed) |
+| neighbour-read | D + RP | neighbours.test (routing, covered re-read, rollback exact, held secret never listed), readContractWave2.test (parse, off arm byte-identical, alias resolve) | M43-M1 (GPU, owed) |
+| read-keys | D + RP | readKeys.measure (keyed recall hit@4 0 -> 1.0, secret keyed row never recalled), readContractWave2.test (3-key cap) | M43-M2 (GPU, owed) |
+| relation-rows | D + RP | relations.test (several values, ending, fold both ends, opposite conflicts), readContractWave2.test | M43-M3 (GPU, owed) |
+| social-acts | D + RP | socialActs.test (window edges, rollback = replay 160 cuts, detector), socialActPatterns.test, readContractWave2.test (player line screen) | M43-M4 (GPU, owed) |
 | seeded-lore-chance | D | loreChance.test (same boundary identical, 50% over 400 boundaries = 193), checksRegistry (lore-weighted-groups) | M42-F1 (no-model lane, owed) |
 | path-arc | D + RP | arc.measure (path never decreases, 280/280 paths reach the shape end, no escalate in relax), pathArc.test, runtimeManager pacing | M42-F5 (GPU, owed) |
 | cross-voice-trim | D | crossVoice.test, crossVoicePass.test (cut at the first foreign header, thinking untouched, short reply kept), so-voice-census cross (0 of 1768 corpus replies trimmed) | M42-G1 (GPU, owed) |

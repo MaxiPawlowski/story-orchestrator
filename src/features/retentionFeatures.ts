@@ -1,5 +1,6 @@
 import type { Feature } from "./registry";
 import { settingsAt } from "./where";
+import { READ_CONTRACT_FEATURES } from "./readContractFeatures";
 
 export const RETENTION_FEATURES: readonly Feature[] = [
   {
@@ -38,4 +39,5 @@ export const RETENTION_FEATURES: readonly Feature[] = [
     where: settingsAt("#so-recap-outside-window", "Authoring › Prompt trials"),
     settings: ["memory.recapOutsideWindow"], doc: "player/memory.md", status: "shipped", needs: ["story"],
   },
+  ...READ_CONTRACT_FEATURES,
 ];

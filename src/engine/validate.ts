@@ -16,6 +16,7 @@ import { indexChapters, readChapters, readMemoryOptions } from "./validate/chapt
 import { indexCardFields, validateCardEffects } from "./cardFields";
 import { readPlayer } from "./validate/player";
 import { GAME_LAYER_LOADING, gameLayer, usesGameLayer, type GameLayer } from "./validate/gameLayer";
+import { addActQualities } from "./socialActs";
 import { checkRecapGates } from "./validate/recap";
 import { checkPackBindings } from "./validate/illustrations";
 import { compileDwell } from "./validate/dwell";
@@ -143,7 +144,8 @@ export const parseStory = (json: unknown): NormalizedStory | ValidationError[] =
   const coded = layer ? layer.observations.addObservationQualities(rewarded, observations, errors) : rewarded;
   const lived = layer ? layer.addCheckQualities(coded, checkpoints, errors) : coded;
   const factioned = layer ? layer.factions.addFactionQualities(lived, factions, (json.roster as unknown[]).filter(isRecord), errors) : lived;
-  const { transitions, qualities } = compileDwell(checkpoints, authoredTransitions, factioned, errors);
+  const acted = addActQualities(factioned, life, json, errors);
+  const { transitions, qualities } = compileDwell(checkpoints, authoredTransitions, acted.qualities, errors);
   const options = readStoryOptions(json, errors);
   const features = readFeaturePolicies(json.features, (path, message) => addError(errors, path, message));
   const roster = readRoster(json.roster as Story["roster"], errors, layer?.delivery.deliveryNames(json));
@@ -223,6 +225,7 @@ export const parseStory = (json: unknown): NormalizedStory | ValidationError[] =
     ...(living ? { living } : {}),
     ...(factions ? { factions } : {}),
     ...(rumorNet ? { rumorNet } : {}),
+    ...(acted.windows.length ? { socialActWindows: acted.windows } : {}),
     ...carried,
     startCheckpointId,
     checkpointById,

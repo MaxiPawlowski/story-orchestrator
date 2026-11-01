@@ -3,6 +3,8 @@ import {
   type MemoryEntryType, type ParsedArcSignal, type ParsedEpistemicSignal, type ParsedLedgerSignal,
   type ParsedMemoryLine, type SceneBreakSignal,
 } from "./types";
+import { readTagsOf, rowTags } from "./readTags";
+import { RELATION_ENDED_VALUE } from "./relations";
 
 const isMemoryEntryType = (value: string): value is MemoryEntryType => (MEMORY_ENTRY_TYPES as readonly string[]).includes(value);
 
@@ -28,6 +30,8 @@ export interface FactFields {
   type?: MemoryEntryType;
   entities?: string[];
   characterId?: string;
+  keys?: string[];
+  neighbour?: ParsedMemoryLine["neighbour"];
 }
 
 export function parseFactFields(rest: string): FactFields | null {
@@ -42,6 +46,7 @@ export function parseFactFields(rest: string): FactFields | null {
     ...(type && isMemoryEntryType(type) && TIER_FOR_ENTRY_TYPE[type] === "facts" ? { type } : {}),
     ...(entities.length ? { entities } : {}),
     ...(characterId ? { characterId } : {}),
+    ...rowTags(readTagsOf(tokens, entities)),
   };
 }
 
@@ -87,6 +92,7 @@ export function parseMemoryLine(line: string): MemoryLineParseResult {
       characterId,
       text,
       evidence,
+      ...rowTags(readTagsOf(tokens, entities)),
     },
   };
 }
@@ -168,6 +174,22 @@ export function parseLedgerLine(line: string): ParsedLedgerSignal[] {
     signals.push({ entity, entityType, field, value });
   }
   return signals;
+}
+
+const relationLinePattern = /^\[rel(-end)?:([^:\]]+):([^\]]+)\]\s*(.+?)\s*\.?$/i;
+export const RELATION_ENTITY_TYPE = "relation";
+export const RELATION_ACTIVE = "yes";
+
+export const relationName = (raw: string): string => raw.trim().toLowerCase().replace(/[\s-]+/g, "_").replace(/[^\p{L}\p{N}_]/gu, "");
+
+export function parseRelationLine(line: string): ParsedLedgerSignal | null {
+  const match = line.match(relationLinePattern);
+  if (!match) return null;
+  const entity = match[2].trim();
+  const relation = relationName(match[3]);
+  const object = match[4].trim();
+  if (!entity || !relation || !object || object.toLowerCase() === entity.toLowerCase() || LEDGER_NOISE_VALUES.has(object.toLowerCase())) return null;
+  return { entity, entityType: RELATION_ENTITY_TYPE, field: relation, value: match[1] ? RELATION_ENDED_VALUE : RELATION_ACTIVE, object };
 }
 
 export function parseSceneBreakLine(line: string): SceneBreakSignal | null | undefined {

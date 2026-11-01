@@ -12,6 +12,7 @@ import { parseSharedReadResponse } from "./parse";
 import { inputBudget, tailFit } from "./inputBudget";
 import { maxTokensCap } from "./callBudget";
 import { sharedReadWindow, transcriptPrefixCost } from "./sharedReadEntry";
+import { readMemoryParts, resolveReadLines, screenActs, type ReadMemory, type ReadMemoryParts } from "./readMemory";
 import { deriveScope } from "./scope";
 import type { ScopeSourceContext } from "./scopeSources";
 import type { RequestBudget } from "./tokenMeter";
@@ -124,6 +125,7 @@ export interface RunSharedReadOptions {
   model: ModelCall;
   ask: ModelAsk;
   readWindow?: ChatWindowReader;
+  readMemory?: ReadMemory | null;
 }
 
 const createId = (parts: unknown) => fnv1a(stableStringify(parts));
@@ -174,8 +176,8 @@ const castMemory = (line: ParsedMemoryLine, roster: NormalizedStory["roster"]): 
   return id ? { ...rest, characterId: id } : rest;
 };
 
-export const sharedReadOverhead = (options: RunSharedReadOptions): string =>
-  renderSharedReadPrompt(readContract(options, { from: 0, to: -1, messages: [] }, scopeOf(options)));
+export const sharedReadOverhead = (options: RunSharedReadOptions, memory: ReadMemoryParts["contract"] = {}): string =>
+  renderSharedReadPrompt({ ...readContract(options, { from: 0, to: -1, messages: [] }, scopeOf(options)), ...memory });
 
 interface FittedRead {
   window: SharedReadWindow;
@@ -251,7 +253,8 @@ const loadWitness = async (options: RunSharedReadOptions) => {
 export async function runSharedRead(options: RunSharedReadOptions): Promise<SharedReadResult> {
   const scope = scopeOf(options);
   const witnessKit = await loadWitness(options);
-  const overhead = sharedReadOverhead(options);
+  const memoryParts = readMemoryParts(options.readMemory, sharedReadWindow(options), scope, { deltasOnly: options.deltasOnly, capable: options.epistemicLedgerCapable });
+  const overhead = sharedReadOverhead(options, memoryParts.contract);
   const fitted = await fitReadWindow(sharedReadWindow(options), overhead, options.ask.budget, options.ask.maxTokens ?? DEFAULT_RESPONSE_TOKENS);
   const { window } = fitted;
   const silent = onlyOutOfCharacter(window);
@@ -270,7 +273,7 @@ export async function runSharedRead(options: RunSharedReadOptions): Promise<Shar
   const answered = new Set(judged?.answered ?? []);
   const residual = scope.filter((entry) => !answered.has(entry.key));
   const promises = options.openPromises ? promiseSections(await import("@memory/promises/contract"), options.openPromises, options.readPrompt) : {};
-  const contract = { ...readContract(options, window, residual), ...promises };
+  const contract = { ...readContract(options, window, residual), ...promises, ...memoryParts.contract };
   const prompt = renderSharedReadPrompt(contract);
   const ask = (maxTokens: number): Promise<ExtractionReply> => (scope.length && !silent
     ? options.model(prompt, { ...options.ask, maxTokens })
@@ -293,7 +296,11 @@ export async function runSharedRead(options: RunSharedReadOptions): Promise<Shar
     : screenDeltas(parsed, residual, answered, window);
   const pending = answeredLater(first, window);
   const reask = pending.length ? await reaskPlayerOnly(options, contract, residual, answered, pending, responseTokens) : null;
-  const screened = reask ? { accepted: [...first.accepted, ...reask.accepted], rejected: [...first.rejected, ...reask.rejected] } : first;
+  const joined = reask ? { accepted: [...first.accepted, ...reask.accepted], rejected: [...first.rejected, ...reask.rejected] } : first;
+  const acted = screenActs(joined.accepted, options.story, window);
+  const screened = { accepted: acted.accepted, rejected: [...joined.rejected, ...acted.notes] };
+  const lines = resolveReadLines(parsed.facts.map((fact) => attributed(fact, window)),
+    parsed.memory.map((line) => attributed(castMemory(line, options.story.roster), window)), memoryParts.rows);
   const audit: SharedReadAudit = {
     id: createId({ prompt, rawResponse, at: Date.now() }),
     createdAt: new Date().toISOString(),
@@ -305,7 +312,7 @@ export async function runSharedRead(options: RunSharedReadOptions): Promise<Shar
     prompt,
     rawResponse,
     acceptedDeltas: [...(judged?.deltas ?? []), ...screened.accepted],
-    rejected: [...parsed.rejected, ...screened.rejected],
+    rejected: [...parsed.rejected, ...screened.rejected, ...(refused ? [] : lines.rejected)],
     ...(parsed.sceneBreak ? { sceneBreak: parsed.sceneBreak } : {}),
     ...(judged ? { judged: { keys: judged.answered, model: judged.model, confidences: judged.confidences, ...(judged.fallback ? { fallback: judged.fallback } : {}) } } : {}),
     ...(failure.message !== undefined ? { judged: { keys: [], model: null, confidences: {}, fallback: "error", error: failure.message } } : {}),
@@ -323,8 +330,8 @@ export async function runSharedRead(options: RunSharedReadOptions): Promise<Shar
   if (refused) return { audit, facts: [], memory: [], arcs: [], epistemic: [], ledger: [] };
   return {
     audit,
-    facts: parsed.facts.map((fact) => attributed(fact, window)),
-    memory: parsed.memory.map((line) => attributed(castMemory(line, options.story.roster), window)),
+    facts: lines.facts,
+    memory: lines.memory,
     arcs: parsed.arcs,
     epistemic: parsed.epistemic,
     ledger: parsed.ledger,

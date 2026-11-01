@@ -294,3 +294,78 @@ Branch `v3.0-43-l`. Floors declared before measuring (2026-10-31):
 - `npm run gates` run 2 RED only on `patterns.test.ts` P5 perf (p95 58.5 ms vs < 50, untouched timing test under machine load);
   `npm run gates -- --resume` reran `test` green (559.6 s). Clean full run: see merge commit message.
 - No live/ST/GPU/model lanes used. Judge goldens not re-recorded.
+## Phase 3 agent M — memory wave 2, read-contract changes (2026-10-31)
+Branch `v3.0-43-m`. Sources: `research/memory-shortlist-2026-10-31.md` wave 2 and the four proposals it cites. Each item is its
+own switch under `memory.*`, on by default (owner rule); adoption formally needs `so-live-suite` x2 on the GPU (one row each in
+`gpu-queue-2026-10-30.md` §Memory wave 2). Every new read line or tag is optional, so recorded goldens keep parsing. Contract
+text appears only while the switch is on, so the off arm sends byte-identical read prompts.
+
+Floors, declared here before any measurement (informational, never retuned; the hard ones fail jest):
+- M0 (agent C's C4 leftover): at 150 boundaries the recall-included availability is >= the tier-only availability on every probe.
+- M1 `memory.neighbourRead` (agent-architectures P1): the read lists up to 12 live facts/session rows naming an entity or key the
+  window names, as per-read aliases `[m1]..`; a MEMORY/FACT line may carry `same=mN` (confirm: recallCount + confirmedAt, no row)
+  or `update=mN` (new row, old one superseded at the read's message).
+  - F-M1a: every existing recorded golden parses as before (the existing jest suites stay green, 0 changed parses).
+  - F-M1b (hard, planted fixture written before running): same/update route 100%; update on a locked, author-decided or pinned
+    row = plain add; unknown alias = add + audit note; a covered re-read confirms once; rollback past the read restores the store.
+  - F-M1c (hard): a held-secret row is never listed (resting filter).
+  - F-M1d cost: section <= 600 Gemma tokens at 12 rows of 200 chars.
+- M2 `memory.readKeys` (context-compression P2 keys half): up to 3 keys per MEMORY/FACT line, stored on the row; score counts a
+  named key like a trigger; archive recall matches keys like entities.
+  - F-M2a: keyed paraphrase fixture (question names a key absent from text and entities): hit@4 >= 0.8 with keys and > without.
+  - F-M2b (hard): a held-secret keyed row is never recalled for a kept-out member. F-M2c (hard): never > 3 keys, entity repeats dropped.
+  - cost: rules <= 60 tokens.
+- M3 `memory.relationRows` (knowledge-graphs P3): `[rel:Subject:relation] Object` / `[rel-end:...]` ledger rows keyed
+  subject|relation|object, so one subject holds several objects; ending = a new version `ended`; name fold on both ends; inverse
+  table (symmetric + opposites) queues conflicts.
+  - F-M3a (hard): 3 objects for one subject = 3 live rows; end = version, hidden from Current state; aliases fold both ends.
+  - F-M3b (hard): planted opposite pairs (direct and mirrored symmetric) detected 100%, non-opposites 0.
+  - cost: rules <= 120 tokens.
+- M4 `memory.socialActs` (game-narrative P3): optional `act=<helped|protected|lied|threatened|insulted|gifted|betrayed|confided>` on
+  a rel_ feeling DELTA; the engine keeps `act_log_<by>_<to>` (code string, newest 24, rollback detector `social-acts`) and
+  recounts authored gate leaves `{"act","by","to","within","count"}` compiled to `act_n_*` (exempt: recounted every boundary).
+  - F-M4a (hard): rollback ≡ replay, 0 mismatches over 4 seeds x 40 random cuts. F-M4b (hard): window counts exact at the edges.
+  - F-M4c (hard): a player act without the player's own line as evidence loses its act (feeling kept); member acts kept.
+  - cost: rule <= 80 tokens.
+- Probes after M1-M4: every kind x horizon row >= m0 (expected equal: the harness writes rows directly, no read).
+- GPU rows (owed, floors stated there): M43-M1..M4, live-suite tiers facts/rejected/deltas/ledger within 0.02 of the off arm x2,
+  plus per-item format adherence.
+
+### Results (offline, 2026-11-01; floors above committed first, `3ab283afa`)
+- M0 probes + archive recall (`test/support/memoryProbesRecall.ts`, option `runProbeSession({ recall: true })`, on by default in
+  the probe test; `test/measurements/v3.0/memory-probes/m0-recall.json`), every wave-1 switch on: tier-only availability@60
+  0.458 (as A+B merged), with recall **0.75** (single 1/4 -> 4/4, update-fact 1/4 -> 2/4, temporal 1/4 -> 4/4 at 60;
+  temporal 0/4 -> 1/4 at 150). Floor at 150: no probe hidden — **met**. One hide at 60 (update-fact-3: the evicted old
+  version "in the cellar" comes back through recall, because nothing superseded it without a model). Kept-out leaks 0.
+- M1 neighbour read: F-M1a met (all 143 extraction/memory suites green on the new parser, 0 changed parses); F-M1b met
+  (`neighbours.test.ts`: same/update routing, locked/decided/pinned refused, unknown alias, covered re-read confirms once,
+  rollback restores the store exactly); F-M1c met (0 held-secret rows listed through a real coordinator's resting view).
+  F-M1d cost **missed**: 12 rows of 200 chars = +688 Gemma tokens (floor 600); 12 short probe rows = +298 to +303.
+- M2 keys: F-M2a met, keyed paraphrase hit@4 **0 -> 1.0** (10 cases, `readKeys.measure.test.ts`; trivially 0 without keys,
+  since recall needs a named entity); F-M2b met (secret row keyed and archived never recalled, planted plain row is); F-M2c met.
+  Cost +59 tokens (floor 60, met).
+- M3 relation rows: F-M3a and F-M3b met (`relations.test.ts`). Cost +105 tokens (floor 120, met).
+- M4 social acts: F-M4a met (160 seeded cuts, 0 mismatches), F-M4b met (window edges), F-M4c met (player act without a player
+  line loses the act, member act kept), F-M4d met (`social-acts` detector, `social-act-windows` exempt, guard green). Pattern
+  kind `act` (`socialActPatterns.test.ts`). Cost +63 tokens (floor 80, met).
+- Probes after M1-M4 (`m-after.json`): every kind x horizon row identical to m0, tier-only and with recall (expected: the
+  harness writes rows directly, no read).
+- Tokens: Gemma vocab via `llama-tokenize` (CPU, `CUDA_VISIBLE_DEVICES=-1`), whole read prompt per arm minus the off arm
+  (off = 1,382 tokens on the fixture contract).
+- Deviations: acts store no text (verb, pair, boundary), so the "drop an act whose evidence restates a held secret" guard is
+  not built: nothing of the evidence reaches a prompt or a shared tier. Neighbours list memory rows only (no ledger rows;
+  ledger keys version themselves). The backlog read (`memorizeBacklog`) gets no neighbour list. Keys are used whenever a
+  row carries them, also after the switch is turned off.
+
+## Gate record M
+- 2026-11-01, branch `v3.0-43-m`, merged master `f2c49ea07` (agents L, P, H work) before the cited run; conflicts were list
+  unions (settingsIndex author set, this plan doc) and regenerated guide/settings pages.
+- `npm run gates:quick` green after the merge (jest 317 s). Earlier quick runs red on lint max-len and code-health ratchets
+  (S3 file budgets in engine.ts/scheduler.ts/registry.ts, S4 wireCoordinators length, S8 dead exports and a local isRecord), all fixed
+  without raising a budget (engine.ts manual-boundary return folded to two lines; features moved into retentionFeatures.ts).
+- Full `npm run gates` (no --resume, Storybook included) on `95ebdaa02`: **all green in 528.0 s** (typecheck, build, typecheck:test,
+  test, test:replay, test:debug, debug:typecheck, test:plugin, test:release, lint, test-storybook:ci).
+- Budgets: memory coordinator 560/560, extraction coordinator 560/560, manager 700/700 (effective lines). Main bundle
+  `dist/index.js` 1,292,353 B (budget 1,300,000: 7.6 KB left; next main-bundle work should go lazy).
+- Not run: every GPU row (M43-M1..M4); no live browser gate (no lanes, no ST, no GPU per brief). CPU-only inputs: llama-tokenize
+  with CUDA hidden.

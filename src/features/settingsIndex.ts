@@ -79,6 +79,10 @@ export const SETTING_CONTROLS: Record<string, string> = {
   "memory.mentionLedger": "so-mention-ledger",
   "memory.strengthRetention": "so-strength-retention",
   "memory.retrievalQuery": "so-retrieval-query",
+  "memory.neighbourRead": "so-neighbour-read",
+  "memory.readKeys": "so-read-keys",
+  "memory.relationRows": "so-relation-rows",
+  "memory.socialActs": "so-social-acts",
   "talk.swipeContrast": "so-swipe-contrast",
   "pacing.pathArc": "so-authoring-path-arc",
   "pacing.stuckLadder": "so-authoring-stuck-ladder",
@@ -89,7 +93,8 @@ const AUTHOR_SETTINGS: ReadonlySet<string> = new Set(["worldInfo.lorePins", "wor
   "worldInfo.lexicalPrefilter", "worldInfo.lexicalTiebreak", "worldInfo.holdRound", "worldInfo.preferKnown",
   "worldInfo.loreLifetime", "worldInfo.loreState", "worldInfo.loreAliases", "memory.historyNotes", "memory.outwardNarration", "talk.swipeContrast",
   "memory.mentionLedger", "memory.strengthRetention", "memory.retrievalQuery", "memory.recapOutsideWindow", "pacing.pathArc",
-  "pacing.stuckLadder", "stagecraft.livingLeads"]);
+  "pacing.stuckLadder", "stagecraft.livingLeads",
+  "memory.neighbourRead", "memory.readKeys", "memory.relationRows", "memory.socialActs"]);
 
 const firstSentence = (text: string): string => /^(.+?[.!?])(\s|$)/.exec(text)?.[1] ?? text;
 const copyOf = (key: string): SettingCopy | undefined => (SETTING_COPY as Record<string, SettingCopy>)[key];

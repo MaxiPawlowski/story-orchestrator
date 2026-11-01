@@ -155,6 +155,12 @@ export interface ParsedLedgerSignal {
   entityType: string;
   field: string;
   value: string;
+  object?: string;
+}
+
+export interface NeighbourTag {
+  kind: "same" | "update";
+  id: string;
 }
 
 export interface LedgerEntry {
@@ -172,6 +178,8 @@ export interface LedgerEntry {
   pinned?: boolean;
   /** Where this version came from and whether it is still valid. */
   provenance: Provenance;
+  relation?: string;
+  object?: string;
 }
 
 export interface LedgerView {
@@ -180,6 +188,8 @@ export interface LedgerView {
   value: string;
   bound: boolean;
   turn: number;
+  relation?: string;
+  object?: string;
   cardWriter?: "authored" | "read" | "manual";
 }
 
@@ -198,6 +208,8 @@ export interface ParsedMemoryLine {
   text: string;
   evidence: string;
   messageId?: number;
+  keys?: string[];
+  neighbour?: NeighbourTag;
 }
 
 export interface MemoryEntry {
@@ -221,6 +233,8 @@ export interface MemoryEntry {
    *  scalar loses the older confirmation when the same fact is confirmed twice, so rollback could
    *  only subtract the newest increment and `rollback ≡ replay` would diverge. */
   confirmedAt?: Array<{ messageId: number; boundary?: number }>;
+  keys?: string[];
+  neighbour?: NeighbourTag;
   usedAt?: Array<{ messageId: number; boundary: number }>;
   evictedAt?: { messageId: number; boundary: number };
   foldedInto?: string;

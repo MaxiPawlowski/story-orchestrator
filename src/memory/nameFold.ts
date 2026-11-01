@@ -87,8 +87,11 @@ export const canonicalEntity = (index: NameIndex, raw: string): string => {
 
 const CHARACTER_TYPES = new Set(["character", "person", ""]);
 
-export const foldLedgerSignals = <T extends { entity: string; entityType: string }>(index: NameIndex, signals: readonly T[]): T[] =>
-  signals.map((signal) => (CHARACTER_TYPES.has(signal.entityType.trim().toLowerCase()) ? { ...signal, entity: canonicalName(index, signal.entity) }
+const eitherName = (index: NameIndex, raw: string): string => resolveName(index, raw)?.name ?? canonicalEntity(index, raw);
+
+export const foldLedgerSignals = <T extends { entity: string; entityType: string; object?: string }>(index: NameIndex, signals: readonly T[]): T[] =>
+  signals.map((signal) => (signal.object !== undefined ? { ...signal, entity: eitherName(index, signal.entity), object: eitherName(index, signal.object) }
+    : CHARACTER_TYPES.has(signal.entityType.trim().toLowerCase()) ? { ...signal, entity: canonicalName(index, signal.entity) }
     : index.entities?.length ? { ...signal, entity: canonicalEntity(index, signal.entity) } : signal));
 
 export const foldEpistemicSignals = <T extends { subject: string; hiddenFrom?: string }>(index: NameIndex, signals: readonly T[]): T[] =>

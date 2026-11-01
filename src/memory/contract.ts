@@ -62,17 +62,34 @@ export function renderEpistemicContractSection(): string {
 
 const knownEntitiesLine = (entities: readonly string[]) => `Known entities: ${entities.join(", ")}.`;
 
-export function renderLedgerContractSection(entities: string[] = []): string {
+export interface MemoryTagRules {
+  keys?: boolean;
+  relations?: boolean;
+}
+
+export const RELATION_RULES = [
+  "When the window shows a standing relation between two named people, groups or things, emit one relation line per pair:",
+  "[rel:Subject:relation] Object",
+  "relation is a short snake_case verb phrase (ally_of, enemy_of, married_to, serves, owes, trusts, distrusts, rival_of). One subject may hold the same "
+    + "relation to several objects: write one line each. When the window ends a relation, write [rel-end:Subject:relation] Object instead.",
+];
+
+export const KEYS_FIELD = ' [keys="k1,k2,k3"]';
+export const KEYS_RULE = "keys: up to 3 short lookup words someone may later use to ask about this memory (an object, place, nickname or theme), "
+  + "not names already in entity.";
+
+export function renderLedgerContractSection(entities: string[] = [], relations = false): string {
   const known = entities.length ? [knownEntitiesLine(entities)] : [];
   return [
     ...known,
     "When an entity's current physical or operational state is explicitly shown, emit state lines:",
     "[state:EntityName:type] field=value | field=value",
     "type is one of character|object|place|faction. Include only fields explicitly stated or directly shown; omit anything unknown (never write field=unknown).",
+    ...(relations ? RELATION_RULES : []),
   ].join("\n");
 }
 
-const memoryRules = () => [
+const memoryRules = (tags: MemoryTagRules = {}) => [
   "Also extract memory notes worth keeping across turns, report scene breaks, and track story arcs.",
   `Facts tier types (${FACT_ENTRY_TYPES.join(", ")}) — durable, cross-session:`,
   "- fact: an established truth about a character or the world.",
@@ -90,19 +107,22 @@ const memoryRules = () => [
   PRIVATE_MEMORY_RULE,
   CLAIM_RULE,
   "Output additional lines in this exact format:",
-  "MEMORY type=<type> importance=<1|2|3> expiration=<scene|session|permanent> [entity=\"Name1,Name2\"] [character=\"<roster id>\"] text=\"memory text\" evidence=\"exact quote from transcript\"",
+  `MEMORY type=<type> importance=<1|2|3> expiration=<scene|session|permanent> [entity="Name1,Name2"] [character="<roster id>"]${tags.keys ? KEYS_FIELD : ""} `
+    + 'text="memory text" evidence="exact quote from transcript"',
+  ...(tags.keys ? [KEYS_RULE] : []),
   "Then report whether a scene break occurred in this window:",
   "SCENE_BREAK at=<message index> reason=<time_skip|location|divider|cast>",
   "If no scene break occurred, output SCENE_NONE.",
   "",
 ];
 
-export function renderMemoryContractAddendum(openArcs: string[] = [], capable = false, entities: string[] = [], promises: string | null = null): string {
+export function renderMemoryContractAddendum(openArcs: string[] = [], capable = false, entities: string[] = [], promises: string | null = null,
+  tags: MemoryTagRules = {}): string {
   return [
-    ...memoryRules(),
+    ...memoryRules(tags),
     renderArcContractSection(openArcs, promises !== null),
     ...(promises ? ["", promises] : []),
-    ...(capable ? ["", renderEpistemicContractSection(), "", renderLedgerContractSection(entities)] : []),
+    ...(capable ? ["", renderEpistemicContractSection(), "", renderLedgerContractSection(entities, tags.relations)] : []),
   ].join("\n");
 }
 
@@ -116,13 +136,14 @@ export interface PromiseContractParts {
   open: string;
 }
 
-export function renderMemoryContractParts(openArcs: string[] = [], capable = false, entities: string[] = [], promises: PromiseContractParts | null = null): MemoryContractParts {
+export function renderMemoryContractParts(openArcs: string[] = [], capable = false, entities: string[] = [], promises: PromiseContractParts | null = null,
+  tags: MemoryTagRules = {}): MemoryContractParts {
   return {
     rules: [
-      ...memoryRules(),
+      ...memoryRules(tags),
       renderArcContractSection([], promises !== null, true, openArcs.length > 0),
       ...(promises?.rules ? ["", promises.rules] : []),
-      ...(capable ? ["", renderEpistemicContractSection(), "", renderLedgerContractSection([])] : []),
+      ...(capable ? ["", renderEpistemicContractSection(), "", renderLedgerContractSection([], tags.relations)] : []),
     ].join("\n"),
     context: [
       ...(openArcs.length ? [renderExistingArcs(openArcs).join("\n")] : []),

@@ -6,11 +6,17 @@ import { isRecord } from "@utils/guards";
 import { addError, asString, isOneOf, isPrimitive } from "./common";
 import { gameLayer } from "./gameLayer";
 import { readRecapFields } from "./recap";
+import { actLeafGate, isActLeaf, readActLeaf } from "../socialActs";
 
 export const readGate = (value: unknown, path: string, errors: ValidationError[]): GateNode | null => {
   if (!isRecord(value)) {
     addError(errors, path, "gate must be an object");
     return null;
+  }
+
+  if (isActLeaf(value)) {
+    const leaf = readActLeaf(value, path, errors);
+    return leaf ? actLeafGate(leaf) : null;
   }
 
   if ("q" in value || "op" in value || "v" in value) {

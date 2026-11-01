@@ -8,6 +8,7 @@ import { PLAYER_TURNS_KEY } from "./stretch";
 import { isCueKey, isTopicKey } from "./cueKeys";
 import { checkRolledKeys } from "./storyChecks";
 import { gameLayer } from "./validate/gameLayer";
+import { isActCountKey, isActLogKey } from "./socialActs";
 
 type Values = Readonly<Record<string, unknown>>;
 
@@ -74,6 +75,7 @@ export const ROLLBACK_DETECTORS: readonly RollbackDetector[] = [
   byPrefix("cues", isCueKey, lived),
   byPrefix("cue-topics", isTopicKey, lived),
   byPrefix("heritage", isHeritage),
+  byPrefix("social-acts", isActLogKey, lived),
   { id: "check-attempts", keys: checkRolledKeys, moved: (story, before, after) => checkRolledKeys(story).some((key) => before[key] !== after[key]) },
 ];
 
@@ -82,6 +84,8 @@ export const ROLLBACK_EXEMPT: readonly RollbackExemption[] = [
     reason: "moves only with a fired transition, which already rolls back" },
   { id: "turn-counters", keys: (story) => [TURN_OOC_KEY, PLAYER_TURNS_KEY].filter((key) => story.qualityByKey[key]?.source === "code"),
     reason: "recounted from the chat at every boundary" },
+  { id: "social-act-windows", keys: (story) => Object.keys(story.qualityByKey).filter(isActCountKey),
+    reason: "recounted from the act log (which has its own detector) at every boundary" },
 ];
 
 export const rollbackMoved = (story: NormalizedStory | null | undefined, before: Values, after: Values): boolean =>

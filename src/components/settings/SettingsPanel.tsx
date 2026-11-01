@@ -282,6 +282,14 @@ const AuthoringPage = ({ snapshot, manager, navigate }: PageProps) => (
         read={(settings) => settings.memory.strengthRetention === true} write={(on) => manager.setMemorySettings({ strengthRetention: on })} />
       <GlobalCheck id="so-retrieval-query" setting="memory.retrievalQuery" manager={manager}
         read={(settings) => settings.memory.retrievalQuery === true} write={(on) => manager.setMemorySettings({ retrievalQuery: on })} />
+      <GlobalCheck id="so-neighbour-read" setting="memory.neighbourRead" manager={manager}
+        read={(settings) => settings.memory.neighbourRead === true} write={(on) => manager.setMemorySettings({ neighbourRead: on })} />
+      <GlobalCheck id="so-read-keys" setting="memory.readKeys" manager={manager}
+        read={(settings) => settings.memory.readKeys === true} write={(on) => manager.setMemorySettings({ readKeys: on })} />
+      <GlobalCheck id="so-relation-rows" setting="memory.relationRows" manager={manager}
+        read={(settings) => settings.memory.relationRows === true} write={(on) => manager.setMemorySettings({ relationRows: on })} />
+      <GlobalCheck id="so-social-acts" setting="memory.socialActs" manager={manager}
+        read={(settings) => settings.memory.socialActs === true} write={(on) => manager.setMemorySettings({ socialActs: on })} />
       <GlobalCheck id="so-recap-outside-window" setting="memory.recapOutsideWindow" manager={manager}
         read={(settings) => settings.memory.recapOutsideWindow === true} write={(on) => manager.setMemorySettings({ recapOutsideWindow: on })} />
       <GlobalCheck id="so-authoring-path-arc" setting="pacing.pathArc" manager={manager}
