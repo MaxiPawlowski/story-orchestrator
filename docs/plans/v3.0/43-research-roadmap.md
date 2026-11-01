@@ -696,3 +696,7 @@ Two owner decisions on one branch (`v3.0-43-k`).
   - Regression, once each: `v27-d-02-c13-curator-tiers.json` PASS, `v28-25-curator-constant-review.json` PASS (constant entry
     still waits).
   - Smoke on the same page: interceptor installed, `#so-hud-root` mounted, 0 page or console errors.
+- Gates: `npm run gates` (no --resume, Storybook included) all green in 372.7s on `be945bc75`: jest 11,583 passed / 3 skipped,
+  Storybook 1,167, test:debug, replay, release, plugin, lint, typechecks, build. Main `dist/index.js` 1,236,248 B of 1,300,000
+  (63,752 B headroom). The first full run was red on 3 tests (interceptor source pin, dead `installRepairKit` export, arrival
+  golden missing the new row); fixed, gates:quick green, then this clean run.
