@@ -1,1 +1,1 @@
-export { buildWiCuratorPrompt, digestVocabulary, parseCuratorResponse, planCuratorProposal, refuseProtected, refuseTitleOnlyEdits, routeByTier, selectCuratorDigest } from "@stagecraft/index";
+export { buildWiCuratorPrompt, digestVocabulary, parseCuratorResponse, planCuratorProposal, refuseProtected, refuseTitleOnlyEdits, routeByMode, selectCuratorDigest } from "@stagecraft/index";

@@ -4,6 +4,7 @@ import "./st-theme.css";
 import "../src/styles.css";
 import { installStoryParser } from "../src/engine/storyParser";
 import { parseStory } from "../src/engine/validate";
+import { loadRepairKit } from "../src/runtime/repairPort";
 
 installStoryParser(parseStory);
 
@@ -48,6 +49,7 @@ const withTheme: Decorator = (Story, context) => {
 
 const preview: Preview = {
   decorators: [withMountRoot, withTheme],
+  loaders: [async () => ({ repairKit: Boolean(await loadRepairKit()) })],
   globalTypes: {
     soTheme: {
       description: "SillyTavern theme",

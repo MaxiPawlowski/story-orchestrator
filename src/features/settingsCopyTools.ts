@@ -36,7 +36,7 @@ export const SETTING_COPY_TOOLS = {
   ),
   "stagecraft.acceptMode": copy(
     "Curator changes",
-    "Ask me first: you approve each change. Apply on their own: changes to entries marked {{// so:auto}} land at the next reply, the rest still wait for you. "
+    "Ask me first: you approve each change. Apply on their own: every change lands at the next reply, except on constant (always-on) entries, which still wait for you. "
       + "Never apply: only show what it would do.",
   ),
   "stagecraft.meanwhileAcceptMode": copy(

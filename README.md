@@ -214,7 +214,7 @@ Generated from the feature registry. "Experimental" means not yet measured; it i
 | World | Per-turn lore after the history | Lore that changes every turn is placed near the end of the prompt, so the start can be reused. |  |
 | World | Lorebook curator | Proposes updates to the story's lorebook as play overtakes it. |  |
 | World | New lorebook entries | The curator proposes a new keyed entry for something play has established. |  |
-| World | Protected and auto lore | Markers in a lorebook entry keep words safe from the curator, or let its changes apply on their own. |  |
+| World | Protected lore | Markers in a lorebook entry keep words safe from the curator. |  |
 | World | Story scenario | A turning point can set the chat's scenario text, in place of every character card's own. |  |
 | World | Off-stage events | Adds what a character did off stage toward their plan; it applies on its own by default. | Experimental |
 | World | Living stories | A story that writes its next turning point ahead of you, from what you actually pursued. | Experimental |

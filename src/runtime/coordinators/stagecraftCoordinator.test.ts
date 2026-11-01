@@ -235,17 +235,17 @@ describe("StagecraftCoordinator", () => {
     expect(updateWIEntryByUid).toHaveBeenCalledWith({ lorebookFileId: "Story Lore", uid: 1 }, { content: "{{// so:auto}}The bridge stands, its ropes new and taut.", disabled: true }, expect.anything());
   });
 
-  it("v2.7 02 C13 control: in auto mode an op on an unmarked entry waits for the author and is not written", async () => {
+  it("v3.0 43 K: auto mode accepts an op on an unmarked entry on the spot too", async () => {
     const { coordinator } = harness({ settings: { acceptMode: "auto" } });
     respond("[disable] The bridge");
     const { record } = await coordinator.runCuratorPass();
-    expect(record?.ops[0].status).toBe("pending");
-    expect(await coordinator.applyAccepted()).toBe(0);
-    expect(updateWIEntryByUid).not.toHaveBeenCalled();
+    expect(record?.ops[0].status).toBe("accepted");
+    expect(await coordinator.applyAccepted()).toBe(1);
+    expect(updateWIEntryByUid).toHaveBeenCalledWith({ lorebookFileId: "Story Lore", uid: 1 }, { content: "The bridge stands, its ropes new and taut.", disabled: true }, expect.anything());
   });
 
-  it("harness control: auto mode leaves every op on unmarked entries pending, writes nothing until the author accepts, then writes them", async () => {
-    const { coordinator, read } = harness({ settings: { acceptMode: "auto" } });
+  it("harness control: review mode leaves every op pending, writes nothing until the author accepts, then writes them", async () => {
+    const { coordinator, read } = harness({ settings: { acceptMode: "review" } });
     respond("[rewrite] The bridge || The bridge is gone.\n[enable] The ferryman");
     await coordinator.runCuratorPass();
     expect(read().proposals[0].ops.map((entry) => entry.status)).toEqual(["pending", "pending"]);

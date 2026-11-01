@@ -179,8 +179,7 @@ export function runChecks(snapshot: RuntimeSnapshot, severity: CheckSeverity, ch
   return checks.filter((check) => check.severity === severity).map((check) => runCheck(check, snapshot)).filter((result): result is CheckResult => result !== null);
 }
 
-export const withDismissal = (dismissed: readonly string[], check: string, on: boolean): string[] =>
-  on ? [...new Set([...dismissed, check])] : dismissed.filter((id) => id !== check);
+export { withDismissal } from "./checkDismissal";
 
 export const isDismissed = (result: Pick<CheckResult, "check" | "dismissable">, dismissed: readonly string[] | undefined): boolean =>
   result.dismissable && Boolean(dismissed?.includes(result.check));

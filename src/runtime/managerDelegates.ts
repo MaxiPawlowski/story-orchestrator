@@ -19,7 +19,7 @@ import { confirmPreflight } from "./requestBudget";
 import type { StagecraftRuntimeState } from "./types";
 import type { AgendaProposalsState } from "./agendaProposals";
 import type { JournalRecordKind } from "./journal";
-import { withDismissal } from "./checks";
+import { withDismissal } from "./checkDismissal";
 import { getGlobalSettings, setGlobalSettings } from "./settingsStore";
 import type { ChanceDraw } from "./chance";
 import { createChance, recordChanceDraw } from "./rolls";

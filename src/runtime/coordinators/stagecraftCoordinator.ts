@@ -234,7 +234,7 @@ export class StagecraftCoordinator {
         mode,
         // "auto" accepts on the spot so the next boundary writes it; "review" and "off" wait, and
         // "off" never leaves the ring at all.
-        ops: pass.routeByTier(plan.records, vocabulary, mode),
+        ops: pass.routeByMode(plan.records, vocabulary, mode),
         dropped: plan.dropped,
         refused: plan.refused,
         provenance: { source: "curator", messageId: state.lastMessageId, boundary: state.boundary,

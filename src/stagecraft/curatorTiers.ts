@@ -6,15 +6,12 @@ const MARKER = /\{\{\/\/\s*so:(?:(auto|protect|end)\s*|(created)\b[^}]*)\}\}/gi;
 
 const kindOf = (match: RegExpMatchArray) => (match[1] ?? match[2] ?? "").toLowerCase();
 
-export type CuratorTier = "auto" | "review";
-
 interface Region {
   start: number;
   end: number;
 }
 
 export interface EntryMarks {
-  tier: CuratorTier;
   spans: Array<Region & { text: string }>;
   markers: Region[];
   kinds: string[];
@@ -40,7 +37,7 @@ export function entryMarks(content: string): EntryMarks {
     }
   }
   if (open !== null) spans.push({ start: open, end: content.length, text: content.slice(open) });
-  return { tier: kinds.includes("auto") ? "auto" : "review", spans, markers, kinds };
+  return { spans, markers, kinds };
 }
 
 const overlaps = (left: Region, right: Region) => left.start < right.end && left.end > right.start;
@@ -98,10 +95,10 @@ export function refuseProtected(plan: CuratorPlan, entries: CuratorEntryView[]):
   return { records, dropped, refused };
 }
 
-export function routeByTier(records: CuratorOpRecord[], entries: CuratorEntryView[], mode: StagecraftAcceptMode): CuratorOpRecord[] {
+export function routeByMode(records: CuratorOpRecord[], entries: CuratorEntryView[], mode: StagecraftAcceptMode): CuratorOpRecord[] {
   return records.map((record) => {
     const entry = viewForOp(entries, record.op as WiCuratorOp);
-    const auto = mode === "auto" && entry !== undefined && !entry.constant && entryMarks(entry.content).tier === "auto";
+    const auto = mode === "auto" && entry !== undefined && !entry.constant;
     return auto ? { ...record, status: "accepted" as const } : record;
   });
 }

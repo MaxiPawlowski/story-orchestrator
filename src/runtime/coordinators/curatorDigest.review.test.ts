@@ -233,16 +233,16 @@ describe("C13-b curator digest through the coordinator", () => {
     expect(outcome.record!.dropped.join(" ")).toContain("touches protected text");
   });
 
-  it("auto mode accepts a title-only flip only for an auto-tier entry that is not constant", async () => {
+  it("auto mode accepts a title-only flip on any entry that is not constant, marked or not", async () => {
     const run = harness(entries(60, (entry) => {
       if (entry.uid === 7) return { ...entry, content: `{{// so:auto}}${entry.content}` };
       if (entry.uid === 8) return { ...entry, content: `{{// so:auto}}${entry.content}`, constant: true };
       return entry;
     }), { mode: "auto" });
     const outcome = await pass(run, "[disable] Place 7\n[disable] Place 8\n[disable] Place 9");
-    expect(outcome.record!.ops.map((entry) => [(entry.op as { comment: string }).comment, entry.status])).toEqual([["Place 7", "accepted"], ["Place 8", "pending"], ["Place 9", "pending"]]);
-    expect(await run.coordinator.applyAccepted()).toBe(1);
-    expect(run.writes.map((write) => write.uid)).toEqual([7]);
+    expect(outcome.record!.ops.map((entry) => [(entry.op as { comment: string }).comment, entry.status])).toEqual([["Place 7", "accepted"], ["Place 8", "pending"], ["Place 9", "accepted"]]);
+    expect(await run.coordinator.applyAccepted()).toBe(2);
+    expect(run.writes.map((write) => write.uid)).toEqual([7, 9]);
   });
 
   it("a constant entry that is title-only still waits for review in auto mode", async () => {

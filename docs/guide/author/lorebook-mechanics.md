@@ -322,7 +322,7 @@ The normalizer writes `disable: true` only on gated entries of listed books and 
 - Write scope: only `stagecraft.lorebooks`, minus checkpoint-gated entries and `stagecraft.exclude` (`stagecraft/scope.ts:7-37`). Only entries with a non-empty `comment` are shown (`scope.ts:39-49`).
 - Ops: `enable`, `disable`, `rewrite`, `patch` and `create` (`stagecraft/types.ts`). Edits are applied at a boundary through `updateWIEntryByUid`, which writes only `content` and `disable` by uid (`curatorWriter.ts`, `stHost/worldInfo.ts`); a text op keeps the entry's current `disable` state, and an edit never writes keys, position, order or any other field. A `create` op (always reviewed, capped by `stagecraft.createCap`) adds one keyed entry through `createWIEntry` with its comment, keys and content, stamped `{{// so:created <chat> | <group>}}`; a rollback past it deletes it unless it was edited since (`curatorWriter.ts`, `stagecraft/createPlan.ts`).
 - Re-checked at the write edge: allowlist, gated/excluded, the live comment, protected spans (`curatorWriter.ts:52-74`).
-- Markers in content (ST strips `{{// …}}` before any prompt, `macros.js:659`, `macros/definitions/core-macros.js:281-297`): `{{// so:auto}}` makes the entry auto-acceptable in accept mode `auto`; `{{// so:protect}}…{{// so:end}}` is a span no op may touch; an op that adds a marker is refused (`stagecraft/curatorTiers.ts:5`, `61-104`).
+- Markers in content (ST strips `{{// …}}` before any prompt, `macros.js:659`, `macros/definitions/core-macros.js:281-297`): `{{// so:auto}}` no longer changes anything (accept mode `auto` accepts every non-constant entry); `{{// so:protect}}…{{// so:end}}` is a span no op may touch; an op that adds a marker is refused (`stagecraft/curatorTiers.ts:5`, `61-104`).
 - Every applied op records the pre-write content and flag, so a rollback restores them (`curatorWriter.ts:75-79`, `110-140`).
 
 ### 14.7 Evidence, fired lore, warden lore
@@ -382,7 +382,7 @@ The normalizer writes `disable: true` only on gated entries of listed books and 
 - [ ] Checkpoint-gated entries: name them by exact comment; they rest off and are rebuilt from the path; keep them out of `stagecraft.lorebooks` writes (they are hidden from the curator anyway).
 - [ ] `lore_select` books: write self-contained content (the judge sees at most 600 chars and the title), keep general world overviews out or constant, and keep the book list to books that matter scene by scene.
 - [ ] `exclusive` only acts in scan mode; constant, gated and timed entries in those books always survive it.
-- [ ] Curator books: protect fixed wording with `{{// so:protect}}…{{// so:end}}`; mark freely editable entries `{{// so:auto}}`.
+- [ ] Curator books: protect fixed wording with `{{// so:protect}}…{{// so:end}}`, or list the entry in `stagecraft.exclude`: in accept mode `auto` every other change applies unreviewed.
 - [ ] With `scanMemory` on, memory and guidance text can trigger entries; choose keys that should not fire from summaries.
 - [ ] Verify with evidence (activated entries, the payload), never by reading the book flags.
 
