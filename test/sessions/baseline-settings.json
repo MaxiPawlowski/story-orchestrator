@@ -81,6 +81,10 @@
       "mentionLedger": true,
       "strengthRetention": true,
       "retrievalQuery": true,
+      "neighbourRead": true,
+      "readKeys": true,
+      "relationRows": true,
+      "socialActs": true,
       "injectionDepths": {
         "facts": 4,
         "session_details": 3,
