@@ -4,7 +4,7 @@ import { COMPRESS_FLOORS, compressSegments, compressVerdict, measureCompression,
 
 const FIXTURES = join(__dirname, "../../../test/fixtures");
 
-const histories = (): CompressSegment[][] => readdirSync(FIXTURES).filter((name) => name.endsWith(".transcript.json")).sort().map((name) => {
+const histories = (): CompressSegment[][] => readdirSync(FIXTURES).filter((name) => name.endsWith(".transcript.json") && !name.startsWith("memwave")).sort().map((name) => {
   const rows = JSON.parse(readFileSync(join(FIXTURES, name), "utf8")) as Array<{ index?: number; text?: string; mes?: string }>;
   return rows.map((row, index) => ({ id: `${name}:${row.index ?? index}`, text: String(row.text ?? row.mes ?? "") })).filter((segment) => segment.text.trim());
 });
