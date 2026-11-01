@@ -72,6 +72,7 @@ const CALL_SITE_ROLES: Record<string, string[]> = {
   "runtime/sceneArmRunner.ts": ["read"],
   "runtime/selfTest.ts": ["read"],
   "runtime/suggestionsHost.ts": ["read"],
+  "runtime/supersedeVerdicts.ts": ["synthesis"],
   "runtime/wiring/talk.ts": ["director"],
   "studio/components/StudioCopilot.stories.tsx": ["authoring"],
   "studio/studioAssist.ts": ["authoring"],

@@ -166,6 +166,10 @@ Generated from the feature registry. "Experimental" means not yet measured; it i
 | Memory | Models per task | Send each kind of background work to its own model. |  |
 | Memory | Threads you put off | A topic you put off in your own words stops being pushed until you bring it up again. |  |
 | Memory | Who heard what | After each story read, notes in code which characters heard each message. |  |
+| Memory | Real token counts for chunked dropping | Chunked dropping of old messages measures them with the model's own tokenizer. |  |
+| Memory | Recent summary keeps its names | A rolling summary that loses a name or collapses is refused and the previous one kept. |  |
+| Memory | Settle old and new versions while idle | Unclear pairs of an older and a newer memory are settled by one short question while nothing is generating. |  |
+| Memory | Places and things under the story's names | A place, group or thing the story names is recorded under the story's spelling. |  |
 | Memory | Hold back what a character just said | A memory a character just brought up is left out of that character's next few replies, unless you raise it. |  |
 | Memory | Keep the memories the story uses | When a memory tier is full, the weakest memory leaves instead of the oldest, and it can still be recalled later. |  |
 | Memory | Pick memories from the last few messages | Which memories each reply gets is decided by the last few messages, the speaking character and who is on stage, not the last line alone. |  |

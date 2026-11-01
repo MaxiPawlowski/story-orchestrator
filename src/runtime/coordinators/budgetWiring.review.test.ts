@@ -77,7 +77,7 @@ function harness(options: { lastSceneEnd?: number; shortTermEnd?: number; limit?
     sceneStart: (to: number) => (options.lastSceneEnd === undefined ? 0 : Math.min(options.lastSceneEnd + 1, to)),
     addSceneSummary: async (entry: { text: string }, window: { from: number; to: number }) => { scenes.push({ text: entry.text, window }); return scenes.length; },
     shortTermSummaryEnd: options.shortTermEnd ?? -1,
-    shortTermEntry: () => ({ text: "Earlier, they met at the mill.", pinned: false }),
+    chapters: { host: { memory: () => ({ settings: { summaryGuard: false }, entries: [], ledger: [], arcs: [] }) } }, shortTermEntry: () => ({ text: "Earlier, they met at the mill.", pinned: false }),
     replaceShortTerm: async (entry: { text: string }, window: { from: number; to: number }) => { shortTerms.push({ text: entry.text, window }); },
   };
   const extraction = { audits: [] as Audit[], reconciliationEvents: [], judgedReads: [] };

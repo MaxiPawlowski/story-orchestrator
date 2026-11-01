@@ -261,6 +261,10 @@ export const defaultMemorySettings = (): MemoryRuntimeSettings => ({
   deferredOutOfPrompt: false,
   historyNotes: true,
   outwardNarration: true,
+  compactionTokens: true,
+  summaryGuard: true,
+  supersedeVerdicts: true,
+  placeFold: true,
   recapOutsideWindow: true,
   mentionLedger: true,
   strengthRetention: true,
@@ -303,6 +307,7 @@ const sanitizeInnerVoice = (memory: MemoryRuntimeSettings, defaults: MemoryRunti
   if (typeof memory.deferredOutOfPrompt !== "boolean") memory.deferredOutOfPrompt = defaults.deferredOutOfPrompt;
   memory.historyNotes = memory.historyNotes !== false;
   memory.outwardNarration = memory.outwardNarration !== false;
+  for (const key of ["compactionTokens", "summaryGuard", "supersedeVerdicts", "placeFold"] as const) memory[key] = memory[key] !== false;
   memory.recapOutsideWindow = memory.recapOutsideWindow !== false;
   memory.mentionLedger = memory.mentionLedger !== false;
   memory.strengthRetention = memory.strengthRetention !== false;

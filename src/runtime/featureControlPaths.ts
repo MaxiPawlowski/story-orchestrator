@@ -11,7 +11,13 @@ const mode = (path: string) => control("acceptMode", path);
 
 export const FEATURE_CONTROL_PATHS: Record<StoryFeatureId, readonly FeatureControlPath[]> = {
   reading: [enabled("extraction.enabled"), control("cadence", "extraction.cadence"), control("stabilityLag", "extraction.stabilityLag")],
-  memory: [enabled("memory.enabled")],
+  memory: [
+    enabled("memory.enabled"),
+    control("compactionTokens", "memory.compactionTokens"),
+    control("summaryGuard", "memory.summaryGuard"),
+    control("supersedeVerdicts", "memory.supersedeVerdicts"),
+    control("placeFold", "memory.placeFold"),
+  ],
   chapters: [
     enabled("memory.chapters.seal"),
     control("recap", "memory.chapters.recap"),
