@@ -640,3 +640,59 @@ source patch was needed, so no patch file or apply script exists yet.
   (regenerate scenario listed); two later full runs green but master had moved. Main `dist/index.js` 1,298,194 B of 1,300,000.
 - Not done: `/regenerate` slash path (ST calls `regenerateGroup` directly; only a source patch would reach it); hidden rows the
   player or other extensions post keep ST's behaviour; the lane runs used the ST code copy `C:\dev\st-live-t` (kept for reuse).
+
+## K: bundle headroom and curator auto for every entry (owner 2026-11-01)
+
+Two owner decisions on one branch (`v3.0-43-k`).
+
+- Bundle headroom (budget unchanged at 1,300,000 B). Main `dist/index.js` 1,298,194 B -> 1,236,216 B on the branch build
+  (61,978 B freed). Moved, found with a per-module terser estimate over a non-concatenated stats build plus a dominator pass
+  (what leaves main when one module goes lazy):
+  - the check registry: `runtime/repair.ts`, `checks.ts`, `checksSetup.ts`, `checksExtensions.ts`, `checksGame.ts`,
+    `checksPersona.ts`, `checksSprites.ts`, `checksTavernOs.ts` behind `runtime/repairPort.ts` (`loadRepairKit`,
+    `installRepairKit`; the HUD reads `hudSetupAlert` / `hudSetupCounts`); `withDismissal` moved to `runtime/checkDismissal.ts`
+    (re-exported from `checks.ts`); "Fix with wizard" reads `provisionableMissing` through the kit;
+  - speaker direction: `runtime/talkControl.ts`, `talkDirector.ts` (+ `talk/prompt`, `directAddress`, `parse`,
+    `talkChainReads`, `talkPacingIdle`) behind `runtime/talkPort.ts`; the constants and `resolveChainConfig` moved to
+    `runtime/talkChain.ts` (re-exported from `talkControl.ts`).
+  - Both kits load in parallel at the top of `index.tsx` and are awaited before `startRuntime()`, the pattern the game layer,
+    recap and patterns kits use, so the HUD and the interceptor see them from the first render and the first generation:
+    behaviour unchanged. They are not deferred past startup; only the main bundle shrinks. `startTalk` keeps a fallback (loads
+    the kit and attaches the controller when the runtime was started without it, as jest does). Storybook installs the repair
+    kit in `.storybook/preview.ts`. Guard: `lazyHarness.guard.test.ts` "v3.0 43 K" keeps all ten modules off the static entry
+    graph.
+  - Not moved (sync consumers at startup, no cheap seam): React (the HUD mounts at startup), `snapshotBuilder`, the
+    coordinators, `narrative.ts`, `workspaceRoutes.ts` (5 KB, launcher intents are synchronous).
+- Curator auto mode accepts every entry. `stagecraft/curatorTiers.ts` `routeByMode` (was `routeByTier`): in `auto` every op on an
+  existing entry of the story's `stagecraft.lorebooks` is accepted on the spot, marked or not. Kept: `{{// so:protect}}` spans
+  refused at plan time and at the write edge, checkpoint-gated and excluded entries (never in the vocabulary, refused at the
+  write edge), `isCuratorWritable`, `CURATOR_SECRET_REFUSAL`, rollback before-images, journaling, foreign created stamps,
+  title-only digest refusals. Two exceptions kept and flagged for the owner: constant (always-on) entries still wait for review
+  (the earlier owner decision v2.8 25 P5 / A19: an unreviewed rewrite there costs the most), and new entries (create) still
+  wait as before. Dropping the constant exception is one condition in `routeByMode` plus two tests and the v28-25 row.
+- `{{// so:auto}}`: no longer changes acceptance. It is still parsed as a curator marker (`entryMarks` kinds), so the curator
+  still may not add, move or cross one and old entries carrying it read the same; the `tier` field is gone.
+- Copy: settings copy `stagecraft.acceptMode`, features `curator` and `curator-markers` (now "Protected lore"), guide
+  `stagecraft` topic and compact twin, `lorebook-mechanics.md`, architecture rule line; `npm run docs:guide`,
+  `npm run docs:settings` regenerated.
+- Campaign (private, not changed): 3 entries carry `so:auto` in one built lorebook (17 occurrences across 9 files incl.
+  generator, docs and a lab fixture). No change required: the markers are harmless. Effect to know: in auto mode the curator
+  now also applies changes to that book's unmarked non-constant entries without review; protect or exclude anything that must
+  stay reviewed. Its docs describe the old meaning.
+
+## Gate record K
+
+- Tests: `curatorTiers.test.ts` (routing: marked and unmarked accepted, constant and unknown entry pending, review all
+  pending), `curatorTiers.review.test.ts` (auto: all 8 ops accepted and applied; constant entries wait, marked or not),
+  `curatorDigest.review.test.ts` (title-only flip on an unmarked entry accepted), `stagecraftCoordinator.test.ts` (unmarked
+  entry accepted in auto; review-mode harness control), `createdStamp.test.ts`; `lazyHarness.guard.test.ts` "v3.0 43 K".
+  `npm run gates:quick` green.
+- Live, lane 38 (no-model, lane copy), branch build frozen on the lane (`st-lanes.mts run 38 --bundle C:/dev/so-43-k`,
+  bundle `2102d6c9`); owner ST, lane 0, lanes 46/49 and the GPU untouched. Mocked curator response (`debugResponse`): enough
+  for plumbing, since auto acceptance is deterministic code with no model judgement.
+  - `test/scenarios/v30-43k-curator-auto-all.json` PASS x2 (17/17): the unmarked market rewrite `accepted` on the spot, the
+    protected gate rewrite dropped ("touches protected text"), the boundary wrote it, a swipe reverted it to the before-image
+    and the story to `road`; cleanup clean.
+  - Regression, once each: `v27-d-02-c13-curator-tiers.json` PASS, `v28-25-curator-constant-review.json` PASS (constant entry
+    still waits).
+  - Smoke on the same page: interceptor installed, `#so-hud-root` mounted, 0 page or console errors.
