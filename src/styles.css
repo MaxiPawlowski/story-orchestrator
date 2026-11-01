@@ -7,6 +7,7 @@
 @import "./styles/status.css";
 @import "./styles/sheet.css";
 @import "./styles/play.css";
+@import "./styles/host.css";
 @reference "tailwindcss";
 @source "./";
 

@@ -50,6 +50,7 @@ import type { StoryDraft } from "./studio/draft";
 import { buildReplaySource, type GateReplaySource } from "./studio/replaySource";
 import type { FeatureWhere } from "@features/registry";
 import { log } from "@utils/log";
+import { applyHostStyle } from "@runtime/hostStyle";
 
 const storyParser = loadStoryParser().catch((error) => log.warn("the story reader did not load", error));
 await loadStylesheet(() => import("./styles.css" as string), (message, error) => log.warn(message, error));
@@ -60,6 +61,9 @@ await storyParser;
 const manager = startRuntime();
 const loadDraft = () => import("./studio/draft");
 const ui = createMountRegistry();
+const syncHostStyle = () => applyHostStyle(document.documentElement, manager.getCachedSnapshot().ui);
+syncHostStyle();
+ui.add(manager.subscribe(syncHostStyle));
 
 const contextLimits = createContextLimitCache({ limit: readProfileContextLimit, presetOf: readProfilePresetName });
 ui.add(subscribeToHostEvents(contextLimitInvalidators(contextLimits)));

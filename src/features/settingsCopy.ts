@@ -142,6 +142,11 @@ export const SETTING_COPY = {
     "Show \"Your move.\" when the story hands the turn back",
     "A small chip in the status strip when the characters have finished and handed the turn to you, for the reply now on screen. A swipe or an edit of that reply takes it away.",
   ),
+  "display.compactThoughts": copy(
+    "Show the model's thinking as a small pill",
+    "SillyTavern's \"Thought for …\" bar above a reply becomes a small rounded label at its top left. Click it to open or close the thinking as before; "
+      + "its buttons show only while it is open. Switch this off for SillyTavern's own full-width bar. Affects every chat, not only story chats.",
+  ),
   "memory.chapters.recap": copy(
     "Show \"Previously…\" when a chat opens after a chapter ended",
     "When you come back to a chat whose story finished a chapter, a short recap of that chapter is shown first.",

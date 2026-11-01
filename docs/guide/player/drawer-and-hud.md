@@ -220,6 +220,13 @@ you see:
 Story and Behind the scenes never show spoilers. You can also limit notes to the last N messages, and untick kinds of
 note you do not want.
 
+## The thinking pill
+
+When the model thinks before a reply, SillyTavern's "Thought for …" bar shows as a small rounded pill at the top
+left of the reply. Click it to open or close the thinking; its buttons show only while it is open. **Show the model's
+thinking as a small pill** in **Settings → Display** (or **This device**) switches back to SillyTavern's full-width
+bar. It applies in every chat, story or not.
+
 ---
 
 [Playing a story](README.md)

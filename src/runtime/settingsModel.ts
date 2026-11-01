@@ -65,7 +65,8 @@ export interface GlobalSettings {
   extraction: ExtractionRuntimeSettings;
   pacing: { hintEnabled: boolean; pathArc: boolean };
   display: {
-    announceTransitions: boolean; hudEnabled: boolean; yourMove: boolean; briefing: boolean; briefingDraft: boolean; playerSetup: boolean; inline: InlineSettings; presence: PresenceSettings;
+    announceTransitions: boolean; hudEnabled: boolean; yourMove: boolean; compactThoughts: boolean;
+    briefing: boolean; briefingDraft: boolean; playerSetup: boolean; inline: InlineSettings; presence: PresenceSettings;
   };
   copilot: CopilotRuntimeSettings;
   memory: MemoryRuntimeSettings;
@@ -269,7 +270,8 @@ export const defaultGlobalSettings = (): GlobalSettings => ({
   extraction: defaultExtractionSettings(),
   pacing: { hintEnabled: true, pathArc: true },
   display: {
-    announceTransitions: false, hudEnabled: true, yourMove: true, briefing: true, briefingDraft: true, playerSetup: true, inline: defaultInlineSettings(), presence: defaultPresenceSettings(),
+    announceTransitions: false, hudEnabled: true, yourMove: true, compactThoughts: true,
+    briefing: true, briefingDraft: true, playerSetup: true, inline: defaultInlineSettings(), presence: defaultPresenceSettings(),
   },
   copilot: { enabled: true, ask: true },
   memory: defaultMemorySettings(),
@@ -362,7 +364,8 @@ export const sanitizeGlobalSettings = (value: unknown): GlobalSettings => {
     },
     pacing: { hintEnabled: pacing.hintEnabled !== false, pathArc: pacing.pathArc !== false },
     display: {
-      announceTransitions: display.announceTransitions === true, hudEnabled: display.hudEnabled !== false, yourMove: display.yourMove !== false, briefing: display.briefing !== false,
+      announceTransitions: display.announceTransitions === true, hudEnabled: display.hudEnabled !== false, yourMove: display.yourMove !== false, compactThoughts: display.compactThoughts !== false,
+      briefing: display.briefing !== false,
       briefingDraft: display.briefingDraft !== false, playerSetup: display.playerSetup !== false,
       inline: sanitizeInlineSettings(display.inline),
       presence: sanitizePresenceSettings(display.presence),

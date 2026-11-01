@@ -132,6 +132,7 @@ Generated from the feature registry. "Experimental" means not yet measured; it i
 | Playing | Story drawer | Where you are, what happened, and what you are remembered for. |  |
 | Playing | Status strip | One line above the chat input: where the story is and how tense it is. |  |
 | Playing | Your move | A chip in the status strip when the characters hand the turn back to you. |  |
+| Playing | Thinking pill | SillyTavern's "Thought for …" bar becomes a small pill at the top left of the reply. |  |
 | Playing | Notes under messages | Small icons under replies: where the story moved, what it remembered, which lore it used. |  |
 | Playing | Chat note when the story moves on | Optionally post a short chat note at each new turning point. | Off by default |
 | Playing | Recap and welcome back | Coming back after a break shows where you left off; /story recap asks any time. |  |
