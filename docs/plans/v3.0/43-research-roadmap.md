@@ -435,3 +435,6 @@ Source: `gpu-queue-2026-10-30.md` §Vast batch 1 record (environment + harness d
   (on: expected 0.5 hold; off: expected 0.75 escalate; pathArc restored). The lane-attach refusal fired once by accident
   (a mangled `SO_DEBUG_DIR`): "lane 35 has no browser session … refusing".
 - Not live: `so-session start --bundle` and `turns` end to end (need an adolion-fresh model lane); covered by unit tests.
+- Gates: `npm run gates` all green in 569.7s (Storybook included, no --resume) on the tree merged with master `2ecb699a1`; the
+  first full run was red on `arrivalEquivalence.test.ts` (the new scenario missing from `test/goldens/arrival-findings.json`, re-recorded)
+  and one Storybook play timeout (HelpPanel, untouched, green on the rerun). `gates:quick` and `test:debug` green.
