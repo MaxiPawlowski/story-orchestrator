@@ -167,3 +167,11 @@ from owner ST data** — (b). Keep.
 - (c) self-imposed: 11 (message-area breadth, ST source/controls, Summarize/Vector, Do not update ST, wizard create-only,
   curator default, judge never blocks, bundle budget, line budgets, raw-button ratchet, exclusive lore-select).
 - Mixed rules are counted once, in the first class named.
+
+## Owner answers 2026-11-01
+1. Change ST's own code and buttons: yes (fix ST's lorebook editor overwriting our writes, group Regenerate after hidden rows; patches tracked in this repo).
+2. Filter Summarize and Vector Storage per character: yes.
+3. Font scale: misread rule; our UI uses ST's sizes so the plugin blends in (follow `--mainFontSize` and ST spacing).
+4. Lore curator applies automatically by default: yes (`auto`).
+5. "Do not update ST": never was a rule; removed from AGENTS.md.
+6. The wizard may draft personas: yes.

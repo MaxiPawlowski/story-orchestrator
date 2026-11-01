@@ -58,7 +58,7 @@ Current work: **v3.0**. GPU and CPU queue: `docs/plans/v3.0/gpu-queue-2026-10-30
   - Its data, lane 0 and the 3090 belong to the owner.
   - Never stage into ST, run scenarios against it, or use the GPU while the owner plays.
   - Live checks run on lanes (`node scripts/debug/st-lanes.mts`, lanes 30+), which are copies.
-  - Do not update ST (no `git pull`, no launcher pull).
+  - Updating ST is allowed (owner 2026-11-01: "never was" a rule). It changes the owner's install: say so, back up first, re-verify host facts after.
 - **The repo** is `C:\dev\story-orchestrator`, outside ST. ST's extension slot holds a staged copy:
   `npm run build && npm run stage`, then `npm run plugins:install` (restart ST when it reports `restartNeeded`).
   - Restart: kill the process on port 8000, then `node scripts/local/cli.mjs start-st`.
