@@ -220,6 +220,25 @@ you see:
 Story and Behind the scenes never show spoilers. You can also limit notes to the last N messages, and untick kinds of
 note you do not want.
 
+## Between and around the replies
+
+A few small things sit in the chat itself, each with its own switch under **Settings → Display → Between and
+around the replies**. They follow **Notes under messages**: at Off none of them show.
+
+- **Scene and time dividers.** A thin labelled line above the message where the story's clock moves on ("Day 3,
+  evening") or a new scene starts.
+- **"Because you…"** A short line under the reply where something you did clearly made a story step happen. When the
+  story is not sure it was you, it shows nothing.
+- **Journal cards.** A small card under the reply where a person or place first goes into your journal, or where you
+  learn more about one. **Open** shows it in the story sheet.
+- **Next-move chips.** Under the last reply: **Your move** when the turn is yours, the story's own suggestions for this
+  scene, and **Ideas**. Clicking a suggestion puts it in the box where you type; nothing is sent. If you have started
+  typing, it leaves your text alone.
+- **Gate meter** (Author view, at Author level). Under each reply: how close each way out of the checkpoint was after
+  it ("1 of 2"), what is still missing, and where the story moved.
+
+A swipe, edit or delete of a reply takes back whatever that reply caused, and its marks go with it.
+
 ## The thinking pill
 
 When the model thinks before a reply, SillyTavern's "Thought for …" bar shows as a small rounded pill at the top

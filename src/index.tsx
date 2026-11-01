@@ -3,7 +3,7 @@ import { askHost } from "@runtime/askEntry";
 import { Lazy, LAZY_FAILED_TEXT } from "@components/Lazy";
 import { lazyRetry } from "@utils/lazyRetry";
 import {
-  currentChatOwner, getAllCharacterNames, listBackgrounds, listPersonas, mountInlineHosts, openGroupMemberList,
+  currentChatOwner, fillChatInput, getAllCharacterNames, listBackgrounds, listPersonas, mountInlineHosts, openGroupMemberList,
   readProfileContextLimit, readProfilePresetName, showConfirmPopup, subscribeToHostEvents, toggleNavbarDrawer,
   type InlineHostSet,
 } from "@services/STAPI";
@@ -225,6 +225,12 @@ const inlineActions: InlineActions = {
 
 const StudioModal = lazyRetry(() => import("./studio/StudioModal"));
 const InlineLayer = lazyRetry(() => import("./components/inline/InlineLayer"));
+const InChatLayer = lazyRetry(() => import("./components/inchat/InChatLayer"));
+let chipFilled = "";
+const inChatActions = {
+  fill: (text: string) => { const result = fillChatInput(text, chipFilled); if (result.ok) chipFilled = text; return result; },
+  openSheet: (tab: "people" | "ideas") => openSheet(tab),
+};
 const ImageChatPanel = lazyRetry(() => import("./image/ImageChatPanel"));
 const CastScenePanel = lazyRetry(() => import("./image/CastScenePanel"));
 const BriefingHost = lazyRetry(() => import("./components/briefing/BriefingHost"));
@@ -436,7 +442,10 @@ const InlineMount = ({ hosts }: { hosts: InlineHostSet }) => {
   const snapshot = useRuntimeSnapshot();
   if (!snapshot.ready) return null;
   const presence = inlinePresence(snapshot.inline.level, snapshot.ui.authorView, snapshot.presence, snapshot.rolls);
-  return <Lazy quiet><InlineLayer view={snapshot.inline} hosts={hosts} actions={inlineActions} presence={presence} /></Lazy>;
+  return <Lazy quiet>
+    <InlineLayer view={snapshot.inline} hosts={hosts} actions={inlineActions} presence={presence} />
+    {snapshot.inChat && <InChatLayer view={snapshot.inChat} hosts={hosts} actions={inChatActions} />}
+  </Lazy>;
 };
 
 const presenceUi = createPresenceUi({
