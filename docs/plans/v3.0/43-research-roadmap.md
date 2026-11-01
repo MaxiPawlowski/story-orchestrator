@@ -370,6 +370,12 @@ Floors, declared here before any measurement (informational, never retuned; the 
 - Not run: every GPU row (M43-M1..M4); no live browser gate (no lanes, no ST, no GPU per brief). CPU-only inputs: llama-tokenize
   with CUDA hidden.
 - Vast batch 2 (2026-11-01): M43-M1..M4 INCOMPLETE (live suite blind to the switches: `runFixture` never passes `readMemory`; code fix + fixtures owed), C3 planted half PASS (Sol 31/32 = 0.969), C1 not run, P1 INCOMPLETE (no harness), P3 not run. `gpu-queue-2026-10-30.md` §Vast batch 2 record.
+- Vast batch 3 (2026-11-01, master `4350ada75`, bundle `c6a98303`, live suite x2 per arm + memwave x2):
+  - M43-M1 MISS: 0 same=/update= lines in any on run, memwave neighbours 0/2; intents -0.036, memwave facts 0/3 vs 2/3.
+  - M43-M2 PASS (measured floors): keys 0.98 (memwave 0.73), never > 3; tiers within 0.02. E0 hit@4, tokens per row not measured.
+  - M43-M3 MISS: relation recall 0.33 (floor 0.6), false 0; rejected -0.028, intents -0.107.
+  - M43-M4 MISS: act recall 0/2 (floor 0.5), 1 player act dropped per run (evidence not the player's line); deltas within 0.02.
+  - `gpu-queue-2026-10-30.md` §Vast batch 3 record.
 
 ## H: restyle ST's own UI, self-imposed rules review (owner 2026-10-31)
 
