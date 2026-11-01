@@ -395,3 +395,6 @@ Follow-ups: "i want new elements on the chat", "let's be creative here".
 - Storybook: no story. The rule restyles ST's message markup, which needs ST's own `style.css` and `#chat`; Storybook loads
   neither, so a story would show our rule over unstyled markup. The lane shots are the visual record.
 - Bundle: main `dist/index.js` 1,261,040 B (budget 1,300,000).
+- Gates: `npm run gates` all green in 474.1s (Storybook included, no --resume) on the tree merged with master `bc9b1532a`;
+  an earlier full run was red on the plan 24 matrix row + registry file budget (fixed: row added, feature moved to
+  `presenceFeatures.ts`) and one `patterns.test.ts` P5 p95 timing (58 ms vs 50, untouched, green since). `gates:quick` green.
