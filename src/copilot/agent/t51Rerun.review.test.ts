@@ -45,12 +45,12 @@ describe("T5-1-3 HIGH: the agent sees why a foreign group member is refused", ()
 });
 
 describe("T5-1-4 HIGH: the agent never requires a persona the install does not have", () => {
-  it("refuses setRequirements naming a persona that does not exist, and says personas are never created", () => {
+  it("refuses setRequirements naming a persona that does not exist, and points at createPersona", () => {
     const turn = executeReply(running(), call("setRequirements", { requirements: { personas: ["The Apprentice"], members: ["Master Orin"] } }), agentContext(kingdom(), install()), META);
     const step = turn.session.steps[0];
     expect(step.status).toBe("refused");
     expect(step.observation).toContain('"The Apprentice"');
-    expect(step.observation).toContain("never created");
+    expect(step.observation).toContain("createPersona");
   });
 
   it("accepts a persona the install has", () => {

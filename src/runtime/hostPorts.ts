@@ -1,10 +1,12 @@
 import type * as Stapi from "@services/STAPI";
 import type { ChatWindowReader } from "@extraction/types";
 import type { MemoryMirrorHost } from "./memoryMirror";
+import type { PersonaWriter } from "./personaHostLive";
 
 export type ProvisioningHost = Pick<typeof Stapi,
   "createCharacterCard" | "createGroup" | "createLorebook" | "getAllCharacterNames" | "listAllLorebooks" |
-  "listGlobalLorebooks" | "listGroupNames" | "listPersonas" | "readWIEntry" | "upsertWIEntry"> & Partial<Pick<typeof Stapi, "listGroupCasts" | "readBackCharacterCard">>;
+  "listGlobalLorebooks" | "listGroupNames" | "listPersonas" | "readWIEntry" | "upsertWIEntry"> & Partial<Pick<typeof Stapi, "listGroupCasts" | "readBackCharacterCard">>
+  & { createPersona?: PersonaWriter["createPersona"] };
 
 export type CuratorWiHost = Pick<typeof Stapi,
   "readWIEntry" | "readWIEntryAt" | "restoreWIEntryAt" | "updateWIEntryByUid" | "loadLorebook" | "createWIEntry" | "deleteWIEntryAt">;

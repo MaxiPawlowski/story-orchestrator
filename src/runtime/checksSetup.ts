@@ -104,7 +104,7 @@ export const personaAbsent = (requirements: Requirements): CheckFinding | null =
   if (!absent.length) return null;
   return {
     consequence: `This story requires the persona ${quoted(absent)}, which does not exist on this install, so it never starts.`,
-    detail: `No persona called ${quoted(absent)} on this install. Personas are never created by the wizard: remove the requirement from the story, or create ` +
+    detail: `No persona called ${quoted(absent)} on this install. Remove the requirement from the story, let the wizard propose it, or create ` +
       `${them(absent, "that persona", "those personas")} in SillyTavern's Persona Management.`,
     player: REPAIR_PLAYER_COPY.persona,
     action: { kind: "remove-personas", members: absent, label: `Remove the ${quoted(absent)} persona requirement` },

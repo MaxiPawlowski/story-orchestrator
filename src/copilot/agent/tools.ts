@@ -295,6 +295,10 @@ export const PROVISION_TOOLS = {
     },
   },
   createGroup: { doc: "Create a NEW group from existing cards. Always reviewed by the author.", args: { name: req("string", "group name"), members: req("array", "card names") } },
+  createPersona: {
+    doc: "Create a NEW player persona on the install, only when the story needs a named one the install lacks. Always reviewed by the author; never edits, selects or deletes a persona.",
+    args: { name: req("string", "persona name"), description: req("string", "who the player is, in the second person"), title: opt("string", "short title") },
+  },
 } satisfies Record<Exclude<ProvisioningOpKind, "grantLorebook">, Omit<AgentToolSpec, "name" | "family">>;
 
 const QUERY = opt("string", "filter by substring");

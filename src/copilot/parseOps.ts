@@ -214,6 +214,12 @@ const PROVISIONING_OPS: Record<string, OpReader> = {
   },
   upsertLorebookEntry: readUpsertLorebookEntry,
   createGroup: readCreateGroup,
+  createPersona: (value, path, issues) => {
+    const name = requireString(value.name, "name", path, issues);
+    const description = requireString(value.description, "description", path, issues);
+    if (!name || !description) return null;
+    return { kind: "createPersona", name, description, ...(typeof value.title === "string" && value.title.trim() ? { title: value.title.trim() } : {}) };
+  },
 };
 
 const OP_READERS: Record<string, OpReader> = { ...QUALITY_OPS, ...CHECKPOINT_OPS, ...TRANSITION_OPS, ...STORY_SHAPE_OPS, ...PROVISIONING_OPS };

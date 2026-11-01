@@ -27,11 +27,12 @@ export type ProvisioningOp =
     constant?: boolean; secondaryKeys?: string[]; logic?: LoreKeyLogic; outlet?: string; triggers?: string[];
   }
   | { kind: "createGroup"; name: string; members: string[] }
-  | { kind: "grantLorebook"; lorebook: string; revoke?: boolean };
+  | { kind: "grantLorebook"; lorebook: string; revoke?: boolean }
+  | { kind: "createPersona"; name: string; description: string; title?: string };
 
 export type ProvisioningOpKind = ProvisioningOp["kind"];
 
-export const PROVISIONING_OP_KINDS: readonly ProvisioningOpKind[] = ["createCharacterCard", "createStoryLorebook", "upsertLorebookEntry", "createGroup", "grantLorebook"];
+export const PROVISIONING_OP_KINDS: readonly ProvisioningOpKind[] = ["createCharacterCard", "createStoryLorebook", "upsertLorebookEntry", "createGroup", "grantLorebook", "createPersona"];
 
 // What already exists on this install. Everything the create-only rule needs, and nothing else.
 // `storyLorebooks` is what the story *requires*, which is a claim about what the

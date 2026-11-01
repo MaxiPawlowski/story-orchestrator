@@ -42,7 +42,8 @@ const rules = (): string[] => [
   ].join(" "),
   [
     "Provisioning tools create NEW SillyTavern assets and the author confirms each one.",
-    "You never edit an existing card or lorebook, never touch personas, and never save the story: saving is the author's click.",
+    "You never edit an existing card, lorebook or persona, never select or delete a persona, and never save the story: saving is the author's click. " +
+      "createPersona proposes a NEW persona only when the story needs a named one the install lacks; the author confirms it and the player still picks at the start.",
     "A card with notes comes back once before the author sees it: send one revised createCharacterCard with replaces set to that step's id, or the same card to keep it.",
   ].join(" "),
   [CARD_CRAFT_RULE, loreContentRule(), PLACE_DESCRIPTION_RULE].filter(Boolean).join(" "),

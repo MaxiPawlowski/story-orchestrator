@@ -77,6 +77,7 @@ const CREATED: Array<[ProvisioningOp["kind"], string, string?]> = [
   ["createStoryLorebook", "lorebook"],
   ["upsertLorebookEntry", "lorebook entry", "lorebook entries"],
   ["createGroup", "group"],
+  ["createPersona", "persona"],
 ];
 
 const present = (value: unknown) => value !== undefined && value !== null && value !== "" && !(typeof value === "object" && !Object.keys(value as object).length);

@@ -14,9 +14,10 @@ describe("agent tool set (v2.6 plan 11 A1)", () => {
     expect([...backing, ...excluded].filter((name) => !exported.includes(name))).toEqual([]);
   });
 
-  it("never offers the author-only permission grant or any persona tool", () => {
+  it("never offers the author-only permission grant, and offers personas only as the create-only provisioning card", () => {
     expect(Object.keys(PROVISION_TOOLS)).not.toContain("grantLorebook");
-    expect(Object.keys(AGENT_TOOLS).filter((name) => /persona/i.test(name))).toEqual([]);
+    expect(Object.keys(AGENT_TOOLS).filter((name) => /persona/i.test(name))).toEqual(["createPersona"]);
+    expect(AGENT_TOOLS.createPersona.family).toBe("provision");
   });
 
   it("renders a closed JSON schema for every tool, for the harness route", () => {

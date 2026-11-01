@@ -84,6 +84,17 @@ describe("provisioning validation (create-only)", () => {
     expect(result.ok).toBe(false);
     expect(result.message).toContain("select it instead");
   });
+
+  it("creates a new persona only: needs a name and a description, refuses an existing one case-insensitively", () => {
+    const persona = (name: string, description = "You carry letters."): ProvisioningOp => ({ kind: "createPersona", name, description });
+    expect(validateProvisioningOp(persona("The Courier"), environment())).toEqual({ ok: true, message: "" });
+    expect(validateProvisioningOp(persona("The Courier", " "), environment()).message).toContain("needs a description");
+    expect(validateProvisioningOp(persona(" "), environment()).ok).toBe(false);
+    expect(validateProvisioningOp(persona("the courier"), environment({ personaNames: ["The Courier"] })).message).toContain("never edits yours");
+    expect(advanceEnvironment(environment(), persona("The Courier")).personaNames).toEqual(["The Courier"]);
+    expect(provisioningRequirements(persona("The Courier"))).toEqual({ members: [], lorebooks: [] });
+    expect(describeProvisioningOp(persona("The Courier")).label).toBe('Create the persona "The Courier"');
+  });
 });
 
 describe("provisioning plan", () => {
@@ -152,7 +163,7 @@ describe("interview helpers", () => {
     const seed = provisioningSeed({ members: ["Arin"], lorebooks: ["Sun Ruins Lore"], personas: ["Traveller"] });
     expect(seed).toContain("Arin");
     expect(seed).toContain("Sun Ruins Lore");
-    expect(seed).toContain("never touches personas");
+    expect(seed).toContain("createPersona");
     expect(provisioningSeed({})).toBe("");
   });
 });

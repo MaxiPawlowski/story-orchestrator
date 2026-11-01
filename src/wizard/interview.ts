@@ -35,7 +35,7 @@ export function provisioningSeed(missing: { personas?: string[]; members?: strin
   const parts: string[] = [];
   if (missing.members?.length) parts.push(`cast members that do not exist yet: ${missing.members.join(", ")}`);
   if (missing.lorebooks?.length) parts.push(`lorebooks that do not exist yet: ${missing.lorebooks.join(", ")}`);
-  if (missing.personas?.length) parts.push(`personas the story expects (create these yourself, the wizard never touches personas): ${missing.personas.join(", ")}`);
+  if (missing.personas?.length) parts.push(`personas the story expects (propose each with createPersona; the author confirms it): ${missing.personas.join(", ")}`);
   if (!parts.length) return "";
   return `This story cannot run yet. Propose the provisioning steps that fix exactly this, and nothing else — ${parts.join("; ")}.`;
 }

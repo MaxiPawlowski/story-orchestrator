@@ -72,6 +72,11 @@ const FIELDS: Record<ProvisioningOp["kind"], FieldSpec[]> = {
     { key: "lorebook", label: "Lorebook this story may write into", kind: "text" },
     { key: "revoke", label: "Revoke this story's write permission", kind: "bool" },
   ],
+  createPersona: [
+    { key: "name", label: "Persona name", kind: "text" },
+    { key: "title", label: "Title", kind: "text" },
+    { key: "description", label: "Description", kind: "area" },
+  ],
 };
 
 const KIND_LABELS: Record<ProvisioningOp["kind"], string> = {
@@ -80,6 +85,7 @@ const KIND_LABELS: Record<ProvisioningOp["kind"], string> = {
   upsertLorebookEntry: "lorebook entry",
   createGroup: "new group",
   grantLorebook: "write permission",
+  createPersona: "new persona",
 };
 
 const asText = (value: unknown, kind: FieldSpec["kind"]): string => {
