@@ -192,6 +192,8 @@ export const MemoryModelGroup = ({ snapshot, manager, onOpenReplyThinking }: {
       <Section id="so-models-knowledge" title="Knowledge tracking" level={3}>
         <CheckRow id="so-epistemic-capable" setting="memory.epistemicLedgerCapable" checked={snapshot.memory.settings.epistemicLedgerCapable}
           onChange={(on) => manager.setMemorySettings({ epistemicLedgerCapable: on })} />
+        <CheckRow id="so-copier-filter" setting="memory.copierFilter" checked={snapshot.memory.settings.copierFilter !== false}
+          onChange={(on) => manager.setMemorySettings({ copierFilter: on })} />
       </Section>
     </div>
   );

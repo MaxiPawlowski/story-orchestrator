@@ -164,6 +164,7 @@ export abstract class CoordinatorDelegates {
     this.co.cues.staged();
     this.co.pacing.draftGuidance(id);
   }
+  copierView(): ((text: string) => string) | null { return this.co.memory.injector.copierView(); }
   get speech() { return this.co.speech.speech; }
   talkPolicy() { return this.co.speech.policy(); }
   directDraft(member: string, text: string) { return this.co.pacing.armDirection(member, text, "draft"); }

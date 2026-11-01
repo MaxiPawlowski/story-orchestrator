@@ -255,6 +255,16 @@ const CORE_FEATURES: readonly Feature[] = [
     isOn: (settings) => settings.memory.epistemicLedgerCapable,
   },
   {
+    id: "copier-filter", name: "Secrets kept out of Summarize and Vector Storage", area: "characters", audience: "author",
+    oneLine: "SillyTavern's summary and recalled messages reach each character without the secrets kept from them.",
+    what: "SillyTavern's Summarize and Vector Storage put the chat summary and recalled past messages into every character's prompt. Before each character "
+      + "replies, a line there that restates a secret kept from that character is left out of that character's prompt, by the same rule as the story's own memory. "
+      + "The summary, the stored vectors and the chat are not changed. Other extensions that copy the chat (VectFox) are still named in Repair.",
+    where: settingsAt("#so-copier-filter", "Models › Knowledge tracking"),
+    settings: ["memory.copierFilter"], doc: authorGuideDoc("drives-motives"), status: "shipped", needs: ["memory-profile", "group-chat"],
+    isOn: (settings) => settings.memory.copierFilter !== false && settings.memory.epistemicLedgerCapable,
+  },
+  {
     id: "inner-voice", name: "Inner voice", area: "characters", audience: "author",
     oneLine: "Characters prepare a private intent before they speak.",
     what: "After a reply, the memory model can write a short private note of what the next speaker wants, handed only to that "

@@ -183,6 +183,7 @@ Generated from the feature registry. "Experimental" means not yet measured; it i
 | Characters | Several voices per turn | More than one character can answer one of your messages. |  |
 | Characters | One question when a character asks you | A character told to ask you one thing keeps only the last of its questions. |  |
 | Characters | Private knowledge | Tracks who knows what, so characters do not know things they never saw. |  |
+| Characters | Secrets kept out of Summarize and Vector Storage | SillyTavern's summary and recalled messages reach each character without the secrets kept from them. |  |
 | Characters | Inner voice | Characters prepare a private intent before they speak. |  |
 | Characters | Character life | Feelings that move, a mood per scene, plans that go on off stage and places to be, for the characters a story declares. | Experimental |
 | Characters | Story time | A time of day, a day count and an optional calendar, moved by the story, never by the wall clock. | Experimental |
