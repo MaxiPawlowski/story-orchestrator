@@ -166,6 +166,7 @@ export interface UiRuntimeSettings {
   hudEnabled: boolean;
   yourMove?: boolean;
   compactThoughts?: boolean;
+  inChat?: import("./displayToggles").ChatElementSettings;
   briefing?: boolean;
   briefingDraft?: boolean;
   playerSetup?: boolean;
@@ -569,6 +570,7 @@ export interface RuntimeSnapshot {
   lore: LoreRuntimeState;
   /** The inline timeline: every item anchored under the message it is about, before the level filter. */
   inline: InlineView;
+  inChat?: import("./inChatTypes").InChatView | null;
   /** One roll store: quality rolls reconstructed from the seed, NPC and talk draws from the ring. Author-only surfaces. */
   rolls?: RollRecord[];
   presence?: PresenceView;

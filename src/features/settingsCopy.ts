@@ -147,6 +147,27 @@ export const SETTING_COPY = {
     "SillyTavern's \"Thought for …\" bar above a reply becomes a small rounded label at its top left. Click it to open or close the thinking as before; "
       + "its buttons show only while it is open. Switch this off for SillyTavern's own full-width bar. Affects every chat, not only story chats.",
   ),
+  "display.inChat.dividers": copy(
+    "Scene and time dividers between messages",
+    "A thin line with a label above the message where the story's clock moves on (\"Day 3, evening\") or a new scene starts.",
+  ),
+  "display.inChat.because": copy(
+    "\"Because you…\" under the reply where your choice landed",
+    "When something you did clearly made a story step happen, a short line says so under the reply where it happened. When it is not sure, it shows nothing.",
+  ),
+  "display.inChat.chips": copy(
+    "Ideas for your next move at the end of the chat",
+    "Under the last reply: the story's own suggestions for what you could do here, \"Your move\" when the turn is yours, and Ideas. "
+      + "Clicking a suggestion puts it in the box where you type; nothing is sent.",
+  ),
+  "display.inChat.discovery": copy(
+    "Journal cards when you learn something new",
+    "A small card under the reply where a person or place first goes into your journal, or where you learn more about one. Open shows it in the story sheet.",
+  ),
+  "display.inChat.gateMeter": copy(
+    "Gate meter under each reply (Author view)",
+    "Author view only: under each reply, how close each way out of the checkpoint was after it (\"2 of 3\"), what is still missing, and where the story moved.",
+  ),
   "memory.chapters.recap": copy(
     "Show \"Previously…\" when a chat opens after a chapter ended",
     "When you come back to a chat whose story finished a chapter, a short recap of that chapter is shown first.",

@@ -137,6 +137,11 @@ Generated from the feature registry. "Experimental" means not yet measured; it i
 | Playing | Recap and welcome back | Coming back after a break shows where you left off; /story recap asks any time. |  |
 | Playing | Branched chats | A chat branched from a story keeps going from where the branch ends. |  |
 | Playing | Tension and pacing | Measures the scene's tension and nudges replies toward the story's intended shape. |  |
+| Playing | Scene and time dividers | A labelled line between messages where the story's clock moves on or a new scene starts. |  |
+| Playing | "Because you…" lines | Under the reply where your choice made a story step happen, a short line says so. |  |
+| Playing | Next-move chips | Under the last reply: the story's suggestions for your next move, one click puts one in the box where you type. |  |
+| Playing | Journal cards | A small card under the reply where a person or place goes into your journal. |  |
+| Playing | Gate meter | Author view: under each reply, how close each way out of the checkpoint was. |  |
 | Playing | Thinking pill | SillyTavern's "Thought for …" bar becomes a small pill at the top left of the reply. |  |
 | Playing | Story marks in the lists | Groups and chats that play a story carry a small icon in SillyTavern's lists. |  |
 | Playing | Story card | Hover a group's story icon to see the story, its chapter and when you last played. |  |

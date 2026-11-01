@@ -8,6 +8,11 @@ import { InlineControls } from "./InlineControls";
 import { PresenceControls } from "./PresenceControls";
 import { DeviceChip, useDeviceSetting, type DeviceStore } from "./DeviceSetting";
 import { StatusText } from "@components/ui/StatusText";
+import { CHAT_ELEMENTS, defaultChatElements, type ChatElement } from "@runtime/displayToggles";
+
+const IN_CHAT_IDS: Record<ChatElement, string> = {
+  dividers: "so-in-chat-dividers", because: "so-in-chat-because", chips: "so-in-chat-chips", discovery: "so-in-chat-discovery", gateMeter: "so-in-chat-gate-meter",
+};
 
 export interface DisplayPageProps {
   snapshot: RuntimeSnapshot;
@@ -29,6 +34,13 @@ export const DisplayPage = ({ snapshot, manager, deviceStore: injected }: Displa
       <InlineControls snapshot={snapshot} manager={manager} deviceStore={deviceStore} />
       <CheckRow id="so-announce-transitions" setting="display.announceTransitions" checked={snapshot.ui.announceTransitions}
         onChange={(on) => manager.setUiSettings({ announceTransitions: on })} />
+    </Section>
+    <Section title="Between and around the replies" level={3}>
+      {CHAT_ELEMENTS.map((element) => {
+        const inChat = snapshot.ui.inChat ?? defaultChatElements();
+        return <CheckRow key={element} id={IN_CHAT_IDS[element]} setting={`display.inChat.${element}`} checked={inChat[element]}
+          onChange={(on) => manager.setUiSettings({ inChat: { ...inChat, [element]: on } })} />;
+      })}
     </Section>
     <Section title="In the replies" level={3}>
       <CheckRow id="so-compact-thoughts" setting="display.compactThoughts" checked={snapshot.ui.compactThoughts !== false} scope={thoughts.overridden ? "device" : undefined}
