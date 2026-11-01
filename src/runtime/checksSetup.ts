@@ -312,6 +312,17 @@ export const INFO_SETUP_CHECKS: readonly Check[] = [
     },
   },
   {
+    id: "voice-examples-pushed-out", area: "characters", scope: "chat", audience: "author", severity: "info", feature: "character-delivery",
+    detect: (snapshot) => {
+      const members = snapshot.exampleDrops ?? [];
+      return members.length ? {
+        consequence: "A character's example dialogue no longer reaches the prompt, so their voice can drift toward the narrator's in a long chat.",
+        detail: `The last prompt for ${members.join(", ")} left out all of the card's example dialogue: the chat history filled the context first. `
+          + "In SillyTavern's User Settings, Example Messages Behavior \"Always include examples\" keeps them, or move 3 to 5 lines into the story's delivery sheet. Nothing is changed for you.",
+      } : null;
+    },
+  },
+  {
     id: "lore-weighted-groups", area: "lore", scope: "story", audience: "author", severity: "info", feature: "seeded-lore-chance",
     detect: (snapshot) => {
       const groups = snapshot.loreWeightedGroups ?? [];

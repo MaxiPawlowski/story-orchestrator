@@ -143,7 +143,7 @@ export class RuntimeManager extends SettingsDelegates {
     },
   });
   readonly polishHost = this.co.polish; private readonly memory = this.co.memory;
-  private readonly expansion = this.co.expansion;
+  private readonly expansion = this.co.expansion; readonly readMemory = this.co.readMemory;
   private readonly extraction = this.co.extraction;
   private readonly pacing = this.co.pacing;
   private readonly stagecraft = this.co.stagecraft;

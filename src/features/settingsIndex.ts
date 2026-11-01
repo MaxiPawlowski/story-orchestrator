@@ -71,19 +71,31 @@ export const SETTING_CONTROLS: Record<string, string> = {
   "worldInfo.lexicalTiebreak": "so-wi-lexical-tiebreak",
   "worldInfo.holdRound": "so-wi-hold-round",
   "worldInfo.preferKnown": "so-wi-prefer-known",
+  "worldInfo.loreLifetime": "so-wi-lore-lifetime",
+  "worldInfo.loreState": "so-wi-lore-state",
+  "worldInfo.loreAliases": "so-wi-lore-aliases",
   "memory.historyNotes": "so-history-notes",
   "memory.outwardNarration": "so-outward-narration",
   "memory.recapOutsideWindow": "so-recap-outside-window",
   "memory.mentionLedger": "so-mention-ledger",
   "memory.strengthRetention": "so-strength-retention",
   "memory.retrievalQuery": "so-retrieval-query",
+  "memory.neighbourRead": "so-neighbour-read",
+  "memory.readKeys": "so-read-keys",
+  "memory.relationRows": "so-relation-rows",
+  "memory.socialActs": "so-social-acts",
   "talk.swipeContrast": "so-swipe-contrast",
   "pacing.pathArc": "so-authoring-path-arc",
+  "pacing.stuckLadder": "so-authoring-stuck-ladder",
+  "stagecraft.livingLeads": "so-authoring-living-leads",
 };
 
 const AUTHOR_SETTINGS: ReadonlySet<string> = new Set(["worldInfo.lorePins", "worldInfo.seededChance", "worldInfo.budgetEvidence", "worldInfo.lexicalFallback",
-  "worldInfo.lexicalPrefilter", "worldInfo.lexicalTiebreak", "worldInfo.holdRound", "worldInfo.preferKnown", "memory.historyNotes", "memory.outwardNarration", "talk.swipeContrast",
-  "memory.mentionLedger", "memory.strengthRetention", "memory.retrievalQuery", "memory.recapOutsideWindow", "pacing.pathArc"]);
+  "worldInfo.lexicalPrefilter", "worldInfo.lexicalTiebreak", "worldInfo.holdRound", "worldInfo.preferKnown",
+  "worldInfo.loreLifetime", "worldInfo.loreState", "worldInfo.loreAliases", "memory.historyNotes", "memory.outwardNarration", "talk.swipeContrast",
+  "memory.mentionLedger", "memory.strengthRetention", "memory.retrievalQuery", "memory.recapOutsideWindow", "pacing.pathArc",
+  "pacing.stuckLadder", "stagecraft.livingLeads",
+  "memory.neighbourRead", "memory.readKeys", "memory.relationRows", "memory.socialActs"]);
 
 const firstSentence = (text: string): string => /^(.+?[.!?])(\s|$)/.exec(text)?.[1] ?? text;
 const copyOf = (key: string): SettingCopy | undefined => (SETTING_COPY as Record<string, SettingCopy>)[key];

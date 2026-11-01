@@ -2,7 +2,11 @@ import { isRecord } from "@utils/guards";
 export interface WorldInfoRef {
   lorebook: string;
   comments: string[];
+  until?: string;
+  lasting?: true;
 }
+
+export const LORE_UNTIL_CHAPTER = "chapter";
 
 export type GatedWorldInfo = Map<string, Set<string>>;
 
@@ -15,7 +19,8 @@ const readRefs = (value: unknown): WorldInfoRef[] => (Array.isArray(value) ? val
   if (!isRecord(entry)) return [];
   const lorebook = readStrings(entry.lorebook)[0] ?? readStrings(entry.book)[0] ?? "";
   const comments = readStrings(entry.comments ?? entry.comment);
-  return lorebook && comments.length ? [{ lorebook, comments }] : [];
+  const until = readStrings(entry.until)[0];
+  return lorebook && comments.length ? [{ lorebook, comments, ...(until ? { until } : {}), ...(entry.lasting === true ? { lasting: true as const } : {}) }] : [];
 });
 
 export function readWorldInfoEffect(value: unknown): { enable: WorldInfoRef[]; disable: WorldInfoRef[] } {
@@ -25,6 +30,53 @@ export function readWorldInfoEffect(value: unknown): { enable: WorldInfoRef[]; d
 
 export const checkpointWorldInfo = (checkpoint: unknown) =>
   readWorldInfoEffect(isRecord(checkpoint) && isRecord(checkpoint.effects) ? checkpoint.effects.world_info : undefined);
+
+export type LoreEnd = { chapter: string } | { until: string } | null;
+
+export type PathLore = Map<string, Map<string, LoreEnd>>;
+
+export interface PathLoreStory {
+  checkpointById?: Record<string, unknown>;
+  chapterByCheckpoint?: Record<string, string>;
+  checkpoints?: unknown[];
+}
+
+const checkpointAt = (story: PathLoreStory, id: string): unknown =>
+  story.checkpointById?.[id] ?? (story.checkpoints ?? []).find((checkpoint) => isRecord(checkpoint) && checkpoint.id === id);
+
+export const chapterAt = (story: PathLoreStory, id: string): string | undefined => {
+  const checkpoint = checkpointAt(story, id);
+  const own = isRecord(checkpoint) && typeof checkpoint.chapter === "string" && checkpoint.chapter.trim() ? checkpoint.chapter : undefined;
+  return own ?? story.chapterByCheckpoint?.[id];
+};
+
+export const loreEnd = (ref: WorldInfoRef, chapter: string | undefined): LoreEnd => {
+  if (ref.lasting) return null;
+  if (ref.until && ref.until !== LORE_UNTIL_CHAPTER) return { until: ref.until };
+  return chapter ? { chapter } : null;
+};
+
+const ended = (end: LoreEnd, id: string, chapter: string | undefined) =>
+  end !== null && ("until" in end ? end.until === id : chapter !== undefined && chapter !== end.chapter);
+
+// One continuous run of the path: entering a checkpoint first ends what its chapter change or its id ends,
+// then applies its own switches. With lifetimes off nothing ends on its own.
+export function loreAlongPath(story: PathLoreStory, path: readonly string[], lifetime: boolean, visit?: (id: string, on: PathLore) => void): PathLore {
+  const on: PathLore = new Map();
+  for (const id of path) {
+    const chapter = chapterAt(story, id);
+    if (lifetime) for (const comments of on.values()) for (const [comment, end] of comments) if (ended(end, id, chapter)) comments.delete(comment);
+    const { enable, disable } = checkpointWorldInfo(checkpointAt(story, id));
+    for (const ref of enable) {
+      const book = on.get(ref.lorebook) ?? new Map<string, LoreEnd>();
+      ref.comments.forEach((comment) => book.set(comment, lifetime ? loreEnd(ref, chapter) : null));
+      on.set(ref.lorebook, book);
+    }
+    disable.forEach((ref) => ref.comments.forEach((comment) => on.get(ref.lorebook)?.delete(comment)));
+    visit?.(id, on);
+  }
+  return on;
+}
 
 const questRewardWorldInfo = (story: unknown) => (isRecord(story) && Array.isArray(story.quests) ? story.quests : [])
   .map((quest) => readWorldInfoEffect(isRecord(quest) && isRecord(quest.reward) && isRecord(quest.reward.effects) ? quest.reward.effects.world_info : undefined));

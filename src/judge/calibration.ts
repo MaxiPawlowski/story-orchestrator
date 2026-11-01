@@ -6,5 +6,7 @@ export * from "./loreRelevanceCalibration";
 export * from "./curatorCalibration";
 export * from "./extractionCalibration";
 export * from "./expansionCalibration";
+export * from "./livingCriticCalibration";
+export * from "./livingCritic";
 export * from "./wardenCalibration";
 export * from "./contradictionCalibration";

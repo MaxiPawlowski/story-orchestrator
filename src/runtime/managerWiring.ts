@@ -18,6 +18,7 @@ import { loreEvidence } from "./worldInfoEvidence";
 import type { JudgeRuntime } from "./judge";
 import type { JournalRecordKind } from "./journal";
 import { requestBudgetFor } from "./requestBudget";
+import { pacingTrials } from "./stuckLeads";
 import { getGlobalSettings } from "./settingsStore";
 import { heldStoppedReply } from "./stoppedReply";
 import type { RollbackDeps } from "./rollback";
@@ -53,6 +54,7 @@ import { createCarryActions } from "./carryPort";
 import { wireSpeech } from "./speechWiring";
 import { createSkipPort } from "./skipPort";
 import { gameLayer } from "@engine/validate/gameLayer";
+import { readMemoryFor } from "./readMemoryPort";
 
 const reconcileWith = (read: () => RuntimeExtras) => (previous: NormalizedStory, next: NormalizedStory): void => {
   const extras = read();
@@ -288,7 +290,7 @@ export function wireCoordinators(port: ManagerPort) {
     getTensionTarget: () => engine.activeCheckpoint?.tension_target,
     getTension: () => port.extras().tension,
     setTension: (next) => { port.extras().tension = next; },
-    getPacing: () => port.extras().pacing, pathArc: () => getGlobalSettings().pacing.pathArc,
+    getPacing: () => port.extras().pacing, ...pacingTrials(view, memory),
     ended: () => storyEnded(port.extras().memory.chapters ?? []),
     onHoldChange: lifecycle.notify,
   });
@@ -352,6 +354,6 @@ export function wireCoordinators(port: ManagerPort) {
   const storyUpdateDeps = storyUpdateDepsFor(port, expansion, living, patternsWiring.reconcile);
   return {
     memory, expansion, extraction, pacing, stagecraft, copilot, inner, game, meanwhile, living, rollbackDeps, storyUpdateDeps, recap, patterns, promises, witness, rumors, mentions,
-    carry, narrator, delivery, cues, echoes, polish: { port, memory }, speech, effects: port.effects, skip: wireSkip(port, pacing, speech, game),
+    carry, narrator, delivery, cues, echoes, polish: { port, memory }, speech, effects: port.effects, skip: wireSkip(port, pacing, speech, game), readMemory: readMemoryFor(port.extras, memory),
   };
 }

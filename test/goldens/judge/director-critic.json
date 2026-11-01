@@ -1,0 +1,4100 @@
+{
+  "source": "calibrate-node director-critic over test/fixtures/judge/director-critic.json: the production question shape, real answers, replayed by jest keyed on state + questions, so a wording change must re-record",
+  "recordedAt": "2026-10-31T23:50:42.939Z",
+  "model": "jev-1.13.0",
+  "right": 95,
+  "total": 98,
+  "calls": [
+    {
+      "state": {
+        "player": "Max",
+        "cast": [
+          "Max",
+          "Hask",
+          "Narrator"
+        ],
+        "current_scene": "\"The Ford\" — The river is low enough to cross at the ford.",
+        "established_facts": [],
+        "open_threads": [],
+        "next_scene": {
+          "name": "Hask at the Ford",
+          "objective": "Hask arrives at the ford with his cart and sees the crossing is passable; he tests the riverbed with his pole and asks what brought anyone out this way."
+        }
+      },
+      "questions": {
+        "playerAct": {
+          "type": "noul",
+          "instructions": "Does `next_scene.objective` decide or narrate what `player` does, says, chooses or feels?",
+          "criteria": {
+            "true": "The objective has the player act, speak, agree, refuse, choose, go somewhere or feel something",
+            "false": "Only the world, other characters or events act; the player's response is left open"
+          }
+        },
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does `next_scene` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "The scene shows something an established fact rules out",
+            "false": "The scene is compatible with every established fact"
+          }
+        },
+        "outcomeName": {
+          "type": "noul",
+          "instructions": "Does `next_scene.name` state how the scene ends?",
+          "criteria": {
+            "true": "The name gives away the outcome: who wins, what is found, how it resolves",
+            "false": "The name names a place, a person or a situation"
+          }
+        },
+        "newPerson": {
+          "type": "noul",
+          "instructions": "Does `next_scene` bring in a named person who is neither in `cast` nor in `established_facts`?",
+          "criteria": {
+            "true": "A new named person appears",
+            "false": "Only cast members, people the facts establish, or unnamed people appear"
+          }
+        },
+        "followsThread": {
+          "type": "noul",
+          "instructions": "Does `next_scene` follow from `current_scene` or one of `open_threads`?",
+          "criteria": {
+            "true": "The scene continues the current scene or an open thread",
+            "false": "The scene ignores where the story is and starts something unrelated"
+          }
+        }
+      },
+      "answers": {
+        "playerAct": {
+          "type": "noul",
+          "noul": 0.07
+        },
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "outcomeName": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "newPerson": {
+          "type": "noul",
+          "noul": 0.07
+        },
+        "followsThread": {
+          "type": "noul",
+          "noul": 0.89
+        }
+      }
+    },
+    {
+      "state": {
+        "player": "Max",
+        "cast": [
+          "Max",
+          "Hask",
+          "Narrator"
+        ],
+        "current_scene": "\"Hask at the Ford\" — Hask arrives at the ford with his cart and sees the crossing is passable; he tests the riverbed with his pole and asks what brought anyone out this way.",
+        "established_facts": [],
+        "open_threads": [],
+        "next_scene": {
+          "name": "The Ford Awash",
+          "objective": "The river is rising behind Hask without warning, and the ford he just tested is already changing—the crossing he found passable may not stay that way, and he must decide whether to press the cart across now or pull back."
+        }
+      },
+      "questions": {
+        "playerAct": {
+          "type": "noul",
+          "instructions": "Does `next_scene.objective` decide or narrate what `player` does, says, chooses or feels?",
+          "criteria": {
+            "true": "The objective has the player act, speak, agree, refuse, choose, go somewhere or feel something",
+            "false": "Only the world, other characters or events act; the player's response is left open"
+          }
+        },
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does `next_scene` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "The scene shows something an established fact rules out",
+            "false": "The scene is compatible with every established fact"
+          }
+        },
+        "outcomeName": {
+          "type": "noul",
+          "instructions": "Does `next_scene.name` state how the scene ends?",
+          "criteria": {
+            "true": "The name gives away the outcome: who wins, what is found, how it resolves",
+            "false": "The name names a place, a person or a situation"
+          }
+        },
+        "newPerson": {
+          "type": "noul",
+          "instructions": "Does `next_scene` bring in a named person who is neither in `cast` nor in `established_facts`?",
+          "criteria": {
+            "true": "A new named person appears",
+            "false": "Only cast members, people the facts establish, or unnamed people appear"
+          }
+        },
+        "followsThread": {
+          "type": "noul",
+          "instructions": "Does `next_scene` follow from `current_scene` or one of `open_threads`?",
+          "criteria": {
+            "true": "The scene continues the current scene or an open thread",
+            "false": "The scene ignores where the story is and starts something unrelated"
+          }
+        }
+      },
+      "answers": {
+        "playerAct": {
+          "type": "noul",
+          "noul": 0.48
+        },
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "outcomeName": {
+          "type": "noul",
+          "noul": 0.07
+        },
+        "newPerson": {
+          "type": "noul",
+          "noul": 0.06
+        },
+        "followsThread": {
+          "type": "noul",
+          "noul": 0.91
+        }
+      }
+    },
+    {
+      "state": {
+        "player": "Max",
+        "cast": [
+          "Max",
+          "Maren",
+          "Tobin",
+          "Ysolde",
+          "Narrator"
+        ],
+        "current_scene": "The opening: On a small fishing coast the harbour lanterns go out one by one each night, and nobody will say why. The harbourmaster, the innkeeper and a lighthouse keeper each know part of it.",
+        "established_facts": [],
+        "open_threads": [],
+        "next_scene": {
+          "name": "The Second Lantern Fails",
+          "objective": "Just after full dark, the second harbour lantern gutters and dies on its post, and a knot of fishermen on the quay stop talking the moment they notice who is watching. Maren crosses the boards toward them with a coil of rope and a face that says nothing is wrong."
+        }
+      },
+      "questions": {
+        "playerAct": {
+          "type": "noul",
+          "instructions": "Does `next_scene.objective` decide or narrate what `player` does, says, chooses or feels?",
+          "criteria": {
+            "true": "The objective has the player act, speak, agree, refuse, choose, go somewhere or feel something",
+            "false": "Only the world, other characters or events act; the player's response is left open"
+          }
+        },
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does `next_scene` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "The scene shows something an established fact rules out",
+            "false": "The scene is compatible with every established fact"
+          }
+        },
+        "outcomeName": {
+          "type": "noul",
+          "instructions": "Does `next_scene.name` state how the scene ends?",
+          "criteria": {
+            "true": "The name gives away the outcome: who wins, what is found, how it resolves",
+            "false": "The name names a place, a person or a situation"
+          }
+        },
+        "newPerson": {
+          "type": "noul",
+          "instructions": "Does `next_scene` bring in a named person who is neither in `cast` nor in `established_facts`?",
+          "criteria": {
+            "true": "A new named person appears",
+            "false": "Only cast members, people the facts establish, or unnamed people appear"
+          }
+        },
+        "followsThread": {
+          "type": "noul",
+          "instructions": "Does `next_scene` follow from `current_scene` or one of `open_threads`?",
+          "criteria": {
+            "true": "The scene continues the current scene or an open thread",
+            "false": "The scene ignores where the story is and starts something unrelated"
+          }
+        }
+      },
+      "answers": {
+        "playerAct": {
+          "type": "noul",
+          "noul": 0.08
+        },
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "outcomeName": {
+          "type": "noul",
+          "noul": 0.09
+        },
+        "newPerson": {
+          "type": "noul",
+          "noul": 0.07
+        },
+        "followsThread": {
+          "type": "noul",
+          "noul": 0.94
+        }
+      }
+    },
+    {
+      "state": {
+        "player": "Max",
+        "cast": [
+          "Max",
+          "Hask",
+          "Narrator"
+        ],
+        "current_scene": "\"Hask at the Ford\" — Hask arrives at the ford with his cart and sees the crossing is passable; he tests the riverbed with his pole and asks what brought anyone out this way.",
+        "established_facts": [],
+        "open_threads": [],
+        "next_scene": {
+          "name": "The Ford's Far Bank",
+          "objective": "The river runs low and clear over gravel, but a fresh scar of torn bank shows where the flood cut the far approach; Hask's cart stands at the water's edge, and the miller waits with his pole planted, watching the road behind."
+        }
+      },
+      "questions": {
+        "playerAct": {
+          "type": "noul",
+          "instructions": "Does `next_scene.objective` decide or narrate what `player` does, says, chooses or feels?",
+          "criteria": {
+            "true": "The objective has the player act, speak, agree, refuse, choose, go somewhere or feel something",
+            "false": "Only the world, other characters or events act; the player's response is left open"
+          }
+        },
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does `next_scene` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "The scene shows something an established fact rules out",
+            "false": "The scene is compatible with every established fact"
+          }
+        },
+        "outcomeName": {
+          "type": "noul",
+          "instructions": "Does `next_scene.name` state how the scene ends?",
+          "criteria": {
+            "true": "The name gives away the outcome: who wins, what is found, how it resolves",
+            "false": "The name names a place, a person or a situation"
+          }
+        },
+        "newPerson": {
+          "type": "noul",
+          "instructions": "Does `next_scene` bring in a named person who is neither in `cast` nor in `established_facts`?",
+          "criteria": {
+            "true": "A new named person appears",
+            "false": "Only cast members, people the facts establish, or unnamed people appear"
+          }
+        },
+        "followsThread": {
+          "type": "noul",
+          "instructions": "Does `next_scene` follow from `current_scene` or one of `open_threads`?",
+          "criteria": {
+            "true": "The scene continues the current scene or an open thread",
+            "false": "The scene ignores where the story is and starts something unrelated"
+          }
+        }
+      },
+      "answers": {
+        "playerAct": {
+          "type": "noul",
+          "noul": 0.06
+        },
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "outcomeName": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "newPerson": {
+          "type": "noul",
+          "noul": 0.13
+        },
+        "followsThread": {
+          "type": "noul",
+          "noul": 0.92
+        }
+      }
+    },
+    {
+      "state": {
+        "player": "Max",
+        "cast": [
+          "Max",
+          "Maren",
+          "Tobin",
+          "Ysolde",
+          "Narrator"
+        ],
+        "current_scene": "\"Maren Coils the Rope\" — Maren reaches the fishermen and, without lowering her voice, tells them the lamps are being trimmed back for the season and asks the newcomer to help her carry the spare wicks up from the store. The fishermen watch to see whether the newcomer takes the rope end she offers.",
+        "established_facts": [],
+        "open_threads": [],
+        "next_scene": {
+          "name": "The Wicks in the Store",
+          "objective": "Down in the harbour store, the spare wicks Maren keeps are fewer than they should be, and the crate that held them has been prised open from beneath — salt-wet, splintered, as if something worked at it from the dark side of the wall. Maren sets the lantern down and waits to see what the newcomer makes of it."
+        }
+      },
+      "questions": {
+        "playerAct": {
+          "type": "noul",
+          "instructions": "Does `next_scene.objective` decide or narrate what `player` does, says, chooses or feels?",
+          "criteria": {
+            "true": "The objective has the player act, speak, agree, refuse, choose, go somewhere or feel something",
+            "false": "Only the world, other characters or events act; the player's response is left open"
+          }
+        },
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does `next_scene` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "The scene shows something an established fact rules out",
+            "false": "The scene is compatible with every established fact"
+          }
+        },
+        "outcomeName": {
+          "type": "noul",
+          "instructions": "Does `next_scene.name` state how the scene ends?",
+          "criteria": {
+            "true": "The name gives away the outcome: who wins, what is found, how it resolves",
+            "false": "The name names a place, a person or a situation"
+          }
+        },
+        "newPerson": {
+          "type": "noul",
+          "instructions": "Does `next_scene` bring in a named person who is neither in `cast` nor in `established_facts`?",
+          "criteria": {
+            "true": "A new named person appears",
+            "false": "Only cast members, people the facts establish, or unnamed people appear"
+          }
+        },
+        "followsThread": {
+          "type": "noul",
+          "instructions": "Does `next_scene` follow from `current_scene` or one of `open_threads`?",
+          "criteria": {
+            "true": "The scene continues the current scene or an open thread",
+            "false": "The scene ignores where the story is and starts something unrelated"
+          }
+        }
+      },
+      "answers": {
+        "playerAct": {
+          "type": "noul",
+          "noul": 0.18
+        },
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "outcomeName": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "newPerson": {
+          "type": "noul",
+          "noul": 0.06
+        },
+        "followsThread": {
+          "type": "noul",
+          "noul": 0.95
+        }
+      }
+    },
+    {
+      "state": {
+        "player": "Max",
+        "cast": [
+          "Max",
+          "Maren",
+          "Tobin",
+          "Ysolde",
+          "Narrator"
+        ],
+        "current_scene": "\"The Second Lantern Fails\" — Just after full dark, the second harbour lantern gutters and dies on its post, and a knot of fishermen on the quay stop talking the moment they notice who is watching. Maren crosses the boards toward them with a coil of rope and a face that says nothing is wrong.",
+        "established_facts": [],
+        "open_threads": [],
+        "next_scene": {
+          "name": "Maren Coils the Rope",
+          "objective": "Maren reaches the fishermen and, without lowering her voice, tells them the lamps are being trimmed back for the season and asks the newcomer to help her carry the spare wicks up from the store. The fishermen watch to see whether the newcomer takes the rope end she offers."
+        }
+      },
+      "questions": {
+        "playerAct": {
+          "type": "noul",
+          "instructions": "Does `next_scene.objective` decide or narrate what `player` does, says, chooses or feels?",
+          "criteria": {
+            "true": "The objective has the player act, speak, agree, refuse, choose, go somewhere or feel something",
+            "false": "Only the world, other characters or events act; the player's response is left open"
+          }
+        },
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does `next_scene` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "The scene shows something an established fact rules out",
+            "false": "The scene is compatible with every established fact"
+          }
+        },
+        "outcomeName": {
+          "type": "noul",
+          "instructions": "Does `next_scene.name` state how the scene ends?",
+          "criteria": {
+            "true": "The name gives away the outcome: who wins, what is found, how it resolves",
+            "false": "The name names a place, a person or a situation"
+          }
+        },
+        "newPerson": {
+          "type": "noul",
+          "instructions": "Does `next_scene` bring in a named person who is neither in `cast` nor in `established_facts`?",
+          "criteria": {
+            "true": "A new named person appears",
+            "false": "Only cast members, people the facts establish, or unnamed people appear"
+          }
+        },
+        "followsThread": {
+          "type": "noul",
+          "instructions": "Does `next_scene` follow from `current_scene` or one of `open_threads`?",
+          "criteria": {
+            "true": "The scene continues the current scene or an open thread",
+            "false": "The scene ignores where the story is and starts something unrelated"
+          }
+        }
+      },
+      "answers": {
+        "playerAct": {
+          "type": "noul",
+          "noul": 0.48
+        },
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "outcomeName": {
+          "type": "noul",
+          "noul": 0.05
+        },
+        "newPerson": {
+          "type": "noul",
+          "noul": 0.08
+        },
+        "followsThread": {
+          "type": "noul",
+          "noul": 0.94
+        }
+      }
+    },
+    {
+      "state": {
+        "player": "Max",
+        "cast": [
+          "Max",
+          "Maren",
+          "Tobin",
+          "Ysolde",
+          "Narrator"
+        ],
+        "current_scene": "\"Maren Coils the Rope\" — Maren reaches the fishermen and, without lowering her voice, tells them the lamps are being trimmed back for the season and asks the newcomer to help her carry the spare wicks up from the store. The fishermen watch to see whether the newcomer takes the rope end she offers.",
+        "established_facts": [],
+        "open_threads": [],
+        "next_scene": {
+          "name": "The Harbour Store",
+          "objective": "Maren leads the way down to the harbour store and sets the lantern on the counter beside a crate of spare wicks. The store smells of tar and cold iron, and the crate lid sits slightly askew."
+        }
+      },
+      "questions": {
+        "playerAct": {
+          "type": "noul",
+          "instructions": "Does `next_scene.objective` decide or narrate what `player` does, says, chooses or feels?",
+          "criteria": {
+            "true": "The objective has the player act, speak, agree, refuse, choose, go somewhere or feel something",
+            "false": "Only the world, other characters or events act; the player's response is left open"
+          }
+        },
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does `next_scene` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "The scene shows something an established fact rules out",
+            "false": "The scene is compatible with every established fact"
+          }
+        },
+        "outcomeName": {
+          "type": "noul",
+          "instructions": "Does `next_scene.name` state how the scene ends?",
+          "criteria": {
+            "true": "The name gives away the outcome: who wins, what is found, how it resolves",
+            "false": "The name names a place, a person or a situation"
+          }
+        },
+        "newPerson": {
+          "type": "noul",
+          "instructions": "Does `next_scene` bring in a named person who is neither in `cast` nor in `established_facts`?",
+          "criteria": {
+            "true": "A new named person appears",
+            "false": "Only cast members, people the facts establish, or unnamed people appear"
+          }
+        },
+        "followsThread": {
+          "type": "noul",
+          "instructions": "Does `next_scene` follow from `current_scene` or one of `open_threads`?",
+          "criteria": {
+            "true": "The scene continues the current scene or an open thread",
+            "false": "The scene ignores where the story is and starts something unrelated"
+          }
+        }
+      },
+      "answers": {
+        "playerAct": {
+          "type": "noul",
+          "noul": 0.11
+        },
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "outcomeName": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "newPerson": {
+          "type": "noul",
+          "noul": 0.06
+        },
+        "followsThread": {
+          "type": "noul",
+          "noul": 0.93
+        }
+      }
+    },
+    {
+      "state": {
+        "player": "Max",
+        "cast": [
+          "Max",
+          "Hask",
+          "Narrator"
+        ],
+        "current_scene": "\"The Ford\" — The river is low enough to cross at the ford.",
+        "established_facts": [],
+        "open_threads": [],
+        "next_scene": {
+          "name": "The Miller's Toll",
+          "objective": "Hask stands at the ford with his cart and demands payment from anyone crossing, claiming the road and the water are his to charge for now that the bridge is gone."
+        }
+      },
+      "questions": {
+        "playerAct": {
+          "type": "noul",
+          "instructions": "Does `next_scene.objective` decide or narrate what `player` does, says, chooses or feels?",
+          "criteria": {
+            "true": "The objective has the player act, speak, agree, refuse, choose, go somewhere or feel something",
+            "false": "Only the world, other characters or events act; the player's response is left open"
+          }
+        },
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does `next_scene` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "The scene shows something an established fact rules out",
+            "false": "The scene is compatible with every established fact"
+          }
+        },
+        "outcomeName": {
+          "type": "noul",
+          "instructions": "Does `next_scene.name` state how the scene ends?",
+          "criteria": {
+            "true": "The name gives away the outcome: who wins, what is found, how it resolves",
+            "false": "The name names a place, a person or a situation"
+          }
+        },
+        "newPerson": {
+          "type": "noul",
+          "instructions": "Does `next_scene` bring in a named person who is neither in `cast` nor in `established_facts`?",
+          "criteria": {
+            "true": "A new named person appears",
+            "false": "Only cast members, people the facts establish, or unnamed people appear"
+          }
+        },
+        "followsThread": {
+          "type": "noul",
+          "instructions": "Does `next_scene` follow from `current_scene` or one of `open_threads`?",
+          "criteria": {
+            "true": "The scene continues the current scene or an open thread",
+            "false": "The scene ignores where the story is and starts something unrelated"
+          }
+        }
+      },
+      "answers": {
+        "playerAct": {
+          "type": "noul",
+          "noul": 0.07
+        },
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.05
+        },
+        "outcomeName": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "newPerson": {
+          "type": "noul",
+          "noul": 0.1
+        },
+        "followsThread": {
+          "type": "noul",
+          "noul": 0.9
+        }
+      }
+    },
+    {
+      "state": {
+        "player": "Max",
+        "cast": [
+          "Max",
+          "Hask",
+          "Narrator"
+        ],
+        "current_scene": "\"The Ford\" — The river is low enough to cross at the ford.",
+        "established_facts": [],
+        "open_threads": [],
+        "next_scene": {
+          "name": "The Far Bank at Dusk",
+          "objective": "Across the low water, a lantern sways on the far bank where the road climbs away from the river; whoever carries it has not yet noticed the crossing is passable."
+        }
+      },
+      "questions": {
+        "playerAct": {
+          "type": "noul",
+          "instructions": "Does `next_scene.objective` decide or narrate what `player` does, says, chooses or feels?",
+          "criteria": {
+            "true": "The objective has the player act, speak, agree, refuse, choose, go somewhere or feel something",
+            "false": "Only the world, other characters or events act; the player's response is left open"
+          }
+        },
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does `next_scene` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "The scene shows something an established fact rules out",
+            "false": "The scene is compatible with every established fact"
+          }
+        },
+        "outcomeName": {
+          "type": "noul",
+          "instructions": "Does `next_scene.name` state how the scene ends?",
+          "criteria": {
+            "true": "The name gives away the outcome: who wins, what is found, how it resolves",
+            "false": "The name names a place, a person or a situation"
+          }
+        },
+        "newPerson": {
+          "type": "noul",
+          "instructions": "Does `next_scene` bring in a named person who is neither in `cast` nor in `established_facts`?",
+          "criteria": {
+            "true": "A new named person appears",
+            "false": "Only cast members, people the facts establish, or unnamed people appear"
+          }
+        },
+        "followsThread": {
+          "type": "noul",
+          "instructions": "Does `next_scene` follow from `current_scene` or one of `open_threads`?",
+          "criteria": {
+            "true": "The scene continues the current scene or an open thread",
+            "false": "The scene ignores where the story is and starts something unrelated"
+          }
+        }
+      },
+      "answers": {
+        "playerAct": {
+          "type": "noul",
+          "noul": 0.08
+        },
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "outcomeName": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "newPerson": {
+          "type": "noul",
+          "noul": 0.07
+        },
+        "followsThread": {
+          "type": "noul",
+          "noul": 0.88
+        }
+      }
+    },
+    {
+      "state": {
+        "player": "Max",
+        "cast": [
+          "Max",
+          "Hask",
+          "Narrator"
+        ],
+        "current_scene": "\"The Far Bank at Dusk\" — Across the low water, a lantern sways on the far bank where the road climbs away from the river; whoever carries it has not yet noticed the crossing is passable.",
+        "established_facts": [],
+        "open_threads": [],
+        "next_scene": {
+          "name": "The Lantern Halts",
+          "objective": "The lantern on the far bank stops moving, then swings low and still — the bearer has heard something across the water and now turns the light toward the crossing."
+        }
+      },
+      "questions": {
+        "playerAct": {
+          "type": "noul",
+          "instructions": "Does `next_scene.objective` decide or narrate what `player` does, says, chooses or feels?",
+          "criteria": {
+            "true": "The objective has the player act, speak, agree, refuse, choose, go somewhere or feel something",
+            "false": "Only the world, other characters or events act; the player's response is left open"
+          }
+        },
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does `next_scene` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "The scene shows something an established fact rules out",
+            "false": "The scene is compatible with every established fact"
+          }
+        },
+        "outcomeName": {
+          "type": "noul",
+          "instructions": "Does `next_scene.name` state how the scene ends?",
+          "criteria": {
+            "true": "The name gives away the outcome: who wins, what is found, how it resolves",
+            "false": "The name names a place, a person or a situation"
+          }
+        },
+        "newPerson": {
+          "type": "noul",
+          "instructions": "Does `next_scene` bring in a named person who is neither in `cast` nor in `established_facts`?",
+          "criteria": {
+            "true": "A new named person appears",
+            "false": "Only cast members, people the facts establish, or unnamed people appear"
+          }
+        },
+        "followsThread": {
+          "type": "noul",
+          "instructions": "Does `next_scene` follow from `current_scene` or one of `open_threads`?",
+          "criteria": {
+            "true": "The scene continues the current scene or an open thread",
+            "false": "The scene ignores where the story is and starts something unrelated"
+          }
+        }
+      },
+      "answers": {
+        "playerAct": {
+          "type": "noul",
+          "noul": 0.06
+        },
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "outcomeName": {
+          "type": "noul",
+          "noul": 0.15
+        },
+        "newPerson": {
+          "type": "noul",
+          "noul": 0.06
+        },
+        "followsThread": {
+          "type": "noul",
+          "noul": 0.94
+        }
+      }
+    },
+    {
+      "state": {
+        "player": "Max",
+        "cast": [
+          "Max",
+          "Hask",
+          "Narrator"
+        ],
+        "current_scene": "\"The Far Bank at Dusk\" — Across the low water, a lantern sways on the far bank where the road climbs away from the river; whoever carries it has not yet noticed the crossing is passable.",
+        "established_facts": [],
+        "open_threads": [],
+        "next_scene": {
+          "name": "Lantern on the Far Bank",
+          "objective": "Across the low water, a lantern sways on the far bank where the road climbs away from the river; whoever carries it has not yet noticed the crossing is passable."
+        }
+      },
+      "questions": {
+        "playerAct": {
+          "type": "noul",
+          "instructions": "Does `next_scene.objective` decide or narrate what `player` does, says, chooses or feels?",
+          "criteria": {
+            "true": "The objective has the player act, speak, agree, refuse, choose, go somewhere or feel something",
+            "false": "Only the world, other characters or events act; the player's response is left open"
+          }
+        },
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does `next_scene` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "The scene shows something an established fact rules out",
+            "false": "The scene is compatible with every established fact"
+          }
+        },
+        "outcomeName": {
+          "type": "noul",
+          "instructions": "Does `next_scene.name` state how the scene ends?",
+          "criteria": {
+            "true": "The name gives away the outcome: who wins, what is found, how it resolves",
+            "false": "The name names a place, a person or a situation"
+          }
+        },
+        "newPerson": {
+          "type": "noul",
+          "instructions": "Does `next_scene` bring in a named person who is neither in `cast` nor in `established_facts`?",
+          "criteria": {
+            "true": "A new named person appears",
+            "false": "Only cast members, people the facts establish, or unnamed people appear"
+          }
+        },
+        "followsThread": {
+          "type": "noul",
+          "instructions": "Does `next_scene` follow from `current_scene` or one of `open_threads`?",
+          "criteria": {
+            "true": "The scene continues the current scene or an open thread",
+            "false": "The scene ignores where the story is and starts something unrelated"
+          }
+        }
+      },
+      "answers": {
+        "playerAct": {
+          "type": "noul",
+          "noul": 0.09
+        },
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "outcomeName": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "newPerson": {
+          "type": "noul",
+          "noul": 0.06
+        },
+        "followsThread": {
+          "type": "noul",
+          "noul": 0.94
+        }
+      }
+    },
+    {
+      "state": {
+        "player": "Max",
+        "cast": [
+          "Max",
+          "Hask",
+          "Narrator"
+        ],
+        "current_scene": "\"Lantern on the Far Bank\" — Across the low water, a lantern sways on the far bank where the road climbs away from the river; whoever carries it has not yet noticed the crossing is passable.",
+        "established_facts": [],
+        "open_threads": [],
+        "next_scene": {
+          "name": "The Lantern Turns",
+          "objective": "The lantern on the far bank swings around and starts back down the slope toward the water, its bearer drawn by some sound or sign at the crossing—moving with purpose now, not wandering."
+        }
+      },
+      "questions": {
+        "playerAct": {
+          "type": "noul",
+          "instructions": "Does `next_scene.objective` decide or narrate what `player` does, says, chooses or feels?",
+          "criteria": {
+            "true": "The objective has the player act, speak, agree, refuse, choose, go somewhere or feel something",
+            "false": "Only the world, other characters or events act; the player's response is left open"
+          }
+        },
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does `next_scene` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "The scene shows something an established fact rules out",
+            "false": "The scene is compatible with every established fact"
+          }
+        },
+        "outcomeName": {
+          "type": "noul",
+          "instructions": "Does `next_scene.name` state how the scene ends?",
+          "criteria": {
+            "true": "The name gives away the outcome: who wins, what is found, how it resolves",
+            "false": "The name names a place, a person or a situation"
+          }
+        },
+        "newPerson": {
+          "type": "noul",
+          "instructions": "Does `next_scene` bring in a named person who is neither in `cast` nor in `established_facts`?",
+          "criteria": {
+            "true": "A new named person appears",
+            "false": "Only cast members, people the facts establish, or unnamed people appear"
+          }
+        },
+        "followsThread": {
+          "type": "noul",
+          "instructions": "Does `next_scene` follow from `current_scene` or one of `open_threads`?",
+          "criteria": {
+            "true": "The scene continues the current scene or an open thread",
+            "false": "The scene ignores where the story is and starts something unrelated"
+          }
+        }
+      },
+      "answers": {
+        "playerAct": {
+          "type": "noul",
+          "noul": 0.06
+        },
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.05
+        },
+        "outcomeName": {
+          "type": "noul",
+          "noul": 0.1
+        },
+        "newPerson": {
+          "type": "noul",
+          "noul": 0.06
+        },
+        "followsThread": {
+          "type": "noul",
+          "noul": 0.91
+        }
+      }
+    },
+    {
+      "state": {
+        "player": "Max",
+        "cast": [
+          "Max",
+          "Maren",
+          "Tobin",
+          "Ysolde",
+          "Narrator"
+        ],
+        "current_scene": "The opening: On a small fishing coast the harbour lanterns go out one by one each night, and nobody will say why. The harbourmaster, the innkeeper and a lighthouse keeper each know part of it.",
+        "established_facts": [],
+        "open_threads": [],
+        "next_scene": {
+          "name": "The Lamp Room, After Dark",
+          "objective": "The lighthouse lamp goes dark for the first time since the newcomer arrived, and Ysolde is seen walking down the harbour road toward the inn with a covered hand-lantern, asking quietly whether anyone has a room for the night."
+        }
+      },
+      "questions": {
+        "playerAct": {
+          "type": "noul",
+          "instructions": "Does `next_scene.objective` decide or narrate what `player` does, says, chooses or feels?",
+          "criteria": {
+            "true": "The objective has the player act, speak, agree, refuse, choose, go somewhere or feel something",
+            "false": "Only the world, other characters or events act; the player's response is left open"
+          }
+        },
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does `next_scene` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "The scene shows something an established fact rules out",
+            "false": "The scene is compatible with every established fact"
+          }
+        },
+        "outcomeName": {
+          "type": "noul",
+          "instructions": "Does `next_scene.name` state how the scene ends?",
+          "criteria": {
+            "true": "The name gives away the outcome: who wins, what is found, how it resolves",
+            "false": "The name names a place, a person or a situation"
+          }
+        },
+        "newPerson": {
+          "type": "noul",
+          "instructions": "Does `next_scene` bring in a named person who is neither in `cast` nor in `established_facts`?",
+          "criteria": {
+            "true": "A new named person appears",
+            "false": "Only cast members, people the facts establish, or unnamed people appear"
+          }
+        },
+        "followsThread": {
+          "type": "noul",
+          "instructions": "Does `next_scene` follow from `current_scene` or one of `open_threads`?",
+          "criteria": {
+            "true": "The scene continues the current scene or an open thread",
+            "false": "The scene ignores where the story is and starts something unrelated"
+          }
+        }
+      },
+      "answers": {
+        "playerAct": {
+          "type": "noul",
+          "noul": 0.06
+        },
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "outcomeName": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "newPerson": {
+          "type": "noul",
+          "noul": 0.09
+        },
+        "followsThread": {
+          "type": "noul",
+          "noul": 0.87
+        }
+      }
+    },
+    {
+      "state": {
+        "player": "Max",
+        "cast": [
+          "Max",
+          "Maren",
+          "Tobin",
+          "Ysolde",
+          "Narrator"
+        ],
+        "current_scene": "\"The Lamp Room, After Dark\" — The lighthouse lamp goes dark for the first time since the newcomer arrived, and Ysolde is seen walking down the harbour road toward the inn with a covered hand-lantern, asking quietly whether anyone has a room for the night.",
+        "established_facts": [],
+        "open_threads": [],
+        "next_scene": {
+          "name": "A Room Above the Harbour",
+          "objective": "Ysolde takes the room beside the newcomer's, sets her covered lantern in the window, and tells Tobin—loud enough for the common room—that the light will not be lit again tonight, and perhaps not tomorrow."
+        }
+      },
+      "questions": {
+        "playerAct": {
+          "type": "noul",
+          "instructions": "Does `next_scene.objective` decide or narrate what `player` does, says, chooses or feels?",
+          "criteria": {
+            "true": "The objective has the player act, speak, agree, refuse, choose, go somewhere or feel something",
+            "false": "Only the world, other characters or events act; the player's response is left open"
+          }
+        },
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does `next_scene` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "The scene shows something an established fact rules out",
+            "false": "The scene is compatible with every established fact"
+          }
+        },
+        "outcomeName": {
+          "type": "noul",
+          "instructions": "Does `next_scene.name` state how the scene ends?",
+          "criteria": {
+            "true": "The name gives away the outcome: who wins, what is found, how it resolves",
+            "false": "The name names a place, a person or a situation"
+          }
+        },
+        "newPerson": {
+          "type": "noul",
+          "instructions": "Does `next_scene` bring in a named person who is neither in `cast` nor in `established_facts`?",
+          "criteria": {
+            "true": "A new named person appears",
+            "false": "Only cast members, people the facts establish, or unnamed people appear"
+          }
+        },
+        "followsThread": {
+          "type": "noul",
+          "instructions": "Does `next_scene` follow from `current_scene` or one of `open_threads`?",
+          "criteria": {
+            "true": "The scene continues the current scene or an open thread",
+            "false": "The scene ignores where the story is and starts something unrelated"
+          }
+        }
+      },
+      "answers": {
+        "playerAct": {
+          "type": "noul",
+          "noul": 0.07
+        },
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "outcomeName": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "newPerson": {
+          "type": "noul",
+          "noul": 0.1
+        },
+        "followsThread": {
+          "type": "noul",
+          "noul": 0.89
+        }
+      }
+    },
+    {
+      "state": {
+        "player": "Max",
+        "cast": [
+          "Max",
+          "Maren",
+          "Tobin",
+          "Ysolde",
+          "Narrator"
+        ],
+        "current_scene": "\"The Common Room After Ysolde\" — Tobin closes the inn's shutters early and sets a chair against the door, telling the room that no boat goes out tonight and no lamp goes lit — and that Maren has already walked down to the harbour to count what's dark.",
+        "established_facts": [],
+        "open_threads": [],
+        "next_scene": {
+          "name": "The Harbour, After Shutters",
+          "objective": "Maren moves lantern to lantern along the quay, tallying which are dark, and does not look up at the inn's shuttered windows. The count is wrong — one lantern burns that should not."
+        }
+      },
+      "questions": {
+        "playerAct": {
+          "type": "noul",
+          "instructions": "Does `next_scene.objective` decide or narrate what `player` does, says, chooses or feels?",
+          "criteria": {
+            "true": "The objective has the player act, speak, agree, refuse, choose, go somewhere or feel something",
+            "false": "Only the world, other characters or events act; the player's response is left open"
+          }
+        },
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does `next_scene` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "The scene shows something an established fact rules out",
+            "false": "The scene is compatible with every established fact"
+          }
+        },
+        "outcomeName": {
+          "type": "noul",
+          "instructions": "Does `next_scene.name` state how the scene ends?",
+          "criteria": {
+            "true": "The name gives away the outcome: who wins, what is found, how it resolves",
+            "false": "The name names a place, a person or a situation"
+          }
+        },
+        "newPerson": {
+          "type": "noul",
+          "instructions": "Does `next_scene` bring in a named person who is neither in `cast` nor in `established_facts`?",
+          "criteria": {
+            "true": "A new named person appears",
+            "false": "Only cast members, people the facts establish, or unnamed people appear"
+          }
+        },
+        "followsThread": {
+          "type": "noul",
+          "instructions": "Does `next_scene` follow from `current_scene` or one of `open_threads`?",
+          "criteria": {
+            "true": "The scene continues the current scene or an open thread",
+            "false": "The scene ignores where the story is and starts something unrelated"
+          }
+        }
+      },
+      "answers": {
+        "playerAct": {
+          "type": "noul",
+          "noul": 0.08
+        },
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.05
+        },
+        "outcomeName": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "newPerson": {
+          "type": "noul",
+          "noul": 0.07
+        },
+        "followsThread": {
+          "type": "noul",
+          "noul": 0.95
+        }
+      }
+    },
+    {
+      "state": {
+        "player": "Max",
+        "cast": [
+          "Max",
+          "Maren",
+          "Tobin",
+          "Ysolde",
+          "Narrator"
+        ],
+        "current_scene": "\"A Room Above the Harbour\" — Ysolde takes the room beside the newcomer's, sets her covered lantern in the window, and tells Tobin—loud enough for the common room—that the light will not be lit again tonight, and perhaps not tomorrow.",
+        "established_facts": [],
+        "open_threads": [],
+        "next_scene": {
+          "name": "The Common Room After Ysolde",
+          "objective": "Tobin closes the inn's shutters early and sets a chair against the door, telling the room that no boat goes out tonight and no lamp goes lit — and that Maren has already walked down to the harbour to count what's dark."
+        }
+      },
+      "questions": {
+        "playerAct": {
+          "type": "noul",
+          "instructions": "Does `next_scene.objective` decide or narrate what `player` does, says, chooses or feels?",
+          "criteria": {
+            "true": "The objective has the player act, speak, agree, refuse, choose, go somewhere or feel something",
+            "false": "Only the world, other characters or events act; the player's response is left open"
+          }
+        },
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does `next_scene` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "The scene shows something an established fact rules out",
+            "false": "The scene is compatible with every established fact"
+          }
+        },
+        "outcomeName": {
+          "type": "noul",
+          "instructions": "Does `next_scene.name` state how the scene ends?",
+          "criteria": {
+            "true": "The name gives away the outcome: who wins, what is found, how it resolves",
+            "false": "The name names a place, a person or a situation"
+          }
+        },
+        "newPerson": {
+          "type": "noul",
+          "instructions": "Does `next_scene` bring in a named person who is neither in `cast` nor in `established_facts`?",
+          "criteria": {
+            "true": "A new named person appears",
+            "false": "Only cast members, people the facts establish, or unnamed people appear"
+          }
+        },
+        "followsThread": {
+          "type": "noul",
+          "instructions": "Does `next_scene` follow from `current_scene` or one of `open_threads`?",
+          "criteria": {
+            "true": "The scene continues the current scene or an open thread",
+            "false": "The scene ignores where the story is and starts something unrelated"
+          }
+        }
+      },
+      "answers": {
+        "playerAct": {
+          "type": "noul",
+          "noul": 0.08
+        },
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.05
+        },
+        "outcomeName": {
+          "type": "noul",
+          "noul": 0.06
+        },
+        "newPerson": {
+          "type": "noul",
+          "noul": 0.09
+        },
+        "followsThread": {
+          "type": "noul",
+          "noul": 0.9
+        }
+      }
+    },
+    {
+      "state": {
+        "player": "Max",
+        "cast": [
+          "Max",
+          "Maren",
+          "Tobin",
+          "Ysolde",
+          "Narrator"
+        ],
+        "current_scene": "\"The Harbour, After Shutters\" — Maren moves lantern to lantern along the quay, tallying which are dark, and does not look up at the inn's shuttered windows. The count is wrong — one lantern burns that should not.",
+        "established_facts": [],
+        "open_threads": [],
+        "next_scene": {
+          "name": "The Lantern That Burns",
+          "objective": "Maren finishes her tally and stands still before the one lantern still burning — a lamp she did not light, on a post that was dark an hour ago. She does not touch it. She waits, as if expecting someone to come and claim it."
+        }
+      },
+      "questions": {
+        "playerAct": {
+          "type": "noul",
+          "instructions": "Does `next_scene.objective` decide or narrate what `player` does, says, chooses or feels?",
+          "criteria": {
+            "true": "The objective has the player act, speak, agree, refuse, choose, go somewhere or feel something",
+            "false": "Only the world, other characters or events act; the player's response is left open"
+          }
+        },
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does `next_scene` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "The scene shows something an established fact rules out",
+            "false": "The scene is compatible with every established fact"
+          }
+        },
+        "outcomeName": {
+          "type": "noul",
+          "instructions": "Does `next_scene.name` state how the scene ends?",
+          "criteria": {
+            "true": "The name gives away the outcome: who wins, what is found, how it resolves",
+            "false": "The name names a place, a person or a situation"
+          }
+        },
+        "newPerson": {
+          "type": "noul",
+          "instructions": "Does `next_scene` bring in a named person who is neither in `cast` nor in `established_facts`?",
+          "criteria": {
+            "true": "A new named person appears",
+            "false": "Only cast members, people the facts establish, or unnamed people appear"
+          }
+        },
+        "followsThread": {
+          "type": "noul",
+          "instructions": "Does `next_scene` follow from `current_scene` or one of `open_threads`?",
+          "criteria": {
+            "true": "The scene continues the current scene or an open thread",
+            "false": "The scene ignores where the story is and starts something unrelated"
+          }
+        }
+      },
+      "answers": {
+        "playerAct": {
+          "type": "noul",
+          "noul": 0.17
+        },
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "outcomeName": {
+          "type": "noul",
+          "noul": 0.07
+        },
+        "newPerson": {
+          "type": "noul",
+          "noul": 0.07
+        },
+        "followsThread": {
+          "type": "noul",
+          "noul": 0.96
+        }
+      }
+    },
+    {
+      "state": {
+        "player": "Max",
+        "cast": [
+          "Max",
+          "Maren",
+          "Tobin",
+          "Ysolde",
+          "Narrator"
+        ],
+        "current_scene": "\"The Harbour, After Shutters\" — Maren moves lantern to lantern along the quay, tallying which are dark, and does not look up at the inn's shuttered windows. The count is wrong — one lantern burns that should not.",
+        "established_facts": [],
+        "open_threads": [],
+        "next_scene": {
+          "name": "The Lantern That Should Not Burn",
+          "objective": "Maren stops at the one lantern still lit, the one that has no wick left to give, and stands before it as though waiting for it to speak. She does not touch it, and she does not look toward the inn."
+        }
+      },
+      "questions": {
+        "playerAct": {
+          "type": "noul",
+          "instructions": "Does `next_scene.objective` decide or narrate what `player` does, says, chooses or feels?",
+          "criteria": {
+            "true": "The objective has the player act, speak, agree, refuse, choose, go somewhere or feel something",
+            "false": "Only the world, other characters or events act; the player's response is left open"
+          }
+        },
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does `next_scene` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "The scene shows something an established fact rules out",
+            "false": "The scene is compatible with every established fact"
+          }
+        },
+        "outcomeName": {
+          "type": "noul",
+          "instructions": "Does `next_scene.name` state how the scene ends?",
+          "criteria": {
+            "true": "The name gives away the outcome: who wins, what is found, how it resolves",
+            "false": "The name names a place, a person or a situation"
+          }
+        },
+        "newPerson": {
+          "type": "noul",
+          "instructions": "Does `next_scene` bring in a named person who is neither in `cast` nor in `established_facts`?",
+          "criteria": {
+            "true": "A new named person appears",
+            "false": "Only cast members, people the facts establish, or unnamed people appear"
+          }
+        },
+        "followsThread": {
+          "type": "noul",
+          "instructions": "Does `next_scene` follow from `current_scene` or one of `open_threads`?",
+          "criteria": {
+            "true": "The scene continues the current scene or an open thread",
+            "false": "The scene ignores where the story is and starts something unrelated"
+          }
+        }
+      },
+      "answers": {
+        "playerAct": {
+          "type": "noul",
+          "noul": 0.16
+        },
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "outcomeName": {
+          "type": "noul",
+          "noul": 0.06
+        },
+        "newPerson": {
+          "type": "noul",
+          "noul": 0.06
+        },
+        "followsThread": {
+          "type": "noul",
+          "noul": 0.95
+        }
+      }
+    },
+    {
+      "state": {
+        "player": "Max",
+        "cast": [
+          "Max",
+          "Maren",
+          "Tobin",
+          "Ysolde",
+          "Narrator"
+        ],
+        "current_scene": "\"The Unclaimed Lamp\" — Maren stays by the burning lamp, waiting for whoever lit it to come forward. The harbour around them is dark except for this one flame, and the tide has begun to turn.",
+        "established_facts": [],
+        "open_threads": [],
+        "next_scene": {
+          "name": "The Lamp That Burns",
+          "objective": "Maren stays by the burning lamp, waiting for whoever lit it to come forward. The harbour around them is dark except for this one flame, and the tide has begun to turn."
+        }
+      },
+      "questions": {
+        "playerAct": {
+          "type": "noul",
+          "instructions": "Does `next_scene.objective` decide or narrate what `player` does, says, chooses or feels?",
+          "criteria": {
+            "true": "The objective has the player act, speak, agree, refuse, choose, go somewhere or feel something",
+            "false": "Only the world, other characters or events act; the player's response is left open"
+          }
+        },
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does `next_scene` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "The scene shows something an established fact rules out",
+            "false": "The scene is compatible with every established fact"
+          }
+        },
+        "outcomeName": {
+          "type": "noul",
+          "instructions": "Does `next_scene.name` state how the scene ends?",
+          "criteria": {
+            "true": "The name gives away the outcome: who wins, what is found, how it resolves",
+            "false": "The name names a place, a person or a situation"
+          }
+        },
+        "newPerson": {
+          "type": "noul",
+          "instructions": "Does `next_scene` bring in a named person who is neither in `cast` nor in `established_facts`?",
+          "criteria": {
+            "true": "A new named person appears",
+            "false": "Only cast members, people the facts establish, or unnamed people appear"
+          }
+        },
+        "followsThread": {
+          "type": "noul",
+          "instructions": "Does `next_scene` follow from `current_scene` or one of `open_threads`?",
+          "criteria": {
+            "true": "The scene continues the current scene or an open thread",
+            "false": "The scene ignores where the story is and starts something unrelated"
+          }
+        }
+      },
+      "answers": {
+        "playerAct": {
+          "type": "noul",
+          "noul": 0.13
+        },
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "outcomeName": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "newPerson": {
+          "type": "noul",
+          "noul": 0.06
+        },
+        "followsThread": {
+          "type": "noul",
+          "noul": 0.96
+        }
+      }
+    },
+    {
+      "state": {
+        "player": "Max",
+        "cast": [
+          "Max",
+          "Maren",
+          "Tobin",
+          "Ysolde",
+          "Narrator"
+        ],
+        "current_scene": "\"The Lantern That Burns\" — Maren finishes her tally and stands still before the one lantern still burning — a lamp she did not light, on a post that was dark an hour ago. She does not touch it. She waits, as if expecting someone to come and claim it.",
+        "established_facts": [],
+        "open_threads": [],
+        "next_scene": {
+          "name": "The Unclaimed Lamp",
+          "objective": "Maren stays by the burning lamp, waiting for whoever lit it to come forward. The harbour around them is dark except for this one flame, and the tide has begun to turn."
+        }
+      },
+      "questions": {
+        "playerAct": {
+          "type": "noul",
+          "instructions": "Does `next_scene.objective` decide or narrate what `player` does, says, chooses or feels?",
+          "criteria": {
+            "true": "The objective has the player act, speak, agree, refuse, choose, go somewhere or feel something",
+            "false": "Only the world, other characters or events act; the player's response is left open"
+          }
+        },
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does `next_scene` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "The scene shows something an established fact rules out",
+            "false": "The scene is compatible with every established fact"
+          }
+        },
+        "outcomeName": {
+          "type": "noul",
+          "instructions": "Does `next_scene.name` state how the scene ends?",
+          "criteria": {
+            "true": "The name gives away the outcome: who wins, what is found, how it resolves",
+            "false": "The name names a place, a person or a situation"
+          }
+        },
+        "newPerson": {
+          "type": "noul",
+          "instructions": "Does `next_scene` bring in a named person who is neither in `cast` nor in `established_facts`?",
+          "criteria": {
+            "true": "A new named person appears",
+            "false": "Only cast members, people the facts establish, or unnamed people appear"
+          }
+        },
+        "followsThread": {
+          "type": "noul",
+          "instructions": "Does `next_scene` follow from `current_scene` or one of `open_threads`?",
+          "criteria": {
+            "true": "The scene continues the current scene or an open thread",
+            "false": "The scene ignores where the story is and starts something unrelated"
+          }
+        }
+      },
+      "answers": {
+        "playerAct": {
+          "type": "noul",
+          "noul": 0.28
+        },
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "outcomeName": {
+          "type": "noul",
+          "noul": 0.05
+        },
+        "newPerson": {
+          "type": "noul",
+          "noul": 0.07
+        },
+        "followsThread": {
+          "type": "noul",
+          "noul": 0.97
+        }
+      }
+    },
+    {
+      "state": {
+        "player": "Max",
+        "cast": [
+          "Max",
+          "Maren",
+          "Tobin",
+          "Ysolde",
+          "Narrator"
+        ],
+        "current_scene": "\"The Harbour, After Shutters\" — Maren moves lantern to lantern along the quay, tallying which are dark; one lantern burns that should not.",
+        "established_facts": [],
+        "open_threads": [
+          "who keeps putting the harbour lanterns out"
+        ],
+        "next_scene": {
+          "name": "The Newcomer Takes the Rope",
+          "objective": "Max takes the rope end from Maren and follows her down to the store, agreeing to help with the wicks."
+        }
+      },
+      "questions": {
+        "playerAct": {
+          "type": "noul",
+          "instructions": "Does `next_scene.objective` decide or narrate what `player` does, says, chooses or feels?",
+          "criteria": {
+            "true": "The objective has the player act, speak, agree, refuse, choose, go somewhere or feel something",
+            "false": "Only the world, other characters or events act; the player's response is left open"
+          }
+        },
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does `next_scene` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "The scene shows something an established fact rules out",
+            "false": "The scene is compatible with every established fact"
+          }
+        },
+        "outcomeName": {
+          "type": "noul",
+          "instructions": "Does `next_scene.name` state how the scene ends?",
+          "criteria": {
+            "true": "The name gives away the outcome: who wins, what is found, how it resolves",
+            "false": "The name names a place, a person or a situation"
+          }
+        },
+        "newPerson": {
+          "type": "noul",
+          "instructions": "Does `next_scene` bring in a named person who is neither in `cast` nor in `established_facts`?",
+          "criteria": {
+            "true": "A new named person appears",
+            "false": "Only cast members, people the facts establish, or unnamed people appear"
+          }
+        },
+        "followsThread": {
+          "type": "noul",
+          "instructions": "Does `next_scene` follow from `current_scene` or one of `open_threads`?",
+          "criteria": {
+            "true": "The scene continues the current scene or an open thread",
+            "false": "The scene ignores where the story is and starts something unrelated"
+          }
+        }
+      },
+      "answers": {
+        "playerAct": {
+          "type": "noul",
+          "noul": 0.94
+        },
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "outcomeName": {
+          "type": "noul",
+          "noul": 0.18
+        },
+        "newPerson": {
+          "type": "noul",
+          "noul": 0.07
+        },
+        "followsThread": {
+          "type": "noul",
+          "noul": 0.86
+        }
+      }
+    },
+    {
+      "state": {
+        "player": "Max",
+        "cast": [
+          "Max",
+          "Maren",
+          "Tobin",
+          "Ysolde",
+          "Narrator"
+        ],
+        "current_scene": "\"The Harbour, After Shutters\" — Maren moves lantern to lantern along the quay, tallying which are dark; one lantern burns that should not.",
+        "established_facts": [],
+        "open_threads": [
+          "who keeps putting the harbour lanterns out"
+        ],
+        "next_scene": {
+          "name": "A Confidence at the Inn",
+          "objective": "Max decides to trust Ysolde and tells her about the dark lamp on the quay."
+        }
+      },
+      "questions": {
+        "playerAct": {
+          "type": "noul",
+          "instructions": "Does `next_scene.objective` decide or narrate what `player` does, says, chooses or feels?",
+          "criteria": {
+            "true": "The objective has the player act, speak, agree, refuse, choose, go somewhere or feel something",
+            "false": "Only the world, other characters or events act; the player's response is left open"
+          }
+        },
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does `next_scene` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "The scene shows something an established fact rules out",
+            "false": "The scene is compatible with every established fact"
+          }
+        },
+        "outcomeName": {
+          "type": "noul",
+          "instructions": "Does `next_scene.name` state how the scene ends?",
+          "criteria": {
+            "true": "The name gives away the outcome: who wins, what is found, how it resolves",
+            "false": "The name names a place, a person or a situation"
+          }
+        },
+        "newPerson": {
+          "type": "noul",
+          "instructions": "Does `next_scene` bring in a named person who is neither in `cast` nor in `established_facts`?",
+          "criteria": {
+            "true": "A new named person appears",
+            "false": "Only cast members, people the facts establish, or unnamed people appear"
+          }
+        },
+        "followsThread": {
+          "type": "noul",
+          "instructions": "Does `next_scene` follow from `current_scene` or one of `open_threads`?",
+          "criteria": {
+            "true": "The scene continues the current scene or an open thread",
+            "false": "The scene ignores where the story is and starts something unrelated"
+          }
+        }
+      },
+      "answers": {
+        "playerAct": {
+          "type": "noul",
+          "noul": 0.96
+        },
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "outcomeName": {
+          "type": "noul",
+          "noul": 0.06
+        },
+        "newPerson": {
+          "type": "noul",
+          "noul": 0.07
+        },
+        "followsThread": {
+          "type": "noul",
+          "noul": 0.87
+        }
+      }
+    },
+    {
+      "state": {
+        "player": "Max",
+        "cast": [
+          "Max",
+          "Hask",
+          "Narrator"
+        ],
+        "current_scene": "\"The Ford\" — The bridge is gone; the miller Hask has found a shallow crossing downstream and stands at it with his cart.",
+        "established_facts": [],
+        "open_threads": [
+          "how to cross the river now the bridge is gone"
+        ],
+        "next_scene": {
+          "name": "The Road Back",
+          "objective": "Max refuses Hask's offer and turns back toward the village."
+        }
+      },
+      "questions": {
+        "playerAct": {
+          "type": "noul",
+          "instructions": "Does `next_scene.objective` decide or narrate what `player` does, says, chooses or feels?",
+          "criteria": {
+            "true": "The objective has the player act, speak, agree, refuse, choose, go somewhere or feel something",
+            "false": "Only the world, other characters or events act; the player's response is left open"
+          }
+        },
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does `next_scene` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "The scene shows something an established fact rules out",
+            "false": "The scene is compatible with every established fact"
+          }
+        },
+        "outcomeName": {
+          "type": "noul",
+          "instructions": "Does `next_scene.name` state how the scene ends?",
+          "criteria": {
+            "true": "The name gives away the outcome: who wins, what is found, how it resolves",
+            "false": "The name names a place, a person or a situation"
+          }
+        },
+        "newPerson": {
+          "type": "noul",
+          "instructions": "Does `next_scene` bring in a named person who is neither in `cast` nor in `established_facts`?",
+          "criteria": {
+            "true": "A new named person appears",
+            "false": "Only cast members, people the facts establish, or unnamed people appear"
+          }
+        },
+        "followsThread": {
+          "type": "noul",
+          "instructions": "Does `next_scene` follow from `current_scene` or one of `open_threads`?",
+          "criteria": {
+            "true": "The scene continues the current scene or an open thread",
+            "false": "The scene ignores where the story is and starts something unrelated"
+          }
+        }
+      },
+      "answers": {
+        "playerAct": {
+          "type": "noul",
+          "noul": 0.97
+        },
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.05
+        },
+        "outcomeName": {
+          "type": "noul",
+          "noul": 0.07
+        },
+        "newPerson": {
+          "type": "noul",
+          "noul": 0.12
+        },
+        "followsThread": {
+          "type": "noul",
+          "noul": 0.88
+        }
+      }
+    },
+    {
+      "state": {
+        "player": "Max",
+        "cast": [
+          "Max",
+          "Hask",
+          "Narrator"
+        ],
+        "current_scene": "\"The Ford\" — The bridge is gone; the miller Hask has found a shallow crossing downstream and stands at it with his cart.",
+        "established_facts": [],
+        "open_threads": [
+          "how to cross the river now the bridge is gone"
+        ],
+        "next_scene": {
+          "name": "Across the Ford",
+          "objective": "Max pays Hask's toll and crosses the ford beside the cart."
+        }
+      },
+      "questions": {
+        "playerAct": {
+          "type": "noul",
+          "instructions": "Does `next_scene.objective` decide or narrate what `player` does, says, chooses or feels?",
+          "criteria": {
+            "true": "The objective has the player act, speak, agree, refuse, choose, go somewhere or feel something",
+            "false": "Only the world, other characters or events act; the player's response is left open"
+          }
+        },
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does `next_scene` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "The scene shows something an established fact rules out",
+            "false": "The scene is compatible with every established fact"
+          }
+        },
+        "outcomeName": {
+          "type": "noul",
+          "instructions": "Does `next_scene.name` state how the scene ends?",
+          "criteria": {
+            "true": "The name gives away the outcome: who wins, what is found, how it resolves",
+            "false": "The name names a place, a person or a situation"
+          }
+        },
+        "newPerson": {
+          "type": "noul",
+          "instructions": "Does `next_scene` bring in a named person who is neither in `cast` nor in `established_facts`?",
+          "criteria": {
+            "true": "A new named person appears",
+            "false": "Only cast members, people the facts establish, or unnamed people appear"
+          }
+        },
+        "followsThread": {
+          "type": "noul",
+          "instructions": "Does `next_scene` follow from `current_scene` or one of `open_threads`?",
+          "criteria": {
+            "true": "The scene continues the current scene or an open thread",
+            "false": "The scene ignores where the story is and starts something unrelated"
+          }
+        }
+      },
+      "answers": {
+        "playerAct": {
+          "type": "noul",
+          "noul": 0.89
+        },
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "outcomeName": {
+          "type": "noul",
+          "noul": 0.23
+        },
+        "newPerson": {
+          "type": "noul",
+          "noul": 0.09
+        },
+        "followsThread": {
+          "type": "noul",
+          "noul": 0.96
+        }
+      }
+    },
+    {
+      "state": {
+        "player": "Max",
+        "cast": [
+          "Max",
+          "Maren",
+          "Tobin",
+          "Ysolde",
+          "Narrator"
+        ],
+        "current_scene": "\"The Harbour, After Shutters\" — Maren moves lantern to lantern along the quay, tallying which are dark; one lantern burns that should not.",
+        "established_facts": [],
+        "open_threads": [
+          "who keeps putting the harbour lanterns out"
+        ],
+        "next_scene": {
+          "name": "The Lamp Room",
+          "objective": "Feeling uneasy, Max climbs to the lamp room alone to see why the light failed."
+        }
+      },
+      "questions": {
+        "playerAct": {
+          "type": "noul",
+          "instructions": "Does `next_scene.objective` decide or narrate what `player` does, says, chooses or feels?",
+          "criteria": {
+            "true": "The objective has the player act, speak, agree, refuse, choose, go somewhere or feel something",
+            "false": "Only the world, other characters or events act; the player's response is left open"
+          }
+        },
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does `next_scene` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "The scene shows something an established fact rules out",
+            "false": "The scene is compatible with every established fact"
+          }
+        },
+        "outcomeName": {
+          "type": "noul",
+          "instructions": "Does `next_scene.name` state how the scene ends?",
+          "criteria": {
+            "true": "The name gives away the outcome: who wins, what is found, how it resolves",
+            "false": "The name names a place, a person or a situation"
+          }
+        },
+        "newPerson": {
+          "type": "noul",
+          "instructions": "Does `next_scene` bring in a named person who is neither in `cast` nor in `established_facts`?",
+          "criteria": {
+            "true": "A new named person appears",
+            "false": "Only cast members, people the facts establish, or unnamed people appear"
+          }
+        },
+        "followsThread": {
+          "type": "noul",
+          "instructions": "Does `next_scene` follow from `current_scene` or one of `open_threads`?",
+          "criteria": {
+            "true": "The scene continues the current scene or an open thread",
+            "false": "The scene ignores where the story is and starts something unrelated"
+          }
+        }
+      },
+      "answers": {
+        "playerAct": {
+          "type": "noul",
+          "noul": 0.95
+        },
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "outcomeName": {
+          "type": "noul",
+          "noul": 0.02
+        },
+        "newPerson": {
+          "type": "noul",
+          "noul": 0.06
+        },
+        "followsThread": {
+          "type": "noul",
+          "noul": 0.94
+        }
+      }
+    },
+    {
+      "state": {
+        "player": "Max",
+        "cast": [
+          "Max",
+          "Maren",
+          "Tobin",
+          "Ysolde",
+          "Narrator"
+        ],
+        "current_scene": "\"The Harbour, After Shutters\" — Maren moves lantern to lantern along the quay, tallying which are dark; one lantern burns that should not.",
+        "established_facts": [],
+        "open_threads": [
+          "who keeps putting the harbour lanterns out"
+        ],
+        "next_scene": {
+          "name": "The Barred Door",
+          "objective": "Max sides with Tobin and bars the inn door against Ysolde."
+        }
+      },
+      "questions": {
+        "playerAct": {
+          "type": "noul",
+          "instructions": "Does `next_scene.objective` decide or narrate what `player` does, says, chooses or feels?",
+          "criteria": {
+            "true": "The objective has the player act, speak, agree, refuse, choose, go somewhere or feel something",
+            "false": "Only the world, other characters or events act; the player's response is left open"
+          }
+        },
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does `next_scene` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "The scene shows something an established fact rules out",
+            "false": "The scene is compatible with every established fact"
+          }
+        },
+        "outcomeName": {
+          "type": "noul",
+          "instructions": "Does `next_scene.name` state how the scene ends?",
+          "criteria": {
+            "true": "The name gives away the outcome: who wins, what is found, how it resolves",
+            "false": "The name names a place, a person or a situation"
+          }
+        },
+        "newPerson": {
+          "type": "noul",
+          "instructions": "Does `next_scene` bring in a named person who is neither in `cast` nor in `established_facts`?",
+          "criteria": {
+            "true": "A new named person appears",
+            "false": "Only cast members, people the facts establish, or unnamed people appear"
+          }
+        },
+        "followsThread": {
+          "type": "noul",
+          "instructions": "Does `next_scene` follow from `current_scene` or one of `open_threads`?",
+          "criteria": {
+            "true": "The scene continues the current scene or an open thread",
+            "false": "The scene ignores where the story is and starts something unrelated"
+          }
+        }
+      },
+      "answers": {
+        "playerAct": {
+          "type": "noul",
+          "noul": 0.94
+        },
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "outcomeName": {
+          "type": "noul",
+          "noul": 0.09
+        },
+        "newPerson": {
+          "type": "noul",
+          "noul": 0.07
+        },
+        "followsThread": {
+          "type": "noul",
+          "noul": 0.21
+        }
+      }
+    },
+    {
+      "state": {
+        "player": "Max",
+        "cast": [
+          "Max",
+          "Selim",
+          "Hadra",
+          "Narrator"
+        ],
+        "current_scene": "\"The Pass\" — The caravan reaches the foot of the mountain pass as the wind picks up and the water runs low.",
+        "established_facts": [],
+        "open_threads": [
+          "whether the caravan can reach the oasis before the water runs out"
+        ],
+        "next_scene": {
+          "name": "Into the Dunes",
+          "objective": "Max agrees to guide the caravan through the pass and leads the camels into the dunes."
+        }
+      },
+      "questions": {
+        "playerAct": {
+          "type": "noul",
+          "instructions": "Does `next_scene.objective` decide or narrate what `player` does, says, chooses or feels?",
+          "criteria": {
+            "true": "The objective has the player act, speak, agree, refuse, choose, go somewhere or feel something",
+            "false": "Only the world, other characters or events act; the player's response is left open"
+          }
+        },
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does `next_scene` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "The scene shows something an established fact rules out",
+            "false": "The scene is compatible with every established fact"
+          }
+        },
+        "outcomeName": {
+          "type": "noul",
+          "instructions": "Does `next_scene.name` state how the scene ends?",
+          "criteria": {
+            "true": "The name gives away the outcome: who wins, what is found, how it resolves",
+            "false": "The name names a place, a person or a situation"
+          }
+        },
+        "newPerson": {
+          "type": "noul",
+          "instructions": "Does `next_scene` bring in a named person who is neither in `cast` nor in `established_facts`?",
+          "criteria": {
+            "true": "A new named person appears",
+            "false": "Only cast members, people the facts establish, or unnamed people appear"
+          }
+        },
+        "followsThread": {
+          "type": "noul",
+          "instructions": "Does `next_scene` follow from `current_scene` or one of `open_threads`?",
+          "criteria": {
+            "true": "The scene continues the current scene or an open thread",
+            "false": "The scene ignores where the story is and starts something unrelated"
+          }
+        }
+      },
+      "answers": {
+        "playerAct": {
+          "type": "noul",
+          "noul": 0.96
+        },
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "outcomeName": {
+          "type": "noul",
+          "noul": 0.05
+        },
+        "newPerson": {
+          "type": "noul",
+          "noul": 0.06
+        },
+        "followsThread": {
+          "type": "noul",
+          "noul": 0.9
+        }
+      }
+    },
+    {
+      "state": {
+        "player": "Max",
+        "cast": [
+          "Max",
+          "Maren",
+          "Tobin",
+          "Ysolde",
+          "Narrator"
+        ],
+        "current_scene": "\"The Harbour, After Shutters\" — Maren moves lantern to lantern along the quay, tallying which are dark; one lantern burns that should not.",
+        "established_facts": [],
+        "open_threads": [
+          "who keeps putting the harbour lanterns out"
+        ],
+        "next_scene": {
+          "name": "Maren's Coat",
+          "objective": "Max searches Maren's coat while she is turned away and finds the missing wicks."
+        }
+      },
+      "questions": {
+        "playerAct": {
+          "type": "noul",
+          "instructions": "Does `next_scene.objective` decide or narrate what `player` does, says, chooses or feels?",
+          "criteria": {
+            "true": "The objective has the player act, speak, agree, refuse, choose, go somewhere or feel something",
+            "false": "Only the world, other characters or events act; the player's response is left open"
+          }
+        },
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does `next_scene` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "The scene shows something an established fact rules out",
+            "false": "The scene is compatible with every established fact"
+          }
+        },
+        "outcomeName": {
+          "type": "noul",
+          "instructions": "Does `next_scene.name` state how the scene ends?",
+          "criteria": {
+            "true": "The name gives away the outcome: who wins, what is found, how it resolves",
+            "false": "The name names a place, a person or a situation"
+          }
+        },
+        "newPerson": {
+          "type": "noul",
+          "instructions": "Does `next_scene` bring in a named person who is neither in `cast` nor in `established_facts`?",
+          "criteria": {
+            "true": "A new named person appears",
+            "false": "Only cast members, people the facts establish, or unnamed people appear"
+          }
+        },
+        "followsThread": {
+          "type": "noul",
+          "instructions": "Does `next_scene` follow from `current_scene` or one of `open_threads`?",
+          "criteria": {
+            "true": "The scene continues the current scene or an open thread",
+            "false": "The scene ignores where the story is and starts something unrelated"
+          }
+        }
+      },
+      "answers": {
+        "playerAct": {
+          "type": "noul",
+          "noul": 0.91
+        },
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.05
+        },
+        "outcomeName": {
+          "type": "noul",
+          "noul": 0.08
+        },
+        "newPerson": {
+          "type": "noul",
+          "noul": 0.06
+        },
+        "followsThread": {
+          "type": "noul",
+          "noul": 0.84
+        }
+      }
+    },
+    {
+      "state": {
+        "player": "Max",
+        "cast": [
+          "Max",
+          "Hask",
+          "Narrator"
+        ],
+        "current_scene": "\"The Ford\" — The bridge is gone; the miller Hask has found a shallow crossing downstream and stands at it with his cart.",
+        "established_facts": [],
+        "open_threads": [
+          "how to cross the river now the bridge is gone"
+        ],
+        "next_scene": {
+          "name": "The Stuck Wheel",
+          "objective": "Max wades into the river to help Hask free the stuck cart wheel."
+        }
+      },
+      "questions": {
+        "playerAct": {
+          "type": "noul",
+          "instructions": "Does `next_scene.objective` decide or narrate what `player` does, says, chooses or feels?",
+          "criteria": {
+            "true": "The objective has the player act, speak, agree, refuse, choose, go somewhere or feel something",
+            "false": "Only the world, other characters or events act; the player's response is left open"
+          }
+        },
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does `next_scene` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "The scene shows something an established fact rules out",
+            "false": "The scene is compatible with every established fact"
+          }
+        },
+        "outcomeName": {
+          "type": "noul",
+          "instructions": "Does `next_scene.name` state how the scene ends?",
+          "criteria": {
+            "true": "The name gives away the outcome: who wins, what is found, how it resolves",
+            "false": "The name names a place, a person or a situation"
+          }
+        },
+        "newPerson": {
+          "type": "noul",
+          "instructions": "Does `next_scene` bring in a named person who is neither in `cast` nor in `established_facts`?",
+          "criteria": {
+            "true": "A new named person appears",
+            "false": "Only cast members, people the facts establish, or unnamed people appear"
+          }
+        },
+        "followsThread": {
+          "type": "noul",
+          "instructions": "Does `next_scene` follow from `current_scene` or one of `open_threads`?",
+          "criteria": {
+            "true": "The scene continues the current scene or an open thread",
+            "false": "The scene ignores where the story is and starts something unrelated"
+          }
+        }
+      },
+      "answers": {
+        "playerAct": {
+          "type": "noul",
+          "noul": 0.9
+        },
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "outcomeName": {
+          "type": "noul",
+          "noul": 0.09
+        },
+        "newPerson": {
+          "type": "noul",
+          "noul": 0.08
+        },
+        "followsThread": {
+          "type": "noul",
+          "noul": 0.94
+        }
+      }
+    },
+    {
+      "state": {
+        "player": "Max",
+        "cast": [
+          "Max",
+          "Selim",
+          "Hadra",
+          "Narrator"
+        ],
+        "current_scene": "\"The Pass\" — The caravan reaches the foot of the mountain pass as the wind picks up and the water runs low.",
+        "established_facts": [],
+        "open_threads": [
+          "whether the caravan can reach the oasis before the water runs out"
+        ],
+        "next_scene": {
+          "name": "The Caravan Master's Coin",
+          "objective": "Max accepts Hadra's coin and swears to keep the route through the pass secret."
+        }
+      },
+      "questions": {
+        "playerAct": {
+          "type": "noul",
+          "instructions": "Does `next_scene.objective` decide or narrate what `player` does, says, chooses or feels?",
+          "criteria": {
+            "true": "The objective has the player act, speak, agree, refuse, choose, go somewhere or feel something",
+            "false": "Only the world, other characters or events act; the player's response is left open"
+          }
+        },
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does `next_scene` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "The scene shows something an established fact rules out",
+            "false": "The scene is compatible with every established fact"
+          }
+        },
+        "outcomeName": {
+          "type": "noul",
+          "instructions": "Does `next_scene.name` state how the scene ends?",
+          "criteria": {
+            "true": "The name gives away the outcome: who wins, what is found, how it resolves",
+            "false": "The name names a place, a person or a situation"
+          }
+        },
+        "newPerson": {
+          "type": "noul",
+          "instructions": "Does `next_scene` bring in a named person who is neither in `cast` nor in `established_facts`?",
+          "criteria": {
+            "true": "A new named person appears",
+            "false": "Only cast members, people the facts establish, or unnamed people appear"
+          }
+        },
+        "followsThread": {
+          "type": "noul",
+          "instructions": "Does `next_scene` follow from `current_scene` or one of `open_threads`?",
+          "criteria": {
+            "true": "The scene continues the current scene or an open thread",
+            "false": "The scene ignores where the story is and starts something unrelated"
+          }
+        }
+      },
+      "answers": {
+        "playerAct": {
+          "type": "noul",
+          "noul": 0.93
+        },
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "outcomeName": {
+          "type": "noul",
+          "noul": 0.09
+        },
+        "newPerson": {
+          "type": "noul",
+          "noul": 0.15
+        },
+        "followsThread": {
+          "type": "noul",
+          "noul": 0.5
+        }
+      }
+    },
+    {
+      "state": {
+        "player": "Max",
+        "cast": [
+          "Max",
+          "Maren",
+          "Tobin",
+          "Ysolde",
+          "Narrator"
+        ],
+        "current_scene": "\"The Harbour, After Shutters\" — Maren moves lantern to lantern along the quay, tallying which are dark; one lantern burns that should not.",
+        "established_facts": [],
+        "open_threads": [
+          "who keeps putting the harbour lanterns out"
+        ],
+        "next_scene": {
+          "name": "The Burning Lamp",
+          "objective": "Max feels a surge of fear at the burning lamp and runs back toward the inn."
+        }
+      },
+      "questions": {
+        "playerAct": {
+          "type": "noul",
+          "instructions": "Does `next_scene.objective` decide or narrate what `player` does, says, chooses or feels?",
+          "criteria": {
+            "true": "The objective has the player act, speak, agree, refuse, choose, go somewhere or feel something",
+            "false": "Only the world, other characters or events act; the player's response is left open"
+          }
+        },
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does `next_scene` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "The scene shows something an established fact rules out",
+            "false": "The scene is compatible with every established fact"
+          }
+        },
+        "outcomeName": {
+          "type": "noul",
+          "instructions": "Does `next_scene.name` state how the scene ends?",
+          "criteria": {
+            "true": "The name gives away the outcome: who wins, what is found, how it resolves",
+            "false": "The name names a place, a person or a situation"
+          }
+        },
+        "newPerson": {
+          "type": "noul",
+          "instructions": "Does `next_scene` bring in a named person who is neither in `cast` nor in `established_facts`?",
+          "criteria": {
+            "true": "A new named person appears",
+            "false": "Only cast members, people the facts establish, or unnamed people appear"
+          }
+        },
+        "followsThread": {
+          "type": "noul",
+          "instructions": "Does `next_scene` follow from `current_scene` or one of `open_threads`?",
+          "criteria": {
+            "true": "The scene continues the current scene or an open thread",
+            "false": "The scene ignores where the story is and starts something unrelated"
+          }
+        }
+      },
+      "answers": {
+        "playerAct": {
+          "type": "noul",
+          "noul": 0.96
+        },
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "outcomeName": {
+          "type": "noul",
+          "noul": 0.06
+        },
+        "newPerson": {
+          "type": "noul",
+          "noul": 0.06
+        },
+        "followsThread": {
+          "type": "noul",
+          "noul": 0.9
+        }
+      }
+    },
+    {
+      "state": {
+        "player": "Max",
+        "cast": [
+          "Max",
+          "Maren",
+          "Tobin",
+          "Ysolde",
+          "Narrator"
+        ],
+        "current_scene": "\"The Harbour, After Shutters\" — Maren moves lantern to lantern along the quay, tallying which are dark; one lantern burns that should not.",
+        "established_facts": [],
+        "open_threads": [
+          "who keeps putting the harbour lanterns out"
+        ],
+        "next_scene": {
+          "name": "A Night Above the Harbour",
+          "objective": "Max asks Tobin for a room and spends the night above the harbour."
+        }
+      },
+      "questions": {
+        "playerAct": {
+          "type": "noul",
+          "instructions": "Does `next_scene.objective` decide or narrate what `player` does, says, chooses or feels?",
+          "criteria": {
+            "true": "The objective has the player act, speak, agree, refuse, choose, go somewhere or feel something",
+            "false": "Only the world, other characters or events act; the player's response is left open"
+          }
+        },
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does `next_scene` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "The scene shows something an established fact rules out",
+            "false": "The scene is compatible with every established fact"
+          }
+        },
+        "outcomeName": {
+          "type": "noul",
+          "instructions": "Does `next_scene.name` state how the scene ends?",
+          "criteria": {
+            "true": "The name gives away the outcome: who wins, what is found, how it resolves",
+            "false": "The name names a place, a person or a situation"
+          }
+        },
+        "newPerson": {
+          "type": "noul",
+          "instructions": "Does `next_scene` bring in a named person who is neither in `cast` nor in `established_facts`?",
+          "criteria": {
+            "true": "A new named person appears",
+            "false": "Only cast members, people the facts establish, or unnamed people appear"
+          }
+        },
+        "followsThread": {
+          "type": "noul",
+          "instructions": "Does `next_scene` follow from `current_scene` or one of `open_threads`?",
+          "criteria": {
+            "true": "The scene continues the current scene or an open thread",
+            "false": "The scene ignores where the story is and starts something unrelated"
+          }
+        }
+      },
+      "answers": {
+        "playerAct": {
+          "type": "noul",
+          "noul": 0.91
+        },
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "outcomeName": {
+          "type": "noul",
+          "noul": 0.06
+        },
+        "newPerson": {
+          "type": "noul",
+          "noul": 0.07
+        },
+        "followsThread": {
+          "type": "noul",
+          "noul": 0.4
+        }
+      }
+    },
+    {
+      "state": {
+        "player": "Max",
+        "cast": [
+          "Max",
+          "Hask",
+          "Narrator"
+        ],
+        "current_scene": "\"The Ford\" — The bridge is gone; the miller Hask has found a shallow crossing downstream and stands at it with his cart.",
+        "established_facts": [],
+        "open_threads": [
+          "how to cross the river now the bridge is gone"
+        ],
+        "next_scene": {
+          "name": "Up the Slope",
+          "objective": "Max follows the lantern bearer up the far slope, determined to learn who it is."
+        }
+      },
+      "questions": {
+        "playerAct": {
+          "type": "noul",
+          "instructions": "Does `next_scene.objective` decide or narrate what `player` does, says, chooses or feels?",
+          "criteria": {
+            "true": "The objective has the player act, speak, agree, refuse, choose, go somewhere or feel something",
+            "false": "Only the world, other characters or events act; the player's response is left open"
+          }
+        },
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does `next_scene` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "The scene shows something an established fact rules out",
+            "false": "The scene is compatible with every established fact"
+          }
+        },
+        "outcomeName": {
+          "type": "noul",
+          "instructions": "Does `next_scene.name` state how the scene ends?",
+          "criteria": {
+            "true": "The name gives away the outcome: who wins, what is found, how it resolves",
+            "false": "The name names a place, a person or a situation"
+          }
+        },
+        "newPerson": {
+          "type": "noul",
+          "instructions": "Does `next_scene` bring in a named person who is neither in `cast` nor in `established_facts`?",
+          "criteria": {
+            "true": "A new named person appears",
+            "false": "Only cast members, people the facts establish, or unnamed people appear"
+          }
+        },
+        "followsThread": {
+          "type": "noul",
+          "instructions": "Does `next_scene` follow from `current_scene` or one of `open_threads`?",
+          "criteria": {
+            "true": "The scene continues the current scene or an open thread",
+            "false": "The scene ignores where the story is and starts something unrelated"
+          }
+        }
+      },
+      "answers": {
+        "playerAct": {
+          "type": "noul",
+          "noul": 0.89
+        },
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "outcomeName": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "newPerson": {
+          "type": "noul",
+          "noul": 0.09
+        },
+        "followsThread": {
+          "type": "noul",
+          "noul": 0.16
+        }
+      }
+    },
+    {
+      "state": {
+        "player": "Max",
+        "cast": [
+          "Max",
+          "Maren",
+          "Tobin",
+          "Ysolde",
+          "Narrator"
+        ],
+        "current_scene": "\"The Harbour, After Shutters\" — Maren moves lantern to lantern along the quay, tallying which are dark; one lantern burns that should not.",
+        "established_facts": [],
+        "open_threads": [
+          "who keeps putting the harbour lanterns out"
+        ],
+        "next_scene": {
+          "name": "Tobin's Question",
+          "objective": "Tobin asks Max whether the lamp was lit when the boat came in, and waits for an answer."
+        }
+      },
+      "questions": {
+        "playerAct": {
+          "type": "noul",
+          "instructions": "Does `next_scene.objective` decide or narrate what `player` does, says, chooses or feels?",
+          "criteria": {
+            "true": "The objective has the player act, speak, agree, refuse, choose, go somewhere or feel something",
+            "false": "Only the world, other characters or events act; the player's response is left open"
+          }
+        },
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does `next_scene` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "The scene shows something an established fact rules out",
+            "false": "The scene is compatible with every established fact"
+          }
+        },
+        "outcomeName": {
+          "type": "noul",
+          "instructions": "Does `next_scene.name` state how the scene ends?",
+          "criteria": {
+            "true": "The name gives away the outcome: who wins, what is found, how it resolves",
+            "false": "The name names a place, a person or a situation"
+          }
+        },
+        "newPerson": {
+          "type": "noul",
+          "instructions": "Does `next_scene` bring in a named person who is neither in `cast` nor in `established_facts`?",
+          "criteria": {
+            "true": "A new named person appears",
+            "false": "Only cast members, people the facts establish, or unnamed people appear"
+          }
+        },
+        "followsThread": {
+          "type": "noul",
+          "instructions": "Does `next_scene` follow from `current_scene` or one of `open_threads`?",
+          "criteria": {
+            "true": "The scene continues the current scene or an open thread",
+            "false": "The scene ignores where the story is and starts something unrelated"
+          }
+        }
+      },
+      "answers": {
+        "playerAct": {
+          "type": "noul",
+          "noul": 0.51
+        },
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "outcomeName": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "newPerson": {
+          "type": "noul",
+          "noul": 0.06
+        },
+        "followsThread": {
+          "type": "noul",
+          "noul": 0.85
+        }
+      }
+    },
+    {
+      "state": {
+        "player": "Max",
+        "cast": [
+          "Max",
+          "Maren",
+          "Tobin",
+          "Ysolde",
+          "Narrator"
+        ],
+        "current_scene": "\"The Harbour, After Shutters\" — Maren moves lantern to lantern along the quay, tallying which are dark; one lantern burns that should not.",
+        "established_facts": [],
+        "open_threads": [
+          "who keeps putting the harbour lanterns out"
+        ],
+        "next_scene": {
+          "name": "The Common Room",
+          "objective": "Max is sure Ysolde is lying and says so in front of the whole common room."
+        }
+      },
+      "questions": {
+        "playerAct": {
+          "type": "noul",
+          "instructions": "Does `next_scene.objective` decide or narrate what `player` does, says, chooses or feels?",
+          "criteria": {
+            "true": "The objective has the player act, speak, agree, refuse, choose, go somewhere or feel something",
+            "false": "Only the world, other characters or events act; the player's response is left open"
+          }
+        },
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does `next_scene` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "The scene shows something an established fact rules out",
+            "false": "The scene is compatible with every established fact"
+          }
+        },
+        "outcomeName": {
+          "type": "noul",
+          "instructions": "Does `next_scene.name` state how the scene ends?",
+          "criteria": {
+            "true": "The name gives away the outcome: who wins, what is found, how it resolves",
+            "false": "The name names a place, a person or a situation"
+          }
+        },
+        "newPerson": {
+          "type": "noul",
+          "instructions": "Does `next_scene` bring in a named person who is neither in `cast` nor in `established_facts`?",
+          "criteria": {
+            "true": "A new named person appears",
+            "false": "Only cast members, people the facts establish, or unnamed people appear"
+          }
+        },
+        "followsThread": {
+          "type": "noul",
+          "instructions": "Does `next_scene` follow from `current_scene` or one of `open_threads`?",
+          "criteria": {
+            "true": "The scene continues the current scene or an open thread",
+            "false": "The scene ignores where the story is and starts something unrelated"
+          }
+        }
+      },
+      "answers": {
+        "playerAct": {
+          "type": "noul",
+          "noul": 0.95
+        },
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "outcomeName": {
+          "type": "noul",
+          "noul": 0.02
+        },
+        "newPerson": {
+          "type": "noul",
+          "noul": 0.1
+        },
+        "followsThread": {
+          "type": "noul",
+          "noul": 0.22
+        }
+      }
+    },
+    {
+      "state": {
+        "player": "Max",
+        "cast": [
+          "Max",
+          "Selim",
+          "Hadra",
+          "Narrator"
+        ],
+        "current_scene": "\"The Pass\" — The caravan reaches the foot of the mountain pass as the wind picks up and the water runs low.",
+        "established_facts": [],
+        "open_threads": [
+          "whether the caravan can reach the oasis before the water runs out"
+        ],
+        "next_scene": {
+          "name": "The Western Storm",
+          "objective": "A sandstorm rolls in from the west and Hadra orders the camels to kneel; the last water skin has a slow leak."
+        }
+      },
+      "questions": {
+        "playerAct": {
+          "type": "noul",
+          "instructions": "Does `next_scene.objective` decide or narrate what `player` does, says, chooses or feels?",
+          "criteria": {
+            "true": "The objective has the player act, speak, agree, refuse, choose, go somewhere or feel something",
+            "false": "Only the world, other characters or events act; the player's response is left open"
+          }
+        },
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does `next_scene` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "The scene shows something an established fact rules out",
+            "false": "The scene is compatible with every established fact"
+          }
+        },
+        "outcomeName": {
+          "type": "noul",
+          "instructions": "Does `next_scene.name` state how the scene ends?",
+          "criteria": {
+            "true": "The name gives away the outcome: who wins, what is found, how it resolves",
+            "false": "The name names a place, a person or a situation"
+          }
+        },
+        "newPerson": {
+          "type": "noul",
+          "instructions": "Does `next_scene` bring in a named person who is neither in `cast` nor in `established_facts`?",
+          "criteria": {
+            "true": "A new named person appears",
+            "false": "Only cast members, people the facts establish, or unnamed people appear"
+          }
+        },
+        "followsThread": {
+          "type": "noul",
+          "instructions": "Does `next_scene` follow from `current_scene` or one of `open_threads`?",
+          "criteria": {
+            "true": "The scene continues the current scene or an open thread",
+            "false": "The scene ignores where the story is and starts something unrelated"
+          }
+        }
+      },
+      "answers": {
+        "playerAct": {
+          "type": "noul",
+          "noul": 0.07
+        },
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "outcomeName": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "newPerson": {
+          "type": "noul",
+          "noul": 0.06
+        },
+        "followsThread": {
+          "type": "noul",
+          "noul": 0.93
+        }
+      }
+    },
+    {
+      "state": {
+        "player": "Max",
+        "cast": [
+          "Max",
+          "Hask",
+          "Narrator"
+        ],
+        "current_scene": "\"The Ford\" — The bridge is gone; the miller Hask has found a shallow crossing downstream and stands at it with his cart.",
+        "established_facts": [],
+        "open_threads": [
+          "how to cross the river now the bridge is gone"
+        ],
+        "next_scene": {
+          "name": "A Seat on the Cart",
+          "objective": "Hask offers Max a seat on the cart for a copper, then shrugs and starts across without waiting."
+        }
+      },
+      "questions": {
+        "playerAct": {
+          "type": "noul",
+          "instructions": "Does `next_scene.objective` decide or narrate what `player` does, says, chooses or feels?",
+          "criteria": {
+            "true": "The objective has the player act, speak, agree, refuse, choose, go somewhere or feel something",
+            "false": "Only the world, other characters or events act; the player's response is left open"
+          }
+        },
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does `next_scene` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "The scene shows something an established fact rules out",
+            "false": "The scene is compatible with every established fact"
+          }
+        },
+        "outcomeName": {
+          "type": "noul",
+          "instructions": "Does `next_scene.name` state how the scene ends?",
+          "criteria": {
+            "true": "The name gives away the outcome: who wins, what is found, how it resolves",
+            "false": "The name names a place, a person or a situation"
+          }
+        },
+        "newPerson": {
+          "type": "noul",
+          "instructions": "Does `next_scene` bring in a named person who is neither in `cast` nor in `established_facts`?",
+          "criteria": {
+            "true": "A new named person appears",
+            "false": "Only cast members, people the facts establish, or unnamed people appear"
+          }
+        },
+        "followsThread": {
+          "type": "noul",
+          "instructions": "Does `next_scene` follow from `current_scene` or one of `open_threads`?",
+          "criteria": {
+            "true": "The scene continues the current scene or an open thread",
+            "false": "The scene ignores where the story is and starts something unrelated"
+          }
+        }
+      },
+      "answers": {
+        "playerAct": {
+          "type": "noul",
+          "noul": 0.09
+        },
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "outcomeName": {
+          "type": "noul",
+          "noul": 0.08
+        },
+        "newPerson": {
+          "type": "noul",
+          "noul": 0.07
+        },
+        "followsThread": {
+          "type": "noul",
+          "noul": 0.96
+        }
+      }
+    },
+    {
+      "state": {
+        "player": "Max",
+        "cast": [
+          "Max",
+          "Selim",
+          "Hadra",
+          "Narrator"
+        ],
+        "current_scene": "\"The Pass\" — The caravan reaches the foot of the mountain pass as the wind picks up and the water runs low.",
+        "established_facts": [],
+        "open_threads": [
+          "whether the caravan can reach the oasis before the water runs out"
+        ],
+        "next_scene": {
+          "name": "The Unmarked Well",
+          "objective": "Selim points out an old well marked on no map and warns that the last caravan to drink there never arrived."
+        }
+      },
+      "questions": {
+        "playerAct": {
+          "type": "noul",
+          "instructions": "Does `next_scene.objective` decide or narrate what `player` does, says, chooses or feels?",
+          "criteria": {
+            "true": "The objective has the player act, speak, agree, refuse, choose, go somewhere or feel something",
+            "false": "Only the world, other characters or events act; the player's response is left open"
+          }
+        },
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does `next_scene` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "The scene shows something an established fact rules out",
+            "false": "The scene is compatible with every established fact"
+          }
+        },
+        "outcomeName": {
+          "type": "noul",
+          "instructions": "Does `next_scene.name` state how the scene ends?",
+          "criteria": {
+            "true": "The name gives away the outcome: who wins, what is found, how it resolves",
+            "false": "The name names a place, a person or a situation"
+          }
+        },
+        "newPerson": {
+          "type": "noul",
+          "instructions": "Does `next_scene` bring in a named person who is neither in `cast` nor in `established_facts`?",
+          "criteria": {
+            "true": "A new named person appears",
+            "false": "Only cast members, people the facts establish, or unnamed people appear"
+          }
+        },
+        "followsThread": {
+          "type": "noul",
+          "instructions": "Does `next_scene` follow from `current_scene` or one of `open_threads`?",
+          "criteria": {
+            "true": "The scene continues the current scene or an open thread",
+            "false": "The scene ignores where the story is and starts something unrelated"
+          }
+        }
+      },
+      "answers": {
+        "playerAct": {
+          "type": "noul",
+          "noul": 0.08
+        },
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.05
+        },
+        "outcomeName": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "newPerson": {
+          "type": "noul",
+          "noul": 0.08
+        },
+        "followsThread": {
+          "type": "noul",
+          "noul": 0.92
+        }
+      }
+    },
+    {
+      "state": {
+        "player": "Max",
+        "cast": [
+          "Max",
+          "Maren",
+          "Tobin",
+          "Ysolde",
+          "Narrator"
+        ],
+        "current_scene": "\"The Harbour, After Shutters\" — Maren moves lantern to lantern along the quay, tallying which are dark; one lantern burns that should not.",
+        "established_facts": [],
+        "open_threads": [
+          "who keeps putting the harbour lanterns out"
+        ],
+        "next_scene": {
+          "name": "An Empty Window",
+          "objective": "Ysolde leaves the inn before dawn, and her covered lantern is gone from the window."
+        }
+      },
+      "questions": {
+        "playerAct": {
+          "type": "noul",
+          "instructions": "Does `next_scene.objective` decide or narrate what `player` does, says, chooses or feels?",
+          "criteria": {
+            "true": "The objective has the player act, speak, agree, refuse, choose, go somewhere or feel something",
+            "false": "Only the world, other characters or events act; the player's response is left open"
+          }
+        },
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does `next_scene` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "The scene shows something an established fact rules out",
+            "false": "The scene is compatible with every established fact"
+          }
+        },
+        "outcomeName": {
+          "type": "noul",
+          "instructions": "Does `next_scene.name` state how the scene ends?",
+          "criteria": {
+            "true": "The name gives away the outcome: who wins, what is found, how it resolves",
+            "false": "The name names a place, a person or a situation"
+          }
+        },
+        "newPerson": {
+          "type": "noul",
+          "instructions": "Does `next_scene` bring in a named person who is neither in `cast` nor in `established_facts`?",
+          "criteria": {
+            "true": "A new named person appears",
+            "false": "Only cast members, people the facts establish, or unnamed people appear"
+          }
+        },
+        "followsThread": {
+          "type": "noul",
+          "instructions": "Does `next_scene` follow from `current_scene` or one of `open_threads`?",
+          "criteria": {
+            "true": "The scene continues the current scene or an open thread",
+            "false": "The scene ignores where the story is and starts something unrelated"
+          }
+        }
+      },
+      "answers": {
+        "playerAct": {
+          "type": "noul",
+          "noul": 0.06
+        },
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.05
+        },
+        "outcomeName": {
+          "type": "noul",
+          "noul": 0.1
+        },
+        "newPerson": {
+          "type": "noul",
+          "noul": 0.07
+        },
+        "followsThread": {
+          "type": "noul",
+          "noul": 0.57
+        }
+      }
+    },
+    {
+      "state": {
+        "player": "Max",
+        "cast": [
+          "Max",
+          "Maren",
+          "Tobin",
+          "Ysolde",
+          "Narrator"
+        ],
+        "current_scene": "\"The Harbour, After Shutters\" — Maren moves lantern to lantern along the quay, tallying which are dark; one lantern burns that should not.",
+        "established_facts": [],
+        "open_threads": [
+          "who keeps putting the harbour lanterns out"
+        ],
+        "next_scene": {
+          "name": "The Far End of the Quay",
+          "objective": "Maren holds out a spare lantern and asks for a hand at the far end of the quay, then walks on without waiting for an answer."
+        }
+      },
+      "questions": {
+        "playerAct": {
+          "type": "noul",
+          "instructions": "Does `next_scene.objective` decide or narrate what `player` does, says, chooses or feels?",
+          "criteria": {
+            "true": "The objective has the player act, speak, agree, refuse, choose, go somewhere or feel something",
+            "false": "Only the world, other characters or events act; the player's response is left open"
+          }
+        },
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does `next_scene` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "The scene shows something an established fact rules out",
+            "false": "The scene is compatible with every established fact"
+          }
+        },
+        "outcomeName": {
+          "type": "noul",
+          "instructions": "Does `next_scene.name` state how the scene ends?",
+          "criteria": {
+            "true": "The name gives away the outcome: who wins, what is found, how it resolves",
+            "false": "The name names a place, a person or a situation"
+          }
+        },
+        "newPerson": {
+          "type": "noul",
+          "instructions": "Does `next_scene` bring in a named person who is neither in `cast` nor in `established_facts`?",
+          "criteria": {
+            "true": "A new named person appears",
+            "false": "Only cast members, people the facts establish, or unnamed people appear"
+          }
+        },
+        "followsThread": {
+          "type": "noul",
+          "instructions": "Does `next_scene` follow from `current_scene` or one of `open_threads`?",
+          "criteria": {
+            "true": "The scene continues the current scene or an open thread",
+            "false": "The scene ignores where the story is and starts something unrelated"
+          }
+        }
+      },
+      "answers": {
+        "playerAct": {
+          "type": "noul",
+          "noul": 0.15
+        },
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "outcomeName": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "newPerson": {
+          "type": "noul",
+          "noul": 0.06
+        },
+        "followsThread": {
+          "type": "noul",
+          "noul": 0.92
+        }
+      }
+    },
+    {
+      "state": {
+        "player": "Max",
+        "cast": [
+          "Max",
+          "Hask",
+          "Narrator"
+        ],
+        "current_scene": "\"The Ford\" — The bridge is gone; the miller Hask has found a shallow crossing downstream and stands at it with his cart.",
+        "established_facts": [],
+        "open_threads": [
+          "how to cross the river now the bridge is gone"
+        ],
+        "next_scene": {
+          "name": "Rising Water",
+          "objective": "Rain starts upriver; the water at the ford rises a hand's width while the far-bank lantern stops moving."
+        }
+      },
+      "questions": {
+        "playerAct": {
+          "type": "noul",
+          "instructions": "Does `next_scene.objective` decide or narrate what `player` does, says, chooses or feels?",
+          "criteria": {
+            "true": "The objective has the player act, speak, agree, refuse, choose, go somewhere or feel something",
+            "false": "Only the world, other characters or events act; the player's response is left open"
+          }
+        },
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does `next_scene` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "The scene shows something an established fact rules out",
+            "false": "The scene is compatible with every established fact"
+          }
+        },
+        "outcomeName": {
+          "type": "noul",
+          "instructions": "Does `next_scene.name` state how the scene ends?",
+          "criteria": {
+            "true": "The name gives away the outcome: who wins, what is found, how it resolves",
+            "false": "The name names a place, a person or a situation"
+          }
+        },
+        "newPerson": {
+          "type": "noul",
+          "instructions": "Does `next_scene` bring in a named person who is neither in `cast` nor in `established_facts`?",
+          "criteria": {
+            "true": "A new named person appears",
+            "false": "Only cast members, people the facts establish, or unnamed people appear"
+          }
+        },
+        "followsThread": {
+          "type": "noul",
+          "instructions": "Does `next_scene` follow from `current_scene` or one of `open_threads`?",
+          "criteria": {
+            "true": "The scene continues the current scene or an open thread",
+            "false": "The scene ignores where the story is and starts something unrelated"
+          }
+        }
+      },
+      "answers": {
+        "playerAct": {
+          "type": "noul",
+          "noul": 0.05
+        },
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "outcomeName": {
+          "type": "noul",
+          "noul": 0.06
+        },
+        "newPerson": {
+          "type": "noul",
+          "noul": 0.06
+        },
+        "followsThread": {
+          "type": "noul",
+          "noul": 0.93
+        }
+      }
+    },
+    {
+      "state": {
+        "player": "Max",
+        "cast": [
+          "Max",
+          "Selim",
+          "Hadra",
+          "Narrator"
+        ],
+        "current_scene": "\"The Pass\" — The caravan reaches the foot of the mountain pass as the wind picks up and the water runs low.",
+        "established_facts": [],
+        "open_threads": [
+          "whether the caravan can reach the oasis before the water runs out"
+        ],
+        "next_scene": {
+          "name": "Two Routes",
+          "objective": "Selim and Hadra argue over the high road and the gorge, and both turn to hear what Max will say."
+        }
+      },
+      "questions": {
+        "playerAct": {
+          "type": "noul",
+          "instructions": "Does `next_scene.objective` decide or narrate what `player` does, says, chooses or feels?",
+          "criteria": {
+            "true": "The objective has the player act, speak, agree, refuse, choose, go somewhere or feel something",
+            "false": "Only the world, other characters or events act; the player's response is left open"
+          }
+        },
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does `next_scene` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "The scene shows something an established fact rules out",
+            "false": "The scene is compatible with every established fact"
+          }
+        },
+        "outcomeName": {
+          "type": "noul",
+          "instructions": "Does `next_scene.name` state how the scene ends?",
+          "criteria": {
+            "true": "The name gives away the outcome: who wins, what is found, how it resolves",
+            "false": "The name names a place, a person or a situation"
+          }
+        },
+        "newPerson": {
+          "type": "noul",
+          "instructions": "Does `next_scene` bring in a named person who is neither in `cast` nor in `established_facts`?",
+          "criteria": {
+            "true": "A new named person appears",
+            "false": "Only cast members, people the facts establish, or unnamed people appear"
+          }
+        },
+        "followsThread": {
+          "type": "noul",
+          "instructions": "Does `next_scene` follow from `current_scene` or one of `open_threads`?",
+          "criteria": {
+            "true": "The scene continues the current scene or an open thread",
+            "false": "The scene ignores where the story is and starts something unrelated"
+          }
+        }
+      },
+      "answers": {
+        "playerAct": {
+          "type": "noul",
+          "noul": 0.24
+        },
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "outcomeName": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "newPerson": {
+          "type": "noul",
+          "noul": 0.07
+        },
+        "followsThread": {
+          "type": "noul",
+          "noul": 0.91
+        }
+      }
+    },
+    {
+      "state": {
+        "player": "Max",
+        "cast": [
+          "Max",
+          "Maren",
+          "Tobin",
+          "Ysolde",
+          "Narrator"
+        ],
+        "current_scene": "\"The Harbour, After Shutters\" — Maren moves lantern to lantern along the quay, tallying which are dark; one lantern burns that should not.",
+        "established_facts": [
+          "Ysolde left the harbour on the morning boat and has not come back."
+        ],
+        "open_threads": [
+          "who keeps putting the harbour lanterns out"
+        ],
+        "next_scene": {
+          "name": "Ysolde at the Hearth",
+          "objective": "Ysolde sits in the common room and lights her covered lantern by the fire."
+        }
+      },
+      "questions": {
+        "playerAct": {
+          "type": "noul",
+          "instructions": "Does `next_scene.objective` decide or narrate what `player` does, says, chooses or feels?",
+          "criteria": {
+            "true": "The objective has the player act, speak, agree, refuse, choose, go somewhere or feel something",
+            "false": "Only the world, other characters or events act; the player's response is left open"
+          }
+        },
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does `next_scene` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "The scene shows something an established fact rules out",
+            "false": "The scene is compatible with every established fact"
+          }
+        },
+        "outcomeName": {
+          "type": "noul",
+          "instructions": "Does `next_scene.name` state how the scene ends?",
+          "criteria": {
+            "true": "The name gives away the outcome: who wins, what is found, how it resolves",
+            "false": "The name names a place, a person or a situation"
+          }
+        },
+        "newPerson": {
+          "type": "noul",
+          "instructions": "Does `next_scene` bring in a named person who is neither in `cast` nor in `established_facts`?",
+          "criteria": {
+            "true": "A new named person appears",
+            "false": "Only cast members, people the facts establish, or unnamed people appear"
+          }
+        },
+        "followsThread": {
+          "type": "noul",
+          "instructions": "Does `next_scene` follow from `current_scene` or one of `open_threads`?",
+          "criteria": {
+            "true": "The scene continues the current scene or an open thread",
+            "false": "The scene ignores where the story is and starts something unrelated"
+          }
+        }
+      },
+      "answers": {
+        "playerAct": {
+          "type": "noul",
+          "noul": 0.05
+        },
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.32
+        },
+        "outcomeName": {
+          "type": "noul",
+          "noul": 0.05
+        },
+        "newPerson": {
+          "type": "noul",
+          "noul": 0.05
+        },
+        "followsThread": {
+          "type": "noul",
+          "noul": 0.49
+        }
+      }
+    },
+    {
+      "state": {
+        "player": "Max",
+        "cast": [
+          "Max",
+          "Hask",
+          "Narrator"
+        ],
+        "current_scene": "\"The Ford\" — The bridge is gone; the miller Hask has found a shallow crossing downstream and stands at it with his cart.",
+        "established_facts": [
+          "The bridge over the river washed away in the spring flood."
+        ],
+        "open_threads": [
+          "how to cross the river now the bridge is gone"
+        ],
+        "next_scene": {
+          "name": "The Stone Bridge",
+          "objective": "Hask drives his cart over the old stone bridge while the river runs beneath."
+        }
+      },
+      "questions": {
+        "playerAct": {
+          "type": "noul",
+          "instructions": "Does `next_scene.objective` decide or narrate what `player` does, says, chooses or feels?",
+          "criteria": {
+            "true": "The objective has the player act, speak, agree, refuse, choose, go somewhere or feel something",
+            "false": "Only the world, other characters or events act; the player's response is left open"
+          }
+        },
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does `next_scene` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "The scene shows something an established fact rules out",
+            "false": "The scene is compatible with every established fact"
+          }
+        },
+        "outcomeName": {
+          "type": "noul",
+          "instructions": "Does `next_scene.name` state how the scene ends?",
+          "criteria": {
+            "true": "The name gives away the outcome: who wins, what is found, how it resolves",
+            "false": "The name names a place, a person or a situation"
+          }
+        },
+        "newPerson": {
+          "type": "noul",
+          "instructions": "Does `next_scene` bring in a named person who is neither in `cast` nor in `established_facts`?",
+          "criteria": {
+            "true": "A new named person appears",
+            "false": "Only cast members, people the facts establish, or unnamed people appear"
+          }
+        },
+        "followsThread": {
+          "type": "noul",
+          "instructions": "Does `next_scene` follow from `current_scene` or one of `open_threads`?",
+          "criteria": {
+            "true": "The scene continues the current scene or an open thread",
+            "false": "The scene ignores where the story is and starts something unrelated"
+          }
+        }
+      },
+      "answers": {
+        "playerAct": {
+          "type": "noul",
+          "noul": 0.19
+        },
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.6
+        },
+        "outcomeName": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "newPerson": {
+          "type": "noul",
+          "noul": 0.05
+        },
+        "followsThread": {
+          "type": "noul",
+          "noul": 0.29
+        }
+      }
+    },
+    {
+      "state": {
+        "player": "Max",
+        "cast": [
+          "Max",
+          "Maren",
+          "Tobin",
+          "Ysolde",
+          "Narrator"
+        ],
+        "current_scene": "\"The Harbour, After Shutters\" — Maren moves lantern to lantern along the quay, tallying which are dark; one lantern burns that should not.",
+        "established_facts": [],
+        "open_threads": [
+          "who keeps putting the harbour lanterns out"
+        ],
+        "next_scene": {
+          "name": "Maren Unmasked as the Lamp Thief",
+          "objective": "Tobin raises his lantern in the harbour store, and the missing wicks lie in the crate behind Maren."
+        }
+      },
+      "questions": {
+        "playerAct": {
+          "type": "noul",
+          "instructions": "Does `next_scene.objective` decide or narrate what `player` does, says, chooses or feels?",
+          "criteria": {
+            "true": "The objective has the player act, speak, agree, refuse, choose, go somewhere or feel something",
+            "false": "Only the world, other characters or events act; the player's response is left open"
+          }
+        },
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does `next_scene` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "The scene shows something an established fact rules out",
+            "false": "The scene is compatible with every established fact"
+          }
+        },
+        "outcomeName": {
+          "type": "noul",
+          "instructions": "Does `next_scene.name` state how the scene ends?",
+          "criteria": {
+            "true": "The name gives away the outcome: who wins, what is found, how it resolves",
+            "false": "The name names a place, a person or a situation"
+          }
+        },
+        "newPerson": {
+          "type": "noul",
+          "instructions": "Does `next_scene` bring in a named person who is neither in `cast` nor in `established_facts`?",
+          "criteria": {
+            "true": "A new named person appears",
+            "false": "Only cast members, people the facts establish, or unnamed people appear"
+          }
+        },
+        "followsThread": {
+          "type": "noul",
+          "instructions": "Does `next_scene` follow from `current_scene` or one of `open_threads`?",
+          "criteria": {
+            "true": "The scene continues the current scene or an open thread",
+            "false": "The scene ignores where the story is and starts something unrelated"
+          }
+        }
+      },
+      "answers": {
+        "playerAct": {
+          "type": "noul",
+          "noul": 0.07
+        },
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.05
+        },
+        "outcomeName": {
+          "type": "noul",
+          "noul": 0.88
+        },
+        "newPerson": {
+          "type": "noul",
+          "noul": 0.09
+        },
+        "followsThread": {
+          "type": "noul",
+          "noul": 0.82
+        }
+      }
+    },
+    {
+      "state": {
+        "player": "Max",
+        "cast": [
+          "Max",
+          "Hask",
+          "Narrator"
+        ],
+        "current_scene": "\"The Ford\" — The bridge is gone; the miller Hask has found a shallow crossing downstream and stands at it with his cart.",
+        "established_facts": [],
+        "open_threads": [
+          "how to cross the river now the bridge is gone"
+        ],
+        "next_scene": {
+          "name": "The River Watch",
+          "objective": "Captain Orrin of the river watch rides up and orders Hask to stop charging for the crossing."
+        }
+      },
+      "questions": {
+        "playerAct": {
+          "type": "noul",
+          "instructions": "Does `next_scene.objective` decide or narrate what `player` does, says, chooses or feels?",
+          "criteria": {
+            "true": "The objective has the player act, speak, agree, refuse, choose, go somewhere or feel something",
+            "false": "Only the world, other characters or events act; the player's response is left open"
+          }
+        },
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does `next_scene` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "The scene shows something an established fact rules out",
+            "false": "The scene is compatible with every established fact"
+          }
+        },
+        "outcomeName": {
+          "type": "noul",
+          "instructions": "Does `next_scene.name` state how the scene ends?",
+          "criteria": {
+            "true": "The name gives away the outcome: who wins, what is found, how it resolves",
+            "false": "The name names a place, a person or a situation"
+          }
+        },
+        "newPerson": {
+          "type": "noul",
+          "instructions": "Does `next_scene` bring in a named person who is neither in `cast` nor in `established_facts`?",
+          "criteria": {
+            "true": "A new named person appears",
+            "false": "Only cast members, people the facts establish, or unnamed people appear"
+          }
+        },
+        "followsThread": {
+          "type": "noul",
+          "instructions": "Does `next_scene` follow from `current_scene` or one of `open_threads`?",
+          "criteria": {
+            "true": "The scene continues the current scene or an open thread",
+            "false": "The scene ignores where the story is and starts something unrelated"
+          }
+        }
+      },
+      "answers": {
+        "playerAct": {
+          "type": "noul",
+          "noul": 0.08
+        },
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "outcomeName": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "newPerson": {
+          "type": "noul",
+          "noul": 0.97
+        },
+        "followsThread": {
+          "type": "noul",
+          "noul": 0.93
+        }
+      }
+    },
+    {
+      "state": {
+        "player": "Max",
+        "cast": [
+          "Max",
+          "Selim",
+          "Hadra",
+          "Narrator"
+        ],
+        "current_scene": "\"The Pass\" — The caravan reaches the foot of the mountain pass as the wind picks up and the water runs low.",
+        "established_facts": [],
+        "open_threads": [
+          "whether the caravan can reach the oasis before the water runs out"
+        ],
+        "next_scene": {
+          "name": "The Caravan Reaches the Oasis Safely",
+          "objective": "The caravan crests the last dune as Selim counts the remaining water."
+        }
+      },
+      "questions": {
+        "playerAct": {
+          "type": "noul",
+          "instructions": "Does `next_scene.objective` decide or narrate what `player` does, says, chooses or feels?",
+          "criteria": {
+            "true": "The objective has the player act, speak, agree, refuse, choose, go somewhere or feel something",
+            "false": "Only the world, other characters or events act; the player's response is left open"
+          }
+        },
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does `next_scene` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "The scene shows something an established fact rules out",
+            "false": "The scene is compatible with every established fact"
+          }
+        },
+        "outcomeName": {
+          "type": "noul",
+          "instructions": "Does `next_scene.name` state how the scene ends?",
+          "criteria": {
+            "true": "The name gives away the outcome: who wins, what is found, how it resolves",
+            "false": "The name names a place, a person or a situation"
+          }
+        },
+        "newPerson": {
+          "type": "noul",
+          "instructions": "Does `next_scene` bring in a named person who is neither in `cast` nor in `established_facts`?",
+          "criteria": {
+            "true": "A new named person appears",
+            "false": "Only cast members, people the facts establish, or unnamed people appear"
+          }
+        },
+        "followsThread": {
+          "type": "noul",
+          "instructions": "Does `next_scene` follow from `current_scene` or one of `open_threads`?",
+          "criteria": {
+            "true": "The scene continues the current scene or an open thread",
+            "false": "The scene ignores where the story is and starts something unrelated"
+          }
+        }
+      },
+      "answers": {
+        "playerAct": {
+          "type": "noul",
+          "noul": 0.11
+        },
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "outcomeName": {
+          "type": "noul",
+          "noul": 0.96
+        },
+        "newPerson": {
+          "type": "noul",
+          "noul": 0.07
+        },
+        "followsThread": {
+          "type": "noul",
+          "noul": 0.92
+        }
+      }
+    },
+    {
+      "state": {
+        "player": "Max",
+        "cast": [
+          "Max",
+          "Maren",
+          "Tobin",
+          "Ysolde",
+          "Narrator"
+        ],
+        "current_scene": "\"The Harbour, After Shutters\" — Maren moves lantern to lantern along the quay, tallying which are dark; one lantern burns that should not.",
+        "established_facts": [],
+        "open_threads": [
+          "who keeps putting the harbour lanterns out"
+        ],
+        "next_scene": {
+          "name": "A Distant Coronation",
+          "objective": "Far to the south, a king's coronation is postponed after a quarrel over the crown."
+        }
+      },
+      "questions": {
+        "playerAct": {
+          "type": "noul",
+          "instructions": "Does `next_scene.objective` decide or narrate what `player` does, says, chooses or feels?",
+          "criteria": {
+            "true": "The objective has the player act, speak, agree, refuse, choose, go somewhere or feel something",
+            "false": "Only the world, other characters or events act; the player's response is left open"
+          }
+        },
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does `next_scene` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "The scene shows something an established fact rules out",
+            "false": "The scene is compatible with every established fact"
+          }
+        },
+        "outcomeName": {
+          "type": "noul",
+          "instructions": "Does `next_scene.name` state how the scene ends?",
+          "criteria": {
+            "true": "The name gives away the outcome: who wins, what is found, how it resolves",
+            "false": "The name names a place, a person or a situation"
+          }
+        },
+        "newPerson": {
+          "type": "noul",
+          "instructions": "Does `next_scene` bring in a named person who is neither in `cast` nor in `established_facts`?",
+          "criteria": {
+            "true": "A new named person appears",
+            "false": "Only cast members, people the facts establish, or unnamed people appear"
+          }
+        },
+        "followsThread": {
+          "type": "noul",
+          "instructions": "Does `next_scene` follow from `current_scene` or one of `open_threads`?",
+          "criteria": {
+            "true": "The scene continues the current scene or an open thread",
+            "false": "The scene ignores where the story is and starts something unrelated"
+          }
+        }
+      },
+      "answers": {
+        "playerAct": {
+          "type": "noul",
+          "noul": 0.06
+        },
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "outcomeName": {
+          "type": "noul",
+          "noul": 0.07
+        },
+        "newPerson": {
+          "type": "noul",
+          "noul": 0.1
+        },
+        "followsThread": {
+          "type": "noul",
+          "noul": 0.08
+        }
+      }
+    },
+    {
+      "state": {
+        "player": "Max",
+        "cast": [
+          "Max",
+          "Maren",
+          "Tobin",
+          "Ysolde",
+          "Narrator"
+        ],
+        "current_scene": "\"The Harbour, After Shutters\" — Maren moves lantern to lantern along the quay, tallying which are dark; one lantern burns that should not.",
+        "established_facts": [],
+        "open_threads": [
+          "who keeps putting the harbour lanterns out"
+        ],
+        "next_scene": {
+          "name": "Corvin's Claim",
+          "objective": "A stranger named Corvin steps off a fishing boat and claims the lighthouse is his."
+        }
+      },
+      "questions": {
+        "playerAct": {
+          "type": "noul",
+          "instructions": "Does `next_scene.objective` decide or narrate what `player` does, says, chooses or feels?",
+          "criteria": {
+            "true": "The objective has the player act, speak, agree, refuse, choose, go somewhere or feel something",
+            "false": "Only the world, other characters or events act; the player's response is left open"
+          }
+        },
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does `next_scene` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "The scene shows something an established fact rules out",
+            "false": "The scene is compatible with every established fact"
+          }
+        },
+        "outcomeName": {
+          "type": "noul",
+          "instructions": "Does `next_scene.name` state how the scene ends?",
+          "criteria": {
+            "true": "The name gives away the outcome: who wins, what is found, how it resolves",
+            "false": "The name names a place, a person or a situation"
+          }
+        },
+        "newPerson": {
+          "type": "noul",
+          "instructions": "Does `next_scene` bring in a named person who is neither in `cast` nor in `established_facts`?",
+          "criteria": {
+            "true": "A new named person appears",
+            "false": "Only cast members, people the facts establish, or unnamed people appear"
+          }
+        },
+        "followsThread": {
+          "type": "noul",
+          "instructions": "Does `next_scene` follow from `current_scene` or one of `open_threads`?",
+          "criteria": {
+            "true": "The scene continues the current scene or an open thread",
+            "false": "The scene ignores where the story is and starts something unrelated"
+          }
+        }
+      },
+      "answers": {
+        "playerAct": {
+          "type": "noul",
+          "noul": 0.06
+        },
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.05
+        },
+        "outcomeName": {
+          "type": "noul",
+          "noul": 0.05
+        },
+        "newPerson": {
+          "type": "noul",
+          "noul": 0.98
+        },
+        "followsThread": {
+          "type": "noul",
+          "noul": 0.46
+        }
+      }
+    }
+  ]
+}

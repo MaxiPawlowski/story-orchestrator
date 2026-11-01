@@ -1,5 +1,6 @@
 import { isLive, keepPinnedFrom, provenance as provenanceOf, type ProvenanceSource } from "./provenance";
 import { generateMemoryId, type LedgerEntry, type LedgerView, type ParsedLedgerSignal } from "./types";
+import { relationField, renderRelationField } from "./relations";
 
 export const LEDGER_CAP = 60;
 export const LEDGER_ROW_CAP = 240;
@@ -37,8 +38,9 @@ export function applyLedgerSignals(
   const next = entries.map((entry) => ({ ...entry }));
   for (const signal of signals) {
     const value = signal.value.trim();
-    if (!signal.entity.trim() || !signal.field.trim() || !value) continue;
-    const key = ledgerKey(signal.entity, signal.field);
+    if (!signal.entity.trim() || !signal.field.trim() || !value || signal.object?.trim() === "") continue;
+    const field = signal.object ? relationField(signal.field.trim(), signal.object) : signal.field.trim();
+    const key = ledgerKey(signal.entity, field);
     if (boundKeys.has(key)) continue;
     // A change is a NEW version, never an overwrite. An in-place edit destroys the value a
     // rollback has to restore, which is the whole reason `rollbackLedger` could only keep or drop.
@@ -58,8 +60,9 @@ export function applyLedgerSignals(
       }),
       entity: signal.entity.trim(),
       entityType: signal.entityType.trim() || previous?.entityType || "entity",
-      field: signal.field.trim(),
+      field,
       value,
+      ...(signal.object ? { relation: signal.field.trim(), object: signal.object.trim() } : {}),
       createdAt: ctx.boundary,
       ...(previous ? { supersedes: previous.id } : {}),
       ...(previous?.pinned ? { pinned: true } : {}),
@@ -155,7 +158,8 @@ export function buildLedgerView(
     if (!held || (entry.messageId ?? -1) >= (held.messageId ?? -1)) newest.set(key, entry);
   }
   for (const entry of newest.values()) {
-    rows.push({ entity: entry.entity, field: entry.field, value: entry.value, bound: false, turn: Math.max(entry.createdAt, entry.confirmedAt ?? entry.createdAt) });
+    rows.push({ entity: entry.entity, field: entry.field, value: entry.value, bound: false, turn: Math.max(entry.createdAt, entry.confirmedAt ?? entry.createdAt),
+      ...(entry.relation ? { relation: entry.relation, object: entry.object } : {}) });
   }
   return rows;
 }
@@ -218,10 +222,11 @@ export function renderLedgerBlock(view: LedgerView[]): string {
   if (!view.length) return "";
   const byEntity = new Map<string, string[]>();
   for (const row of view) {
-    const fields = byEntity.get(row.entity) ?? [];
-    fields.push(`${row.field}=${row.value}`);
-    byEntity.set(row.entity, fields);
+    const text = row.relation ? renderRelationField(row) : `${row.field}=${row.value}`;
+    if (!text) continue;
+    byEntity.set(row.entity, [...(byEntity.get(row.entity) ?? []), text]);
   }
+  if (!byEntity.size) return "";
   const lines = [...byEntity].map(([entity, fields]) => `${entity}: ${fields.join(" | ")}`);
   return ["Current state:", ...lines].join("\n");
 }

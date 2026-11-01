@@ -2,6 +2,7 @@ import { fnv1a, stableStringify } from "@runtime/hash";
 import { clearOverride, withOverride, withValidity } from "./provenance";
 import { evictWeakest, stripUseAfter, type StampAt } from "./strength";
 import { contentWords, wordOverlap } from "./words";
+import { applyNeighbourConfirms, linkNeighbourUpdates } from "./neighbours";
 import type { MemoryEntry, MemoryExpiration, MemoryStoreState, MemoryTier, MemoryWriteLogEntry } from "./types";
 
 export interface TurnRange {
@@ -41,8 +42,13 @@ const sourceKey = (entry: MemoryEntry): string | null => {
   return typeof messageId === "number" ? `${groupKey(entry.tier, entry.characterId)}:${messageId}:${hashMemoryText(entry.text)}` : null;
 };
 
-export function addMemoryEntries(state: MemoryStoreState, entries: MemoryEntry[], range: TurnRange): { state: MemoryStoreState; accepted: MemoryEntry[]; discarded: MemoryEntry[] } {
-  if (!entries.length) return { state, accepted: [], discarded: [] };
+export function addMemoryEntries(start: MemoryStoreState, incoming: MemoryEntry[], range: TurnRange): { state: MemoryStoreState; accepted: MemoryEntry[]; discarded: MemoryEntry[] } {
+  if (!incoming.length) return { state: start, accepted: [], discarded: [] };
+  const coveredBy = (log: readonly MemoryWriteLogEntry[], entry: MemoryEntry) => log.some((logged) => logged.key === groupKey(entry.tier, entry.characterId)
+    && logged.range.from <= range.from && logged.range.to >= range.to);
+  const tagged = applyNeighbourConfirms(start.entries, incoming.filter((entry) => !(entry.neighbour && coveredBy(start.writeLog, entry))));
+  const state = tagged.confirmed.length ? { ...start, entries: tagged.stored } : start;
+  const entries = tagged.incoming;
   const excludedSet = new Set(state.excluded);
   const held = new Set(state.entries.filter((entry) => !SOURCE_GONE.has(entry.provenance?.validity ?? "live")).map(sourceKey).filter((key): key is string => key !== null));
   const repeated = (entry: MemoryEntry) => {
@@ -65,6 +71,7 @@ export function addMemoryEntries(state: MemoryStoreState, entries: MemoryEntry[]
 
   const accepted: MemoryEntry[] = [];
   const writeLog: MemoryWriteLogEntry[] = [...state.writeLog];
+  tagged.confirmed.forEach((entry) => { if (!coveredBy(writeLog, entry)) writeLog.push({ key: groupKey(entry.tier, entry.characterId), range, appliedAt: Date.now() }); });
   groups.forEach((groupEntries, key) => {
     const covered = writeLog.some((entry) => entry.key === key && entry.range.from <= range.from && entry.range.to >= range.to);
     if (covered) {
@@ -75,7 +82,7 @@ export function addMemoryEntries(state: MemoryStoreState, entries: MemoryEntry[]
     writeLog.push({ key, range, appliedAt: Date.now() });
   });
   return {
-    state: { ...state, entries: [...state.entries, ...accepted], writeLog: writeLog.slice(-100) },
+    state: { ...state, entries: linkNeighbourUpdates([...state.entries, ...accepted], accepted, tagged.updates), writeLog: writeLog.slice(-100) },
     accepted,
     discarded,
   };

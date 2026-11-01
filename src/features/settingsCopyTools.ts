@@ -194,6 +194,13 @@ export const SETTING_COPY_TOOLS = {
     "Asks the judge about lore once per message of yours and keeps the answer while the other characters reply, unless the checkpoint changes or a new entry is named. Fewer judge calls."),
   "worldInfo.preferKnown": copy("Prefer lore you have met",
     "Lowers a lore entry about a person, place or thing you have not met yet a little in the judge's ranking, and never forces it by word match. Characters can still know it."),
+  "worldInfo.loreLifetime": copy("Lore ends with its chapter",
+    "Lore a checkpoint switches on ends when the story leaves that checkpoint's chapter, or at the checkpoint the story names, unless the story marks it lasting. "
+      + "Off: it stays on until a checkpoint switches it off."),
+  "worldInfo.loreState": copy("Tell the lore pick where you are",
+    "Adds the place, who is on stage (with their other names), open quests and what you have met to the lore judge's question and to the word match. No extra model call."),
+  "worldInfo.loreAliases": copy("Nicknames find lore",
+    "A lore entry keyed on a character's or place's name also fires when the chat uses one of its other names from the story. Only for this story's lorebooks, never written to the files."),
   "memory.historyNotes": copy("Time and place notes (trial)",
     "Adds a short note of the day and place to the first message after the scene or the time of day changed, in the prompt only. On since its blind rating passed."),
   "memory.outwardNarration": copy("Narrate only what can be seen (trial)",
@@ -206,9 +213,26 @@ export const SETTING_COPY_TOOLS = {
     "A full memory tier moves its weakest memory to the archive instead of deleting the oldest; a memory a reply used gets stronger. No model call. Not rated yet."),
   "memory.retrievalQuery": copy("Pick memories from the last few messages (trial)",
     "Scores memories against the last four messages, the speaking character and who is on stage, on one scale, with recency from the chat. Not rated yet."),
+  "memory.neighbourRead": copy("Read sees nearby memories (trial)",
+    "The story read is shown up to 12 stored memories about who and what the window names, and may mark a line as a repeat or a change of one "
+      + "instead of adding a near copy. Not rated yet."),
+  "memory.readKeys": copy("Lookup words on memories (trial)",
+    "The story read may give each memory up to three short lookup words (an object, place or nickname), so scoring and recall find it when the chat uses that word. Not rated yet."),
+  "memory.relationRows": copy("Relations with several partners (trial)",
+    "The story read may record standing relations between two named people or things; one can hold a relation to several others, an ended one "
+      + "stays as history, opposites are queued as a conflict. Not rated yet."),
+  "memory.socialActs": copy("Social acts behind feelings (trial)",
+    "The story read may tag a feeling change with what was done (helped, lied, insulted...); story gates can count those acts over recent turns. "
+      + "Your acts need your own line as evidence. Not rated yet."),
   "pacing.pathArc": copy("Pace by the road ahead (trial)",
     "The story's dramatic shape counts the turning points left on the shortest way to an ending and how long the current scene has run, "
       + "and after a climax eases off for three replies. No model call. Not rated yet."),
+  "stagecraft.livingLeads": copy("Several ways into a written turning point (trial)",
+    "The living director gives each turning point it writes two or three different leads (a place, a person, an object or a choice), any one of which heads "
+      + "the story there, instead of one. Still one move per reply. No extra model call. Not rated yet."),
+  "pacing.stuckLadder": copy("Help a stuck player with leads (trial)",
+    "When no exit of a gated scene has moved for a few of your turns, the narrator gets the scene's authored leads one at a time as world pressure, "
+      + "then one general nudge. It never moves the story on for you. No model call. Not rated yet."),
   "talk.swipeContrast": copy("Swipes see the reply they replace (trial)",
     "When you swipe for a new reply, the visible text of the reply you threw away is shown once, marked as rejected, so the new reply differs. Off until it is rated."),
   "sprites.cardOverlay": copy("Current character state in replies",

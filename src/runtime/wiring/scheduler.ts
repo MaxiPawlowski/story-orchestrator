@@ -32,6 +32,7 @@ const schedulerHost = (live: LiveParts): SchedulerHost => {
     witness: { present: () => runtimeManager.witness.present(), outage: (window) => runtimeManager.witness.outage(window) },
     getEpistemicLedgerCapable: () => runtimeManager.getEpistemicLedgerCapable(),
     getEntities: () => runtimeManager.getEntities(),
+    readMemory: () => runtimeManager.readMemory(),
     applyExtractionAudit: (audit, facts, memory, arcs, epistemic, ledger, read) => runtimeManager.applyExtractionAudit(audit, facts, memory, arcs, epistemic, ledger, read),
     beginRead: (window) => beginRun(runtimeManager.getOwnership(), window),
     readsOpenChat: () => {

@@ -14,6 +14,7 @@ import type { ModelCall } from "./modelRoute";
 import { readPromptOptions, runSharedRead, sharedReadWindow } from "./sharedReadEntry";
 import { ROLLBACK_REREAD_PREFIX, rollbackRereadReason } from "./rereadReason";
 import { CADENCE_WINDOW_FALLBACK, CADENCE_WINDOW_MAX, cadenceWindowFrom } from "./cadenceWindow";
+import type { ReadMemory } from "./readMemory";
 import type { RequestBudget } from "./tokenMeter";
 import type { OpenPromiseRef, ParsedFact, ReadPromptOptions, SharedReadAudit, SharedReadWindow } from "./types";
 
@@ -71,6 +72,7 @@ export interface SchedulerHost {
   witness?: { present(): string[] | null; outage(window: { from: number; to: number }): void };
   getEpistemicLedgerCapable?(): boolean;
   getEntities?(): string[];
+  readMemory?(): ReadMemory | null;
   judgeTyped?(): TypedJudge | null;
   applyExtractionAudit(audit: SharedReadAudit, facts: ParsedFact[], memory: ParsedMemoryLine[], arcs: ParsedArcSignal[],
     epistemic?: ParsedEpistemicSignal[], ledger?: ParsedLedgerSignal[], read?: ReadOwnership | null): Promise<void>;
@@ -508,7 +510,7 @@ export class ExtractionScheduler {
           openPromises: this.host.getOpenPromises?.() ?? null,
           witnessPresent: this.host.witness?.present() ?? null,
           epistemicLedgerCapable: this.host.getEpistemicLedgerCapable?.() ?? false,
-          entities: this.host.getEntities?.() ?? [],
+          entities: this.host.getEntities?.() ?? [], readMemory: this.host.readMemory?.() ?? null,
           judgeTyped: this.host.judgeTyped?.() ?? null, ...readPromptOptions(settings),
           model: this.host.model,
           ask,

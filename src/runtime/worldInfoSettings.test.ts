@@ -5,7 +5,8 @@ jest.mock("@services/STAPI", () => ({
 
 import { defaultGlobalSettings, sanitizeGlobalSettings } from "./settingsStore";
 
-const G42 = { budgetEvidence: true, lexicalFallback: true, lexicalPrefilter: false, lexicalTiebreak: true, holdRound: true, preferKnown: true };
+const G42 = { budgetEvidence: true, lexicalFallback: true, lexicalPrefilter: false, lexicalTiebreak: true, holdRound: true, preferKnown: true, loreLifetime: true, loreState: true,
+  loreAliases: true };
 
 describe("worldInfo settings (v2.5 plan 01)", () => {
   it("R7: defaults to per-chat (scan) gating with an empty ledger and no provenance", () => {

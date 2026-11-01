@@ -224,6 +224,8 @@ export interface Checkpoint {
   tension_target?: TensionLevel;
   target_turn_length?: number;
   min_turns?: number;
+  leads?: string[];
+  stuck_after?: number;
   effects?: CheckpointEffects;
   talk_control?: TalkControl;
   agency?: Partial<AgencyPolicy>;

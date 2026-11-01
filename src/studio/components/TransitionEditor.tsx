@@ -6,12 +6,20 @@ import GateBuilder from "./GateBuilder";
 import GateReplayPanel from "./GateReplayPanel";
 import { Button } from "@components/ui/Button";
 import { StatusText } from "@components/ui/StatusText";
+import { Switch } from "@components/ui/Switch";
 
 const Field: React.FC<{ label: string; children: React.ReactNode }> = ({ label, children }) => (
   <label className="flex flex-col gap-1 text-sm">
     <span className="text-xs st-muted">{label}</span>
     {children}
   </label>
+);
+
+const UrgentToggle = ({ urgent, onChange }: { urgent: boolean; onChange: (on: boolean) => void }) => (
+  <div className="flex items-center gap-2 text-sm">
+    <Switch id="so-transition-urgent" checked={urgent} label="Urgent exit" onChange={onChange} />
+    <span>Urgent: fires at once, ignoring the beat&apos;s minimum player turns</span>
+  </div>
 );
 
 const TransitionEditor: React.FC<{ initialIndex?: number }> = ({ initialIndex }) => {
@@ -99,6 +107,8 @@ const TransitionEditor: React.FC<{ initialIndex?: number }> = ({ initialIndex })
                 />
               </Field>
             </div>
+
+            <UrgentToggle urgent={selected.urgent === true} onChange={(on) => patch({ urgent: on ? true : undefined })} />
 
             <div className="flex flex-col gap-1">
               <span className="text-xs st-muted">Gate</span>

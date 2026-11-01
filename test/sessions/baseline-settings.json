@@ -28,7 +28,8 @@
     },
     "pacing": {
       "hintEnabled": true,
-      "pathArc": true
+      "pathArc": true,
+      "stuckLadder": true
     },
     "display": {
       "announceTransitions": false,
@@ -82,6 +83,10 @@
       "mentionLedger": true,
       "strengthRetention": true,
       "retrievalQuery": true,
+      "neighbourRead": true,
+      "readKeys": true,
+      "relationRows": true,
+      "socialActs": true,
       "injectionDepths": {
         "facts": 4,
         "session_details": 3,
@@ -139,6 +144,7 @@
       "livingEnabled": true,
       "branchingEnabled": true,
       "prefetchEnabled": true,
+      "livingLeads": true,
       "createEnabled": true,
       "createRequireMeasured": false
     },
@@ -167,6 +173,7 @@
         "attentionCheck": true,
         "wardenVoice": true,
         "divergence": true,
+        "directorCritic": true,
         "canonVerify": true,
         "canonDraft": true,
         "pictureCue": true,
@@ -201,6 +208,7 @@
         "attentionCheck": "typesafe",
         "wardenVoice": "typesafe",
         "divergence": "typesafe",
+        "directorCritic": "typesafe",
         "warden": "typesafe",
         "canonVerify": "typesafe",
         "canonDraft": "typesafe",
@@ -223,7 +231,10 @@
       "lexicalPrefilter": false,
       "lexicalTiebreak": true,
       "holdRound": true,
-      "preferKnown": true
+      "preferKnown": true,
+      "loreLifetime": true,
+      "loreState": true,
+      "loreAliases": true
     },
     "image": {
       "enabled": false,

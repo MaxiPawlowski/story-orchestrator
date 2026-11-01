@@ -21,6 +21,8 @@ export * from "./conflicts";
 export * from "./polarity";
 export * from "./supersede";
 export * from "./parse";
+export * from "./readTags";
+export * from "./neighbours";
 export * from "./contractKit";
 export * from "./sceneDetect";
 export * from "./sceneSummary";

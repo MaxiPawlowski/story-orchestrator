@@ -1,0 +1,23 @@
+{
+  "note": "v3.0 43 L2 alias pass: invented names only. Each row: chat text, the entry's own keys, whether a nickname-aware scan should fire it.",
+  "roster": [
+    { "id": "mara", "name": "Mara Venn", "aliases": ["the captain", "Cap"] },
+    { "id": "odo", "name": "Odo", "aliases": ["the ropeseller"] },
+    { "id": "tull", "name": "Tull", "aliases": ["the captain"] }
+  ],
+  "codex": {
+    "places": [{ "id": "harbour", "name": "Greywater Harbour", "aliases": ["the docks", "Greywater"], "facts": [] }],
+    "people": [{ "id": "abbess", "name": "Mother Iselde", "aliases": ["the abbess"], "facts": [] }]
+  },
+  "rows": [
+    { "id": "N1", "text": "Cap says we sail at dawn.", "keys": ["Mara Venn"], "fires": true },
+    { "id": "N2", "text": "Ask the ropeseller about the knots.", "keys": ["Odo"], "fires": true },
+    { "id": "N3", "text": "We meet at the docks after dark.", "keys": ["Greywater Harbour"], "fires": true },
+    { "id": "N4", "text": "The abbess will not see us today.", "keys": ["Mother Iselde"], "fires": true },
+    { "id": "N5", "text": "Greywater smells of tar and fish.", "keys": ["Greywater Harbour"], "fires": true },
+    { "id": "N6", "text": "The captain shouts an order.", "keys": ["Mara Venn"], "fires": false },
+    { "id": "N7", "text": "Odo counts his coins.", "keys": ["Mother Iselde"], "fires": false },
+    { "id": "N8", "text": "Mara Venn checks the charts.", "keys": ["Mara Venn"], "fires": true },
+    { "id": "N9", "text": "The docks are quiet.", "keys": ["/harbou?r/i"], "fires": false }
+  ]
+}

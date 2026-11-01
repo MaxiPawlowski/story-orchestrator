@@ -1,4 +1,4 @@
-import { addGatedEntry, checkpointWorldInfo, gatedWorldInfo, readWorldInfoEffect, rewardedQuestIds, validStagedFrom, type GatedWorldInfo, type NormalizedStory } from "@engine/index";
+import { addGatedEntry, gatedWorldInfo, loreAlongPath, readWorldInfoEffect, rewardedQuestIds, validStagedFrom, type GatedWorldInfo, type NormalizedStory } from "@engine/index";
 import { bookKey } from "./worldInfoMatch";
 import { MIRROR_BOOK_PREFIX } from "./mirrorReaper";
 import { gameLayer } from "@engine/validate/gameLayer";
@@ -18,10 +18,16 @@ export const isMemoryMirrorBook = (lorebook: string): boolean => bookKey(loreboo
 
 const lorePlans = (plans: WorldInfoBookPlan[]): WorldInfoBookPlan[] => plans.filter((plan) => !isMemoryMirrorBook(plan.lorebook));
 
-export function worldInfoPlan(story: NormalizedStory, path: string[], rewarded: readonly string[] = [], earned: readonly unknown[] = []): WorldInfoBookPlan[] {
-  const enabled: GatedWorldInfo = new Map();
+let lifetimeOn: () => boolean = () => true;
+
+export const setLoreLifetimeReader = (read: () => boolean) => { lifetimeOn = read; };
+
+export const loreLifetimeOn = (): boolean => lifetimeOn();
+
+export function worldInfoPlan(story: NormalizedStory, path: string[], rewarded: readonly string[] = [], earned: readonly unknown[] = [],
+  lifetime: boolean = loreLifetimeOn()): WorldInfoBookPlan[] {
+  const enabled: GatedWorldInfo = new Map([...loreAlongPath(story, path, lifetime)].map(([lorebook, comments]) => [lorebook, new Set(comments.keys())]));
   const switches = [
-    ...path.map((id) => checkpointWorldInfo(story.checkpointById[id])),
     ...(story.quests ?? []).filter((quest) => rewarded.includes(quest.id)).map((quest) => readWorldInfoEffect(quest.reward?.effects?.world_info)),
     ...earned.map(readWorldInfoEffect),
   ];

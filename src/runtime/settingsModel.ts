@@ -63,7 +63,7 @@ export const sanitizeInlineSettings = (value: unknown): InlineSettings => {
 export interface GlobalSettings {
   featureSwitches?: Partial<Record<"agency" | "meanwhile" | "thinking", boolean>>;
   extraction: ExtractionRuntimeSettings;
-  pacing: { hintEnabled: boolean; pathArc: boolean };
+  pacing: { hintEnabled: boolean; pathArc: boolean; stuckLadder: boolean };
   display: {
     announceTransitions: boolean; hudEnabled: boolean; yourMove: boolean; compactThoughts: boolean;
     briefing: boolean; briefingDraft: boolean; playerSetup: boolean; inline: InlineSettings; presence: PresenceSettings;
@@ -172,6 +172,9 @@ export interface WorldInfoSettings {
   lexicalTiebreak: boolean;
   holdRound: boolean;
   preferKnown: boolean;
+  loreLifetime: boolean;
+  loreState: boolean;
+  loreAliases: boolean;
 }
 
 export const DEFAULT_LATE_LORE_DEPTH = 4;
@@ -184,6 +187,7 @@ export const clampLateLoreDepth = (value: unknown, fallback: number = DEFAULT_LA
 export const defaultWorldInfoSettings = (): WorldInfoSettings => ({
   gatingMode: "scan", normalized: {}, normalizedFrom: {}, scanMemory: true, keptGlobal: [], lateLore: true, lateLoreDepth: DEFAULT_LATE_LORE_DEPTH, lorePins: true, seededChance: true,
   budgetEvidence: true, lexicalFallback: true, lexicalPrefilter: false, lexicalTiebreak: true, holdRound: true, preferKnown: true,
+  loreLifetime: true, loreState: true, loreAliases: true,
 });
 
 const sanitizeProvenance = (value: unknown): Record<string, NormalizedFrom[]> => {
@@ -228,6 +232,9 @@ const sanitizeWorldInfoSettings = (value: unknown): WorldInfoSettings => {
     lexicalTiebreak: value.lexicalTiebreak !== false,
     holdRound: value.holdRound !== false,
     preferKnown: value.preferKnown !== false,
+    loreLifetime: value.loreLifetime !== false,
+    loreState: value.loreState !== false,
+    loreAliases: value.loreAliases !== false,
   };
 };
 
@@ -263,16 +270,20 @@ export const defaultMemorySettings = (): MemoryRuntimeSettings => ({
   mentionLedger: true,
   strengthRetention: true,
   retrievalQuery: true,
+  neighbourRead: true,
+  readKeys: true,
+  relationRows: true,
+  socialActs: true,
 });
 
 export const defaultStagecraftSettings = (): StagecraftSettings => ({
   curatorEnabled: true, acceptMode: "review", wardenEnabled: true, wardenAcceptMode: "review", agencyAcceptMode: "auto",
-  meanwhileAcceptMode: DEFAULT_MEANWHILE_ACCEPT_MODE, livingEnabled: true, branchingEnabled: true, prefetchEnabled: true, createEnabled: true, createRequireMeasured: false,
+  meanwhileAcceptMode: DEFAULT_MEANWHILE_ACCEPT_MODE, livingEnabled: true, branchingEnabled: true, prefetchEnabled: true, livingLeads: true, createEnabled: true, createRequireMeasured: false,
 });
 
 export const defaultGlobalSettings = (): GlobalSettings => ({
   extraction: defaultExtractionSettings(),
-  pacing: { hintEnabled: true, pathArc: true },
+  pacing: { hintEnabled: true, pathArc: true, stuckLadder: true },
   display: {
     announceTransitions: false, hudEnabled: true, yourMove: true, compactThoughts: true,
     briefing: true, briefingDraft: true, playerSetup: true, inline: defaultInlineSettings(), presence: defaultPresenceSettings(),
@@ -307,6 +318,7 @@ const sanitizeInnerVoice = (memory: MemoryRuntimeSettings, defaults: MemoryRunti
   memory.mentionLedger = memory.mentionLedger !== false;
   memory.strengthRetention = memory.strengthRetention !== false;
   memory.retrievalQuery = memory.retrievalQuery !== false;
+  for (const key of ["neighbourRead", "readKeys", "relationRows", "socialActs"] as const) memory[key] = memory[key] !== false;
   return memory;
 };
 
@@ -327,7 +339,7 @@ const sanitizeTalkSettings = (value: unknown): GlobalSettings["talk"] => {
     skipAhead: source.skipAhead === true, crossVoiceTrim: source.crossVoiceTrim !== false, dryNames: source.dryNames !== false };
 };
 
-const LIVING_FLAGS = ["livingEnabled", "branchingEnabled", "prefetchEnabled"] as const;
+const LIVING_FLAGS = ["livingEnabled", "branchingEnabled", "prefetchEnabled", "livingLeads"] as const;
 
 const livingFlags = (value: unknown): Record<(typeof LIVING_FLAGS)[number], boolean> => {
   const stored = isRecord(value) ? value : {};
@@ -367,7 +379,7 @@ export const sanitizeGlobalSettings = (value: unknown): GlobalSettings => {
       ...(isReplyEffort(replyEffort) ? { replyEffort } : {}),
       ...sanitizeReadPrompt({ readLayout, promiseAddressee }),
     },
-    pacing: { hintEnabled: pacing.hintEnabled !== false, pathArc: pacing.pathArc !== false },
+    pacing: { hintEnabled: pacing.hintEnabled !== false, pathArc: pacing.pathArc !== false, stuckLadder: pacing.stuckLadder !== false },
     display: {
       announceTransitions: display.announceTransitions === true, hudEnabled: display.hudEnabled !== false, yourMove: display.yourMove !== false, compactThoughts: display.compactThoughts !== false,
       briefing: display.briefing !== false,

@@ -66,6 +66,24 @@ export const MECHANICS_FEATURES: readonly Feature[] = [
     settings: ["worldInfo.preferKnown"], doc: "setup/settings-reference.md", status: "shipped", needs: ["story"],
   },
   {
+    id: "lore-lifetime", name: "Lore ends with its chapter", area: "world", audience: "author",
+    oneLine: "Lore a checkpoint switches on ends with its chapter, or at a checkpoint the story names, unless it is marked lasting.",
+    what: "A checkpoint's lore switch now has an end. By default it lasts until the story leaves that checkpoint's chapter; `until` names the checkpoint "
+      + "where it ends instead, and `lasting` keeps it on. The chat's lore is still rebuilt from its path, so swipes, rollbacks and reopening agree. "
+      + "Studio warns when the lore switched on along one path is larger than about 2,500 tokens.",
+    where: settingsAt("#so-wi-lore-lifetime", "World & lore › Lore ends with its chapter"),
+    settings: ["worldInfo.loreLifetime"], doc: "setup/settings-reference.md", status: "shipped", needs: ["story"],
+  },
+  {
+    id: "lore-state", name: "Scene state for lore", area: "world", audience: "author",
+    oneLine: "The lore pick hears where you are, who is on stage, open quests and what you have met, and nicknames find their entries.",
+    what: "The lore judge's question and the word match get a short scene state: the place, the members on stage with their other names, open quest "
+      + "titles and the codex names you have met. A lore entry keyed on a name also fires on that character's or place's other names from the story, "
+      + "on the scan's own copy only. No model call is added.",
+    where: settingsAt("#so-wi-lore-state", "World & lore › Tell the lore pick where you are"),
+    settings: ["worldInfo.loreState", "worldInfo.loreAliases"], doc: "setup/settings-reference.md", status: "shipped", needs: ["story"],
+  },
+  {
     id: "path-arc", name: "Pace by the road ahead", area: "authoring", audience: "author",
     oneLine: "The dramatic shape follows the turning points left on the way to an ending, and eases off after a climax.",
     what: "Where a beat has no tension target of its own, the story's dramatic shape is read at how far along the road the chat is: the turning points already "
@@ -74,5 +92,24 @@ export const MECHANICS_FEATURES: readonly Feature[] = [
       + "written as the peak. No model call. Not rated yet.",
     where: settingsAt("#so-authoring-path-arc", "Authoring › Prompt trials"),
     settings: ["pacing.pathArc"], guideTopic: "tension", doc: authorGuideDoc("tension"), status: "shipped", needs: ["story"],
+  },
+  {
+    id: "stuck-ladder", name: "Help a stuck player with leads", area: "authoring", audience: "author",
+    oneLine: "A gated scene that has stopped moving gets its authored leads one at a time, as world pressure.",
+    what: "When no quality an exit of the current scene reads has changed for the scene's stuck_after player turns (6 by default), the narrator's private "
+      + "direction carries the scene's first lead as something the world may make available; every three more quiet turns, the next lead; past the last one, "
+      + "a general nudge toward the objective. Any change to a watched quality starts the count again. It never moves the story on and makes no model call. "
+      + "Not rated yet.",
+    where: settingsAt("#so-authoring-stuck-ladder", "Authoring › Prompt trials"),
+    settings: ["pacing.stuckLadder"], guideTopic: "stuck-leads", doc: authorGuideDoc("stuck-leads"), status: "shipped", needs: ["story"],
+  },
+  {
+    id: "living-leads", name: "Several ways into a written turning point", area: "authoring", audience: "author",
+    oneLine: "Each turning point the living director writes can be reached two or three different ways.",
+    what: "The living director answers the way into its next turning point as two or three leads that differ in kind (a place, a person, an object or a choice); "
+      + "any one of them, or the usual few turns of pace, heads the story there. Still one move per reply, and every lead is checked: none may already be true, "
+      + "each must be reachable, and at most two new story values count across all of them. No extra model call. Not rated yet.",
+    where: settingsAt("#so-authoring-living-leads", "Authoring › Prompt trials"),
+    settings: ["stagecraft.livingLeads"], guideTopic: "living-director", doc: authorGuideDoc("living-director"), status: "experimental", needs: ["story", "group-chat", "memory-profile"],
   },
 ];

@@ -10,7 +10,7 @@ import { livingChapters } from "./frontier";
 import { inheritsTalk, livingTalkControl } from "./talk";
 import {
   LIVING_CHAPTER_CAP_WITHOUT_SEALS, LIVING_CHAPTER_PREFIX, LIVING_MAX_NEW_QUALITIES, LIVING_PACE_TURNS, LIVING_STUB_SUFFIX, LIVING_STUB_TURNS,
-  type DirectorDraft, type LivingOpPayload,
+  type DirectorDraft, type DirectorOpening, type LivingOpPayload,
 } from "./types";
 
 export const generatedAnchorIds = (story: NormalizedStory): string[] =>
@@ -94,9 +94,12 @@ export function buildDirectorOps(story: NormalizedStory, frontierId: string, dra
       ? { type: "bool", source: "extractor", latching: true, rubric: entry.rubric }
       : { type: "int", source: "extractor", rubric: entry.rubric });
   });
-  const openingGate: GateNode = draft.opensWhen.kind === "reuse"
-    ? draft.opensWhen.gate
-    : { q: declare(draft.opensWhen.key, { type: "bool", source: "extractor", latching: true, rubric: draft.opensWhen.rubric }), op: "==", v: true };
+  const leadGate = (opening: DirectorOpening): GateNode => (opening.kind === "reuse"
+    ? opening.gate
+    : { q: declare(opening.key, { type: "bool", source: "extractor", latching: true, rubric: opening.rubric }), op: "==", v: true });
+  const leadGates = [draft.opensWhen, ...(draft.alsoOpensWhen ?? [])].map(leadGate)
+    .filter((gate, index, all) => all.findIndex((other) => JSON.stringify(other) === JSON.stringify(gate)) === index);
+  const openingGate: GateNode = leadGates.length > 1 ? { any: leadGates } : leadGates[0];
   if (newQualities.length > LIVING_MAX_NEW_QUALITIES) issues.push(`at most ${LIVING_MAX_NEW_QUALITIES} new qualities per checkpoint (asked for ${newQualities.length})`);
   const renameGate = (gate: GateNode): GateNode => {
     if ("q" in gate) return { ...gate, q: rename.get(gate.q) ?? gate.q };
@@ -123,8 +126,9 @@ export function buildDirectorOps(story: NormalizedStory, frontierId: string, dra
   };
   const gate = renameGate(openingGate);
   const paced = countsPlayerTurns(story);
-  const wayIn: GateNode = paced ? { any: [gate, playerTurnsGate(LIVING_PACE_TURNS)] } : gate;
-  const arrive: GateNode = { any: [{ q: progressQualityForAnchor(anchorId), op: ">=", v: 1 }, gate, ...(paced ? [playerTurnsGate(LIVING_STUB_TURNS)] : [])] };
+  const leadsOf = "any" in gate ? gate.any : [gate];
+  const wayIn: GateNode = paced ? { any: [...leadsOf, playerTurnsGate(LIVING_PACE_TURNS)] } : gate;
+  const arrive: GateNode = { any: [{ q: progressQualityForAnchor(anchorId), op: ">=", v: 1 }, ...leadsOf, ...(paced ? [playerTurnsGate(LIVING_STUB_TURNS)] : [])] };
   const ops: LivingOpPayload[] = [
     ...(plan.create ? [{ kind: "add-chapter" as const, chapter: plan.create }] : []),
     ...newQualities.map((quality) => ({ kind: "add-quality" as const, quality })),
@@ -207,8 +211,10 @@ export function checkDirectorOps(input: DirectorCheckInput): { story: Normalized
     const values = { ...input.values };
     const gate = withoutPace(transition.gate);
     if (evaluateGate(gate, reader(values))) issues.push(`the way into '${transition.to}' is already open on arrival`);
-    const impossible = gateImpossible(gate, parsed, values, input.latched);
-    if (impossible) issues.push(`the way into '${transition.to}' can never open: it ${impossible}`);
+    ("any" in gate ? gate.any : [gate]).forEach((lead) => {
+      const impossible = gateImpossible(lead, parsed, values, input.latched);
+      if (impossible) issues.push(`the way into '${transition.to}' can never open: it ${impossible}`);
+    });
   });
   const leaves = input.ops.flatMap((op) => (op.kind === "add-transition" ? gateLeaves(op.transition.gate) : []));
   leaves.forEach((leaf) => {

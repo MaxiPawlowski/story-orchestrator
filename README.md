@@ -175,6 +175,10 @@ Generated from the feature registry. "Experimental" means not yet measured; it i
 | Memory | Keep the memories the story uses | When a memory tier is full, the weakest memory leaves instead of the oldest, and it can still be recalled later. |  |
 | Memory | Pick memories from the last few messages | Which memories each reply gets is decided by the last few messages, the speaking character and who is on stage, not the last line alone. |  |
 | Memory | Recap only what left the prompt | A summary of messages that are still in the prompt word for word is left out until those messages leave it. |  |
+| Memory | Read sees nearby memories | The story read sees the stored memories about who and what it is reading, and can mark a line as a repeat or a change of one. |  |
+| Memory | Lookup words on memories | The story read can give a memory up to three short lookup words, so it is found when the chat later uses one of them. |  |
+| Memory | Relations with several partners | The story read can record standing relations between two named people or things, several at once. |  |
+| Memory | Social acts behind feelings | A feeling change can carry what was done (helped, lied, insulted...), and story gates can count those acts over recent turns. |  |
 | Characters | Speaker direction | In a group, the story picks who should speak next. |  |
 | Characters | Several voices per turn | More than one character can answer one of your messages. |  |
 | Characters | One question when a character asks you | A character told to ask you one thing keeps only the last of its questions. |  |
@@ -215,6 +219,8 @@ Generated from the feature registry. "Experimental" means not yet measured; it i
 | World | Word-match lore | Matches lore entries against the recent chat by their words: a fallback when the judge is silent, a shortlist for the judge and a tie-break. |  |
 | World | Keep the lore picks for a round | Lore is chosen once per message of yours and kept while the other characters reply. |  |
 | World | Prefer lore you have met | Lore about people, places and things you have not met ranks a little lower. |  |
+| World | Lore ends with its chapter | Lore a checkpoint switches on ends with its chapter, or at a checkpoint the story names, unless it is marked lasting. |  |
+| World | Scene state for lore | The lore pick hears where you are, who is on stage, open quests and what you have met, and nicknames find their entries. |  |
 | Images | Live close-shot head | A rigged close shot breathes, blinks, sways, gestures and talks as a reply streams. | Experimental |
 | Images | Prepared cast presentation | Review and accept each character's base and bust before sprites, poses and live heads use them. | Experimental |
 | Images | Reference views | Draw an accepted character three-quarter left and right, in profile and from behind, then accept or cancel all six views. | Experimental |
@@ -243,6 +249,8 @@ Generated from the feature registry. "Experimental" means not yet measured; it i
 | Authoring | Open stretches | Free play between two turning points, with no task. | Experimental |
 | Authoring | Quests, checks and panels | Side quests, visible stats, dice checks and milestones a story declares. | Experimental |
 | Authoring | Pace by the road ahead | The dramatic shape follows the turning points left on the way to an ending, and eases off after a climax. |  |
+| Authoring | Help a stuck player with leads | A gated scene that has stopped moving gets its authored leads one at a time, as world pressure. |  |
+| Authoring | Several ways into a written turning point | Each turning point the living director writes can be reached two or three different ways. | Experimental |
 | Setup | Carried thought | When no private intent is ready, a character keeps the aim from its own last thought. | Experimental |
 | Setup | Repair | Names the one thing missing and takes you to the setting that fixes it. |  |
 | Setup | Getting started | A short checklist: memory model first, then the optional judge and images. |  |

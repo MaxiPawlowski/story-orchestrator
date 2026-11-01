@@ -16,7 +16,7 @@ import { startLoreEvidence } from "../worldInfoEvidenceHost";
 import { startSamplerOverlay } from "../samplerOverlayHost";
 import { startScanGating } from "../worldInfoScanHost";
 import { startStoryLore } from "../storyLoreHost";
-import { stagedPath } from "../worldInfoGates";
+import { setLoreLifetimeReader, stagedPath } from "../worldInfoGates";
 import type { Disposers, WindowAccess } from "./types";
 import type { LorePinDeps } from "../lorePins";
 import { log } from "@utils/log";
@@ -93,6 +93,8 @@ const startReplyEffort = (disposers: Disposers, generation: GenerationLifecycle)
 };
 
 export const startLore = (disposers: Disposers, judgeRuntime: JudgeRuntime, generation: GenerationLifecycle, { chatLastId, recentWindow }: WindowAccess) => {
+  setLoreLifetimeReader(() => runtimeManager.getEffectiveSettings().worldInfo.loreLifetime);
+  disposers.push(() => setLoreLifetimeReader(() => true));
   const lore = new LoreSelector({
     judge: () => judgeRuntime,
     getStory: () => runtimeManager.getStory(),
@@ -124,6 +126,14 @@ export const startLore = (disposers: Disposers, judgeRuntime: JudgeRuntime, gene
       const { knownEntities, unknownEntityNames } = await import("@engine/codex");
       return unknownEntityNames(story, knownEntities(story, values, runtimeManager.getEnabledCharacterIds()));
     },
+    getLoreState: async () => {
+      const story = runtimeManager.getStory();
+      const values = runtimeManager.getEngineState()?.blackboard.values;
+      if (!story || !values || !runtimeManager.getEffectiveSettings().worldInfo.loreState) return null;
+      const { readLoreState } = await import("../loreStateRead");
+      return readLoreState(story, values, runtimeManager.getEnabledCharacterIds());
+    },
+    aliases: () => runtimeManager.getEffectiveSettings().worldInfo.loreAliases,
     ownership: runtimeManager.getOwnership(),
   });
   globalThis.storyOrchestratorLore = { selector: lore, willAddUserMessage };
@@ -188,6 +198,18 @@ export const startLore = (disposers: Disposers, judgeRuntime: JudgeRuntime, gene
       notify: () => runtimeManager.notify(),
     });
   });
+  const examples = { stop: null as (() => void) | null, disposed: false };
+  disposers.push(() => { examples.disposed = true; examples.stop?.(); });
+  void import("../exampleDropHost").then(({ startExampleDrop }) => {
+    if (examples.disposed) return;
+    examples.stop = startExampleDrop({
+      chatId,
+      ownedChat: () => runtimeManager.getLoadedChatId(),
+      playing: () => runtimeManager.getStory() !== null,
+      loud: () => generation.snapshot().outermost !== null && !withholds(innermostType(generation)),
+      notify: () => runtimeManager.notify(),
+    });
+  }).catch((error) => log.warn("the example dialogue watch did not start", error));
   const select = (trigger: LoreSelectTrigger, generationType?: string) => lore.select(trigger, generationType)
     .then((selection) => { if (selection) { forcedThisRun.picks = selection.picks; forcedThisRun.all = selection.picks; loreWatch.forced(selection.picks); } })
     .catch((error) => log.warn("lore-select failed", error));

@@ -1,5 +1,5 @@
 import type { BlackboardDelta, EngineState, GateNode, NormalizedStory, Quality, TensionLevel } from "@engine/index";
-import type { MemoryEntryType, ParsedArcSignal, ParsedEpistemicSignal, ParsedLedgerSignal, ParsedMemoryLine, SceneBreakSignal } from "@memory/index";
+import type { MemoryEntryType, NeighbourTag, ParsedArcSignal, ParsedEpistemicSignal, ParsedLedgerSignal, ParsedMemoryLine, SceneBreakSignal } from "@memory/index";
 import type { ContextLimit } from "./inputBudget";
 import type { WindowForm } from "./windowHygiene";
 import type { OpenPromiseRef } from "@memory/promises/types";
@@ -76,6 +76,14 @@ export interface SharedReadContract {
   cast?: ReadCastMember[];
   deltasOnly?: boolean;
   counted?: Record<string, number>;
+  neighbours?: string[];
+  readTags?: ReadTagOptions;
+}
+
+export interface ReadTagOptions {
+  keys?: boolean;
+  relations?: boolean;
+  acts?: boolean;
 }
 
 export interface ReadCastMember {
@@ -116,6 +124,8 @@ export interface ParsedFact {
   characterId?: string;
   boundary?: number;
   messageId?: number;
+  keys?: string[];
+  neighbour?: NeighbourTag;
 }
 
 export interface ParsedSharedRead {

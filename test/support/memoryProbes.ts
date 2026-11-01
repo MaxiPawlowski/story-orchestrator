@@ -8,6 +8,7 @@ import type { MemoryRuntimeSettings, MemoryRuntimeState } from "../../src/runtim
 import type { ModelCall } from "../../src/extraction/modelRoute";
 import { termPresent } from "../../src/utils/termPresent";
 import { fakeHosts } from "./fakeHosts";
+import { probeArchiveRecall } from "./memoryProbesRecall";
 
 export const PROBE_HORIZONS = [20, 60, 150] as const;
 export const PROBE_KINDS = ["single", "update-fact", "update-ledger", "temporal", "kept-out", "secret-knower"] as const;
@@ -124,6 +125,7 @@ export interface ProbeSessionOptions {
   shortTermEvery?: number;
   sceneEvery?: number;
   consolidateEvery?: number;
+  recall?: boolean;
   after?: (session: ProbeSession, boundary: number) => Promise<void> | void;
 }
 
@@ -135,6 +137,7 @@ export interface ProbeResult {
   available: boolean;
   goldMissing: string[];
   forbiddenFound: string[];
+  withRecall?: { available: boolean; recalled: boolean; goldMissing: string[]; forbiddenFound: string[] };
 }
 
 export interface ProbeSession {
@@ -220,14 +223,25 @@ export async function runProbeSession(options: ProbeSessionOptions = {}): Promis
       coordinator.onMemberDrafted(spec.member);
       const prompt = [...prompts].filter(([key]) => key.startsWith(MEMORY_INJECTION_KEY_PREFIX) || key === LEDGER_INJECTION_KEY || key === EPISTEMIC_INJECTION_KEY)
         .map(([, value]) => value).join("\n");
+      const recalled = options.recall ? probeArchiveRecall(memory, chat, boundary, (entries) => coordinator.injector.restingEntries(entries)) : "";
       coordinator.releasePrivateInjection();
       chat.pop();
       const goldMissing = spec.gold.filter((term) => !termPresent(prompt, term));
       const forbiddenFound = spec.forbidden.filter((term) => termPresent(prompt, term));
-      results.push({ id: spec.id, kind: spec.kind, horizon, member: NAMES[spec.member], available: !goldMissing.length && !forbiddenFound.length, goldMissing, forbiddenFound });
+      const withRecall = options.recall ? check(spec, recalled ? `${prompt}\n${recalled}` : prompt) : null;
+      results.push({
+        id: spec.id, kind: spec.kind, horizon, member: NAMES[spec.member], available: !goldMissing.length && !forbiddenFound.length, goldMissing, forbiddenFound,
+        ...(withRecall ? { withRecall: { ...withRecall, recalled: Boolean(recalled) } } : {}),
+      });
     }
   }
   return { results, memory };
+}
+
+function check(spec: ProbeSpec, prompt: string) {
+  const goldMissing = spec.gold.filter((term) => !termPresent(prompt, term));
+  const forbiddenFound = spec.forbidden.filter((term) => termPresent(prompt, term));
+  return { available: !goldMissing.length && !forbiddenFound.length, goldMissing, forbiddenFound };
 }
 
 async function shortTerm(coordinator: MemoryCoordinator, memory: MemoryRuntimeState, chat: Array<{ mes: string }>, boundary: number) {
@@ -254,6 +268,20 @@ async function sceneSummary(coordinator: MemoryCoordinator, memory: MemoryRuntim
 }
 
 export interface ProbeSummaryRow { kind: ProbeKind; horizon: number; probes: number; available: number; share: number }
+
+export interface RecallSummary { availabilityAt60: number; keptOutLeaks: number; hidden: string[]; gained: string[]; rows: ProbeSummaryRow[] }
+
+export function summarizeRecall(results: readonly ProbeResult[]): RecallSummary | null {
+  if (!results.some((result) => result.withRecall)) return null;
+  const shifted = results.map((result) => ({ ...result, ...(result.withRecall ?? {}) }));
+  const base = summarizeProbes(shifted);
+  const label = (result: ProbeResult) => `${result.id}@${result.horizon}`;
+  return {
+    availabilityAt60: base.availabilityAt60, keptOutLeaks: base.keptOutLeaks, rows: base.rows,
+    hidden: results.filter((result) => result.available && result.withRecall && !result.withRecall.available).map(label),
+    gained: results.filter((result) => !result.available && result.withRecall?.available).map(label),
+  };
+}
 
 export function summarizeProbes(results: readonly ProbeResult[]): { rows: ProbeSummaryRow[]; availabilityAt60: number; keptOutLeaks: number; total: number } {
   const rows = PROBE_KINDS.flatMap((kind) => PROBE_HORIZONS.map((horizon) => {

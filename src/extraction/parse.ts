@@ -1,7 +1,8 @@
 import { qualityAccepts, readsByStep, resolveStep, stepWord, TENSION_CURRENT_KEY, type NormalizedStory, type PrimitiveValue, type Quality } from "@engine/index";
-import { parseArcLine, parseEpistemicLine, parseFactFields, parseLedgerLine, parseMemoryLine, parseSceneBreakLine } from "@memory/parse";
+import { parseArcLine, parseEpistemicLine, parseFactFields, parseLedgerLine, parseMemoryLine, parseRelationLine, parseSceneBreakLine } from "@memory/parse";
+import { readTagsOf, rowTags, socialAct, splitReadTags } from "@memory/readTags";
 import { isTensionLevel, levelToNumeric } from "@pacing/index";
-import type { ParsedSharedRead } from "./types";
+import type { ParsedDelta, ParsedSharedRead } from "./types";
 
 const deltaPattern = /^DELTA\s+(?:q=)?([^\s=]+)\s+value=(.+?)\s+evidence="([\s\S]*)"\s*$/;
 const bareDeltaPattern = /^([A-Za-z0-9_]+)=(?:value=)?(.+?)\s+evidence="([\s\S]*)"\s*$/;
@@ -110,16 +111,22 @@ const restatedValue = (raw: string): string => {
   return twice && twice[1] === twice[2] ? twice[1] : raw;
 };
 
+const taggable = /^(?:DELTA|FACT|MEMORY)\s|^[A-Za-z0-9_]+=/i;
+const NO_TAGS: ReadonlyMap<string, string> = new Map();
+
 export function parseSharedReadResponse(raw: string, story: Pick<NormalizedStory, "qualityByKey">, values: Readonly<Record<string, PrimitiveValue>> = {}): ParsedSharedRead {
   const result: ParsedSharedRead = { deltas: [], facts: [], memory: [], arcs: [], epistemic: [], ledger: [], rejected: [] };
   const lines = raw.split(/\r?\n/).map((line) => stripChannelTokens(line)).filter(Boolean);
 
-  for (const line of lines) {
-    if (line === "NO_DELTA") continue;
+  for (const rawLine of lines) {
+    if (rawLine === "NO_DELTA") continue;
+    const { line, tags } = taggable.test(rawLine) ? splitReadTags(rawLine) : { line: rawLine, tags: NO_TAGS };
     const bare = line.replace(/^DELTA\s+/, "");
     const delta = line.match(deltaPattern) ?? bare.match(bareDeltaPattern) ?? line.match(openDeltaPattern) ?? bare.match(openBareDeltaPattern);
     if (delta) {
       const q = delta[1];
+      const act = q.startsWith("rel_") ? socialAct(tags.get("act")) : undefined;
+      const pushDelta = (entry: ParsedDelta) => result.deltas.push(act ? { ...entry, delta: { ...entry.delta, act } } : entry);
       const quality = story.qualityByKey[q];
       if (!quality) {
         result.rejected.push({ line, reason: "unknown quality" });
@@ -148,27 +155,27 @@ export function parseSharedReadResponse(raw: string, story: Pick<NormalizedStory
       }
       const word = stepWord(value);
       if (word && readsByStep(quality)) {
-        result.deltas.push({ delta: { q, v: resolveStep(quality.step_rule, word, values[q]), source: "extractor" }, evidence: delta[3], line });
+        pushDelta({ delta: { q, v: resolveStep(quality.step_rule, word, values[q]), source: "extractor" }, evidence: delta[3], line });
         continue;
       }
       if (value === undefined || !qualityAccepts(quality, value)) {
         result.rejected.push({ line, reason: "invalid value" });
         continue;
       }
-      result.deltas.push({ delta: { q, v: value, source: "extractor" }, evidence: delta[3], line });
+      pushDelta({ delta: { q, v: value, source: "extractor" }, evidence: delta[3], line });
       continue;
     }
 
     const fact = line.match(factPattern) ?? line.match(openFactPattern);
     const fields = fact ? parseFactFields(fact[1]) : null;
     if (fact && fields) {
-      result.facts.push({ ...fields, text: fact[2], evidence: fact[3] });
+      result.facts.push({ ...fields, ...rowTags(readTagsOf(tags, fields.entities ?? [])), text: fact[2], evidence: fact[3] });
       continue;
     }
 
     if (/^MEMORY\s+/i.test(line)) {
       const parsed = parseMemoryLine(line);
-      if (parsed.entry) result.memory.push(parsed.entry);
+      if (parsed.entry) result.memory.push({ ...parsed.entry, ...rowTags(readTagsOf(tags, parsed.entry.entities)) });
       else result.rejected.push({ line, reason: parsed.reason ?? "invalid memory line" });
       continue;
     }
@@ -205,6 +212,13 @@ export function parseSharedReadResponse(raw: string, story: Pick<NormalizedStory
 
     if (/^\[(promised|kept|broken|renegotiated|released)\]/i.test(line)) {
       (result.promises ??= []).push(line);
+      continue;
+    }
+
+    if (/^\[rel(?:-end)?:/i.test(line)) {
+      const relation = parseRelationLine(line);
+      if (relation) result.ledger.push(relation);
+      else result.rejected.push({ line, reason: "invalid relation line" });
       continue;
     }
 

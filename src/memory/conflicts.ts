@@ -4,6 +4,7 @@ import { hasStateChangeMarker } from "./similarity";
 import { buildJaccardMatchSets, type MatchSets } from "./consolidate";
 import { polarityMatchSets } from "./polarity";
 import type { LedgerEntry, MemoryEntry } from "./types";
+import { relationConflicts, relationLabel } from "./relations";
 
 // Two stores can both hold a claim about the same thing and disagree. The soft
 // signal that existed (`entry.contradicted`, a score penalty) is something a strong entry outweighs,
@@ -194,7 +195,11 @@ export function detectConflicts(
     const full = { ...pair, detectedAt: at, window: null };
     pairs.push({ ...full, window: conflictWindow(full) });
   };
-  const liveLedger = liveLedgerRows(ledger).filter((row) => !(row.provenance && row.provenance.validity !== "live"));
+  const standing = liveLedgerRows(ledger).filter((row) => !(row.provenance && row.provenance.validity !== "live"));
+  const liveLedger = standing.filter((row) => !row.relation);
+  for (const pair of relationConflicts(standing)) {
+    if (!already.has(pair.key)) push({ key: pair.key, sides: [sideOf(pair.rows[0], "ledger", relationLabel(pair.rows[0])), sideOf(pair.rows[1], "ledger", relationLabel(pair.rows[1]))] });
+  }
 
   for (const row of liveLedger) {
     const bound = Object.values(boundValues).find((candidate) => ledgerKey(candidate.entity, candidate.field) === ledgerKey(row.entity, row.field));

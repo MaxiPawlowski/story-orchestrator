@@ -80,3 +80,4 @@ export const setWiGatingStatus = (status: WiGatingStatus | null): void => {
 export const wiGatingStatus = (): WiGatingStatus | null => gatingStatus;
 
 export { loreBudgetView } from "./loreBudget";
+export { exampleDropView } from "./exampleDrop";
