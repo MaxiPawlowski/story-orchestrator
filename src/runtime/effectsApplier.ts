@@ -1,8 +1,7 @@
 import { rewardedQuestIds, type Checkpoint, type CheckpointEffects, type NormalizedStory, type NpcReplyEffect, type NpcReplyTrigger } from "@engine/index";
 import {
-  applyBackground, executeSlashCommands, resolveGroupMemberId, samplerApi, setGroupMembersDisabled, setGroupMemberFlags, getActiveGroup, getContext,
+  applyBackground, executeSlashCommands, postOwnComment, resolveGroupMemberId, samplerApi, setGroupMembersDisabled, setGroupMemberFlags, getActiveGroup, getContext,
 } from "@services/STAPI";
-import { quoteSlashArg } from "@utils/string";
 import { resolveSamplerOverlay, type SamplerApi } from "@utils/samplerKeys";
 import { couldNot, wrote } from "@utils/writeResult";
 import { samplerOverlay } from "./samplerOverlay";
@@ -100,7 +99,7 @@ export const NO_OPEN_GROUP = "the effect was not applied: stories play in group 
 
 const openChatId = () => String(getContext().chatId ?? "");
 
-const comment = (text: string) => executeSlashCommands(`/comment compact=true raw=false ${quoteSlashArg(text)}`, { silent: true });
+const comment = async (text: string) => (await postOwnComment(text)).ok;
 const postNote = async (text: string) => { const own = ownPost(); try { return Boolean(await comment(text)); } finally { own(); } };
 const openGroupId = () => String(getContext().groupId ?? "");
 

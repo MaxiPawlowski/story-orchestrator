@@ -2,6 +2,7 @@ const store = new Map<string, unknown>();
 const server = new Map<string, unknown>();
 const hostSave = jest.fn(async (_name: string, _data: unknown, _immediately?: boolean) => {});
 const handlers: Array<(name: unknown, data?: unknown) => void> = [];
+const reloadEditor = jest.fn();
 
 jest.mock("./modules", () => ({
   worldInfoModule: {
@@ -11,6 +12,7 @@ jest.mock("./modules", () => ({
       set: (name: string, data: unknown) => { store.set(name, data); },
     },
     saveWorldInfo: (name: string, data: unknown, immediately?: boolean) => hostSave(name, data, immediately),
+    reloadEditor: (name: string) => reloadEditor(name),
   },
 }));
 jest.mock("./events", () => ({
@@ -21,7 +23,9 @@ jest.mock("./worldInfoServer", () => ({
 }));
 
 import { worldInfoModule } from "./modules";
-import { flushPendingWorldSave, flushPendingWorldSaves, PENDING_WORLD_SAVE_MS, pendingWorldEdit, watchPendingWorldSaves } from "./worldInfoPending";
+import {
+  editBaseline, flushPendingWorldSave, flushPendingWorldSaves, markWorldCommitted, PENDING_WORLD_SAVE_MS, pendingWorldEdit, supersedeNextUpdate, watchPendingWorldSaves,
+} from "./worldInfoPending";
 
 const cache = worldInfoModule.worldInfoCache as { get: (name: string) => unknown; set: (name: string, data: unknown) => void };
 const original = (name: string) => ({ entries: { 0: { content: `original ${name}` } } });
@@ -95,5 +99,47 @@ describe("an edit waiting in ST's one shared WI save debounce survives our immed
     stop();
     editorEdit("Author Book");
     return flushPendingWorldSaves("Story Memory", clock).then((result) => expect(result).toEqual({ ok: true, flushed: [] }));
+  });
+});
+
+describe("the copy an edit started from, for the editor save guard (v3.0 43 T)", () => {
+  let stop: () => void = () => undefined;
+  beforeEach(() => { store.clear(); server.clear(); handlers.length = 0; reloadEditor.mockClear(); stop = watchPendingWorldSaves(() => 1_000); });
+  afterEach(() => stop());
+
+  it("regression: an editor copy handed out before a story write keeps its own base, not the story's", () => {
+    load("Book");
+    const editorCopy = cache.get("Book") as { entries: Record<number, { content: string }> };
+    markWorldCommitted("Book", { entries: { 0: { content: "story wrote" } } });
+    editorCopy.entries[0].content = "hand edit";
+    cache.set("Book", editorCopy);
+    expect(editBaseline("Book")).toBe('{"0":{"content":"original Book"}}');
+    const fresh = cache.get("Book") as object;
+    cache.set("Book", fresh);
+    expect(editBaseline("Book")).toBe('{"0":{"content":"original Book"}}');
+  });
+
+  it("a copy taken after the story write starts from the story's copy", () => {
+    load("Book");
+    markWorldCommitted("Book", { entries: { 0: { content: "story wrote" } } });
+    const copy = cache.get("Book") as { entries: Record<number, { content: string }> };
+    copy.entries[0].content = "hand edit";
+    cache.set("Book", copy);
+    expect(editBaseline("Book")).toBe('{"0":{"content":"story wrote"}}');
+  });
+
+  it("a superseded save puts the merged copy in the cache and redraws the editor; a refused one drops the cache", () => {
+    load("Book");
+    supersedeNextUpdate("Book", { entries: { 0: { content: "merged" } } });
+    handlers.forEach((handler) => handler("Book", { entries: { 0: { content: "what ST posted" } } }));
+    expect(cache.get("Book")).toEqual({ entries: { 0: { content: "merged" } } });
+    expect(reloadEditor).toHaveBeenCalledWith("Book");
+    const copy = cache.get("Book") as { entries: Record<number, { content: string }> };
+    copy.entries[0].content = "next";
+    cache.set("Book", copy);
+    expect(editBaseline("Book")).toBe('{"0":{"content":"merged"}}');
+    supersedeNextUpdate("Book", null);
+    handlers.forEach((handler) => handler("Book", { entries: { 0: { content: "refused" } } }));
+    expect(store.has("Book")).toBe(false);
   });
 });

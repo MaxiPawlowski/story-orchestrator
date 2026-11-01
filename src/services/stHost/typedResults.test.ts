@@ -24,6 +24,7 @@ const READS: Record<string, string> = {
   backgroundExists: "a question about the install's backgrounds",
   lorebookExists: "a question about the install's lorebooks",
   lapsed: "a question about whether a write guard's run is still current",
+  isOwnRow: "a question about a chat row: is it the story's own note or picture",
   isHostGenerating: "a question about ST's generating flag",
   isHostGeneratingFlag: "a question about ST's own body[data-generating] flag",
   isUserStoppedReply: "a question about ST's streaming processor: did the player stop this reply (v2.9 A02)",

@@ -75,6 +75,15 @@ export const MECHANICS_FEATURES: readonly Feature[] = [
     settings: ["worldInfo.loreLifetime"], doc: "setup/settings-reference.md", status: "shipped", needs: ["story"],
   },
   {
+    id: "lore-editor-merge", name: "Lorebook editor keeps story writes", area: "world", audience: "player",
+    oneLine: "A save from SillyTavern's lorebook editor keeps what the story wrote to that book meanwhile.",
+    what: "SillyTavern's editor saves the whole book from the copy it shows, which could undo a lore change the story made after the editor opened it. "
+      + "Its saves now go through the story's conditional save: when the book moved, the two versions are merged entry by entry, the editor winning where both changed one entry, "
+      + "and the editor is redrawn from the merged book. This changes SillyTavern's own save.",
+    where: settingsAt("#so-wi-editor-merge", "World & lore › Keep story lore when you edit a lorebook"),
+    settings: ["worldInfo.editorMerge"], doc: "setup/settings-reference.md", status: "shipped", needs: [],
+  },
+  {
     id: "lore-state", name: "Scene state for lore", area: "world", audience: "author",
     oneLine: "The lore pick hears where you are, who is on stage, open quests and what you have met, and nicknames find their entries.",
     what: "The lore judge's question and the word match get a short scene state: the place, the members on stage with their other names, open quest "

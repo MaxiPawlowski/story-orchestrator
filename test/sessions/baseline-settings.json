@@ -36,6 +36,7 @@
       "hudEnabled": true,
       "yourMove": true,
       "compactThoughts": true,
+      "regenerateOwnRows": true,
       "briefing": false,
       "briefingDraft": false,
       "playerSetup": false,
@@ -234,7 +235,8 @@
       "preferKnown": true,
       "loreLifetime": true,
       "loreState": true,
-      "loreAliases": true
+      "loreAliases": true,
+      "editorMerge": true
     },
     "image": {
       "enabled": false,

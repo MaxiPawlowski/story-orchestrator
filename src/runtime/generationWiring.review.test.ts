@@ -37,6 +37,7 @@ jest.mock("@services/STAPI", () => ({
   unregisterHostMacro: () => {},
   startSaveWatcherSurface: () => () => {},
   watchPendingWorldSaves: () => () => {},
+  loadHostOverrides: async () => ({ installHostOverrides: () => [] }),
   installDraftGuard: () => () => {},
   subscribeToHostEventFirst: () => ({ off: () => {}, place: () => {} }),
   subscribeToHostEvents: (entries: Array<{ eventName: string; handler: (...args: unknown[]) => unknown }>) => {

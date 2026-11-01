@@ -4,6 +4,15 @@ import { drawerAt, settingsAt } from "./where";
 
 export const PRESENCE_FEATURES: readonly Feature[] = [
   {
+    id: "regenerate-own-rows", name: "Regenerate past story rows", area: "play", audience: "player",
+    oneLine: "In a group chat, Regenerate removes the story's own note or picture left last, then regenerates the reply above it.",
+    what: "SillyTavern's group Regenerate stops at the first system row from the end. When that row is the story's own scene note or picture, it is removed first "
+      + "and SillyTavern's Regenerate then runs as usual. Rows you or other extensions posted are left alone. This changes SillyTavern's own Regenerate entry.",
+    where: settingsAt("#so-regenerate-own-rows", "Display › Regenerate removes the story's own note or picture first"),
+    settings: ["display.regenerateOwnRows"], doc: "player/drawer-and-hud.md", status: "shipped", needs: ["group-chat"],
+    isOn: (settings) => settings.display.regenerateOwnRows,
+  },
+  {
     id: "compact-thoughts", name: "Thinking pill", area: "play", audience: "player",
     oneLine: "SillyTavern's \"Thought for …\" bar becomes a small pill at the top left of the reply.",
     what: "The thinking bar above a reply shrinks to a small rounded label. Click it to open or close the thinking; its buttons show only while it is open. "

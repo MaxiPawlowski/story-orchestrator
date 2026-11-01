@@ -20,6 +20,11 @@ jest.mock("@services/STAPI", () => ({
   readServerBoundary: async () => null,
   getContext: () => mockContext,
   executeSlashCommands: jest.fn(async () => true),
+  postOwnComment: jest.fn(async (text: string) => {
+    const stapi = jest.requireMock("@services/STAPI") as { executeSlashCommands: (command: string, options: unknown) => Promise<unknown> };
+    const { quoteSlashArg } = jest.requireActual("@utils/string") as { quoteSlashArg: (value: string) => string };
+    return (await stapi.executeSlashCommands(`/comment compact=true raw=false ${quoteSlashArg(text)}`, { silent: true })) ? { ok: true, marked: 1 } : { ok: false, reason: "refused" };
+  }),
   setGroupMembersDisabled: jest.fn(async () => undefined),
   applyCharacterAN: jest.fn(async (text: string) => ({ ok: true, text })),
   clearCharacterAN: jest.fn(async () => ({ ok: true, text: "" })),

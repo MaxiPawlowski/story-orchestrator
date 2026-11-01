@@ -76,6 +76,11 @@ jest.mock("@services/STAPI", () => {
     vectorPurge: jest.fn(async () => undefined),
     DEFAULT_VECTOR_SOURCE: "transformers",
     executeSlashCommands: jest.fn(async () => true),
+    postOwnComment: jest.fn(async (text: string) => {
+      const stapi = jest.requireMock("@services/STAPI") as { executeSlashCommands: (command: string, options: unknown) => Promise<unknown> };
+      const { quoteSlashArg } = jest.requireActual("@utils/string") as { quoteSlashArg: (value: string) => string };
+      return (await stapi.executeSlashCommands(`/comment compact=true raw=false ${quoteSlashArg(text)}`, { silent: true })) ? { ok: true, marked: 1 } : { ok: false, reason: "refused" };
+    }),
     startGroupVoiceAt: jest.fn(async () => ({ ok: true })),
     isHostGenerating: () => false,
     setGroupMembersDisabled: jest.fn(async () => ({ ok: true, group: "g1" })),

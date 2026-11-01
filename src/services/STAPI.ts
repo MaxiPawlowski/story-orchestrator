@@ -51,6 +51,8 @@ export {
 } from "@services/stHost/persistence";
 export { saveSettingsSoon } from "@services/stHost/settingsSave";
 export { watchPendingWorldSaves } from "@services/stHost/worldInfoPending";
+export { postOwnComment } from "@services/stHost/ownRows";
+export const loadHostOverrides = () => import("@services/stHost/hostOverrides");
 export { applyCharacterAN, clearCharacterAN } from "@services/stHost/authorNotes";
 export { setStoryExtensionPrompt, clearStoryExtensionPrompt } from "@services/stHost/extensionPrompts";
 export {

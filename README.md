@@ -137,6 +137,7 @@ Generated from the feature registry. "Experimental" means not yet measured; it i
 | Playing | Recap and welcome back | Coming back after a break shows where you left off; /story recap asks any time. |  |
 | Playing | Branched chats | A chat branched from a story keeps going from where the branch ends. |  |
 | Playing | Tension and pacing | Measures the scene's tension and nudges replies toward the story's intended shape. |  |
+| Playing | Regenerate past story rows | In a group chat, Regenerate removes the story's own note or picture left last, then regenerates the reply above it. |  |
 | Playing | Thinking pill | SillyTavern's "Thought for …" bar becomes a small pill at the top left of the reply. |  |
 | Playing | Story marks in the lists | Groups and chats that play a story carry a small icon in SillyTavern's lists. |  |
 | Playing | Story card | Hover a group's story icon to see the story, its chapter and when you last played. |  |
@@ -220,6 +221,7 @@ Generated from the feature registry. "Experimental" means not yet measured; it i
 | World | Keep the lore picks for a round | Lore is chosen once per message of yours and kept while the other characters reply. |  |
 | World | Prefer lore you have met | Lore about people, places and things you have not met ranks a little lower. |  |
 | World | Lore ends with its chapter | Lore a checkpoint switches on ends with its chapter, or at a checkpoint the story names, unless it is marked lasting. |  |
+| World | Lorebook editor keeps story writes | A save from SillyTavern's lorebook editor keeps what the story wrote to that book meanwhile. |  |
 | World | Scene state for lore | The lore pick hears where you are, who is on stage, open quests and what you have met, and nicknames find their entries. |  |
 | Images | Live close-shot head | A rigged close shot breathes, blinks, sways, gestures and talks as a reply streams. | Experimental |
 | Images | Prepared cast presentation | Review and accept each character's base and bust before sprites, poses and live heads use them. | Experimental |

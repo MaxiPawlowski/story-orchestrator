@@ -8,6 +8,7 @@ import { InlineControls } from "./InlineControls";
 import { PresenceControls } from "./PresenceControls";
 import { DeviceChip, useDeviceSetting, type DeviceStore } from "./DeviceSetting";
 import { StatusText } from "@components/ui/StatusText";
+import { getGlobalSettings, setGlobalSettings } from "@runtime/settingsStore";
 
 export interface DisplayPageProps {
   snapshot: RuntimeSnapshot;
@@ -22,6 +23,7 @@ export const DisplayPage = ({ snapshot, manager, deviceStore: injected }: Displa
   const yourMove = useDeviceSetting<boolean>("display.yourMove", snapshot.ui.yourMove !== false, (on) => manager.setUiSettings({ yourMove: on }), notify, deviceStore);
   const thoughts = useDeviceSetting<boolean>("display.compactThoughts", snapshot.ui.compactThoughts !== false, (on) => manager.setUiSettings({ compactThoughts: on }), notify, deviceStore);
   const error = hud.error ?? yourMove.error ?? thoughts.error;
+  const [regenerate, setRegenerate] = useState(() => getGlobalSettings().display.regenerateOwnRows);
   return <div className="so-settings-page" id="so-display-header">
     <header className="so-page-head"><h2>Display</h2>
       <p className="so-section-desc">What shows in the chat. Affects every chat; a row marked This device uses its own value in this browser only.</p></header>
@@ -29,6 +31,8 @@ export const DisplayPage = ({ snapshot, manager, deviceStore: injected }: Displa
       <InlineControls snapshot={snapshot} manager={manager} deviceStore={deviceStore} />
       <CheckRow id="so-announce-transitions" setting="display.announceTransitions" checked={snapshot.ui.announceTransitions}
         onChange={(on) => manager.setUiSettings({ announceTransitions: on })} />
+      <CheckRow id="so-regenerate-own-rows" setting="display.regenerateOwnRows" checked={regenerate}
+        onChange={(on) => { setGlobalSettings({ display: { regenerateOwnRows: on } }); setRegenerate(getGlobalSettings().display.regenerateOwnRows); notify(); }} />
     </Section>
     <Section title="In the replies" level={3}>
       <CheckRow id="so-compact-thoughts" setting="display.compactThoughts" checked={snapshot.ui.compactThoughts !== false} scope={thoughts.overridden ? "device" : undefined}

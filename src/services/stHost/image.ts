@@ -1,4 +1,5 @@
 import { getContext } from "./context";
+import { OWN_ROW_KEY } from "./ownRows";
 import { extensionsSharedModule } from "./modules";
 import { isRecord } from "@utils/guards";
 import { couldNot, wrote, type WriteResult } from "@utils/writeResult";
@@ -147,7 +148,7 @@ export async function imagePlace(chatId: string, target: number | null, caption:
   if (!host.addOneMessage || !ctx.eventTypes.MESSAGE_RECEIVED || !ctx.eventTypes.CHARACTER_MESSAGE_RENDERED) throw new Error("ST cannot post an image message.");
   const posted = {
     name: "Image Director", is_user: false, is_system: true, mes: caption, send_date: new Date().toISOString(),
-    extra: { media: [media], media_display: "gallery", media_index: 0, inline_image: false },
+    extra: { media: [media], media_display: "gallery", media_index: 0, inline_image: false, [OWN_ROW_KEY]: "image" },
   };
   ctx.chat.push(posted);
   const index = ctx.chat.length - 1;

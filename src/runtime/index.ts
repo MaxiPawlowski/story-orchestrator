@@ -5,6 +5,7 @@ import {
   clearStoryExtensionPrompt, getContext, loadPersonasModule, loadPersonaWrites, noteHostSettingsLoaded, readPersonas,
   getActiveGroup, installDraftGuard,
   isUserStoppedReply, onGroupEdited, onLorebookListChanged, setStoryExtensionPrompt, settingsReady, startSaveWatcherSurface, subscribeToHostEvents, watchPendingWorldSaves,
+  loadHostOverrides,
 } from "@services/STAPI";
 import { registerRuntimeMacros } from "./macros";
 import { startMirrorReaper } from "./mirrorReaperHost";
@@ -171,6 +172,11 @@ export function startRuntime() {
   started = true;
   runtimeDisposers.push(startSaveWatcherSurface());
   runtimeDisposers.push(watchPendingWorldSaves());
+  void loadHostOverrides().then(({ installHostOverrides }) => {
+    const undo = installHostOverrides({ editorMerge: () => getGlobalSettings().worldInfo.editorMerge, regenerateOwnRows: () => getGlobalSettings().display.regenerateOwnRows });
+    if (started) runtimeDisposers.push(...undo);
+    else undo.forEach((dispose) => dispose());
+  }).catch((error: unknown) => log.warn("the SillyTavern overrides did not load", error));
   runtimeDisposers.push(readGatingModeWith(() => getGlobalSettings().worldInfo.gatingMode));
   startScheduler(live, runtimeDisposers);
   void loadInlineComposer().then(() => { if (started) runtimeManager.notify(); });

@@ -65,7 +65,7 @@ export interface GlobalSettings {
   extraction: ExtractionRuntimeSettings;
   pacing: { hintEnabled: boolean; pathArc: boolean; stuckLadder: boolean };
   display: {
-    announceTransitions: boolean; hudEnabled: boolean; yourMove: boolean; compactThoughts: boolean;
+    announceTransitions: boolean; hudEnabled: boolean; yourMove: boolean; compactThoughts: boolean; regenerateOwnRows: boolean;
     briefing: boolean; briefingDraft: boolean; playerSetup: boolean; inline: InlineSettings; presence: PresenceSettings;
   };
   copilot: CopilotRuntimeSettings;
@@ -175,6 +175,7 @@ export interface WorldInfoSettings {
   loreLifetime: boolean;
   loreState: boolean;
   loreAliases: boolean;
+  editorMerge: boolean;
 }
 
 export const DEFAULT_LATE_LORE_DEPTH = 4;
@@ -187,7 +188,7 @@ export const clampLateLoreDepth = (value: unknown, fallback: number = DEFAULT_LA
 export const defaultWorldInfoSettings = (): WorldInfoSettings => ({
   gatingMode: "scan", normalized: {}, normalizedFrom: {}, scanMemory: true, keptGlobal: [], lateLore: true, lateLoreDepth: DEFAULT_LATE_LORE_DEPTH, lorePins: true, seededChance: true,
   budgetEvidence: true, lexicalFallback: true, lexicalPrefilter: false, lexicalTiebreak: true, holdRound: true, preferKnown: true,
-  loreLifetime: true, loreState: true, loreAliases: true,
+  loreLifetime: true, loreState: true, loreAliases: true, editorMerge: true,
 });
 
 const sanitizeProvenance = (value: unknown): Record<string, NormalizedFrom[]> => {
@@ -235,6 +236,7 @@ const sanitizeWorldInfoSettings = (value: unknown): WorldInfoSettings => {
     loreLifetime: value.loreLifetime !== false,
     loreState: value.loreState !== false,
     loreAliases: value.loreAliases !== false,
+    editorMerge: value.editorMerge !== false,
   };
 };
 
@@ -285,7 +287,7 @@ export const defaultGlobalSettings = (): GlobalSettings => ({
   extraction: defaultExtractionSettings(),
   pacing: { hintEnabled: true, pathArc: true, stuckLadder: true },
   display: {
-    announceTransitions: false, hudEnabled: true, yourMove: true, compactThoughts: true,
+    announceTransitions: false, hudEnabled: true, yourMove: true, compactThoughts: true, regenerateOwnRows: true,
     briefing: true, briefingDraft: true, playerSetup: true, inline: defaultInlineSettings(), presence: defaultPresenceSettings(),
   },
   copilot: { enabled: true, ask: true },
@@ -382,6 +384,7 @@ export const sanitizeGlobalSettings = (value: unknown): GlobalSettings => {
     pacing: { hintEnabled: pacing.hintEnabled !== false, pathArc: pacing.pathArc !== false, stuckLadder: pacing.stuckLadder !== false },
     display: {
       announceTransitions: display.announceTransitions === true, hudEnabled: display.hudEnabled !== false, yourMove: display.yourMove !== false, compactThoughts: display.compactThoughts !== false,
+      regenerateOwnRows: display.regenerateOwnRows !== false,
       briefing: display.briefing !== false,
       briefingDraft: display.briefingDraft !== false, playerSetup: display.playerSetup !== false,
       inline: sanitizeInlineSettings(display.inline),
