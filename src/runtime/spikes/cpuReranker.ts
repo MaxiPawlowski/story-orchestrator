@@ -76,8 +76,8 @@ export const createRerankClient = (options: RerankClientOptions) => async (query
     if (!response.ok) return { ok: false, reason: "http", detail: String(response.status) };
     const scores = parseRerankResponse(await response.json(), Math.min(documents.length, RERANK_DOCS_MAX));
     return scores ? { ok: true, scores, latencyMs: now() - started } : { ok: false, reason: "shape" };
-  } catch (error) {
-    return controller?.signal.aborted ? { ok: false, reason: "timeout" } : { ok: false, reason: "network", detail: error instanceof Error ? error.message : String(error) };
+  } catch {
+    return { ok: false, reason: controller?.signal.aborted ? "timeout" : "network" };
   } finally {
     if (timer) clearTimeout(timer);
   }

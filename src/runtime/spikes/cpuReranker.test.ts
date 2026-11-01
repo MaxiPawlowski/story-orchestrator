@@ -38,7 +38,7 @@ describe("spike cpuReranker: llama.cpp --reranking plumbing and offline arm stub
     expect(await createRerankClient({ endpoint: "http://x", fetch: standIn })("q", [])).toEqual({ ok: false, reason: "empty" });
     expect(await createRerankClient({ endpoint: "http://x", fetch: async () => ({ ok: false, status: 503, json: async () => ({}) }) })("q", ["a"])).toEqual({ ok: false, reason: "http", detail: "503" });
     expect(await createRerankClient({ endpoint: "http://x", fetch: async () => ({ ok: true, status: 200, json: async () => ({}) }) })("q", ["a"])).toEqual({ ok: false, reason: "shape" });
-    expect(await createRerankClient({ endpoint: "http://x", fetch: async () => { throw new Error("refused"); } })("q", ["a"])).toEqual({ ok: false, reason: "network", detail: "refused" });
+    expect(await createRerankClient({ endpoint: "http://x", fetch: async () => { throw new Error("refused"); } })("q", ["a"])).toEqual({ ok: false, reason: "network" });
     const hang: FetchLike = (_url, init) => new Promise((_resolve, reject) => init.signal?.addEventListener("abort", () => reject(new Error("aborted"))));
     expect(await createRerankClient({ endpoint: "http://x", fetch: hang, timeoutMs: 5 })("q", ["a"])).toEqual({ ok: false, reason: "timeout" });
     const ok = await createRerankClient({ endpoint: "http://x", fetch: standIn, now: () => 0 })("silver ring", ["a ring of silver", "bread"]);
