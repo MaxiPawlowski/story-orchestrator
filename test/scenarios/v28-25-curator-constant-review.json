@@ -1,7 +1,7 @@
 {
   "model": "none",
   "name": "v28-25-curator-constant-review",
-  "objective": "A19 deterministic browser plumbing: a constant auto-marked entry waits for explicit review, applies at a boundary only after approval, and rolls back on swipe. Real-model curator quality is deferred.",
+  "objective": "A19 deterministic browser plumbing, updated for v3.0 43 K2 (owner 2026-11-01: auto mode accepts constant entries too): a constant auto-marked entry is accepted on the spot in auto mode, written only at the next boundary, and rolled back on swipe; the op into a protected span is still refused. Real-model curator quality is deferred.",
   "requires": {
     "lane": "no-model",
     "group": "Group: Arin, DM Narrator",
@@ -9,7 +9,7 @@
       "Arin"
     ],
     "judge": "off",
-    "why": "Scripted curator/read; constant entry routing and author approval through the shipped runtime, no model calls.",
+    "why": "Scripted curator/read; constant entry routing in auto mode through the shipped runtime, no model calls.",
     "briefingDraft": "off",
     "innerBeat": "off"
   },
@@ -100,7 +100,7 @@
       "log": true
     },
     {
-      "eval": "const rt = globalThis.storyOrchestratorRuntime; globalThis.storyOrchestratorDebugCuratorResponse = 'NONE'; const state = rt.getStagecraftState(); const record = (state.proposals ?? []).slice(-1)[0]; if (!record) throw new Error('the curator pass made no proposal'); const ops = record.ops.map((entry) => ({ kind: entry.op.kind, comment: entry.op.comment, status: entry.status })); if (ops.some((op) => op.comment === 'The north gate')) throw new Error(`an op into the protected span reached the card: ${JSON.stringify(ops)}`); const market = ops.find((op) => op.comment === 'The market square'); if (!market || market.status !== 'pending') throw new Error(`the constant auto-tier op did not wait for review: ${JSON.stringify(ops)}`); if (!JSON.stringify(state).includes('touches protected text')) throw new Error(`the refusal is not recorded: ${JSON.stringify(state.lastPass ?? null).slice(0, 600)}`); const readBook = async () => { const ctx = SillyTavern.getContext(); const server = await (await fetch('/api/worldinfo/get', { method: 'POST', headers: ctx.getRequestHeaders(), body: JSON.stringify({ name: 'SO-A19 Lore' }), cache: 'no-cache' })).json(); const byComment = (comment) => String(Object.values(server?.entries ?? {}).find((entry) => entry.comment === comment)?.content ?? ''); return { gate: byComment('The north gate'), market: byComment('The market square') }; }; const now = await readBook(); if (now.market !== globalThis.__a19.original.market) throw new Error('the accepted op was written before a boundary'); globalThis.__a19.record = record.id; await rt.applyCuratorProposals(); const unchanged = await readBook(); if (unchanged.market !== now.market) throw new Error('constant entry written before author approval'); await rt.setCuratorOpDecision(record.id, record.ops.findIndex((entry) => entry.op.comment === 'The market square'), 'accepted'); return { ops, dropped: state.lastPass?.dropped ?? null };",
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; globalThis.storyOrchestratorDebugCuratorResponse = 'NONE'; const state = rt.getStagecraftState(); const record = (state.proposals ?? []).slice(-1)[0]; if (!record) throw new Error('the curator pass made no proposal'); const ops = record.ops.map((entry) => ({ kind: entry.op.kind, comment: entry.op.comment, status: entry.status })); if (ops.some((op) => op.comment === 'The north gate')) throw new Error(`an op into the protected span reached the card: ${JSON.stringify(ops)}`); const market = ops.find((op) => op.comment === 'The market square'); if (!market || market.status !== 'accepted') throw new Error(`the op on the constant entry was not accepted on the spot: ${JSON.stringify(ops)}`); if (!JSON.stringify(state).includes('touches protected text')) throw new Error(`the refusal is not recorded: ${JSON.stringify(state.lastPass ?? null).slice(0, 600)}`); const readBook = async () => { const ctx = SillyTavern.getContext(); const server = await (await fetch('/api/worldinfo/get', { method: 'POST', headers: ctx.getRequestHeaders(), body: JSON.stringify({ name: 'SO-A19 Lore' }), cache: 'no-cache' })).json(); const byComment = (comment) => String(Object.values(server?.entries ?? {}).find((entry) => entry.comment === comment)?.content ?? ''); return { gate: byComment('The north gate'), market: byComment('The market square') }; }; const now = await readBook(); if (now.market !== globalThis.__a19.original.market) throw new Error('the accepted op was written before a boundary'); globalThis.__a19.record = record.id; return { ops, dropped: state.lastPass?.dropped ?? null };",
       "log": true
     },
     {

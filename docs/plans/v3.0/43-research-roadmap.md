@@ -752,3 +752,42 @@ Two owner decisions on one branch (`v3.0-43-k`).
   Storybook 1,167, test:debug, replay, release, plugin, lint, typechecks, build. Main `dist/index.js` 1,236,248 B of 1,300,000
   (63,752 B headroom). The first full run was red on 3 tests (interceptor source pin, dead `installRepairKit` export, arrival
   golden missing the new row); fixed, gates:quick green, then this clean run.
+
+## K2: curator auto for constant entries too (owner 2026-11-01)
+
+Follow-up to K (owner: "all entries"). Branch `v3.0-43-k2`.
+
+- `stagecraft/curatorTiers.ts` `routeByMode`: in `auto` every op on an existing entry of the story's `stagecraft.lorebooks` is
+  accepted on the spot, constant (always-on) entries included. Creates still wait (explicit `op.kind !== "create"`, not only
+  "no such entry"): the near-duplicate warning needs the author. Review and off unchanged. Every other guard unchanged
+  (protected spans at plan time and the write edge, exclusions, gated entries, `isCuratorWritable`, `CURATOR_SECRET_REFUSAL`,
+  title-only digest refusals, before-images, journaling, foreign stamps). The v2.8 25 P5 / A19 exception is withdrawn.
+- Copy: settings `stagecraft.acceptMode`, feature `curator`, guide `stagecraft` topic (and its Bad line) + compact twin,
+  architecture rule line; `npm run docs:guide`, `npm run docs:settings` regenerated.
+- Scenarios: `v28-25-curator-constant-review.json` now asserts the constant entry is `accepted` on the spot in auto, written
+  only at the next boundary, reverted by a swipe (file name kept: arrival golden key). `v30-43k-curator-auto-all.json` gains
+  `The old well` (constant, unmarked): accepted, written, constant flag kept, reverted with the market entry.
+- Campaign (private repo, counts only): its one curator book has 13 entries. 5 keep their protected spans (every invariant
+  sentence was already inside one), 1 (the disabled house-style note) is now in `stagecraft.exclude` in all 9 stories (was 3:
+  in the other 6 the curator could have switched it on unreviewed), 7 left writable (campaign state; 3 still carry the inert
+  `so:auto`). A lab check fails a story that drops the exclusion row. Pin bump and reinstall wait for the lanes 46/49 GPU batch.
+
+## Gate record K2
+
+- Tests: `curatorTiers.test.ts` (auto: marked, unmarked and constant accepted; create and unknown entry pending; review all
+  pending), `curatorTiers.review.test.ts` (constant entries applied in auto across enable/disable/rewrite/patch; constant
+  accepted, flag kept, rolled back; review-mode control: constant waits, applies after approval), `curatorDigest.review.test.ts`
+  (title-only flip on a constant entry accepted in auto; waits in review). `npm run gates:quick` green (108.3s).
+- Live, lane 38 (no-model, lane copy), branch build frozen (`st-lanes.mts run 38 --bundle C:/dev/so-43-k2`, bundle `c27c65a7`);
+  owner ST, lane 0, lanes 46/49 and the GPU untouched. Mocked curator response: auto acceptance is deterministic code.
+  - `v30-43k-curator-auto-all.json` PASS x2 (17/17): market (unmarked) and well (constant) `accepted` on the spot, gate
+    rewrite dropped ("touches protected text"); the boundary wrote both (well still `constant: true`); a swipe reverted both
+    and the story to `road`. 0 page errors (run 2: 1 expected no-model 500 on `/props`). The first attempt hit a
+    ChunkLoadError because the lane page predated the freeze; reloaded, then the two runs above.
+  - Regression once each: `v28-25-curator-constant-review.json` PASS (constant `accepted`, written at the boundary, reverted),
+    `v27-d-02-c13-curator-tiers.json` PASS.
+  - Each run's residue sweep dropped one untitled wizard session holding the fixture book (as before K2); cleanup clean.
+- Gates: `npm run gates` (no --resume, Storybook included) all green in 464.3s on `548dd40a2` (master merged in, already
+  current): jest 11,600 passed / 3 skipped, Storybook 1,167, test:debug, replay, release, plugin, lint, typechecks, build.
+  Main `dist/index.js` 1,236,237 B of 1,300,000.
+- After the gates run master moved by one docs-only commit (`69fc53b17`, roadmap + gpu queue records); merged in cleanly, no rerun (docs tier needs none).

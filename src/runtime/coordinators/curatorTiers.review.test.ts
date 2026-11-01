@@ -175,21 +175,18 @@ async function runW2(mode: "auto" | "review", entries: Entry[] = TIERED) {
 }
 
 describe("v2.7 02 C13 (SP8 W2): tier routing through the coordinator, no flag", () => {
-  it("constant entries wait for review across enable, disable, rewrite and patch; the others apply", async () => {
+  it("v3.0 43 K2: constant entries apply on their own across enable, disable, rewrite and patch, like the others", async () => {
     const entries = TIERED.map((entry) => ({ ...entry, constant: AUTO.has(entry.comment) }));
     const { decided, written } = await runW2("auto", entries);
-    expect(decided.filter((entry) => AUTO.has(entry.comment)).map((entry) => entry.status)).toEqual(Array(4).fill("pending"));
-    expect(decided.filter((entry) => !AUTO.has(entry.comment)).map((entry) => entry.status)).toEqual(Array(4).fill("accepted"));
-    expect([...written].sort()).toEqual(TIERED.filter((entry) => !AUTO.has(entry.comment)).map((entry) => entry.comment).sort());
+    expect(decided.map((entry) => entry.status)).toEqual(Array(8).fill("accepted"));
+    expect([...written].sort()).toEqual(TIERED.map((entry) => entry.comment).sort());
   });
 
-  it("an author can approve a constant entry and its write rolls back", async () => {
+  it("v3.0 43 K2: a constant entry is accepted in auto, keeps its constant flag and its write rolls back", async () => {
     const run = harness(TIERED.map((entry) => ({ ...entry, constant: true })), { mode: "auto" });
     run.reply("[patch] Bells || are silent || ring again\n[why] the town recovered");
     const outcome = await run.coordinator.runCuratorPass("test");
-    expect(outcome.record!.ops[0].status).toBe("pending");
-    expect(await run.coordinator.applyAccepted()).toBe(0);
-    await run.coordinator.setOpDecision(outcome.record!.id, 0, "accepted");
+    expect(outcome.record!.ops[0].status).toBe("accepted");
     expect(await run.coordinator.applyAccepted()).toBe(1);
     expect(run.book.get(14)!.content).toContain("ring again");
     expect(run.book.get(14)!.constant).toBe(true);
@@ -205,13 +202,15 @@ describe("v2.7 02 C13 (SP8 W2): tier routing through the coordinator, no flag", 
     expect([...written].sort()).toEqual(TIERED.map((entry) => entry.comment).sort());
   });
 
-  it("v3.0 43 K: in auto, a constant entry still waits whether marked or not", async () => {
-    const entries = TIERED.map((entry) => ({ ...entry, constant: entry.comment === "Weather" || entry.comment === "Road" }));
-    const { decided, written } = await runW2("auto", entries);
-    expect(decided.filter((entry) => entry.status === "pending").map((entry) => entry.comment)).toEqual(["Weather", "Road"]);
-    expect(written).not.toContain("Weather");
-    expect(written).not.toContain("Road");
-    expect(written).toHaveLength(6);
+  it("v3.0 43 K2: in review, a constant entry still waits and is written only after the author approves", async () => {
+    const run = harness(TIERED.map((entry) => ({ ...entry, constant: true })), { mode: "review" });
+    run.reply("[patch] Bells || are silent || ring again\n[why] the town recovered");
+    const outcome = await run.coordinator.runCuratorPass("test");
+    expect(outcome.record!.ops[0].status).toBe("pending");
+    expect(await run.coordinator.applyAccepted()).toBe(0);
+    await run.coordinator.setOpDecision(outcome.record!.id, 0, "accepted");
+    expect(await run.coordinator.applyAccepted()).toBe(1);
+    expect(run.book.get(14)!.constant).toBe(true);
   });
 
   it("control: in review all eight wait, and nothing is written", async () => {
