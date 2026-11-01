@@ -24,7 +24,7 @@ function harness({ group, coveredTo, capable = true }: { group: boolean; covered
       enabled: true,
       capable,
       shortTermSummaryEnd: -1,
-      shortTermEntry: () => null,
+      getEntities: () => [], chapters: { host: { memory: () => ({ settings: { summaryGuard: false }, entries: [], ledger: [], arcs: [] }) } }, shortTermEntry: () => null,
       replaceShortTerm: async (entry: { text: string }, span: { to: number }) => { written.push({ text: entry.text, to: span.to }); },
       updateInjection: () => {},
     },

@@ -8,6 +8,7 @@ import type { SealTarget } from "./chapters";
 import type { MemoryRuntimeState } from "./types";
 
 type ChapterKit = typeof import("./chapterKit");
+type CompactionMeter = import("./compactHistory").CompactionMeter;
 
 export interface ChapterHost {
   coordinator: MemoryCoordinator;
@@ -49,6 +50,7 @@ export class ChapterPort {
   recalled = false;
   recallBand: { key: string; band: Map<string, number> | null } | null = null;
   compactedTo: number | null = null;
+  compactMeter: CompactionMeter | null = null;
 
   constructor(readonly host: ChapterHost) {}
 
@@ -63,6 +65,9 @@ export class ChapterPort {
   fold(rows: Array<{ extra?: unknown }>, type: unknown, live: readonly unknown[]) { return kit?.fold(this.host, rows, type, live) ?? null; }
   compact(rows: Array<{ extra?: unknown }>, type: unknown, live: readonly unknown[], contextTokens: number, readEnd: number | null) {
     return kit?.compact(this, rows, type, live, contextTokens, readEnd) ?? null;
+  }
+  async primeCompaction(rows: Array<{ extra?: unknown }>, type: unknown, contextTokens: number): Promise<number> {
+    return kit ? kit.primeCompaction(this, rows, type, contextTokens) : 0;
   }
   carryBridge(type: unknown) { kit?.carryBridge(this, type); }
   restoreBridge() { kit?.restoreBridge(this); }

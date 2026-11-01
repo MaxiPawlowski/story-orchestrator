@@ -68,7 +68,7 @@ const freeDeps = (child, readings, overrides = {}) => {
 
 test('a reserve miss first asks the idle owned ComfyUI to free its models and counts it only when the reserve clears', async () => {
     const child = process();
-    const enough = freeDeps(child, [700, 900, 1300]);
+    const enough = freeDeps(child, [700, 900, 1300], { waitMs: 5000 });
     assert.deepEqual(await freeIdleComfy(enough.deps, { shortMiB: 300 }), { freed: true, freeMiB: 1300 });
     assert.deepEqual(enough.calls, ['free', 'host']);
     const short = freeDeps(child, [700]);

@@ -183,3 +183,50 @@ export function verdict(judged: Record<string, Judged>, key: SealedKey): Verdict
   };
   return { pairs, compactPreferredOrTied: kept, mean, floors, pass: Object.values(floors).every(Boolean) };
 }
+
+export const TURN_START_ID = 105;
+
+export function chunkCounts(ids: readonly number[], startId = TURN_START_ID): number[] {
+  const chunks: number[] = [0];
+  for (const id of ids) {
+    if (id === startId) chunks.push(0);
+    chunks[chunks.length - 1] += 1;
+  }
+  return chunks;
+}
+
+export interface RealCounts { head: number; segments: Map<string, number>; tail: number; headChars: number }
+
+export function realCountsOf(prompt: string, ids: readonly number[], startId = TURN_START_ID): RealCounts | null {
+  const parsed = parsePrompt(prompt);
+  const segments = [...parsed.head, ...parsed.body];
+  const chunks = chunkCounts(ids, startId);
+  const expected = 1 + segments.length + (parsed.tail.startsWith('<|turn>') ? 1 : 0);
+  if (chunks.length !== expected) return null;
+  const map = new Map<string, number>();
+  segments.forEach((segment, at) => map.set(segment.raw, chunks[1 + at] + (at === 0 ? chunks[0] : 0)));
+  return { head: chunks[0] + (parsed.head.length ? chunks[1] : 0), segments: map, tail: chunks[1 + segments.length] ?? 0,
+    headChars: parsed.head.reduce((sum, segment) => sum + segment.raw.length, 0) };
+}
+
+export interface TrimRow { arm: 'estimate' | 'real'; prompts: number; afterCut: number; trimmedAfterCut: number; trimmedBetweenCuts: number; messagesTrimmed: number }
+
+export function stTrims(prompt: string, contextTokens: number, readLag: number, real: (segment: Segment) => number, headReal: number, tailReal: number, arm: TrimRow['arm']) {
+  const parsed = parsePrompt(prompt);
+  const history = parsed.body.filter(isHistory);
+  const band = compactionBand(contextTokens);
+  const cost = arm === 'real' ? real : (segment: Segment) => tokensOf(segment.text);
+  const plan = band ? planCompaction(history.map((segment, id) => ({ id, cost: cost(segment) })), band, history.length - 1 - readLag) : null;
+  let seen = -1;
+  const kept = plan ? parsed.body.filter((segment) => !isHistory(segment) || (seen += 1) >= plan.cutId) : [...parsed.body];
+  let total = headReal + tailReal + kept.reduce((sum, segment) => sum + real(segment), 0);
+  let trimmed = 0;
+  while (total >= contextTokens) {
+    const oldest = kept.findIndex(isHistory);
+    if (oldest < 0 || kept.filter(isHistory).length <= 1) break;
+    total -= real(kept[oldest]);
+    kept.splice(oldest, 1);
+    trimmed += 1;
+  }
+  return { cutId: plan?.cutId ?? null, trimmed };
+}
