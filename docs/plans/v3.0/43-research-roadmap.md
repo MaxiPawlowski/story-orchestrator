@@ -476,5 +476,5 @@ Source: `research/self-imposed-rules-2026-10-31.md` §Owner answers item 2. Swit
   carries it. Real-model gate: not run (no model call on this path; the filter is code over prompt text) — flagged NOT green
   for a real Summarize/Vector Storage retrieval, owed with the next model-lane batch.
 - Main bundle 1,294,191 B (+1,185 B over master `676bf997c`; budget 1,300,000).
-- `npm run gates` all green in 483.6s (Storybook included, no --resume) on `de17f8cd4` (eager wiring). Earlier full runs red on my
+- `npm run gates` all green in 427.0s (Storybook included, no --resume) on `9c050c7b9` (final, lazy wiring); 483.6s on `de17f8cd4` (eager). Earlier full runs red on my
   own misses: registry S3 file budget (feature moved to `groundingFeatures.ts`), plan 24 matrix row, README feature table.
