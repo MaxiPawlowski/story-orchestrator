@@ -401,6 +401,15 @@ export class MemoryInjector {
     return withoutSecretLines(text, story ? this.secrets(story) : [], null);
   }
 
+  copierView(): ((text: string) => string) | null {
+    const story = this.deps.getStory();
+    if (!story || !this.draft || this.withheld) return null;
+    const secrets = this.secrets(story);
+    if (!secrets.length) return null;
+    const names = this.draft.rosterId ? namesForRosterId(story, this.draft.rosterId) : null;
+    return (text) => withoutSecretLines(text, secrets, names);
+  }
+
   restingFilter(): (text: string) => string {
     const story = this.deps.getStory();
     const secrets = story ? this.secrets(story) : [];

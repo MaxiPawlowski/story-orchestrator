@@ -74,6 +74,7 @@
       "deferrals": true,
       "deferredOutOfPrompt": false,
       "historyNotes": true,
+      "copierFilter": true,
       "outwardNarration": true,
       "compactionTokens": true,
       "summaryGuard": true,

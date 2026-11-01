@@ -47,6 +47,7 @@ export const SETTING_CONTROLS: Record<string, string> = {
   "judge.expansion.variants": "so-judge-expansion-variants",
   "memory.chapters.chronicleTokens": "so-chapter-budget",
   "memory.epistemicLedgerCapable": "so-epistemic-capable",
+  "memory.copierFilter": "so-copier-filter",
   "sprites.blink": "so-sprite-blink",
   "sprites.breathing": "so-sprite-breathing",
   "sprites.effects": "so-sprite-effects",

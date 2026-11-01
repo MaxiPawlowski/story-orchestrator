@@ -1,0 +1,46 @@
+{
+  "model": "none",
+  "_note": "v3.0 43 V, no model: ST Summarize ('1_memory') and Vector Storage ('3_vectors') blocks reach each drafted member through the held-secret rule (memory.copierFilter). A [hiding] row (Arin from Ponticius) is planted through the extract verb's debugResponse. The summary block is written with setExtensionPrompt as Summarize's worker does; Vector Storage's interceptor is replaced by a canned-retrieval stub (the embedding backend is the model-side part a no-model lane lacks), which the filter wraps like the real one. The interceptor half runs by hand in ST's order (ours, then vectors), then a dry run assembles the prompt from the rewritten blocks; a dry run alone skips interceptors. Asserts: Ponticius's prompt lacks the copier text that restates the secret and keeps the plain line, Arin's keeps it, the host holds the raw text after assembly, the check no longer names either copier; negative control with the filter off.",
+  "requires": {
+    "lane": "no-model",
+    "group": "Group: Arin, DM Narrator",
+    "judge": "off",
+    "why": "dry-run prompts per drafted member; no generation"
+  },
+  "steps": [
+    {
+      "import_story": {
+        "file": "../../examples/sun-ruins/quest-for-the-sun-ruins.json"
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); if (!ctx.groupId || !ctx.chatId) throw new Error('needs a group chat'); const disabled = ctx.extensionSettings.disabledExtensions ?? []; if (disabled.includes('memory') || disabled.includes('vectors')) throw new Error('Summarize or Vector Storage is disabled on this lane: ' + JSON.stringify(disabled)); if (typeof globalThis.storyOrchestratorCopierFilter?.intercept !== 'function') throw new Error('stale bundle: no storyOrchestratorCopierFilter handle'); rt.setExtractionSettings({ cadence: 0 }); rt.setEpistemicLedgerCapable(true); const probe = globalThis.__soCopier = { realVectors: globalThis.vectors_rearrangeChat ?? null, filterWas: rt.getGlobalSettings().memory.copierFilter }; probe.summary = '[Summary: Arin palmed the guild petty cash while nobody was counting, and hid the coins in his left boot. The guild hall was quiet tonight.]'; probe.recalled = 'Past events:\\nArin: I palmed the guild petty cash while nobody was counting; the purse sits under the loose floorboard.\\n\\nLuke: The guild hall was quiet tonight.'; ctx.setExtensionPrompt('1_memory', probe.summary, 0, 0); probe.stub = async () => { SillyTavern.getContext().setExtensionPrompt('3_vectors', probe.recalled, 0, 0); }; globalThis.vectors_rearrangeChat = probe.stub; probe.capture = async (member) => { const c = SillyTavern.getContext(); const chid = (c.characters ?? []).findIndex((card) => card?.name === member); if (chid < 0) throw new Error(member + ' is not a character here'); rt.clearPrivateInjection(); rt.onMemberDrafted(chid); globalThis.storyOrchestratorCopierFilter.intercept(); await globalThis.vectors_rearrangeChat([], 0, () => {}, 'normal'); const held = { summary: String(c.extensionPrompts['1_memory']?.value ?? ''), recalled: String(c.extensionPrompts['3_vectors']?.value ?? '') }; let prompt = null; const text = (data) => { if (data?.dryRun && typeof data.prompt === 'string') prompt = data.prompt; }; const chat = (data) => { if (data?.dryRun && Array.isArray(data.chat)) prompt = data.chat.map((m) => typeof m?.content === 'string' ? m.content : JSON.stringify(m?.content ?? null)).join(' '); }; c.eventSource.on(c.eventTypes.GENERATE_AFTER_COMBINE_PROMPTS, text); c.eventSource.on(c.eventTypes.CHAT_COMPLETION_PROMPT_READY, chat); try { await c.generate('normal', {}, true); } finally { c.eventSource.removeListener(c.eventTypes.GENERATE_AFTER_COMBINE_PROMPTS, text); c.eventSource.removeListener(c.eventTypes.CHAT_COMPLETION_PROMPT_READY, chat); rt.clearPrivateInjection(); } if (typeof prompt !== 'string') throw new Error('dry-run prompt not captured for ' + member); const after = { summary: String(c.extensionPrompts['1_memory']?.value ?? ''), recalled: String(c.extensionPrompts['3_vectors']?.value ?? '') }; const has = (needle) => prompt.includes(needle); return { member, held, after, boot: has('left boot'), floorboard: has('loose floorboard'), quiet: has('guild hall was quiet tonight'), pettyCash: has('petty cash') }; }; return { chatId: ctx.chatId, filterWas: probe.filterWas };",
+      "log": true
+    },
+    {
+      "send": "I count the guild's takings while Ponticius is looking at the board."
+    },
+    {
+      "extract": {
+        "debugResponse": "SCENE_NONE\n[hiding] Arin from Ponticius | Arin palmed the guild petty cash while nobody was counting.",
+        "reason": "cadence"
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const rows = rt.getEpistemic().filter((e) => e.hiddenFrom === 'Ponticius' && !e.supersededBy); if (rows.length !== 1) throw new Error('the private row did not land exactly once: ' + JSON.stringify(rt.getEpistemic().map((e) => [e.tag, e.subject, e.hiddenFrom]))); return { secret: rows[0].id };",
+      "log": true
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const probe = globalThis.__soCopier; const problems = []; const kept = await probe.capture('Ponticius'); const knows = await probe.capture('Arin'); if (kept.boot || kept.floorboard || kept.pettyCash) problems.push('the kept-out member prompt carries the secret: ' + JSON.stringify(kept)); if (!kept.quiet) problems.push('the kept-out member lost the plain lines: ' + JSON.stringify(kept)); if (!knows.boot || !knows.floorboard) problems.push('the member who holds the secret lost the copier text: ' + JSON.stringify(knows)); if (kept.after.summary !== probe.summary || kept.after.recalled !== probe.recalled) problems.push('the host does not hold the raw text after the prompt was built: ' + JSON.stringify(kept.after)); if (/petty cash/.test(kept.held.summary) || /petty cash/.test(kept.held.recalled)) problems.push('the held block before assembly still restates the secret'); const leaks = rt.getSnapshot().secretLeaks ?? []; if (leaks.includes('Summarize') || leaks.includes('Vector Storage')) problems.push('the transcript-copiers check still names a filtered copier: ' + JSON.stringify(leaks)); if (problems.length) throw new Error(problems.join(' | ')); return { kept: { boot: kept.boot, floorboard: kept.floorboard, pettyCash: kept.pettyCash, quiet: kept.quiet }, knows: { boot: knows.boot, floorboard: knows.floorboard }, leaks };",
+      "log": true
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const probe = globalThis.__soCopier; rt.setMemorySettings({ copierFilter: false }); try { const off = await probe.capture('Ponticius'); if (!off.boot || !off.floorboard) throw new Error('negative control: with the filter off the kept-out member prompt should carry the copier text: ' + JSON.stringify(off)); return { off: { boot: off.boot, floorboard: off.floorboard } }; } finally { rt.setMemorySettings({ copierFilter: probe.filterWas !== false }); }",
+      "log": true
+    },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const probe = globalThis.__soCopier; if (probe?.realVectors) globalThis.vectors_rearrangeChat = probe.realVectors; else delete globalThis.vectors_rearrangeChat; ctx.setExtensionPrompt('1_memory', '', 0, 0); ctx.setExtensionPrompt('3_vectors', '', 0, 0); const filter = globalThis.storyOrchestratorRuntime.getGlobalSettings().memory.copierFilter; delete globalThis.__soCopier; return { restored: true, copierFilter: filter };",
+      "log": true
+    }
+  ]
+}

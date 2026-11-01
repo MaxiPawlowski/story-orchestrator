@@ -4,8 +4,11 @@ const COPIER_PREFIXES: ReadonlyArray<readonly [string, string]> = [["3_vectfox",
 
 export const copierName = (key: string): string | undefined => TRANSCRIPT_COPIERS[key] ?? COPIER_PREFIXES.find(([prefix]) => key.startsWith(prefix))?.[1];
 
-export const secretLeaks = (groupStory: boolean, foreign: ReadonlyArray<{ key: string }>, switchedOn: readonly string[] = []): string[] =>
-  groupStory ? [...new Set([...foreign.map((block) => block.key), ...switchedOn].map(copierName).filter((name): name is string => Boolean(name)))] : [];
+export const FILTERED_COPIERS: ReadonlySet<string> = new Set(Object.values(TRANSCRIPT_COPIERS));
+
+export const secretLeaks = (groupStory: boolean, foreign: ReadonlyArray<{ key: string }>, switchedOn: readonly string[] = [], filtered = false): string[] =>
+  groupStory ? [...new Set([...foreign.map((block) => block.key), ...switchedOn].map(copierName)
+    .filter((name): name is string => Boolean(name) && !(filtered && FILTERED_COPIERS.has(name ?? ""))))] : [];
 
 export interface CopierWarningInput {
   playing: boolean;
@@ -13,10 +16,11 @@ export interface CopierWarningInput {
   secretsHeld?: boolean;
   foreign: ReadonlyArray<{ key: string }>;
   copiersOn?: readonly string[];
+  filtered?: boolean;
 }
 
 export const copierWarning = (input: CopierWarningInput): { secretLeaks: string[]; secretsHeld: boolean } => ({
-  secretLeaks: secretLeaks(input.playing && Boolean(input.groupChat), input.foreign, input.copiersOn),
+  secretLeaks: secretLeaks(input.playing && Boolean(input.groupChat), input.foreign, input.copiersOn, input.filtered),
   secretsHeld: input.playing && Boolean(input.secretsHeld),
 });
 
