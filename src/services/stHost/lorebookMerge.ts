@@ -1,3 +1,5 @@
+import { isRecord } from "@utils/guards";
+
 const sortedKeys = (_key: string, inner: unknown): unknown =>
   (inner && typeof inner === "object" && !Array.isArray(inner) ? Object.fromEntries(Object.entries(inner).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))) : inner);
 
@@ -24,8 +26,6 @@ const nextUid = (taken: Set<string>): string => {
   while (taken.has(String(uid))) uid += 1;
   return String(uid);
 };
-
-const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === "object" && value !== null && !Array.isArray(value);
 
 // ST's editor writes every field it draws back into the entry (world-info.js getWorldEntry, `noSave`
 // inputs), so an entry the author never touched still differs from the copy it was drawn from. Two
