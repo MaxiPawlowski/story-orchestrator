@@ -52,6 +52,7 @@ export abstract class CoordinatorDelegates {
     try { return await work(); } finally { this.noticeHolds -= 1; }
   }
   protected generationOpen = false;
+  isGenerationOpen(): boolean { return this.generationOpen; }
   setGenerationOpen(open: boolean) {
     if (open) this.co.narrator.requested();
     if (this.generationOpen === open) return;

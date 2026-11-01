@@ -62,6 +62,23 @@ Each a spike behind `spikes.<id>` (lazy `runtime/spikes/`), CPU-built ahead, dec
 
 Lore budget cap: for this one case the owner keeps ST settings unchanged (warning + campaign guideline instead).
 
+## Phase 2 agent C — context savings and memory measurement (2026-10-31)
+Branch `v3.0-43-c`. Floors declared here before any measurement; informational, never retuned.
+- C1 context savings: dedupe the guidance/pacing agency clause (no switch); empty sheet rows skipped (no switch);
+  `memory.recapOutsideWindow` (on, GPU rating row M43-C1); fixed instruction text above the prefix boundary only as an
+  offline arm until rated (GPU row M43-C2, no runtime switch until it rates neutral). Measured offline with the census
+  method (real Gemma vocab, `llama-tokenize` CPU) on recorded payloads. Floor C1: dedupe saves > 0 tokens on every prompt
+  that carried the duplicate; empty sheet saves > 0 on every prompt with an all-empty sheet; recap filter removes 0 rows
+  whose span starts before the observed window.
+- C2 reply contradiction checker (code only, no model): calibrated on `test/fixtures/memory/contradiction-pairs.json`
+  (32 planted minimal pairs, 8 per category). Floors: pair accuracy >= 0.6, recall >= 0.6, false alarm <= 0.1. A
+  contradiction rate from archived sessions is reported only if the calibration passes its floors; otherwise counts
+  are reported as "uncalibrated". Model-judged arm = GPU row M43-C3.
+- C3 echo/vagueness floors (memory-rp-community P2): echo rate = share of reply 8-grams also in messages 15-40 back;
+  specificity = named entities + numbers per 100 reply words. Floors for any "history leaves the prompt" arm: echo <=
+  base + 0.02 absolute, specificity >= 0.9 x base.
+- C4 long-horizon probes also query archive recall (after agent A's harness lands): floor = at 150 boundaries the
+  recall-included availability is >= the tier-only availability on every probe (recall never hides a row).
 ## Spikes CPU build (agent S, 2026-10-31)
 
 All six live under `src/runtime/spikes/` (lazy; `lazyHarness.guard.test.ts` lists them), each behind `spikes.<id>`
@@ -108,12 +125,67 @@ Floors (declared before measuring; informational, never retuned):
 - Deviations: five spikes have a flag but no live hook yet (the hooks are prerequisites in the GPU rows SP-RG/SM/PC/PB/CR).
   The phraseBans overlay would break the "budget is the one overlay that adds keys" rule, so it needs an owner decision.
 
+## Reranker offline (2026-10-31, real model, CPU only)
+- bge-reranker-v2-m3 Q8_0, `llama-server --reranking --pooling rank --device none -ngl 0 -t 8 -np 8` (controller's
+  b11888-so3 build, CUDA hidden, log confirmed no device) on loopback :8097, stopped after. A scratch jest measure (not
+  committed) fed `recordRerank`/`rerankE0Arm` and the lore cases through the shipped scorers, 8 docs per call. Query:
+  E0 = question text; lore = scene name + goal + window lines; doc = `entryText`. Chosen before measuring, not retuned.
+- E0 synthetic (40 q, pool recall 0.625): hit@4 0.600 (24/40; 24 of 25 answerable), mrr@4 0.431; arm c 0.250, arm f 0.300.
+  Above c, below the 0.8 floor (capped by pool recall 0.625).
+- E0 private (84 q, pool recall 0.905, counts only): hit@4 0.631 (53), mrr@4 0.418; arm c 0.750 (63), arm f 0.702 (59).
+  MISSES both floors (below c).
+- lore-relevance (17 rows, 64-entry pool): precision@4 rerank 0.162, BM25 0.265, judge 0.485; needed recall@4 rerank
+  0.346, BM25 0.538, judge 0.962; ndcg@4 0.328 / 0.427 / 0.921. MISSES (needs BM25 + 0.05).
+- lore.json (11 rows, 30 needed): recall@2 rerank 0.381, BM25 0.714, judge 1.0; recall@4 0.400 / 0.733 / 1.0.
+- Latency per 8-doc call on CPU (i9-9900, 8 threads; a second reranker server on :8098, not mine, shared the CPU):
+  E0 synthetic p50 1.75 s, p95 3.3 s; all E0 p50 14 s, p95 58 s (private texts long); lore p50 11.2 s, p95 28.4 s.
+  Floor p95 150 ms MISSED by 20-400x.
+- Verdict: reject this model on CPU for lore (worse than BM25) and for live recall (latency). Only E0 synthetic gains.
+  GPU would fix latency, not the lore ordering or the private E0 loss.
+
 ## Owner decisions 2026-10-31 (spikes)
 - `cpuReranker`: owner OK'd the download ("try the best one"): bge-reranker-v2-m3 Q8_0 (636 MB) at
   `C:\dev\models\rerankers\bge-reranker-v2-m3-Q8_0.gguf` (from `gpustack/bge-reranker-v2-m3-GGUF`). Runs on CPU via llama.cpp
   `--reranking`; offline E0 / lore-relevance arms can run now without the GPU.
 - `phraseBans`: owner allows a second request-key overlay besides the reply thinking budget if SP-PB passes its floors
   ("everything is negotiable if it enhances performance"); the architecture rule changes only on adoption.
+
+## Gate record C (2026-10-31)
+Branch `v3.0-43-c`. Corpora (read-only, counts only): campaign lane 34 (3 payload files, 33 chats, 161 drafted loud
+prompts, 121 new replies), toy group lane 42 `v29gpu2` (41 chats, 226 prompts, 318 replies), test story lane 45 `s6h`
+(2 chats, 120 prompts, 156 replies). Tokens: Gemma vocab via `llama-tokenize` (CPU, `CUDA_VISIBLE_DEVICES=-1`, census method).
+- C1 dedupe (no switch, `runtime/promptDedupe.ts`, called from `pacingCoordinator.updateSteering`): the pacing hint drops an
+  agency clause the guidance block already carries. Test `promptDedupe.test.ts` fails before the fix. Campaign: 14 of 161
+  prompts carried the duplicate, 32 tokens each (448 total); toy and test story 0. Floor met (>0 on every carrier).
+- C1 empty sheet (no switch, `narratorSheet.ts`): an unset value sends no row; all unset = no block. Test fails before the fix.
+  Campaign: 2 prompts, 56 tokens each; others 0. Floor met.
+- C1 `memory.recapOutsideWindow` (on; `memory/inWindow.ts`, `runtime/promptWindow*.ts`, fate `in-window`): the oldest chat
+  message ST kept is read from each loud prompt (GENERATE_AFTER_DATA, probe = longest line, conservative on a miss, reset on
+  chat change); a recap row (session detail, short term through its predecessor chain, scene summary) whose span starts at or
+  after that message + 4 stays out; pinned and decided rows stay; unknown span = kept. Upper bound before trimming (recap
+  blocks while the chat is untrimmed): campaign 102 of 161 prompts, mean 168 / max 422 tokens when present (106 per prompt);
+  toy 30 prompts, 152 / 240; test story 10, 145. Floor (no row with an earlier span leaves) pinned by `inWindow.test.ts`.
+  GPU row M43-C1.
+- C1 fixed text: offline arm only (`so-context-savings.mts layout`, 24 points at `C:\dev\so-lanes\rating\m43-c2-layout`);
+  static sentences re-prefilled per turn: campaign 156 mean / 338 max, toy 125, test story 122. No runtime switch until
+  M43-C2 rates neutral (architecture rule: layout is quality-rated).
+- C2 contradiction checker (`so-contradiction-rate.mts`, `lib/contradictionScore.mts`, code only): calibration on the 32
+  planted pairs (written before the checker): pair accuracy 0.844, recall 0.875, false alarm 0.031 — floors met; misses
+  F07 T03 T07 K08, false alarm K07. One generic noise fix before the baseline (speaker prefixes, questions, claims under 3
+  content words), calibration unchanged by it. Caveat: pairs and checker share an author. Baseline (calibrated):
+  toy 1 / 318 replies (0.31 per 100; 0 at 1-20, 0.83 at 21-60, 0 at 61+), test story 0 / 156, campaign 0 / 121. Ledger
+  detector fires only on values another row of the same field shows (no history set), so ledger findings were 0. GPU/Sol row M43-C3.
+- C3 echo/vagueness (`so-echo-floors.mts`, `lib/echoFloors.mts`): baseline echo rate toy 0.0004, test story 0.0001,
+  campaign 0 (no campaign reply has 40 messages back); specificity 8.05 / 5.59 / 4.64 per 100 words. `score --out <dir>`
+  reads any so-compaction-rating dir (A3-R, M43-C2); H33-RP needs a pack in the same shape (none exists yet).
+  Not wired into `so-compaction-rating score` itself: agent A rewrote that file on `v3.0-41-memory-a` (unmerged).
+- C4 probes + archive recall: NOT DONE. Agent A's harness (`test/support/memoryProbes.ts`) was not on master by the end of
+  this run; a recall helper (`probeArchiveRecall`, built from `memory/archiveRecall.ts`) is drafted but uncommitted, owed after A merges.
+- Payload goldens: no c0 baseline is committed (`test/measurements/v2.7/payload/` holds README + prefix-declared only), so
+  there is nothing to declare against; changes are drop-only inside depth blocks (below the per-turn boundary).
+- Gates: `npm run gates` all green in 858.9s (Storybook included, no --resume) on the merged tree; first full run failed
+  `debug:typecheck` (script imported `src/memory/polarity.ts`, which pulls an aliased module) and was fixed before the cited run.
+  `gates:quick` green before it.
 
 ## Phase 2 agent P — progression and director (floors committed before measuring)
 

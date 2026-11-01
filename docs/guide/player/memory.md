@@ -30,7 +30,7 @@ Filter by **Character**, and past 50 memories use **Find** to search.
 <a id="which-memories"></a>
 ### Which memories each reply gets
 
-Three switches decide which memories reach a reply. All are on; in Author view they sit under **Settings → Authoring →
+Four switches decide which memories reach a reply. All are on; in Author view they sit under **Settings → Authoring →
 Prompt trials**, and none calls a model.
 
 - **Pick memories from the last few messages.** Memories are scored against the last four messages (newer ones count
@@ -42,6 +42,9 @@ Prompt trials**, and none calls a model.
 - **Keep the memories the story uses.** A memory a reply used gets stronger; strength fades over turns. When a group is
   full, the weakest memory moves to the archive instead of the oldest being deleted, and the archive brings it back when
   the chat names it ("Recalled from earlier: …"). Pinned, locked and edited memories never move.
+- **Recap only what left the prompt.** A session detail, the recent-events summary or a scene summary stays out while
+  every message it sums up is still in the prompt word for word (with a four-message margin); once SillyTavern trims
+  those messages, it comes back. Pinned and decided memories always stay. The Memory tab shows such a row as held back.
 
 A swipe or edit takes back what the replaced reply counted as said or used.
 
@@ -71,6 +74,21 @@ yourself; nothing brings it back on a timer. A character saying "later" never co
 change back. The characters still see a put-off thread for now: leaving it out of their prompt is a separate control
 (**Leave put-off threads out of the prompt**), off until its replies are rated. Switch the feature off in **This chat →
 Settings → Threads you put off** (or for every chat in **Settings → Features**).
+
+## Memory upkeep switches
+
+Four switches under **This chat → Settings → Prompt memory** (or **Settings → Features**) tune how memory looks after
+itself. All are on; each can be switched off on its own to compare.
+
+- **Count real tokens when dropping old messages**: when chunked dropping of old messages is on, each message is measured
+  with the model's own tokenizer, so SillyTavern does not trim further messages between two cuts.
+- **Keep the recent summary from losing names**: a new rolling summary of recent play is refused, and the previous one
+  kept, when it drops a person, place or thing that no other memory still holds, or shrinks below 60% of the old one.
+- **Settle unclear old-versus-new memories while idle**: when two memories might be an old and a new version of the same
+  thing, the memory model gets one short question while nothing is being written; the answer applies at the next reply
+  (the old memory is retired, or both are kept). A swipe or edit takes it back.
+- **Match places and things to the story's names**: places, groups and things the story names are recorded under the
+  story's spelling, so two spellings of one place are one entry.
 
 ## Chapters
 

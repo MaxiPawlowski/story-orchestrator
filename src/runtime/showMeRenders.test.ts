@@ -76,6 +76,7 @@ const ARMS: Record<string, { renders: ShowMeContext; hidden: ShowMeContext }> = 
   "#so-mention-ledger": { renders: context(null, { authorView: true }), hidden: context(null) },
   "#so-strength-retention": { renders: context(null, { authorView: true }), hidden: context(null) },
   "#so-retrieval-query": { renders: context(null, { authorView: true }), hidden: context(null) },
+  "#so-recap-outside-window": { renders: context(null, { authorView: true }), hidden: context(null) },
   "#so-authoring-path-arc": { renders: context(null, { authorView: true }), hidden: context(null) },
   "#so-authoring-stuck-ladder": { renders: context(null, { authorView: true }), hidden: context(null) },
   "#so-authoring-living-leads": { renders: context(null, { authorView: true }), hidden: context(null) },

@@ -58,3 +58,17 @@ test('parseJudge refuses an out-of-range score and splitReasoning keeps the thou
   assert.equal((parseJudge(`x {"A":${flat},"B":${flat},"prefer":"tie"}`) as Judged).prefer, 'tie');
   assert.deepEqual(splitReasoning('<|channel>thought\nhm<channel|>Hello'), { text: 'Hello', reasoning: '<|channel>thought\nhm<channel|>' });
 });
+
+test('v3.0 41 A1: real counts split a tokenized prompt at each turn start, and the fit trims nothing a real-token cut already made room for', async () => {
+  const { chunkCounts, realCountsOf, stTrims, parsePrompt: parse } = await import('./lib/compactionRating.mts');
+  assert.deepEqual(chunkCounts([2, 105, 9, 106, 105, 7, 7, 106, 105, 4]), [1, 3, 4, 2]);
+  const prompt = turn('system', 'head') + turn('user', 'Ash: hi') + '<|turn>model\n';
+  const counts = realCountsOf(prompt, [2, 105, 1, 1, 106, 105, 5, 5, 5, 106, 105, 4, 4]);
+  assert.equal(counts?.head, 5);
+  assert.equal(counts?.segments.get(parse(prompt).body[0].raw), 5);
+  assert.equal(realCountsOf(prompt, [2, 105, 1]), null);
+  const long = promptOf(120);
+  const real = (segment: { text: string }) => Math.ceil(segment.text.trim().length / 2);
+  assert.equal(stTrims(long, 2000, 2, real, 10, 5, 'real').trimmed, 0);
+  assert.ok(stTrims(long, 2000, 2, real, 10, 5, 'estimate').trimmed > 0);
+});

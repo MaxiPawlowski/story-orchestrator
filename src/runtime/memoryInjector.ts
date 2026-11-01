@@ -6,8 +6,9 @@ import {
   type ScoreContext, castVoices, hasInnerVoice, innerRender, loadInnerRender, withoutLapsedIntents,
   type CastVoice, type EpistemicEntry, type MemoryEntry,
   heldSecrets, keptFrom, ledgerWithoutSecrets, sharedTierView, withoutSecretLines, withoutSecrets, writeMemoryBlocks, type HeldSecret,
-  buildMemoryInjection, heldForMember, raisedBy, type InjectionOptions, type MentionsState, type OfferedItem,
+  buildMemoryInjection, heldForMember, raisedBy, recapInWindow, type InjectionOptions, type MentionsState, type OfferedItem,
 } from "@memory/index";
+import { promptWindow } from "./promptWindow";
 import { fnv1a } from "@utils/fnv";
 import { EPISTEMIC_INJECTION_DEPTH, EPISTEMIC_INJECTION_KEY, LEDGER_INJECTION_DEPTH } from "@constants/defaults";
 import type { ChapterPort } from "./chapterPort";
@@ -137,7 +138,9 @@ export class MemoryInjector {
   }
 
   private options() {
-    return { tokenBudgets: this.state.settings.tierTokenBudgets, scoreContext: this.scoreContext() };
+    const settings = this.state.settings;
+    const inWindow = settings.recapOutsideWindow === false ? undefined : recapInWindow(this.state.entries, this.state.derived, promptWindow.from());
+    return { tokenBudgets: settings.tierTokenBudgets, scoreContext: this.scoreContext(), ...(inWindow?.size ? { inWindow } : {}) };
   }
 
   /** The read-models the snapshot takes from the injector, fates from the same update that wrote the blocks. */

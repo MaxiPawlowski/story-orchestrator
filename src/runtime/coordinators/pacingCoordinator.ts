@@ -11,6 +11,7 @@ import {
 import { relaxActive } from "@pacing/arc";
 import { PACING_HINT_DEPTH, PACING_HINT_EXTENSION_KEY } from "@constants/defaults";
 import { INJECTION_REGISTRY } from "@constants/injectionRegistry";
+import { withoutCarriedClauses } from "../promptDedupe";
 
 const GUIDANCE = INJECTION_REGISTRY.checkpointGuidance;
 import { computeExpectedTension } from "../snapshot";
@@ -151,8 +152,6 @@ export class PacingCoordinator {
     const activeId = this.deps.getState()?.activeCheckpointId ?? null;
     const policy = agencyForCheckpoint(story, activeId);
     const hint = getSteeringHint(this.deps.getTension().smoothed, this.expectedTension(), undefined, policy);
-    if (this.deps.getPacing().hintEnabled && hint) prompt.setStoryExtensionPrompt(PACING_HINT_EXTENSION_KEY, hint.text, PACING_HINT_DEPTH);
-    else prompt.clearStoryExtensionPrompt(PACING_HINT_EXTENSION_KEY);
     const active = activeId ? story.checkpointById[activeId] : null;
     const rows = this.deps.hosts.chat?.chatRows() ?? [];
     const turns = active?.stretch ? playerTurnsInCheckpoint(this.deps.getState(), rows) : 0;
@@ -161,6 +160,8 @@ export class PacingCoordinator {
     if (oneShot && direction && direction !== this.answered && asksPlayerDirection(oneShot.text)) this.asking = direction;
     const guidance = composeGuidanceBlock(active, policy, objectiveLineApplies(story, active, turns), this.memberLine(story, active), this.stretchLine(story, active, rows, turns),
       oneShot, this.lengthLine());
+    if (this.deps.getPacing().hintEnabled && hint) prompt.setStoryExtensionPrompt(PACING_HINT_EXTENSION_KEY, withoutCarriedClauses(hint.text, guidance), PACING_HINT_DEPTH);
+    else prompt.clearStoryExtensionPrompt(PACING_HINT_EXTENSION_KEY);
     if (guidance) prompt.setStoryExtensionPrompt(GUIDANCE.key, guidance, GUIDANCE.depth);
     else this.clearGuidance();
   }
