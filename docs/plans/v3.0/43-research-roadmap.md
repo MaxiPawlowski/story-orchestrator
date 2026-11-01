@@ -107,3 +107,10 @@ Floors (declared before measuring; informational, never retuned):
     synthetic pool, which only shows the adapter works. No model downloaded.
 - Deviations: five spikes have a flag but no live hook yet (the hooks are prerequisites in the GPU rows SP-RG/SM/PC/PB/CR).
   The phraseBans overlay would break the "budget is the one overlay that adds keys" rule, so it needs an owner decision.
+
+## Owner decisions 2026-10-31 (spikes)
+- `cpuReranker`: owner OK'd the download ("try the best one"): bge-reranker-v2-m3 Q8_0 (636 MB) at
+  `C:\dev\models\rerankers\bge-reranker-v2-m3-Q8_0.gguf` (from `gpustack/bge-reranker-v2-m3-GGUF`). Runs on CPU via llama.cpp
+  `--reranking`; offline E0 / lore-relevance arms can run now without the GPU.
+- `phraseBans`: owner allows a second request-key overlay besides the reply thinking budget if SP-PB passes its floors
+  ("everything is negotiable if it enhances performance"); the architecture rule changes only on adoption.
