@@ -790,3 +790,4 @@ Follow-up to K (owner: "all entries"). Branch `v3.0-43-k2`.
 - Gates: `npm run gates` (no --resume, Storybook included) all green in 464.3s on `548dd40a2` (master merged in, already
   current): jest 11,600 passed / 3 skipped, Storybook 1,167, test:debug, replay, release, plugin, lint, typechecks, build.
   Main `dist/index.js` 1,236,237 B of 1,300,000.
+- After the gates run master moved by one docs-only commit (`69fc53b17`, roadmap + gpu queue records); merged in cleanly, no rerun (docs tier needs none).
