@@ -211,6 +211,7 @@ export interface MemoryRuntimeSettings {
   readKeys?: boolean;
   relationRows?: boolean;
   socialActs?: boolean;
+  copierFilter?: boolean;
   chapters?: Partial<ChapterSettings>;
 }
 

@@ -10,7 +10,7 @@ import type { RuntimeSnapshot } from "./types";
 
 const SHOW_ME_ALWAYS = [
   "#so-player-overview", "#so-open-activity",
-  "#so-diagnostics", "#so-capabilities", "#so-epistemic-capable", "#so-extraction-profile", "#so-image-settings", "#so-judge-enabled",
+  "#so-diagnostics", "#so-capabilities", "#so-epistemic-capable", "#so-copier-filter", "#so-extraction-profile", "#so-image-settings", "#so-judge-enabled",
   "#so-live-head-enabled", "#so-lorebooks-header", "#so-model-sources", "#so-role-profiles", "#so-self-test",
   "#so-sprite-mouth", "#so-wi-gating-mode", "#so-copilot-ask", "#so-help-open-guide", "#so-help-open-panel", "#so-help-tour",
   "#so-announce-transitions", "#so-briefing-draft", "#so-briefing-enabled", "#so-hud-enabled", "#so-inline-level", "#so-player-setup-enabled",

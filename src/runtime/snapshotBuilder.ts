@@ -315,7 +315,8 @@ type SetupSlices = "secretLeaks" | "secretsHeld" | "thinkingSilent" | "contextOv
 const playerSpoke = (chat: readonly unknown[]) => chat.some((row) => isRecord(row) && row.is_user === true && row.is_system !== true);
 
 export const setupWarnings = (sources: SnapshotSources): Pick<RuntimeSnapshot, SetupSlices> => ({
-  ...copierWarning({ playing: Boolean(sources.loaded), groupChat: sources.groupChat, secretsHeld: sources.secretsHeld, foreign: sources.promptBlocks.foreign, copiersOn: sources.copiersOn }),
+  ...copierWarning({ playing: Boolean(sources.loaded), groupChat: sources.groupChat, secretsHeld: sources.secretsHeld, foreign: sources.promptBlocks.foreign, copiersOn: sources.copiersOn,
+    filtered: sources.extras.memory.settings.copierFilter !== false }),
   contextOverServer: sources.contextOverServer ?? null,
   thinkingSilent: Boolean(sources.loaded) && harvestWaitsOnThought(sources.extras.memory.settings) && repliesCarryNoThought(sources.chat),
   competingScenarios: competingScenarios(sources.loaded?.story ?? null, sources.scenarioFrame ?? null),
@@ -528,10 +529,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     rollbackUnavailable: sources.rollbackUnavailable,
     ...cardSurface(story, state, sources.chatId ?? openChatId(), sources.ledger),
     memoryInjection: sources.memoryInjection ?? null,
-    lastFired,
-    driver: sources.driver,
-    activeNudge: sources.activeNudge,
-    payloadCaptures: sources.payloadCaptures,
+    lastFired, driver: sources.driver, activeNudge: sources.activeNudge, payloadCaptures: sources.payloadCaptures,
     nextTurn, authorMoves: authorMoves(extras).slice(-8).reverse(), turn: turnOf(sources, active?.id ?? null),
     chatJump: jumpIndex(sources.chat, sources.fingerprints),
     nextTurnForeign,

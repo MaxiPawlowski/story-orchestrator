@@ -82,8 +82,8 @@ export interface CheckResult {
 const them = (names: string[], one: string, many: string) => (names.length === 1 ? one : many);
 
 const COPIER_SWITCHES: Readonly<Record<string, string>> = {
-  Summarize: "Summarize: pause it, or set its update interval to 0",
-  "Vector Storage": "Vector Storage: untick \"Enabled for chat messages\"",
+  Summarize: "Summarize: turn on \"Keep secrets out of Summarize and Vector Storage\" under Models, pause it, or set its update interval to 0",
+  "Vector Storage": "Vector Storage: turn on \"Keep secrets out of Summarize and Vector Storage\" under Models, or untick \"Enabled for chat messages\"",
 };
 
 export const SECRET_LEAK_CHECK: Check = {
@@ -99,7 +99,7 @@ export const SECRET_LEAK_CHECK: Check = {
     const switches = leaks.map((name) => COPIER_SWITCHES[name] ?? name).join("; ");
     return {
       consequence: "A character can learn what was kept from them: another extension puts the whole chat, secrets included, into every character's prompt.",
-      detail: `On: ${leaks.join(", ")}. Story Orchestrator keeps private knowledge out of its own blocks but cannot filter these. `
+      detail: `On: ${leaks.join(", ")}. Story Orchestrator keeps private knowledge out of its own blocks but does not filter these. `
         + `${snapshot.secretsHeld ? "A secret is held right now, so it can already reach a character it was kept from. " : "No secret is held yet; the first one would reach every character. "}`
         + `Switch ${them(leaks, "it", "them")} off while this story plays to keep secrets (${switches}).`,
       player: `${leaks.join(" and ")} ${them(leaks, "shares", "share")} the whole chat with every character, so a character can learn what was kept from them. `
