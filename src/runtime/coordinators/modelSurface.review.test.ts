@@ -55,7 +55,7 @@ const extractionHarness = (model: ReturnType<typeof recordingModel>) => new Extr
   getState: () => ({ activeCheckpointId: "cp1", boundary: 3 }),
   getExtraction: () => ({ audits: [], reconciliationEvents: [], judgedReads: [] }),
   model,
-  memory: { enabled: true, shortTermSummaryEnd: -1, shortTermEntry: () => null, replaceShortTerm: async () => {}, updateInjection: () => {} },
+  memory: { enabled: true, shortTermSummaryEnd: -1, getEntities: () => [], chapters: { host: { memory: () => ({ settings: { summaryGuard: false }, entries: [], ledger: [], arcs: [] }) } }, shortTermEntry: () => null, replaceShortTerm: async () => {}, updateInjection: () => {} },
   getFiredTransitions: () => [],
   getExpansionGateSources: () => [],
   enqueueExtractorDeltas: () => {},

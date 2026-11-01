@@ -75,6 +75,21 @@ change back. The characters still see a put-off thread for now: leaving it out o
 (**Leave put-off threads out of the prompt**), off until its replies are rated. Switch the feature off in **This chat →
 Settings → Threads you put off** (or for every chat in **Settings → Features**).
 
+## Memory upkeep switches
+
+Four switches under **This chat → Settings → Prompt memory** (or **Settings → Features**) tune how memory looks after
+itself. All are on; each can be switched off on its own to compare.
+
+- **Count real tokens when dropping old messages**: when chunked dropping of old messages is on, each message is measured
+  with the model's own tokenizer, so SillyTavern does not trim further messages between two cuts.
+- **Keep the recent summary from losing names**: a new rolling summary of recent play is refused, and the previous one
+  kept, when it drops a person, place or thing that no other memory still holds, or shrinks below 60% of the old one.
+- **Settle unclear old-versus-new memories while idle**: when two memories might be an old and a new version of the same
+  thing, the memory model gets one short question while nothing is being written; the answer applies at the next reply
+  (the old memory is retired, or both are kept). A swipe or edit takes it back.
+- **Match places and things to the story's names**: places, groups and things the story names are recorded under the
+  story's spelling, so two spellings of one place are one entry.
+
 ## Chapters
 
 Some stories end chapters as they go. When one ends, a **Previously** card shows its summary, and the chapter

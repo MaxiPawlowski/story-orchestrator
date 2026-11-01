@@ -125,6 +125,24 @@ Floors (declared before measuring; informational, never retuned):
 - Deviations: five spikes have a flag but no live hook yet (the hooks are prerequisites in the GPU rows SP-RG/SM/PC/PB/CR).
   The phraseBans overlay would break the "budget is the one overlay that adds keys" rule, so it needs an owner decision.
 
+## Reranker offline (2026-10-31, real model, CPU only)
+- bge-reranker-v2-m3 Q8_0, `llama-server --reranking --pooling rank --device none -ngl 0 -t 8 -np 8` (controller's
+  b11888-so3 build, CUDA hidden, log confirmed no device) on loopback :8097, stopped after. A scratch jest measure (not
+  committed) fed `recordRerank`/`rerankE0Arm` and the lore cases through the shipped scorers, 8 docs per call. Query:
+  E0 = question text; lore = scene name + goal + window lines; doc = `entryText`. Chosen before measuring, not retuned.
+- E0 synthetic (40 q, pool recall 0.625): hit@4 0.600 (24/40; 24 of 25 answerable), mrr@4 0.431; arm c 0.250, arm f 0.300.
+  Above c, below the 0.8 floor (capped by pool recall 0.625).
+- E0 private (84 q, pool recall 0.905, counts only): hit@4 0.631 (53), mrr@4 0.418; arm c 0.750 (63), arm f 0.702 (59).
+  MISSES both floors (below c).
+- lore-relevance (17 rows, 64-entry pool): precision@4 rerank 0.162, BM25 0.265, judge 0.485; needed recall@4 rerank
+  0.346, BM25 0.538, judge 0.962; ndcg@4 0.328 / 0.427 / 0.921. MISSES (needs BM25 + 0.05).
+- lore.json (11 rows, 30 needed): recall@2 rerank 0.381, BM25 0.714, judge 1.0; recall@4 0.400 / 0.733 / 1.0.
+- Latency per 8-doc call on CPU (i9-9900, 8 threads; a second reranker server on :8098, not mine, shared the CPU):
+  E0 synthetic p50 1.75 s, p95 3.3 s; all E0 p50 14 s, p95 58 s (private texts long); lore p50 11.2 s, p95 28.4 s.
+  Floor p95 150 ms MISSED by 20-400x.
+- Verdict: reject this model on CPU for lore (worse than BM25) and for live recall (latency). Only E0 synthetic gains.
+  GPU would fix latency, not the lore ordering or the private E0 loss.
+
 ## Owner decisions 2026-10-31 (spikes)
 - `cpuReranker`: owner OK'd the download ("try the best one"): bge-reranker-v2-m3 Q8_0 (636 MB) at
   `C:\dev\models\rerankers\bge-reranker-v2-m3-Q8_0.gguf` (from `gpustack/bge-reranker-v2-m3-GGUF`). Runs on CPU via llama.cpp

@@ -18,6 +18,7 @@ import { GROUNDING_FEATURES } from "./groundingFeatures";
 import { RETENTION_FEATURES } from "./retentionFeatures";
 import { MECHANICS_FEATURES } from "./mechanicsFeatures";
 import { SKIP_FEATURES } from "./skipFeatures";
+import { MEMORY_WAVE_FEATURES } from "./memoryWaveFeatures";
 import { chatAt, drawerAt, featureAt, settingsAt, studioAt } from "./where";
 import { IMAGE_FEATURES } from "./imageFeatures";
 import { authorGuideDoc } from "./guideLinks";
@@ -485,7 +486,7 @@ const POLICY_TARGETS: Record<string, [import("@engine/featurePolicy").StoryFeatu
 export const SOURCE_FEATURES: readonly Feature[] = [
   ...CORE_FEATURES, ...PRESENCE_FEATURES, ...GAME_FEATURES, ...LIFE_FEATURES, ...LIVING_FEATURES, ...JUDGE_USE_KEYS.map(judgeUseFeature),
   ...RECAP_FEATURES, ...PROMISE_FEATURES, ...THREAD_FEATURES, ...DELIVERY_FEATURES, ...POLISH_FEATURES, ...AUDIENCE_FEATURES,
-  ...GROUNDING_FEATURES, ...SKIP_FEATURES, ...RETENTION_FEATURES, ...MECHANICS_FEATURES,
+  ...GROUNDING_FEATURES, ...SKIP_FEATURES, ...MEMORY_WAVE_FEATURES, ...RETENTION_FEATURES, ...MECHANICS_FEATURES,
 ];
 
 export const FEATURES: readonly Feature[] = SOURCE_FEATURES.map((feature) => {

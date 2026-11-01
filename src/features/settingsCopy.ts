@@ -224,6 +224,26 @@ export const SETTING_COPY = {
     "When you promise a character something, the story keeps your exact words and reminds only that character, when the scene touches it. "
       + "Adds a few lines to each story read. Not measured yet.",
   ),
+  "memory.compactionTokens": copy(
+    "Count real tokens when dropping old messages",
+    "When old messages leave the prompt in chunks, measures them with the model's own tokenizer instead of a length estimate, so the cut lands where SillyTavern "
+      + "would otherwise start trimming. Only matters while chunked dropping is on. A few token counts per new message, no model call.",
+  ),
+  "memory.summaryGuard": copy(
+    "Keep the recent summary from losing names",
+    "A new rolling summary of recent messages is refused, and the previous one kept, when it drops a person, place or thing the old summary named that no other "
+      + "memory still holds, or when it shrinks below 60% of the old one. No model call.",
+  ),
+  "memory.supersedeVerdicts": copy(
+    "Settle unclear old-versus-new memories while idle",
+    "When two memories might be an old and a new version of the same thing, asks the memory model one short batched question while nothing is being written, "
+      + "and applies the answers at the next reply: the old memory is retired, or both are kept. A swipe or edit takes it back. A locked memory is never retired.",
+  ),
+  "memory.placeFold": copy(
+    "Match places and things to the story's names",
+    "When the story read names a place, group or thing that the story itself names (its place pages, place lore, scene places, factions), "
+      + "it is recorded under the story's spelling, so \"the old mill\" and \"Old Mill\" are one entry. Exact matches only; an unclear name stays as written. No model call.",
+  ),
   "memory.deferrals": copy(
     "Notice threads you put off",
     "When you put a topic off in your own words (\"later\", \"not now\"), the story marks that thread as put off: it is no longer offered as the current thread, "
