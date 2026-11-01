@@ -9,6 +9,8 @@ import type { JudgeRuntime } from "./judge";
 import { excludedByTrigger, leftToScan, type ScanBufferView } from "./loreKeyMatch";
 import { eligibleLoreMember, type LoreMember } from "@utils/wiCharacterFilter";
 import { lexicalPlan, type LoreLexicalOptions } from "./loreLexicalPlan";
+import { loreStateFields, loreStateTerms, type LoreState } from "@judge/loreState";
+import { aliasEntities, aliasKeys } from "./loreAliases";
 
 export type LoreTrigger = "MESSAGE_SENT" | "GENERATION_STARTED";
 
@@ -29,6 +31,8 @@ export interface LoreSelectDeps {
   lexical?: () => LoreLexicalOptions;
   getPlayerTurn?: () => number | null;
   getUnknownNames?: () => Promise<string[]>;
+  getLoreState?: () => Promise<LoreState | null>;
+  aliases?: () => boolean;
   wait?: (ms: number) => Promise<void>;
   // Optional: an unwired caller never lapses.
   ownership: RunOwnership;
@@ -113,9 +117,11 @@ export class LoreSelector {
       }
     };
     const scannable = await this.deps.getEntries();
+    const loreState = (await this.deps.getLoreState?.()) ?? null;
     if (!run.stillOwns()) return null;
     if (this.deps.getMember && JSON.stringify(this.deps.getMember()) !== memberKey) return null;
-    const sceneKey = `${chatId ?? ""}:${loreStoryKey(story)}:${messageId}:${JSON.stringify(scope)}:${checkpoint.id}:${fnv1a(JSON.stringify(window))}:${fnv1a(JSON.stringify(scannable))}`;
+    const sceneKey = `${chatId ?? ""}:${loreStoryKey(story)}:${messageId}:${JSON.stringify(scope)}:${checkpoint.id}:${fnv1a(JSON.stringify(window))}:${fnv1a(JSON.stringify(scannable))}`
+      + (loreState ? `:${fnv1a(JSON.stringify(loreState))}` : "");
     const buffer = this.deps.getScanBuffer?.(generationType) ?? null;
     const key = `${sceneKey}:${generationType ?? ""}:${member.join("|")}:${memberKey}:${buffer?.injected ?? ""}`;
     if (this.cache?.key === key) {
@@ -125,7 +131,16 @@ export class LoreSelector {
       return { trigger, cached: true, picks: cached, left: cachedLeft };
     }
     const books = [...new Set(scannable.map((entry) => entry.world))].filter((world) => scope.lorebooks.some((name) => sameBook(name, world)));
+    const entities = this.deps.aliases?.() ? aliasEntities(story) : [];
+    const withAliases = (host: HostScannableEntry): HostScannableEntry => {
+      const added = entities.length ? aliasKeys(hostKeys(host), entities) : [];
+      return added.length ? { ...host, key: [...hostKeys(host), ...added] } : host;
+    };
     const byKey = new Map(scannable.map((entry) => [`${entry.world}.${entry.uid}`, entry]));
+    const aliased = (candidate: LoreEntry) => {
+      const host = byKey.get(loreKey(candidate));
+      return host ? withAliases(host) : undefined;
+    };
     const candidates = loreCandidates(
       scannable.map((entry): LoreEntry => ({
         world: entry.world,
@@ -140,7 +155,7 @@ export class LoreSelector {
     if (!candidates.length) return null;
     const left: LoreSelection["left"] = [];
     const rated = candidates.filter((candidate) => {
-      const host = byKey.get(`${candidate.world}.${candidate.uid}`);
+      const host = aliased(candidate);
       if (host && !eligibleLoreMember(host.characterFilter, eligibility)) return false;
       if (host && excludedByTrigger(host, buffer?.trigger)) return false;
       const reason = host ? leftToScan(host, buffer, member) : null;
@@ -149,14 +164,15 @@ export class LoreSelector {
     });
     const pickScope = { ...(scope.top_k !== undefined ? { topK: scope.top_k } : {}), ...(scope.min_p !== undefined ? { minP: scope.min_p } : {}) };
     const plan = await lexicalPlan({
-      options: this.deps.lexical?.(), rated, candidates, window, terms: rosterTerms(story), sceneKey, playerTurn: this.deps.getPlayerTurn?.() ?? null,
-      keysOf: (candidate) => hostKeys(byKey.get(loreKey(candidate))), unknown: this.deps.getUnknownNames,
+      options: this.deps.lexical?.(), rated, candidates, window, terms: loreState ? loreStateTerms(loreState) : rosterTerms(story), sceneKey, playerTurn: this.deps.getPlayerTurn?.() ?? null,
+      keysOf: (candidate) => hostKeys(aliased(candidate)), unknown: this.deps.getUnknownNames,
       holdParts: () => [String(chatId), loreStoryKey(story), JSON.stringify(scope), checkpoint.id, fnv1a(JSON.stringify(scannable))],
     });
     if (!run.stillOwns()) return null;
     const known = new Map(this.scored?.key === plan.scoreKey ? this.scored.p : []);
     plan.prefilter(known);
-    const chunks = buildLoreRequests(rated.filter((candidate) => !known.has(loreKey(candidate))), { checkpointName: checkpoint.name, objective: checkpoint.objective, window });
+    const chunks = buildLoreRequests(rated.filter((candidate) => !known.has(loreKey(candidate))),
+      { checkpointName: checkpoint.name, objective: checkpoint.objective, window, ...(loreState ? { state: loreStateFields(loreState) } : {}) });
     const ask = async (chunk: (typeof chunks)[number]) => {
       const result = await judge.ask("lore", chunk.request, {
         timeoutMs: LORE_TIMEOUT_MS,

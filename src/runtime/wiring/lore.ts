@@ -126,6 +126,14 @@ export const startLore = (disposers: Disposers, judgeRuntime: JudgeRuntime, gene
       const { knownEntities, unknownEntityNames } = await import("@engine/codex");
       return unknownEntityNames(story, knownEntities(story, values, runtimeManager.getEnabledCharacterIds()));
     },
+    getLoreState: async () => {
+      const story = runtimeManager.getStory();
+      const values = runtimeManager.getEngineState()?.blackboard.values;
+      if (!story || !values || !runtimeManager.getEffectiveSettings().worldInfo.loreState) return null;
+      const { readLoreState } = await import("../loreStateRead");
+      return readLoreState(story, values, runtimeManager.getEnabledCharacterIds());
+    },
+    aliases: () => runtimeManager.getEffectiveSettings().worldInfo.loreAliases,
     ownership: runtimeManager.getOwnership(),
   });
   globalThis.storyOrchestratorLore = { selector: lore, willAddUserMessage };
