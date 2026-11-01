@@ -12,7 +12,7 @@ const spanRecords = (derived: readonly DerivedRecord[]): ReadonlyMap<string, Der
   new Map(derived.filter((record) => record.outputId && SPAN_KINDS.has(record.kind)).map((record) => [record.outputId as string, record]));
 
 export function recapSpanStart(entry: MemoryEntry, derived: readonly DerivedRecord[] | ReadonlyMap<string, DerivedRecord>): number | null {
-  const byOutput = derived instanceof Map ? derived : spanRecords(derived as readonly DerivedRecord[]);
+  const byOutput: ReadonlyMap<string, DerivedRecord> = derived instanceof Map ? derived : spanRecords(derived as readonly DerivedRecord[]);
   const startOf = (id: string, seen: Set<string>): number | null => {
     const record = byOutput.get(id);
     if (!record?.range || seen.has(id)) return null;
