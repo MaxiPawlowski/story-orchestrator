@@ -205,6 +205,8 @@ export const SETTING_COPY_TOOLS = {
     "Adds a short note of the day and place to the first message after the scene or the time of day changed, in the prompt only. On since its blind rating passed."),
   "memory.outwardNarration": copy("Narrate only what can be seen (trial)",
     "Asks a narrator that sees the cast's private aims to show feelings through speech and action, never as reported thoughts. On since its blind rating passed."),
+  "memory.recapOutsideWindow": copy("Recap only what left the prompt (trial)",
+    "Leaves out a session detail, recent-events or scene summary while every message it sums up is still in the prompt word for word. No model call. Not rated yet."),
   "memory.mentionLedger": copy("Hold back what a character just said (trial)",
     "Leaves a memory a character just restated out of that character's next six replies unless your latest message names it. No model call. Not rated yet."),
   "memory.strengthRetention": copy("Keep the memories the story uses (trial)",

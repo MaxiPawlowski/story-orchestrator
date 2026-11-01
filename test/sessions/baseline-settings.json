@@ -73,6 +73,7 @@
       "deferredOutOfPrompt": false,
       "historyNotes": true,
       "outwardNarration": true,
+      "recapOutsideWindow": true,
       "mentionLedger": true,
       "strengthRetention": true,
       "retrievalQuery": true,

@@ -25,4 +25,5 @@ export * from "./contractKit";
 export * from "./sceneDetect";
 export * from "./sceneSummary";
 export * from "./inject";
+export * from "./inWindow";
 export * from "./heldSecrets";
