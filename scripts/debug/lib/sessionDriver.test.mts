@@ -2,7 +2,7 @@ import { test, afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { ensureChat, LIVE_VERBS, runLive, shotName } from './sessionDriver.mts';
+import { ensureChat, isSessionPlace, LIVE_VERBS, runLive, shotName } from './sessionDriver.mts';
 import type { LiveDeps } from './sessionLive.mts';
 import { clearPage, EVENT_TYPES, fakeClock, fakePage, fakeSt, install, uninstall } from './sessionFakes.mts';
 import { appendTurn, findCard, loadCards, loadIndex, liveTarget, markDeleted, nextSeq, parseLiveArgs, planStart, sessionChat, sessionChatsOf } from '../so-session.mts';
@@ -176,4 +176,19 @@ test('T4-3 delete-chat: parses the chat and the lorebook answer, and marks only 
   const marked = markDeleted(chats, { ok: true, deleted: true, chatId: 'chat-one', at: 't' });
   assert.deepEqual(marked[0], { chatId: 'chat-one', groupId: 'g1', primary: false, deleted: true, deletedAt: 't', lorebook: null });
   assert.throws(() => sessionChat({ chats: marked }, 'chat-one'), /was deleted by this session/);
+});
+
+test('vast b1: the session chat counts as open only in its own group; a chat id in the wrong group is reopened and asserted', async () => {
+  assert.equal(isSessionPlace({ chatId: 'c1', groupId: 'g1' }, { chatId: 'c1', group: 'G', groupId: 'g1' }), true);
+  assert.equal(isSessionPlace({ chatId: 'c1', groupId: null }, { chatId: 'c1', group: 'G', groupId: 'g1' }), false);
+  assert.equal(isSessionPlace({ chatId: 'c1', groupId: null }, { chatId: 'c1', group: 'G' }), true);
+  const fake = fakeSt({ chat: chat(), chatId: 'chat-a' });
+  fake.ctx.groupId = null;
+  install(fake);
+  let opened = 0;
+  const ensured = await ensureChat(fakePage(), { chatId: 'chat-a', group: 'G', groupId: 'g1' }, { openChat: async () => { opened += 1; fake.ctx.groupId = 'g1'; } });
+  assert.deepEqual(ensured, { chatId: 'chat-a', reopened: true, from: 'chat-a' });
+  assert.equal(opened, 1);
+  fake.ctx.groupId = 'other';
+  await assert.rejects(ensureChat(fakePage(), { chatId: 'chat-a', group: 'G', groupId: 'g1' }, { openChat: async () => undefined }), /group g1.*group other/);
 });

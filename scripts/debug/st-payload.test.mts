@@ -14,7 +14,7 @@ import { test, beforeEach, afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile, rm } from 'node:fs/promises';
 import { join } from 'node:path';
-import { armPayloadCapture, persistPayloads, drainPayloads, drainResponses, watchPayloads } from './st-payload.mts';
+import { armPayloadCapture, payloadUrlWanted, persistPayloads, drainPayloads, drainResponses, stPageOf, watchPayloads } from './st-payload.mts';
 import { testTempDir } from '../lib/testTemp.mjs';
 
 const RING = 100;
@@ -391,4 +391,33 @@ test('persist writes response rows beside their requests, once each', async () =
   } finally {
     await rm(dir, { recursive: true, force: true });
   }
+});
+
+test('vast b1: status polls (/props, /status) never enter the ring, so 4,345 evictions of real captures cannot recur', async () => {
+  for (let i = 0; i < RING * 3; i += 1) await globalThis.fetch('/api/backends/text-completions/props', { method: 'POST', body: '{}' } as any);
+  await globalThis.fetch('/api/backends/chat-completions/status', { method: 'POST', body: '{}' } as any);
+  await generate('kept');
+  const frame = await drainPayloads(fakePage, 0);
+  assert.deepEqual(tags(frame.entries), ['kept']);
+  assert.equal(frame.dropped, 0);
+  assert.equal(payloadUrlWanted('/api/backends/text-completions/props'), false);
+  assert.equal(payloadUrlWanted('/api/backends/text-completions/props?x=1'), false);
+  assert.equal(payloadUrlWanted('/api/backends/text-completions/generate'), true);
+  assert.equal(payloadUrlWanted('/api/backends/chat-completions/generate'), true);
+  assert.equal(payloadUrlWanted('/api/settings/get'), false);
+});
+
+test('vast b1: a closed capture page is replaced by the ST page still open in the browser, and the tail keeps going', async () => {
+  const dir = await testTempDir('so-payload-repick-');
+  const out = join(dir, 'p.jsonl');
+  const closed = { ...fakePage, isClosed: () => true };
+  const live = { ...fakePage, isClosed: () => false };
+  let polls = 0;
+  const result: any = await persistPayloads(closed, { out, intervalMs: 1, repick: async () => live, shouldStop: () => { polls += 1; if (polls === 1) void generate('after-repick'); return polls >= 3; } });
+  assert.equal(result.repicked, 1);
+  const rows = (await readFile(out, 'utf-8')).trim().split('\n').map((line) => JSON.parse(line));
+  assert.ok(tags(rows).includes('after-repick'));
+  const browser = { contexts: () => [{ pages: () => [{ isClosed: () => false, url: () => 'about:blank' }, { isClosed: () => false, url: () => 'http://127.0.0.1:8146/' }] }] };
+  assert.equal((await stPageOf(browser, 'http://127.0.0.1:8146/'))?.url(), 'http://127.0.0.1:8146/');
+  assert.equal(await stPageOf(browser, 'http://127.0.0.1:8100/'), null);
 });
