@@ -11,7 +11,8 @@ import {
   acceptBaseline, badgeReport, buildInventory, buildManifest, castResetPlan, checkInventory, diffInventories, expectedStartDisabled, imageExtensionProblems, lastGoodSeed, seedDrift, installerProblems, isInstalledBook, isLfsPointer, spriteFolders, stripPlan,
   type AdolionManifest, type Inventory, type LaneDisk, type RuntimeReadiness, type SpriteFolder, type SpritePackSource,
 } from './lib/adolionFresh.mts';
-import { comfyCalls } from './lib/sessionArtifacts.mts';
+import { COMFY_LINE, comfyCalls } from './lib/sessionArtifacts.mts';
+import { grepLog, logBytes } from './lib/logScan.mts';
 import { startWithRetry } from './lib/laneStartRetry.mts';
 import { applyPresetOverlay, editLabel, PRESET_OVERLAY_RECORD, type OverlayRecord } from './lib/presetOverlay.mts';
 import { findReclaimable, gib, lastSeededLaneBytes, removeStaleSpriteWorktrees, seedSpaceNeed, seedSpaceRefusal, type SpaceFs } from './lib/seedSpace.mts';
@@ -235,11 +236,10 @@ async function laneInventory(manifest: AdolionManifest, user: string, exportDir:
   });
 }
 
-const logSize = async (root: string) => (existsSync(join(root, 'server.log')) ? (await readFile(join(root, 'server.log'))).length : 0);
+const logSize = async (root: string) => logBytes(join(root, 'server.log'));
 
 async function mediaCallsSince(root: string, from: number) {
-  const log = await readFile(join(root, 'server.log')).catch(() => Buffer.alloc(0));
-  return comfyCalls(log.subarray(from).toString('utf-8'));
+  return comfyCalls(grepLog(join(root, 'server.log'), (line) => COMFY_LINE.test(line), from).join('\n'));
 }
 
 const MEDIA_LOG_LIMIT = 'the lane server logs only FAILED image-generation calls (ECONNREFUSED while ComfyUI is down); a call ComfyUI answers leaves no line, which is why the seed disables the stable-diffusion extension and reads it back';

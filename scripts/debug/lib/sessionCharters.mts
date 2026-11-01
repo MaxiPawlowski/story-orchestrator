@@ -484,3 +484,18 @@ export function nextSessionNumber(existing: string[], id: string): number {
   const numbers = existing.map((name) => new RegExp(`^${id.replace(/[-]/g, '\\-')}-(\\d+)$`).exec(name)).filter(Boolean).map((match) => Number(match![1]));
   return (numbers.length ? Math.max(...numbers) : 0) + 1;
 }
+
+export const SESSION_CLAIM_ATTEMPTS = 50;
+
+export async function claimSessionNumber(existing: string[], id: string, make: (name: string) => Promise<unknown>, attempts = SESSION_CLAIM_ATTEMPTS): Promise<number> {
+  const first = nextSessionNumber(existing, id);
+  for (let number = first; number < first + attempts; number += 1) {
+    try {
+      await make(`${id}-${number}`);
+      return number;
+    } catch (error) {
+      if ((error as { code?: string })?.code !== 'EEXIST') throw error;
+    }
+  }
+  throw new Error(`could not claim a session dir for ${id}: ${attempts} numbers from ${first} were taken`);
+}

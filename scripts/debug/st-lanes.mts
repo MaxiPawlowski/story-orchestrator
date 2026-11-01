@@ -11,7 +11,7 @@ import { swipesOn } from './lib/adolionFresh.mts';
 import { isLaneNumber, laneIssue, lanePortIssue, lanePorts } from './lib/laneRange.mts';
 import { holderSummary, portHolder, portOwnership } from './lib/lanePortOwner.mts';
 import { firewalledServerEnv, laneExtraPorts, LOCAL_CONTROLLER_PORT, judgeEnabledIn, NO_MODEL_BACKUP, NO_MODEL_SETTINGS_BACKUP, OFFLINE_ENV, offlineProblems, offlineSettings, remoteAuthoringOn, stripModelSecrets, withJudgeEnabled, withRemoteAuthoringOff, withRemoteAuthoringRestored } from './lib/laneModel.mts';
-import { judgeShareEnv, LANE_POD_FILE, parsePodArg, podLoadProblem, podPortsIn, podTunnelPort, readLanePod, retargetPodUrls, retargetProfiles } from './lib/lanePods.mts';
+import { judgeShareEnv, LANE_POD_FILE, laneLogEnv, parsePodArg, podLoadProblem, podPortsIn, podTunnelPort, readLanePod, retargetPodUrls, retargetProfiles } from './lib/lanePods.mts';
 import { ROW_DIR_ENV } from './lib/pageCapture.mts';
 import { ramGateBytes, waitForFreeRam, type RamPause } from './lib/ramGate.mts';
 import { collectRowEvidence, fileSize, recordPathsIn, ROW_FILES, rowDirName, type RowLane } from './lib/rowEvidence.mts';
@@ -293,7 +293,7 @@ async function start(n: number, headed: boolean, judgeLanes: number | null = nul
     const log = await open(lane.log, 'a');
     const serverEnv = !offline ? {} : firewall ? firewalledServerEnv(FIREWALL_PRELOAD, lane.port, firewall.podPort, process.env, firewall.extraPorts) : OFFLINE_SERVER_ENV;
     const server = spawn(process.execPath, ['server.js', '--port', String(lane.port), '--dataRoot', lane.data, '--browserLaunchEnabled', 'false', '--listen', 'false'], {
-      cwd: ST_ROOT, detached: true, stdio: ['ignore', log.fd, log.fd], windowsHide: true, env: { ...process.env, ...(judgeLanes ? judgeShareEnv(judgeLanes) : {}), ...serverEnv },
+      cwd: ST_ROOT, detached: true, stdio: ['ignore', log.fd, log.fd], windowsHide: true, env: { ...process.env, ...laneLogEnv(process.env), ...(judgeLanes ? judgeShareEnv(judgeLanes) : {}), ...serverEnv },
     });
     server.unref();
     await writeFile(lane.pid, String(server.pid ?? ''), 'utf-8');

@@ -7,6 +7,7 @@ import {
 } from './sessionLive.mts';
 import { runMemoryVerb, type MemoryOp } from './sessionMemory.mts';
 import { defaultDeleteDeps, deleteSessionChat, type BookAnswer, type DeleteDeps } from './sessionDelete.mts';
+import { settleTimeoutMs } from './sessionSettle.mts';
 
 export const LIVE_VERBS = ['turn', ...MUTATION_VERBS, 'flag', 'shot', 'age', 'adopt', 'mem', 'delete-chat', 'goal', 'agent'] as const;
 export type LiveVerb = (typeof LIVE_VERBS)[number];
@@ -75,7 +76,7 @@ export async function runAgentVerb(page: any, request: Pick<LiveRequest, 'verb' 
 
 export async function defaultLiveDeps(): Promise<LiveDeps> {
   const [actions, navigation, ready, ui] = await Promise.all([import('../st-actions.mts'), import('../st-navigation.mts'), import('./st-ready.mts'), import('../so-ui.mts')]);
-  const settle = (page: any) => navigation.waitForSettledChat(page, { quietMs: 1500, timeoutMs: 60000 });
+  const settle = (page: any) => navigation.waitForSettledChat(page, { quietMs: 1500, timeoutMs: settleTimeoutMs() });
   return {
     send: (page, line, options) => actions.sendUserMessage(page, line, options as any),
     waitIdle: (page, timeoutMs) => actions.waitForIdle(page, timeoutMs),

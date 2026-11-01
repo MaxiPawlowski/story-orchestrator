@@ -300,6 +300,8 @@ export function judgeRateAction(lane: number, loaded: number | null, planned: nu
   };
 }
 
+export const JUDGE_LOADED_MARK = '[story-orchestrator-judge] loaded;';
+
 export function loadedJudgeRate(log: string): number | null {
   const found = [...log.matchAll(/\[story-orchestrator-judge\] loaded;[^\n]*per user (\d+)\/min/g)];
   return found.length ? Number(found[found.length - 1][1]) : null;
