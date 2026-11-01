@@ -1,4 +1,5 @@
-import { existsSync, readdirSync, rmdirSync } from 'node:fs';
+import { existsSync, readdirSync } from 'node:fs';
+import { laneFs } from '../../lib/laneSafety.mjs';
 import { dirname, resolve } from 'node:path';
 import { evaluateInST } from './evaluate.mts';
 
@@ -63,7 +64,7 @@ export function laneUserDir(env: NodeJS.ProcessEnv, debugDir: string): string | 
 export const nodeResidueFs: ResidueFs = {
   exists: (path) => existsSync(path),
   list: (path) => readdirSync(path, { withFileTypes: true }).map((entry) => ({ name: entry.name, dir: entry.isDirectory() })),
-  rmdir: (path) => rmdirSync(path),
+  rmdir: (path) => laneFs.rmdirSync(path),
 };
 
 const filesUnder = (fs: ResidueFs, path: string, prefix = ''): string[] => fs.list(path)

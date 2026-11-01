@@ -10,7 +10,7 @@ export const CAST_CONSEQUENCES: Record<CastCode, string> = {
   "background-missing": "The scene does not change: the install has no background by that name.",
   "roster-member-is-player": "Another character speaks as the player: the story casts the player's own role as someone else.",
   "cast-change-unknown-member": "This cast change switches nobody on or off: the name matches no cast member, so whoever it meant stays as they are.",
-  "requirement-persona-missing": "The story never reads as ready, so its start effects never run: it requires a persona this install does not have, and nothing creates one.",
+  "requirement-persona-missing": "The story never reads as ready, so its start effects never run: it requires a persona this install does not have.",
   "cast-member-never-enabled": "This character stays muted for the rest of the story: a checkpoint switches them off and no checkpoint switches them back on.",
 };
 
@@ -113,7 +113,7 @@ export const checkRequiredPersonas = ({ draft, context, push }: CastRun) => {
       "requirement-persona-missing",
       "warning",
       `requirements.personas.${index}`,
-      `no persona named '${name}' on this install, and the wizard never creates personas; remove it from Requirements, or create that persona in SillyTavern`,
+      `no persona named '${name}' on this install, remove it from Requirements, create that persona in SillyTavern, or let the wizard propose it`,
     );
   });
 };

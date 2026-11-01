@@ -27,6 +27,19 @@
 
 :is(#drawer-manager, #so-hud-root, #story-orchestrator-settings, #so-studio-root, #so-studio-modal, #so-briefing-root, #so-briefing, #so-panels-root, #so-workspace-root, #so-workspace-modal) {
   @apply text-base;
+  --spacing: calc(var(--so-base) * 0.2);
+  --text-xs: var(--so-text-xs);
+  --text-sm: var(--so-text-sm);
+  --text-base: var(--so-text);
+  --text-lg: var(--so-text-lg);
+  --text-xl: var(--so-text-xl);
+  --text-2xl: calc(var(--so-base) * 1.5);
+  --text-3xl: calc(var(--so-base) * 1.8);
+  --radius-xs: 2px;
+  --radius-sm: var(--so-radius-sm);
+  --radius-md: var(--so-radius);
+  --radius-lg: 8px;
+  --radius-xl: var(--so-radius-lg);
 
   @tailwind utilities source(none);
 
@@ -54,7 +67,7 @@
   .st-panel {
     border: 1px solid var(--st-border);
     background: var(--st-bg-tint);
-    border-radius: 0.5rem;
+    border-radius: calc(var(--so-base) * 0.5);
   }
 
   .st-panel-header {
@@ -64,7 +77,7 @@
   .st-subpanel {
     border: 1px solid color-mix(in srgb, var(--st-border) 85%, transparent);
     background: color-mix(in srgb, var(--st-bg-tint) 80%, transparent);
-    border-radius: 0.5rem;
+    border-radius: calc(var(--so-base) * 0.5);
   }
 
   .st-divider {
@@ -75,7 +88,7 @@
     border: 1px solid var(--st-border);
     background: color-mix(in srgb, var(--st-bg-active) 75%, transparent);
     color: var(--st-text-active);
-    border-radius: 0.375rem;
+    border-radius: calc(var(--so-base) * 0.375);
   }
 
   .st-pill {
@@ -114,7 +127,7 @@
     border: 0;
     background: none;
     cursor: pointer;
-    padding: 0.25rem;
+    padding: calc(var(--so-base) * 0.25);
   }
 
   .st-help-icon:focus-visible {
@@ -134,15 +147,15 @@
     left: 0;
     display: flex;
     flex-direction: column;
-    gap: 0.4rem;
-    width: min(18rem, 75vw);
-    padding: 0.75rem;
+    gap: calc(var(--so-base) * 0.4);
+    width: min(calc(var(--so-base) * 18), 75vw);
+    padding: calc(var(--so-base) * 0.75);
     border: 1px solid var(--st-border);
-    border-radius: 0.5rem;
+    border-radius: calc(var(--so-base) * 0.5);
     background: var(--st-bg-active);
     color: var(--st-text-active);
     box-shadow: 0 4px 16px var(--so-shadow);
-    font-size: 0.85rem;
+    font-size: calc(var(--so-base) * 0.85);
     font-weight: normal;
     white-space: normal;
     text-align: left;

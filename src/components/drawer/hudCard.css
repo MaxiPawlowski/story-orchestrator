@@ -6,8 +6,8 @@
   display: flex;
   flex-direction: column;
   gap: var(--so-space-2);
-  width: min(100%, 22rem);
-  max-height: min(60vh, 28rem, var(--so-hud-card-room, 100vh));
+  width: min(100%, calc(var(--so-base) * 22));
+  max-height: min(60vh, calc(var(--so-base) * 28), var(--so-hud-card-room, 100vh));
   padding: var(--so-space-3);
   overflow-x: hidden;
   overflow-y: auto;
@@ -45,7 +45,7 @@
 
 #so-hud-root .so-hud-card-line ul {
   margin: 2px 0 0;
-  padding-left: 1.1rem;
+  padding-left: calc(var(--so-base) * 1.1);
 }
 
 #so-hud-root .so-hud-card-line p {

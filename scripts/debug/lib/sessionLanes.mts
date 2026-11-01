@@ -1,5 +1,7 @@
 import { existsSync } from 'node:fs';
-import { cp, mkdir, readdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
+import { readdir, readFile, stat } from 'node:fs/promises';
+import { laneFs } from '../../lib/laneSafety.mjs';
+const { cp, mkdir, rm, writeFile } = laneFs;
 import { join, relative, resolve } from 'node:path';
 import { diffInventories } from './adolionFresh.mts';
 import { TIERS, type Card, type CardDoc } from './sessionCharters.mts';

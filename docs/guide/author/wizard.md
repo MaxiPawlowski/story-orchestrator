@@ -68,7 +68,8 @@ The wizard only ever **creates**; it never edits or deletes a card, lorebook or 
 
 - Each card, lorebook and group is proposed as its own card. You read it and press **Create it**. Nothing is
   created by "accept all".
-- It never creates a persona; personas are yours.
+- It may propose a new persona, as its own card, only when the story needs a named one your install lacks. It is
+  created unselected; the player still picks a persona at the start. It never edits, selects or deletes a persona.
 - A group it builds holds only this story's cast.
 - A story's lorebooks are switched on only in the chats that play that story, never for every chat.
 

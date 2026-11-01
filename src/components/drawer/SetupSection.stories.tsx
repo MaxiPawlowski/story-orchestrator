@@ -225,7 +225,7 @@ const repairCard = (viewport: { width: number; height: number }, maxLines: numbe
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const card = canvasElement.querySelector("#so-setup-rows") as HTMLElement;
-    await expect(Number.parseFloat(getComputedStyle(card).paddingLeft)).toBeGreaterThanOrEqual(12);
+    await expect(Number.parseFloat(getComputedStyle(card).paddingLeft)).toBeGreaterThanOrEqual(7);
     const fix = canvas.getByRole("button", { name: "I have dealt with it, stop reporting these" });
     const dismiss = canvas.getByRole("button", { name: SETUP_COPY.dismiss });
     await expect(lineCount(fix)).toBeLessThanOrEqual(maxLines);

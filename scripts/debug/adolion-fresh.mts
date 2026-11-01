@@ -1,9 +1,10 @@
 import { spawn } from 'node:child_process';
 import { existsSync } from 'node:fs';
-import { appendFile, lstat, mkdir, readdir, readFile, rm, statfs, writeFile } from 'node:fs/promises';
+import { lstat, readdir, readFile, statfs } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { lanesRootFor, REPO_ROOT } from '../lib/stRoot.mjs';
+import { harnessFs, laneFs } from '../lib/laneSafety.mjs';
 import { laneIssue, lanePorts } from './lib/laneRange.mts';
 import { TOY_GROUP_NAME, toyGroupCreateBody, toyGroupProblems } from '../lib/toyGroup.mjs';
 import {
@@ -49,6 +50,7 @@ campaign build. Lanes 1+ only; lane 0 is the user's.
 
 const PIN_FILE = resolve(REPO_ROOT, 'scripts', 'debug', 'adolion-fresh.pin.json');
 const LANES_ROOT = lanesRootFor(process.env, REPO_ROOT);
+const { appendFile, mkdir, rm, writeFile } = laneFs;
 const EXPORT_PATHS = ['build/lorebooks', 'build/cards', 'build/story', 'build/st-groups.js', 'scripts'];
 const SPRITE_PNGS = 'campaign/sprites/*/sprites/*/*.png';
 
@@ -316,8 +318,8 @@ async function seed(n: number, commitArg: string | null, headed: boolean, stopAf
   const spriteInstaller = join(spriteDir, '..', '..', 'scripts', 'install_st.py');
   const spriteLedger = join(spriteDir, '..', '..', 'build', 'installed.json');
   const exportLedger = join(exportDir, 'build', 'installed.json');
-  await mkdir(dirname(spriteLedger), { recursive: true });
-  await writeFile(spriteLedger, await readFile(exportLedger));
+  await harnessFs.mkdir(dirname(spriteLedger), { recursive: true });
+  await harnessFs.writeFile(spriteLedger, await readFile(exportLedger));
   const sprites = await run('python', [spriteInstaller, '--sprites'], { env: { ADOLION_ST_URL: paths.url.replace(/\/$/, ''), PYTHONIOENCODING: 'utf-8' } });
   await writeFile(exportLedger, await readFile(spriteLedger));
   const spriteRefused = installerProblems(sprites.output);

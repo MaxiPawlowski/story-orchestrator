@@ -122,3 +122,23 @@ describe("v3.0 29 phase 0a: colour comes from the token file, mount roots carry 
     expect(mountRootUtilities("a.tsx", planted, ["story-orchestrator-settings", "so-workspace-modal"])).toEqual(["a.tsx: #story-orchestrator-settings carries p-3 flex"]);
   });
 });
+
+const REM = /(?<![\w.-])\d*\.?\d+rem\b/;
+const remLines = (path: string, text: string): string[] =>
+  text.split(/\r?\n/).flatMap((line, index) => (REM.test(line) ? [`${path}:${index + 1}: ${line.trim()}`] : []));
+
+describe("owner 2026-11-01: our sizes follow ST's --mainFontSize", () => {
+  it("no rem in our CSS: sizes are --so-* tokens or calc(var(--so-base) * n)", () => {
+    expect(files.filter((path) => path.endsWith(".css")).flatMap((path) => remLines(path, read(path)))).toEqual([]);
+  });
+
+  it("the kit base is ST's font size, and the mount roots rebind Tailwind's spacing and type to it", () => {
+    expect(read(TOKENS)).toMatch(/--so-base: var\(--mainFontSize, 15px\);/);
+    const styles = read("src/styles.css");
+    for (const name of ["--spacing", "--text-xs", "--text-sm", "--text-base", "--text-lg", "--text-xl"]) expect(styles).toMatch(new RegExp(`${name}: [^;]*--so-`));
+  });
+
+  it("control: a planted rem is caught", () => {
+    expect(remLines("a.css", ".x { padding: 0.5rem; }\n.y { width: calc(var(--so-base) * 2); }\n.lorem { gap: 1px; }")).toEqual(["a.css:1: .x { padding: 0.5rem; }"]);
+  });
+});

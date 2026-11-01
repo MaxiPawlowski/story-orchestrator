@@ -1,5 +1,7 @@
 import { createHash } from 'node:crypto';
-import { appendFileSync, existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, statSync } from 'node:fs';
+import { harnessFs } from '../../lib/laneSafety.mjs';
+const { appendFileSync, mkdirSync, writeFileSync } = harnessFs;
 import { resolve } from 'node:path';
 
 export const REMOTE_LOG = '/tmp/llama-server.log';

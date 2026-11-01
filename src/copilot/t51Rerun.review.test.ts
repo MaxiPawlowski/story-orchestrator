@@ -104,7 +104,7 @@ describe("T5-1-4 HIGH: the staged wizard never requires a persona the install do
     const result = await run("effects", model.call, install);
     expect(model.prompts[1]).toContain('"The Apprentice"');
     expect(result.status).toBe("failed");
-    expect(result.issues.join(" ")).toContain("never created by the wizard");
+    expect(result.issues.join(" ")).toContain("createPersona");
   });
 
   it("accepts an existing persona, and no persona at all", async () => {

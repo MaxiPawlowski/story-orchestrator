@@ -1,11 +1,12 @@
 import { execFile, spawn, type ChildProcess } from 'node:child_process';
-import { cp, mkdir, open, readFile, readdir, rm, writeFile } from 'node:fs/promises';
-import { createWriteStream, existsSync, readFileSync, statSync } from 'node:fs';
+import { readFile, readdir } from 'node:fs/promises';
+import { existsSync, readFileSync, statSync } from 'node:fs';
 import { basename, resolve } from 'node:path';
 import { freemem } from 'node:os';
 import { PROJECT_ROOT } from './lib/connection.mts';
 import { diskBuildIssue } from './lib/servedBundle.mts';
 import { lanesRootFor, requireStRoot } from './../lib/stRoot.mjs';
+import { assertLaneDir, assertServedTree, laneFs, linksUnder } from './../lib/laneSafety.mjs';
 import { swipesOn } from './lib/adolionFresh.mts';
 import { isLaneNumber, laneIssue, lanePortIssue, lanePorts } from './lib/laneRange.mts';
 import { holderSummary, portHolder, portOwnership } from './lib/lanePortOwner.mts';
@@ -124,6 +125,7 @@ const ST_ROOT = requireStRoot(process.env, PROJECT_ROOT);
 // public/ (this extension's .debug included) is served over HTTP by the running SillyTavern.
 const LANES_ROOT = lanesRootFor(process.env, PROJECT_ROOT);
 const SKIP_SEED = new Set(['backups', 'vectors', 'thumbnails']);
+const { cp, mkdir, open, rm, writeFile, createWriteStream } = laneFs;
 
 const lanePaths = (n: number) => {
   const root = resolve(LANES_ROOT, String(n));
@@ -217,6 +219,8 @@ function runNode(args: string[], env: Record<string, string>, { logPath, echo = 
 async function seed(n: number, fresh: boolean) {
   const lane = lanePaths(n);
   const target = resolve(lane.data, 'default-user');
+  assertServedTree(ST_ROOT);
+  assertLaneDir(target);
   if (existsSync(target) && !fresh) return { lane: n, seeded: false, reason: 'already seeded (pass --fresh to re-copy)' };
   if (fresh) await rm(lane.data, { recursive: true, force: true });
   await rm(resolve(lane.root, OFFLINE_MARKER), { force: true });
@@ -225,6 +229,9 @@ async function seed(n: number, fresh: boolean) {
   const sprites = resolve(source, 'characters');
   const slim = process.argv.includes('--slim');
   await cp(source, target, { recursive: true, filter: (path) => (!SKIP_SEED.has(basename(path)) || resolve(path, '..') !== source) && !(slim && resolve(path, '..') === sprites && statSync(path).isDirectory()) });
+  const links = linksUnder(target);
+  if (links.length) throw new Error(`lane ${n}: the seed left links in ${target} (${links.slice(0, 3).join(', ')}); refused`);
+  assertLaneDir(target);
   const swipes = await swipesOnInLane(target);
   const offline = offlineRequested() ? await makeOffline(n) : null;
   return { lane: n, seeded: true, from: source, to: target, swipes, ...(offline ? { offline } : {}) };
@@ -268,6 +275,8 @@ async function makeOffline(n: number) {
 async function start(n: number, headed: boolean, judgeLanes: number | null = null, allowLocal = false) {
   const lane = lanePaths(n);
   if (!existsSync(resolve(lane.data, 'default-user'))) throw new Error(`lane ${n} is not seeded: run \`st-lanes.mts seed ${n}\` first`);
+  assertServedTree(ST_ROOT);
+  assertLaneDir(resolve(lane.data, 'default-user'));
   await mkdir(lane.debug, { recursive: true });
   const held = await laneServer(n);
   if (held.heldBy) throw new Error(heldByMessage(n, lane.port, held.heldBy));

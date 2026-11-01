@@ -14,7 +14,7 @@
   overflow: visible;
   pointer-events: none;
   z-index: 10000;
-  font-size: 1rem;
+  font-size: var(--so-base);
 }
 
 #so-coach[data-flow="player"] {
@@ -36,11 +36,11 @@
 #so-coach .so-coach-card {
   position: fixed;
   box-sizing: border-box;
-  width: min(22rem, calc(100vw - 2rem));
+  width: min(calc(var(--so-base) * 22), calc(100vw - calc(var(--so-base) * 2)));
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  padding: 0.75rem 1rem;
+  gap: calc(var(--so-base) * 0.5);
+  padding: calc(var(--so-base) * 0.75) var(--so-base);
   border: 1px solid var(--SmartThemeBorderColor);
   border-top: 3px solid var(--so-coach-accent);
   border-radius: 10px;
@@ -62,7 +62,7 @@
   right: 0;
   width: 100%;
   border-radius: 10px 10px 0 0;
-  padding: 0.75rem 1rem calc(0.75rem + env(safe-area-inset-bottom, 0px));
+  padding: calc(var(--so-base) * 0.75) var(--so-base) calc(calc(var(--so-base) * 0.75) + env(safe-area-inset-bottom, 0px));
 }
 
 #so-coach[data-mode="sheet"][data-edge="bottom"] .so-coach-card {
@@ -77,7 +77,7 @@
 }
 
 #so-coach .so-coach-count {
-  font-size: 0.78rem;
+  font-size: calc(var(--so-base) * 0.78);
   letter-spacing: 0.04em;
   text-transform: uppercase;
   opacity: 0.8;
@@ -85,7 +85,7 @@
 
 #so-coach h2 {
   margin: 0;
-  font-size: 1.05rem;
+  font-size: calc(var(--so-base) * 1.05);
   font-weight: 600;
   color: var(--SmartThemeBodyColor);
 }
@@ -96,7 +96,7 @@
 }
 
 #so-coach .so-coach-note {
-  font-size: 0.9rem;
+  font-size: calc(var(--so-base) * 0.9);
   color: var(--SmartThemeEmColor);
 }
 
@@ -104,7 +104,7 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.5rem;
+  gap: calc(var(--so-base) * 0.5);
 }
 
 #so-coach .so-coach-spacer {
@@ -114,7 +114,7 @@
 #so-coach .so-coach-actions .menu_button {
   min-height: 44px;
   margin: 0;
-  padding: 0 0.85rem;
+  padding: 0 calc(var(--so-base) * 0.85);
   white-space: nowrap;
   display: inline-flex;
   align-items: center;

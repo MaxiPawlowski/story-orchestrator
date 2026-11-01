@@ -70,6 +70,9 @@ Current work: **v3.0**. GPU and CPU queue: `docs/plans/v3.0/gpu-queue-2026-10-30
 - **Disk:** C: has run out before. Check `df -h /c` before large work, and never delete a junctioned `node_modules` in a
   worktree.
 - **Nothing is deleted from the owner's ST data**; a move goes to `C:\dev\backups\story-orchestrator\`.
+- **Lane tooling never writes the owner's data**: every lane writer goes through `scripts/lib/laneSafety.mjs`, which follows
+  junctions/symlinks and refuses the owner's ST data or anything outside the lanes root (guard `laneWriters.guard.test.mjs`).
+  Never junction `data/` or `data/default-user` into an ST copy.
 
 ## Working rules
 

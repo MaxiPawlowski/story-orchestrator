@@ -90,16 +90,16 @@
 }
 
 :is(#drawer-manager, #story-orchestrator-settings, #so-panels-root) .so-help-panel {
-  padding: 0.5rem;
+  padding: calc(var(--so-base) * 0.5);
   border: 1px solid var(--st-border);
-  border-radius: 0.5rem;
+  border-radius: calc(var(--so-base) * 0.5);
   background: color-mix(in srgb, var(--st-bg-tint) 50%, transparent);
   max-height: 70vh;
   overflow-y: auto;
 }
 
 :is(#drawer-manager, #story-orchestrator-settings, #so-panels-root) .so-help-feature {
-  padding-bottom: 0.4rem;
+  padding-bottom: calc(var(--so-base) * 0.4);
   border-bottom: 1px solid color-mix(in srgb, var(--st-border) 40%, transparent);
 }
 

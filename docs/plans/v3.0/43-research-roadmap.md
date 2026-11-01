@@ -520,6 +520,81 @@ tomorrow". Plan and review list: `44-in-chat-elements.md`.
 - Bundle: main `dist/index.js` 1,296,095 B (master before: about 1,293,000; budget 1,300,000).
 - Gates: full `npm run gates` on the tree merged with master `2c8ae0177`: red only on `patterns.test.ts` P5 p95 timing
   (untouched, known flake); `--resume` all green. The clean full run is cited in the merge commit.
+
+## U: owner answers 3, 4, 6 (2026-11-01)
+
+Source: `research/self-imposed-rules-2026-10-31.md` §Owner answers. No switches (none natural).
+
+- **ST sizes (answer 3).** `tokens.css` `--so-base` = `var(--mainFontSize, 15px)`; type 0.8/0.9/1/1.15/1.3 of it (xs floor
+  12px), space 3/5/7.5/10/15px at scale 1, radius 3/5/10px, `--so-control-h` ST's control height `base*1.2+8px` (~26px),
+  44px on coarse pointers / under 700px, dialog `base*80`. `src/styles.css` rebinds Tailwind `--spacing` (`base*0.2`),
+  `--text-*`, `--radius-*` on the mount roots (compiled utilities read `var(--spacing, 0.25rem)`, so every utility follows).
+  Every `rem` in our CSS (166 values, 19 files) became `calc(var(--so-base) * n)`; guard `styleTokens.guard.test.ts`
+  (no `rem` in src CSS, planted control). Retired "panels stay 1rem" (gotchas, `docs/dev/style.md`, architecture §UI kit).
+  TSX arbitrary `rem` values (23 `min-h-[3rem]` etc.) left as is.
+- **Curator auto (answer 4).** `stagecraft.acceptMode` default `review` -> `auto` (settingsModel, registry copy, guide,
+  architecture). Unchanged: `auto` applies only to `{{// so:auto}}` entries; unmarked entries, new entries and constant
+  entries still wait; protected spans, gated entries, secret refusal and rollback revert stay.
+- **Wizard personas (answer 6).** Provisioning op `createPersona {name, description, title?}`: create-only (an existing
+  name refused case-insensitively), agent tool family `provision` (always waits, never auto-draft), card fields, applied
+  through `stHost/personaWrites.createPersona` (ST `/persona-create select=false`, run-owned, active persona kept), ledger
+  `applied`. Not in the staged wizard's provisioning stage (its recorded authoring goldens pin the stage's kinds). Prompt,
+  Repair copy, Studio diagnostic `requirement-persona-missing`, guide, wizard page and architecture say the wizard may
+  propose one; the player's start-step choice and the chat persona lock unchanged.
+
+## Gate record U
+
+- Live (sizes): lane 47 (no-model), bundle routed into the lane browser (before = staged slot, after = worktree `dist/`,
+  nothing staged), synthetic SO-UI cards + group + story, 8 surfaces (briefing, HUD + inline, story card, sheet, Play,
+  Settings Features/Display, Help panel, Studio Story) x font scale 1 / 1.25 x dark / light, desktop and 390x844: 144 shots
+  each phase. Probes: before, kit button 14px/28px tall and setting labels 16px at both scales (font scale ignored);
+  after, button 13.5px/26px at 1 and 16.9px/32px at 1.25, label 15px / 18.75px, nav item 26px / 31px; mobile controls
+  stay 35-37px (44px floor minus the small variant). 0 page errors, generation requests blocked (5-6 per run, no-model
+  lane), leaked 0, library clean, lane stopped. `C:\dev\so-lanes\ui-review\st-sizes\{before,after}\` (driver kept as `.mts.txt`).
+- Storybook: green after the setup-card padding floor moved from 12px to 7px (ST spacing, `SetupSection.stories.tsx`).
+- Bundle: main `dist/index.js` 1,293,061 B (+55 B vs master build; budget 1,300,000).
+- Gates: `npm run gates` all green in 498.6s (Storybook included, no --resume) on the tree merged with master `b57d6c43a`;
+  earlier full runs: red on the setup-card padding story (fixed), a merge conflict in the generated guide (regenerated), then
+  green 386.2s on the tree merged with `2c8ae0177` after one red on `consequences.test.ts` C6 p95 timing and a `--resume` red
+  on `patterns.test.ts` P5 timing (both untouched). New master CSS `inchat.css` had one `rem` fallback (now 15px). `gates:quick` green.
+
+## G2: lane writes can never reach the owner's data (safety fix, 2026-11-01)
+
+Trigger: the E incident above (an ST copy whose `data/default-user` was a junction; `seed` copied the link, offline/no-model
+rewrote the owner's `settings.json` and stripped 3 keys from `secrets.json`).
+
+- `scripts/lib/laneSafety.mjs`: `realPathDeep` (realpath through every junction/symlink, also for not-yet-existing files and
+  dangling links); protected roots = real `data/` and `data/default-user` of `.st-root`, `ST_ROOT` and `SO_OWNER_ST_ROOT`;
+  `laneFs` refuses any write whose real path is in a protected root or outside the real lanes root, and every write when the
+  lanes root itself sits in the owner's data or an ST tree; recursive `rm` refuses a tree holding a link into the owner's data;
+  `cp` always dereferences and fails if links remain; `harnessFs` refuses the owner's data only (reports, pods, evidence).
+  `servedTreeIssue`: an ST tree whose `data/` or `data/default-user` resolves outside itself, or a non-owner tree whose data
+  resolves to the owner's, is refused.
+- `st-lanes.mts` `seed` and `start` call `assertServedTree(ST_ROOT)` + `assertLaneDir`, and `seed` re-checks the copy for links;
+  every writer in `st-lanes` (seed, offline, no-model, restore-model, replay, pod, bundle, batch rows), `adolion-fresh`,
+  `laneBundle`, `sessionLanes` (lease, archive, restore), `so-bundle-route`, `p41Residue`, `suite/nomodel.mjs`, and the lane
+  writes of `so-trim-arms` / `so-pose-pick-cl` go through `laneFs`; `connection`, `rowEvidence`, `podCapture`,
+  `evidenceArchive`, `so-pod`, `so-session`, `so-showcase`, `saga-export-packs` through `harnessFs`.
+- Guard `scripts/lib/laneWriters.guard.test.mjs`: any script under `scripts/` that names a lane or data root and imports a
+  raw fs writer (named, namespace or `require`) fails unless it is an EXEMPT row with a reason (5 rows: read-only or
+  owner-run tools such as `so-sprite-copy --confirm` and `local/route-st.mjs`); planted controls.
+- Rules: `.claude/rules/debug-scripts.md` §Lanes, AGENTS.md "The owner's machine".
+
+## Gate record G2
+
+- `node --test scripts/lib/laneSafety.test.mjs`: 8/8 (real junctions in a temp tree: lane path junctioned to a fake owner
+  `default-user` refused for write/writeSync/rm, owner files byte-identical after; junction on the whole lane `data/` refused
+  for a not-yet-existing file; outside-lanes and outward junction refused, plain lane path passes; lanes root inside owner data
+  or an ST tree refuses all; ST copy with junctioned `data/default-user` or `data/` refused, owner tree and real copy pass;
+  `ST_ROOT` copy still protects the linked owner data; `cp` dereferences, recursive `rm` over a link into owner data refused;
+  harness fs).
+- `node --test scripts/lib/laneWriters.guard.test.mjs`: 4/4 (planted controls caught; 0 offenders).
+- Manual refusal: `ST_ROOT=<temp copy with junctioned default-user> SO_OWNER_ST_ROOT=<temp owner> st-lanes.mts seed 70` exit 1,
+  message names the junction, nothing written to the lanes root. No owner data used.
+- `npx tsc -p scripts/debug/tsconfig.json`: exit 0.
+- `npm run test:debug` (worktree): 1790 pass, 1 fail = `so-run-header.test.mts` "plan 08s nested manifest" (reads `dist/`,
+  absent in a fresh worktree; passes in the main checkout).
+- `npm run gates:quick`: green (typecheck, defect replay 32/32). Scripts-only change, so no full `npm run gates`.
 ## T: SillyTavern's own lorebook save and group Regenerate (owner 2026-11-01)
 
 Owner answer 1 of `research/self-imposed-rules-2026-10-31.md`: ST's own code and buttons may change. Both fixes are runtime
