@@ -198,6 +198,18 @@ export const startLore = (disposers: Disposers, judgeRuntime: JudgeRuntime, gene
       notify: () => runtimeManager.notify(),
     });
   });
+  const examples = { stop: null as (() => void) | null, disposed: false };
+  disposers.push(() => { examples.disposed = true; examples.stop?.(); });
+  void import("../exampleDropHost").then(({ startExampleDrop }) => {
+    if (examples.disposed) return;
+    examples.stop = startExampleDrop({
+      chatId,
+      ownedChat: () => runtimeManager.getLoadedChatId(),
+      playing: () => runtimeManager.getStory() !== null,
+      loud: () => generation.snapshot().outermost !== null && !withholds(innermostType(generation)),
+      notify: () => runtimeManager.notify(),
+    });
+  }).catch((error) => log.warn("the example dialogue watch did not start", error));
   const select = (trigger: LoreSelectTrigger, generationType?: string) => lore.select(trigger, generationType)
     .then((selection) => { if (selection) { forcedThisRun.picks = selection.picks; forcedThisRun.all = selection.picks; loreWatch.forced(selection.picks); } })
     .catch((error) => log.warn("lore-select failed", error));

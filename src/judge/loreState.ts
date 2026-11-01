@@ -23,8 +23,6 @@ const distinct = (names: readonly string[]) => {
   return names.map(clip).filter((name) => name && !seen.has(name.toLowerCase()) && Boolean(seen.add(name.toLowerCase())));
 };
 
-export const isEmptyLoreState = (state: LoreState): boolean => !state.place && !state.cast.length && !state.quests.length && !state.known.length;
-
 // What the judge reads beside the scene name and goal: short, capped, and only what the player could see.
 export function loreStateFields(state: LoreState): Record<string, string | string[]> {
   const cast = state.cast.slice(0, LORE_STATE_CAST).map((member) => {

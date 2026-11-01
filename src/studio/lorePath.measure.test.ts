@@ -29,9 +29,11 @@ const campaign = (): Array<{ story: Story; book: (name: string) => Book | null }
   try {
     const listed = git(["ls-tree", "--name-only", pin.commit, "build/story/"]).split(/\r?\n/).filter((path) => path.endsWith(".story.json"));
     const books = new Set(git(["ls-tree", "--name-only", pin.commit, "build/lorebooks/"]).split(/\r?\n/));
+    const cache = new Map<string, Book | null>();
     const book = (name: string): Book | null => {
       const path = `build/lorebooks/${name}.json`;
-      return books.has(path) ? JSON.parse(git(["show", `${pin.commit}:${path}`])) as Book : null;
+      if (!cache.has(path)) cache.set(path, books.has(path) ? JSON.parse(git(["show", `${pin.commit}:${path}`])) as Book : null);
+      return cache.get(path) ?? null;
     };
     return listed.map((path) => ({ story: JSON.parse(git(["show", `${pin.commit}:${path}`])) as Story, book }));
   } catch {
