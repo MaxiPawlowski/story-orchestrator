@@ -38,10 +38,14 @@ const vocativeIn = (segment: string, term: string): boolean => {
   });
 };
 
-export const directlyAddressed = (roster: readonly RosterMember[], text: string): string | null => {
+export const vocativeMembers = (roster: readonly RosterMember[], text: string): string[] => {
   const segments = spokenSegments(text);
-  if (!segments.some((segment) => segment.trim())) return null;
+  if (!segments.some((segment) => segment.trim())) return [];
   const terms = termsByMember(roster);
-  const addressed = roster.filter((member) => (terms.get(member.id) ?? []).some((term) => segments.some((segment) => vocativeIn(segment, term))));
-  return addressed.length === 1 ? addressed[0].id : null;
+  return roster.filter((member) => (terms.get(member.id) ?? []).some((term) => segments.some((segment) => vocativeIn(segment, term)))).map((member) => member.id);
+};
+
+export const directlyAddressed = (roster: readonly RosterMember[], text: string): string | null => {
+  const addressed = vocativeMembers(roster, text);
+  return addressed.length === 1 ? addressed[0] : null;
 };

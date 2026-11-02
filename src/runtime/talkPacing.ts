@@ -1,8 +1,11 @@
-import type { TalkControl } from "@engine/index";
-import { ASK_PLAYER_DIRECTION, ASK_PLAYER_TAIL, REACTION_DIRECTION, SPOTLIGHT_DIRECTION } from "@pacing/guidance";
+import type { RosterMember, TalkControl } from "@engine/index";
+import { ANSWER_FIRST, ASK_PLAYER_DIRECTION, ASK_PLAYER_TAIL, FIRST_SPOTLIGHT_DIRECTION, REACTION_DIRECTION, SPOTLIGHT_DIRECTION } from "@pacing/guidance";
 import {
-  asksPlayer, findCandidate, pickQuiet, playerTurnsAfter, quietTurns, turnsSince, type QuietCandidate, type SpeechRow, type TalkCandidate, type TalkDecisionSource, type TalkPolicy,
+  addressedMembers, asksPlayer, findCandidate, latestPlayerLine, pickQuiet, playerTurnsAfter, quietTurns, turnsSince,
+  type DirectorWindowMessage, type QuietCandidate, type SpeechRow, type TalkCandidate, type TalkDecisionSource, type TalkPolicy,
 } from "@talk/index";
+import { vocativeMembers } from "@talk/directAddress";
+import { playerActs } from "@talk/playerActs";
 import type { SourceRevision } from "@memory/audience";
 import type { SpeechOrigin, SpeechRequest, SpeechReservation } from "./speechLedger";
 
@@ -23,6 +26,9 @@ export interface TalkPacingHost {
   getLastMessageId(): number;
   getLastMessageRevision?(): SourceRevision | null;
   random?(): (() => number) | null;
+  getWindow?(): DirectorWindowMessage[];
+  getRoster?(): RosterMember[];
+  getEnabledRosterIds?(): string[];
 }
 
 export interface VoicePlan {
@@ -33,6 +39,7 @@ export interface VoicePlan {
   yieldAfter: boolean;
   source: TalkDecisionSource | null;
   cause?: string;
+  owed?: boolean;
 }
 
 export interface PlanContext {
@@ -76,10 +83,43 @@ export class TalkPacing {
       && !context.spoken.includes(candidate.rosterId) && inList(list, candidate));
   }
 
-  capLead(candidates: TalkCandidate[], control: TalkControl): TalkCandidate[] {
+  private profiled(): boolean { return Boolean(this.policy()?.profile); }
+
+  private playerLine(): { line: number; window: DirectorWindowMessage[] } {
+    const window = this.host.getWindow?.() ?? [];
+    return { line: latestPlayerLine(window, this.host.getPlayerName?.() ?? ""), window };
+  }
+
+  pending(): TalkCandidate[] {
+    const { line, window } = this.playerLine();
+    if (!this.profiled() || line < 0) return [];
+    const answered = new Set(window.slice(line + 1).map((message) => message.speaker.trim().toLowerCase()));
+    return addressedMembers(this.host.getRoster?.() ?? [], this.host.getEnabledRosterIds?.() ?? [], window[line].text)
+      .filter((member) => !answered.has(member.name.trim().toLowerCase()));
+  }
+
+  owed(): number { return this.pending().length; }
+
+  private acts(): boolean {
+    const { line, window } = this.playerLine();
+    return line >= 0 && line === window.length - 1 && playerActs(window[line].text) && !vocativeMembers(this.host.getRoster?.() ?? [], window[line].text).length;
+  }
+
+  opening(chosen: TalkCandidate, source: TalkDecisionSource | null, context: PlanContext, named: boolean, lead: TalkCandidate | null): VoicePlan {
+    if (!this.profiled()) return this.firstSpotlight(chosen, source, context, named);
+    if (lead && this.acts()) return lead.rosterId === chosen.rosterId ? this.plain(chosen) : { ...this.plain(lead), source: "rules" };
+    const pending = this.pending();
+    const addressee = pending.some((member) => member.rosterId === chosen.rosterId) ? null : findCandidate(context.candidates, pending[0]?.rosterId);
+    if (addressee) return { ...this.plain(addressee), source: "mention" };
+    const plan = this.firstSpotlight(chosen, source, context, named);
+    return plan.origin === "spotlight" ? { ...plan, direction: FIRST_SPOTLIGHT_DIRECTION } : plan;
+  }
+
+  capLead(candidates: TalkCandidate[], control: TalkControl, addressed: readonly TalkCandidate[] = []): TalkCandidate[] {
     const cap = this.policy()?.leadMaxConsecutive;
     const lead = findCandidate(candidates, control.lead);
     if (!cap || !lead || candidates.length < 2 || leadRun(this.rows(), quiet(lead).names, this.entryStart()) < cap) return candidates;
+    if (this.profiled() && addressed.some((member) => member.rosterId === lead.rosterId)) return candidates;
     return candidates.filter((candidate) => candidate.rosterId !== lead.rosterId);
   }
 
@@ -136,14 +176,21 @@ export class TalkPacing {
     return since >= address.afterPlayerTurns && (last < 0 || playerTurnsAfter(rows, last) >= address.cooldown);
   }
 
-  address(plan: VoicePlan, context: PlanContext): VoicePlan {
+  address(plan: VoicePlan, context: PlanContext, first = false): VoicePlan {
+    const pending = this.pending();
+    const marked = pending.some((member) => member.rosterId === plan.rosterId) ? { ...plan, owed: true } : plan;
+    return pending.some((member) => member.rosterId !== plan.rosterId) ? marked : this.ask(marked, context, first);
+  }
+
+  private ask(plan: VoicePlan, context: PlanContext, first: boolean): VoicePlan {
     const address = this.policy()?.addressPlayer;
     const candidate = context.candidates.find((entry) => entry.rosterId === plan.rosterId);
     const lead = findCandidate(context.candidates, context.control.lead)?.rosterId;
     if (!address || !candidate || plan.rosterId === lead || plan.origin === "reaction") return plan;
     if (address.by !== "relevant_member" && !inList(address.by, candidate)) return plan;
     if (!this.addressDue(context)) return plan;
-    return { ...plan, origin: "address", direction: plan.direction ? `${plan.direction} ${ASK_PLAYER_TAIL}` : ASK_PLAYER_DIRECTION, yieldAfter: true };
+    const direction = plan.direction ? `${plan.direction} ${ASK_PLAYER_TAIL}` : first && this.profiled() ? `${ANSWER_FIRST} ${ASK_PLAYER_TAIL}` : ASK_PLAYER_DIRECTION;
+    return { ...plan, origin: "address", direction, yieldAfter: true };
   }
 
   request(plan: VoicePlan): SpeechRequest {
@@ -151,7 +198,7 @@ export class TalkPacing {
       origin: plan.origin, member: plan.name, generated: true,
       source: { messageId: this.host.getLastMessageId(), revision: this.host.getLastMessageRevision?.() ?? null },
       entry: this.host.getEntryKey?.() ?? "", recipient: plan.origin === "address" ? "player" : "scene", instruction: plan.direction, yieldAfter: plan.yieldAfter,
-      ...(plan.cause ? { cause: plan.cause } : {}),
+      ...(plan.cause ? { cause: plan.cause } : {}), ...(plan.owed ? { owed: true } : {}),
     };
   }
 

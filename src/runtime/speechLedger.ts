@@ -13,6 +13,7 @@ export interface SpeechRequest {
   instruction: string | null;
   yieldAfter: boolean;
   cause?: string;
+  owed?: boolean;
 }
 
 export interface SpeechReservation {

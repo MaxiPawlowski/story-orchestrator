@@ -18,6 +18,7 @@ export interface LeadLength {
   rosterId: string;
   name: string;
   words: number;
+  settle: boolean;
 }
 
 const findMember = (roster: readonly RosterMember[], ref: string | undefined): RosterMember | undefined => {
@@ -60,9 +61,10 @@ export function wireSpeech(port: SpeechPortDeps, importer: () => Promise<SpeechU
     lastAddressAt: () => budget?.lastAddressAt() ?? -1,
   };
   const leadLength = (): LeadLength | null => {
-    const words = policy()?.leadWords;
+    const resolved = policy();
+    const words = resolved?.leadWords;
     const member = findMember(port.loaded()?.story.roster ?? [], port.engine.activeCheckpoint?.talk_control?.lead);
-    return words && member ? { rosterId: member.id, name: member.name ?? member.id, words } : null;
+    return words && member ? { rosterId: member.id, name: member.name ?? member.id, words, settle: resolved?.profile === "decision" } : null;
   };
   return { speech, policy, leadLength, ready };
 }

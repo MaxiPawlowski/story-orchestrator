@@ -37,7 +37,7 @@ export interface PacingCoordinatorDeps {
   hosts: { prompt: PromptHost; chat?: Pick<ChatHost, "chatRows"> };
   ended?: () => boolean;
   onHoldChange?: () => void;
-  leadLength?: () => { rosterId: string; name: string; words: number } | null;
+  leadLength?: () => { rosterId: string; name: string; words: number; settle?: boolean } | null;
   pathArc?: () => boolean;
   stuckLadder?: () => boolean;
   leadSafe?: (text: string) => boolean;
@@ -197,7 +197,7 @@ export class PacingCoordinator {
 
   private lengthLine(): string | null {
     const lead = this.withheld ? null : this.deps.leadLength?.() ?? null;
-    return lead && this.drafted === lead.rosterId ? leadLengthLine(lead.name, lead.words) : null;
+    return lead && this.drafted === lead.rosterId ? leadLengthLine(lead.name, lead.words, lead.settle === true) : null;
   }
 
   armDirection(member: string, text: string, scope: "call" | "draft" = "call"): (() => void) | null {

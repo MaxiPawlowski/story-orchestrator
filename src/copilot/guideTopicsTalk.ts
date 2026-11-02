@@ -14,10 +14,11 @@ export const TALK_TOPICS = {
     title: "Pacing profiles and speech budget",
     fields: "talk_control.profile, budget, lead_words, lead_max_consecutive, spotlight, address_player, reaction, talk_defaults",
     text: "profile (opening, conversation, decision, action, aftermath) fills in policy; set fields win; never switches a feature off. budget {voices, attempts} per "
-      + "player message, shared by chain voices and afterSpeak/sceneBreak lines. lead_words: soft lead length, no token cap. "
+      + "player message, shared by chain voices and NPC lines. lead_words: soft lead length. "
       + "lead_max_consecutive: most lead lines in a row. "
       + "spotlight {quiet_after, members}: a quiet member replaces a voice, never adds one. address_player {after_player_turns, by, cooldown_player_turns}: a planned "
-      + "non-lead voice asks the player one thing. reaction: one line after a transition, quest or check. talk_defaults: story default.",
+      + "non-lead voice asks the player one thing. reaction: one line after a transition, quest or check. talk_defaults: story default. "
+      + "Profile: every named member answers; an unaddressed act gets the lead first.",
   },
 } as const satisfies Record<string, GuideTopic>;
 

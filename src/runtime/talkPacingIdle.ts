@@ -1,6 +1,7 @@
 import type { TalkPacing, VoicePlan } from "./talkPacing";
 
-export type TalkPacingApi = Pick<TalkPacing, "plain" | "reaction" | "spotlight" | "firstSpotlight" | "address" | "reserve" | "arm" | "settle" | "yielded" | "leadPreferred" | "capLead">;
+export type TalkPacingApi = Pick<TalkPacing,
+  "plain" | "reaction" | "spotlight" | "firstSpotlight" | "address" | "reserve" | "arm" | "settle" | "yielded" | "leadPreferred" | "capLead" | "opening" | "owed">;
 
 const plain = (chosen: { rosterId: string; name: string }): VoicePlan => ({ rosterId: chosen.rosterId, name: chosen.name, origin: "chain", direction: null, yieldAfter: false, source: null });
 
@@ -16,4 +17,6 @@ export const IDLE_PACING: TalkPacingApi = {
   yielded: () => false,
   leadPreferred: () => true,
   capLead: (candidates) => candidates,
+  opening: (chosen) => plain(chosen),
+  owed: () => 0,
 };

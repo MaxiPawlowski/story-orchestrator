@@ -36,10 +36,17 @@ export const oneShotDirectionText = (reply: { instruction?: string; ask_player?:
   return instruction ? `${instruction} ${ASK_PLAYER_TAIL}` : ASK_PLAYER_DIRECTION;
 };
 
-export const leadLengthLine = (name: string, words: number): string =>
-  `Length for ${name} only: keep this reply near ${words} words; say what changed and what it looks like now, and skip what the chat already holds.`;
+export const LEAD_SETTLE_CLAUSE = `If you already put the choice to ${PLAYER_REF}, do not put it again: answer what they just said and let the scene wait on their decision.`;
+
+export const leadLengthLine = (name: string, words: number, settle = false): string =>
+  `Length for ${name} only: keep this reply near ${words} words; say what changed and what it looks like now, and skip what the chat already holds.${settle ? ` ${LEAD_SETTLE_CLAUSE}` : ""}`;
 
 export const SPOTLIGHT_DIRECTION = "Speak up now with what you notice, know or feel about this moment, in your own voice and briefly; "
+  + `then stop, and never speak or decide for ${PLAYER_REF}.`;
+
+export const ANSWER_FIRST = `First answer what ${PLAYER_REF} just said or did, in your own voice and briefly.`;
+
+export const FIRST_SPOTLIGHT_DIRECTION = `Answer what ${PLAYER_REF} just said or did first, from what you notice, know or feel, in your own voice and briefly; `
   + `then stop, and never speak or decide for ${PLAYER_REF}.`;
 
 export const REACTION_DIRECTION = "React briefly, in your own voice, to what just happened: one or two sentences that add your view or what you notice; "

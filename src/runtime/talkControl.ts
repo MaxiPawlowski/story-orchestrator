@@ -1,4 +1,4 @@
-import type { RosterMember, TalkControl } from "@engine/index";
+import { TALK_CHAIN_MAX_CAP, type RosterMember, type TalkControl } from "@engine/index";
 import { resolveChainConfig, type TalkChainConfig } from "./talkChain";
 import type { JudgeDirectorDecision, JudgeDirectorInput } from "@judge/index";
 import {
@@ -226,8 +226,9 @@ export class TalkController {
     const context = this.planContext(control, chain, null);
     const chosen = findCandidate(context.candidates, decision.name);
     const scripted = control.chain && control.chain.mode === "scripted";
-    const voice = !chosen ? this.pacing.plain(decision) : scripted ? this.pacing.plain(chosen) : this.pacing.firstSpotlight(chosen, decision.source, context, this.playerNamed());
-    chain.first = this.pacing.address(voice, context);
+    const lead = findCandidate(buildCandidates(control, this.host.getRoster(), this.host.getEnabledRosterIds()), control.lead);
+    const voice = !chosen ? this.pacing.plain(decision) : scripted ? this.pacing.plain(chosen) : this.pacing.opening(chosen, decision.source, context, this.playerNamed(), lead);
+    chain.first = this.pacing.address(voice, context, true);
     chain.expected = chain.first.rosterId;
     return chain.first;
   }
@@ -292,7 +293,7 @@ export class TalkController {
 
   private candidates(control: TalkControl, addressed: TalkCandidate[]): TalkCandidate[] {
     const all = withAddressed(buildCandidates(control, this.host.getRoster(), this.host.getEnabledRosterIds()), addressed);
-    return control.chain && control.chain.mode === "scripted" ? all : this.pacing.capLead(all, control);
+    return control.chain && control.chain.mode === "scripted" ? all : this.pacing.capLead(all, control, addressed);
   }
 
   private planContext(control: TalkControl, chain: ChainState, lastSpeaker: string | null): PlanContext {
@@ -344,12 +345,13 @@ export class TalkController {
     if (lastSpeaker) chain.speakers.push(lastSpeaker);
     chain.expected = null;
     if (this.host.replyEmpty?.(spokenAt)) { this.endChain("empty"); return; }
-    if (chain.endAfter || this.pacing.yielded() || (config.yieldOnQuestion && voiceAsksPlayer(this.host))) { recordYield(this.host, chain); this.endChain("yield"); return; }
-    if (chain.spokeCount >= config.max) { this.endChain("cap"); return; }
+    const owed = config.mode === "director" && this.pacing.owed() > 0;
+    if (!owed && (chain.endAfter || this.pacing.yielded() || (config.yieldOnQuestion && voiceAsksPlayer(this.host)))) { recordYield(this.host, chain); this.endChain("yield"); return; }
+    if (chain.spokeCount >= (owed ? TALK_CHAIN_MAX_CAP : config.max)) { this.endChain("cap"); return; }
     if (this.sceneMoves(chain, config)) { this.endChain("transition"); return; }
     const run = beginRun(this.host.ownership, this.window());
     const context = this.planContext(control, chain, lastSpeaker);
-    const reaction = config.mode === "director" ? this.pacing.reaction(context) : null;
+    const reaction = config.mode === "director" && !owed ? this.pacing.reaction(context) : null;
     const scripted = config.mode === "scripted" ? this.scriptedSpeaker(config, chain.spokeCount - chain.offScript) : null;
     const next = reaction ?? (scripted ? { name: scripted, source: null } : config.mode === "scripted" ? null : await this.decideChainSpeaker(control, config, chain));
     if (this.chain !== chain || chain.aborted) return;
