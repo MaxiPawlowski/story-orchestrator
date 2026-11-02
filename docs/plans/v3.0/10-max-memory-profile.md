@@ -541,3 +541,18 @@ W0 upkeep 2026-10-30 (CPU only, worktree `C:\dev\so-a2`, no GPU, owner controlle
 - Renders 3 of 3 ok; fitCorrection 0; 0 spills; 0 errors; reserve score pass (0 reserve errors, no crash); full sleeps 3, wakes 3 (~23 s each), 0 wake failures, 0 light sleeps.
 - Fill rotation: 60 requests, 0 errors, chat TTFT p50 4,708 ms, decode p50 43.7 tok/s. After each image all 7 chat requests were misses (TTFT p50 13.3-15.9 s): the swap costs the warm cache, the known M5 miss.
 - Verdict: **pass** (decision and reason in `/status`, reserve held live).
+
+## Local window 2026-11-02 (GPU queue local rows)
+
+### A2-2 J13 on-arm clean run (15:23-15:44Z, `bench-controller/10/logs-a22/`)
+
+- Owner controller found stopped; owner `config.json` sha256 `d48e439d…` (backup `C:/dev/backups/story-orchestrator/controller-config-lw-2026-11-02.json`).
+- Candidate L (`ctl-L.json`, so5, code `C:/dev/so-a2`), lane 45 (images and sprites off), master `6be63e90` staged (bundle `457fed84`).
+- `st-lanes.mts batch --lanes 45 --strict --fresh-page "J13 --judge-uses houseRules --warden-mode auto"`: **GREEN**, 1 pass / 0 fail, first try, 1,229 s. Evidence `C:/dev/so-lanes/45/debug/batch/2026-11-02T15-23-40-782Z/`.
+- `/status` after: member cache hits 26 / misses 4, restore failures 0, fitCorrection 0, 0 spills.
+- Closes the one base-set row without a valid green on L. A2 merge unblocked.
+
+### Merge gates (2026-11-02)
+
+- Merge `v3.0-a2-maxmem` into master (`--no-ff`, clean, worktree `C:/dev/so-merge-a2`). `npm run gates` (no `--resume`, Storybook included): first run RED at `test:debug` on 5 campaign-index rows (the gitignored story index in the main checkout was built from campaign `79c6ba79`, pin `baeda388`; environment, refreshed from a checkout at the pin); rerun all green in 332.6 s, 11 steps.
+- Adoption on the owner's controller follows the 27/28 bench rows (one restart for all passing items), see §Adoption below.
