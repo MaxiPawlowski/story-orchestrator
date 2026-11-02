@@ -141,15 +141,43 @@ Optional `config.json` keys, all read by `broker/backend.mjs` `nativeArgs` (plan
   layout first asks for idle ComfyUI memory (same guards as the reload reclaim, `sleepStats.wakeReclaims`).
 - `memberCache.lightSleep: true` (plan v3.0 26 C1; needs `keepAcrossImages` and the so5 binary) sleeps at level
   `context` instead: KV, compute buffers and the MTP context leave VRAM (about 2.8 GiB), the target and MTP weights
-  stay. An image that fits whole after that, or that streams beside the kept weights (`streamImages` policy, checked
-  with `lightSleepFreesMiB`, default 2900, added to the free reading), gets lease decision `sleep-context`; the wake
-  recreates the contexts (0.4-0.5 s measured) and needs only the freed amount plus the reserve. If the light sleep still
-  leaves the image short (host RAM included) the sleeping server is stopped and the lease swaps as before. The stray
+  stay. Only an image whose admitted GPU need still leaves the mode's GPU reserve free beside the kept weights gets lease
+  decision `sleep-context`: checked first on an estimate (free reading + `lightSleepFreesMiB`, default 2900), then on
+  the reading after the sleep. Streaming an image beside a light sleeper is not offered (plan v3.0 10: it crossed the
+  1,024 MiB Max reserve, 537 and 275 MiB free). Otherwise text is stopped and the lease swaps as before.
+  `lastResidency.lightSleep` = `{stage: estimate|measured, freeMiB, needGpuMiB, reserveMiB, leftMiB, fits}` and the
+  lease reason name the numbers. The wake recreates the contexts (0.4-0.5 s measured) and needs only the freed amount
+  plus the reserve. The stray
   check subtracts the weights a light sleeper still holds. `sleepStats.lightSleeps|lightWakes|lastLightWakeMs`.
 - `speculative.chatNMax` / `speculative.sideNMax` (plan v3.0 26 C3, so5 binary): the gateway adds
   `speculative.n_max` to streamed (chat) or other generation requests, capping the model drafter per request at most
   at `speculative.nMax`. `speculative.extraTypes: ["ngram-simple"]` adds the request-local n-gram drafter (the shared
   pool `ngram-mod` is refused). Both measured below their floors and off.
+
+- `memberCache.fitImageCacheRam: true` (plan v3.0 10 follow-up for M5, off by default, live) credits the RAM a warm
+  ComfyUI cache still holds (the last warm render's RAM need, forgotten on an evicting release, a ComfyUI restart or
+  during a lease; `/status` `imageResidency.warmRamMiB`) to the fit, capped at the staging part of the floor
+  (`keepCacheRamFloorMiB` minus `reserves.ramMiB`). ComfyUI gives that RAM back at its `--cache-ram` threshold and the
+  image admission still trims the cache first, so the first chat after an image no longer evicts the states that
+  survived the sleep. `lastRefit.imageCreditMiB` shows the credit. Unbenched: the next GPU window decides it.
+- `unloadTextOnApply: true` in a mode (plan v3.0 10 follow-up for H1, off in every built-in preset) makes an apply-now
+  switch into that mode unload loaded text instead of reloading it, so its CPU-layer RAM is returned too (`lastApply.text
+  'unloaded'`). Pair it with `keepTextResident: false`, or the automatic reload brings text straight back.
+- Local judge on the GPU (plan v3.0 10 follow-up for M4): `node scripts/local/judge.mjs start` with
+  `SO_JUDGE_LOCAL_GPU_LAYERS` starts on the CPU while this controller answers (`SO_LOCAL_CONTROLLER_URL`, default
+  `http://127.0.0.1:18888`), because the controller does not count the judge's VRAM in its reserve;
+  `SO_JUDGE_LOCAL_GPU_FORCE=1` takes the layers anyway.
+- `memberCache.fitRam: true` (plan v3.0 10; RAM store) makes `budgetMiB` a ceiling. At each text load `--cache-ram` is
+  the RAM available before the load, minus what text takes (learned per profile from the previous load, else the
+  profile's `estimatedRamMiB`), minus `keepCacheRamFloorMiB` (10240: reserve plus an image's staging), in 256 MiB steps,
+  at least 1024 (`/status` → `text.cacheBudget`, `text.textRamMiB`). On a server with `GET /cache` (patch commit 6,
+  binary `llama-b11888-so4-cu128` or later) the limit also follows free RAM before every planned chat, after every idle chat
+  reply and on every settings change (`POST /cache/limit`, confirmed before the chat runs: room for one more entry kept,
+  down at once, up by 1 GiB or more), and image admission lowers it before an image (`makeRoom`):
+  to what leaves the image's RAM plus `reserves.ramMiB` free, which evicts the oldest entries (unkeyed first) and caps
+  growth for the lease, while text is awake or asleep. `/status` → `memberCache.native` (entries, keyed, MiB, limit),
+  `lastRefit`, `lastTrim`, `trims`, `trimFreedMiB`; a stock server reports `nativeReported: false` and `makeRoom`
+  falls back to dropping the sleeping server (`dropSleepingForRam`).
 
 `node scripts/local/stable-head.mjs plan|apply|revert --data <ST user data dir> --group <id>[,<id>] [--backup <dir>]`
 moves the system prompt's `{{char}}` sentences to its post-history instruction (a new `... (stable head)` system-prompt
@@ -222,21 +250,27 @@ are forwarded unchanged; only numerical timings are retained.
 
 ## Performance modes
 
-Three presets switch a few controller settings at once. Each is a patch over keys the controller already reads; the
+Four presets switch a few controller settings at once. Each is a patch over keys the controller already reads; the
 presets live in `config.json` under `modes` (edit them there) and the selected one under `mode`. A config without
 `modes` behaves exactly as before: Balanced is captured from the current values the first time a mode is saved.
 
-| Setting | Max (only playing) | Balanced (as before) | Safe (using the PC too) | Applies |
-|---|---|---|---|---|
-| `reserves.gpuMiB` | 1024 | 2048 | 3072 | now for images and admission; the text layout at its next load |
-| `reserves.ramMiB` | 2048 | 4096 | 6144 | now |
-| `streamImages.enabled` | on | on | off | now (next image) |
-| `streamImages.minFreeGpuMiB` | 2400 | 2400 | 2400 | now |
-| `idleRestoreMs` | 180000 | 600000 | 600000 | now |
-| `keepTextResident` | on | on | on | now |
-| `fitMarginMiB` | 512 | 512 | 512 | next text load |
-| `imageCacheMode` | warm | warm | evict | now (next image release) |
-| `memberCache.budgetMiB` | 4096 | (current) | 2048 | next text load (`--cache-ram` of the RAM member cache) |
+| Setting | Max (default, playing) | Headroom (tray toggle) | Balanced (as before) | Safe | Applies |
+|---|---|---|---|---|---|
+| `reserves.gpuMiB` | 1024 | 4096 | 2048 | 3072 | now for images and admission; the text layout at its next load |
+| `reserves.ramMiB` | 2048 | 8192 | 4096 | 6144 | now |
+| `streamImages.enabled` | on | off | on | off | now (next image) |
+| `streamImages.minFreeGpuMiB` | 2400 | 2400 | 2400 | 2400 | now |
+| `idleRestoreMs` | 180000 | 600000 | 600000 | 600000 | now |
+| `keepTextResident` | on | on | on | on | now |
+| `fitMarginMiB` | 512 | 512 | 512 | 512 | next text load |
+| `imageCacheMode` | warm | evict | warm | evict | now (next image release) |
+| `memberCache.budgetMiB` | 12288 (ceiling) | 2048 | (current) | 2048 | next text load; live on a `/cache` server |
+| `memberCache.fitRam` | on | on | (current) | off | next text load; live on a `/cache` server |
+| `unloadTextOnApply` | off | off | off | off | on an apply-now switch (`mode <name> --now`, `mode toggle`) |
+
+Max and Headroom are plan v3.0 10 candidates until its bench passes (`docs/plans/v3.0/10-max-memory-profile.md`); a
+config written before them keeps its own `modes.max` until `cli.mjs mode-reset max`, and gains `headroom` from the
+built-in preset.
 
 Why these numbers (records: `docs/plans/v2.7/22-local-residency.md`, `22b-residency-harvest-2026-10-07.md`, and for Max
 `docs/plans/v3.0/09-controller-round-3.md` §M):
@@ -276,7 +310,9 @@ Use:
 
 ```
 node scripts/local/cli.mjs mode                 # saved and running mode, effective values
-node scripts/local/cli.mjs mode max|balanced|safe
+node scripts/local/cli.mjs mode max|headroom|balanced|safe [--now]
+node scripts/local/cli.mjs mode toggle          # max <-> headroom (anything else -> max), applied now
+node scripts/local/cli.mjs mode-reset max,headroom   # rewrite those presets in config.json from the built-in values (backed up)
 node scripts/local/cli.mjs mode-probe           # one line for the tray; exit 255 = controller down, 2 = waiting
 ```
 
@@ -286,7 +322,10 @@ then write a temporary file and rename it over the config. With the controller r
 and applies the values to its live config between jobs: never during a running reply, image lease or restore (the
 change waits and `/status` → `performance.pending` says so). Settings marked "next text load" are saved and used the
 next time text loads (after an image, an idle restore, Load text); the loaded model is never restarted for them, and
-`performance.atNextTextLoad` lists them until then. A controller started before this change answers `/ui` with 404;
+`performance.atNextTextLoad` lists them until then. With `--now` (and always for `toggle`) the change also reloads
+loaded text in the same between-jobs turn (a sleeping text server is dropped, the image cache is freed, evicted in
+Headroom) so the new layout and cache size hold at once; the reply names the time taken and GPU/RAM free before and after
+(`performance.lastApply`). A reload that fails leaves the values saved and applied and says why. A controller started before this change answers `/ui` with 404;
 `cli mode` then saves the file and says it applies at the next controller start. With the controller stopped, `cli`
 saves directly.
 

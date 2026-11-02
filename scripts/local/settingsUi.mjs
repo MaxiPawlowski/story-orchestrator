@@ -54,7 +54,8 @@ export function createSettingsRoutes({ configFile, port, live, telemetry, backup
         const run = writing.then(async () => {
             const plan = await changeConfigFile(configFile, body, backupRoot ? { backupRoot } : {});
             const applied = await live.request(plan);
-            return { mode: plan.mode, changed: plan.changed, live: plan.live, atNextTextLoad: plan.textLoad, applied, backup: plan.backup };
+            const result = plan.applyNow && applied === 'now' ? live.status().lastApply ?? null : null;
+            return { mode: plan.mode, changed: plan.changed, live: plan.live, atNextTextLoad: result?.text === 'reloaded' ? [] : plan.textLoad, applied, backup: plan.backup, result };
         });
         writing = run.catch(() => {});
         return run;

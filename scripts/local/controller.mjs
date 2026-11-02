@@ -6,7 +6,7 @@ import { createArbiter, brokerBuild } from '../../server-plugin/story-orchestrat
 import { createGateway } from '../../server-plugin/story-orchestrator-gpu/broker/gateway.mjs';
 import { runtimeMemoryProfile } from '../../server-plugin/story-orchestrator-gpu/broker/runtimeIdentity.mjs';
 import { controllerStatus, withControllerDefaults } from '../../server-plugin/story-orchestrator-gpu/broker/controllerStatus.mjs';
-import { createLiveSettings, currentMode } from './modes.mjs';
+import { createLiveSettings, createSettingsReload, currentMode } from './modes.mjs';
 import { createSettingsRoutes } from './settingsUi.mjs';
 import { createControllerStop } from './controllerStop.mjs';
 import { createLedger, guardTextOnExit, killTree, reapOrphans, recordingSpawn, startReaper } from './orphans.mjs';
@@ -43,9 +43,14 @@ const arbiter = createArbiter(arbiterConfig, {
 });
 guardTextOnExit({ live: liveText, stop: async () => { await arbiter.stop(); await gateway.close(); } });
 await arbiter.start();
-const performance = createLiveSettings({ target: arbiterConfig, scheduler: () => arbiter.scheduler, backend: arbiter.backend, mode: currentMode(config) });
-const status = async () => controllerStatus({ config: arbiterConfig, scheduler: arbiter.scheduler.status(), imageCache: arbiter.imageCache,
+const performance = createLiveSettings({ target: arbiterConfig, scheduler: () => arbiter.scheduler, backend: arbiter.backend, mode: currentMode(config),
+    reload: createSettingsReload({ backend: arbiter.backend, scheduler: () => arbiter.scheduler, snapshot: () => arbiter.scheduler.snapshot({ fresh: true }), target: arbiterConfig }),
+    onApplied: () => gateway.memberCache?.refit?.('settings') });
+const status = async () => {
+    await gateway.memberCache?.nativeState?.().catch(() => null);
+    return controllerStatus({ config: arbiterConfig, scheduler: arbiter.scheduler.status(), imageCache: arbiter.imageCache,
     telemetry: (await arbiter.status({ fresh: true })).telemetry, controllerBuild, pid: process.pid, configFile, performance: performance.status(), promptReuse: gateway.promptReuse?.status() ?? null, memberCache: gateway.memberCache?.status() ?? null, textOrphans });
+};
 const gateway = createGateway({ arbiter, config: arbiterConfig, allowOrigin: /^http:\/\/(127\.0\.0\.1|localhost):(8000|81\d\d)$/,
     routes: createSettingsRoutes({ configFile, port: config.gatewayPort, live: performance,
         telemetry: async () => { const data = await arbiter.status({ fresh: true }); return { ...data.telemetry, phase: data.phase }; } }),

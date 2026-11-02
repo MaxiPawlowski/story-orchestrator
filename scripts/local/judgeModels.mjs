@@ -7,6 +7,13 @@ export const ENV_ROOT = 'SO_JUDGE_MODELS_DIR';
 export const ENV_PORT = 'SO_JUDGE_LOCAL_PORT';
 export const ENV_THREADS = 'SO_JUDGE_LOCAL_THREADS';
 export const ENV_GPU_LAYERS = 'SO_JUDGE_LOCAL_GPU_LAYERS';
+export const ENV_GPU_FORCE = 'SO_JUDGE_LOCAL_GPU_FORCE';
+
+export function gpuPlacement(config, { controllerUp = false, env = {} } = {}) {
+    if (!(config.gpuLayers > 0) || !controllerUp) return { gpuLayers: config.gpuLayers, note: null };
+    if (env[ENV_GPU_FORCE] === '1') return { gpuLayers: config.gpuLayers, note: `${ENV_GPU_FORCE}=1: the judge takes GPU layers beside the local controller, which does not count its VRAM; text may lose GPU layers or spill.` };
+    return { gpuLayers: 0, note: `The local controller is running and does not count the judge's VRAM in its GPU reserve, so the judge starts on the CPU. Stop the controller first, or set ${ENV_GPU_FORCE}=1 to take GPU layers anyway.` };
+}
 export const ENV_EXTRA_INDEX = 'SO_JUDGE_PIP_EXTRA_INDEX';
 export const PYTHON_VERSION = '3.12';
 export const HEADROOM_GB = 1;

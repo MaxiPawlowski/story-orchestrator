@@ -3,7 +3,7 @@ import fsp from 'node:fs/promises';
 import path from 'node:path';
 import { spawn, spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { childEnv, DEFAULT_JUDGE_MODEL, judgeConfig, missingDistributions, PROBE_REQUEST, readinessLine, requiredGB, serverCommands, setupSteps } from './judgeModels.mjs';
+import { childEnv, DEFAULT_JUDGE_MODEL, gpuPlacement, judgeConfig, missingDistributions, PROBE_REQUEST, readinessLine, requiredGB, serverCommands, setupSteps } from './judgeModels.mjs';
 
 const USAGE = `Usage: node scripts/local/judge.mjs plan|setup|start|stop|status|check [--model decider-4b|plumb-4b] [--yes]
 
@@ -23,6 +23,7 @@ const action = args.find((arg) => !arg.startsWith('--')) ?? 'plan';
 const modelIndex = args.indexOf('--model');
 const model = modelIndex >= 0 ? args[modelIndex + 1] : DEFAULT_JUDGE_MODEL;
 const config = judgeConfig(process.env, { model });
+const controllerUrl = process.env.SO_LOCAL_CONTROLLER_URL ?? 'http://127.0.0.1:18888';
 
 const exists = (file) => fs.existsSync(file);
 const weightsPresent = () => (config.model.file ? exists(config.modelPath) && config.companionPaths.every(exists) : exists(path.join(config.modelDir, 'config.json')));
@@ -106,9 +107,13 @@ async function start() {
         return 1;
     }
     await fsp.mkdir(config.logDir, { recursive: true });
-    const env = childEnv(config);
+    const controllerUp = config.gpuLayers > 0 && await fetch(`${controllerUrl}/health`, { signal: AbortSignal.timeout(1500) }).then((response) => response.ok, () => false);
+    const placement = gpuPlacement(config, { controllerUp, env: process.env });
+    if (placement.note) console.log(placement.note);
+    const run = { ...config, gpuLayers: placement.gpuLayers };
+    const env = childEnv(run);
     const pids = [];
-    for (const { name, command } of serverCommands(config, serverScript)) {
+    for (const { name, command } of serverCommands(run, serverScript)) {
         const log = fs.openSync(path.join(config.logDir, `${config.model.key}-${name}.log`), 'a');
         const child = spawn(command[0], command.slice(1), { env, detached: true, windowsHide: true, stdio: ['ignore', log, log] });
         child.unref();
