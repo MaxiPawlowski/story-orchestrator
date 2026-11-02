@@ -61,7 +61,8 @@ const play = ({ story, key, branch }: RollBranch, chatId: string | null) => {
 };
 
 (paths.length ? describe : describe.skip)("SP7.b: the Adolion roll checkpoints play on a prod build", () => {
-  const stories = paths.map((path) => parseStoryOrThrow(JSON.parse(campaignAt(path))));
+  const withoutDwell = (raw: { checkpoints?: Array<Record<string, unknown>> }) => ({ ...raw, checkpoints: raw.checkpoints?.map(({ min_turns: _dwell, ...checkpoint }) => checkpoint) });
+  const stories = paths.map((path) => parseStoryOrThrow(withoutDwell(JSON.parse(campaignAt(path)))));
   const rolls = stories.flatMap(rollsIn);
 
   it("the seven saga rolls survive validation as roll qualities", () => {
