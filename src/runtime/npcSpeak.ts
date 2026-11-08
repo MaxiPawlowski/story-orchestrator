@@ -1,4 +1,5 @@
 import type { NpcReplyEffect } from "@engine/index";
+import { unitDraw } from "@engine/chance";
 import { getActiveGroup, getContext, guardHostStream, isHostGenerating, resolveGroupMemberId, stopHostGeneration, watchHostChatMove } from "@services/STAPI";
 import { oneShotDirectionText } from "@pacing/guidance";
 import type { SpeechRequest, SpeechReservation } from "./speechLedger";
@@ -35,7 +36,7 @@ export const memberSpeaks = (name: string): boolean => {
 
 export const rollsReply = (reply: NpcReplyEffect, trigger: string, key: string, deps: SpeakDeps & { roll?: (key: string) => number | null }): boolean => {
   if (typeof reply.probability !== "number") return true;
-  const roll = deps.roll?.(key) ?? Math.random();
+  const roll = deps.roll?.(key) ?? unitDraw(["npc-unseeded", key]);
   const fired = roll <= reply.probability;
   deps.journal?.(`NPC reply ${reply.member} (${trigger}) ${fired ? "fired" : "skipped"} by its roll`, `rolled ${roll.toFixed(3)} against ${reply.probability} at ${key}`);
   return fired;

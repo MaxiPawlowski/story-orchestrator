@@ -93,18 +93,20 @@ describe("motion driver", () => {
     expect(mean(rows)).toBeLessThan(mean(flat.rows) - 0.5);
   });
 
-  test("gestures never close the eyes below the floor and never open the mouth", () => {
-    const head = new HeadDriver("Wren");
+  test("gestures keep the eyes in range, close them fully where the track says so, and never open the mouth", () => {
+    const head = new HeadDriver("Wren"), lowest = new Map<string, number>();
     for (const motion of [...REACTIONS, ...IDLES]) {
       const driver = new MotionDriver("Wren");
       for (let time = 0; time <= motion.dur * 1000; time += 25) {
         const p = head.drive(0, "neutral", false, false);
         if (time === 0) driver.start(motion.id, 0);
         driver.apply(p, time, "neutral", "talking", true);
-        expect(p.eyeOpen).toBeGreaterThanOrEqual(0.5 - 1e-9);
+        expect(p.eyeOpen).toBeGreaterThanOrEqual(0);
         expect(p.mouthOpen).toBe(0);
+        lowest.set(motion.id, Math.min(lowest.get(motion.id) ?? 1, p.eyeOpen));
       }
     }
+    expect(lowest.get("giggle")).toBeLessThan(0.05);
   });
 
   test("apply writes into the given parameters and allocates no per-frame parameter object", () => {

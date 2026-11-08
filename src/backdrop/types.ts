@@ -63,7 +63,16 @@ export interface BackdropFrame {
   camera: BackdropCamera;
   state: BackdropState;
   tint: [number, number, number];
+  grade?: [number, number, number];
   reducedMotion: boolean;
+}
+
+export type BackdropMaskChannel = "sky" | "water" | "all";
+
+export interface BackdropBaseModifier {
+  depth?: { texture: WebGLTexture; offset: [number, number]; scale: number; focus: number };
+  fog?: { texture: WebGLTexture; density: number; color: [number, number, number]; time: number };
+  ripple?: { texture: WebGLTexture | null; channel: BackdropMaskChannel; amount: number; time: number };
 }
 
 export interface BackdropLayerContext {
@@ -77,14 +86,17 @@ export interface BackdropLayerContext {
   texture(url: string): Promise<WebGLTexture | null>;
   drawQuad(): void;
   coverTransform(): [number, number, number, number];
+  bindScene(program: WebGLProgram, camera: BackdropCamera, unit: number): void;
 }
 
 export interface BackdropLayer {
   readonly kind: string;
   readonly order: number;
-  readonly replacesBase?: boolean;
+  readonly fps?: number;
+  readonly usesAssets?: boolean;
   update?(spec: BackdropLayerSpec): void;
   adjustCamera?(camera: BackdropCamera, frame: BackdropFrame): BackdropCamera;
+  modifyBase?(frame: BackdropFrame): BackdropBaseModifier | null;
   draw(frame: BackdropFrame): void;
   dispose(): void;
 }
@@ -108,6 +120,7 @@ export interface BackdropBootContext {
   checkpointId(): string | null;
   chatId(): string | null;
   tier(): BackdropLoopTier;
+  settings(): BackdropSettings;
   hostGenerating(): boolean;
   subscribe(listener: () => void): () => void;
 }

@@ -364,6 +364,7 @@
   "test/scenarios/v30-43h2-stuck-ladder.json#0": [],
   "test/scenarios/v30-43k-curator-auto-all.json#0": [],
   "test/scenarios/v30-43t-regenerate-own-rows.json#0": [],
+  "test/scenarios/v30-45a-backdrop-stage.json#0": [],
   "test/scenarios/v30-48-resolutions.story.json#0": [],
   "test/scenarios/v30-d2-offscreen-cue-off.json#0": [],
   "test/scenarios/v30-d2-offscreen-cue-on.json#0": [],
