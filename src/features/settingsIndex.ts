@@ -101,6 +101,7 @@ export const SETTING_CONTROLS: Record<string, string> = {
   "talk.swipeContrast": "so-swipe-contrast",
   "pacing.pathArc": "so-authoring-path-arc",
   "pacing.stuckLadder": "so-authoring-stuck-ladder",
+  "pacing.engagement": "so-authoring-engagement",
   "stagecraft.livingLeads": "so-authoring-living-leads",
 };
 
@@ -108,7 +109,7 @@ const AUTHOR_SETTINGS: ReadonlySet<string> = new Set(["worldInfo.lorePins", "wor
   "worldInfo.lexicalPrefilter", "worldInfo.lexicalTiebreak", "worldInfo.holdRound", "worldInfo.preferKnown",
   "worldInfo.loreLifetime", "worldInfo.loreState", "worldInfo.loreAliases", "memory.historyNotes", "memory.outwardNarration", "talk.swipeContrast",
   "memory.mentionLedger", "memory.strengthRetention", "memory.retrievalQuery", "memory.recapOutsideWindow", "pacing.pathArc",
-  "pacing.stuckLadder", "stagecraft.livingLeads",
+  "pacing.stuckLadder", "pacing.engagement", "stagecraft.livingLeads",
   "memory.neighbourRead", "memory.readKeys", "memory.relationRows", "memory.socialActs"]);
 
 const firstSentence = (text: string): string => /^(.+?[.!?])(\s|$)/.exec(text)?.[1] ?? text;

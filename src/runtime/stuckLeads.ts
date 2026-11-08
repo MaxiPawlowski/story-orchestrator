@@ -4,6 +4,7 @@ import { focusSafe } from "@pacing/focus";
 import { enabledCharacterIds } from "./roster";
 import type { RosterHost } from "./hostPorts";
 import { getGlobalSettings } from "./settingsStore";
+import { engagementSignalsFrom, type EngagementSources } from "./engagementSignals";
 
 export const stuckLeadSafe = (story: NormalizedStory | null, state: EngineState | null, enabled: readonly string[], resting: (text: string) => string) =>
   (text: string): boolean => (story && state ? focusSafe(text, unknownEntityNames(story, knownEntities(story, state.blackboard.values, enabled)), resting) : false);
@@ -11,8 +12,10 @@ export const stuckLeadSafe = (story: NormalizedStory | null, state: EngineState 
 interface TrialView { getStory: () => NormalizedStory | null; getState: () => EngineState | null; hosts: { roster: RosterHost } }
 interface TrialMemory { injector: { restingFilter: () => (text: string) => string } }
 
-export const pacingTrials = (view: TrialView, memory: TrialMemory) => ({
+export const pacingTrials = (view: TrialView, memory: TrialMemory, sources?: () => EngagementSources) => ({
   pathArc: () => getGlobalSettings().pacing.pathArc,
   stuckLadder: () => getGlobalSettings().pacing.stuckLadder,
+  engagement: () => getGlobalSettings().pacing.engagement,
+  engagementSignals: () => (sources ? engagementSignalsFrom(sources()) : null),
   leadSafe: (text: string) => stuckLeadSafe(view.getStory(), view.getState(), enabledCharacterIds(view.getStory(), view.hosts.roster), memory.injector.restingFilter())(text),
 });

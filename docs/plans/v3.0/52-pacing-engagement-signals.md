@@ -1,6 +1,7 @@
 # v3.0 52 — Pacing: engagement vs stall
 
-Status 2026-11-08: PLANNED (docs only). Uses 49 pressures when present; independent of 48 otherwise.
+Status 2026-11-08: BUILT (CPU), branch `v3.0-52-engagement`; real-model rows owed (GPU paused). 48 resolutions and 49 pressures are read
+through `EngagementSignals.resolutions` / `pressures`, empty until those plans feed them.
 
 ## Why
 

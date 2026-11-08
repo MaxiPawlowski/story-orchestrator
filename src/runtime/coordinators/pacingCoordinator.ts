@@ -9,6 +9,10 @@ import {
   type EncounterOffer,
 } from "@pacing/index";
 import { relaxActive } from "@pacing/arc";
+import {
+  AFTERMATH_LINE, holdsPush, pressureLine, readEngagement, recordEngagement, rollbackEngagement, stuckInfoLine, type EngagementReading,
+} from "@pacing/engagement";
+import { playerTurnsOf, type EngagementSignals } from "../engagementSignals";
 import { PACING_HINT_DEPTH, PACING_HINT_EXTENSION_KEY } from "@constants/defaults";
 import { INJECTION_REGISTRY } from "@constants/injectionRegistry";
 import { withoutCarriedClauses } from "../promptDedupe";
@@ -41,6 +45,8 @@ export interface PacingCoordinatorDeps {
   pathArc?: () => boolean;
   stuckLadder?: () => boolean;
   leadSafe?: (text: string) => boolean;
+  engagement?: () => boolean;
+  engagementSignals?: () => EngagementSignals | null;
 }
 
 // Tension is written twice: optimistically while extractor deltas are queued (so the smoothed
@@ -54,6 +60,7 @@ export class PacingCoordinator {
   private direction: OneShotDirection | null = null;
   private asking: OneShotDirection | null = null;
   private answered: OneShotDirection | null = null;
+  private readings: EngagementReading[] = [];
 
   constructor(private readonly deps: PacingCoordinatorDeps) {}
 
@@ -125,7 +132,24 @@ export class PacingCoordinator {
       });
     });
     this.deps.setTension(tension);
+    this.readings = rollbackEngagement(this.readings, (log.at(-1)?.context.lastMessageId ?? -1) + 1);
     this.reset();
+  }
+
+  engagement(): EngagementReading | null {
+    return this.deps.getStory() && this.deps.getState() ? this.readings.at(-1) ?? null : null;
+  }
+
+  private readEngagementNow(rows: readonly unknown[]): EngagementReading | null {
+    const state = this.deps.getState();
+    const signals = this.deps.engagement?.() ? this.deps.engagementSignals?.() : null;
+    if (!state || !signals) return null;
+    const reading = readEngagement({
+      ...signals, log: this.deps.getStateLog(), tension: this.deps.getTension().history, lastMessageId: state.lastMessageId,
+      playerTurns: playerTurnsOf(rows).filter((turn) => turn.id > state.checkpointStartedMessageId),
+    });
+    this.readings = recordEngagement(this.readings, reading);
+    return reading;
   }
 
   private effectiveShape(): ArcTemplate | null {
@@ -169,17 +193,33 @@ export class PacingCoordinator {
   private stretchLine(story: NormalizedStory, active: Checkpoint | null, rows: readonly unknown[], turns: number): string | null {
     const stretch = openStretch(active);
     if (!active) return null;
-    if (!stretch) return openPhase(active, turns) ? OPENING_LINE : this.stuckLine(story, active, rows);
-    const quiet = offersEncounters(active) ? quietRead({ story, state: this.deps.getState(), log: this.deps.getStateLog(), playerTurnIds: playerTurnIds(rows) }) : null;
+    const reading = this.readEngagementNow(rows);
+    if (!stretch) return openPhase(active, turns) ? OPENING_LINE : this.stuckLine(story, active, rows, reading);
+    const held = holdsPush(reading);
+    const quiet = offersEncounters(active) && !held ? quietRead({ story, state: this.deps.getState(), log: this.deps.getStateLog(), playerTurnIds: playerTurnIds(rows) }) : null;
     const offer = quiet?.holds ? encounterOfferLine(this.deps.getEncounters?.(active.id) ?? []) : "";
-    return [pullLine(pullStage(stretch, turns), stretchDestination(story, active.id)), offer].filter(Boolean).join("\n");
+    const stage = pullStage(stretch, turns);
+    const pressure = reading?.pressure?.label ?? null;
+    const shown = held ? null : stage;
+    const answer = stage ? this.answerLine(reading) : null;
+    return [pullLine(shown, stretchDestination(story, active.id), pressure, reading !== null), answer, offer].filter(Boolean).join("\n");
   }
 
-  private stuckLine(story: NormalizedStory, active: Checkpoint, rows: readonly unknown[]): string | null {
+  private answerLine(reading: EngagementReading | null): string | null {
+    if (reading?.kind === "aftermath") return AFTERMATH_LINE;
+    return reading?.kind === "pressure-advancing" && reading.pressure ? pressureLine(reading.pressure) : null;
+  }
+
+  private stuckLine(story: NormalizedStory, active: Checkpoint, rows: readonly unknown[], reading: EngagementReading | null): string | null {
     if (!this.deps.stuckLadder?.()) return null;
     const read = stuckRead({ story, state: this.deps.getState(), log: this.deps.getStateLog(), playerTurnIds: playerTurnIds(rows) });
     const safe = this.deps.leadSafe ?? (() => true);
-    return read ? stuckLine(read.rung, (active.leads ?? []).filter(safe)) : null;
+    const leads = (active.leads ?? []).filter(safe);
+    if (!read) return null;
+    if (read.rung < 1 || !reading || reading.kind === "repeating" || reading.kind === null) return stuckLine(read.rung, leads);
+    if (reading.kind === "exploring-relationship") return null;
+    if (reading.kind === "uncertain") return stuckInfoLine(leads[Math.min(read.rung, leads.length) - 1] ?? null);
+    return this.answerLine(reading);
   }
 
   private memberLine(story: NormalizedStory, active: Checkpoint | null) {
