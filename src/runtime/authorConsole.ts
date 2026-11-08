@@ -6,8 +6,7 @@ import { outgoingGateRows, qualityLabel, type GateRow } from "./gateReadout";
 import { buildSecretGrid, type SecretGridInputs, type SecretGridView } from "./whoKnows";
 import { buildStoryRecord, openItems, recordLabel, type StoryRecordRow } from "./storyRecord";
 import type { RuntimeExtras } from "./types";
-import { resolveFeatures } from "./featureResolve";
-import { getGlobalSettings } from "./settingsStore";
+import { storyRecordOn } from "./recordSwitch";
 
 export const AUTHOR_SECTIONS = ["health", "state", "memory", "prompt", "proposals", "activity", "record", "pipeline"] as const;
 export type AuthorSectionId = (typeof AUTHOR_SECTIONS)[number];
@@ -71,7 +70,7 @@ export interface ConsoleSources {
 }
 
 const recordOf = (story: NormalizedStory, sources: ConsoleSources): RecordView | null => {
-  if (!resolveFeatures(getGlobalSettings(), story, sources.extras.overrides).storyRecord.enabled) return null;
+  if (!storyRecordOn(story, sources.extras.overrides)) return null;
   const rows = buildStoryRecord({
     story, log: sources.boundaryLog, refs: sources.extras.recap?.refs ?? [], ledger: sources.extras.effects?.ledger ?? [],
     echoes: sources.extras.echoes ?? null, rumors: sources.extras.rumors ?? null, roster: (story.roster ?? []).map((member) => member.id),
