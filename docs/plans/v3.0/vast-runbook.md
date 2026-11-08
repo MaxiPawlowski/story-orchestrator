@@ -230,4 +230,7 @@ Still to verify on the 5090 right after renting:
 - `memberCacheSmoke.mjs http://127.0.0.1:18890` (default 20,000-char prompts): expect >= 2 hits; then
   the owner's real ST profile through the tunnel, PONG, a group turn, `/status` `memberCache.hits` rising.
 - tok/s through the gateway in tens, MTP `draft_n_accepted` > 0 (the probe prints both).
-- `ctl-tunnel.sh` (written, not run: no box yet) and the sparse-clone fallback (`controller` without an upload).
+- `ctl-tunnel.sh` (written, not run: no box yet).
+- Sparse-clone fallback verified in WSL against the local repo (`SO_REPO=/mnt/c/dev/story-orchestrator
+  SO_REF=v3.0-linux-controller`): only `scripts/local`, `scripts/remote` and the broker checked out, `.so-ref` a89825e,
+  controller up, PONG. On the box it clones GitHub `master` unless `SO_REF` is set.
