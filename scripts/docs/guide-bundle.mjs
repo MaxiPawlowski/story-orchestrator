@@ -26,7 +26,7 @@ export const SITE_ONLY_DIRS = ["how", "showcase"];
 
 const walk = (dir, top = true) => readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
   const path = join(dir, entry.name);
-  if (entry.isDirectory()) return top && SITE_ONLY_DIRS.includes(entry.name) ? [] : walk(path, false);
+  if (entry.isDirectory()) return top && (SITE_ONLY_DIRS.includes(entry.name) || entry.name === "assets") ? [] : walk(path, false);
   return entry.name.endsWith(".md") ? [path] : [];
 });
 

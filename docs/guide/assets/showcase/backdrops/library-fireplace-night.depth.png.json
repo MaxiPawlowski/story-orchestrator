@@ -1,0 +1,15 @@
+{
+  "build": "dd29b6967",
+  "licence": "Depth Anything V2 Large (depth_anything_v2_vitl.pth, depth-anything/Depth-Anything-V2-Large): CC-BY-NC-4.0, non-commercial demo material.",
+  "source": "scripts/debug/so-showcase-backdrops.mts depth on the owner's local ComfyUI (plan 45 B), from library-fireplace-night.jpg",
+  "kind": "depth map",
+  "model": {
+    "id": "dav2-vitl",
+    "ckpt": "depth_anything_v2_vitl.pth",
+    "resolution": 512,
+    "version": 1
+  },
+  "file": "library-fireplace-night.depth.png",
+  "renderMs": 14997,
+  "generator": "scripts/debug/so-showcase-backdrops.mts depth"
+}

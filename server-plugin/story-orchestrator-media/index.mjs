@@ -15,9 +15,16 @@ export const info = { id: 'story-orchestrator-media', name: 'Story Orchestrator 
 const home = path.dirname(fileURLToPath(import.meta.url));
 export const ALLOWED_NODES = Object.freeze(['LoadImage', 'UNETLoader', 'QwenImage21Cache', 'CLIPLoader', 'VAELoader', 'TextEncodeQwenImage21',
     'KSampler', 'VAEDecode', 'SaveImage', 'PreviewImage', 'CheckpointLoaderSimple', 'LoraLoader', 'CLIPTextEncode',
-    'EmptyLatentImage', 'UpscaleModelLoader', 'ImageUpscaleWithModel', 'ImageScaleBy', 'VAEEncode', 'RMBG', 'BiRefNetRMBG', 'SplitImageWithAlpha', 'DWPreprocessor']);
+    'EmptyLatentImage', 'UpscaleModelLoader', 'ImageUpscaleWithModel', 'ImageScaleBy', 'VAEEncode', 'RMBG', 'BiRefNetRMBG', 'SplitImageWithAlpha', 'DWPreprocessor',
+    'DepthAnythingV2Preprocessor']);
 const allowedNodes = new Set(ALLOWED_NODES);
 export const unsupportedNode = (node) => !node || !allowedNodes.has(node.class_type) || !node.inputs || typeof node.inputs !== 'object';
+
+export const DEPTH_CKPTS = Object.freeze(['depth_anything_v2_vits.pth', 'depth_anything_v2_vitb.pth', 'depth_anything_v2_vitl.pth']);
+export function validateDepthInputs(inputs) {
+    if (!DEPTH_CKPTS.includes(inputs.ckpt_name)) throw new Error('Only an approved Depth Anything V2 file can run.');
+    if (!Number.isInteger(inputs.resolution) || inputs.resolution < 64 || inputs.resolution > 2048) throw new Error('The depth resolution is out of range.');
+}
 
 export async function validatePoseFiles(inputs, roots) {
     if (inputs.bbox_detector !== 'yolox_l.onnx' || inputs.pose_estimator !== 'dw-ll_ucoco_384.onnx') throw new Error('Only the approved DWPose ONNX pair can run.');
@@ -109,6 +116,7 @@ export async function init(router) {
             if (node.class_type === 'LoadImage' && !(await ownsReference(user, node.inputs.image))) throw new Error('This reference image does not belong to this user. Upload it through the builder first.');
             if (node.class_type === 'SaveImage' && !/^so[-_][a-z0-9_-]{1,80}$/.test(node.inputs.filename_prefix)) throw new Error('Generated images need an owned output prefix.');
             if (node.class_type === 'DWPreprocessor') await validatePoseFiles(node.inputs, roots);
+            if (node.class_type === 'DepthAnythingV2Preprocessor') validateDepthInputs(node.inputs);
             if (['RMBG', 'BiRefNetRMBG'].includes(node.class_type)) {
                 const recipe = config.alphaRecipes?.find((recipe) => recipe.node === node.class_type && recipe.model === node.inputs.model);
                 if (!recipe?.files?.length) throw new Error('Configure the installed background-removal files before building a base. No model is downloaded.');

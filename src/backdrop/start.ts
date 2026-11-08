@@ -14,6 +14,7 @@ import type { BackdropBootContext, BackdropBootHook } from "./types";
 export type BackdropManager = Pick<RuntimeManager, "getStory" | "getCachedSnapshot" | "getEffectiveSettings" | "subscribe" | "getOwnership">;
 
 export const BACKDROP_BOOT_HOOKS: BackdropBootHook[] = [
+  (context) => import("./depth").then(({ startDepth }) => startDepth(() => context.settings().parallax)),
   (context) => import("./loops/host").then(({ startBackdropLoops }) => startBackdropLoops(context)),
 ];
 
