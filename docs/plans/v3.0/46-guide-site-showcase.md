@@ -345,3 +345,15 @@ Resume (paused 2026-11-08 by the coordinator, owner CPU at 100%; no GPU work sin
   `poses` (6 owed), `publish`, then `demo-rigs.mjs` and `demo-bundle.mjs demo`.
 - Evidence (local, gitignored): `.build/review-2026-11-08/` (frames before/after, contact sheets, eye-layer dumps,
   Sol replies, capture scripts).
+
+Resume 2 (paused 2026-11-08 by the owner, mid demo gates):
+- `v3.0-sprite-fixes` merged to master (`114251f47`, fast-forward, pushed; gates all green 443.1 s on that head), built,
+  staged, plugins unchanged (`restartNeeded: false`); ST was down and left down.
+- This branch: history squashed (`c03bb1807`; old name 0 word-bounded hits in `git log -p master..HEAD`, the 7 raw
+  hits are substrings inside base64/minified lines), master merged (`874431066`, product files taken from master), bundle,
+  rigs (unchanged) and stills rebuilt (`8db74cd94`), site check 147 deny terms 0 problems. Not merged.
+- Owed, in order, one heavy process at a time through the lock: `npm run gates` here (run killed by the pause, no
+  result), then merge to master; after videos desk+phone and before-phone (`scratchpad rec.mjs`); fresh focus frames for
+  P8/P9; Sol re-review (`sol-rereview.txt`, prompt via stdin, 8 images). Mouth frames: `demo-art.py frames` built and
+  unrun (GPU), page wiring + `?frames=placeholder` + test done (`792fec81e`); product storage, runtime and warp fallback
+  already exist.
