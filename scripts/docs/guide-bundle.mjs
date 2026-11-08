@@ -22,9 +22,11 @@ export const slugify = (text) => text
   .trim()
   .replace(/\s/g, "-");
 
-const walk = (dir) => readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
+export const SITE_ONLY_DIRS = ["how", "showcase"];
+
+const walk = (dir, top = true) => readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
   const path = join(dir, entry.name);
-  if (entry.isDirectory()) return walk(path);
+  if (entry.isDirectory()) return top && SITE_ONLY_DIRS.includes(entry.name) ? [] : walk(path, false);
   return entry.name.endsWith(".md") ? [path] : [];
 });
 

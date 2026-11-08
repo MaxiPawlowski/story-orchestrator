@@ -34,7 +34,7 @@ export const READ_CONTRACT_FEATURES: readonly Feature[] = [
     id: "social-acts", name: "Social acts behind feelings", area: "memory", audience: "author",
     oneLine: "A feeling change can carry what was done (helped, lied, insulted...), and story gates can count those acts over recent turns.",
     what: "When the story read moves a relationship feeling, it may add act=lied (or helped, protected, threatened, insulted, gifted, betrayed, confided). "
-      + "The engine keeps a short log per pair, and a gate leaf {\"act\": \"lied\", \"by\": \"player\", \"to\": \"mira\", \"within\": 10} counts it; a "
+      + "The engine keeps a short log per pair, and a gate leaf {\"act\": \"lied\", \"by\": \"player\", \"to\": \"wren\", \"within\": 10} counts it; a "
       + "story pattern can use the act kind too. An act by you needs your own line as evidence. A swipe or edit takes it back. No extra model call. Not rated yet.",
     where: settingsAt("#so-social-acts", "Authoring › Prompt trials"),
     settings: ["memory.socialActs"], doc: "player/memory.md", status: "shipped", needs: ["story"],
