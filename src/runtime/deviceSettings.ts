@@ -7,6 +7,7 @@ export const DEVICE_SETTING_PATHS = [
   "display.hudEnabled", "display.inline.level", "display.inline.window", "display.inline.categories",
   "sprites.stage", "sprites.focus", "sprites.breathing", "sprites.blink", "sprites.mouth", "sprites.liveHead", "sprites.liveHeadFrames",
   "display.yourMove", "sprites.effects", "display.compactThoughts",
+  "display.backdrop.enabled", "display.backdrop.effects", "display.backdrop.parallax", "display.backdrop.loops", "display.backdrop.intensity", "display.backdrop.dimBehindChat",
 ] as const;
 export type DeviceSettingPath = typeof DEVICE_SETTING_PATHS[number];
 export type DeviceSettings = Partial<Record<DeviceSettingPath, unknown>>;
@@ -19,6 +20,7 @@ const valid = (path: DeviceSettingPath, value: unknown): boolean => {
   if (path === "sprites.stage") return value === "vn" || value === "always" || value === "off";
   if (path === "sprites.mouth") return value === "off" || value === "simple" || value === "smooth";
   if (path === "sprites.effects") return value === "full" || value === "calm" || value === "off";
+  if (path === "display.backdrop.intensity") return typeof value === "number" && Number.isFinite(value) && value >= 0 && value <= 1;
   return typeof value === "boolean";
 };
 

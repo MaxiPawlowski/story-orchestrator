@@ -152,6 +152,31 @@ export const SETTING_COPY = {
     "SillyTavern's \"Thought for …\" bar above a reply becomes a small rounded label at its top left. Click it to open or close the thinking as before; "
       + "its buttons show only while it is open. Switch this off for SillyTavern's own full-width bar. Affects every chat, not only story chats.",
   ),
+  "display.backdrop.enabled": copy(
+    "Animated backdrop behind the chat",
+    "The scene's background comes alive behind the chat: weather, light and slow movement drawn over it, following the story (rain when it rains, night at night). "
+      + "Switch it off for SillyTavern's own still background. Reduced motion always shows the still.",
+  ),
+  "display.backdrop.effects": copy(
+    "Weather and light effects",
+    "Rain, snow, embers, dust, fireflies, fog, flickering light, water shimmer and a slow camera drift, chosen from the story's weather, time of day and tension, or set by the story.",
+  ),
+  "display.backdrop.parallax": copy(
+    "Depth movement",
+    "Gives the background depth so near and far parts move apart slightly as it drifts and as the pointer moves. A depth map is made once per background.",
+  ),
+  "display.backdrop.loops": copy(
+    "Video loops of key places",
+    "Short seamless video loops of the story's key places, made on your GPU when it is idle or at story setup. Until a loop is ready the still is used.",
+  ),
+  "display.backdrop.intensity": copy(
+    "Backdrop strength",
+    "How strong and busy the backdrop effects are, from barely there to full. Lower is calmer and lighter on the machine.",
+  ),
+  "display.backdrop.dimBehindChat": copy(
+    "Dim the backdrop behind the chat",
+    "Darkens and softens the backdrop behind the chat column so the messages stay easy to read.",
+  ),
   "display.inChat.dividers": copy(
     "Scene and time dividers between messages",
     "A thin line with a label above the message where the story's clock moves on (\"Day 3, evening\") or a new scene starts.",

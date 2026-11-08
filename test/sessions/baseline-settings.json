@@ -44,6 +44,14 @@
         "discovery": true,
         "gateMeter": true
       },
+      "backdrop": {
+        "enabled": true,
+        "effects": true,
+        "parallax": true,
+        "loops": true,
+        "intensity": 0.5,
+        "dimBehindChat": true
+      },
       "briefing": false,
       "briefingDraft": false,
       "playerSetup": false,

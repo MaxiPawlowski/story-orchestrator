@@ -38,8 +38,8 @@ export const usesGameLayer = (json: Record<string, unknown>): boolean => usesTal
   || json.norms !== undefined || json.echoes !== undefined || json.polish !== undefined
   || listed(json.roster, "gossip") || listed(json.roster, "polish") || json.living !== undefined || listed(json.checkpoints, "stretch") || listed(json.checkpoints, "offers")
   || json.clock !== undefined || json.poses !== undefined || listed(json.roster, "sprites") || listed(json.checkpoints, "effects") &&
-    (json.checkpoints as unknown[]).some((cp) => isRecord(cp) && isRecord(cp.effects) && (cp.effects.stage !== undefined || cp.effects.time !== undefined))
-  || json.calendar !== undefined || LIFE_FIELDS.some((field) => listed(json.roster, field))
+    (json.checkpoints as unknown[]).some((cp) => isRecord(cp) && isRecord(cp.effects) && (cp.effects.stage !== undefined || cp.effects.time !== undefined || cp.effects.backdrop !== undefined))
+  || json.calendar !== undefined || json.backdrop_defaults !== undefined || LIFE_FIELDS.some((field) => listed(json.roster, field))
   || ([...(Array.isArray(json.roster) ? json.roster : []), json.player].some((member) => isRecord(member) && isRecord(member.card) && isRecord(member.card.fields) &&
     Object.values(member.card.fields).some((field) => isRecord(field) && ["layer", "rebase", "region"].some((key) => field[key] !== undefined))))
   || listed(json.qualities, "display") || listed(json.checkpoints, "checks") || listed(json.transitions, "check");

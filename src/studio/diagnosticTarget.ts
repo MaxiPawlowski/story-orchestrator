@@ -36,7 +36,7 @@ const STORY_TAB: Record<string, StudioTab> = {
   display: "presentation", illustrations: "presentation", polish: "presentation", poses: "sprites", features: "features", codex: "features",
   observations: "features", quests: "game", milestones: "game", widgets: "game", rumors: "game", patterns: "game", norms: "game", echoes: "game",
   factions: "roster", player: "story", briefing: "story", requirements: "story", arc_template: "story", living: "story", scaffolding: "graph",
-  talk_defaults: "story", clock: "story", calendar: "story",
+  talk_defaults: "story", backdrop_defaults: "story", clock: "story", calendar: "story",
 };
 
 type Located = { id?: string; key?: string };

@@ -50,6 +50,7 @@ const config: StorybookConfig = {
       "@judge": path.resolve(__dirname, "../src/judge"),
       "@features": path.resolve(__dirname, "../src/features"),
       "@guide": path.resolve(__dirname, "../src/guide"),
+      "@backdrop": path.resolve(__dirname, "../src/backdrop"),
     };
     cfg.resolve.fallback = {
       ...(cfg.resolve.fallback || {}),

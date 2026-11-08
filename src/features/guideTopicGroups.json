@@ -69,6 +69,7 @@
    "preset",
    "background",
    "stage-transition",
+   "backdrop",
    "scenario",
    "cast-changes",
    "npc-replies",
