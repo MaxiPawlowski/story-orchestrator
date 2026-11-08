@@ -8,6 +8,7 @@ The [Setup path](setup-path.md) puts every part in order, level by level.
 | Memory model (a Connection Manager profile) | The story moving on its own, memory, summaries | [Memory model](memory-model.md) |
 | A model for each job | Better results: a prose model for replies, a strict one for reads, a tool-calling one for the wizard | [Choosing models](models.md) |
 | Judge plugin + a TypeSafe key | Faster, more careful choices: speaker picks, lore selection, memory checks, scene tracking | [Judge](judge.md) |
+| Your own reply model (optional) | Playing on llama.cpp on your own GPU, or on a rented one | [Running the reply model yourself](local-model.md) |
 | An image service | Illustrations and sprites | [Illustrations](images.md), [Sprites](sprites.md) |
 | GPU plugin | A local text model and local images sharing one graphics card | [One GPU for text and images](gpu-sharing.md) |
 | Harness plugin | Running tasks through Claude Code, Codex or opencode logins on the server | [Harness](harness.md) |
@@ -68,23 +69,23 @@ lands in SillyTavern's `public/scripts/extensions/third-party/`.
 ## Where settings live
 
 Everything is in one window: **Extensions → Story Orchestrator → Open Story Orchestrator**. The route icon in
-SillyTavern's top bar opens the same window at **This chat → Play**.
+SillyTavern's top bar opens the same window at the page you last had open (**This chat → Play** the first time).
 
 | Half | Page | What is there |
 |---|---|---|
-| **This chat** (the open chat) | **Play** | Where you are, setup problems, what the story remembers, Restart story |
-| | **Settings** | The story for this chat and for new chats in the group, this chat's change to each feature, the **Author view** switch |
+| **This chat** (the open chat) | **Play** | The scene, what needs attention, who you play, the story's pages (Now, Journal, Stats…, Memory), Restart story |
+| | **Story settings** | The story for this chat and for new chats in the group, this chat's change to each feature, the **Author view** switch |
 | | **Review**, **Author** | Only while Author view is on: proposals waiting for you, tracked values, activity, the story's internals |
-| **Settings** (every chat) | **Library** | Start (New story, Import a story), Continue, Repair, Author |
+| **Settings** (every chat) | **Library** | Getting started, Start (New story, Import a story), Continue, Repair, Author |
 | | **Features** | Every feature, on or off for all chats, each with its own controls; off here is a master switch |
 | | **Models** | Memory model, fallback, the model test, models per task |
 | | **Judge** | The judge key and switch, and the one list of judge checks |
-| | **Images & stage** | Picture service, when pictures are drawn, picture types, model sources, the sprite stage |
+| | **Images & stage** | Picture service, when pictures are drawn, picture types, model sources, pictures in this chat, the sprite stage |
 | | **World & lore** | How story lorebooks are scanned, and story books still on for every chat |
-| | **Display** | Notes under messages, the status strip, briefings, panels and list marks |
+| | **Display** | Notes under messages, marks between the replies, the status strip, briefings, story sheet pages and list marks |
 | | **Authoring** | The wizard, Ask, the chapter budget, a link to the Author view switch |
-| | **Diagnostics** | Host capabilities and a copy for bug reports |
-| | **Help** | **Take the tour**, **Setup path**, the guide and Help and Ask |
+| | **Diagnostics** | Host capabilities, the memory model's context, and a copy for bug reports |
+| | **Help** | **Quick start**, **Take the tour**, **Setup path**, **Help and Ask** and the guide |
 
 **Search all settings** at the top of the window finds any setting and jumps to it. Every setting has one home; other
 pages link to it with **Change**. A row marked **This device** can keep its own value in this browser. The guide opens
@@ -183,7 +184,7 @@ The extension is exercised against one host at a time; this is the one it was la
 | Node.js | 22.22 with npm 10.9 |
 
 **Not tested on other SillyTavern versions.** The extension imports SillyTavern modules by path and hashes them at
-build time, so a version whose files differ is one nobody has run it against. **Settings → Help → Setup → Host
+build time, so a version whose files differ is one nobody has run it against. **Settings → Diagnostics → Host
 capabilities** reports each feature it probes (`macros`, `slashCommands`, `backgrounds`, `vectors`, `judge`) as present,
 absent or error.
 

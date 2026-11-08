@@ -21,11 +21,12 @@ Not installed yet? Follow [Install](setup/README.md#install) first.
    or paste `quest-for-the-sun-ruins.json` and press **Import and load**. **New story (wizard)** builds one from your
    own idea instead. If a **Before you start** page opens, read it and close it. <!-- so:show player:library -->
 4. <!-- so:check reply --> **Play a turn.** Write your first message in character and send it. When the reply ends,
-   the strip above the chat box shows the current scene; click it to open **This chat → Play**.
+   the strip above the chat box shows the current scene; click it for the story card, and **Story window** on the
+   card opens **This chat → Play**. The open-book button on the strip opens the story sheet beside the chat.
    <!-- so:show player:hud -->
-5. **Know where things live.** **This chat → Play → What the story remembers** lists what the story kept from your
-   chat. If something is missing, a repair card on the same page (and a **fix setup** or **check setup** chip on the
-   strip) says what will not happen, and **Show me** takes you to the fix. <!-- so:show player:memory -->
+5. **Know where things live.** The **Memory** tab on **This chat → Play** lists what the story kept from your chat.
+   If something is missing, **N things need attention** on the same page (and a **fix setup** or **check setup** chip
+   on the strip) says what will not happen, and **Show me** takes you to the fix. <!-- so:show player:memory -->
    <!-- so:show player:repair -->
 
 ## Tours

@@ -72,7 +72,7 @@ function argValue(args: string[], name: string, fallback: string | null = null):
 // The build half is read from disk, not the page: the page serves whatever bundle was built last,
 // and plan 08's manifest is what ties the two together. Absent manifest is recorded as null rather
 // than omitted, so a diff against a post-plan-08 baseline still shows the field appearing.
-export function readBuild() {
+export function readBuild(manifestPath = resolve(PROJECT_ROOT, 'dist', 'manifest.json')) {
   const git = (...args: string[]) => {
     try {
       return execFileSync('git', args, { cwd: PROJECT_ROOT, encoding: 'utf-8' }).trim();
@@ -80,7 +80,6 @@ export function readBuild() {
       return null;
     }
   };
-  const manifestPath = resolve(PROJECT_ROOT, 'dist', 'manifest.json');
   let manifest = null;
   if (existsSync(manifestPath)) {
     try {

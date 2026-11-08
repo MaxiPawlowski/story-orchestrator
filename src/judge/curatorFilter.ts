@@ -1,3 +1,4 @@
+import { clipText } from "@utils/string";
 import { CURATOR_FILTER_MIN_ENTRIES, CURATOR_FILTER_P } from "./policy";
 import { noul, noulAnswer } from "./questions";
 import type { JudgeAnswer, JudgeRequest, JudgeResult } from "./types";
@@ -23,7 +24,7 @@ export function buildCuratorFilterRequest(input: CuratorFilterInput): JudgeReque
   return {
     state: {
       checkpoint: input.checkpoint,
-      canon: input.canon.length <= CURATOR_FILTER_CANON_CHARS ? input.canon : `${input.canon.slice(0, CURATOR_FILTER_CANON_CHARS).trimEnd()}…`,
+      canon: input.canon.length <= CURATOR_FILTER_CANON_CHARS ? input.canon : `${clipText(input.canon, CURATOR_FILTER_CANON_CHARS).trimEnd()}…`,
       open_threads: input.openThreads,
       entries: input.entries.map((entry) => ({ title: entry.title, switched_on: entry.enabled, content: entry.content })),
     },
