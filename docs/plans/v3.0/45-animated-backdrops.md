@@ -65,3 +65,24 @@ Fallback order, always: loop → still + layers → still → ST's own backgroun
 ## Gate record
 
 (per phase, appended by each agent)
+
+### Phase C (loops): Resume note 2026-11-08 (paused on owner usage limit, not merged)
+
+- Branch `v3.0-45c-loops` (worktree `C:\dev\so-45c`), master merged at f7bf963b6; WIP committed, no full gates run yet.
+- Built: Wan 2.2 TI2V 5B loop workflow, core nodes only (`src/backdrop/loops/workflow.ts`: full 960x544/113 frames/16 steps/24 fps,
+  lite 704x384/29 frames/16 steps/12 fps + animated WebP, both fitted to the still's aspect; tail-to-head crossfade seam); media plugin
+  routes `loops.mjs` (owned prefix, own job queue, targeted `/interrupt {prompt_id}` cancel, interrupted-by-others = retry, WebM/WebP
+  cache in `user/images/story-orchestrator-loops/`); scheduler (current place first, then `loop: "pre"` places; idle-only; preempt on
+  reply/picture/sprite); host with tier downgrade (no media plugin or Wan files -> cinemagraph); cinemagraph layer (sky R / water G flow
+  warp); `so-loop-bench.mts`, `so-cinemagraph-render.mts`; showcase loops (2 scenes x 3 tiers, 2.2 MB); setup guide section.
+- Contract change in a shared file: `stHost/gpuBroker.ts` passes optional `needGpuMiB`/`needRamMiB` to the lease.
+- Measured (3090, ComfyUI 0.37.4, other agents' jobs interleaved at times): full warm 122-209 s, after `/free` 190 s, 330-415 s when
+  other jobs evicted the model; lite sampling 30 s, 45-65 s executed incl. reload; seam: wrap step <= max step 7/7, Sol blind 5-clip check
+  0/5 seam strips flagged (2 interior strips flagged for model artefacts). Lite at 8-14 steps had colour-block artefacts (model, not encode).
+- Models already on disk (no download): `D:/models/story-orchestrator-video/` Wan 2.2 TI2V 5B set (plan 11b, sha256 there).
+- Evidence: `C:\dev\so-lanes\0\debug\loop-bench*` (runs.jsonl, strips, blind/key.json, Sol answer).
+- Next: after A's skeleton merges, merge master; adapt `startBackdropLoops` to `BackdropBootContext` (@backdrop/types) and add the hook
+  line to `BACKDROP_BOOT_HOOKS` in `src/backdrop/start.ts`; use `context.vertexShader` (already used); typecheck/lint/jest; `npm run gates`
+  (one at a time machine-wide); live check in ST (cache hit replays instantly); merge, push, build+stage+plugins:install (media plugin
+  changed: ST restart needed, owner's call).
+- My ComfyUI on 8188 was started by me (same args as the controller) and is still running; the controller reuses it.
