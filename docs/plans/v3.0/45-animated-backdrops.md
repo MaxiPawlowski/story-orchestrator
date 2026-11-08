@@ -193,6 +193,13 @@ Before / after (cinemagraph, CPU, done; loops pending GPU):
   drift 0.012 -> 0.016 and ripple 0.0022 -> 0.0035 for the final render.
 - mountain cinemagraph: MAE vs still mean 3.23 -> 2.71, max 3.67 -> 2.74; encoded wrap 1.28; ridge halo gone.
 
+Review gate record: `npm run gates` all green in 930.7 s on 717a2798d (build, typecheck, typecheck:test, test:debug, test:replay,
+debug:typecheck, test:plugin, test:release, lint, test, test-storybook:ci). An earlier run on 2a300c74e failed only on load-timing
+(gpu `imageCache` 100 ms test, 6 Storybook stories) and the stale guide bundle (fixed in 717a2798d). Still owed after the GPU go: the
+anchored graph has never run on ComfyUI (node inputs checked against `/object_info` only); re-render full + lite for both showcase
+stills with `so-loop-bench.mts run <still> --tier full|lite`, rebuild the GIF from the new lite frames, re-audit, fresh Sol pass,
+then fill the loop rows of the before/after above; live ST check of the cinemagraph clock and the MP4 base swap.
+
 ## Gate record
 
 (per phase, appended by each agent)
