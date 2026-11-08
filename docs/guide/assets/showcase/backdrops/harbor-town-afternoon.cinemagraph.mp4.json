@@ -1,0 +1,15 @@
+{
+  "build": "1638636a8",
+  "licence": "Derived on CPU from the still and its scene mask: SDXL base 1.0 (sd_xl_base_1.0.safetensors, Stability AI): CreativeML Open RAIL++-M. Output: synthetic, SFW, made for this guide. The mask comes from the depth map: Depth Anything V2 Large (depth_anything_v2_vitl.pth, depth-anything/Depth-Anything-V2-Large): CC-BY-NC-4.0, non-commercial demo material.",
+  "source": "node scripts/debug/so-cinemagraph-render.mts harbor-town-afternoon.jpg harbor-town-afternoon.mask.png harbor-town-afternoon.cinemagraph 672x384 24 (CPU port of the in-browser flow layer)",
+  "kind": "cinemagraph loop",
+  "file": "harbor-town-afternoon.cinemagraph.mp4",
+  "shape": {
+    "width": 672,
+    "height": 384,
+    "fps": 24,
+    "seconds": 8,
+    "codec": "H.264, BT.709 tagged"
+  },
+  "generator": "scripts/debug/so-cinemagraph-render.mts"
+}
