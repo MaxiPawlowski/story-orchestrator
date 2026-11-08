@@ -2,6 +2,7 @@ import type { PixelImage } from "../../builder/pixels";
 import type { Point } from "../types";
 import type { FaceLandmarks } from "./landmarks";
 import { insidePolygon } from "./layers";
+import { columnSpan } from "./rigGeometry";
 
 export const EYE_GROW = { sideShare: 0.3, verticalShare: 0.35, maxWidth: 1.6, maxHeight: 2.2, skinHue: 0.12, scleraChroma: 34, scleraLum: 0.62, darkShare: 0.35, darkMax: 70, columns: 14 } as const;
 
@@ -44,6 +45,7 @@ export function refineEye(image: PixelImage, contour: Point[]): Point[] {
     mask[k] = 1; depth[k] = 0; queue.push(k);
   }
   if (!queue.length) return contour;
+  const seeded = queue.length;
   const reach = Math.max(2, Math.round(w * EYE_GROW.sideShare));
   for (let head = 0; head < queue.length; head++) {
     const k = queue[head], x = k % bw, y = Math.floor(k / bw);
@@ -54,6 +56,7 @@ export function refineEye(image: PixelImage, contour: Point[]): Point[] {
       mask[n] = 1; depth[n] = depth[k] + 1; queue.push(n);
     }
   }
+  if (queue.length === seeded) return contour;
   const tops: Array<number | null> = [], bots: Array<number | null> = [];
   let left = bw, right = -1;
   for (let x = 0; x < bw; x++) {
@@ -62,21 +65,23 @@ export function refineEye(image: PixelImage, contour: Point[]): Point[] {
     tops.push(top); bots.push(bot);
     if (top !== null) { left = Math.min(left, x); right = Math.max(right, x); }
   }
-  const width = right - left + 1;
-  if (right < 0 || width > w * EYE_GROW.maxWidth + 2) return contour;
-  const spanOf = (x: number): [number, number] | null => tops[x] === null || bots[x] === null ? null : [tops[x] as number, (bots[x] as number) + 1];
-  const top: Point[] = [], bottom: Point[] = [];
+  if (right < 0 || right - left + 1 > w * EYE_GROW.maxWidth + 2) return contour;
+  const spanOf = (x: number): [number, number] | null => tops[x] === null || bots[x] === null ? null : [y0 + (tops[x] as number), y0 + (bots[x] as number) + 1];
+  const from = Math.min(cx0, x0 + left), to = Math.max(cx1, x0 + right + 1), top: Point[] = [], bottom: Point[] = [];
   for (let c = 0; c <= EYE_GROW.columns; c++) {
-    const x = Math.min(right, left + Math.round((width - 1) * c / EYE_GROW.columns));
-    let span = spanOf(x);
-    for (let d = 1; !span && d < width; d++) span = spanOf(x - d) ?? spanOf(x + d);
+    const px = from + (to - from) * c / EYE_GROW.columns, column = Math.min(right, Math.max(left, Math.floor(px - x0)));
+    let span = spanOf(column);
+    for (let d = 1; !span && d < bw; d++) span = spanOf(column - d) ?? spanOf(column + d);
     if (!span) return contour;
-    const px = x0 + x + (c === 0 ? 0 : c === EYE_GROW.columns ? 1 : 0.5);
-    top.push([px, y0 + span[0]]); bottom.push([px, y0 + span[1]]);
+    if (px > cx0 && px < cx1) {
+      const [a, b] = columnSpan(contour, px);
+      span = [Math.min(span[0], a), Math.max(span[1], b)];
+    }
+    top.push([px, span[0]]); bottom.push([px, span[1]]);
   }
   const height = Math.max(...bottom.map((p) => p[1])) - Math.min(...top.map((p) => p[1]));
   if (height > h * EYE_GROW.maxHeight + 2) return contour;
-  const ends = [top[0], top[top.length - 1]].map((p, k): Point => [p[0], (p[1] + [bottom[0], bottom[bottom.length - 1]][k][1]) / 2]);
+  const ends = [0, EYE_GROW.columns].map((k): Point => [top[k][0], (top[k][1] + bottom[k][1]) / 2]);
   return [ends[0], ...top.slice(1, -1), ends[1], ...bottom.slice(1, -1).reverse()];
 }
 
