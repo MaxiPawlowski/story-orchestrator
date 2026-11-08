@@ -2,6 +2,7 @@ import { autoLayers, onLayersChanged, registerLayer, registeredKinds, registered
 import { lookupAssets, noteBaseShown, onAssetsChanged, onBaseShown, registerAssetProvider, shownBase } from "./assets";
 import { defaultBackdropSettings, sanitizeBackdropSettings } from "./settings";
 import { stillFromLayer } from "./still";
+import { BACKDROP_VERTEX_SHADER } from "./stage/vertex";
 import type { BackdropAutoInput, BackdropLayer } from "./types";
 
 const layer = (kind: string): BackdropLayer => ({ kind, order: 1, draw: () => undefined, dispose: () => undefined });
@@ -59,6 +60,14 @@ describe("v3.0 45 contract: asset port", () => {
     noteBaseShown(null);
     off();
     expect(seen).toEqual(["tavern.jpg", undefined]);
+  });
+});
+
+describe("v3.0 45 contract: shared vertex shader", () => {
+  it("is GLSL ES 3.00 over attribute aPos and writes v_uv in 0..1", () => {
+    expect(BACKDROP_VERTEX_SHADER.startsWith("#version 300 es\n")).toBe(true);
+    expect(BACKDROP_VERTEX_SHADER).toContain("in vec2 aPos;");
+    expect(BACKDROP_VERTEX_SHADER).toContain("v_uv = aPos * 0.5 + 0.5;");
   });
 });
 
