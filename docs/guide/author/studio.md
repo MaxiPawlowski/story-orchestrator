@@ -1,8 +1,8 @@
 # Checkpoint Studio
 
-The Studio is the visual editor for a story. Open it from the settings panel (**Author → Open Studio**) or, in a
-chat that plays a story, from the drawer's **Edit story** (Author view). From the drawer it edits the copy this chat
-plays.
+The Studio is the visual editor for a story. Open it from **Settings → Library → Author** or, in a chat that plays a
+story, from **Edit story** in Steer on **This chat → Author** (Author view). From the Author page it edits the copy this
+chat plays.
 
 ## Pages
 
@@ -30,7 +30,7 @@ Copy Mermaid source and Reset draft.
 ## What players see
 
 The Studio's **Player introduction**, **Public scene name** and **Public situation** are the text shown in the
-player's recap and drawer. The checkpoint name and objective are author-facing. For stories written before these
+player's recap, the story card and **This chat → Play**. The checkpoint name and objective are author-facing. For stories written before these
 fields existed, the library description serves as the introduction, and without a public scene name the player sees
 "Current scene".
 
@@ -46,7 +46,7 @@ there are changes. Stories carry no version number: a chat tells that the librar
 content.
 
 Saving does not switch other chats to the edited story; each chat keeps the copy it plays, and Author view shows
-**Update to the latest** in that chat's drawer. When you save from the chat that plays the story:
+**Update to the latest** on that chat's **Author** page. When you save from the chat that plays the story:
 
 - a compatible edit is applied there at once (`Applied to this chat: …`);
 - an edit that invalidates progress asks whether this chat should **Keep playing** (only the parts that no longer
