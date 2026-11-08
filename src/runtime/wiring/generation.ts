@@ -76,13 +76,11 @@ const intentHandlers = (live: LiveParts, lore: LoreWiring) => ({
     runtimeManager.setGenerationOpen(false);
     awayNotice.closed();
     previously.closed();
-    if (intent.reason !== "chat-changed") {
-      runtimeManager.clearPrivateInjection();
-      runtimeManager.clearCopilotNudge();
-    }
+    if (intent.reason !== "chat-changed") runtimeManager.clearPrivateInjection();
     live.talk?.onGenerationEnded();
   },
   settled: (intent: IntentOf<"settled">) => {
+    if (intent.rendered) runtimeManager.clearCopilotNudge();
     runtimeManager.commitContinuityNote(settledOnReply(intent.rendered, intent.messageId, getContext().chat as unknown[] | undefined, residueTags(readReasoningTags())), intent.messageId);
     lore.loreWatch.settled(intent.rendered);
   },

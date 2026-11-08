@@ -1,5 +1,6 @@
 import { CODEX_PAGES, evaluateGate, isValidationErrorList, parseStory, renderGateText, type PrimitiveValue, type Story } from "@engine/index";
 import { isRecord } from "@utils/guards";
+import { clipText } from "@utils/string";
 import { storyCoverage, renderCoverage } from "../../studio/coverage";
 import { runDiagnostics } from "../../studio/diagnostics";
 import { defaultValueForOp, opsForType } from "../../studio/gateOptions";
@@ -14,7 +15,7 @@ export const CARD_TEXT_LIMIT = 1500;
 
 const cardExcerpt = (text: string): string => {
   const trimmed = text.trim();
-  return trimmed.length > CARD_TEXT_LIMIT ? `${trimmed.slice(0, CARD_TEXT_LIMIT - 1)}…` : trimmed || "(empty)";
+  return trimmed.length > CARD_TEXT_LIMIT ? `${clipText(trimmed, CARD_TEXT_LIMIT - 1)}…` : trimmed || "(empty)";
 };
 
 export const readCharacterCard = (draft: Story, lookup: AgentLookup, name: unknown): string => {

@@ -151,6 +151,7 @@ export class EffectsApplier {
     };
     for (const row of rows) extras.effects.ledger = appendRow(extras.effects.ledger, row);
     await this.deps.persist?.();
+    if (this.deps.unsaved?.()) await this.deps.persist?.();
     if (this.deps.unsaved?.()) {
       settle("failed", { reason: PENDING_NOT_SAVED });
       this.deps.journal?.(`${effect} effect was not applied`, PENDING_NOT_SAVED);

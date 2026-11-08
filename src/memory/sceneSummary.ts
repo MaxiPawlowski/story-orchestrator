@@ -4,6 +4,7 @@ import { inputBudget, tailFit, type BudgetMessage, type FitOptions } from "@extr
 import type { RequestBudget } from "@extraction/tokenMeter";
 import { loadMemoryContract } from "./contractKit";
 import type { DerivedRecord } from "./derived";
+import { isRefusal } from "./summaryGuard";
 
 export const REDUCE_DEPTH_LIMIT = 4;
 
@@ -63,14 +64,14 @@ export async function summarizeScene(run: SceneSummaryRun): Promise<SceneSummary
       if (!run.stillOwns()) return null;
       requests += 1;
       const summary = await run.summarize(prompt(joined(kept) || "(empty)"), maxTokensFor("sceneSummary", fit.ok ? fit.tokens : 0));
-      return { summary, requests, chunks };
+      return { summary: isRefusal(summary, joined(kept)) ? "" : summary, requests, chunks };
     }
     const next: BudgetMessage[] = [];
     for (const window of plan.windows) {
       if (!run.stillOwns()) return null;
       requests += 1;
       const part = await run.summarize(prompt(joined(window.messages)), maxTokensFor("sceneSummary", window.tokens));
-      if (!part) return { summary: "", requests, chunks };
+      if (!part || isRefusal(part, joined(window.messages))) return { summary: "", requests, chunks };
       next.push({ messageId: next.length, text: `Part ${next.length + 1}: ${part}` });
     }
     parts = next;
