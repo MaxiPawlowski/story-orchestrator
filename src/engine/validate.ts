@@ -216,6 +216,7 @@ export const parseStory = (json: unknown): NormalizedStory | ValidationError[] =
     ...(options.lore_select ? { lore_select: options.lore_select } : {}),
     ...(options.house_rules ? { house_rules: options.house_rules } : {}),
     ...(options.talk_defaults ? { talk_defaults: options.talk_defaults } : {}),
+    ...(options.backdrop_defaults ? { backdrop_defaults: options.backdrop_defaults } : {}),
     ...(options.objective_block ? { objective_block: options.objective_block } : {}),
     ...(options.display ? { display: options.display } : {}),
     ...(chapters ? { chapters } : {}),

@@ -233,7 +233,9 @@ export const readStoryOptions = (json: Record<string, unknown>, errors: Validati
   const poses = gameLayer()?.poses.readStoryPoses(json.poses, errors);
   const kind = readKind(json.kind, errors);
   const talkDefaults = gameLayer()?.talk.readTalkDefaults(json.talk_defaults, errors);
+  const backdropDefaults = gameLayer()?.backdrop.readBackdropDefaults(json.backdrop_defaults, errors);
   return {
+    ...(backdropDefaults ? { backdrop_defaults: backdropDefaults } : {}),
     ...(talkDefaults ? { talk_defaults: talkDefaults } : {}),
     ...(isOneOf(reasoning, CHECKPOINT_REASONING) ? { reasoning } : {}),
     ...(poses ? { poses } : {}),

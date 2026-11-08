@@ -65,7 +65,7 @@ export const SETTING_COPY = {
   ),
   "display.inline.categories": copy(
     "Show this kind of note",
-    "Untick a kind of note to hide its icon under the messages.",
+    "Untick a kind of note to leave its words out of the line under the messages.",
   ),
   "display.inline.window": copy(
     "Only the last … messages",
@@ -105,7 +105,7 @@ export const SETTING_COPY = {
   ),
   "display.presence.wand": copy(
     "Story entries in the wand menu",
-    "Story recap, the story briefing (when the story has one), flag this moment and the story window, from the extensions wand beside where you type.",
+    "Story recap, flag this moment, the story sheet, the story briefing (when the story has one), the story window and Help and Ask, from the extensions wand beside where you type.",
   ),
   "display.presence.rollChips": copy(
     "Dice chips under messages",
@@ -114,11 +114,11 @@ export const SETTING_COPY = {
   ),
   "display.presence.journal": copy(
     "Journal",
-    "A movable panel with the story's quests: the main line you have reached, side quests and their steps, and a log of what happened. It shows only what you have found.",
+    "A page of the story sheet with the story's quests: the main line you have reached, side quests and their steps, and a log of what happened. It shows only what you have found.",
   ),
   "display.presence.statSheet": copy(
     "Stat sheet",
-    "A movable panel with what the story keeps count of in the open: what you carry and the meters the author made public.",
+    "A page of the story sheet with what the story keeps count of in the open: what you carry and the meters the author made public.",
   ),
   "display.presence.widgets": copy(
     "Story panels",
@@ -131,7 +131,7 @@ export const SETTING_COPY = {
   ),
   "display.presence.suggestions": copy(
     "What could I do?",
-    "A button on This chat → Play and the wand menu that asks the memory model for a few things you could try next. A suggestion goes into the box where you type; "
+    "The story sheet's Ideas page, the Ideas chip and the Now tab on This chat → Play ask the memory model for a few things you could try next. A suggestion goes into the box where you type; "
       + "nothing is sent until you send it. The request sees only what you have already seen in the story.",
   ),
   "display.hudEnabled": copy(
@@ -151,6 +151,32 @@ export const SETTING_COPY = {
     "Show the model's thinking as a small pill",
     "SillyTavern's \"Thought for …\" bar above a reply becomes a small rounded label at its top left. Click it to open or close the thinking as before; "
       + "its buttons show only while it is open. Switch this off for SillyTavern's own full-width bar. Affects every chat, not only story chats.",
+  ),
+  "display.backdrop.enabled": copy(
+    "Animated backdrop behind the chat",
+    "The scene's background comes alive behind the chat: weather, light and slow movement drawn over it, following the story (rain when it rains, night at night). "
+      + "Switch it off for SillyTavern's own still background. Your system's reduce-motion setting shows the still; SillyTavern's own Reduced motion option does not change it.",
+  ),
+  "display.backdrop.effects": copy(
+    "Weather and light effects",
+    "Rain, snow, embers, dust, fireflies, fog, flickering light, water shimmer and a slow camera drift, chosen from the story's weather, time of day and tension, or set by the story.",
+  ),
+  "display.backdrop.parallax": copy(
+    "Depth movement",
+    "Gives the background depth so near and far parts move apart slightly as it drifts and as the pointer moves. A depth map is made once per background.",
+  ),
+  "display.backdrop.loops": copy(
+    "Moving backgrounds",
+    "How the background itself moves. Still motion animates only parts of the picture (water, sky, fire); Lite and Full make short seamless video loops of the story's key places "
+      + "on your GPU when it is idle or at story setup, Full sharper and smoother. A tier the machine cannot run steps down by itself. Until a loop is ready the still is used.",
+  ),
+  "display.backdrop.intensity": copy(
+    "Backdrop strength",
+    "How strong and busy the backdrop effects are, from barely there to full. Lower is calmer and lighter on the machine.",
+  ),
+  "display.backdrop.dimBehindChat": copy(
+    "Dim the backdrop behind the chat",
+    "Darkens and softens the backdrop behind the chat column so the messages stay easy to read.",
   ),
   "display.inChat.dividers": copy(
     "Scene and time dividers between messages",

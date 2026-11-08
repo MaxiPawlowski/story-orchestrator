@@ -227,6 +227,7 @@ export function startRuntime() {
       mediaLoaded = true;
       void import("../image/start").then(({ startImage }) => { if (started) startImage(runtimeManager); }).catch((error: unknown) => featureFailed("Illustrations", error));
       void import("../sprites/start").then(({ startSprites }) => { if (started) startSprites(runtimeManager); }).catch((error: unknown) => featureFailed("Sprites", error));
+      void import("../backdrop/start").then(({ startBackdrop }) => { if (started) startBackdrop(runtimeManager); }).catch((error: unknown) => featureFailed("Animated backdrop", error));
     }
     void Promise.all([import("./pluginVersionCheck"), import("./pluginVersionCheckHost")]).then(([check, host]) => (started
       ? check.checkPluginVersions(host.pluginVersionHostDeps((summary, detail) => runtimeManager.noteRecap(summary, detail, "status")))
@@ -243,6 +244,7 @@ export function stopRuntime() {
   if (mediaLoaded) {
     void import("../image/start").then(({ stopImage }) => stopImage());
     void import("../sprites/start").then(({ stopSprites }) => stopSprites());
+    void import("../backdrop/start").then(({ stopBackdrop }) => stopBackdrop());
   }
   mediaLoaded = false;
   bridge?.stop();

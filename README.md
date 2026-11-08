@@ -97,7 +97,7 @@ chapters, …), `/story`, `/so-mem` and the author's `/cp`:
 
 ## Support and development
 
-Something wrong? **Orchestrator → Help → Setup → Host capabilities → Copy for a bug report** copies what a report needs;
+Something wrong? **Settings → Diagnostics → Copy for a bug report** copies what a report needs;
 [Troubleshooting](https://maxipawlowski.github.io/story-orchestrator/player/troubleshooting.html) covers the common
 cases. The guide's sources are in [`docs/guide`](docs/guide/README.md); developer docs are in
 [`docs/dev`](docs/dev/contributing.md).
@@ -143,18 +143,22 @@ Generated from the feature registry. "Experimental" means not yet measured; it i
 | Playing | Next-move chips | Under the last reply: the story's suggestions for your next move, one click puts one in the box where you type. |  |
 | Playing | Journal cards | A small card under the reply where a person or place goes into your journal. |  |
 | Playing | Gate meter | Author view: under each reply, how close each way out of the checkpoint was. |  |
+| Playing | Animated backdrop | The scene's background moves behind the chat: weather, light and a slow drift that follow the story. |  |
+| Playing | Backdrop weather and light | Rain, snow, embers, dust, fireflies, fog, flicker and shimmer over the background. |  |
+| Playing | Backdrop depth | Near and far parts of the background move apart slightly as it drifts. | Experimental |
+| Playing | Backdrop video loops | Short seamless video loops of the story's key places replace the still when ready. | Experimental |
 | Playing | Thinking pill | SillyTavern's "Thought for …" bar becomes a small pill at the top left of the reply. |  |
 | Playing | Story marks in the lists | Groups and chats that play a story carry a small icon in SillyTavern's lists. |  |
 | Playing | Story card | Hover a group's story icon to see the story, its chapter and when you last played. |  |
 | Playing | Your stories | Under Continue: every chat that plays a story, newest first, one click to open it. |  |
 | Playing | Chapter title cards | A full-width card under the message where a new chapter opens. |  |
-| Playing | Story in the wand menu | Story recap, the story briefing, flag this moment and the story window, from the extensions wand. |  |
+| Playing | Story in the wand menu | Story recap, flag this moment, the story sheet, the story briefing, the story window and Help and Ask, from the extensions wand. |  |
 | Playing | Dice chips | A check the story makes public shows its roll under the message it decided. |  |
 | Playing | Activity panel | A movable panel listing what the machine did behind each recent message. |  |
 | Playing | What could I do? | A button that suggests a few things you could try next, and puts the one you pick in the box where you type. |  |
 | Playing | Repetition readout | Author view names phrases the latest reply repeats from the five before it. | Experimental |
-| Playing | Journal | A movable panel with your quests and a log of what happened, for stories that keep quests. |  |
-| Playing | Stat sheet | A movable panel with what you carry and the meters the story shows in the open. |  |
+| Playing | Journal | A story sheet page with your quests and a log of what happened, for stories that keep quests. |  |
+| Playing | Stat sheet | A story sheet page with what you carry and the meters the story shows in the open. |  |
 | Playing | Story panels | Extra panels a story adds, such as a clock that fills, a board of quests, a wall of clues or a map. |  |
 | Playing | Story-made panels | A panel page a story brings, run shut off from SillyTavern. |  |
 | Playing | People and Places | Journal pages that fill in with the people and places you have learned about. |  |

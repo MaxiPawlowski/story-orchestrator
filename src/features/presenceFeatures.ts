@@ -56,6 +56,39 @@ export const PRESENCE_FEATURES: readonly Feature[] = [
     isOn: (settings) => settings.display.inChat.gateMeter,
   },
   {
+    id: "backdrop", name: "Animated backdrop", area: "play", audience: "player",
+    oneLine: "The scene's background moves behind the chat: weather, light and a slow drift that follow the story.",
+    what: "A canvas behind the chat draws the current background with weather and light over it. With nothing authored it follows the story's weather, time of day "
+      + "and tension; a story can set its own per scene. It pauses while the tab is hidden, shows the still under reduced motion, and falls back to SillyTavern's own background.",
+    where: settingsAt("#so-backdrop-enabled", "Display › Animated backdrop behind the chat"),
+    settings: ["display.backdrop.enabled", "display.backdrop.intensity", "display.backdrop.dimBehindChat"], doc: "player/drawer-and-hud.md", status: "shipped", needs: [],
+    isOn: (settings) => settings.display.backdrop.enabled,
+  },
+  {
+    id: "backdrop-effects", name: "Backdrop weather and light", area: "play", audience: "player",
+    oneLine: "Rain, snow, embers, dust, fireflies, fog, flicker and shimmer over the background.",
+    what: "Particle and light layers drawn over the background, picked from the story's state or set by the story's backdrop on a scene. Strength follows the backdrop strength setting.",
+    where: settingsAt("#so-backdrop-effects", "Display › Weather and light effects"),
+    settings: ["display.backdrop.effects"], doc: "player/drawer-and-hud.md", status: "shipped", needs: [],
+    isOn: (settings) => settings.display.backdrop.enabled && settings.display.backdrop.effects,
+  },
+  {
+    id: "backdrop-depth", name: "Backdrop depth", area: "play", audience: "player",
+    oneLine: "Near and far parts of the background move apart slightly as it drifts.",
+    what: "A depth map is made once per background and cached; the backdrop then shifts near and far parts by different amounts, and fog and particles sit at depth.",
+    where: settingsAt("#so-backdrop-parallax", "Display › Depth movement"),
+    settings: ["display.backdrop.parallax"], doc: "player/drawer-and-hud.md", status: "experimental", needs: [],
+    isOn: (settings) => settings.display.backdrop.enabled && settings.display.backdrop.parallax,
+  },
+  {
+    id: "backdrop-loops", name: "Backdrop video loops", area: "play", audience: "player",
+    oneLine: "Short seamless video loops of the story's key places replace the still when ready.",
+    what: "Loops are made on your GPU at story setup for places the story marks, or when the GPU is idle, and cached per background. Until one is ready the still is used.",
+    where: settingsAt("#so-backdrop-loops", "Display › Moving backgrounds"),
+    settings: ["display.backdrop.loops"], doc: "player/drawer-and-hud.md", status: "experimental", needs: ["comfyui"],
+    isOn: (settings) => settings.display.backdrop.enabled && settings.display.backdrop.loops !== "off",
+  },
+  {
     id: "compact-thoughts", name: "Thinking pill", area: "play", audience: "player",
     oneLine: "SillyTavern's \"Thought for …\" bar becomes a small pill at the top left of the reply.",
     what: "The thinking bar above a reply shrinks to a small rounded label. Click it to open or close the thinking; its buttons show only while it is open. "
@@ -99,8 +132,9 @@ export const PRESENCE_FEATURES: readonly Feature[] = [
   },
   {
     id: "story-wand", name: "Story in the wand menu", area: "play", audience: "player",
-    oneLine: "Story recap, the story briefing, flag this moment and the story window, from the extensions wand.",
-    what: "While a story plays, the wand beside where you type lists a recap of the story so far, a flag for this moment and a shortcut to the story window.",
+    oneLine: "Story recap, flag this moment, the story sheet, the story briefing, the story window and Help and Ask, from the extensions wand.",
+    what: "While a story plays, the wand beside where you type lists a recap of the story so far, a flag for this moment, the story sheet, "
+      + "the story briefing when there is one, a shortcut to the story window and Help and Ask.",
     where: settingsAt("#so-presence-wand", "Display › Story entries in the wand menu"),
     settings: ["display.presence.wand"], doc: "player/drawer-and-hud.md", status: "shipped", needs: ["story"],
     isOn: (settings) => settings.display.presence.wand,
@@ -124,7 +158,7 @@ export const PRESENCE_FEATURES: readonly Feature[] = [
   {
     id: "suggestions", name: "What could I do?", area: "play", audience: "player",
     oneLine: "A button that suggests a few things you could try next, and puts the one you pick in the box where you type.",
-    what: "Click What could I do? on This chat → Play or the story card above the chat box, or pick it from the wand menu. "
+    what: "Open the story sheet's Ideas page, the Ideas chip or the Now tab on This chat → Play. "
       + "The memory model words four things to try, built on what you already know; a waiting check lists what could help, never dice; in Author view an offer not open yet shows greyed. "
       + "Picking one only fills the box where you type; nothing is sent until you send it, and it never replaces something you started typing. A story can switch the button off.",
     where: drawerAt("#so-open-suggestions", "What could I do?"),

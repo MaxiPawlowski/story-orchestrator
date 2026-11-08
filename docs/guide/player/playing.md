@@ -5,23 +5,24 @@
 1. Open a **group chat** with the story's characters. Stories play only in group chats; a group of one character is
    fine. In a one-on-one chat the story stays off and **Settings → Library** offers **Make a group for this
    story**. With no chat open, an imported story is only saved to the library.
-2. Open **Extensions → Story Orchestrator → Open Story Orchestrator**. It opens at **Settings → Library**, which
-   starts with four tasks:
+2. Open **Extensions → Story Orchestrator → Open Story Orchestrator** and go to **Settings → Library**. On a new
+   install it lists **Getting started** (a memory model, then the optional judge key and image service), then four
+   tasks:
    - **Start**: **New story (wizard)** builds one from a premise; **Import a story** takes a story file (JSON);
-     **Start from a premise** begins a living story that writes its next scene as you play.
-   - **Continue**: says what this chat plays. **Choose a story** picks one from your library; **Restart or export**
-     goes to the restart controls. **Your stories** lists every chat that plays a story.
+     **Start from a premise** (when living stories are on) begins a story that writes its next scene as you play.
+   - **Continue**: says what this chat plays. **Choose a story** and **Restart or export** go to **This chat → Story
+     settings**, where the story for this chat is picked. **Your stories** lists every chat that plays a story.
    - **Repair**: the one thing still missing, if any, with a **Show me** button.
    - **Author**: Author view and the Studio, for writing stories.
 3. Write your first message. The story follows from there. **This chat → Play** (or the route icon in the top bar)
    shows where you are.
 
 If the story needs characters, a lorebook or a persona this chat does not have, **This chat → Play** lists them under
-**This story still needs** and Repair names the first one.
+**N things need attention** and Repair names the first one.
 
 ### Every new chat in a group
 
-Under **Settings → Library**, **New chats in <group> start with** picks a story for the group: each new, empty
+On **This chat → Story settings**, **New chats in <group> start with** picks a story for the group: each new, empty
 chat in that group starts playing it. Chats already playing keep their own story. Choose **No story (choose in each
 chat)** to clear it. This is separate from the story the open chat plays.
 
@@ -33,12 +34,12 @@ briefing (the world, who you are, who is with you, how to play), and on your fir
 opening scene still posts behind it; close it with the button at the bottom (**Begin**, or the author's own word).
 
 Each chat shows it once, and remembers that across reloads, swipes and edits. **Restart story** shows it again. Re-open
-it any time with **Story briefing** on **This chat → Play**, or `/story intro`. To stop it opening on its own, untick
-**Show the story briefing when a story starts** in **Settings → Display**, or tick **Don't open briefings automatically** on
-the page itself. A story without a briefing shows its introduction instead, if it has one, and the wizard's model
+it any time with **Story briefing** on **This chat → Play**, in the wand menu, or `/story intro`. To stop it opening on
+its own, switch off **Show the story briefing when a story starts** in **Settings → Display**, or tick **Don't open
+briefings automatically** on the page itself. A story without a briefing shows its introduction instead, if it has one, and the wizard's model
 writes a briefing for this chat from the story's opening (who you play, where you start, who is with you). It arrives on
 the open page a few seconds later, marked as written for this chat; the opening scene never waits for it, and a draft
-that would give anything away is thrown out. Untick **Write a briefing when a story has none** to keep the
+that would give anything away is thrown out. Switch off **Write a briefing when a story has none** to keep the
 introduction.
 
 ## Your character
@@ -57,8 +58,8 @@ persona in the middle of the story, **This chat → Play** says so with **Switch
 person you started as. To play someone else, **Restart story** and choose again. A story that fixes your name waits
 until a persona with that name is chosen.
 
-`/story who` shows it again. To skip the question and always keep your current persona, untick **Ask who you are when
-a story starts** in **Settings → Display**.
+`/story who` shows it again, and the **You** card on **This chat → Play** always shows it. To skip the question and
+always keep your current persona, switch off **Ask who you are when a story starts** in **Settings → Display**.
 
 ## Who answers in a group
 
@@ -69,6 +70,38 @@ stops when it is your turn again, and a voice that is about to start gives way w
 Both are on by default. **This chat → Story settings → Speaker direction** and **Several voices per turn** change them for
 this chat (for example, back to SillyTavern's own turn order); **Settings → Features** changes them for every chat.
 A busier scene means more replies per message, so a longer wait and more calls.
+
+### How a scene paces its voices
+
+A story can give each scene a pacing shape: an opening, a conversation, a decision, an action scene or an aftermath.
+The shape sets how many characters may answer one of your messages (two or three), how long the narrator's replies
+tend to be, and whether a quiet companion is brought in. Within any shape:
+
+- **Everyone you name answers.** Address two companions in one line and both reply, the first one you named first.
+- **An action gets an answer from the world first.** When you do something ("I push the door open", or a line in
+  `*asterisks*`) without talking to anyone, the narrator answers before the companions talk.
+- **Quiet companions are pulled in.** A companion who has said nothing for a few of your turns takes a turn, briefly,
+  instead of another voice (never instead of someone you named).
+- **Someone turns to you.** Now and then a character asks you something directly, so the scene does not run on
+  without you.
+- **The narrator does not take every turn.** After a line or two from the narrator, someone else speaks.
+
+None of this cuts a reply short. Stories without pacing shapes keep the plain behaviour above.
+
+<!-- showcase: talk-pacing -->
+
+## When a scene stalls
+
+If a few of your turns pass and nothing moves the scene toward its way out, the world slowly puts a way forward in
+front of you: a door that was locked is now ajar, a character mentions where to look. It starts after about six quiet
+turns and steps up every three more. It never solves the scene for you, never moves the story on by itself, and never
+points at someone or something you have not met. Anything that moves the scene starts the count again. The story's
+author writes these leads; **Settings → Authoring → Prompt trials → Help a stuck player with leads** switches them off.
+
+## Tense scenes take a few turns
+
+A tense scene can ask for a few of your turns (two to four, say) before it can end, so one reply cannot write the
+outcome before you have acted. A few urgent moments (an escape, a collapse) still end at once.
 
 ## Each chat keeps its own copy
 
@@ -101,8 +134,8 @@ say (quietly) hello", are read as usual. To correct the story, edit the message 
 
 ## Stuck? "What could I do?"
 
-**What could I do?** in the wand menu beside where you type (or under **Beside the chat** on **This chat → Play**, which
-closes the story window first) opens a panel over the chat and asks the memory model for four things you could try next. It sees only what you have already seen: the scenes you reached, the Play page (with the quests you are on)
+**What could I do?** (the **Ideas** page of the story sheet, the **Ideas** chip under the last reply, or the **Now** tab
+on **This chat → Play**) asks the memory model for four things you could try next. It sees only what you have already seen: the scenes you reached, the Play page (with the quests you are on)
 and the recent messages, never the story's later scenes, a quest you have not found or anything a character keeps from
 you. A suggestion that happens to name a place you have not reached yet is left out. Pick one and it is put in the box
 where you type; nothing is sent until you send it, and it never replaces something you started typing. **Other ideas**
@@ -171,7 +204,7 @@ library (**This chat → Author**). Only the scenes you reached are kept, so the
 ## Branches
 
 A branch made from a chat that plays a story does not pick the story up on its own. The story bar shows
-`branch — continue?`; click it, then **Continue from here** to carry on from where the branch ends.
+`You went back: continue from here?`; click it, then **Continue from here** to carry on from where the branch ends.
 
 ## Finding your story chats
 
@@ -211,6 +244,7 @@ Type these in the chat box. None of them spoil anything.
 | `/story guide [page]` | Opens this guide inside SillyTavern, at a page such as `player/memory`. |
 | `/story ask <question>` | Answers a question about the plugin or the story, from what you have already played. |
 | `/story tour [player\|author\|setup]` | Opens the guided tour. |
+| `/story help` | Lists these commands. |
 
 `/so-mem list`, `/so-mem pin <n> on|off` and `/so-mem exclude <n>` manage memories from the chat box (see
 [Memory](memory.md)). `/cp` is an author tool and works only in Author view.

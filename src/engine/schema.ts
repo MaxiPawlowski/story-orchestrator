@@ -123,6 +123,8 @@ export interface GateNot {
   not: GateNode;
 }
 
+export type { BackdropDefaults, BackdropEffect, BackdropLayerEntry } from "./backdropSchema";
+import type { BackdropDefaults, BackdropEffect } from "./backdropSchema";
 export type { PoseEntry, PoseTag, PosePoint, StoryPoses, MemberSprites, StageMember, StoryStage, CardLayer, CardFieldBinding, CardBinding } from "./poseSchema";
 import type { StoryPoses, MemberSprites, StoryStage, CardFieldBinding, CardBinding } from "./poseSchema";
 
@@ -139,6 +141,7 @@ export interface CheckpointEffects {
   scenario?: string | null;
   card?: Record<string, Record<string, string>>;
   illustrations?: CheckpointIllustrations;
+  backdrop?: BackdropEffect;
 }
 
 export const ILLUSTRATION_PURPOSES = ["scene", "character", "portrait", "user", "background", "free"] as const;
@@ -494,6 +497,7 @@ export interface Story {
   clock?: StoryClock; calendar?: import("./lifeSchema").CalendarInput;
   living?: StoryLiving; factions?: import("./factionSchema").Faction[]; norms?: import("./cueSchema").StoryNorm[];
   talk_defaults?: StoryTalkDefaults;
+  backdrop_defaults?: BackdropDefaults;
 }
 
 export const LIVING_PREFIX = "liv_";

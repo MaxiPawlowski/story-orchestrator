@@ -323,7 +323,7 @@ export const RoutedToTheLocalJudge: Story = {
       ...ready,
       providers: {
         typesafe: { configured: true, local: false, host: "api.typesafe.ai" },
-        "systemone-local": { configured: true, local: true, host: "127.0.0.1:8095", model: "decider-4b-v2.1-Q4_K_M", modelsDir: "C:/dev/models/so-judge", problem: null },
+        "systemone-local": { configured: true, local: true, host: "127.0.0.1:8095", model: "decider-4b-v2.1-Q4_K_M", modelsDir: "D:/models/so-judge", problem: null },
       },
     },
   },
@@ -334,7 +334,7 @@ export const RoutedToTheLocalJudge: Story = {
     const line = canvasElement.querySelector("#so-judge-local-systemone-local")?.textContent ?? "";
     await expect(line).toContain("runs on this machine (127.0.0.1:8095)");
     await expect(line).toContain("model decider-4b-v2.1-Q4_K_M");
-    await expect(line).toContain("models in C:/dev/models/so-judge");
+    await expect(line).toContain("models in D:/models/so-judge");
     await expect(canvasElement.querySelector("#so-judge-privacy-systemone-local")).toBeNull();
   },
 };
@@ -346,7 +346,7 @@ export const LocalJudgeNotStarted: Story = {
       ...ready,
       providers: {
         typesafe: { configured: true, local: false, host: "api.typesafe.ai" },
-        "systemone-local": { configured: false, local: true, host: "127.0.0.1:8095", model: null, modelsDir: "C:/dev/models/so-judge", problem: "unreachable" },
+        "systemone-local": { configured: false, local: true, host: "127.0.0.1:8095", model: null, modelsDir: "D:/models/so-judge", problem: "unreachable" },
       },
     },
   },

@@ -45,7 +45,7 @@ jest.mock("@runtime/settingsStore", () => ({
   setGlobalSettings: (patch: { image: Partial<ImageSettings> }) => { host.settings = { ...host.settings, ...patch.image }; return { image: host.settings }; },
 }));
 jest.mock("@runtime/worldInfoGates", () => ({ worldInfoPlan: () => [] }));
-const workflowHost = { listed: ["Mine.json", "SO-Portrait.json"] as string[], text: "{\"6\":{\"inputs\":{\"text\":\"%prompt%\"}}}", swaps: [] as string[] };
+const workflowHost = { listed: ["Mine.json", "SO-Portrait.json"] as string[], text: "{\"6\":{\"class_type\":\"CLIPTextEncode\",\"inputs\":{\"text\":\"%prompt%\"}}}", swaps: [] as string[] };
 jest.mock("@services/stHost/comfyWorkflows", () => ({
   listComfyWorkflows: async () => workflowHost.listed,
   readComfyWorkflow: async (name: string, listed: string[]) => (listed.includes(name) ? workflowHost.text : null),

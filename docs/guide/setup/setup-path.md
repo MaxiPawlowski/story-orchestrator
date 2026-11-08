@@ -7,7 +7,7 @@ it on". New to the extension? Start with the [Quick start](../quick-start.md).
 Each step says what it does, what it costs, where it is and how to check it. Inside SillyTavern, **Show me** points at
 the control. Open this page from **Settings → Help → Setup path**. The workspace pages are **Settings →
 Library, Features, Models, Judge, Images & stage, World & lore, Display, Authoring, Diagnostics, Help** and **This chat →
-Play, Settings** (Review and Author in Author view).
+Play, Story settings** (Review and Author in Author view).
 
 1. [Level 0: required](#level-0-required): a group chat and a memory model.
 2. [Level 1: reliable play](#level-1-reliable-play): clean replies, lore only in the chats that use it.
@@ -175,7 +175,8 @@ without an error and the repair card says why. More: [Illustrations](images.md),
 - **What it does:** a local text model and local pictures take turns on one graphics card.
 - **Cost:** no model calls; replies wait while a picture renders.
 - **Where:** `npm run plugin:install -- --with gpu`, a `config.json` with `"adapter": "observe"` to start, restart.
-  Status shows near **Settings → Images & stage**.
+  Status shows near **Settings → Images & stage**. Running llama.cpp yourself, or a rented GPU: [Running the reply
+  model yourself](local-model.md).
 - **How to check:** the repair card no longer says pictures and the local text model share one GPU with nothing
   taking turns. Only needed for a local text model and local pictures on the same card.
 
@@ -189,7 +190,7 @@ without an error and the repair card says why. More: [Illustrations](images.md),
 
 ## Level 5: feature defaults
 
-**Settings → Features** holds one card per feature. Each switch is the default for every chat, and off there is a
+**Settings → Features** holds one row per feature. Each switch is the default for every chat, and off there is a
 master switch. A story can turn a feature off for itself, and **This chat → Story settings** can change it for one chat.
 Every feature is on by default; the character stage is on in its automatic form. <!-- so:show setup:defaults -->
 
@@ -238,15 +239,15 @@ Author view spoils the story it is turned on in, so it asks first. More: [Writin
 
 - **What it does:** shows tracked values, the scheduler, the next prompt and review cards, for one chat.
 - **Cost:** none.
-- **Where:** **This chat → Author → Show author view**, then confirm.
+- **Where:** **This chat → Story settings → Author view in this chat**, then confirm.
 - **How to check:** extra tabs for the story's state, the background work and the next prompt appear, for this chat only. <!-- so:show author:author-view -->
 
 ### A story's own feature choices
 
 - **What it does:** each story runs with the features it was written for.
 - **Cost:** none.
-- **Where:** **Settings → Library → Open Studio**, the story's [feature policies](../author/fields/story.md#feature-policies).
-- **How to check:** **This chat → Story settings** says "Turned off by this story" on a declined feature.
+- **Where:** **Settings → Library → Author**, then the Studio's **Story features** page, the story's [feature policies](../author/fields/story.md#feature-policies).
+- **How to check:** on **This chat → Story settings** a declined feature's chip says **Story**.
   <!-- so:show author:studio -->
 
 ### One chat's preferences
@@ -255,7 +256,7 @@ Author view spoils the story it is turned on in, so it asks first. More: [Writin
 - **Cost:** whatever the feature costs.
 - **Where:** **This chat → Story settings**, any feature row. A feature off in **Settings → Features** cannot be turned on for one
   chat.
-- **How to check:** the source chip says **This chat**; **Reset to story/default** puts it back.
+- **How to check:** the row's chip says **This chat**; its reset puts it back.
 
 ### Review proposals
 

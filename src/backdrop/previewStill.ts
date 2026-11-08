@@ -1,0 +1,22 @@
+export const sceneStill = (): string => {
+  const canvas = document.createElement("canvas");
+  canvas.width = 640;
+  canvas.height = 360;
+  const context = canvas.getContext("2d");
+  if (!context) return "";
+  const sky = context.createLinearGradient(0, 0, 0, 220);
+  sky.addColorStop(0, "#2b4a78");
+  sky.addColorStop(1, "#d9a46b");
+  context.fillStyle = sky;
+  context.fillRect(0, 0, 640, 220);
+  context.fillStyle = "#2d3b2a";
+  context.beginPath();
+  context.moveTo(0, 220);
+  for (let x = 0; x <= 640; x += 40) context.lineTo(x, 200 - ((x * 37) % 60));
+  context.lineTo(640, 360);
+  context.lineTo(0, 360);
+  context.fill();
+  context.fillStyle = "#3a5f7a";
+  context.fillRect(0, 290, 640, 70);
+  return canvas.toDataURL("image/png");
+};
