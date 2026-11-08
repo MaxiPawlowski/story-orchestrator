@@ -1,14 +1,9 @@
 const MOTION: ReadonlyArray<[RegExp, string]> = [
-  [/\b(?:lake|sea|ocean|beach|river|stream|harbou?r|port|pond|waterfall|coast|shore|bay|canal|water)\b/, "gentle ripples moving across the water"],
-  [/\b(?:beach|coast|shore|ocean|sea)\b/, "small waves rolling in slowly"],
-  [/\b(?:forest|woods?|jungle|garden|park|tree|trees|grove|meadow|field|grass|treehouse|blossom|orchard)\b/, "leaves and grass swaying softly in a light breeze"],
-  [/\b(?:tavern|inn|hearth|fireplace|camp|campfire|forge|candle|torch|dungeon|cave|castle|hall|throne|royal|temple|crypt)\b/, "warm firelight and candle flames flickering softly"],
-  [/\b(?:city|town|market|street|village|cityscape|alley|square|harbou?r)\b/, "faint smoke drifting from chimneys, banners stirring in the wind"],
-  [/\b(?:mountain|mountains|peak|cliff|valley|hill|hills|landscape|sky|ruins?)\b/, "clouds drifting slowly across the sky"],
-  [/\b(?:snow|winter|frozen|ice)\b/, "light snow drifting down"],
-  [/\b(?:night|moon|stars?|evening)\b/, "stars twinkling faintly, soft moonlight shimmering"],
-  [/\b(?:classroom|bedroom|room|office|library|university|house|kitchen|bar|shop)\b/, "dust motes floating in the light, curtains stirring gently"],
-  [/\b(?:postapoc|wasteland|desert|ruin|ruins)\b/, "dust blowing slowly across the ground"],
+  [/\b(?:lake|sea|ocean|beach|river|stream|harbou?r|port|pond|coast|shore|bay|canal|water)\b/, "gentle ripples moving across the water surface, reflections shimmering"],
+  [/\bwaterfall\b/, "the waterfall flowing steadily"],
+  [/\b(?:forest|woods?|jungle|garden|park|trees?|grove|meadow|field|grass|orchard|blossom)\b/, "leaves and grass swaying softly in a light breeze"],
+  [/\b(?:fireplace|hearth|campfire|bonfire|forge|candles?|torch(?:es)?|lanterns?)\b/, "the existing flames flickering softly"],
+  [/\b(?:mountains?|peaks?|cliffs?|valley|hills?|landscape|sky|clouds?)\b/, "clouds drifting very slowly across the sky"],
 ];
 
 export const backgroundWords = (name: string): string => name
@@ -25,7 +20,7 @@ export function loopPrompt(background: string): string {
   const motions = [...new Set(MOTION.filter(([pattern]) => pattern.test(words)).map(([, motion]) => motion))].slice(0, 3);
   return [
     words ? `${words} scene` : "a scene",
-    ...(motions.length ? motions : ["subtle ambient motion, light shifting softly"]),
-    "static locked-off camera, no camera movement, no people moving, calm seamless ambient loop, same composition throughout",
+    ...(motions.length ? motions : ["almost still, light shifting very softly"]),
+    "static locked-off tripod camera, every building, object and light stays exactly where it is, only the named elements move, slow calm ambient motion that returns to the first frame",
   ].join(", ");
 }

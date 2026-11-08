@@ -13,12 +13,11 @@ import { loopKey, loopSeed } from "./key";
 import { backgroundNameOf, currentTarget, preTargets, type LoopStory, type LoopTarget } from "./plan";
 import { loopPrompt } from "./prompt";
 import { LoopScheduler, type ResolvedLoop } from "./scheduler";
-import { buildLoopGraph, fitShape, LOOP_MODEL, LOOP_PROMPT_VERSION, LOOP_SHAPES, loopModelFiles, type LoopShape, type LoopTier, type VideoTier } from "./workflow";
+import { buildLoopGraph, centerCrop, fitShape, LOOP_MODEL, LOOP_PROMPT_VERSION, LOOP_SHAPES, loopModelFiles, type LoopShape, type LoopTier, type VideoTier } from "./workflow";
 
 export const LOOP_QUIET_MS = 20_000;
 export const LOOP_NEED_GPU_MIB = 18_000;
 export const LOOP_NEED_RAM_MIB = 18_000;
-const STILL_MAX_EDGE = 1280;
 const GPU_KINDS = new Set(["image", "sprite"]);
 const gpuWork = (chatId: string | null): boolean => busyWork.view(chatId).some((job) => GPU_KINDS.has(job.kind));
 
@@ -31,14 +30,15 @@ export interface LoopHostInput {
   subscribe(listener: () => void): () => void;
 }
 
-async function stillPng(bytes: ArrayBuffer, signal: AbortSignal): Promise<string> {
+async function stillPng(bytes: ArrayBuffer, shape: LoopShape, signal: AbortSignal): Promise<string> {
   const bitmap = await createImageBitmap(new Blob([bytes]));
   signal.throwIfAborted();
-  const scale = Math.min(1, STILL_MAX_EDGE / Math.max(bitmap.width, bitmap.height));
   const canvas = document.createElement("canvas");
-  canvas.width = Math.max(32, Math.round(bitmap.width * scale));
-  canvas.height = Math.max(32, Math.round(bitmap.height * scale));
-  canvas.getContext("2d")?.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+  canvas.width = shape.width;
+  canvas.height = shape.height;
+  const crop = centerCrop(bitmap.width, bitmap.height, shape.width, shape.height);
+  const context = canvas.getContext("2d");
+  if (context) { context.imageSmoothingEnabled = true; context.imageSmoothingQuality = "high"; context.drawImage(bitmap, crop.x, crop.y, crop.width, crop.height, 0, 0, shape.width, shape.height); }
   bitmap.close();
   return canvas.toDataURL("image/png").replace(/^data:image\/png;base64,/, "");
 }
@@ -95,7 +95,7 @@ export function startBackdropLoops(input: LoopHostInput): () => void {
     const wanted = videoTier();
     const still = wanted ? await stillKey(loop.target.still, wanted) : null;
     if (!still || still.key !== loop.key) return couldNot("The background or the loop tier changed.");
-    const reference = await comfyReference(await stillPng(still.bytes, signal), signal, { character: "backdrop", set: "loops" });
+    const reference = await comfyReference(await stillPng(still.bytes, still.shape, signal), signal, { character: "backdrop", set: "loops" });
     try {
       const reservation = await reserveGpu({ signal, width: still.shape.width, height: still.shape.height, needGpuMiB: LOOP_NEED_GPU_MIB, needRamMiB: LOOP_NEED_RAM_MIB,
         workflowKey: JSON.stringify({ recipe: "backdrop-loop", model: LOOP_MODEL.id, tier: still.tier, frames: still.shape.frames }), modelFiles: loopModelFiles() });
@@ -175,7 +175,7 @@ export function startBackdropLoops(input: LoopHostInput): () => void {
       return url ? { loopUrl: url } : null;
     },
   });
-  const offLayer = registerLayer(CINEMAGRAPH_KIND, (context) => cinemagraphLayer(context), { gate: "loops", auto: cinemagraphAuto });
+  const offLayer = registerLayer(CINEMAGRAPH_KIND, (context, spec) => cinemagraphLayer(context, spec), { gate: "loops", auto: cinemagraphAuto });
   const offShown = onBaseShown((base) => scheduler.setCurrent(current(base)));
   const offRuntime = input.subscribe(refresh);
   const offBusy = busyWork.subscribe(() => {
