@@ -7,7 +7,7 @@ import type { StreamActivity } from "../animation";
 import { HeadDriver, visemeMouth } from "./headDriver";
 import { MotionDriver, type Presence } from "./motionDriver";
 import { headImage } from "./load";
-import { attachHead } from "./mount";
+import { attachHead, headVisibility } from "./mount";
 import type { DrawnSource } from "./drawn";
 import { HeadLooks, type ExpressionSources } from "./expressions";
 import { decodeBytes } from "./synthesis/decode";
@@ -48,7 +48,7 @@ export function LiveHead(props: LiveHeadProps) {
     const binding = { member, look, artHash, source, manifest };
     const element = canvas.current;
     if (!element) return;
-    const parent = element.parentElement, owner = beginRun(), abort = new AbortController();
+    const owner = beginRun(), abort = new AbortController();
     const timeout = setTimeout(() => abort.abort(), 15_000);
     let live = true, dispose: (() => void) | null = null;
     const onOwnerAbort = () => abort.abort();
@@ -66,11 +66,7 @@ export function LiveHead(props: LiveHeadProps) {
       element.dataset.liveHeadLooks = [element.dataset.liveHeadLooks, `${name}:${prepared ? `ok${prepared.gaze.every(Boolean) ? "" : "-still"}` : "refused"}`].filter(Boolean).join(" ");
       if (problem) log.debug("Live head expression kept neutral", name, problem);
     }) : null;
-    const visible = (ready: boolean) => {
-      if (!live) return;
-      element.style.visibility = ready ? "visible" : "hidden";
-      if (parent) parent.dataset.liveHeadReady = String(ready);
-    };
+    const visible = headVisibility(element, () => live);
     visible(false);
     void attachHead(element, binding, run, { bytes: headAssetBytes, hash: headArtHash, image: headImage }, () => {
       const current = latest.current, elapsed = performance.now() - start, speaker = current.activity.view();

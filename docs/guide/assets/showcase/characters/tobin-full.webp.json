@@ -1,0 +1,20 @@
+{
+  "build": "3da6a4689c6f98cc41bc2b4810a3905f3e1da6ea",
+  "licence": "Qwen-Image-2512: Apache-2.0 (https://huggingface.co/Qwen/Qwen-Image-2512). Cut-out: BiRefNet toonout via ComfyUI-RMBG. Output: synthetic, SFW, made for this guide.",
+  "source": "scripts/docs/demo-art.py on the owner's local ComfyUI (plan 46 W4)",
+  "use": "full-body sprite",
+  "kind": "character",
+  "member": "SO-Demo Tobin",
+  "prompt": "an elderly ferryman, short neat white beard, weathered kind face, bushy white eyebrows, grey eyes, bald crown with short white hair at the sides, navy wool peacoat with brass buttons, grey scarf, dark trousers, sturdy boots. clean anime visual novel character art, soft cel shading, crisp line art, full body, standing, facing the viewer, plain light grey studio background, even lighting",
+  "seed": 4202,
+  "model": {
+    "unet": "qwen_image_2512_fp8_e4m3fn.safetensors",
+    "clip": "qwen_2.5_vl_7b_fp8_scaled.safetensors",
+    "vae": "qwen_image_vae.safetensors"
+  },
+  "steps": 30,
+  "cfg": 4.0,
+  "sampler": "euler/simple",
+  "cutout": "BiRefNet_toonout",
+  "built": "2026-11-08T09:56:53Z"
+}
