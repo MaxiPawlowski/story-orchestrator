@@ -4,6 +4,13 @@ const busyText = (interrupted = {}) => [
     interrupted.imageLease || interrupted.imagePending || interrupted.imageQueued ? 'an image lease was stuck' : null,
 ].filter(Boolean).join(', ');
 
+export function textState(text) {
+    if (text?.sleeping) return `text asleep (${text.sleeping.profile ?? 'unknown'}, pid ${text.sleeping.pid ?? '?'})`;
+    if (text?.profile) return text.profile;
+    if (text?.pid) return `text ${text.loading ? 'loading' : 'not ready'} (pid ${text.pid})`;
+    return 'text unloaded';
+}
+
 export function controlLine(action, data) {
     const result = action === 'stop' ? data : data.unload;
     if (action === 'stop' && data.stopped) return result?.forced ? `stop: stopped after the wait ran out (${busyText(result.interrupted) || 'work still active'})` : 'stop: stopped';
