@@ -17,7 +17,7 @@ export const resolutionStory = (): StoryDraft => {
   return {
     ...base,
     qualities: [...base.qualities.filter((quality) => quality.key !== "trust"),
-      { key: "trust", type: "int", source: "extractor", rubric: "How much the guide trusts the party, 0-5.", display: { label: "Trust", as: "meter", public: true } },
+      { key: "trust", type: "int", source: "extractor", rubric: "How much the guide trusts the party, 0-5.", display: { label: "Trust", as: "meter", min: 0, max: 5, public: true } },
       { key: "coins", type: "int", source: "code", rubric: "Coins the party holds." },
       { key: "asked_debt", type: "bool", source: "extractor", rubric: "Asked about the debt." },
       { key: "refused_debt", type: "bool", source: "extractor", rubric: "Refused to help." }],
