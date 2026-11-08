@@ -30,7 +30,8 @@ export const onLayersChanged = (listener: () => void): (() => void) => {
   return () => { listeners.delete(listener); };
 };
 
-export const gateOpen = (gate: BackdropGate, settings: BackdropAutoInput["settings"]): boolean => settings.enabled && settings[gate];
+export const gateOpen = (gate: BackdropGate, settings: BackdropAutoInput["settings"]): boolean =>
+  settings.enabled && settings[gate] !== false && settings[gate] !== "off";
 
 export const autoLayers = (input: BackdropAutoInput): BackdropLayerSpec[] => [...layers.values()].flatMap((entry) => {
   if (!entry.auto || !gateOpen(entry.gate, input.settings)) return [];

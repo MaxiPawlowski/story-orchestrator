@@ -166,8 +166,9 @@ export const SETTING_COPY = {
     "Gives the background depth so near and far parts move apart slightly as it drifts and as the pointer moves. A depth map is made once per background.",
   ),
   "display.backdrop.loops": copy(
-    "Video loops of key places",
-    "Short seamless video loops of the story's key places, made on your GPU when it is idle or at story setup. Until a loop is ready the still is used.",
+    "Moving backgrounds",
+    "How the background itself moves. Still motion animates only parts of the picture (water, sky, fire); Lite and Full make short seamless video loops of the story's key places "
+      + "on your GPU when it is idle or at story setup, Full sharper and smoother. A tier the machine cannot run steps down by itself. Until a loop is ready the still is used.",
   ),
   "display.backdrop.intensity": copy(
     "Backdrop strength",

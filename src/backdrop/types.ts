@@ -32,13 +32,16 @@ export interface BackdropAssets {
   loopUrl?: string;
 }
 
+export const BACKDROP_LOOP_TIERS = ["off", "cinemagraph", "lite", "full"] as const;
+export type BackdropLoopTier = (typeof BACKDROP_LOOP_TIERS)[number];
+
 export type BackdropGate = "effects" | "parallax" | "loops";
 
 export interface BackdropSettings {
   enabled: boolean;
   effects: boolean;
   parallax: boolean;
-  loops: boolean;
+  loops: BackdropLoopTier;
   intensity: number;
   dimBehindChat: boolean;
 }

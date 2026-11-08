@@ -84,9 +84,9 @@ export const PRESENCE_FEATURES: readonly Feature[] = [
     id: "backdrop-loops", name: "Backdrop video loops", area: "play", audience: "player",
     oneLine: "Short seamless video loops of the story's key places replace the still when ready.",
     what: "Loops are made on your GPU at story setup for places the story marks, or when the GPU is idle, and cached per background. Until one is ready the still is used.",
-    where: settingsAt("#so-backdrop-loops", "Display › Video loops of key places"),
+    where: settingsAt("#so-backdrop-loops", "Display › Moving backgrounds"),
     settings: ["display.backdrop.loops"], doc: "player/drawer-and-hud.md", status: "experimental", needs: ["comfyui"],
-    isOn: (settings) => settings.display.backdrop.enabled && settings.display.backdrop.loops,
+    isOn: (settings) => settings.display.backdrop.enabled && settings.display.backdrop.loops !== "off",
   },
   {
     id: "compact-thoughts", name: "Thinking pill", area: "play", audience: "player",

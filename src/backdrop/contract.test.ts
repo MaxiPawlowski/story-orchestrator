@@ -30,6 +30,10 @@ describe("v3.0 45 contract: layer registry", () => {
     expect(autoLayers(input({ parallax: false }))).toEqual([]);
     expect(autoLayers(input({ enabled: false }))).toEqual([]);
     stop();
+    const loop = registerLayer("test-loop", () => layer("test-loop"), { gate: "loops", auto: () => ({ id: "test-loop", kind: "test-loop", params: {} }) });
+    expect(autoLayers(input({ loops: "off" }))).toEqual([]);
+    expect(autoLayers(input({ loops: "cinemagraph" })).map((spec) => spec.kind)).toEqual(["test-loop"]);
+    loop();
   });
 });
 
@@ -63,6 +67,8 @@ describe("v3.0 45 contract: settings and host still", () => {
     expect(sanitizeBackdropSettings(undefined)).toEqual(defaultBackdropSettings());
     expect(sanitizeBackdropSettings({ effects: false, intensity: 7 })).toMatchObject({ enabled: true, effects: false, intensity: 1 });
     expect(sanitizeBackdropSettings({ intensity: "x" }).intensity).toBe(0.5);
+    expect(sanitizeBackdropSettings({ loops: "lite" }).loops).toBe("lite");
+    expect(sanitizeBackdropSettings({ loops: true }).loops).toBe("full");
   });
 
   it("reads the still's url and key from #bg1's background-image", () => {
