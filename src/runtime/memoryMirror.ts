@@ -4,7 +4,8 @@ import type { MemoryEntry } from "@memory/types";
 import type { ChatLorebookBinding, ChatOwner, Lorebook, WIUpsertResult } from "@services/STAPI";
 import type { WriteResult } from "@utils/writeResult";
 import type { MemoryMirrorBook } from "./types";
-import { MIRROR_BOOK_PREFIX, OWNER_COMMENT, ownerMarkerContent } from "./mirrorReaper";
+import { MIRROR_BOOK_PREFIX, OWNER_COMMENT, ownerMarkerContent, parseOwnerMarker } from "./mirrorReaper";
+import { lorebookFileId } from "@utils/string";
 import { beginRun, type RunGuard, type RunOwnership } from "./runToken";
 import { log } from "@utils/log";
 
@@ -23,6 +24,8 @@ export interface MemoryMirrorHost {
   // Who the adopted book is for, written into it as the `so-owner` marker the reaper
   // requires. Optional like `ownership`: without it no marker is written, and such a book is never reaped.
   owner?: () => ChatOwner | null;
+  listLorebooks?: () => string[];
+  readWIEntry?: (lorebook: string, comment: string) => Promise<{ content: string } | null>;
 }
 
 export interface MemoryMirrorSummary {
@@ -79,6 +82,19 @@ const bookComments = (data: Lorebook | null, disabled: boolean): string[] => Obj
   .map((entry) => entry.comment?.trim() ?? "")
   .filter((comment) => comment.startsWith(COMMENT_PREFIX));
 
+async function renamedMirror(host: MemoryMirrorHost, recorded: string, chatId: string, run: RunGuard): Promise<string | null> {
+  if (!host.listLorebooks || !host.readWIEntry) return null;
+  const listed = host.listLorebooks();
+  if (listed.includes(recorded) || listed.includes(lorebookFileId(recorded))) return null;
+  const ordered = [...listed.filter((book) => book.startsWith(MIRROR_BOOK_PREFIX)), ...listed.filter((book) => !book.startsWith(MIRROR_BOOK_PREFIX))];
+  for (const book of ordered) {
+    const marker = parseOwnerMarker((await host.readWIEntry(book, OWNER_COMMENT))?.content);
+    if (!run.stillOwns()) return null;
+    if (marker?.chatId === chatId) return book;
+  }
+  return null;
+}
+
 const sameWrites = (left: Record<string, string>, right: Record<string, string>) =>
   Object.keys(left).length === Object.keys(right).length && Object.entries(left).every(([comment, hash]) => right[comment] === hash);
 
@@ -103,11 +119,13 @@ export async function syncMemoryMirror(input: MemoryMirrorInput, host: MemoryMir
   const owned = input.book?.chatId === chatId ? input.book : null;
   if (!owned && !live.length) return skippedSync(idle, "nothing-live");
 
-  const ensured = await host.ensureLorebook(owned?.name ?? mirrorLorebookName(input.title, chatId), run);
+  const renamed = owned ? await renamedMirror(host, owned.name, chatId, run) : null;
+  if (lapsed()) return null;
+  const ensured = await host.ensureLorebook(renamed ?? owned?.name ?? mirrorLorebookName(input.title, chatId), run);
   if (!ensured) return skippedSync(idle, "no-book");
   summary.ran = true;
   summary.lorebook = ensured.name;
-  const adopting = !owned || ensured.created;
+  const adopting = !owned || ensured.created || ensured.name !== owned.name;
   const liveComments = new Set(live.map(mirrorComment));
   const writes = adopting ? {} : { ...input.writes };
 

@@ -1,7 +1,7 @@
 import { hashMemoryText } from "@memory/stores";
 import type { MemoryEntry } from "@memory/types";
 import type { ChatLorebookBinding, ChatOwner, Lorebook } from "@services/STAPI";
-import { mirroredEntries, mirrorLorebookName, syncMemoryMirror, type MemoryMirrorHost, type MemoryMirrorInput } from "./memoryMirror";
+import { mirrorComment, mirroredEntries, mirrorLorebookName, syncMemoryMirror, type MemoryMirrorHost, type MemoryMirrorInput } from "./memoryMirror";
 import { OWNER_COMMENT, ownerMarkerContent, parseOwnerMarker } from "./mirrorReaper";
 import { testOwnership } from "../../test/findings/testOwnership";
 
@@ -71,6 +71,39 @@ const memory = (patch: Partial<MemoryEntry> = {}) => ({
 const input = (entries: MemoryEntry[], patch: Partial<MemoryMirrorInput> = {}): MemoryMirrorInput => ({ title: "Crossing", entries, writes: {}, book: null, ...patch });
 const bookA = mirrorLorebookName("Crossing", "chat-a");
 const enabledComments = (entries: FakeEntry[] = []) => entries.filter((entry) => !entry.disable).map((entry) => entry.comment);
+
+describe("harvest 2026-11-08 B1: a renamed mirror book is followed, not replaced", () => {
+  const marked = (chatId: string): FakeEntry => ({ uid: 99, comment: OWNER_COMMENT, content: ownerMarkerContent({ chatId, integrity: null, groupId: "g", avatar: null }, "2026-11-08T00:00:00.000Z", "Crossing"), key: [], disable: true });
+  const withListing = (world: ReturnType<typeof fakeHost>) => {
+    world.host.listLorebooks = () => [...world.books.keys()];
+    world.host.readWIEntry = async (book, comment) => world.books.get(book)?.find((entry) => entry.comment === comment) ?? null;
+    return world;
+  };
+
+  it("adopts the listed book whose so-owner marker names this chat and writes nothing into a new one", async () => {
+    const entry = memory();
+    const world = withListing(fakeHost({ books: { "My renamed memories": [marked("chat-a"), { uid: 0, comment: mirrorComment(entry), content: entry.text, key: [], disable: false }] } }));
+    const result = await syncMemoryMirror(input([entry], { book: { name: bookA, chatId: "chat-a" }, writes: { [mirrorComment(entry)]: hashMemoryText(entry.text) } }), world.host);
+    expect(result?.book).toEqual({ name: "My renamed memories", chatId: "chat-a" });
+    expect(world.calls.created).toEqual([]);
+    expect(world.books.has(bookA)).toBe(false);
+  });
+
+  it("control: a marker naming another chat is not adopted; the book is created as before", async () => {
+    const world = withListing(fakeHost({ books: { "Someone else's memories": [marked("chat-b")] } }));
+    const result = await syncMemoryMirror(input([memory()], { book: { name: bookA, chatId: "chat-a" } }), world.host);
+    expect(result?.book?.name).toBe(bookA);
+    expect(world.calls.created).toEqual([bookA]);
+    expect(enabledComments(world.books.get("Someone else's memories"))).toEqual([]);
+  });
+
+  it("a recorded book that is still listed reads no markers", async () => {
+    const world = withListing(fakeHost({ books: { [bookA]: [], "Other": [marked("chat-a")] } }));
+    const reads = jest.spyOn(world.host, "readWIEntry");
+    await syncMemoryMirror(input([memory()], { book: { name: bookA, chatId: "chat-a" } }), world.host);
+    expect(reads).not.toHaveBeenCalled();
+  });
+});
 
 describe("syncMemoryMirror", () => {
   it("creates this chat's own book on the first write and binds it to the chat", async () => {
