@@ -37,7 +37,7 @@ export const OffByDefault: Story = {
 };
 
 export const StoryTurnsItOn: Story = {
-  args: { activation: "story", onStage: "On stage: Belle (default, smirk)" },
+  args: { activation: "story", onStage: "On stage: Juno (default, smirk)" },
   play: async ({ canvasElement, args }) => {
     await expect(on(canvasElement)).toBe(true);
     await expect(canvasElement.querySelector("#so-sprite-activation")?.textContent).toContain("its story directs a stage");
@@ -47,7 +47,7 @@ export const StoryTurnsItOn: Story = {
 };
 
 export const WaitsForVisualNovelMode: Story = {
-  args: { activation: "story", waitsForVn: true, onStage: "On stage: Belle" },
+  args: { activation: "story", waitsForVn: true, onStage: "On stage: Juno" },
   play: async ({ canvasElement }) => {
     await expect(on(canvasElement)).toBe(true);
     await expect(canvasElement.querySelector("#so-sprite-vn-hint")?.textContent).toContain("/vn");

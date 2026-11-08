@@ -262,7 +262,7 @@ const wardenNote = (status: CuratorOpRecord["status"], message?: string): Curato
   messageId: 7,
   checkpointId: "gate",
   reason: "continuity",
-  summary: "Mira's reply contradicts an established fact",
+  summary: "Liesl's reply contradicts an established fact",
   mode: "review",
   ops: [{
     op: {
@@ -279,7 +279,7 @@ const wardenNote = (status: CuratorOpRecord["status"], message?: string): Curato
           provenance: { source: "judge", messageId: 4, boundary: 2, pass: "shared-read", confidence: 0.9, validity: "live" },
           conflictingValue: "The bridge is intact (ledger)",
         },
-        { id: "bound:Mira:hp", text: "Mira hp = 5", provenance: { source: "blackboard", messageId: -1, boundary: 0, pass: "blackboard", validity: "live" } },
+        { id: "bound:Liesl:hp", text: "Liesl hp = 5", provenance: { source: "blackboard", messageId: -1, boundary: 0, pass: "blackboard", validity: "live" } },
       ],
     },
     status,
@@ -293,7 +293,7 @@ export const WardenNoteAwaitingReview: Story = {
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);
     await expect(canvas.getByText(/Continuity warden on · notes wait for you/)).toBeInTheDocument();
-    await expect(canvas.getByText(/Continuity warden: Mira's reply contradicts an established fact/)).toBeInTheDocument();
+    await expect(canvas.getByText(/Continuity warden: Liesl's reply contradicts an established fact/)).toBeInTheDocument();
     await expect(canvas.getByText("established: The bridge fell in the flood.")).toBeInTheDocument();
     const text = canvas.getByLabelText("Text for continuity note");
     await userEvent.clear(text);
@@ -316,7 +316,7 @@ export const WardenNoteCitesItsSource: Story = {
     const buttons = canvas.getAllByRole("button", { name: /Show the (fact|blackboard)/ });
     await expect(buttons.map((button) => button.textContent)).toEqual(["Show the fact", "Show the blackboard"]);
     await userEvent.click(buttons[1]);
-    await expect(args.onOpenFact).toHaveBeenCalledWith("bound:Mira:hp");
+    await expect(args.onOpenFact).toHaveBeenCalledWith("bound:Liesl:hp");
   },
 };
 
@@ -380,7 +380,7 @@ const loreNote: CuratorProposalRecord = {
   reason: "lore",
   summary: "Narrator's reply contradicts a lore entry",
   ops: [{
-    op: { kind: "note", family: "lore", text: 'Lore: "Arryn" says Arryn has never used a bow. — keep the next reply consistent with it.', facts: [], lore: ["Arryn"], replyMessageId: 11 },
+    op: { kind: "note", family: "lore", text: 'Lore: "Corvin" says Corvin has never used a bow. — keep the next reply consistent with it.', facts: [], lore: ["Corvin"], replyMessageId: 11 },
     status: "pending",
   }],
 };
@@ -391,7 +391,7 @@ export const WardenLoreNoteAwaitingReview: Story = {
     const canvas = within(canvasElement);
     await expect(canvas.getByText(/Warden: Narrator's reply contradicts a lore entry/)).toBeInTheDocument();
     await expect(canvas.getByText(/lore note/)).toBeInTheDocument();
-    await expect(canvas.getByText("lore entry: Arryn")).toBeInTheDocument();
+    await expect(canvas.getByText("lore entry: Corvin")).toBeInTheDocument();
     await userEvent.click(canvas.getByRole("button", { name: "Accept" }));
     await expect(args.manager.setCuratorOpDecision).toHaveBeenCalledWith("warden-7-11", 0, "accepted", undefined);
   },

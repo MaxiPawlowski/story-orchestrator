@@ -10,6 +10,7 @@ Each section is one guide topic. The Studio's "How to write this" and the wizard
 - [Preset](#preset)
 - [Background](#background)
 - [Stage transition](#stage-transition)
+- [Animated backdrop](#backdrop)
 - [Scenario](#scenario)
 - [Cast changes](#cast-changes)
 - [NPC replies](#npc-replies)
@@ -94,6 +95,20 @@ Field: `effects.transition`: a kind, or `{ kind, ms, color }` (`schema.ts` `Tran
 - **Good.** `"transition": { "kind": "fade", "ms": 1200 }` on the first beat after a time skip; `"transition": "cut"` for a sudden shock.
 - **Bad.** A wipe on every beat; a long fade on a beat the player reaches every few turns.
 - **If wrong.** An unknown kind, an `ms` outside 0 to 5000, a color that is not a hex, or an unknown key is a validation error naming the field. The player's stage effects setting (`sprites.effects`) and reduced motion (SillyTavern, the system, or the story's `display.motion: false`) shorten every transition to a short crossfade or skip it.
+
+<a id="backdrop"></a>
+
+## Animated backdrop
+
+Topic `backdrop`.
+
+Fields: `effects.backdrop` on a checkpoint and the story's `backdrop_defaults`, each `{ layers, weather, time, indoor, intensity, loop }` (`engine/backdropSchema.ts`, `validate/backdrop.ts`, `src/backdrop/`).
+
+- **What it does.** Animates the scene behind the chat: the background still (or a video loop of it, when one is ready) with weather and light layers drawn over it. Presentation only: it writes nothing to the story's state and never delays a turn. With nothing authored the backdrop is derived from the story's own state: a `weather` quality (rain, storm, snow, fog, wind, clear), the clock's `time_of_day` / `is_night`, `tension_current`, and whether the background looks like an interior. `backdrop_defaults` applies to every beat; a beat's `effects.backdrop` overrides it field by field.
+- **Fields.** `layers`: a list of `{ kind, intensity, speed, color, mask }` or plain kinds; `[]` means no layers. Kinds: `rain`, `snow`, `embers`, `dust`, `fireflies`, `fog`, `flicker` (firelight), `drift` (slow camera move), `shimmer` (water or heat haze), `parallax` and `depthFog` (need a depth map of the background). `intensity` 0 to 1, `speed` 0.1 to 4, `color` a hex, `mask` `sky`, `water` or `none` (where `shimmer` shows). `weather` and `time` replace what the state says for this beat; `indoor` true keeps sky weather out; `intensity` 0 to 1 scales every layer. `loop`: `"pre"` asks for a video loop of this beat's background to be made when the story is set up (never shown before the beat is reached), `"auto"` lets one be made when the GPU is idle, `false` keeps the still.
+- **Good.** `"backdrop": { "weather": "rain", "layers": ["rain", { "kind": "fog", "intensity": 0.3 }] }` on a storm beat; `"backdrop": { "indoor": true, "layers": ["flicker", "dust"] }` in a candlelit cellar; `"loop": "pre"` on the two or three places the story returns to.
+- **Bad.** Heavy rain on every beat; `loop: "pre"` on every checkpoint (each loop costs minutes of GPU); a layer meant to reveal something the player has not found.
+- **If wrong.** An unknown kind, weather, time, mask or loop value, a number out of range, a kind listed twice or an unknown key is a validation error naming the field. The player's Display settings (Animated backdrop, its effects, depth, loops and intensity switches) and reduced motion win: reduced motion shows the still only.
 
 <a id="scenario"></a>
 

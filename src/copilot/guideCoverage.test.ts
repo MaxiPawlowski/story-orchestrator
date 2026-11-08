@@ -4,6 +4,7 @@ import type { Commitment } from "@engine/lifeSchema";
 import type { StoryPolish } from "@engine/polishSchema";
 import type { MemberCue, MemberTopic, StoryNorm, TopicTier } from "@engine/cueSchema";
 import type { StoryEcho } from "@engine/echoSchema";
+import type { BackdropEffect, BackdropLayerEntry } from "@engine/backdropSchema";
 import type { Checkpoint, CheckpointEffects, NpcReplyEffect, Quality, RosterMember, Story, StoryTalkDefaults, TalkControl, Transition } from "@engine/index";
 import { GUIDE_TOPICS, type GuideTopicId } from "./guideTopics";
 import { PENDING_GUIDE_TOPICS, readGuide } from "./guideRead";
@@ -20,7 +21,7 @@ const STORY: Record<keyof Story, Covered> = {
   objective_block: "objective-agency", display: "presentation", chapters: "chapters", memory: "chapters", quests: "quests", milestones: "quests",
   widgets: "widgets", clock: "story-time", calendar: "story-time", living: "living-director", factions: "factions",
   codex: "codex", observations: "observations", outcome: "outcome", carry_from: "carry-from", rumors: "rumors", patterns: "patterns", polish: "story-polish",
-  norms: "norms", echoes: "echoes", talk_defaults: "talk-pacing",
+  norms: "norms", echoes: "echoes", talk_defaults: "talk-pacing", backdrop_defaults: "backdrop",
 };
 
 const CHECKPOINT: Record<keyof Checkpoint, Covered> = {
@@ -32,7 +33,7 @@ const CHECKPOINT: Record<keyof Checkpoint, Covered> = {
 
 const EFFECTS: Record<keyof CheckpointEffects, Covered> = {
   author_note: "author-note", preset: "preset", world_info: "world-info", cast_changes: "cast-changes", npc_replies: "npc-replies",
-  background: "background", transition: "stage-transition", reasoning: "experimental-effects", scenario: "scenario", card: "living-cards", stage: "poses", illustrations: "presentation",
+  background: "background", transition: "stage-transition", reasoning: "experimental-effects", scenario: "scenario", card: "living-cards", stage: "poses", illustrations: "presentation", backdrop: "backdrop",
 };
 
 const TRANSITION: Record<keyof Transition, Covered> = {
@@ -93,6 +94,8 @@ const TALK_CONTROL: Record<keyof TalkControl, Covered> = {
   profile: "talk-pacing", budget: "talk-pacing", lead_words: "talk-pacing", lead_max_consecutive: "talk-pacing", spotlight: "talk-pacing", address_player: "talk-pacing",
   reaction: "talk-pacing",
 };
+const BACKDROP: Record<keyof BackdropEffect, Covered> = { layers: "backdrop", weather: "backdrop", time: "backdrop", indoor: "backdrop", intensity: "backdrop", loop: "backdrop" };
+const BACKDROP_LAYER: Record<keyof BackdropLayerEntry, Covered> = { kind: "backdrop", intensity: "backdrop", speed: "backdrop", color: "backdrop", mask: "backdrop" };
 const TALK_DEFAULTS: Record<keyof StoryTalkDefaults, Covered> = { profile: "talk-pacing", budget: "talk-pacing" };
 const NPC_REPLY: Record<keyof NpcReplyEffect, Covered> = {
   trigger: "npc-replies", member: "npc-replies", kind: "npc-replies", new_chat_only: "opening-scene", text: "npc-replies", instruction: "npc-replies", ask_player: "npc-replies",
@@ -100,7 +103,7 @@ const NPC_REPLY: Record<keyof NpcReplyEffect, Covered> = {
   cooldown_player_turns: "npc-replies",
 };
 const TABLES: Array<[string, Record<string, Covered>]> = [
-  ["checkpoints[].talk_control", TALK_CONTROL], ["talk_defaults", TALK_DEFAULTS], ["checkpoints[].effects.npc_replies[]", NPC_REPLY],
+  ["checkpoints[].talk_control", TALK_CONTROL], ["talk_defaults", TALK_DEFAULTS], ["backdrop", BACKDROP], ["backdrop.layers[]", BACKDROP_LAYER], ["checkpoints[].effects.npc_replies[]", NPC_REPLY],
   ["polish", STORY_POLISH],
   ["roster[].cues[]", CUE], ["roster[].topics[]", TOPIC], ["roster[].topics[].tiers[]", TIER], ["norms[]", NORM], ["echoes[]", ECHO],
   ["outcome[]", OUTCOME], ["carry_from", CARRY], ["carry_from.map[]", CARRY_MAP],

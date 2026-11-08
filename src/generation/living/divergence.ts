@@ -3,6 +3,7 @@ import { DIVERGENCE_COMMIT_P, DIVERGENCE_NONE_P, DIVERGENCE_STREAK, DIVERGENCE_S
 import { choice, choiceAnswer, noul, noulAnswer } from "@judge/questions";
 import type { JudgeAnswer, JudgeRequest } from "@judge/types";
 import { isRecord } from "@utils/guards";
+import { clipText } from "@utils/string";
 import { LIVING_BRANCH_PREFIX, LIVING_STUB_SUFFIX, type DivergenceReading, type DivergenceState } from "./types";
 
 export { DIVERGENCE_COMMIT_P, DIVERGENCE_NONE_P, DIVERGENCE_STREAK, DIVERGENCE_SURE_P, DIVERGENCE_TIMEOUT_MS } from "@judge/policy";
@@ -105,7 +106,7 @@ const LINE_CHARS = 600;
 export function windowLines(rows: readonly unknown[], size = DIVERGENCE_WINDOW): DivergenceWindowLine[] {
   return rows.flatMap((row) => {
     if (!isRecord(row) || row.is_system === true || typeof row.mes !== "string" || !row.mes.trim()) return [];
-    return [{ speaker: typeof row.name === "string" ? row.name : "", text: row.mes.trim().slice(0, LINE_CHARS), player: row.is_user === true }];
+    return [{ speaker: typeof row.name === "string" ? row.name : "", text: clipText(row.mes.trim(), LINE_CHARS), player: row.is_user === true }];
   }).slice(-size);
 }
 

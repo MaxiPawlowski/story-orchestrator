@@ -1,5 +1,7 @@
 # Implementation Overview — Story Orchestrator v3.0
 
+> **2026-11-08:** quests and consequences wave planned, 48-55 (§Quests and consequences wave). Docs only, not scheduled.
+
 > **2026-10-21 (owner):** renamed from v2.9 to v3.0; every reference was rewritten. v2.9 is now the 2026-10-21 additions triage (`docs/plans/v2.9/00-overview.md`).
 
 > **2026-10-14 (owner):** 02 and 05.4 moved to v2.8 42 / 43.
@@ -729,3 +731,29 @@ Branch `v3.0-cpu-1031b` (GPU paused: no model lanes, controller, ComfyUI or imag
 - Gates: `npm run gates:quick` green. `npm run gates` (no `--resume`, Storybook included): run 1 red (jest: errorCopy row missing), run 2
   all green in 334.0s on `812cb196` (jest 11,081 passed / 1 skipped, test:debug 1,734, Storybook 1,135, replay, release, plugin, lint,
   typechecks, build). Not staged, not installed.
+
+## Quests and consequences wave (plans 48-55, 2026-11-08)
+
+Source: owner conversation with Astra 2026-11-08 ("make better quests that properly integrate into the story ... not
+just to drive the player from A to B"). Claims checked against master `1aaa7ca09`: 17 accurate, 5 partly, 0 wrong
+(48 §Review). Second opinion: codex `gpt-6.1-sol`, applied (48 §Second opinion). Every feature is its own switch, on
+by default. Floors are declared in each plan before any measurement. PLANNED, docs only, not scheduled.
+
+- 48 `48-quest-resolutions.md`: named resolutions separate from lifecycle, precedence instead of array order,
+  conditional consequences in one boundary snapshot, resolution refs in gates/echoes/requires, Studio matrix +
+  simulator, wizard recipe, guide. L, CPU + 1 h GPU journey. First.
+- 49 `49-situations-and-pressures.md`: stakeholders on cast/factions, codex discoveries, pressures on events and story
+  time only, optional/alternative steps. M. After 48.
+- 50 `50-adaptive-agendas.md`: priorities, methods with abandon conditions, agenda ends, NPC-to-NPC commitments. M.
+  After 48, parallel with 49.
+- 51 `51-consequence-aware-director.md`: code-built candidates with recorded causes, seeded selection, frozen choice
+  record. M. After 48 + 54.
+- 52 `52-pacing-engagement-signals.md`: classify quiet stretches before escalating; escalation only from established
+  pressures. M. Parallel with 48.
+- 53 `53-belief-trust-world-pressures.md`: research stub (informants, trust, faction objectives). Not scheduled.
+- 54 `54-story-record.md`: what happened / why / who knows / what is open, a projection over existing stores. S-M. With
+  48.
+- 55 `55-situation-recipes.md`: six original recipes as guide + wizard knowledge, plus licence findings (links only,
+  nothing bundled). S-M. After 48's schema is fixed.
+
+Recommended order: 48 + 54 → 55 → 49 ∥ 50 → 51; 52 any time; 53 waits for a playtest flag.
