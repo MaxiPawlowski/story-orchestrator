@@ -15,7 +15,11 @@ export function quoteSlashArg(s: string): string {
 // characters, reserved names and trailing dots/spaces of the whole file name removed, then a 255-byte UTF-8 cap) and lists the
 // `.json` files by `path.parse(file).name` (src/endpoints/settings.js:255-257). The name is not trimmed: ".json" follows it.
 const ILLEGAL_FILE_CHARS = /[/?<>\\:*|"]/g;
-const CONTROL_CHARS = /[\x00-\x1f\x80-\x9f]/g;
+const isControlChar = (char: string) => {
+  const code = char.charCodeAt(0);
+  return code <= 0x1f || (code >= 0x80 && code <= 0x9f);
+};
+const withoutControl = (text: string): string => [...text].filter((char) => !isControlChar(char)).join("");
 const RESERVED_FILE = /^\.+$/;
 const WINDOWS_RESERVED_FILE = /^(con|prn|aux|nul|com[0-9]|lpt[0-9])(\..*)?$/i;
 const TRAILING_FILE = /[. ]+$/;
@@ -35,7 +39,7 @@ const capUtf8 = (text: string, bytes: number): string => {
   return out;
 };
 export const lorebookFileId = (name: string): string => {
-  const file = capUtf8(`${name}.json`.replace(ILLEGAL_FILE_CHARS, "").replace(CONTROL_CHARS, "").replace(RESERVED_FILE, "")
+  const file = capUtf8(withoutControl(`${name}.json`.replace(ILLEGAL_FILE_CHARS, "")).replace(RESERVED_FILE, "")
     .replace(WINDOWS_RESERVED_FILE, "").replace(TRAILING_FILE, ""), FILE_NAME_BYTES);
   return file.toLowerCase().endsWith(".json") ? file.slice(0, -".json".length) : file;
 };
