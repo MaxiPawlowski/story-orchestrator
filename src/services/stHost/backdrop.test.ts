@@ -1,5 +1,5 @@
 import {
-  BACKDROP_ROOT_ID, backdropReducedMotion, chatColumnRect, mountBackdropRoot, onPageVisibility, pageHidden, readBackdropStill, setBackdropFlags, unmountBackdropRoot,
+  BACKDROP_ROOT_ID, backdropReducedMotion, hostIsGenerating, chatColumnRect, mountBackdropRoot, onPageVisibility, pageHidden, readBackdropStill, setBackdropFlags, unmountBackdropRoot,
   watchBackdropStill,
 } from "./backdrop";
 
@@ -23,7 +23,7 @@ const page = (options: { background?: string; reduced?: boolean; hidden?: boolea
     document: {
       visibilityState: options.hidden ? "hidden" : "visible",
       documentElement: { dataset },
-      body: { classList: { contains: (name: string) => name === "reduced-motion" && options.reduced === true } },
+      body: { dataset: {}, classList: { contains: (name: string) => name === "reduced-motion" && options.reduced === true } },
       getElementById: (id: string) => nodes.get(id) ?? null,
       createElement: () => node(""),
       addEventListener: (_type: string, listener: () => void) => listeners.add(listener),
@@ -68,6 +68,7 @@ describe("v3.0 45 stHost backdrop", () => {
     expect(chatColumnRect()).toEqual({ left: 560, right: 1360 });
     expect(backdropReducedMotion()).toBe(true);
     expect(pageHidden()).toBe(true);
+    expect(hostIsGenerating()).toBe(false);
     const stop = onPageVisibility(() => undefined);
     expect(listeners.size).toBe(1);
     stop();

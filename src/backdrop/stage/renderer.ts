@@ -2,6 +2,7 @@ import type { BackdropAssets, BackdropBase, BackdropCamera, BackdropFrame, Backd
 import { registeredLayer } from "./registry";
 import { BASE_FS, DIM_FS, QUAD_VS } from "./shaders";
 import { coverTransform, type Cover } from "./cover";
+import { BACKDROP_VERTEX_SHADER } from "./vertex";
 
 export type BaseSource = HTMLImageElement | HTMLVideoElement;
 
@@ -146,6 +147,7 @@ export class BackdropRenderer {
       gl: this.gl, base: this.current?.base ?? null, assets: this.assets,
       baseTexture: () => this.current?.texture ?? null,
       baseSize: () => ({ width: this.current?.width ?? 0, height: this.current?.height ?? 0 }),
+      vertexShader: BACKDROP_VERTEX_SHADER,
       program: (vertex, fragment) => this.program(vertex, fragment),
       texture: (url) => this.texture(url),
       drawQuad: () => { this.gl.bindVertexArray(this.quad); this.gl.drawArrays(this.gl.TRIANGLE_STRIP, 0, 4); },

@@ -1,14 +1,36 @@
 import type { RuntimeManager } from "@runtime/runtimeManager";
 import {
-  backdropReducedMotion, chatColumnRect, chatTextLuminance, mountBackdropRoot, onPageVisibility, pageHidden, readBackdropStill, setBackdropFlags, unmountBackdropRoot, watchBackdropStill,
+  backdropReducedMotion, chatColumnRect, chatTextLuminance, hostIsGenerating, mountBackdropRoot, onPageVisibility, pageHidden, readBackdropStill, setBackdropFlags, unmountBackdropRoot, watchBackdropStill,
 } from "@services/stHost/backdrop";
 import { BackdropController, type BackdropHost, type BackdropOverride, type BackdropSources } from "./stage/controller";
 import { BackdropRenderer } from "./stage/renderer";
 import { registerBuiltInLayers } from "./stage/layers";
 import { meanLuminance } from "./stage/contrast";
 import { log } from "@utils/log";
+import type { BackdropBootContext, BackdropBootHook } from "./types";
 
-export type BackdropManager = Pick<RuntimeManager, "getStory" | "getCachedSnapshot" | "getEffectiveSettings" | "subscribe">;
+export type BackdropManager = Pick<RuntimeManager, "getStory" | "getCachedSnapshot" | "getEffectiveSettings" | "subscribe" | "getOwnership">;
+
+export const BACKDROP_BOOT_HOOKS: BackdropBootHook[] = [];
+
+const bootContext = (manager: BackdropManager): BackdropBootContext => ({
+  story: () => manager.getStory(),
+  checkpointId: () => manager.getCachedSnapshot().activeCheckpointId,
+  chatId: () => manager.getOwnership().mint().chatId || null,
+  tier: () => manager.getEffectiveSettings().display.backdrop.loops,
+  hostGenerating: hostIsGenerating,
+  subscribe: (listener) => manager.subscribe(listener),
+});
+
+const runBootHooks = (manager: BackdropManager): Array<() => void> => {
+  const stops: Array<() => void> = [];
+  let stopped = false;
+  for (const hook of BACKDROP_BOOT_HOOKS) {
+    void hook(bootContext(manager)).then((stop) => { if (!stop) return; if (stopped) stop(); else stops.push(stop); })
+      .catch((error: unknown) => log.warn("A backdrop part did not start", error));
+  }
+  return [() => { stopped = true; stops.splice(0).forEach((stop) => stop()); }];
+};
 
 const loadImage = (url: string): Promise<HTMLImageElement> => new Promise((resolve, reject) => {
   const image = new Image();
@@ -97,9 +119,11 @@ export function startBackdrop(manager: BackdropManager): BackdropController | nu
     (shown) => { canvas.style.opacity = shown ? "1" : "0"; });
   controller = current;
   const stop = current.start();
+  const stopHooks = runBootHooks(manager);
   const debug: BackdropDebug = { view: () => current.view(), stats: () => current.frameStats(), override: (patch) => current.setOverride(patch), refresh: () => current.refresh(true) };
   globalThis.storyOrchestratorBackdrop = debug;
   dispose = () => {
+    stopHooks.forEach((off) => off());
     stop();
     unregister.forEach((off) => off());
     canvas.remove();
