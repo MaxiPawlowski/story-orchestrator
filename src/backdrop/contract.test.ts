@@ -3,7 +3,7 @@ import { lookupAssets, noteBaseShown, onAssetsChanged, onBaseShown, registerAsse
 import { defaultBackdropSettings, sanitizeBackdropSettings } from "./settings";
 import { stillFromLayer } from "./still";
 import { BACKDROP_VERTEX_SHADER } from "./stage/vertex";
-import type { BackdropAutoInput, BackdropLayer } from "./types";
+import type { BackdropAutoInput, BackdropBootHook, BackdropLayer } from "./types";
 
 const layer = (kind: string): BackdropLayer => ({ kind, order: 1, draw: () => undefined, dispose: () => undefined });
 const base = { kind: "image" as const, url: "backgrounds/tavern.jpg", key: "tavern.jpg" };
@@ -60,6 +60,14 @@ describe("v3.0 45 contract: asset port", () => {
     noteBaseShown(null);
     off();
     expect(seen).toEqual(["tavern.jpg", undefined]);
+  });
+});
+
+describe("v3.0 45 contract: boot hook", () => {
+  it("returns an optional stop function", async () => {
+    const hook: BackdropBootHook = async (context) => (context.chatId() ? () => undefined : undefined);
+    const context = { story: () => null, checkpointId: () => null, chatId: () => "c", tier: () => "full" as const, hostGenerating: () => false, subscribe: () => () => undefined };
+    expect(typeof (await hook(context))).toBe("function");
   });
 });
 

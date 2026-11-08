@@ -76,12 +76,14 @@ Why:
 setup. On a 24 GB card the model holds 32,768 tokens at full speed (a larger context spills layers to the CPU and
 replies at under 1 token a second), so set the preset's context to 32,768, or tick **Derive context size from
 backend** in SillyTavern's connection settings. With a larger context, a long chat stops getting replies once it
-outgrows what the server holds (the server refuses the request), and Story Orchestrator says so in the drawer's
-setup list. The memory model's reads are always sized to what its server reports.
+outgrows what the server holds (the server refuses the request), and Story Orchestrator says so on **This chat →
+Play**. The memory model's reads are always sized to what its server reports.
 
 The 24 GB rows ran TheDrummer's own Q4_K_M (`TheDrummer/Artemis-31B-v1.1-GGUF`, files named `v1m`, 18.7 GB); the
 32 GB rows ran bartowski's imatrix Q4_K_M of the same v1.1 weights (19.6 GB). Same model, different quantization:
 compare local and 32 GB numbers with that in mind.
+
+To run the reply model on your own GPU or a rented one, see [Running the reply model yourself](local-model.md).
 
 Text Completion is the tested and rated route. Chat Completion works with this model but is not tuned or rated yet;
 it needs `chat_template_kwargs.enable_thinking` set in the profile's additional parameters (or replies can come back
