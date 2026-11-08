@@ -148,13 +148,13 @@ Generated from the feature registry. "Experimental" means not yet measured; it i
 | Playing | Story card | Hover a group's story icon to see the story, its chapter and when you last played. |  |
 | Playing | Your stories | Under Continue: every chat that plays a story, newest first, one click to open it. |  |
 | Playing | Chapter title cards | A full-width card under the message where a new chapter opens. |  |
-| Playing | Story in the wand menu | Story recap, the story briefing, flag this moment and the story window, from the extensions wand. |  |
+| Playing | Story in the wand menu | Story recap, flag this moment, the story sheet, the story briefing, the story window and Help and Ask, from the extensions wand. |  |
 | Playing | Dice chips | A check the story makes public shows its roll under the message it decided. |  |
 | Playing | Activity panel | A movable panel listing what the machine did behind each recent message. |  |
 | Playing | What could I do? | A button that suggests a few things you could try next, and puts the one you pick in the box where you type. |  |
 | Playing | Repetition readout | Author view names phrases the latest reply repeats from the five before it. | Experimental |
-| Playing | Journal | A movable panel with your quests and a log of what happened, for stories that keep quests. |  |
-| Playing | Stat sheet | A movable panel with what you carry and the meters the story shows in the open. |  |
+| Playing | Journal | A story sheet page with your quests and a log of what happened, for stories that keep quests. |  |
+| Playing | Stat sheet | A story sheet page with what you carry and the meters the story shows in the open. |  |
 | Playing | Story panels | Extra panels a story adds, such as a clock that fills, a board of quests, a wall of clues or a map. |  |
 | Playing | Story-made panels | A panel page a story brings, run shut off from SillyTavern. |  |
 | Playing | People and Places | Journal pages that fill in with the people and places you have learned about. |  |
