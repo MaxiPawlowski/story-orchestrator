@@ -55,6 +55,16 @@ Fallback order, always: loop → still + layers → still → ST's own backgroun
   tier the machine allows.
 - Every phase ships a publishable synthetic example (art, depth map, loop) for the guide showcase (plan 46).
 
+## Campaign step: Adolion backgrounds (owner 2026-11-08, private repo)
+
+- The campaign already has 83 place prompts (`campaign/background-prompts/`, `scripts/campaign/backgrounds.py`) and a
+  render script on FLUX, which was retired; 0 rendered, scenes fall back to stock backgrounds. Render them on the current
+  scene checkpoint (the plugin's `image.purposes.scene` route), review by another model against the place text (the owner
+  never sees campaign content), install with `install_st.py`, pin bump.
+- After A merges the schema: mark key locations `effects.backdrop.loop: "pre"` in the features post-pass; depth, masks and
+  loops are then produced by the product itself (B, C), so the campaign stores stills only.
+- Counts only in this repo; images and prompts stay in the private campaign repo.
+
 ## Floors (informational, declared before measuring)
 
 - A: 60 fps target, ≥ 50 fps median on the owner's PC at 1080p with 2 layers; ≤ 3 % CPU idle tab; 0 console errors.

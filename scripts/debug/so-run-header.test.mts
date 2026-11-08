@@ -267,7 +267,11 @@ test('an unknown lorebook selection is not an empty one', () => {
 // flat fields, so every hold-out was null and a diff could not tell one bundle from another. ---
 
 test('the build half reads plan 08s nested manifest, not flat fields', () => {
-  const build = readBuild();
+  const dir = testTempDirSync('so-run-header-manifest-');
+  const manifestPath = join(dir, 'manifest.json');
+  writeFileSync(manifestPath, JSON.stringify({ extension: { version: '3.0.0' }, builtAt: '2026-11-08T00:00:00.000Z',
+    source: { commit: 'abc1234', sha256: 'f'.repeat(64), files: 12 }, bundle: { sha256: 'e'.repeat(64), bytes: 1 }, host: { version: '1.0.0' } }));
+  const build = readBuild(manifestPath);
   assert.equal(typeof build.manifest?.version, 'string', 'extension.version is read');
   assert.equal('flavor' in (build.manifest ?? {}), false, 'there is one build, so no flavour is recorded');
   assert.match(String(build.manifest?.bundleSha256), /^[0-9a-f]{64}$/, 'bundle.sha256 is read');

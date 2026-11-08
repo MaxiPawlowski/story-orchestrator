@@ -762,6 +762,17 @@ describe("the write-ahead record gates the effect (plan 11)", () => {
     expect(extras.effects.ledger.map((row) => row.status)).toEqual(["applied"]);
   });
 
+  it("asks the save once more when the first one waited behind another save, then applies", async () => {
+    const extras = castExtras();
+    let saves = 0;
+    let savesAtWrite = -1;
+    (setGroupMembersDisabled as jest.Mock).mockImplementationOnce(async () => { savesAtWrite = saves; return { ok: true }; });
+    await new EffectsApplier(testOwnership(), { persist: async () => { saves += 1; }, unsaved: () => saves < 2 }).applyCheckpoint(story, castCheckpoint(), extras, snapshot, "activate", []);
+    expect(savesAtWrite).toBe(2);
+    expect(setGroupMembersDisabled).toHaveBeenCalledTimes(1);
+    expect(extras.effects.ledger.map((row) => row.status)).toEqual(["applied"]);
+  });
+
   it("refuses it, and says why, when the pending row is still unsaved", async () => {
     const extras = castExtras();
     const journalled: string[] = [];

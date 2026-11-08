@@ -163,5 +163,16 @@ describe("runtime/index.ts generation wiring (v2.4 plan 01 T6)", () => {
     await emit("GENERATION_STOPPED");
     expect(spies.clear).toHaveBeenCalledTimes(1);
     expect(spies.commit).toHaveBeenCalledWith(false, undefined);
+    expect(spies.nudge).not.toHaveBeenCalled();
+  });
+
+  it("harvest 2026-11-08: the author nudge waits through an ENDED with no reply and is spent by the reply that renders", async () => {
+    await emit("GENERATION_STARTED", "normal", {}, false);
+    await emit("GENERATION_ENDED", 4);
+    expect(spies.clear).toHaveBeenCalledTimes(1);
+    expect(spies.nudge).not.toHaveBeenCalled();
+    await emit("GENERATION_STARTED", "normal", {}, false);
+    await emit("MESSAGE_RECEIVED", 4, "normal");
+    expect(spies.nudge).toHaveBeenCalledTimes(1);
   });
 });
