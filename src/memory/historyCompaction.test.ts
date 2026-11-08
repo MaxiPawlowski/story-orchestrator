@@ -42,6 +42,14 @@ describe("chunked history compaction (v3.0 40 A3)", () => {
     expect(planCompaction(entries(Array(5).fill(10)), band, 99)).toBeNull();
   });
 
+  it("harvest 2026-11-08 D1: the kept history starts at a player message, moving the cut back, never past the ceiling", () => {
+    const rows = entries(Array(11).fill(10)).map((entry) => ({ ...entry, player: entry.id % 4 === 0 }));
+    expect(planCompaction(rows, band, 99)).toEqual({ cutId: 4, dropped: 4, tokens: 40, clamped: false });
+    expect(planCompaction(rows, band, 2)).toEqual({ cutId: 3, dropped: 3, tokens: 30, clamped: true });
+    const none = entries(Array(11).fill(10)).map((entry) => ({ ...entry, player: false }));
+    expect(planCompaction(none, band, 99)).toEqual({ cutId: 6, dropped: 6, tokens: 60, clamped: false });
+  });
+
   it("sizes the band from the prompt budget and refuses a missing one", () => {
     expect(compactionBand(32000)).toEqual({ high: 24000, low: 16000, keep: 12 });
     expect(compactionBand(0)).toBeNull();

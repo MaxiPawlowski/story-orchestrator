@@ -11,6 +11,7 @@ export interface CompactionBand {
 export interface CompactionEntry {
   id: number;
   cost: number;
+  player?: boolean;
 }
 
 export interface CompactionPlan {
@@ -43,7 +44,11 @@ export function planCompaction(entries: readonly CompactionEntry[], band: Compac
   const planned = compactionCut(entries.map((entry) => entry.cost), band);
   let cut = planned;
   while (cut > 0 && entries[cut - 1].id > ceiling) cut -= 1;
+  const clamped = cut < planned;
+  let turn = cut;
+  while (turn > 0 && turn < entries.length && !entries[turn].player) turn -= 1;
+  if (turn > 0 && turn < entries.length) cut = turn;
   if (cut <= 0 || cut >= entries.length) return null;
   const tokens = entries.slice(0, cut).reduce((sum, entry) => sum + entry.cost, 0);
-  return { cutId: entries[cut].id, dropped: cut, tokens, clamped: cut < planned };
+  return { cutId: entries[cut].id, dropped: cut, tokens, clamped };
 }
