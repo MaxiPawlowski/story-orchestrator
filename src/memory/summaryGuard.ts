@@ -1,7 +1,8 @@
 import { foldName } from "./nameFold";
+import { isRefusal } from "./refusalGuard";
 
 export const SUMMARY_MIN_SHARE = 0.6;
-export type SummaryGuardRefusal = "dropped-detail" | "collapsed";
+export type SummaryGuardRefusal = "dropped-detail" | "collapsed" | "refused";
 
 const NOT_NAMES = new Set(["the", "a", "an", "he", "she", "they", "it", "i", "we", "you", "his", "her", "their", "its", "our", "your", "this", "that", "these",
   "those", "there", "then", "when", "while", "after", "before", "later", "now", "meanwhile", "still", "yet", "but", "and", "or", "so", "as", "at", "in", "on",
@@ -47,6 +48,7 @@ export interface SummaryGuardInput {
 export type SummaryGuardVerdict = { ok: true; entities: string[] } | { ok: false; reason: SummaryGuardRefusal; dropped: number };
 
 export function guardSummary({ summary, previous, window, vocabulary, covered }: SummaryGuardInput): SummaryGuardVerdict {
+  if (isRefusal(summary, window, vocabulary)) return { ok: false, reason: "refused", dropped: 0 };
   const entities = namesIn(summary, vocabulary);
   const before = previous?.trim() ?? "";
   if (!before) return { ok: true, entities };

@@ -24,6 +24,7 @@ import { loadMemoryContract } from "@memory/contractKit";
 import { SHORT_TERM_COMPACTION_MESSAGES } from "@constants/defaults";
 import { activeSpeakerId, cardScopeOwners, enabledCharacterNames } from "../roster";
 import type { MemoryCoordinator } from "./memoryCoordinator";
+import { isRefusal } from "@memory/refusalGuard";
 import {
   JUDGED_READ_LIMIT, type ExtractionRuntimeState, type JudgedReadRecord,
   type VerifyDrop,
@@ -406,6 +407,9 @@ export class ExtractionCoordinator {
       })),
     });
     if (!outcome || !run.stillOwns()) return;
+    if (isRefusal(outcome.summary, scene.messages.map((message) => message.text).join("\n"), memory.getEntities())) {
+      return this.deps.journal?.("scene-summary-refused", `messages ${range.from}-${range.to}: the model declined to summarize; no scene summary was kept`);
+    }
     const evidence = scene.messages.filter((message) => message.messageId >= audit.window.from).map((message) => `${message.speaker}: ${message.text}`).join("\n") || "(empty)";
     const entry = this.newEntry({ provenance: this.provenanceFor(range, "scene-summary"), tier: "scene_history",
         text: outcome.summary, type: "scene", importance: 2, expiration: "permanent", entities: [], evidence,
