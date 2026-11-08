@@ -66,7 +66,7 @@ describe("runSharedRead reads the finish reason (v2.4 plan 03 D6)", () => {
   });
 
   it("control: a reply that stopped on its own is read, however long it is", async () => {
-    const long = `${GOOD}\n${"x".repeat(4000)}`;
+    const long = `${GOOD}\n${Array.from({ length: 500 }, (_, index) => `w${index}`).join(" ")}`;
     const result = await read({ text: long, finish: "stop" });
     expect(callExtractionReply).toHaveBeenCalledTimes(1);
     expect(result.audit.acceptedDeltas.map((entry) => entry.delta.q)).toEqual(["crossed"]);
