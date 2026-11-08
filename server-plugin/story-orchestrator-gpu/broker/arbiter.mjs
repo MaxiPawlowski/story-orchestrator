@@ -96,13 +96,16 @@ export function createArbiter(config, deps = {}) {
         return config.reserves;
     };
     const comfyUrl = config.comfyUrl;
+    const imagesOff = config.images === false;
     const jsonFetch = async (route, options = {}) => {
+        if (imagesOff) throw new Error('Images are off on this controller (images: false).');
         const response = await fetchImpl(`${comfyUrl}${route}`, { ...options, signal: AbortSignal.timeout(config.comfyRequestTimeoutMs ?? 60000) });
         if (!response.ok) throw new Error(`ComfyUI ${route} answered ${response.status}`);
         const raw = await response.text();
         return raw ? JSON.parse(raw) : {};
     };
     const startComfy = async () => {
+        if (imagesOff) throw new Error('Images are off on this controller (images: false).');
         try { await jsonFetch('/system_stats'); return; } catch {}
         if (!config.comfySupervise) throw new Error('ComfyUI is not reachable, and this broker only observes it.');
         if (!comfyChild) {
@@ -136,6 +139,7 @@ export function createArbiter(config, deps = {}) {
     let lastReclaim = null;
     const reclaimStats = { freed: 0, stopped: 0 };
     const reclaimComfy = async ({ shortMiB = 0 } = {}) => {
+        if (imagesOff) return false;
         const imageBusy = () => Boolean(scheduler?.lease || scheduler?.imagePending || scheduler?.imageQueued || scheduler?.burstOpen?.());
         let freeAttempt = null;
         if (config.reclaimFreeFirst !== false) {
@@ -167,6 +171,7 @@ export function createArbiter(config, deps = {}) {
     };
     const imageCache = deps.imageCache ?? new ImageCache({ config, jsonFetch, snapshot, emptyHostCache: releaseHostCache });
     const freeImages = async (options = {}) => {
+        if (imagesOff) return { mode: 'images-off' };
         await startComfy();
         const result = await imageCache.free({ ...options, clear: options.clear ?? config.imageCacheMode === 'evict' });
         telemetryAt = 0;
@@ -197,7 +202,7 @@ export function createArbiter(config, deps = {}) {
             const timings = stored?.identity === identity ? stored.timings : {};
             try { await ensureReserves(); } catch {}
             scheduler = deps.scheduler ?? new ResidencyScheduler({ config, backend, snapshot, startComfy,
-                queue: () => jsonFetch('/queue'), freeImages,
+                queue: () => (imagesOff ? { queue_running: [], queue_pending: [] } : jsonFetch('/queue')), freeImages,
                 saveFootprints: (data) => fsImpl.writeFile(footprintsPath, JSON.stringify(data, null, 2)), footprints,
                 timings, saveTimings: (data) => fsImpl.writeFile(timingsPath, JSON.stringify({ identity, timings: data }, null, 2)), runtime,
                 log: deps.log ?? ((line) => console.log(`[story-orchestrator-gpu] ${line}`)), comfyPid: () => comfyChild?.pid ?? null });
@@ -217,6 +222,7 @@ export function createArbiter(config, deps = {}) {
         holdsVram() { const state = backend.status(); return Boolean(state.pid || state.loading || comfyChild); },
         async reserve(body = {}) {
             const request = leaseRequest(body, { experiments: config.experiments === true });
+            if (imagesOff) return { lease: null, brokered: false, warning: 'Images are off on this controller; the image passes through unbrokered.' };
             if (backend.crashed && !arbiter.holdsVram()) return { lease: null, brokered: false, warning: 'The local text server stopped; nothing of the broker holds GPU memory, so the image passes through.' };
             const state = backend.status();
             const resident = Boolean(state.pid || state.loading);
