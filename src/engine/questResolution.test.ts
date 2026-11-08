@@ -101,6 +101,10 @@ describe("resolution validation", () => {
     const lapse = (id: string) => rescue({ resolutions: [{ id, label: "The offer passed", from: ["offered"], when: { q: "message_count", op: ">=", v: 9 } }], precedence: undefined });
     expect(errorsOf(raw([lapse("lapsed")]))).toEqual([]);
     expect(errorsOf(raw([lapse("missed")])).some((error) => error.includes("never fails on time alone"))).toBe(true);
+    const reserved = rescue({ resolutions: [{ id: "lapsed", label: "Passed", when: is("fled") }], precedence: undefined });
+    expect(errorsOf(raw([reserved])).some((error) => error.includes("'lapsed' is kept for an offer"))).toBe(true);
+    const long = rescue({ resolutions: [{ id: "freed", label: "Freed the miller's son from the drowned cellar at last", when: is("freed") }], precedence: undefined });
+    expect(errorsOf(raw([long]))).toEqual([]);
     const failed = rescue({ resolutions: undefined, precedence: undefined, done_when: is("freed"), failed_when: { q: "message_count", op: ">=", v: 9 } });
     expect(errorsOf(raw([failed])).some((error) => error.includes("never fails on time alone"))).toBe(true);
   });
@@ -134,7 +138,7 @@ describe("resolution validation", () => {
 
   test("compiled keys: the closed enum holds every ending, one int latch per consequence", () => {
     const story = parseStoryOrThrow(raw());
-    expect(story.qualityByKey[questClosedKey("rescue")]).toMatchObject({ type: "enum", values: ["freed", "ransomed", "abandoned", "declined"], latching: true, source: "code" });
+    expect(story.qualityByKey[questClosedKey("rescue")]).toMatchObject({ type: "enum", values: ["done", "failed", "freed", "ransomed", "abandoned", "declined"], latching: true, source: "code" });
     expect(story.qualityByKey[questConsequenceKey("rescue", "freed", "blood")]).toMatchObject({ type: "int", latching: true, source: "code" });
   });
 });
@@ -307,7 +311,8 @@ describe("resolution evaluation", () => {
 describe("resolution surfaces", () => {
   test("only the reached ending's applied, visible consequence labels show", () => {
     const quest = rescue();
-    quest.resolutions[0].consequences![1] = { ...quest.resolutions[0].consequences![1], visible_when: is("witnessed") };
+    const consequences = quest.resolutions[0].consequences as Array<Record<string, unknown>>;
+    consequences[1] = { ...consequences[1], visible_when: is("witnessed") };
     const story = parseStoryOrThrow(raw([quest]));
     const play = playing(story);
     play.turn({ asked: true, taken: true, violent: true });

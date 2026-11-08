@@ -1,4 +1,5 @@
-import { StoryEngine, parseStoryOrThrow, type EpistemicEntry, type PrimitiveValue } from "@engine/index";
+import { StoryEngine, parseStoryOrThrow, type PrimitiveValue } from "@engine/index";
+import type { EpistemicEntry } from "@memory/types";
 import { heldSecrets, withoutSecretLines } from "@memory/heldSecrets";
 import { deriveRefs } from "./consequences";
 import { buildStoryRecord, openItems, recordLabel, restingRecord, type StoryRecordSources } from "./storyRecord";

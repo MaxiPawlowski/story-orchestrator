@@ -454,5 +454,6 @@ export const DIAGNOSTIC_GUIDE_TOPIC: Record<DiagnosticCode, GuideTopicId> = {
   "pattern-label-names-unknown-entity": "patterns", "pattern-label-claims-cause": "patterns", "pattern-never-completes": "patterns",
   ...OFFER_DIAGNOSTIC_TOPICS,
   "consequence-write-conflict": "quest-consequences",
+  "quest-label-long": "quest-resolutions",
 };
 

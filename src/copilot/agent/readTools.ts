@@ -7,6 +7,7 @@ import { defaultValueForOp, opsForType } from "../../studio/gateOptions";
 import { findQualityUsages } from "../../studio/qualityUsage";
 import { readGuide } from "../guideRead";
 import { readRecipe } from "./recipes";
+import { simulateQuest } from "@engine/questSimulation";
 import type { ReadToolName } from "./tools";
 import type { AgentLookup } from "./types";
 
@@ -108,6 +109,20 @@ export const simulateWalk = (draft: Story, steps: unknown[]): string => {
   return [...lines, `ends at ${active}`].join("\n");
 };
 
+export const simulateQuestText = (draft: Story, questId: unknown, values: unknown, resolution: unknown): string => {
+  const story = parseStory(draft);
+  if (isValidationErrorList(story)) return `Cannot simulate an invalid story. ${validationLines(draft)}`;
+  const set = isRecord(values) ? Object.fromEntries(Object.entries(values).filter(([, value]) => isPrimitive(value))) as Record<string, PrimitiveValue> : {};
+  const outcome = simulateQuest(story, String(questId), set, true, typeof resolution === "string" && resolution ? resolution : undefined);
+  if (!outcome) return `No quest "${String(questId)}"${typeof resolution === "string" && resolution ? ` with resolution "${resolution}"` : ""}.`;
+  return [
+    outcome.resolution ? `closes on ${outcome.resolution}` : outcome.held ? `held open: ${outcome.matched.join(" and ")} both hold` : `stays ${outcome.lifecycle}`,
+    ...outcome.consequences.map((consequence) => `consequence ${consequence.id}: ${consequence.applied ? "applies" : "does not apply"}${consequence.shown ? " (shown)" : ""}`),
+    ...outcome.writes.map((write) => `${write.key}: ${String(write.before ?? "unset")} → ${String(write.after ?? "unset")}`),
+    `player sees: ${outcome.player.status ?? "no ending"}${outcome.player.outcomes.length ? `; ${outcome.player.outcomes.join("; ")}` : ""}`,
+  ].join("\n");
+};
+
 const lookupNames = (names: string[], query: unknown): string => {
   const needle = typeof query === "string" ? query.trim().toLowerCase() : "";
   const matches = names.filter((name) => !needle || name.toLowerCase().includes(needle));
@@ -152,6 +167,8 @@ export const runReadTool = (tool: ReadToolName, args: Record<string, unknown>, d
       return json(reachability(draft));
     case "simulateWalk":
       return simulateWalk(draft, Array.isArray(args.steps) ? args.steps : []);
+    case "simulateQuest":
+      return simulateQuestText(draft, args.quest, args.values, args.resolution);
     case "lookupCharacters":
       return lookupNames(safeNames(lookup.characters), args.query);
     case "lookupLorebooks":

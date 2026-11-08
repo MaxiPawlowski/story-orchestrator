@@ -18,7 +18,7 @@ const story = parseStoryOrThrow({
 
 describe("lore scene state from the story (v3.0 43 L2)", () => {
   it("reads the place, the cast switched on, active quests and only the codex entries the player has met", () => {
-    expect(readLoreState(story, { location: "harbour", trust: 2, codex_l_dock: 1 }, ["mara"])).toEqual({
+    expect(readLoreState(story, { location: "harbour", trust: 2, codex_l_dock: 1, quest_rope_closed: "done" }, ["mara"])).toEqual({
       place: "harbour", cast: [{ name: "Mara Venn", aliases: ["Cap"] }], quests: ["Find the pilot"], known: ["Greywater"],
     });
   });

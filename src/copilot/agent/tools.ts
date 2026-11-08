@@ -320,6 +320,11 @@ export const READ_TOOLS = {
     doc: "Replay gates over a scripted run: each step sets quality values, then at most one transition fires.",
     args: { steps: req("array", "[{qualityKey: value}, …]") },
   },
+  simulateQuest: {
+    family: "simulate",
+    doc: "Close one quest once against set quality values: which resolution wins, which consequences apply, what changes and what the player sees.",
+    args: { quest: req("string", "quest id"), values: opt("object", "{qualityKey: value} at the close"), resolution: opt("string", "force this resolution") },
+  },
   lookupCharacters: { family: "lookup", doc: "Character card names on this install.", args: { query: QUERY } },
   lookupLorebooks: { family: "lookup", doc: "Lorebook names on this install.", args: { query: QUERY } },
   lookupGroups: { family: "lookup", doc: "Group names on this install.", args: { query: QUERY } },

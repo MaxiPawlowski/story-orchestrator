@@ -114,7 +114,7 @@ const sourceProblem = (after: EchoAfter, context: EchoCheckContext, transitions:
   if ("quest" in after) {
     const quest = (context.quests ?? []).find((candidate) => candidate.id === after.quest);
     if (!quest) return ["quest", `'${after.quest}' is not a quest`];
-    return questEndings(quest, true).some((ending) => ending.id === after.to) ? null : ["to", `quest '${after.quest}' has no resolution '${after.to}'`];
+    return ["done", "failed"].includes(after.to) || questEndings(quest, true).some((ending) => ending.id === after.to) ? null : ["to", `quest '${after.quest}' has no resolution '${after.to}'`];
   }
   if ("milestone" in after) return (context.milestones ?? []).some((milestone) => milestone.id === after.milestone) ? null : ["milestone", `'${after.milestone}' is not a milestone`];
   return checksById({ checkpoints: [...context.checkpoints], transitions: [...context.transitions] }).has(after.check) ? null : ["check", `'${after.check}' is not a check`];

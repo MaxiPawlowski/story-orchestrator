@@ -130,7 +130,7 @@ const checkValue = (kind: PatternKind, attr: string, value: string, path: string
   }
   if (kind === "transition" && attr === "chapter" && !(context.chapters ?? []).some((chapter) => chapter.id === value)) addError(errors, path, `'${value}' is not a chapter`);
   if (kind === "quest" && attr === "id" && !(context.quests ?? []).some((quest) => quest.id === value)) addError(errors, path, `'${value}' is not a quest`);
-  if (kind === "quest" && attr === "to" && !isOneOf(value, PATTERN_QUEST_STATUSES)
+  if (kind === "quest" && attr === "to" && !isOneOf(value, PATTERN_QUEST_STATUSES) && value !== "done" && value !== "failed"
     && !(context.quests ?? []).some((quest) => questEndings(quest, true).some((ending) => ending.id === value))) {
     addError(errors, path, `a quest step moves to ${PATTERN_QUEST_STATUSES.join(", ")} or a quest's resolution id (hidden is not seen)`);
   }

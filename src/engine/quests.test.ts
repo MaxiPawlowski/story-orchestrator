@@ -58,7 +58,7 @@ describe("quest validation", () => {
 
   test("the closed and consequence latches are added as code qualities", () => {
     const story = parseStoryOrThrow(raw());
-    expect(story.qualityByKey[questClosedKey("debt")]).toMatchObject({ source: "code", latching: true, type: "enum", values: ["failed", "done"] });
+    expect(story.qualityByKey[questClosedKey("debt")]).toMatchObject({ source: "code", latching: true, type: "enum", values: ["done", "failed"] });
     expect(story.qualityByKey[questConsequenceKey("debt", "done", "reward")]).toMatchObject({ source: "code", latching: true, type: "int" });
   });
 });

@@ -17,6 +17,10 @@ reviewed against master `1aaa7ca09`. Second opinion: codex `gpt-6.1-sol` (§Seco
    `steps[].alternative_of`) are built here, in 48.
 8. Plan 53 waits for the playtest.
 
+Coordinator calls on the build questions (2026-11-08, for the owner): `lapsed` is strict and reserved (a `lapsed` that is not a
+time-only offer end is refused); ending and consequence labels over 40 characters are a Studio warning (`quest-label-long`),
+not an error; a reward keeps raising standing as before, consequences only through a faction move gated on the resolution.
+
 ## Resume 2026-11-08 (paused on owner overload, WIP on `v3.0-48-resolutions`)
 
 Built, not yet gated (only focused jest runs, all green except where noted):
@@ -32,7 +36,16 @@ Built, not yet gated (only focused jest runs, all green except where noted):
 - Guide: `quests` rewritten, `quest-resolutions`, `quest-consequences` (`guideTopicsQuests.ts`, story-guide.md).
 - Tests: `questResolution.test.ts`, `questResolution.property.test.ts` (200 seeds shuffle + rollback), `storyRecord.test.ts`.
 
-Next: wizard `quest-line` recipe rewrite + `simulateQuest` read tool; tests for questMatrix/simulator/projection spoiler scan;
+Update 2026-11-08 (second pause, owner): done since: wizard `quest-line` recipe + `simulateQuest` read tool (author Ask too);
+coordinator calls applied (`lapsed` reserved, `quest-label-long` warning, reward keeps `rep_` add); surface/simulator/matrix tests
+(`runtime/questResolutionSurfaces.test.ts`); no-model scenario `test/scenarios/v30-48-resolutions.json` (not run); real-model
+journey `test/journeys/quest-resolutions.journey.json` (owed, GPU paused). `closed` enum now always holds done and failed plus the
+resolution ids, and echoes/patterns accept done/failed on any quest (the pinned campaign gates `in [done, failed]` on quests
+without failed_when). Last `gates:quick` (before those two fixes): typecheck ok, typecheck:test ok, replay ok; lint FAIL
+(cause not captured) and jest 14 suites red, known: adolionPinnedBuild + chanceAdolion (the enum fix above), loreStateRead
+(test read unlatched values; fixed). Resume: rerun `gates:quick` via heavy.mjs with full output, fix the rest, then the list below.
+
+Next (remaining): wizard `quest-line` recipe rewrite + `simulateQuest` read tool; tests for questMatrix/simulator/projection spoiler scan;
 `npm run typecheck`, `typecheck:test`, lint, `gates:quick`; `docs:guide`, `docs:settings`; no-model lane scenario +
 `quest-resolutions.journey.json` (GPU owed); merge master; full `npm run gates`; gate records in 48 and 54.
 

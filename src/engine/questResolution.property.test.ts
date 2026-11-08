@@ -80,7 +80,7 @@ describe("48 D floors: quest resolutions are order-free and roll back like a rep
     for (const seed of SEEDS) {
       const random = lcg(seed);
       const turns = turnsFor(random, 30);
-      const mixed = shuffled(QUESTS, random).map((quest) => ("resolutions" in quest ? { ...quest, resolutions: shuffled(quest.resolutions, random) } : quest));
+      const mixed = shuffled(QUESTS, random).map((quest) => ("resolutions" in quest && quest.resolutions ? { ...quest, resolutions: shuffled(quest.resolutions, random) } : quest));
       const left = run(base, turns).stateLog.map((entry) => entry.after.blackboard.values);
       const right = run(storyOf(mixed), turns).stateLog.map((entry) => entry.after.blackboard.values);
       expect(right).toEqual(left);

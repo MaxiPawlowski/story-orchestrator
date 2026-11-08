@@ -100,7 +100,7 @@ library, setup/repair, author/inspect, long reference. A dialog control that tar
     boundary, pipeline, readable unmet gates, Suggest/Probe/Report, Advance, Nudge, `#so-author-story-controls`) and section tabs
     `role=tab` with `data-so-tab` on each body: health (`#so-author-overview`), state (grouped searchable table), memory
     (who-knows-what `#so-who-knows` + kept-out-on-stage alert), prompt, proposals (count badge; Review page opens it),
-    activity (`#so-open-activity`), pipeline. `so-ui.mts drawer-tab` aliases Overview/Blackboard/Payload/Scheduler/Review.
+    activity (`#so-open-activity`), record (v3.0 54 story record: what happened, why, who heard, what is open), pipeline. `so-ui.mts drawer-tab` aliases Overview/Blackboard/Payload/Scheduler/Review.
     Illustrate prepared cast `#so-cast-scene` below.
   - **Library** (`SettingsPanel` `page="library"`): entry points `#so-entry-points` — Start (`#so-new-story-wizard`,
     import `#so-entry-import-toggle`/`#so-entry-import`), Continue (`#so-entry-continue`, Continue list closes the workspace

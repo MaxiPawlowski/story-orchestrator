@@ -23,12 +23,14 @@ const RESOLUTION_KEYS = ["id", "when", "label", "recap", "from", "consequences"]
 const REWARD_EFFECT_KEYS = ["world_info", "cast_changes", "npc_replies"] as const;
 const MILESTONE_KEYS = ["id", "title", "when", "secret", "recap", "recap_when"] as const;
 export const QUEST_TEXT_MAX = 160;
+export const QUEST_LABEL_SOFT_MAX = 40;
 export const AUTHOR_NOTE_MAX = 600;
 export const QUEST_RESOLUTIONS_MAX = 8;
 export const QUEST_CONSEQUENCES_MAX = 8;
 export const LAPSED_RESOLUTION = "lapsed";
 export const TIME_KEYS: readonly string[] = ["message_count", "messages_in_checkpoint", "elapsed", "player_turns_in_checkpoint"];
 const RESERVED_RESOLUTION_IDS: readonly string[] = [...QUEST_LIFECYCLE, "closed"];
+export const SUGAR_IDS: readonly string[] = ["done", "failed"];
 
 const EMPTY = { get: () => undefined };
 
@@ -111,6 +113,9 @@ const readReward = (value: unknown, path: string, errors: ValidationError[]): Qu
   return readPayout(value, path, errors);
 };
 
+const readEndingLabel = (value: unknown, path: string, errors: ValidationError[]): string | undefined =>
+  (value === undefined ? undefined : readText(value, QUEST_TEXT_MAX, path, errors) ?? undefined);
+
 const readSlug = (value: unknown, path: string, what: string, errors: ValidationError[]): string | null => {
   const id = asString(value)?.trim() ?? "";
   return GAME_ID_PATTERN.test(id) ? id : refuse(errors, path, `a ${what} id is a lowercase slug`, null);
@@ -121,7 +126,7 @@ const readConsequence = (value: unknown, path: string, errors: ValidationError[]
   rejectUnknownKeys(value, CONSEQUENCE_KEYS, path, errors);
   const id = readSlug(value.id, `${path}.id`, "consequence", errors);
   const when = optionalGate(value.when, `${path}.when`, errors);
-  const payout = readPayout(value, path, errors);
+  const payout = { ...readPayout({ ...value, label: undefined }, path, errors), ...(value.label === undefined ? {} : { label: readEndingLabel(value.label, `${path}.label`, errors) }) };
   if (!payout.set && !payout.effects && !payout.label) addError(errors, path, "a consequence changes something: set, effects or a label");
   return id ? { id, ...(when ? { when } : {}), ...payout } : null;
 };
@@ -148,7 +153,7 @@ const readResolution = (value: unknown, path: string, errors: ValidationError[])
   const id = readSlug(value.id, `${path}.id`, "resolution", errors);
   if (id && RESERVED_RESOLUTION_IDS.includes(id)) addError(errors, `${path}.id`, `'${id}' names a quest state, not an ending`);
   const when = value.when === undefined ? refuse(errors, `${path}.when`, "a resolution needs when", null) : readGate(value.when, `${path}.when`, errors);
-  const label = readLabel(value.label, `${path}.label`, errors);
+  const label = readEndingLabel(value.label, `${path}.label`, errors);
   const recap = readRecapText(value.recap, `${path}.recap`, errors);
   const from = readFrom(value.from, `${path}.from`, errors);
   const consequences = readList(value.consequences, `${path}.consequences`, readConsequence, errors, QUEST_CONSEQUENCES_MAX);
@@ -405,8 +410,12 @@ const checkResolutions = (quest: Quest, path: string, qualityByKey: Record<strin
     const from = resolution.from ?? ["active"];
     unique((resolution.consequences ?? []).map((consequence) => consequence.id), "consequence", `${at}.consequences`, errors);
     if (from.includes("offered") && !quest.offered_when) addError(errors, `${at}.from`, "closing from offered needs offered_when on the quest");
-    if (from.includes("offered") && timeOnly(resolution.when) && resolution.id !== LAPSED_RESOLUTION) {
+    const lapse = from.includes("offered") && timeOnly(resolution.when);
+    if (lapse && resolution.id !== LAPSED_RESOLUTION) {
       addError(errors, `${at}.id`, `an offered quest never fails on time alone: a resolution on time only, from offered, is the neutral '${LAPSED_RESOLUTION}'`);
+    }
+    if (!lapse && resolution.id === LAPSED_RESOLUTION) {
+      addError(errors, `${at}.id`, `'${LAPSED_RESOLUTION}' is kept for an offer that passes on time alone: from offered, a gate on time keys only`);
     }
     if (resolution.consequences?.length && evaluateGate(resolution.when, EMPTY) && from.includes("active") && !quest.visible_when) {
       addError(errors, `${at}.when`, "this resolution holds before anything happens, so its consequences would land at once");
@@ -465,7 +474,7 @@ export const addRewardQualities = (qualities: Quality[], quests: Quest[] | undef
       key: questConsequenceKey(quest.id, ending.id, consequence.id), type: "int", source: "code", latching: true,
       rubric: `Set once by the story: the boundary this quest's ${ending.id} consequence ${consequence.id} applied`,
     })));
-    const ids = [...new Set(endings.map((ending) => ending.id))];
+    const ids = [...new Set([...SUGAR_IDS, ...endings.map((ending) => ending.id)])];
     return [...(ids.length ? [{
       key: questClosedKey(quest.id), type: "enum", values: ids, source: "code", latching: true, rubric: "Set once by the story: how this quest was resolved",
     } satisfies Quality] : []), ...consequences];

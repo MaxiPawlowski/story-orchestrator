@@ -96,4 +96,5 @@ export const DIAGNOSTIC_CODES = [
   "echo-names-unknown-entity",
   "echo-gate-holds-never",
   "consequence-write-conflict",
+  "quest-label-long",
 ] as const;
