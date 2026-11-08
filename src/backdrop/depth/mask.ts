@@ -1,6 +1,6 @@
 export interface MaskOptions { far: number; feather: number; minShare: number }
 
-export const SKY_MASK: MaskOptions = Object.freeze({ far: 0.04, feather: 2, minShare: 0.02 });
+export const SKY_MASK: MaskOptions = Object.freeze({ far: 0.01, feather: 2, minShare: 0.02 });
 
 const luminance = (rgba: ArrayLike<number>, index: number): number => rgba[index * 4];
 
@@ -41,9 +41,9 @@ export function skyMask(depth: ArrayLike<number>, width: number, height: number,
   return sky ? packMask(width, height, feather(sky, width, height, options.feather)) : null;
 }
 
-export interface WaterOptions { colorDistance: number; flat: number; minShare: number; feather: number }
+export interface WaterOptions { colorDistance: number; flat: number; minShare: number; feather: number; farBand: number; bandGap: number }
 
-export const WATER_MASK: WaterOptions = Object.freeze({ colorDistance: 60, flat: 3, minShare: 0.01, feather: 2 });
+export const WATER_MASK: WaterOptions = Object.freeze({ colorDistance: 60, flat: 3, minShare: 0.01, feather: 2, farBand: 0, bandGap: 8 });
 
 export function waterRegion(depth: ArrayLike<number>, color: ArrayLike<number>, sky: Uint8Array, width: number, height: number, options: WaterOptions = WATER_MASK): Uint8Array | null {
   const count = width * height;
@@ -60,24 +60,27 @@ export function waterRegion(depth: ArrayLike<number>, color: ArrayLike<number>, 
   }
   if (!skyN) return null;
   skyR /= skyN; skyG /= skyN; skyB /= skyN;
+  const nearEnough = farThreshold(depth, count, options.farBand);
   const candidate = new Uint8Array(count);
+  const plane = new Uint8Array(count);
   for (let y = Math.max(1, horizon); y < height - 1; y += 1) {
     for (let x = 1; x < width - 1; x += 1) {
       const index = y * width + x;
       if (sky[index]) continue;
-      const r = color[index * 4], g = color[index * 4 + 1], b = color[index * 4 + 2];
-      const blue = b >= r + 8 && b >= g - 5;
-      if (!blue || Math.hypot(r - skyR, g - skyG, b - skyB) > options.colorDistance && b < r + 25) continue;
       const here = luminance(depth, index);
       const step = Math.max(...[index + 1, index - 1, index + width, index - width].map((next) => Math.abs(luminance(depth, next) - here)));
       const below = y + 3 < height ? luminance(depth, index + 3 * width) : here, above = y >= 3 ? luminance(depth, index - 3 * width) : here;
-      if (step <= options.flat && below - above >= 1) candidate[index] = 1;
+      if (step > options.flat || below - above < 1 || here < nearEnough) continue;
+      plane[index] = 1;
+      const r = color[index * 4], g = color[index * 4 + 1], b = color[index * 4 + 2];
+      const blue = b >= r + 8 && b >= g - 5;
+      if (blue && (Math.hypot(r - skyR, g - skyG, b - skyB) <= options.colorDistance || b >= r + 25)) candidate[index] = 1;
     }
   }
   const water = new Uint8Array(count);
   const seen = new Uint8Array(count);
   const minimum = Math.max(1, Math.round(count * options.minShare));
-  let share = 0;
+  const components: number[][] = [];
   for (let start = 0; start < count; start += 1) {
     if (!candidate[start] || seen[start]) continue;
     const component: number[] = [];
@@ -93,11 +96,35 @@ export function waterRegion(depth: ArrayLike<number>, color: ArrayLike<number>, 
         stack.push(next);
       }
     }
-    if (component.length < minimum) continue;
-    for (const index of component) water[index] = 1;
-    share += component.length;
+    if (component.length >= minimum) components.push(component);
   }
-  return share ? water : null;
+  if (!components.length) return null;
+  const rows = components.map((component) => ({ component, top: Math.min(...component.map((index) => Math.floor(index / width))), bottom: Math.max(...component.map((index) => Math.floor(index / width))) }));
+  const largest = rows.reduce((best, next) => (next.component.length > best.component.length ? next : best));
+  let top = largest.top, bottom = largest.bottom, grew = true;
+  const kept = new Set([largest]);
+  while (grew) {
+    grew = false;
+    for (const row of rows) {
+      if (kept.has(row) || row.bottom < top - options.bandGap || row.top > bottom + options.bandGap) continue;
+      kept.add(row); top = Math.min(top, row.top); bottom = Math.max(bottom, row.bottom); grew = true;
+    }
+  }
+  for (const row of kept) for (const index of row.component) water[index] = 1;
+  const grow: number[] = [];
+  for (let index = 0; index < count; index += 1) if (water[index]) grow.push(index);
+  while (grow.length) {
+    const index = grow.pop() as number;
+    const x = index % width;
+    for (const next of [x > 0 ? index - 1 : -1, x < width - 1 ? index + 1 : -1, index - width, index + width]) {
+      if (next < 0 || next >= count || water[next] || sky[next] || !plane[next]) continue;
+      const y = Math.floor(next / width);
+      if (y < top || y > bottom) continue;
+      water[next] = 1;
+      grow.push(next);
+    }
+  }
+  return water;
 }
 
 export function sceneMask(depth: ArrayLike<number>, color: ArrayLike<number> | null, width: number, height: number): Uint8ClampedArray | null {

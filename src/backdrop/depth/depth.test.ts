@@ -185,6 +185,24 @@ describe("scene mask channels", () => {
     expect(share(scene([60, 110, 190], (x, y) => ((x + y) % 2 ? 90 : 200)), 1)).toBe(0);
   });
 
+  test("mountains a little nearer than the sky plateau are not sky", () => {
+    const width = 10, height = 10, depth = new Uint8ClampedArray(400);
+    for (let y = 0; y < height; y += 1) for (let x = 0; x < width; x += 1) {
+      const d = y < 3 ? 0 : y < 6 ? 8 : 60 + y * 15;
+      depth.set([d, d, d, 255], (y * width + x) * 4);
+    }
+    const mask = sceneMask(depth, null, width, height) as Uint8ClampedArray;
+    expect(mask[(1 * width + 5) * 4]).toBeGreaterThan(127);
+    expect(mask[(5 * width + 5) * 4]).toBeLessThan(40);
+  });
+
+  test("water grows from blue seeds across reflections on the same ground plane, not up a far slope", () => {
+    const mask = scene([60, 110, 190], (_x, y) => 100 + y);
+    const reflected = scene([200, 90, 60], (_x, y) => 100 + y);
+    expect(share(reflected, 1)).toBe(0);
+    expect(share(mask, 1)).toBeGreaterThan(0.5);
+  });
+
   test("no colour means sky only", () => {
     const width = 4, height = 4, depth = new Uint8ClampedArray(64);
     for (let i = 0; i < 16; i += 1) depth.set(i < 8 ? [0, 0, 0, 255] : [200, 200, 200, 255], i * 4);
