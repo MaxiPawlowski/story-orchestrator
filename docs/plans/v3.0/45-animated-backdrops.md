@@ -199,3 +199,12 @@ Before -> after (deterministic 60 fps captures, same scenes and clock; 1080p unl
 - Reduced motion: owner-confirmed, only the OS `prefers-reduced-motion` stills the backdrop; ST's own Reduced motion toggle is ignored (the owner has it on).
 - Next: merge skeleton; merge a2 into the skeleton branch, gates, merge, `npm run build && npm run stage && npm run plugins:install`;
   showcase shots of the Backdrop/Stage stories into `docs/guide/assets/showcase/backdrops/a-effects-*.png` (`.build/backdrop-shots.mjs` in so-45a2, Storybook on port 6011).
+
+### Review: gate record (a2, 2026-11-08)
+
+- Fixed for the gates: code health (dead `BUILT_IN_LAYERS`, typed preview story instead of `as unknown as`), architecture (`stHost/backdrop.ts` reads the text colour from
+  `#chat`, no message DOM), style tokens (preview still painted in `src/backdrop/previewStill.ts`, no colour literals in tsx), error copy (no silent catch on video resume,
+  `loadVideo` rejects with the raw reason), arrival golden re-recorded for `v30-45a-backdrop-stage.json`, settings reference regenerated.
+- `npm run gates -- --jobs=2` (through the machine-wide heavy lock) on 99db222c2 (a2 + master 2b35ba2c7): all green in 494.4 s, no `--resume`, Storybook included:
+  test:replay, test, test-storybook:ci, build, test:debug, typecheck, typecheck:test, lint, debug:typecheck, test:release, test:plugin all exit 0.
+- Not run: the live lane scenario (machine overloaded, one heavy process at a time); the deterministic WebGL captures above stand in for the visual check.
