@@ -1,4 +1,5 @@
 import { TALK_CHAIN_MAX_CAP, type RosterMember, type TalkControl } from "@engine/index";
+import { chanceSeed, seededStream } from "@engine/chance";
 import { resolveChainConfig, type TalkChainConfig } from "./talkChain";
 import type { JudgeDirectorDecision, JudgeDirectorInput } from "@judge/index";
 import {
@@ -523,7 +524,8 @@ export class TalkController {
 
   private chooseFallback(control: TalkControl, pool: TalkCandidate[], source: TalkDecisionSource): Decision {
     const chosen = chooseByRules(control, pool, {
-      lastSpeakerRosterId: this.host.getLastSpeakerRosterId(), leadEligible: this.sceneWork(this.host.getWindow()) && this.pacing.leadPreferred(), random: this.host.random?.() ?? undefined,
+      lastSpeakerRosterId: this.host.getLastSpeakerRosterId(), leadEligible: this.sceneWork(this.host.getWindow()) && this.pacing.leadPreferred(),
+      random: this.host.random?.() ?? seededStream(chanceSeed(["talk-unseeded", this.decisionKey()])),
     });
     return chosen ? { kind: "member", rosterId: chosen.rosterId, name: chosen.name, source } : { kind: "pass" };
   }

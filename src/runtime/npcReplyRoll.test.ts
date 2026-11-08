@@ -20,9 +20,9 @@ const checkpoint = (probability?: number) => ({
   effects: { npc_replies: [{ trigger: "onEnter", member: "corin", kind: "scripted", text: "Corin speaks.", ...(probability === undefined ? {} : { probability }) }] },
 }) as never;
 
-const harness = () => {
+const harness = (unit?: number) => {
   const journal: Array<{ summary: string; note?: string }> = [];
-  const applier = new EffectsApplier(ownership, { journal: (summary, note) => journal.push({ summary, note }) });
+  const applier = new EffectsApplier(ownership, { journal: (summary, note) => journal.push({ summary, note }), roll: () => unit ?? null });
   const extras = { firedNpcReplies: {}, lastSelfInjectionMessageId: -1, ui: {}, requirements: { ready: true } } as never;
   return { applier, extras, journal };
 };
@@ -32,16 +32,14 @@ describe("C9: an NPC reply's probability roll is journaled", () => {
   afterEach(() => { jest.restoreAllMocks(); });
 
   it("a lost roll says what was rolled against what, and that nothing was said", async () => {
-    jest.spyOn(Math, "random").mockReturnValue(0.8);
-    const h = harness();
+    const h = harness(0.8);
     await h.applier.fireNpcReplies(checkpoint(0.25), h.extras, "onEnter");
     expect(spoken).toEqual([]);
     expect(h.journal).toEqual([{ summary: "NPC reply corin (onEnter) skipped by its roll", note: "rolled 0.800 against 0.25 at cp-2:onEnter:corin:0" }]);
   });
 
   it("a won roll says it fired, and the reply is spoken", async () => {
-    jest.spyOn(Math, "random").mockReturnValue(0.1);
-    const h = harness();
+    const h = harness(0.1);
     await h.applier.fireNpcReplies(checkpoint(0.25), h.extras, "onEnter");
     expect(spoken).toHaveLength(1);
     expect(h.journal).toEqual([{ summary: "NPC reply corin (onEnter) fired by its roll", note: "rolled 0.100 against 0.25 at cp-2:onEnter:corin:0" }]);
@@ -57,8 +55,7 @@ describe("C9: an NPC reply's probability roll is journaled", () => {
   });
 
   it("a roll exactly at the threshold fires, as before", async () => {
-    jest.spyOn(Math, "random").mockReturnValue(0.25);
-    const h = harness();
+    const h = harness(0.25);
     await h.applier.fireNpcReplies(checkpoint(0.25), h.extras, "onEnter");
     expect(spoken).toHaveLength(1);
   });
@@ -94,10 +91,14 @@ describe("SP7: the roll seam replaces Math.random when it answers", () => {
     expect(h.journal).toEqual(again.journal);
   });
 
-  it("control: a seam that answers null falls back to Math.random, as today", async () => {
-    jest.spyOn(Math, "random").mockReturnValue(0.1);
+  it("architecture audit 2026-11-08: a seam that answers null draws from the key, never Math.random, and a replay draws the same", async () => {
+    const random = jest.spyOn(Math, "random");
     const h = seamed(() => null);
     await h.applier.fireNpcReplies(checkpoint(0.25), h.extras, "onEnter");
-    expect(h.journal[0].note).toBe("rolled 0.100 against 0.25 at cp-2:onEnter:corin:0");
+    const again = seamed(() => null);
+    await again.applier.fireNpcReplies(checkpoint(0.25), again.extras, "onEnter");
+    expect(random).not.toHaveBeenCalled();
+    expect(h.journal[0].note).toBe("rolled 0.880 against 0.25 at cp-2:onEnter:corin:0");
+    expect(again.journal).toEqual(h.journal);
   });
 });
