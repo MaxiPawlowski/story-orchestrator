@@ -43,7 +43,7 @@ function referenceDeform(rig: Rig, x: number, y: number, p: HeadParameters): Poi
   const top = Math.min(...rig.eyes.flatMap((eye) => eye.top)), height = Math.max(...rig.eyes.map((eye) => sampled(eye.bot, 0.5) - sampled(eye.top, 0.5)));
   const brow = weight(face.brow) * (1 - band(face.brow.band, y)) * (1 - smooth(top - 2 - Math.max(3, height * 0.6), top - 2, y));
   py -= p.browY * 7 * brow;
-  py += (x - face.brow.cx) * Math.sin(p.browAngle * 0.12 * brow);
+  py += (face.brow.rx * 0.5 - Math.abs(x - face.brow.cx)) * Math.sin(p.browAngle * 0.12 * brow);
   py += p.mouthOpen * 3.5 * weight(face.jaw) * band(face.jaw.band, y);
   px += ax * (8 * weight(face.nose) + 5 * weight(face.mouth))
     + (x - face.eyeA.cx) * 0.12 * ax * weight(face.eyeA) - (x - face.eyeB.cx) * 0.12 * ax * weight(face.eyeB)

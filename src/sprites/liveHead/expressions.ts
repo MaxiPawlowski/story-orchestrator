@@ -3,7 +3,7 @@ import type { HeadBox, PixelImage } from "../builder/pixels";
 import type { AnimationFrames } from "../frameKeys";
 import type { Eye, Rig } from "./types";
 import type { HeadLayer, Rect } from "./manifest";
-import { cutHeadLayers, insidePolygon, type CutLayer } from "./synthesis/layers";
+import { cutHeadLayers, insidePolygon, roiRect, type CutLayer } from "./synthesis/layers";
 import { cutDrawn, drawnFrames, frameWindow, rigWindow, windowPixels, type DrawnDeps, type DrawnFrame, type DrawnSprite } from "./drawn";
 import { eyeTone, gazeOffset, interior, irisSpan, renderOpenBall } from "./gaze";
 
@@ -16,6 +16,7 @@ export const ALIGN_LEVEL = 24;
 export const ALIGN_STRAY = 8;
 export const ALIGN_HEAD = 1.6;
 export const SQUINT_LIMIT = 0.7;
+export const EYE_REPAINT = 0.35;
 const MIN_SCLERA = 12;
 export const LOOK_CACHE_SIZE = 24;
 export const PRELOAD_MS = 1200;
@@ -67,6 +68,30 @@ export function scleraPixels(eye: Eye, image: PixelImage): number {
       if (image.data[at + 3] >= 230 && Math.max(r, g, b) - Math.min(r, g, b) <= 0.1 && 0.2126 * r + 0.7152 * g + 0.0722 * b >= 0.55) pale++;
     }
   return pale;
+}
+
+export function repaintedEye(eye: Eye, neutral: PixelImage, image: PixelImage): boolean {
+  const xs = eye.opening.map((point) => point[0]), ys = eye.opening.map((point) => point[1]);
+  let inside = 0, moved = 0;
+  for (let y = Math.max(0, Math.floor(Math.min(...ys))); y < Math.min(image.height, Math.ceil(Math.max(...ys))); y++)
+    for (let x = Math.max(0, Math.floor(Math.min(...xs))); x < Math.min(image.width, Math.ceil(Math.max(...xs))); x++) {
+      if (!insidePolygon(eye.opening, x + 0.5, y + 0.5)) continue;
+      inside++;
+      if (changed(neutral, image, (y * image.width + x) * 4)) moved++;
+    }
+  return inside > 0 && moved / inside > EYE_REPAINT;
+}
+
+export function freezeEye(layers: CutLayer[], image: PixelImage, eye: Eye, index: number): void {
+  const base = layers.find((layer) => layer.name === "base");
+  if (base) {
+    const [rx, ry, rw, rh] = roiRect(eye, image);
+    for (let y = ry; y < ry + rh; y++) {
+      const at = (y * image.width + rx) * 4;
+      base.image.data.set(image.data.subarray(at, at + rw * 4), (y * base.image.width + rx) * 4);
+    }
+  }
+  for (const layer of layers) if (layer.name.startsWith(`eye${index}_`)) layer.image.data.fill(0);
 }
 
 export function squinted(eye: Eye, neutral: PixelImage, image: PixelImage): boolean {
@@ -133,8 +158,9 @@ export function cutLook(rig: Rig, name: string, neutral: PixelImage, art: { imag
   }
   catch (error) { return error instanceof Error ? error.message : "the expression art could not be cut"; }
   const gaze = rig.eyes.map((eye, index) => {
+    if (squinted(eye, neutral, image) || repaintedEye(eye, neutral, image)) { freezeEye(layers, image, eye, index); return false; }
     const ball = layers.find((layer) => layer.name === `eye${index}_ball`);
-    return !!ball && !squinted(eye, neutral, image) && holes(ball, eye) === 0;
+    return !!ball && holes(ball, eye) === 0;
   });
   const drawn = cutDrawn(rig, image, frames, box);
   return { name, layers, sprites: drawn.sprites, refused: drawn.refused, gaze: [gaze[0] ?? false, gaze[1] ?? false] };
