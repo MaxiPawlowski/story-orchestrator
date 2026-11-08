@@ -65,3 +65,14 @@ Fallback order, always: loop → still + layers → still → ST's own backgroun
 ## Gate record
 
 (per phase, appended by each agent)
+
+### Phase B (depth + parallax): Resume note 2026-11-08 (paused on usage limit)
+
+- Branch `v3.0-45-backdrop-b` @ worktree `C:\dev\so-45b`; not merged, no full gates run yet.
+- Built: depth recipe `src/image/depthGraph.ts` (LoadImage -> DepthAnythingV2Preprocessor vitl r512 -> PreviewImage); media plugin allowlist + `validateDepthInputs` (plugin tests green); `src/backdrop/depth/`: `key.ts` (key sha256[0:32]-dav2-vitl-r512-v1, file `user/images/so-backdrop-depth/<key>.png`), `cache.ts` (once per content hash, dedupe, backoff 10 min x3, off when `image.enabled` is false or no media plugin), `host.ts` (image queue + broker lease, background, never blocks a turn), `mask.ts` (R sky = far plateau only, G water = blue ground-plane seeds grown across reflections, B reserved for C, A 255), `parallax.ts` (overscan math, drift/tilt, GLSL 300 es), `layers.ts` + `index.ts` (parallax/depthFog layers + `depth` asset provider; drafts against A's contract, not compiled until A lands). Unit tests 24 green (`npx jest src/backdrop/depth`).
+- Showcase (plan 46): `docs/guide/assets/showcase/backdrops/` (4 SDXL base scenes, depth, masks, 2 parallax WebP demos, sidecars), `docs/guide/assets/showcase/LICENSES.md`; generator `scripts/debug/so-showcase-backdrops.mts`; probe `scripts/debug/so-backdrop-depth.mts`.
+- Download: `depth_anything_v2_vitl.pth`, 1,341,395,338 B, sha256 a7ea19fa0ed99244e67b624c72b8580b7e9553043245905be58796a608eb9345, from huggingface.co/depth-anything/Depth-Anything-V2-Large, placed in `C:\dev\ComfyUI\custom_nodes\comfyui_controlnet_aux\ckpts\depth-anything\Depth-Anything-V2-Large\`.
+- Floor B depth <= 10 s: MISSED. 17-38 s (6 ST stock backgrounds, ComfyUI just busy), 44-68 s (3, RAM pressure), 14-19 s (4 showcase, idle queue). Cause: the controlnet_aux node rebuilds ViT-L on CPU every call (CPU: import 6 s, build 11.7 s, load 1 s), not GPU time. Owner options: vits/vitb weights (99 / 390 MB, another download) or ComfyUI-native DA3 (Comfy-Org repackage, model-managed and cached). Cache hit replays instantly.
+- Parallax floor: visibly correct on 5 ST stock + 4 showcase scenes in a standalone WebGL harness (screenshot pairs: foreground moves against background, no edge stretch). Live check on A's real stage still owed.
+- Masks after coordinator review: sky stops at the ridge (mountain-lake-dawn sky 33.5% -> 17.7%), harbour water 7.2% -> 19.4%.
+- Next: merge master once A lands; boot `startDepth(() => settings.parallax)` from A's stage; check `coverTransform` and pointer range; feature row, settings copy, guide for `display.backdrop.parallax`; contract bullet for the mask format; gates:quick; lane 53 live check with a cached depth map (upload via the lane's `/api/images/upload`); full `npm run gates`; merge, push, stage, plugins:install (media plugin changed, restart needed).
