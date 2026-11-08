@@ -113,6 +113,17 @@ export const MECHANICS_FEATURES: readonly Feature[] = [
     settings: ["pacing.stuckLadder"], guideTopic: "stuck-leads", doc: authorGuideDoc("stuck-leads"), status: "shipped", needs: ["story"],
   },
   {
+    id: "pacing-engagement", name: "Tell a stalled scene from an engaged one", area: "authoring", audience: "author",
+    oneLine: "Before pacing pushes a quiet scene on, it reads why the scene is quiet and answers that instead.",
+    what: "A scene where no exit has moved is classed from what the story already records, first match wins: an aftermath (a climax just eased or a "
+      + "resolution landed) and a relationship scene (a feeling, mood or label moved, or a promise was made) are left alone, with no lead and no pull; a "
+      + "pressure that crossed a threshold is shown through its consequence; a player's question gets the next lead as information, not pressure; only a "
+      + "scene repeating itself (nothing new remembered, same place) gets the usual stuck leads. The strongest open-stretch pull (only at the stretch's "
+      + "turn limit) names the pressure or that deadline, never someone invented urging. No model call. Not rated yet.",
+    where: settingsAt("#so-authoring-engagement", "Authoring › Prompt trials"),
+    settings: ["pacing.engagement"], guideTopic: "stuck-leads", doc: authorGuideDoc("stuck-leads"), status: "shipped", needs: ["story"],
+  },
+  {
     id: "living-leads", name: "Several ways into a written turning point", area: "authoring", audience: "author",
     oneLine: "Each turning point the living director writes can be reached two or three different ways.",
     what: "The living director answers the way into its next turning point as two or three leads that differ in kind (a place, a person, an object or a choice); "

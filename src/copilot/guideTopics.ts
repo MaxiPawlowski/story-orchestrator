@@ -159,10 +159,10 @@ export const GUIDE_TOPICS = {
   "stuck-leads": {
     title: "Leads for a stuck player",
     fields: "checkpoints[].leads, checkpoints[].stuck_after",
-    text: "leads: 1 to 4 short player-safe situations that make an exit reachable (\"a dockhand mentions the ledger moved\"); stuck_after n (1-20, default 6) "
-      + "player turns with no exit-gate quality changing. Then one lead per 3 quiet turns reaches the narrator as world pressure, never the player's act; "
-      + "past the last lead (or with none, from the second rung) a generic nudge. Never forces an exit. Not on an open stretch. "
-      + "one-clue-exit warns when every exit needs one extractor value and there are fewer than 2 leads, no turn-count fallback and no alternate.",
+    text: "leads: 1-4 short player-safe situations that make an exit reachable (\"a dockhand mentions the ledger moved\"); stuck_after n (1-20, default 6) "
+      + "player turns with no exit-gate quality changing, then one lead per 3 quiet turns as world pressure; past the last (or none), a generic nudge. "
+      + "Never forces an exit; not on an open stretch. pacing.engagement first reads why it is quiet: aftermath or a relationship scene, no lead; a question, "
+      + "the lead as information; a crossed pressure, its consequence. one-clue-exit: every exit needs one extractor value, under 2 leads, no fallback.",
   },
   guidance: {
     title: "Narrator guidance",

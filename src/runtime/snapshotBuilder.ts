@@ -109,7 +109,7 @@ export interface SnapshotSources {
   status: string;
   pendingWrites: ApplyQueueEntry[];
   boundaryLog: BoundaryLogEntry[];
-  expectedTension: number | null;
+  expectedTension: number | null; engagement: RuntimeSnapshot["tension"]["engagement"];
   openThreads: string[];
   canon: string;
   lastRollback: RollbackNotice | null;
@@ -178,7 +178,7 @@ export const snapshotSources = (port: SnapshotPort): SnapshotSources => ({
   status: port.status,
   pendingWrites: port.loaded ? port.engine.pendingWrites : [],
   boundaryLog: port.loaded ? port.engine.stateLog : [],
-  expectedTension: port.loaded ? port.pacing.expectedTension() : null,
+  expectedTension: port.loaded ? port.pacing.expectedTension() : null, engagement: port.pacing.engagement(),
   openThreads: port.memory.getOpenArcs(),
   resting: port.memory.injector.restingFilter(),
   canon: port.memory.canon.getCanonProse(),
@@ -519,7 +519,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     stagecraftScope: curatorLorebooks(story), innerCast: castVoices(story, state?.activeCheckpointId ?? null),
     pendingDeltas,
     convergence: buildConvergenceReadout(story, state),
-    tension,
+    tension: { ...tension, engagement: sources.engagement },
     agency,
     agencyRecovery,
     pipeline,

@@ -65,7 +65,7 @@ export const sanitizeInlineSettings = (value: unknown): InlineSettings => {
 export interface GlobalSettings {
   featureSwitches?: Partial<Record<"agency" | "meanwhile" | "thinking" | "questResolutions" | "storyRecord", boolean>>;
   extraction: ExtractionRuntimeSettings;
-  pacing: { hintEnabled: boolean; pathArc: boolean; stuckLadder: boolean };
+  pacing: { hintEnabled: boolean; pathArc: boolean; stuckLadder: boolean; engagement: boolean };
   display: {
     announceTransitions: boolean; hudEnabled: boolean; yourMove: boolean; compactThoughts: boolean; regenerateOwnRows: boolean; inChat: ChatElementSettings;
     briefing: boolean; briefingDraft: boolean; playerSetup: boolean; inline: InlineSettings; presence: PresenceSettings; backdrop: BackdropSettings;
@@ -288,7 +288,7 @@ export const defaultStagecraftSettings = (): StagecraftSettings => ({
 
 export const defaultGlobalSettings = (): GlobalSettings => ({
   extraction: defaultExtractionSettings(),
-  pacing: { hintEnabled: true, pathArc: true, stuckLadder: true },
+  pacing: { hintEnabled: true, pathArc: true, stuckLadder: true, engagement: true },
   display: {
     announceTransitions: false, hudEnabled: true, yourMove: true, compactThoughts: true, regenerateOwnRows: true, inChat: defaultChatElements(),
     briefing: true, briefingDraft: true, playerSetup: true, inline: defaultInlineSettings(), presence: defaultPresenceSettings(), backdrop: defaultBackdropSettings(),
@@ -384,7 +384,7 @@ export const sanitizeGlobalSettings = (value: unknown): GlobalSettings => {
       ...(isReplyEffort(replyEffort) ? { replyEffort } : {}),
       ...sanitizeReadPrompt({ readLayout, promiseAddressee }),
     },
-    pacing: { hintEnabled: pacing.hintEnabled !== false, pathArc: pacing.pathArc !== false, stuckLadder: pacing.stuckLadder !== false },
+    pacing: { hintEnabled: pacing.hintEnabled !== false, pathArc: pacing.pathArc !== false, stuckLadder: pacing.stuckLadder !== false, engagement: pacing.engagement !== false },
     display: {
       announceTransitions: display.announceTransitions === true, hudEnabled: display.hudEnabled !== false, yourMove: display.yourMove !== false, compactThoughts: display.compactThoughts !== false,
       regenerateOwnRows: display.regenerateOwnRows !== false,

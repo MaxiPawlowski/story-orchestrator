@@ -236,6 +236,10 @@ export const SETTING_COPY_TOOLS = {
   "pacing.stuckLadder": copy("Help a stuck player with leads (trial)",
     "When no exit of a gated scene has moved for a few of your turns, the narrator gets the scene's authored leads one at a time as world pressure, "
       + "then one general nudge. It never moves the story on for you. No model call. Not rated yet."),
+  "pacing.engagement": copy("Tell a stalled scene from an engaged one (trial)",
+    "Before pushing a quiet scene on, pacing looks at why it is quiet: a relationship scene or an aftermath is left alone, a question gets information instead of "
+      + "pressure, and only a scene repeating itself gets the usual nudge. The strongest pull names a real pressure or the stretch's turn limit, never invented urging. "
+      + "No model call. Not rated yet."),
   "talk.swipeContrast": copy("Swipes see the reply they replace (trial)",
     "When you swipe for a new reply, the visible text of the reply you threw away is shown once, marked as rejected, so the new reply differs. Off until it is rated."),
   "sprites.cardOverlay": copy("Current character state in replies",

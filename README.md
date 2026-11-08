@@ -264,6 +264,7 @@ Generated from the feature registry. "Experimental" means not yet measured; it i
 | Authoring | Quests, checks and panels | Side quests, visible stats, dice checks and milestones a story declares. | Experimental |
 | Authoring | Pace by the road ahead | The dramatic shape follows the turning points left on the way to an ending, and eases off after a climax. |  |
 | Authoring | Help a stuck player with leads | A gated scene that has stopped moving gets its authored leads one at a time, as world pressure. |  |
+| Authoring | Tell a stalled scene from an engaged one | Before pacing pushes a quiet scene on, it reads why the scene is quiet and answers that instead. |  |
 | Authoring | Several ways into a written turning point | Each turning point the living director writes can be reached two or three different ways. | Experimental |
 | Setup | Carried thought | When no private intent is ready, a character keeps the aim from its own last thought. | Experimental |
 | Setup | Repair | Names the one thing missing and takes you to the setting that fixes it. |  |

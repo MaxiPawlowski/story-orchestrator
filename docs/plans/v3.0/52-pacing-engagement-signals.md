@@ -1,6 +1,7 @@
 # v3.0 52 — Pacing: engagement vs stall
 
-Status 2026-11-08: PLANNED (docs only). Uses 49 pressures when present; independent of 48 otherwise.
+Status 2026-11-08: BUILT (CPU), branch `v3.0-52-engagement`; real-model rows owed (GPU paused). 48 resolutions and 49 pressures are read
+through `EngagementSignals.resolutions` / `pressures`, empty until those plans feed them.
 
 ## Why
 
@@ -76,3 +77,15 @@ parallel with 48 (different modules). Its `pressure-advancing` class lights up a
 
 - Who labels the 40 windows from archived sessions: the Sol rater, under the no-spoiler rule?
 - Should `exploring-relationship` also hold tension steering, or only the pull and the stuck ladder?
+
+## Resume note (paused 2026-11-08 on the owner's request)
+
+- Branch `v3.0-52-engagement` at the merge of master `139f454b9`, worktree `C:/dev/so-52-engagement`. Not merged, not installed.
+- Built: `pacing/engagement.ts` (classifier, ring), `runtime/engagementSignals.ts`, pacing coordinator answers (pull, stuck ladder),
+  switch `pacing.engagement` (on), snapshot `tension.engagement`, guide topic `stuck-leads` + `docs:guide` + `docs:settings`.
+  Tests: `pacing/engagement.test.ts` 27, `coordinators/engagementPacing.review.test.ts` 12.
+- Gates: `npm run gates:quick` green before the master merge. Full `npm run gates` (heavy.mjs `--jobs=2`) was stopped before it
+  finished; nothing green to cite.
+- To resume: merge master again if it moved (regenerate `src/guide/pages.generated.ts` with `docs:guide` + `docs:settings` on a
+  conflict), run the full gates through heavy.mjs, then merge, stage, install, and write the gate record.
+- Owed (GPU paused): 40 labelled quiet windows (another model labels, counts only), live pacing scenario x2, blind on/off rating.
