@@ -78,14 +78,22 @@ parallel with 48 (different modules). Its `pressure-advancing` class lights up a
 - Who labels the 40 windows from archived sessions: the Sol rater, under the no-spoiler rule?
 - Should `exploring-relationship` also hold tension steering, or only the pull and the stuck ladder?
 
-## Resume note (paused 2026-11-08 on the owner's request)
+## Gate record (2026-11-08)
 
-- Branch `v3.0-52-engagement` at the merge of master `139f454b9`, worktree `C:/dev/so-52-engagement`. Not merged, not installed.
 - Built: `pacing/engagement.ts` (classifier, ring), `runtime/engagementSignals.ts`, pacing coordinator answers (pull, stuck ladder),
-  switch `pacing.engagement` (on), snapshot `tension.engagement`, guide topic `stuck-leads` + `docs:guide` + `docs:settings`.
+  switch `pacing.engagement` (on), snapshot `tension.engagement`, guide topic `stuck-leads`, plan 24 matrix row `pacing-engagement`.
   Tests: `pacing/engagement.test.ts` 27, `coordinators/engagementPacing.review.test.ts` 12.
-- Gates: `npm run gates:quick` green before the master merge. Full `npm run gates` (heavy.mjs `--jobs=2`) was stopped before it
-  finished; nothing green to cite.
-- To resume: merge master again if it moved (regenerate `src/guide/pages.generated.ts` with `docs:guide` + `docs:settings` on a
-  conflict), run the full gates through heavy.mjs, then merge, stage, install, and write the gate record.
-- Owed (GPU paused): 40 labelled quiet windows (another model labels, counts only), live pacing scenario x2, blind on/off rating.
+- All heavy runs through the machine-wide lock (`heavy.mjs plan52 -- ...`, low priority), worktree `C:/dev/so-52-engagement`.
+- `npm run gates:quick` on `e067feb61`: green 142.8s (jest related 465 suites / 5292 tests).
+- `npm run gates -- --jobs=2` on `e067feb61`: RED at test:release, `suiteCoverage.test.mjs` (no plan 24 matrix row for
+  `pacing-engagement`). Fixed in `6a8e7fe11` (row in `docs/plans/v2.8/24-test-plan.md`).
+- `npm run gates -- --jobs=2`, no `--resume`: green 456.5s on `6a8e7fe11`; master moved, merged (`04849e29d`), green 460.8s; master
+  moved, merged (`f149f02ca`), green 413.2s; master moved (docs only), merged (`a6946bece`), RED at test-storybook:ci (15 s play
+  timeouts in StudioGraph, DrawnLayer, SettingsPanel, Workspace under CPU load; no code change), rerun green 392.8s; master moved,
+  merged (`daeb521e7`), **green 396.4s** (all 11 steps). Master unmoved at `119459798`.
+- Merged `--no-ff` into local master `e5a1c61f8` (tree identical to `daeb521e7`). Not pushed.
+- `npm run build && npm run stage && npm run plugins:install`: webpack compiled, 284 files staged, plugins unchanged,
+  `restartNeeded: false`. ST :8000 was down and left down; no page reload, no live check.
+- Deviations: no live gate (GPU paused, ST down). Live gate NOT green.
+- Owed (GPU): 40 labelled quiet windows (another model labels, counts only), live pacing scenario on a model lane
+  (`send_generate`) x2, blind on/off rating. Floors in this plan stay unmeasured until then.
