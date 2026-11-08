@@ -120,6 +120,7 @@ export interface BackdropBootContext {
   checkpointId(): string | null;
   chatId(): string | null;
   tier(): BackdropLoopTier;
+  settings(): BackdropSettings;
   hostGenerating(): boolean;
   subscribe(listener: () => void): () => void;
 }

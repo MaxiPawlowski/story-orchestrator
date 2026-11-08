@@ -1,11 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import { BackdropController, type BackdropHost, type BackdropView } from "./stage/controller";
+import { BackdropController, type BackdropHost, type BackdropStory, type BackdropView } from "./stage/controller";
 import { BackdropRenderer } from "./stage/renderer";
 import { registerBuiltInLayers } from "./stage/layers";
 import { defaultBackdropSettings } from "./settings";
 import type { BackdropSettings } from "./types";
 import type { BackdropEffect } from "@engine/backdropSchema";
-import type { NormalizedStory } from "@engine/index";
 
 export interface BackdropPreviewProps {
   values: Record<string, unknown>;
@@ -77,7 +76,7 @@ export const BackdropPreview = ({ values, effect, settings, reducedMotion = fals
       cancelFrame: (handle) => cancelAnimationFrame(handle),
       now: () => performance.now(),
     };
-    const story = () => (live.current.effect ? { checkpointById: { preview: { effects: { backdrop: live.current.effect } } } } as unknown as NormalizedStory : null);
+    const story = (): BackdropStory | null => (live.current.effect ? { checkpointById: { preview: { effects: { backdrop: live.current.effect } } } } : null);
     const unregister = registerBuiltInLayers();
     const next = new BackdropController(host, {
       settings: () => ({ ...defaultBackdropSettings(), ...live.current.settings }), story, checkpointId: () => "preview", values: () => live.current.values,

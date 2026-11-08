@@ -224,8 +224,6 @@ const drift = (_context: BackdropLayerContext, initial: BackdropLayerSpec): Back
   };
 };
 
-export const BUILT_IN_LAYERS = ["rain", "snow", "embers", "dust", "fireflies", "fog", "flicker", "drift", "shimmer"] as const;
-
 export const registerBuiltInLayers = (): Array<() => void> => [
   ...(Object.keys(PARTICLE_KINDS) as ParticleKind[]).map((kind) => registerLayer(kind, particleLayer(kind))),
   registerLayer("fog", fog),

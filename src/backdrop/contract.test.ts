@@ -66,7 +66,7 @@ describe("v3.0 45 contract: asset port", () => {
 describe("v3.0 45 contract: boot hook", () => {
   it("returns an optional stop function", async () => {
     const hook: BackdropBootHook = async (context) => (context.chatId() ? () => undefined : undefined);
-    const context = { story: () => null, checkpointId: () => null, chatId: () => "c", tier: () => "full" as const, hostGenerating: () => false, subscribe: () => () => undefined };
+    const context = { story: () => null, checkpointId: () => null, chatId: () => "c", tier: () => "full" as const, settings: defaultBackdropSettings, hostGenerating: () => false, subscribe: () => () => undefined };
     expect(typeof (await hook(context))).toBe("function");
   });
 });

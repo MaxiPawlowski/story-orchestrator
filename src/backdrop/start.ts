@@ -20,6 +20,7 @@ const bootContext = (manager: BackdropManager): BackdropBootContext => ({
   checkpointId: () => manager.getCachedSnapshot().activeCheckpointId,
   chatId: () => manager.getOwnership().mint().chatId || null,
   tier: () => manager.getEffectiveSettings().display.backdrop.loops,
+  settings: () => manager.getEffectiveSettings().display.backdrop,
   hostGenerating: hostIsGenerating,
   subscribe: (listener) => manager.subscribe(listener),
 });

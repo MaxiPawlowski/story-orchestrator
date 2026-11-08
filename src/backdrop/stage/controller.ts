@@ -1,4 +1,3 @@
-import type { NormalizedStory } from "@engine/index";
 import type { BackdropEffect } from "@engine/backdropSchema";
 import type { BackdropAssets, BackdropBase, BackdropLayerSpec, BackdropSettings, BackdropState } from "../types";
 import { lookupAssets, noteBaseShown, onAssetsChanged } from "../assets";
@@ -31,9 +30,15 @@ export interface BackdropHost {
   now(): number;
 }
 
+export interface BackdropStory {
+  backdrop_defaults?: BackdropEffect;
+  display?: { motion?: boolean };
+  checkpointById: Readonly<Record<string, { effects?: { backdrop?: BackdropEffect } } | undefined>>;
+}
+
 export interface BackdropSources {
   settings(): BackdropSettings;
-  story(): NormalizedStory | null;
+  story(): BackdropStory | null;
   checkpointId(): string | null;
   values(): Values;
   subscribe(listener: () => void): () => void;
@@ -61,7 +66,7 @@ export interface BackdropView {
 
 const sameSpecs = (left: readonly BackdropLayerSpec[], right: readonly BackdropLayerSpec[]): boolean => JSON.stringify(left) === JSON.stringify(right);
 
-export const effectFor = (story: NormalizedStory | null, checkpointId: string | null): BackdropEffect | null =>
+export const effectFor = (story: BackdropStory | null, checkpointId: string | null): BackdropEffect | null =>
   story ? mergeEffect(story.backdrop_defaults, checkpointId ? story.checkpointById[checkpointId]?.effects?.backdrop : undefined) : null;
 
 export const overrideValues = (values: Values, override: BackdropOverride | null): Values => !override ? values : {
