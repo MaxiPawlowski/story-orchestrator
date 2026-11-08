@@ -35,7 +35,7 @@ export function refineEye(image: PixelImage, contour: Point[]): Point[] {
   const interior = (x: number, y: number): boolean => {
     const i = (y * image.width + x) * 4, r = image.data[i], g = image.data[i + 1], b = image.data[i + 2];
     const lum = luminance(r, g, b);
-    if (image.data[i + 3] <= 200 || lum < dark) return false;
+    if (y > cy1 || image.data[i + 3] <= 200 || lum < dark) return false;
     if (Math.max(r, g, b) - Math.min(r, g, b) <= EYE_GROW.scleraChroma && lum >= skinLum * EYE_GROW.scleraLum) return true;
     const sum = Math.max(1, r + g + b);
     return Math.abs(r / sum - skinHue[0]) + Math.abs(g / sum - skinHue[1]) >= EYE_GROW.skinHue;

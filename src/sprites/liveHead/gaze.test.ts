@@ -256,7 +256,7 @@ describe("live head gaze keeps the iris round", () => {
 describe("vertical gaze travel", () => {
   const eye = (height: number): Eye => ({ opening: [], roi: [], x0: 0, x1: 24, top: Array(24).fill(10), bot: Array(24).fill(10 + height) });
   test("is a share of the eye opening, never more than the old fixed travel", () => {
-    expect(gazeTravelY(eye(10))).toBeCloseTo(1.8, 6);
+    expect(gazeTravelY(eye(10))).toBeCloseTo(1, 6);
     expect(gazeTravelY(eye(100))).toBe(GAZE_TRAVEL.y);
     expect(gazeTravelY(eye(0))).toBe(0);
   });

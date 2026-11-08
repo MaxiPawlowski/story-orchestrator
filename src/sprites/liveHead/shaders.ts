@@ -48,6 +48,7 @@ uniform vec4 uCheekSize;
 uniform float uCheek;
 
 const int EYE_N = 24;
+const vec2 LID_SHADE = vec2(0.12, 0.34);
 float crv(int e, bool top, float u) {
   float f = clamp(u, 0.0, 1.0) * float(EYE_N - 1);
   int i = min(int(floor(f)), EYE_N - 2);
@@ -152,6 +153,8 @@ vec4 eyeBall(int e, vec2 p) {
     float kept = min(1.0, (1.0 - held) * irisWeight(here, tone.rgb) + held * irisWeight(vec4(fill, 1.0), tone.rgb));
     float inMoved = trust(q, crv(e, true, uq), crv(e, false, uq), tone.rgb) * spanWeight(e, q.x) * (1.0 - kept);
     c = slideBall(here, texAt(q), tone.rgb, trust(p, top, bot, tone.rgb) * held, inMoved, fill);
+    float lidShade = max(bot - top, 1.0);
+    c = mix(here, c, smoothstep(top + LID_SHADE.x * lidShade, top + LID_SHADE.y * lidShade, p.y));
   }
 
   return c * smoothstep(lids.x - 1.0, lids.x + 0.5, p.y) * (1.0 - smoothstep(lids.y - 0.9, lids.y + 0.6, p.y));
