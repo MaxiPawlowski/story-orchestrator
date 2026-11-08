@@ -357,3 +357,21 @@ Resume 2 (paused 2026-11-08 by the owner, mid demo gates):
   P8/P9; Sol re-review (`sol-rereview.txt`, prompt via stdin, 8 images). Mouth frames: `demo-art.py frames` built and
   unrun (GPU), page wiring + `?frames=placeholder` + test done (`792fec81e`); product storage, runtime and warp fallback
   already exist.
+
+Re-review 2026-11-08 (after the fixes, Sol `gpt-6.1-sol` on before/after close-up sheets; S = Sol, C = Claude, verified):
+- Better (S, C): white zigzags across the upper irises mostly gone on June and Wren; the cheek-coloured shelf through the
+  eyes during gestures is gone; blush no longer overpowers; repainted expression eyes stay coherent (held still); busts
+  no longer cut at the hair or shoulders.
+- Still wrong, ranked:
+  - R1 Gaze still shows rough eye edges: white wedges and lash fragments around a moved iris (June gaze tiles, smaller on
+    Wren); Tobin's gaze is muddy and hard to read (S). Product, open.
+  - R2 Expressions repaint the whole face (eye shape, freckles, nose) (S). Art, GPU-owed (face-only expression prompts
+    are in `demo-art.py`).
+  - R3 The closed lid reads as a flat skin patch with a ragged lash fringe (S, C confirmed on June `g_giggle0`). Product,
+    open: the lid fill needs the art's own shading or a drawn `blink` frame (mouth/blink frames step is built, unrun).
+  - R4 Gesture eye closure is now full (P8 fixed, C) but brief: about 140 ms, then fully open by 280 ms, so most stills
+    look neutral (S #4, C on `june-giggle-seq.png`). Product, open: hold the squint across the gesture.
+  - R5 Speech still weak: June's mouth barely moves, Wren's is a narrow slit (S). Drawn mouth frames (GPU) are the fix.
+- Worse: none established by Sol from stills; the shorter gesture squint (R4) is the trade-off of the P8 change.
+- Evidence (local): `.build/review-2026-11-08/video/{after-desk,after-phone,before-phone}/*.webm`, `focus-final/`,
+  `final2-*.png`, `june-giggle-seq.png`, `sol-rereview-final.md`.
