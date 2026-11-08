@@ -170,6 +170,17 @@ Before -> after (deterministic 60 fps captures, same scenes and clock; 1080p unl
 - Evidence (34+34 clips, contact sheets, 100 % crop strips, page shots, metrics, perf logs, the three Sol reports, the harness) is archived outside the repo
   in `C:\dev\backups\story-orchestrator\45-review-2026-11-08\`; the bases are B's synthetic showcase stills.
 
+### Resume (review, paused 2026-11-08 by the coordinator: owner's CPU at 100 %)
+
+- Branches: a2 `v3.0-45-backdrop-a2` (review fixes on top, master contract b376500f8 merged in), B `v3.0-45-backdrop-b` (layer fixes), combined
+  `v3.0-45-review` (worktree `C:\dev\so-45-review`). All work committed; nothing merged to master.
+- Green so far on a2: `npx tsc --noEmit`, `npx jest src/backdrop` (34 + 8 controller tests), related jest except settings reference (regenerated, now green),
+  lint on changed files, defect replay `--cached`; combined branch: typecheck + `jest src/backdrop` 57/57. 0 console errors in the final captures.
+- Full `npm run gates` on a2 (2800ae3e5): typecheck and build green, then `npm run test` exit 1 and the run stopped; the failing test was not yet
+  identified (the gates log kept no jest output; a plain `npm test` was stopped by the pause). Next: `npm test` alone, fix, then one full `npm run gates`.
+- Not done: live lane check of `test/scenarios/v30-45a-backdrop-stage.json` on the frozen a2 bundle (lane 47, no-model, images off); C must drop its
+  `frame.time / 1000` when it merges onto this contract.
+
 ## Gate record
 
 (per phase, appended by each agent)
