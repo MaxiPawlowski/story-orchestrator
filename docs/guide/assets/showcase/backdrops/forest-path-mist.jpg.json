@@ -1,11 +1,14 @@
 {
+  "build": "dd29b6967",
+  "licence": "SDXL base 1.0 (sd_xl_base_1.0.safetensors, Stability AI): CreativeML Open RAIL++-M. Output: synthetic, SFW, made for this guide.",
+  "source": "scripts/debug/so-showcase-backdrops.mts generate on the owner's local ComfyUI (plan 45 B), JPEG of the raw PNG",
+  "kind": "backdrop still",
   "id": "forest-path-mist",
   "tags": [
     "sky",
     "outdoor"
   ],
   "checkpoint": "sd_xl_base_1.0.safetensors",
-  "licence": "CreativeML Open RAIL++-M",
   "prompt": "misty forest path in the early morning, tall old trees, ferns, soft fog between the trunks, light rays, pale sky through the canopy, no people, detailed digital painting, atmospheric",
   "negative": "people, person, text, watermark, signature, logo, blurry, lowres, deformed, nsfw",
   "seed": 4504,
@@ -106,18 +109,5 @@
         ]
       }
     }
-  },
-  "depth": {
-    "model": {
-      "id": "dav2-vitl",
-      "ckpt": "depth_anything_v2_vitl.pth",
-      "resolution": 512,
-      "version": 1
-    },
-    "file": "forest-path-mist.depth.png",
-    "renderMs": 19350,
-    "generator": "scripts/debug/so-showcase-backdrops.mts depth"
-  },
-  "mask": null,
-  "parallaxDemo": null
+  }
 }

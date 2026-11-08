@@ -1,13 +1,18 @@
 {
-  "id": "library-fireplace-night",
+  "build": "dd29b6967",
+  "licence": "SDXL base 1.0 (sd_xl_base_1.0.safetensors, Stability AI): CreativeML Open RAIL++-M. Output: synthetic, SFW, made for this guide.",
+  "source": "scripts/debug/so-showcase-backdrops.mts generate on the owner's local ComfyUI (plan 45 B), JPEG of the raw PNG",
+  "kind": "backdrop still",
+  "id": "harbor-town-afternoon",
   "tags": [
-    "indoor"
+    "sky",
+    "water",
+    "outdoor"
   ],
   "checkpoint": "sd_xl_base_1.0.safetensors",
-  "licence": "CreativeML Open RAIL++-M",
-  "prompt": "interior of a cozy old library at night, tall wooden bookshelves, a stone fireplace with a warm fire, leather armchairs, rug, candles, no people, detailed digital painting, warm lighting, depth",
+  "prompt": "wide view of a small fishing harbor town in the afternoon, colorful houses on a hillside, wooden boats moored on gentle sea water, blue sky with white clouds, no people, detailed digital painting, warm sunlight",
   "negative": "people, person, text, watermark, signature, logo, blurry, lowres, deformed, nsfw",
-  "seed": 4503,
+  "seed": 4502,
   "size": {
     "width": 1344,
     "height": 768
@@ -18,8 +23,8 @@
     "sampler_name": "dpmpp_2m",
     "scheduler": "karras"
   },
-  "renderMs": 16534,
-  "generatedAt": "2026-11-08T09:38:52.386Z",
+  "renderMs": 24535,
+  "generatedAt": "2026-11-08T09:38:35.836Z",
   "generator": "scripts/debug/so-showcase-backdrops.mts generate",
   "graph": {
     "1": {
@@ -31,7 +36,7 @@
     "2": {
       "class_type": "CLIPTextEncode",
       "inputs": {
-        "text": "interior of a cozy old library at night, tall wooden bookshelves, a stone fireplace with a warm fire, leather armchairs, rug, candles, no people, detailed digital painting, warm lighting, depth",
+        "text": "wide view of a small fishing harbor town in the afternoon, colorful houses on a hillside, wooden boats moored on gentle sea water, blue sky with white clouds, no people, detailed digital painting, warm sunlight",
         "clip": [
           "1",
           1
@@ -59,7 +64,7 @@
     "5": {
       "class_type": "KSampler",
       "inputs": {
-        "seed": 4503,
+        "seed": 4502,
         "steps": 30,
         "cfg": 6.5,
         "sampler_name": "dpmpp_2m",
@@ -105,18 +110,5 @@
         ]
       }
     }
-  },
-  "depth": {
-    "model": {
-      "id": "dav2-vitl",
-      "ckpt": "depth_anything_v2_vitl.pth",
-      "resolution": 512,
-      "version": 1
-    },
-    "file": "library-fireplace-night.depth.png",
-    "renderMs": 14997,
-    "generator": "scripts/debug/so-showcase-backdrops.mts depth"
-  },
-  "mask": null,
-  "parallaxDemo": "library-fireplace-night.parallax.webp"
+  }
 }

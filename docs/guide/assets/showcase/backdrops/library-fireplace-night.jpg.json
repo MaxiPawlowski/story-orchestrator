@@ -1,15 +1,16 @@
 {
-  "id": "harbor-town-afternoon",
+  "build": "dd29b6967",
+  "licence": "SDXL base 1.0 (sd_xl_base_1.0.safetensors, Stability AI): CreativeML Open RAIL++-M. Output: synthetic, SFW, made for this guide.",
+  "source": "scripts/debug/so-showcase-backdrops.mts generate on the owner's local ComfyUI (plan 45 B), JPEG of the raw PNG",
+  "kind": "backdrop still",
+  "id": "library-fireplace-night",
   "tags": [
-    "sky",
-    "water",
-    "outdoor"
+    "indoor"
   ],
   "checkpoint": "sd_xl_base_1.0.safetensors",
-  "licence": "CreativeML Open RAIL++-M",
-  "prompt": "wide view of a small fishing harbor town in the afternoon, colorful houses on a hillside, wooden boats moored on gentle sea water, blue sky with white clouds, no people, detailed digital painting, warm sunlight",
+  "prompt": "interior of a cozy old library at night, tall wooden bookshelves, a stone fireplace with a warm fire, leather armchairs, rug, candles, no people, detailed digital painting, warm lighting, depth",
   "negative": "people, person, text, watermark, signature, logo, blurry, lowres, deformed, nsfw",
-  "seed": 4502,
+  "seed": 4503,
   "size": {
     "width": 1344,
     "height": 768
@@ -20,8 +21,8 @@
     "sampler_name": "dpmpp_2m",
     "scheduler": "karras"
   },
-  "renderMs": 24535,
-  "generatedAt": "2026-11-08T09:38:35.836Z",
+  "renderMs": 16534,
+  "generatedAt": "2026-11-08T09:38:52.386Z",
   "generator": "scripts/debug/so-showcase-backdrops.mts generate",
   "graph": {
     "1": {
@@ -33,7 +34,7 @@
     "2": {
       "class_type": "CLIPTextEncode",
       "inputs": {
-        "text": "wide view of a small fishing harbor town in the afternoon, colorful houses on a hillside, wooden boats moored on gentle sea water, blue sky with white clouds, no people, detailed digital painting, warm sunlight",
+        "text": "interior of a cozy old library at night, tall wooden bookshelves, a stone fireplace with a warm fire, leather armchairs, rug, candles, no people, detailed digital painting, warm lighting, depth",
         "clip": [
           "1",
           1
@@ -61,7 +62,7 @@
     "5": {
       "class_type": "KSampler",
       "inputs": {
-        "seed": 4502,
+        "seed": 4503,
         "steps": 30,
         "cfg": 6.5,
         "sampler_name": "dpmpp_2m",
@@ -107,27 +108,5 @@
         ]
       }
     }
-  },
-  "depth": {
-    "model": {
-      "id": "dav2-vitl",
-      "ckpt": "depth_anything_v2_vitl.pth",
-      "resolution": 512,
-      "version": 1
-    },
-    "file": "harbor-town-afternoon.depth.png",
-    "renderMs": 13827,
-    "generator": "scripts/debug/so-showcase-backdrops.mts depth"
-  },
-  "mask": {
-    "file": "harbor-town-afternoon.mask.png",
-    "channels": {
-      "r": "sky",
-      "g": "water",
-      "b": "reserved (loops)",
-      "a": "opaque"
-    },
-    "generator": "src/backdrop/depth/mask.ts sceneMask"
-  },
-  "parallaxDemo": null
+  }
 }

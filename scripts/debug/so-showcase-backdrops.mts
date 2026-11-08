@@ -1,6 +1,7 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { randomUUID } from 'node:crypto';
+import { execSync } from 'node:child_process';
 import { DEPTH_MODEL, depthGraph } from '../../src/backdrop/depth/graph.ts';
 
 const USAGE = `Usage: node scripts/debug/so-showcase-backdrops.mts generate --out <dir> [--comfy http://127.0.0.1:8188] [--only <id>]
@@ -74,6 +75,9 @@ async function upload(comfy: string, bytes: Uint8Array, name: string): Promise<s
 }
 
 const [command] = process.argv.slice(2);
+const build = execSync('git rev-parse --short=9 HEAD', { encoding: 'utf8' }).trim();
+const SDXL_LICENCE = 'SDXL base 1.0 (sd_xl_base_1.0.safetensors, Stability AI): CreativeML Open RAIL++-M. Output: synthetic, SFW, made for this guide.';
+const DEPTH_LICENCE = 'Depth Anything V2 Large (depth_anything_v2_vitl.pth, depth-anything/Depth-Anything-V2-Large): CC-BY-NC-4.0, non-commercial demo material.';
 const out = resolve(arg('--out', 'docs/guide/assets/showcase/backdrops'));
 const comfy = arg('--comfy', 'http://127.0.0.1:8188').replace(/\/$/, '');
 const scenes = SCENES.filter((scene) => !process.argv.includes('--only') || scene.id === arg('--only', ''));
@@ -83,7 +87,8 @@ if (command === 'generate') {
     const graph = sceneGraph(scene);
     const { bytes, ms } = await run(comfy, graph);
     await writeFile(join(out, `${scene.id}.raw.png`), bytes);
-    await writeFile(join(out, `${scene.id}.json`), JSON.stringify({ id: scene.id, tags: scene.tags, checkpoint: CHECKPOINT, licence: 'CreativeML Open RAIL++-M',
+    await writeFile(join(out, `${scene.id}.jpg.json`), JSON.stringify({ build, licence: SDXL_LICENCE, source: "scripts/debug/so-showcase-backdrops.mts generate on the owner's local ComfyUI (plan 45 B), JPEG of the raw PNG",
+      kind: 'backdrop still', id: scene.id, tags: scene.tags, checkpoint: CHECKPOINT,
       prompt: scene.prompt, negative: NEGATIVE, seed: scene.seed, size: SIZE, sampler: SAMPLER, renderMs: ms, generatedAt: new Date().toISOString(),
       generator: 'scripts/debug/so-showcase-backdrops.mts generate', graph }, null, 2) + '\n');
     console.log(`${scene.id}: ${ms} ms`);
@@ -94,9 +99,8 @@ if (command === 'generate') {
     const reference = await upload(comfy, source, 'so_showcase_depth.png');
     const { bytes, ms } = await run(comfy, depthGraph(reference));
     await writeFile(join(out, `${scene.id}.depth.png`), bytes);
-    const sidecar = join(out, `${scene.id}.json`);
-    const info = JSON.parse(await readFile(sidecar, 'utf8'));
-    await writeFile(sidecar, JSON.stringify({ ...info, depth: { model: DEPTH_MODEL, file: `${scene.id}.depth.png`, renderMs: ms, generator: 'scripts/debug/so-showcase-backdrops.mts depth' } }, null, 2) + '\n');
+    await writeFile(join(out, `${scene.id}.depth.png.json`), JSON.stringify({ build, licence: DEPTH_LICENCE, source: `scripts/debug/so-showcase-backdrops.mts depth on the owner's local ComfyUI (plan 45 B), from ${scene.id}.jpg`,
+      kind: 'depth map', model: DEPTH_MODEL, file: `${scene.id}.depth.png`, renderMs: ms, generator: 'scripts/debug/so-showcase-backdrops.mts depth' }, null, 2) + '\n');
     console.log(`${scene.id} depth: ${ms} ms`);
   }
 } else { console.log(USAGE); process.exit(command ? 1 : 0); }

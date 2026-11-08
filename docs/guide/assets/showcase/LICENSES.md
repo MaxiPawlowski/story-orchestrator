@@ -1,7 +1,7 @@
 # Showcase art licences
 
 Every image under `showcase/` is synthetic, SFW, made for this guide on the owner's local ComfyUI. No campaign content,
-no third-party art. Each image has a sidecar `<id>.json` with the prompt, seed, sampler, checkpoint and generator command.
+no third-party art. Each media file has a sidecar `<file>.json` with the build, source and licence, plus the prompt, seed, sampler, checkpoint and generator command.
 
 | Set | Files | Made with | Licence of the model | Notes |
 |---|---|---|---|---|

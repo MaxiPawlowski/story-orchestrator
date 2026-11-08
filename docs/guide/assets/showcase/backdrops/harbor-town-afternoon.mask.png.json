@@ -1,0 +1,14 @@
+{
+  "build": "4970edeaf",
+  "licence": "Derived on CPU from the still and depth map above: SDXL base 1.0 (sd_xl_base_1.0.safetensors, Stability AI): CreativeML Open RAIL++-M. Output: synthetic, SFW, made for this guide. Depth Anything V2 Large (depth_anything_v2_vitl.pth, depth-anything/Depth-Anything-V2-Large): CC-BY-NC-4.0, non-commercial demo material.",
+  "source": "src/backdrop/depth/mask.ts sceneMask over harbor-town-afternoon.depth.png and harbor-town-afternoon.jpg (plan 45 B)",
+  "kind": "scene mask",
+  "file": "harbor-town-afternoon.mask.png",
+  "channels": {
+    "r": "sky",
+    "g": "water",
+    "b": "reserved (loops)",
+    "a": "opaque"
+  },
+  "generator": "src/backdrop/depth/mask.ts sceneMask"
+}

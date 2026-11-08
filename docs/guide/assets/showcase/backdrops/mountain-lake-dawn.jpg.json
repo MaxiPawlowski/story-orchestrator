@@ -1,4 +1,8 @@
 {
+  "build": "dd29b6967",
+  "licence": "SDXL base 1.0 (sd_xl_base_1.0.safetensors, Stability AI): CreativeML Open RAIL++-M. Output: synthetic, SFW, made for this guide.",
+  "source": "scripts/debug/so-showcase-backdrops.mts generate on the owner's local ComfyUI (plan 45 B), JPEG of the raw PNG",
+  "kind": "backdrop still",
   "id": "mountain-lake-dawn",
   "tags": [
     "sky",
@@ -6,7 +10,6 @@
     "outdoor"
   ],
   "checkpoint": "sd_xl_base_1.0.safetensors",
-  "licence": "CreativeML Open RAIL++-M",
   "prompt": "wide landscape painting of a calm alpine lake at dawn, snowy mountains, pine forest on the shore, clear pastel sky with soft clouds, mirror reflections on the water, no people, highly detailed digital painting, cinematic light",
   "negative": "people, person, text, watermark, signature, logo, blurry, lowres, deformed, nsfw",
   "seed": 4501,
@@ -107,27 +110,5 @@
         ]
       }
     }
-  },
-  "depth": {
-    "model": {
-      "id": "dav2-vitl",
-      "ckpt": "depth_anything_v2_vitl.pth",
-      "resolution": 512,
-      "version": 1
-    },
-    "file": "mountain-lake-dawn.depth.png",
-    "renderMs": 15855,
-    "generator": "scripts/debug/so-showcase-backdrops.mts depth"
-  },
-  "mask": {
-    "file": "mountain-lake-dawn.mask.png",
-    "channels": {
-      "r": "sky",
-      "g": "water",
-      "b": "reserved (loops)",
-      "a": "opaque"
-    },
-    "generator": "src/backdrop/depth/mask.ts sceneMask"
-  },
-  "parallaxDemo": "mountain-lake-dawn.parallax.webp"
+  }
 }
