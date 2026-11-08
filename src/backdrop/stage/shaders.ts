@@ -200,7 +200,7 @@ void main() {
     alpha = mix(0.55, 0.8, z) * mix(1.0, 0.7, z * z);
   } else if (uKind == 2) {
     float z = r3;
-    bool ambient = r4 < 0.2;
+    bool ambient = r4 < 0.07;
     float t = r2 + uPhase * mix(0.25, 0.5, z) / (ambient ? 3.0 : 1.0);
     float age = fract(t);
     uint ride = uint(floor(t));
@@ -210,11 +210,11 @@ void main() {
     float warm = ambient ? 0.6 : smoothstep(0.3, 0.65, luma(source)) * smoothstep(0.04, 0.22, source.r - source.b);
     float sway = sin(uPhase * 1.7 + r1 * 30.0 + age * 5.0) * 0.006 + sin(uPhase * 0.53 + r2 * 20.0) * 0.01 * age;
     p = vec2(spawn.x + sway + age * (rand(id * 7u + ride * 131u + 23u) - 0.5) * 0.05, spawn.y + age * (ambient ? 0.85 : mix(0.1, 0.26, seed)));
-    float core = mix(0.6, 1.3, z);
+    float core = mix(0.8, 1.7, z);
     ext = vec2(core * 12.0 + 1.0);
     size = vec2(core);
     life = age;
-    alpha = warm * smoothstep(0.0, 0.08, age) * (1.0 - smoothstep(0.45, 1.0, age)) * (0.75 + 0.25 * sin(uTime * (5.0 + r4 * 6.0) + r1 * 40.0));
+    alpha = 1.6 * warm * smoothstep(0.0, 0.08, age) * (1.0 - smoothstep(0.45, 1.0, age)) * (0.75 + 0.25 * sin(uTime * (5.0 + r4 * 6.0) + r1 * 40.0));
   } else if (uKind == 3) {
     float z = r3;
     vec2 wander = vec2(sin(uPhase * 0.11 + r3 * 6.28) + 0.5 * sin(uPhase * 0.29 + r1 * 17.0), cos(uPhase * 0.09 + r4 * 6.28) + 0.5 * sin(uPhase * 0.23 + r2 * 13.0)) * 0.012;
