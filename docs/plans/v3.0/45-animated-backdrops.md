@@ -143,7 +143,13 @@ Open (not fixed here):
 - Host background fit/position/filter are ignored (always centred cover); a phone portrait crops a landscape still to its centre (no focal point). SC26, SV17.
 - Wind moves nothing in the picture (no foliage/water masks); stills painted in daylight still read as daylight under rain (needs lit variants). SV5/15.
 - Particles and overlays still blend in display gamma (only the base pass is linear); 90/144 Hz displays still halve the cadence.
-- Phase C's cinemagraph (`so-45c`) reads `frame.time` (now seconds, as it assumed) but samples the base without camera/parallax: it should become a `modifyBase` ripple.
+- Phase C's cinemagraph (`so-45c` 2ef27795c) divides `frame.time` by 1000: with this contract (seconds) that runs it 1000x slow, so the `/ 1000` must go
+  when C merges onto a2. It also samples the base without camera/parallax: it should feed the base composite through `modifyBase` (a flow modifier
+  next to `ripple` in `BASE_FS`), agreed through main since both A and C touch the contract.
+- A beat's `loop: false` now also drops loop-tier layers (the cinemagraph), from the loops reviewer; fixed here with a test.
+- B's masks (loops reviewer, Sol): harbour water misses the water around the boats and under the quay, mountain shoreline edges are ragged, mask building
+  can fail on very large regions; the mountain depth map puts the whole range on one far plane. Not touched in this review (B's `mask.ts` and the depth
+  model, which needs the GPU the owner paused).
 - No DPR-change listener beyond `resize`; dark-text themes only ever get a darker scrim.
 - Scene-lit effects (rain/snow colour, dust, ember sources, firelight) sample the raw incoming still, not the graded/displaced composite; the practical-light
   heuristic (bright, warm, saturated) can also keep sunny warm highlights at night. SC re-review.

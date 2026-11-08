@@ -184,7 +184,11 @@ export class BackdropController {
     this.intensity = pick.intensity;
     this.updateDim();
     const auto = this.reduced || !base ? [] : autoLayers({ state: this.state, assets: this.assets, base, settings });
-    const specs = [...pick.layers, ...auto].filter((spec) => { const entry = registeredLayer(spec.kind); return entry !== null && gateOpen(entry.gate, settings); });
+    const loopsOff = effect?.loop === false;
+    const specs = [...pick.layers, ...auto].filter((spec) => {
+      const entry = registeredLayer(spec.kind);
+      return entry !== null && gateOpen(entry.gate, settings) && !(loopsOff && entry.gate === "loops");
+    });
     const wantActive = Boolean(base) && settings.enabled;
     if (!wantActive) { this.deactivate(); return; }
     if (!this.ensureRenderer()) { this.deactivate(); return; }

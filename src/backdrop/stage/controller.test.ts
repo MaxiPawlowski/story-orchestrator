@@ -2,6 +2,7 @@ import { BackdropController, effectFor, type BackdropHost, type BackdropSources 
 import type { BackdropRenderer } from "./renderer";
 import { registerBuiltInLayers } from "./layers";
 import { registerAssetProvider } from "../assets";
+import { registerLayer } from "./registry";
 import { defaultBackdropSettings } from "../settings";
 import type { BackdropBase, BackdropLayerSpec, BackdropSettings } from "../types";
 import type { NormalizedStory } from "@engine/index";
@@ -144,6 +145,21 @@ describe("v3.0 45 A: backdrop controller", () => {
     await flush();
     expect(bright.controller.view().dim).toBeCloseTo(0.513, 3);
     expect(dark.controller.view().dim).toBe(0.18);
+  });
+
+  it("a beat's loop: false also keeps loop-tier layers (the cinemagraph) off", async () => {
+    const off = registerLayer("test-cinemagraph", () => ({ kind: "test-cinemagraph", order: 5, draw: () => undefined, dispose: () => undefined }),
+      { gate: "loops", auto: () => ({ id: "test-cinemagraph", kind: "test-cinemagraph", params: {} }) });
+    const story = (loop: boolean | undefined) => ({ checkpointById: { start: { effects: { backdrop: loop === undefined ? {} : { loop } } } } }) as unknown as NormalizedStory;
+    const on = setup({ story: story(undefined) });
+    on.controller.start();
+    await flush();
+    expect(on.calls.layers.at(-1)).toContain("test-cinemagraph");
+    const still = setup({ story: story(false) });
+    still.controller.start();
+    await flush();
+    expect(still.calls.layers.at(-1) ?? []).not.toContain("test-cinemagraph");
+    off();
   });
 
   it("reads the active checkpoint's backdrop over the story default", () => {
