@@ -10,8 +10,9 @@ nothing is remembered and the story does not move on its own.
 
 ## What the story remembers
 
-Open **This chat → Play → What the story remembers**. It lists every memory in four groups: **Facts**, **Session
-details**, **Short-term** and **Scene history**.
+Open the **Memory** tab on **This chat → Play**. It lists every memory in four groups: **Facts**, **Session
+details**, **Short-term** and **Scene history**. The story sheet's **Memory** page shows a few of them at a glance,
+with **Open memory** for the full list.
 
 <a id="pinning"></a>
 ### Pin, edit or exclude
@@ -81,7 +82,7 @@ SillyTavern's own **Summarize** and **Vector Storage** put the chat summary and 
 character's prompt. Before each character replies, a line there that restates a secret kept from that character is
 left out of that character's prompt; the summary, the stored vectors and the chat stay as they are. Switch it off in
 **Settings → Models → Knowledge tracking → Keep secrets out of Summarize and Vector Storage**. Other extensions that
-copy the chat (VectFox) are not filtered and still show in the story bar's check.
+copy the chat (VectFox) are not filtered and still show as a problem on **This chat → Play**.
 
 After each story read the extension also notes **who heard what**, in code and without adding to the read: for every
 message, the speaker and the group's enabled characters seen on stage, and for a whispered or aside part only the
@@ -97,11 +98,11 @@ and **What could I do?** can still suggest it as an older thread. It is picked u
 yourself; nothing brings it back on a timer. A character saying "later" never counts, and a swipe or edit takes the
 change back. The characters still see a put-off thread for now: leaving it out of their prompt is a separate control
 (**Leave put-off threads out of the prompt**), off until its replies are rated. Switch the feature off in **This chat →
-Settings → Threads you put off** (or for every chat in **Settings → Features**).
+Story settings → Threads you put off** (or for every chat in **Settings → Features**).
 
 ## Memory upkeep switches
 
-Four switches under **This chat → Settings → Prompt memory** (or **Settings → Features**) tune how memory looks after
+Four switches under **This chat → Story settings → Prompt memory** (or **Settings → Features**) tune how memory looks after
 itself. All are on; each can be switched off on its own to compare.
 
 - **Count real tokens when dropping old messages**: when chunked dropping of old messages is on, each message is measured
