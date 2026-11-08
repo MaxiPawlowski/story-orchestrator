@@ -1,4 +1,4 @@
-import { isRefusal } from "./refusalGuard";
+import { isRefusal } from "./summaryGuard";
 
 const PASSAGE = "Mara drew her blade. Kel laughed at Mara. Kel stepped back as Mara advanced on the bridge.";
 
