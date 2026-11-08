@@ -13,12 +13,12 @@ const swatch = (color: string) =>
 const actor = (name: string, color: string, label = "neutral"): StageActor => ({ name, avatar: `${name.toLowerCase()}.png`, label, path: swatch(color), set: "default", spotlight: false });
 
 const ARIN = actor("Arin", "#a55");
-const MIRA = actor("Mira", "#55a");
+const LIESL = actor("Liesl", "#55a");
 const SCOUT = actor("Scout", "#5a5");
 const FULL: MotionSwitches = { effects: "full", hostReduced: false, osReduced: false, storyMotion: true };
 
 const baseView = (switches: MotionSwitches, patch: Partial<StageView> = {}): StageView => ({
-  visible: true, placement: "vn", waitsForVn: false, actors: [ARIN, MIRA], speaking: null, talker: null, framing: "full",
+  visible: true, placement: "vn", waitsForVn: false, actors: [ARIN, LIESL], speaking: null, talker: null, framing: "full",
   settings: { ...defaultSpriteSettings(), enabled: true, explicit: true, effects: switches.effects }, activation: "user-on", capability: "present",
   reducedMotion: switches.hostReduced || !switches.storyMotion, motion: stageMotion(switches), active: true, headSession: "story", ...patch,
 });
@@ -56,15 +56,15 @@ export const FullEnterExitAndMove: Story = {
   args: { stage: entrances.stage },
   play: async ({ canvasElement }) => {
     await expect(sprites(canvasElement).every((sprite) => sprite.dataset.phase === "stay")).toBe(true);
-    const before = named(canvasElement, "Mira")?.style.left;
-    entrances.set({ actors: [ARIN, MIRA, SCOUT] });
+    const before = named(canvasElement, "Liesl")?.style.left;
+    entrances.set({ actors: [ARIN, LIESL, SCOUT] });
     await waitFor(() => expect(named(canvasElement, "Scout")).toHaveClass("so-enter"));
     await expect(named(canvasElement, "Scout")).toHaveAttribute("data-enter", "rise");
-    await expect(named(canvasElement, "Mira")?.style.left).not.toBe(before);
+    await expect(named(canvasElement, "Liesl")?.style.left).not.toBe(before);
     await expect(canvasElement.querySelector<HTMLElement>("#so-vn-stage")?.style.getPropertyValue("--so-move-ms")).toBe("500ms");
     entrances.set({ actors: [ARIN, SCOUT] });
-    await waitFor(() => expect(named(canvasElement, "Mira")).toHaveClass("so-exit"));
-    await waitFor(() => expect(named(canvasElement, "Mira")).toBeUndefined(), { timeout: 2000 });
+    await waitFor(() => expect(named(canvasElement, "Liesl")).toHaveClass("so-exit"));
+    await waitFor(() => expect(named(canvasElement, "Liesl")).toBeUndefined(), { timeout: 2000 });
     await expect(canvasElement.querySelector(".so-sprite-sway.so-swaying")).not.toBeNull();
   },
 };
@@ -73,13 +73,13 @@ const reduced = scripted(baseView({ ...FULL, osReduced: true }));
 export const ReducedMotionFadesOnly: Story = {
   args: { stage: reduced.stage },
   play: async ({ canvasElement }) => {
-    reduced.set({ actors: [ARIN, MIRA, SCOUT] });
+    reduced.set({ actors: [ARIN, LIESL, SCOUT] });
     const scout = await waitFor(() => { const found = named(canvasElement, "Scout"); expect(found).toHaveClass("so-enter"); return found as HTMLElement; });
     await expect(scout).toHaveAttribute("data-enter", "fade");
     await expect(scout.style.getPropertyValue("--so-enter-ms")).toBe("150ms");
     await expect(canvasElement.querySelector<HTMLElement>("#so-vn-stage")).toHaveAttribute("data-motion", "reduced");
     await expect(canvasElement.querySelector(".so-swaying")).toBeNull();
-    reduced.set({ speaking: "Arin", actors: [{ ...ARIN, label: "joy" }, MIRA, SCOUT] });
+    reduced.set({ speaking: "Arin", actors: [{ ...ARIN, label: "joy" }, LIESL, SCOUT] });
     await pause(300);
     await expect(actOf(named(canvasElement, "Arin"))?.getAnimations().length ?? 0).toBe(0);
   },
@@ -90,11 +90,11 @@ export const FullReactsAndHops: Story = {
   args: { stage: reacting.stage },
   play: async ({ canvasElement }) => {
     await waitFor(() => expect(canvasElement.querySelector(".so-stage-vignette")).not.toBeNull());
-    reacting.set({ actors: [{ ...ARIN, label: "surprise" }, MIRA] });
+    reacting.set({ actors: [{ ...ARIN, label: "surprise" }, LIESL] });
     await waitFor(() => expect(actOf(named(canvasElement, "Arin"))?.getAnimations().length).toBeGreaterThan(0), LAZY);
     await pause(700);
-    reacting.set({ speaking: "Mira" });
-    await waitFor(() => expect(actOf(named(canvasElement, "Mira"))?.getAnimations().length).toBeGreaterThan(0), LAZY);
+    reacting.set({ speaking: "Liesl" });
+    await waitFor(() => expect(actOf(named(canvasElement, "Liesl"))?.getAnimations().length).toBeGreaterThan(0), LAZY);
     await expect(canvasElement.querySelector("#so-vn-stage")).toHaveAttribute("data-blur", "true");
   },
 };
@@ -103,7 +103,7 @@ const calm = scripted(baseView({ ...FULL, effects: "calm" }));
 export const CalmKeepsStill: Story = {
   args: { stage: calm.stage },
   play: async ({ canvasElement }) => {
-    calm.set({ actors: [{ ...ARIN, label: "anger" }, MIRA], speaking: "Arin" });
+    calm.set({ actors: [{ ...ARIN, label: "anger" }, LIESL], speaking: "Arin" });
     await pause(400);
     await expect(actOf(named(canvasElement, "Arin"))?.getAnimations().length ?? 0).toBe(0);
     await expect(canvasElement.querySelector(".so-swaying")).toBeNull();
@@ -144,7 +144,7 @@ const off = scripted(baseView({ ...FULL, effects: "off" }));
 export const EffectsOff: Story = {
   args: { stage: off.stage },
   play: async ({ canvasElement }) => {
-    off.set({ actors: [ARIN, MIRA, SCOUT] });
+    off.set({ actors: [ARIN, LIESL, SCOUT] });
     await waitFor(() => expect(named(canvasElement, "Scout")).toBeDefined());
     await expect(named(canvasElement, "Scout")).not.toHaveClass("so-enter");
     await expect(canvasElement.querySelector(".so-stage-vignette")).toBeNull();

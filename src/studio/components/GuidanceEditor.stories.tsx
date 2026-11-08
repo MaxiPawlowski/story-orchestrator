@@ -4,7 +4,7 @@ import { within, userEvent, expect } from "@storybook/test";
 import type { Checkpoint } from "@engine/index";
 import GuidanceEditor from "./GuidanceEditor";
 
-const roster = [{ id: "haley", name: "Haley" }, { id: "forre", name: "Forre" }];
+const roster = [{ id: "ivy", name: "Ivy" }, { id: "ossian", name: "Ossian" }];
 
 const Harness: React.FC<{ initial?: Checkpoint["guidance"] }> = ({ initial }) => {
   const [guidance, setGuidance] = useState<Checkpoint["guidance"]>(initial);
@@ -40,9 +40,9 @@ export const AMemberPartMakesItPerMember: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await userEvent.click(canvas.getByText(/Private direction per member/));
-    await userEvent.type(canvas.getByLabelText("Only Haley hears"), "You rigged the blade.");
-    await expect(record(canvasElement)).toBe(JSON.stringify({ all: "Noon duel.", members: { haley: "You rigged the blade." } }));
-    await userEvent.clear(canvas.getByLabelText("Only Haley hears"));
+    await userEvent.type(canvas.getByLabelText("Only Ivy hears"), "You rigged the blade.");
+    await expect(record(canvasElement)).toBe(JSON.stringify({ all: "Noon duel.", members: { ivy: "You rigged the blade." } }));
+    await userEvent.clear(canvas.getByLabelText("Only Ivy hears"));
     await expect(record(canvasElement)).toBe(JSON.stringify("Noon duel."));
   },
 };

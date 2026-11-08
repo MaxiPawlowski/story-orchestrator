@@ -102,3 +102,32 @@ with full gates (one at a time machine-wide) and deploys through the existing wo
   art-free (CSS/canvas only)?
 - Recorded clips need real generation on a lane (local 3090 or Vast): run them after the playtest?
 - Keep the site in English only (repo rule): yes.
+
+## W2/W3/W6 as built (2026-11-08): contract for W4, W5 and plan 45
+
+- **Site-only sections**: `docs/guide/how/*.md` and `docs/guide/showcase/*.md` render on the site only
+  (`SITE_ONLY_DIRS` in `scripts/docs/guide-bundle.mjs` keeps them out of `pages.generated.ts`, so the extension bundle
+  is unchanged). Nav sections "How it works / Diagrams" and "Showcase / Demos"; order = the section README's links.
+  Header links: How it works, Showcase, UI components (`ui/index.html`).
+- **Fences in site pages**: ` ```mermaid ` (client render, `mermaid@11.4.1` ESM from jsdelivr, dark/light follow
+  `prefers-color-scheme`, script added only to pages with a diagram); ` ```embed ` with `src:` (local path only),
+  `title:`, optional `height:` → iframe + "Open full page" link.
+- **Media**: `docs/guide/assets/showcase/**` (png, jpg, jpeg, webp, gif, webm), referenced from site pages as
+  `![alt](../assets/showcase/<path>)` (webm renders as a muted looping `<video>`). Every file needs a sidecar
+  `<file>.json` `{ "build": "<commit sha>", "source": "<how it was made>", "licence": "<licence>" }`
+  (`mediaProblems`). Flat `docs/guide/assets/*` stays the in-extension image set (150 KB cap).
+- **Standalone demos**: `docs/guide/showcase/<name>/index.html` + its own files, copied verbatim to
+  `showcase/<name>/`; optional `build.mjs` (`export default async ({ outDir, root }) => …`, not copied) runs at site
+  build, for demos that bundle `src/` code (esbuild is a devDependency). Remote scripts only from jsdelivr/unpkg/cdnjs
+  pinned to an exact version (`demoProblems`). Link a demo from a showcase page with `[label](<name>/)` or an embed.
+- **Storybook** under `/ui/`: the workflow runs `npm run storybook:build` and
+  `node scripts/docs/guide-site.mjs --storybook .sb-static`; without the flag `ui/index.html` is a stub. CI has no
+  `.st-root`, so ST webfonts (icons) are absent in the published Storybook.
+- **Guards** (`scripts/docs/site-check.mjs`, run by the workflow after the build; tests in `site-extras.test.mjs` run
+  in `test:release`, so in `npm run gates`): link checker over every own page (`ui/` internals excluded), page budget
+  5 MB (HTML + local media; a demo dir counts whole), privacy scan over every text file of the built site including
+  Storybook (secret patterns, owner paths), media records, diagram sources (`## Sources` lines
+  `` - `path`: `Export`, `Class.method` `` must name an existing file and exported symbol).
+- **Local deny list**: `node scripts/docs/site-check.mjs --deny-from <campaign build dir>` writes card names to the
+  gitignored `.guide-deny.txt`; `SO_SITE_DENY_FILE` points elsewhere. Hits print as `deny-list term #n`, never the term.
+  CI scans patterns only.

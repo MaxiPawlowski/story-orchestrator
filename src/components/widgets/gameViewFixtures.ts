@@ -74,7 +74,7 @@ export const mapWidget: WidgetView = {
 
 export const rosterWidget: WidgetView = {
   id: "party", title: "The party", audience: "player", synthesized: false, accent: "green", icon: "shield",
-  body: { kind: "roster", rows: [{ name: "Arin", status: "Wounded", changedAgo: 0 }, { name: "The Ferryman", status: "Wary", changedAgo: 3 }, { name: "Mira", status: "Fine" }] },
+  body: { kind: "roster", rows: [{ name: "Arin", status: "Wounded", changedAgo: 0 }, { name: "The Ferryman", status: "Wary", changedAgo: 3 }, { name: "Liesl", status: "Fine" }] },
   actions: [{ id: "notes", text: "What do I know about them?", open: "memory" }],
 };
 

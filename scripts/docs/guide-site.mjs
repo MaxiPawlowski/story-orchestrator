@@ -4,12 +4,13 @@ import { dirname, join, posix, relative, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import ts from "typescript";
 import { ASSET_DIR, buildAssets } from "./guide-bundle.mjs";
+import { copyDemos, copyMedia, demoDirs, MERMAID_SCRIPT, placeStorybook, prepareSitePage, siteNav, sitePages, SITE_SECTIONS, UI_DIR } from "./site-extras.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 export const SITE_OUT = join(root, ".guide-site");
 const SOURCES = ["types.ts", "links.ts", "markdown.ts", "GuideMarkdown.tsx", "pages.generated.ts"];
-const AUDIENCE_LABELS = { player: "Playing", setup: "Setup", author: "Writing stories" };
-const AUDIENCE_ORDER = ["player", "setup", "author"];
+const AUDIENCE_LABELS = { player: "Playing", setup: "Setup", author: "Writing stories", how: SITE_SECTIONS.how.label, showcase: SITE_SECTIONS.showcase.label };
+const AUDIENCE_ORDER = ["player", "setup", "author", "how", "showcase"];
 const SITE_TITLE = "Story Orchestrator guide";
 
 const compileRenderer = () => {
@@ -91,6 +92,8 @@ code{background:var(--code);padding:0 .25em;border-radius:4px;font-size:.88em}pr
 table{border-collapse:collapse;display:block;overflow-x:auto;font-size:.92rem}th,td{border:1px solid var(--line);padding:4px 8px;text-align:left;vertical-align:top}
 blockquote{margin:0;padding-left:12px;border-left:3px solid var(--line);color:var(--muted)}#results{list-style:none;padding:0}#results li{margin:0 0 12px}#results small{display:block;color:var(--muted)}
 footer{color:var(--muted);font-size:.85rem;margin-top:48px}
+header .links{display:flex;gap:12px;flex-wrap:wrap}pre.mermaid{background:transparent;text-align:center}pre.mermaid svg{max-width:100%;height:auto}
+figure{margin:16px 0}figure img,figure video{display:block;max-width:100%;height:auto;border-radius:6px;border:1px solid var(--line)}figcaption{color:var(--muted);font-size:.88rem;margin-top:4px}.embed iframe{display:block;width:100%;border:1px solid var(--line);border-radius:6px;background:#fff}
 nav details summary{cursor:pointer;padding:2px 4px;color:var(--fg)}nav details ul{padding-left:8px}nav li.group{margin:8px 0 2px 4px;font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
 .primary{padding:12px 16px;border:1px solid var(--accent);border-radius:8px;font-size:1.05rem}
 .cards{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0 24px}.card{border:1px solid var(--line);border-radius:8px;padding:4px 16px 8px}.card h4{margin:.6em 0 .2em;font-size:1.1rem}.card p{margin:.2em 0;color:var(--muted);font-size:.92rem}.card ul{margin:.4em 0;padding-left:18px}
@@ -109,16 +112,16 @@ main.replaceChildren(hits.length?list:Object.assign(document.createElement("p"),
 box.addEventListener("input",run);})();
 `;
 
-const pageHtml = ({ title, nav, content, base, home }) => `<!doctype html>
+const pageHtml = ({ title, nav, content, base, home, script = "" }) => `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${title === SITE_TITLE ? SITE_TITLE : `${escapeHtml(title)} · ${SITE_TITLE}`}</title><style>${STYLE}</style></head>
 <body data-base="${base}"><input type="checkbox" id="menu" class="menu-toggle" aria-hidden="true"><header><label for="menu" class="menu-button">Pages</label><strong><a href="${base}index.html">Story Orchestrator guide</a></strong>
-<input id="q" type="search" placeholder="Search the guide" aria-label="Search the guide"><a href="${escapeHtml(home)}">GitHub</a></header>
+<input id="q" type="search" placeholder="Search the guide" aria-label="Search the guide"><span class="links"><a href="${base}how/index.html">How it works</a><a href="${base}showcase/index.html">Showcase</a><a href="${base}${UI_DIR}/index.html">UI components</a><a href="${escapeHtml(home)}">GitHub</a></span></header>
 <div class="layout"><nav aria-label="Pages">${nav}</nav><main>${content}<footer>Generated from <code>docs/guide</code>. The same pages ship inside the extension: Help → Open the guide.</footer></main></div>
-<script>${SEARCH}</script></body></html>
+<script>${SEARCH}</script>${script}</body></html>
 `;
 
-export async function buildSite({ out = SITE_OUT, homePage = "https://github.com/MaxiPawlowski/story-orchestrator" } = {}) {
+export async function buildSite({ out = SITE_OUT, homePage = "https://github.com/MaxiPawlowski/story-orchestrator", storybook = null } = {}) {
   const build = compileRenderer();
   const load = (name) => import(pathToFileURL(join(build, name)).href);
   const [{ GuideMarkdown }, { GUIDE_NAV, GUIDE_PAGES }, { plainText }, React, { renderToStaticMarkup }] = await Promise.all([
@@ -129,28 +132,39 @@ export async function buildSite({ out = SITE_OUT, homePage = "https://github.com
   mkdirSync(join(out, "assets"), { recursive: true });
   for (const asset of assets) copyFileSync(join(ASSET_DIR, posix.basename(asset.path)), join(out, asset.path));
   const known = new Set(assets.map((asset) => asset.path));
+  const extra = sitePages();
+  const pages = [...GUIDE_PAGES, ...extra];
+  const nav = [...GUIDE_NAV, ...siteNav(extra)];
+  const siteOnly = new Set(extra.map((page) => page.id));
   const index = [];
-  for (const page of GUIDE_PAGES) {
+  for (const page of pages) {
     const file = fileFor(page.id);
     const depth = file.split("/").length - 1;
     const base = depth ? "../".repeat(depth) : "./";
-    const content = renderToStaticMarkup(React.createElement(GuideMarkdown, {
-      doc: page.doc, body: page.body, homePage, hrefFor: (target) => relativeHref(page.id, target),
+    const prepared = siteOnly.has(page.id) ? prepareSitePage(page) : null;
+    const rendered = renderToStaticMarkup(React.createElement(GuideMarkdown, {
+      doc: page.doc, body: prepared?.body ?? page.body, homePage, hrefFor: (target) => relativeHref(page.id, target),
       assetSrc: (asset) => (known.has(asset) ? posix.relative(posix.dirname(file), asset) : undefined),
     }));
+    const content = prepared ? prepared.finish(rendered) : rendered;
     const shown = page.id === "README" ? homeLayout(content) : content;
     const target = join(out, file);
     mkdirSync(dirname(target), { recursive: true });
-    writeFileSync(target, pageHtml({ title: page.title, nav: navFor(GUIDE_PAGES, page.id, GUIDE_NAV), content: shown, base, home: homePage }));
+    writeFileSync(target, pageHtml({ title: page.title, nav: navFor(pages, page.id, nav), content: shown, base, home: homePage, script: prepared?.mermaid ? MERMAID_SCRIPT : "" }));
     index.push({ id: page.id, title: page.title, url: file, text: plainText(page.body).replace(/\s+/g, " ").slice(0, 4000) });
   }
   writeFileSync(join(out, "search-index.json"), JSON.stringify(index));
+  copyMedia(out);
+  await copyDemos(demoDirs(), out);
+  const withStorybook = placeStorybook(out, storybook);
   writeFileSync(join(out, ".nojekyll"), "");
   rmSync(build, { recursive: true, force: true });
-  return { pages: GUIDE_PAGES.length, out };
+  return { pages: pages.length, sitePages: extra.length, storybook: withStorybook, out };
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-  const { pages, out } = await buildSite();
-  console.log(`guide site: ${pages} pages -> ${relative(root, out)}`);
+  const flag = process.argv.indexOf("--storybook");
+  const storybook = flag > 0 ? resolve(process.argv[flag + 1] ?? ".sb-static") : null;
+  const { pages, out, storybook: placed } = await buildSite({ storybook });
+  console.log(`guide site: ${pages} pages, ${placed ? "Storybook" : "UI stub"} under /${UI_DIR}/ -> ${relative(root, out)}`);
 }

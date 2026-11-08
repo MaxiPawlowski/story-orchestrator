@@ -182,7 +182,7 @@ export const NoSetupAlertWhenNothingIsMissing: Story = {
 export const ManyFindingsCountBySeverity: Story = {
   args: { snapshot: baseSnapshot({
     ...playing, thinkingSilent: true, secretLeaks: ["Summarize"],
-    requirements: { ...playing.requirements, ready: false, missingMembers: ["Belle"], absentMembers: [] },
+    requirements: { ...playing.requirements, ready: false, missingMembers: ["Juno"], absentMembers: [] },
   }) },
   play: async ({ canvasElement }) => {
     const chip = canvasElement.querySelector("#so-hud-setup");
