@@ -163,7 +163,7 @@ export function reconcileLedger(rows: EffectLedgerRow[], reads: ReconcileReads):
  * against one reading taken before the loop. Two rows on one target are a history, and undoing the
  * oldest first leaves the resource at the older write's `before` instead of at the value the chat
  * found: measured live on a group's `disabled_members`, where road(disable) →
- * hall(enable) left Tobias DISABLED after the chat that wrote both was left, i.e. an EVEN number of
+ * hall(enable) left Pell DISABLED after the chat that wrote both was left, i.e. an EVEN number of
  * flips on one target ends at the wrong end. Undoing newest first makes each older row's
  * precondition the value its own successor put back, so the chain lands where the chat started.
  */

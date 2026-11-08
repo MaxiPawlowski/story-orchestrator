@@ -871,7 +871,7 @@ export const PayloadLoreForced: Story = {
       latencyMs: 912,
       stateChars: 900,
       questionCount: 64,
-      p: { trigger: "MESSAGE_SENT", "NPC - Ellie": 0.91, "Lore - Adventurer Rank": 0.84 },
+      p: { trigger: "MESSAGE_SENT", "NPC - Nell": 0.91, "Lore - Adventurer Rank": 0.84 },
     };
     return (
       <div style={{ maxWidth: 360 }}>
@@ -884,7 +884,7 @@ export const PayloadLoreForced: Story = {
     await openTab(canvasElement, "Prompt");
     const forced = within(await canvas.findByText("Lore forced this turn").then((node) => node.closest("[data-so=\"lore-forced\"]") as HTMLElement));
     await expect(forced.getByText(/message 9 · MESSAGE_SENT · 912 ms/)).toBeInTheDocument();
-    await expect(forced.getByText("NPC - Ellie")).toBeInTheDocument();
+    await expect(forced.getByText("NPC - Nell")).toBeInTheDocument();
     await expect(forced.getByText("91%")).toBeInTheDocument();
   },
 };
@@ -898,16 +898,16 @@ export const PayloadLoreFired: Story = {
       hiddenBooks: [],
       last: {
         chatId: "chat-1", epoch: 1, revision: 0, type: "normal", openedAt: "2026-09-24T00:00:00.000Z", closedAt: "2026-09-24T00:00:05.000Z", rendered: true, lastMessageId: 9,
-        forced: [{ world: "Adventurer Lore", uid: 4, comment: "NPC - Ellie" }, { world: "Adventurer Lore", uid: 7, comment: "Lore - Guild Dues" }],
-        landed: [{ world: "Adventurer Lore", uid: 4, comment: "NPC - Ellie" }],
+        forced: [{ world: "Adventurer Lore", uid: 4, comment: "NPC - Nell" }, { world: "Adventurer Lore", uid: 7, comment: "Lore - Guild Dues" }],
+        landed: [{ world: "Adventurer Lore", uid: 4, comment: "NPC - Nell" }],
         lost: [{ world: "Adventurer Lore", uid: 7, comment: "Lore - Guild Dues" }],
         constantMissed: [{ lorebook: "Sun Ruins", comment: "CP2 - The Gate" }],
         scanCount: 2,
         nestedScans: 1,
         fired: [
           { world: "Sun Ruins", uid: 2, comment: "CP1 - The Road", constant: true, key0: null, origin: "gated" },
-          { world: "Adventurer Lore", uid: 4, comment: "NPC - Ellie", constant: false, key0: "Ellie", origin: "pick" },
-          { world: "Story Orchestrator - Sun Ruins - chat-1", uid: 1, comment: "so_rel-1", constant: false, key0: "Ellie", origin: "mirror" },
+          { world: "Adventurer Lore", uid: 4, comment: "NPC - Nell", constant: false, key0: "Nell", origin: "pick" },
+          { world: "Story Orchestrator - Sun Ruins - chat-1", uid: 1, comment: "so_rel-1", constant: false, key0: "Nell", origin: "mirror" },
           { world: "Adventurer Lore", uid: 9, comment: "Lore - Weather", constant: false, key0: "rain", origin: "other" },
         ],
       },

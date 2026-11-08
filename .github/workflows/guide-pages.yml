@@ -8,6 +8,8 @@ on:
       - "docs/authoring/story-guide.md"
       - "src/guide/**"
       - "scripts/docs/**"
+      - "src/**/*.stories.tsx"
+      - ".storybook/**"
       - ".github/workflows/guide-pages.yml"
   workflow_dispatch:
 
@@ -29,9 +31,13 @@ jobs:
         with:
           node-version: 22
       - run: npm ci --no-audit --no-fund
-      - name: guide bundle is current
-        run: node --test scripts/docs/guide-bundle.test.mjs scripts/docs/guide-site.test.mjs
-      - run: npm run guide:site
+      - name: guide bundle and site checks
+        run: node --test scripts/docs/guide-bundle.test.mjs scripts/docs/guide-site.test.mjs scripts/docs/site-extras.test.mjs
+      - name: storybook build (mocks only)
+        run: npm run storybook:build
+      - run: node scripts/docs/guide-site.mjs --storybook .sb-static
+      - name: links, page budget, privacy scan, media records, diagram sources
+        run: node scripts/docs/site-check.mjs
       - uses: actions/upload-pages-artifact@v3
         with:
           path: .guide-site

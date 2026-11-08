@@ -44,13 +44,13 @@ export const RefusesToOverwriteAnExistingCharacter: Story = {
 
 export const RefusesAGroupMemberFromAnotherStory: Story = {
   args: {
-    environment: { characterNames: ["Mira", "Master Orin"], lorebookNames: [], groupNames: [], storyLorebooks: [], ownedLorebooks: [],
+    environment: { characterNames: ["Liesl", "Master Orin"], lorebookNames: [], groupNames: [], storyLorebooks: [], ownedLorebooks: [],
       grantedLorebooks: [], castNames: ["Master Orin"], personaNames: [] },
-    op: { kind: "createGroup", name: "The Redrawn Kingdom", members: ["Mira", "Master Orin"] },
+    op: { kind: "createGroup", name: "The Redrawn Kingdom", members: ["Liesl", "Master Orin"] },
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(await canvas.findByText(/Not in this story's cast: "Mira"/)).toBeInTheDocument();
+    await expect(await canvas.findByText(/Not in this story's cast: "Liesl"/)).toBeInTheDocument();
     await expect(canvas.getByRole("button", { name: "Create it" })).toBeDisabled();
   },
 };

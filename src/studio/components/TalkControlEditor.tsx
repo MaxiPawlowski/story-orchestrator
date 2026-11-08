@@ -66,7 +66,7 @@ const ChainFields: React.FC<{
               data-so="chain-sequence"
               className="text_pole st-input"
               aria-label="Chain sequence"
-              placeholder="Tobias, Belle, Dalan"
+              placeholder="Pell, Juno, Tobin"
               value={(chain.sequence ?? []).join(", ")}
               onChange={(event) => setChain({ sequence: event.target.value.split(",").map((entry) => entry.trim()).filter(Boolean) })}
             />
