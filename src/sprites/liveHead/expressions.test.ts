@@ -5,6 +5,7 @@ import type { Actor } from "../castLoad";
 import { actorHeadLooks } from "../liveHeadStage";
 import { restHead } from "./drivers";
 import { browWeight, deformInto } from "./geometry";
+import { roiRect } from "./synthesis/layers";
 import { HeadDriver } from "./headDriver";
 import { MotionDriver } from "./motionDriver";
 import { alignmentProblem, clearLookCache, cutLook, expressionTexture, HeadLooks, lookArt, prepareLook, squinted, type LookSurface, type PreparedLook } from "./expressions";
@@ -92,6 +93,12 @@ describe("cutting an expression onto the rig", () => {
     const squint = cutLook(rig, "angry", neutral, { image: squinting }, {});
     if (typeof squint === "string") throw new Error(squint);
     expect(squint.gaze).toEqual([false, false]);
+    for (const layer of squint.layers.filter((entry) => entry.name.startsWith("eye"))) expect(layer.image.data.every((value) => value === 0)).toBe(true);
+    const base = squint.layers.find((layer) => layer.name === "base")!.image, [rx, ry, rw, rh] = roiRect(rig.eyes[0], squinting);
+    for (let y = ry; y < ry + rh; y++) for (let x = rx; x < rx + rw; x++) {
+      const at = (y * squinting.width + x) * 4;
+      expect(Array.from(base.data.subarray(at, at + 4))).toEqual(Array.from(squinting.data.subarray(at, at + 4)));
+    }
   });
   test("a misaligned expression is refused before cutting", () => {
     expect(cutLook(rig, "happy", neutral, { image: shifted(smiling, 4) }, {})).toMatch(/not aligned/);
