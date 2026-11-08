@@ -6,7 +6,7 @@ import { randomUUID } from 'node:crypto';
 import { ComfyJobs } from './jobs.mjs';
 import { saveSprite, deleteSprite, reconcileSet, removeStorySprites, fingerprint, digest, referencePack, referenceSets, alphaRecipes,
     recordReference, ownsReference, releaseReference, pruneReferences, referenceInventory, reapableReferences, STALE_REFERENCE_MS } from './files.mjs';
-import { ALLOWED_NODES, init, unsupportedNode, validatePoseFiles } from './index.mjs';
+import { ALLOWED_NODES, DEPTH_CKPTS, init, unsupportedNode, validateDepthInputs, validatePoseFiles } from './index.mjs';
 import { testTempDir } from '../../scripts/lib/testTemp.mjs';
 
 test('DWPose preflight accepts only both installed ONNX files and never fetches a model', async () => {
@@ -20,6 +20,14 @@ test('DWPose preflight accepts only both installed ONNX files and never fetches 
         await validatePoseFiles(inputs, { poseModels: [root] });
         await assert.rejects(validatePoseFiles({ ...inputs, pose_estimator: 'alternate.pth' }, { poseModels: [root] }), /approved/);
     } finally { await fs.rm(root, { recursive: true }); }
+});
+
+test('depth jobs run only an approved Depth Anything V2 file at a bounded resolution, never a path', () => {
+    for (const ckpt_name of DEPTH_CKPTS) validateDepthInputs({ ckpt_name, resolution: 512 });
+    assert.throws(() => validateDepthInputs({ ckpt_name: 'depth_anything_v2_vitg.pth', resolution: 512 }), /approved/);
+    assert.throws(() => validateDepthInputs({ ckpt_name: '../evil.pth', resolution: 512 }), /approved/);
+    assert.throws(() => validateDepthInputs({ ckpt_name: 'depth_anything_v2_vitl.pth', resolution: 4096 }), /range/);
+    assert.throws(() => validateDepthInputs({ ckpt_name: 'depth_anything_v2_vitl.pth', resolution: '512' }), /range/);
 });
 
 test('owned DWPose jobs return body JSON alongside the preview without writing another file', async () => {
@@ -269,7 +277,7 @@ test('a reference left by a page that never released it is reaped once stale, a 
     assert.equal(await ownsReference(user, fresh), true);
 });
 
-const SHIPPED_NODES = ['BiRefNetRMBG', 'CLIPLoader', 'CLIPTextEncode', 'CheckpointLoaderSimple', 'DWPreprocessor', 'EmptyLatentImage', 'ImageScaleBy', 'ImageUpscaleWithModel',
+const SHIPPED_NODES = ['BiRefNetRMBG', 'CLIPLoader', 'CLIPTextEncode', 'CheckpointLoaderSimple', 'DWPreprocessor', 'DepthAnythingV2Preprocessor', 'EmptyLatentImage', 'ImageScaleBy', 'ImageUpscaleWithModel',
     'KSampler', 'LoadImage', 'LoraLoader', 'PreviewImage', 'QwenImage21Cache', 'RMBG', 'SaveImage', 'SplitImageWithAlpha', 'TextEncodeQwenImage21',
     'UNETLoader', 'UpscaleModelLoader', 'VAEDecode', 'VAEEncode', 'VAELoader'];
 const CUTOUT_NODES = ['RMBG', 'BiRefNetRMBG'];
@@ -283,6 +291,7 @@ const clientNodes = async () => [
     ...emittedNodes(await fs.readFile(path.join(repo, 'src', 'image', 'graph.ts'), 'utf8')),
     ...emittedNodes(await fs.readFile(path.join(repo, 'src', 'sprites', 'builder', 'recipes.ts'), 'utf8')),
     ...emittedNodes(await fs.readFile(path.join(repo, 'src', 'sprites', 'poses', 'import.ts'), 'utf8')),
+    ...emittedNodes(await fs.readFile(path.join(repo, 'src', 'backdrop', 'depth', 'graph.ts'), 'utf8')),
     ...CUTOUT_NODES,
 ];
 

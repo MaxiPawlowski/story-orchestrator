@@ -1,0 +1,7 @@
+{
+  "build": "dd29b6967",
+  "licence": "Recording of the still and depth map above: SDXL base 1.0 (sd_xl_base_1.0.safetensors, Stability AI): CreativeML Open RAIL++-M. Output: synthetic, SFW, made for this guide. Depth Anything V2 Large (depth_anything_v2_vitl.pth, depth-anything/Depth-Anything-V2-Large): CC-BY-NC-4.0, non-commercial demo material.",
+  "source": "Browser recording of the plan 45 B parallax layer over mountain-lake-dawn.jpg and mountain-lake-dawn.depth.png (standalone WebGL harness)",
+  "kind": "parallax demo",
+  "file": "mountain-lake-dawn.parallax.webp"
+}

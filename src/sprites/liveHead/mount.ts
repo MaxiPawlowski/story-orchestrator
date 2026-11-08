@@ -11,6 +11,13 @@ export interface HeadSurface {
   add: HeadRenderer["add"]; draw: HeadRenderer["draw"]; destroy(): void; addDrawn?: HeadRenderer["addDrawn"]; mouthMode?(): MeshMouthMode;
   addLook?: HeadRenderer["addLook"]; showLook?: HeadRenderer["showLook"];
 }
+export const headVisibility = (element: HTMLElement, isLive: () => boolean) => (ready: boolean): void => {
+  if (!isLive()) return;
+  element.style.visibility = ready ? "visible" : "hidden";
+  const parent = element.parentElement;
+  if (parent) parent.dataset.liveHeadReady = String(ready);
+};
+
 export type MouthReport = (mode: MeshMouthMode, problem: string | null) => void;
 export interface HeadDrawn { source: DrawnSource; deps: DrawnDeps; report?(set: DrawnSet | null, error?: unknown): void }
 

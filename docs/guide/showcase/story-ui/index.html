@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Story UI tour</title>
+<meta name="description" content="Links into the published component browser for the Play page, story sheet, HUD, workspace, inline timeline and in-chat elements.">
+<style>
+:root { --bg: #f6f5f2; --fg: #1d1d1f; --muted: #5b5b60; --line: #d9d6cf; --accent: #2f6f8f; --panel: #ffffff; color-scheme: light; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg: #17181b; --fg: #ececee; --muted: #a3a3aa; --line: #34353a; --accent: #7fb6d3; --panel: #202125; color-scheme: dark; } }
+:root[data-theme="dark"] { --bg: #17181b; --fg: #ececee; --muted: #a3a3aa; --line: #34353a; --accent: #7fb6d3; --panel: #202125; color-scheme: dark; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif; }
+main { max-width: 960px; margin: 0 auto; padding: 24px 16px 48px; }
+a { color: var(--accent); }
+h1 { font-size: 1.6rem; margin: 8px 0 4px; }
+.lede { color: var(--muted); max-width: 70ch; }
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; padding: 0; list-style: none; }
+.cards li { border: 1px solid var(--line); border-radius: 8px; background: var(--panel); padding: 12px 14px; }
+.cards h2 { font-size: 1.05rem; margin: 0 0 4px; }
+.cards p { margin: 0 0 8px; color: var(--muted); font-size: 0.93rem; }
+.cards ul { margin: 0; padding-left: 18px; font-size: 0.93rem; }
+</style>
+</head>
+<body>
+<main>
+<p><a href="../../index.html">Story Orchestrator guide</a> › <a href="../index.html">Showcase</a></p>
+<h1>Story UI tour</h1>
+<p class="lede">Every part of the player and author interface has a story in the component browser, rendered with mock data and no network. Each link opens one state; the toolbar there switches between SillyTavern's dark, light and Celestial Macaron themes, and the viewport menu shows the phone layout.</p>
+<ul class="cards">
+<li><h2>Play page</h2><p>The player's home in the workspace: scene header, what needs attention, your character, and the Now, Journal, Here and People tabs.</p>
+<ul><li><a href="../../ui/?path=/story/workspace-workspace--play-desktop">Play, desktop</a></li><li><a href="../../ui/?path=/story/workspace-workspace--play-phone">Play, phone</a></li></ul></li>
+<li><h2>Story sheet</h2><p>The side panel docked beside the chat (a bottom sheet on a phone) with the journal, the people you have met and the story's stats.</p>
+<ul><li><a href="../../ui/?path=/story/panels-sheet-storysheet--docked-right-of-the-chat">Docked beside the chat</a></li><li><a href="../../ui/?path=/story/panels-sheet-storysheet--here-now-tab">Here and now</a></li><li><a href="../../ui/?path=/story/panels-sheet-storysheet--phone-bottom-sheet">Phone bottom sheet</a></li></ul></li>
+<li><h2>HUD and story card</h2><p>One line above the chat input: the scene, tension, whose turn it is and what the story is doing. The scene opens the story card.</p>
+<ul><li><a href="../../ui/?path=/story/drawer-hudstrip--default">HUD strip</a></li><li><a href="../../ui/?path=/story/drawer-hudstrip--your-move">Your move</a></li><li><a href="../../ui/?path=/story/drawer-hudcard--player-card">Story card</a></li></ul></li>
+<li><h2>Workspace</h2><p>The settings and library dialog: one home per setting, search that jumps to the row, and a master/detail layout on a phone.</p>
+<ul><li><a href="../../ui/?path=/story/workspace-shell--player-sees-play-and-settings">Player view</a></li><li><a href="../../ui/?path=/story/workspace-shell--author-view-adds-review-and-author">Author view</a></li><li><a href="../../ui/?path=/story/workspace-shell--search-jumps-to-the-row">Settings search</a></li></ul></li>
+<li><h2>Inline timeline</h2><p>One quiet line under each message saying what the story noticed; author levels add the detail and an Inspect link.</p>
+<ul><li><a href="../../ui/?path=/story/inline-inlinestrip--player-story-level">Story level</a></li><li><a href="../../ui/?path=/story/inline-inlinestrip--author-level-shows-detail-actions-and-inspect">Author level</a></li><li><a href="../../ui/?path=/story/inline-chaptercard--chapter">Chapter card</a></li></ul></li>
+<li><h2>In-chat elements</h2><p>Small pieces inside the chat itself: scene dividers, "Because you…" ribbons, discovery cards, chips at the end of the chat and the author's gate meter.</p>
+<ul><li><a href="../../ui/?path=/story/inline-inchat-scenedivider--time-and-scene">Scene divider</a></li><li><a href="../../ui/?path=/story/inline-inchat-becauseribbon--one-line">Because you…</a></li><li><a href="../../ui/?path=/story/inline-inchat-discoverycard--new-person">Discovery card</a></li><li><a href="../../ui/?path=/story/inline-inchat-chatendchips--your-move">Chat-end chips</a></li><li><a href="../../ui/?path=/story/inline-inchat-gatemeter--open">Gate meter (author)</a></li></ul></li>
+<li><h2>Start pane</h2><p>The briefing before the first reply, with the choice of who you play.</p>
+<ul><li><a href="../../ui/?path=/story/briefing-briefingmodal--with-identity">Briefing with identity</a></li><li><a href="../../ui/?path=/story/briefing-briefingmodal--phone">Phone</a></li></ul></li>
+<li><h2>Stage and live heads</h2><p>The visual-novel stage and the live head on a drawn test bust. The <a href="../animated-character/index.html">animated characters</a> page runs the same code on painted art.</p>
+<ul><li><a href="../../ui/?path=/story/sprites-livehead--synthetic-bust">Live head</a></li><li><a href="../../ui/?path=/story/sprites-vnstage">VN stage</a></li></ul></li>
+</ul>
+<p class="lede">Backgrounds, depth parallax and generated loops are shown in their own section of the <a href="../index.html">Showcase</a>.</p>
+</main>
+</body>
+</html>

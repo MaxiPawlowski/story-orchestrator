@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Animated characters</title>
+<meta name="description" content="The Story Orchestrator live head running in the browser on synthetic demo art: speaking, emotion, gaze, gestures, poses and a look change.">
+<link rel="stylesheet" href="demo.css">
+<style>
+:root { --bg: #f6f5f2; --fg: #1d1d1f; --muted: #5b5b60; --line: #d9d6cf; --accent: #2f6f8f; --panel: #ffffff; color-scheme: light; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg: #17181b; --fg: #ececee; --muted: #a3a3aa; --line: #34353a; --accent: #7fb6d3; --panel: #202125; color-scheme: dark; } }
+:root[data-theme="dark"] { --bg: #17181b; --fg: #ececee; --muted: #a3a3aa; --line: #34353a; --accent: #7fb6d3; --panel: #202125; color-scheme: dark; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif; }
+main { max-width: 1080px; margin: 0 auto; padding: 24px 16px 48px; }
+header a { color: var(--accent); }
+h1 { font-size: 1.6rem; margin: 8px 0 4px; }
+.lede { color: var(--muted); margin: 0 0 20px; max-width: 70ch; }
+.demo-grid { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+@media (max-width: 760px) { .demo-grid { grid-template-columns: 1fr; } }
+.demo-stage { position: relative; background: radial-gradient(ellipse at 50% 30%, #9cb7c9, #4b6474); border-radius: 8px; aspect-ratio: 1 / 1; overflow: hidden; touch-action: none; }
+#so-vn-root.demo-bust { position: absolute; inset: 0; pointer-events: auto; z-index: auto; display: flex; align-items: flex-end; justify-content: center; }
+#so-vn-root.demo-bust .so-sprite { position: relative; width: 92%; left: auto; right: auto; bottom: auto; top: auto; transform: none; }
+.demo-bust .so-sprite-breath { position: relative; }
+.demo-bust .so-sprite-breath > img { display: block; width: 100%; height: auto; }
+#so-vn-root.demo-bust .so-live-head { position: absolute; inset: 0; width: 100%; height: 100%; }
+.demo-pose { position: absolute; inset: 4% 0 0; width: 100%; height: 96%; object-fit: contain; }
+.demo-status { position: absolute; inset: auto 0 12px; text-align: center; color: #fff; margin: 0; }
+.demo-controls fieldset { border: 1px solid var(--line); border-radius: 8px; margin: 0 0 12px; padding: 10px 12px; background: var(--panel); }
+.demo-controls legend { font-weight: 600; padding: 0 4px; }
+.demo-controls label { display: flex; gap: 8px; align-items: center; margin: 4px 0; }
+.demo-controls input[type=range] { flex: 1; }
+.demo-row { display: flex; flex-wrap: wrap; gap: 6px; }
+.demo-controls button { font: inherit; padding: 5px 10px; border-radius: 6px; border: 1px solid var(--line); background: var(--bg); color: var(--fg); cursor: pointer; min-height: 32px; }
+.demo-controls button[aria-pressed="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.demo-controls button:disabled { opacity: 0.5; cursor: default; }
+.demo-note { color: var(--muted); font-size: 0.9rem; margin: 6px 0 0; }
+footer { color: var(--muted); font-size: 0.9rem; margin-top: 24px; max-width: 75ch; }
+footer a { color: var(--accent); }
+</style>
+</head>
+<body>
+<main>
+<header><a href="../../index.html">Story Orchestrator guide</a> › <a href="../index.html">Showcase</a></header>
+<h1>Animated characters</h1>
+<p class="lede">The extension's own live-head code, built into a small page: a rig made from one picture blinks, breathes, follows a gaze, moves its mouth with a streamed line and swaps expression art. The three characters are synthetic art made for this guide.</p>
+<div id="demo-root" data-base=""><p>Loading…</p></div>
+<footer>
+<p>How it is made: each bust was rendered on a local ComfyUI, its face points found by a local anime face detector, and the rig synthesised by the same code the extension runs (<code>src/sprites/liveHead/synthesis</code>). Expressions are face-only repaints aligned to the bust. Poses here are separate renders; in a story the extension renders poses for each member through its sprite builder. Art licences: <a href="https://github.com/MaxiPawlowski/story-orchestrator/blob/master/docs/guide/assets/showcase/LICENSES.md">LICENSES.md</a>. Rebuild: <code>scripts/docs/demo-art.py</code>, <code>demo-rigs.mjs</code>, <code>demo-bundle.mjs</code>.</p>
+</footer>
+</main>
+<script src="demo.js"></script>
+</body>
+</html>

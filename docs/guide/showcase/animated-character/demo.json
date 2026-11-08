@@ -1,0 +1,142 @@
+{
+  "characters": [
+    {
+      "id": "june",
+      "name": "SO-Demo June",
+      "blurb": "The beacon keeper's apprentice. Her look changes in the story's third scene, so she has two rigs.",
+      "line": "Okay, okay, don't panic. The key was right here when I came in, I promise. Unless it wasn't.",
+      "looks": {
+        "base": {
+          "label": "Everyday",
+          "bust": "../../assets/showcase/characters/june.png",
+          "rig": "rigs/june.rig.json",
+          "full": "../../assets/showcase/characters/june-full.webp"
+        },
+        "oilskin": {
+          "label": "Oilskin coat",
+          "bust": "../../assets/showcase/characters/june-oilskin.png",
+          "rig": "rigs/june-oilskin.rig.json",
+          "full": "../../assets/showcase/characters/june-oilskin-full.webp"
+        }
+      },
+      "expressions": {
+        "happy": {
+          "patch": "../../assets/showcase/expressions/june-happy.webp",
+          "rect": [
+            191,
+            108,
+            163,
+            153
+          ]
+        },
+        "angry": {
+          "patch": "../../assets/showcase/expressions/june-angry.webp",
+          "rect": [
+            191,
+            108,
+            163,
+            153
+          ]
+        },
+        "worried": {
+          "patch": "../../assets/showcase/expressions/june-worried.webp",
+          "rect": [
+            191,
+            108,
+            163,
+            153
+          ]
+        }
+      },
+      "poses": {}
+    },
+    {
+      "id": "tobin",
+      "name": "SO-Demo Tobin",
+      "blurb": "The old ferryman, and the lead in the opening scene. A beard is hard for face detectors; his rig still blinks and talks.",
+      "line": "Wind's backing west. We'll have rain before the tea's cold, and the boats need that light.",
+      "looks": {
+        "base": {
+          "label": "Everyday",
+          "bust": "../../assets/showcase/characters/tobin.png",
+          "rig": "rigs/tobin.rig.json",
+          "full": "../../assets/showcase/characters/tobin-full.webp"
+        }
+      },
+      "expressions": {
+        "happy": {
+          "patch": "../../assets/showcase/expressions/tobin-happy.webp",
+          "rect": [
+            166,
+            88,
+            146,
+            134
+          ]
+        },
+        "angry": {
+          "patch": "../../assets/showcase/expressions/tobin-angry.webp",
+          "rect": [
+            166,
+            88,
+            146,
+            134
+          ]
+        },
+        "worried": {
+          "patch": "../../assets/showcase/expressions/tobin-worried.webp",
+          "rect": [
+            166,
+            88,
+            146,
+            134
+          ]
+        }
+      },
+      "poses": {}
+    },
+    {
+      "id": "wren",
+      "name": "SO-Demo Wren",
+      "blurb": "A travelling cartographer who notices what others miss.",
+      "line": "The scuff marks go to the bookcase, not the door. Someone came this way in a hurry.",
+      "looks": {
+        "base": {
+          "label": "Everyday",
+          "bust": "../../assets/showcase/characters/wren.png",
+          "rig": "rigs/wren.rig.json",
+          "full": "../../assets/showcase/characters/wren-full.webp"
+        }
+      },
+      "expressions": {
+        "happy": {
+          "patch": "../../assets/showcase/expressions/wren-happy.webp",
+          "rect": [
+            184,
+            102,
+            156,
+            149
+          ]
+        },
+        "angry": {
+          "patch": "../../assets/showcase/expressions/wren-angry.webp",
+          "rect": [
+            184,
+            102,
+            156,
+            149
+          ]
+        },
+        "worried": {
+          "patch": "../../assets/showcase/expressions/wren-worried.webp",
+          "rect": [
+            184,
+            102,
+            156,
+            149
+          ]
+        }
+      },
+      "poses": {}
+    }
+  ]
+}
