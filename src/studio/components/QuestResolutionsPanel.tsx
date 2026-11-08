@@ -86,12 +86,14 @@ const QuestResolutionsPanel = ({ quest }: { quest: Quest }) => {
   const mutate = useDraftStore((state) => state.mutate);
   const patch = (value: Partial<Omit<Quest, "id">>) => mutate((current) => updateQuest(current, quest.id, value));
   const name = quest.id;
+  const [order, setOrder] = useState((quest.precedence ?? []).join(", "));
   return (
     <div data-so="quest-resolutions" className="flex flex-col gap-2">
       <JsonField label={`${name} resolutions`} hint="[{id, when, label?, recap?, from?: [offered|active], consequences?: [{id, when?, set?, effects?, label?, visible_when?}]}]"
         value={quest.resolutions} onChange={(resolutions) => patch({ resolutions: resolutions as QuestResolution[] | undefined })} />
-      <TextField label={`${name} precedence`} value={(quest.precedence ?? []).join(", ")} placeholder="first wins: abandoned, freed, done"
+      <TextField label={`${name} precedence`} value={order} placeholder="first wins: abandoned, freed, done"
         onChange={(text) => {
+          setOrder(text);
           const ids = text.split(",").map((id) => id.trim()).filter(Boolean);
           patch({ precedence: ids.length ? ids : undefined });
         }} />
