@@ -125,8 +125,8 @@ falls back to **Still motion** on its own.
 |---|---|---|
 | Off | the still, with the backdrop's other layers | none |
 | Still motion (cinemagraph) | the sky and water of the still drift and ripple in the browser, using the depth sky/water mask; no video model | free, instant |
-| Lite | a short video loop: about 2 s at 12 fps, 640×352, also saved as an animated WebP | about 30 to 70 s per place on an RTX 3090 |
-| Full | a video loop: about 4 s at 24 fps, 960×544 | about 2 to 4 minutes per place on an RTX 3090, the model load included |
+| Lite | a short video loop: about 2 s of slow motion at 12 fps, about 670×380, also saved as an animated WebP | about 30 to 70 s per place on an RTX 3090 |
+| Full | a video loop: about 4.5 s at 24 fps, about 900×510 | about 2 to 4 minutes per place on an RTX 3090, the model load included |
 
 Still motion is what shows until a Lite or Full loop of the place exists; on a still with no sky or water (most
 interiors) it shows nothing. Lite and Full loops are made by your ComfyUI from the still itself, with core ComfyUI nodes
@@ -140,9 +140,10 @@ only (no custom node):
 
 All three come from the Hugging Face repository `Comfy-Org/Wan-2.2` (`split_files/...`, Apache-2.0).
 
-- **What is made.** Water, leaves, clouds, firelight, dust; the camera stays still and nobody moves. The loop's size
-  follows the still's own shape, so it lines up with the still it replaces. The clip's tail is crossfaded into its head,
-  so it loops without a cut. A WebM of 0.1 to 1 MB.
+- **What is made.** Only what the background's name mentions moves (water, falls, leaves, existing flames, clouds); the
+  camera stays still and nobody moves. The loop has the still's exact shape and starts and ends on the still itself, so
+  the swap from the still is invisible and the loop has no cut; its colours are matched to the still. An MP4 (H.264)
+  of about 0.2 to 2 MB.
 - **When.** Places a story marks `loop: "pre"` are queued when the story is set up (never shown before you reach them);
   the background on screen gets one when nothing else needs the GPU: no reply generating, no scene picture or sprite
   running, ComfyUI's queue empty and the chat quiet for 20 s. A reply, a picture or a sprite that starts while a loop
