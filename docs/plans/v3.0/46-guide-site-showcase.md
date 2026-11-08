@@ -87,7 +87,15 @@ with full gates (one at a time machine-wide) and deploys through the existing wo
 - Site loads in < 3 s on a cold cache; each page ≤ 5 MB including media; Storybook under `/ui/` builds in CI.
 - Every diagram's source check green.
 
-## Unresolved questions
+## Owner decisions 2026-11-08
+
+- Publish Storybook under `/ui/`: yes.
+- Demo art: generate new synthetic, SFW art on the local ComfyUI (checkpoint licence recorded per image set).
+- Examples are made as part of development: every feature (plans 45, 46 and later) ships a publishable synthetic example
+  (story, art, clip or page) with its merge, instead of a separate recording pass. Adolion material stays private and
+  is never used (public repo; the owner plays it fresh).
+
+## Unresolved questions (superseded where answered above)
 
 - Publish Storybook publicly under `/ui/`? (Recommended: yes, it holds only mocks.)
 - Art for demos: new synthetic art generated locally (our ComfyUI, SFW, licence of the checkpoint recorded), or keep demos
