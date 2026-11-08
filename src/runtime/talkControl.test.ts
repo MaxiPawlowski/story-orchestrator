@@ -396,14 +396,19 @@ describe("SP7 D4b: the rules pick takes the host's random when it offers one", (
     random.mockRestore();
   });
 
-  it("control: a host without a stream keeps today's Math.random pick", async () => {
-    const random = jest.spyOn(Math, "random").mockReturnValue(0.01);
-    const { host, calls } = makeHost({ getActiveTalkControl: rules, random: () => null });
-    const controller = new TalkController(host);
-    controller.onWrapperStarted({ type: "normal" });
-    await controller.onWrapperFinished();
-    expect(random).toHaveBeenCalled();
-    expect(calls.decisions[0]).toMatchObject({ chosenName: "Mara", source: "rules" });
+  it("architecture audit 2026-11-08: a host without a stream picks from the decision key, never Math.random, and a replay picks the same", async () => {
+    const random = jest.spyOn(Math, "random");
+    const pick = async () => {
+      const { host, calls } = makeHost({ getActiveTalkControl: rules, random: () => null });
+      const controller = new TalkController(host);
+      controller.onWrapperStarted({ type: "normal" });
+      await controller.onWrapperFinished();
+      return calls.decisions[0];
+    };
+    const first = await pick();
+    expect(first).toMatchObject({ source: "rules" });
+    expect((await pick()).chosenName).toBe(first.chosenName);
+    expect(random).not.toHaveBeenCalled();
     random.mockRestore();
   });
 });

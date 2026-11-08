@@ -134,5 +134,5 @@ export const chooseByRules = (control: TalkControl, candidates: TalkCandidate[],
     if (lead) return lead;
   }
   const others = leadRef && options.leadEligible === false ? pool.filter((candidate) => !matchesRef(candidate, leadRef)) : pool;
-  return weightedPick(others.length ? others : pool, options.random ?? Math.random);
+  return weightedPick(others.length ? others : pool, options.random ?? (() => 0));
 };
