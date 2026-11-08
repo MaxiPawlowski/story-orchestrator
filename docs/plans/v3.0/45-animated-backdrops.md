@@ -75,3 +75,18 @@ Fallback order, always: loop → still + layers → still → ST's own backgroun
 ## Gate record
 
 (per phase, appended by each agent)
+
+### Phase A: Resume (2026-11-08, paused on the owner's usage limit; nothing merged)
+
+- Branches: `v3.0-45-backdrop-a` (worktree `C:\dev\so-45a`, the contract skeleton) and `v3.0-45-backdrop-a2` (worktree `C:\dev\so-45a2`, the WebGL stage on top of it).
+- Skeleton: `src/backdrop/{types,assets,settings,still}.ts`, `stage/registry.ts`, `stage/vertex.ts` (shared `v_uv` vertex shader), `stHost/backdrop.ts`,
+  `display.backdrop.*` (loops = off|cinemagraph|lite|full, default full), `effects.backdrop` + `backdrop_defaults` schema, guide topic `backdrop`, Display controls.
+- Last full `npm run gates` on the skeleton (run 6): all green except jest `codeHealth` S8 (dead export `BackdropBootHook`). Fixed after the run (contract test uses it),
+  but no full run on that fix yet. Master moved since (1aaa7ca09): merge master, run `npm run gates` once, merge, push.
+- Stage (a2): renderer, layers (rain, snow, embers, dust, fireflies, fog, flicker, drift, shimmer), state-driven selection, contrast-driven dim (4.5:1, cap 0.6),
+  `BACKDROP_BOOT_HOOKS` in `src/backdrop/start.ts` (C adds its loops host there), Backdrop/Stage stories, no-model scenario `test/scenarios/v30-45a-backdrop-stage.json`.
+- Live (lane 47, frozen a2 bundle, headed, 1906x930 at dpr 1.5, canvas 2859x1395): scenario 6/6 pass; rain+fog 59.9 fps median, draw 0.2 ms, main thread 15.1 % busy
+  (14.2 % with drift+dust); hidden tab 0 % and no frames; 0 console errors. Floors: fps met; the 3 % CPU floor is met for a hidden tab, not for a visible animated one.
+- Reduced motion: owner-confirmed, only the OS `prefers-reduced-motion` stills the backdrop; ST's own Reduced motion toggle is ignored (the owner has it on).
+- Next: merge skeleton; merge a2 into the skeleton branch, gates, merge, `npm run build && npm run stage && npm run plugins:install`;
+  showcase shots of the Backdrop/Stage stories into `docs/guide/assets/showcase/backdrops/a-effects-*.png` (`.build/backdrop-shots.mjs` in so-45a2, Storybook on port 6011).

@@ -11,6 +11,8 @@ import { isRecord } from "@utils/guards";
 import { DEFAULT_MEANWHILE_ACCEPT_MODE, isMeanwhileAcceptMode } from "./agendaProposals";
 import { defaultImageSettings, sanitizeImageSettings, type ImageSettings } from "../image/settings";
 import { defaultSpriteSettings, sanitizeSpriteSettings, type SpriteSettings } from "../sprites/settings";
+import type { BackdropSettings } from "@backdrop/types";
+import { defaultBackdropSettings, sanitizeBackdropSettings } from "@backdrop/settings";
 import { defaultChatElements, defaultPresenceSettings, sanitizeChatElements, sanitizePresenceSettings, type ChatElementSettings, type PresenceSettings } from "./displayToggles";
 import { deltaFrom, overDefaults } from "./settingsDelta";
 
@@ -66,7 +68,7 @@ export interface GlobalSettings {
   pacing: { hintEnabled: boolean; pathArc: boolean; stuckLadder: boolean };
   display: {
     announceTransitions: boolean; hudEnabled: boolean; yourMove: boolean; compactThoughts: boolean; regenerateOwnRows: boolean; inChat: ChatElementSettings;
-    briefing: boolean; briefingDraft: boolean; playerSetup: boolean; inline: InlineSettings; presence: PresenceSettings;
+    briefing: boolean; briefingDraft: boolean; playerSetup: boolean; inline: InlineSettings; presence: PresenceSettings; backdrop: BackdropSettings;
   };
   copilot: CopilotRuntimeSettings;
   memory: MemoryRuntimeSettings;
@@ -289,7 +291,7 @@ export const defaultGlobalSettings = (): GlobalSettings => ({
   pacing: { hintEnabled: true, pathArc: true, stuckLadder: true },
   display: {
     announceTransitions: false, hudEnabled: true, yourMove: true, compactThoughts: true, regenerateOwnRows: true, inChat: defaultChatElements(),
-    briefing: true, briefingDraft: true, playerSetup: true, inline: defaultInlineSettings(), presence: defaultPresenceSettings(),
+    briefing: true, briefingDraft: true, playerSetup: true, inline: defaultInlineSettings(), presence: defaultPresenceSettings(), backdrop: defaultBackdropSettings(),
   },
   copilot: { enabled: true, ask: true },
   memory: defaultMemorySettings(),
@@ -391,6 +393,7 @@ export const sanitizeGlobalSettings = (value: unknown): GlobalSettings => {
       briefingDraft: display.briefingDraft !== false, playerSetup: display.playerSetup !== false,
       inline: sanitizeInlineSettings(display.inline),
       presence: sanitizePresenceSettings(display.presence),
+      backdrop: sanitizeBackdropSettings(display.backdrop),
     },
     copilot: { enabled: isRecord(value.copilot) ? value.copilot.enabled !== false : true, ask: isRecord(value.copilot) ? value.copilot.ask !== false : true },
     memory: sanitizeInnerVoice({

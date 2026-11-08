@@ -9,6 +9,7 @@ import { PresenceControls } from "./PresenceControls";
 import { DeviceChip, useDeviceSetting, type DeviceStore } from "./DeviceSetting";
 import { StatusText } from "@components/ui/StatusText";
 import { getGlobalSettings, setGlobalSettings } from "@runtime/settingsStore";
+import { BackdropControls } from "./BackdropControls";
 import { CHAT_ELEMENTS, defaultChatElements, type ChatElement } from "@runtime/displayToggles";
 
 const IN_CHAT_IDS: Record<ChatElement, string> = {
@@ -49,6 +50,9 @@ export const DisplayPage = ({ snapshot, manager, deviceStore: injected }: Displa
     <Section title="In the replies" level={3}>
       <CheckRow id="so-compact-thoughts" setting="display.compactThoughts" checked={snapshot.ui.compactThoughts !== false} scope={thoughts.overridden ? "device" : undefined}
         extra={<DeviceChip setting={thoughts} label="Thinking pill" />} onChange={thoughts.write} />
+    </Section>
+    <Section title="Behind the chat" level={3}>
+      <BackdropControls deviceStore={deviceStore} notify={notify} />
     </Section>
     <Section title="Above the chat input" level={3}>
       <CheckRow id="so-hud-enabled" setting="display.hudEnabled" checked={snapshot.ui.hudEnabled} scope={hud.overridden ? "device" : undefined}
