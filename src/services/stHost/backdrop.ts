@@ -1,6 +1,7 @@
 import type { WriteResult } from "@utils/writeResult";
 import { readBackgroundLayer, watchBackgroundLayer } from "./backgroundLayer";
 import { stillFromLayer, type BackdropStill } from "@backdrop/still";
+import { parseCssColor, relativeLuminance } from "@backdrop/stage/contrast";
 
 export type { BackdropStill };
 
@@ -45,6 +46,13 @@ export const chatColumnRect = (): { left: number; right: number } | null => {
   if (!sheld) return null;
   const rect = sheld.getBoundingClientRect();
   return rect.width > 0 ? { left: rect.left, right: rect.right } : null;
+};
+
+export const chatTextLuminance = (): number | null => {
+  if (typeof document === "undefined" || typeof getComputedStyle !== "function") return null;
+  const text = document.querySelector("#chat .mes_text") ?? document.getElementById("chat");
+  const color = text ? parseCssColor(getComputedStyle(text).color) : null;
+  return color ? relativeLuminance(...color) : null;
 };
 
 export const backdropReducedMotion = (): boolean =>
