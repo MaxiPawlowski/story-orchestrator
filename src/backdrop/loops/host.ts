@@ -1,5 +1,7 @@
 import { notifyAssetsChanged, onBaseShown, registerAssetProvider, shownBase } from "../assets";
+import { registerLayer } from "../stage/registry";
 import type { BackdropBase } from "../types";
+import { cinemagraphAuto, cinemagraphLayer, CINEMAGRAPH_KIND } from "./cinemagraph";
 import { cachedBackdropLoop, comfyLoopQueue, LOOP_INTERRUPTED, renderBackdropLoop } from "@services/stHost/backdropLoops";
 import { comfyDiscover, comfyReference, comfyReleaseReference, mediaStatus } from "@services/stHost/media";
 import { gpuBrokerStatus, releaseGpu, renewGpu, reserveGpu } from "@services/stHost/gpuBroker";
@@ -173,6 +175,7 @@ export function startBackdropLoops(input: LoopHostInput): () => void {
       return url ? { loopUrl: url } : null;
     },
   });
+  const offLayer = registerLayer(CINEMAGRAPH_KIND, (context) => cinemagraphLayer(context), { gate: "loops", auto: cinemagraphAuto });
   const offShown = onBaseShown((base) => scheduler.setCurrent(current(base)));
   const offRuntime = input.subscribe(refresh);
   const offBusy = busyWork.subscribe(() => {
@@ -189,6 +192,7 @@ export function startBackdropLoops(input: LoopHostInput): () => void {
     offBusy();
     offRuntime();
     offShown();
+    offLayer();
     offProvider();
     scheduler.stop();
   };
