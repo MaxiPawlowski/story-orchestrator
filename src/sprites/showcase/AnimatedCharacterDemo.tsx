@@ -12,8 +12,13 @@ import { decodeBytes } from "../liveHead/synthesis/decode";
 import { HeadRenderer } from "../liveHead/renderer";
 import { loadHeadManifest, manifestRef } from "../liveHead/manifest";
 import { DEFAULT_MOUTH_CONFIG } from "../mouthConfig";
+import type { AnimationFrames } from "../frameKeys";
+import { publishedFrames } from "./demoFrames";
+import { encodeImage } from "../builder/images";
+import type { DrawnSource } from "../liveHead/drawn";
+import { syntheticFrames } from "../liveHead/syntheticFrames";
 
-export interface DemoLook { label: string; bust: string; rig: string; full: string }
+export interface DemoLook { label: string; bust: string; rig: string; full: string; frames?: AnimationFrames }
 export interface DemoCharacter {
   id: string;
   name: string;
@@ -39,6 +44,7 @@ const dataBytes = (url: string): ArrayBuffer => {
 const assetBytes = async (url: string): Promise<ArrayBuffer> => dataBytes(url);
 const assetHash = (bytes: ArrayBuffer): Promise<string> => sha256Hex(bytes);
 const drawnDeps = { bytes: assetBytes, hash: assetHash, pixels: (bytes: ArrayBuffer, signal: AbortSignal) => decodeBytes(new Uint8Array(bytes), signal) };
+const frameDeps = { ...drawnDeps, bytes: (url: string) => url.startsWith("data:") ? assetBytes(url) : fetchBytes(url) };
 
 const toBase64 = (bytes: ArrayBuffer): string => {
   let text = "";
@@ -83,7 +89,14 @@ async function patchedArt(bust: string, patch: string, rect: [number, number, nu
   return canvas.toDataURL("image/png");
 }
 
-export interface LoadedLook { ref: LiveHeadRef; source: string; full: string; label: string }
+export interface LoadedLook { ref: LiveHeadRef; source: string; full: string; label: string; drawn?: DrawnSource }
+
+export const placeholderFrames = (): boolean => typeof location !== "undefined" && new URLSearchParams(location.search).get("frames") === "placeholder";
+
+async function syntheticSource(art: ArrayBuffer, rig: import("../liveHead/types").Rig): Promise<DrawnSource> {
+  const image = await decodeBytes(new Uint8Array(art), new AbortController().signal), made = syntheticFrames(image, rig);
+  return { frames: Object.fromEntries(Object.entries(made).map(([key, frame]) => [key, `data:image/png;base64,${encodeImage(frame)}`])) };
+}
 
 export async function loadLook(base: string, look: DemoLook, member: string, key: string): Promise<LoadedLook> {
   const [art, rig] = await Promise.all([fetchBytes(base + look.bust), fetchBytes(base + look.rig)]);
@@ -91,7 +104,8 @@ export async function loadLook(base: string, look: DemoLook, member: string, key
   const raw = JSON.parse(new TextDecoder().decode(rig)) as Record<string, unknown>, artHash = await sha256Hex(art);
   if (raw.artHash !== artHash) throw new Error(`${look.rig} was built from other art; rebuild it with scripts/docs/demo-rigs.mjs.`);
   const manifest = loadHeadManifest({ ...raw, member, look: key, source, artHash });
-  return { ref: manifestRef(manifest), source, full: base + look.full, label: look.label };
+  const drawn = publishedFrames(base, look.frames) ?? (placeholderFrames() ? await syntheticSource(art, manifest.rig) : undefined);
+  return { ref: manifestRef(manifest), source, full: base + look.full, label: look.label, ...(drawn ? { drawn } : {}) };
 }
 
 export async function loadExpressions(base: string, character: DemoCharacter, look: DemoLook): Promise<ExpressionSources> {
@@ -109,13 +123,14 @@ export interface DemoHeadProps {
   gaze: { x: number; y: number } | null;
   expressions?: ExpressionSources;
   gesture?: { id: string; nonce: number };
+  drawn?: DrawnSource;
 }
 
 export function DemoHead(props: DemoHeadProps) {
   const canvas = useRef<HTMLCanvasElement>(null);
   const latest = useRef(props);
   latest.current = props;
-  const { binding, expressions } = props;
+  const { binding, expressions, drawn } = props;
   const looksKey = expressions ? JSON.stringify(Object.keys(expressions.looks)) : "";
   useEffect(() => {
     const element = canvas.current;
@@ -150,7 +165,9 @@ export function DemoHead(props: DemoHeadProps) {
       }
       element.dataset.liveHeadGesture = motion.playing ?? "";
       return p;
-    }, visible, (target, prepared) => new HeadRenderer(target, prepared, DEFAULT_MOUTH_CONFIG), undefined, (mode) => {
+    }, visible, (target, prepared) => new HeadRenderer(target, prepared, DEFAULT_MOUTH_CONFIG), drawn ? { source: drawn, deps: frameDeps, report: (set) => {
+      if (live) element.dataset.liveHeadFrames = set ? [set.sprites.map((sprite) => sprite.name).join(" "), ...set.refused].join(" | ") : "failed";
+    } } : undefined, (mode) => {
       if (live) element.dataset.liveHeadMouth = mode;
     }, looks ?? undefined).then((stop) => {
       if (live) dispose = stop;
@@ -160,7 +177,7 @@ export function DemoHead(props: DemoHeadProps) {
       if (live) { element.dataset.liveHeadError = error instanceof Error ? error.message : String(error); visible(false); }
     });
     return () => { live = false; dispose?.(); abort.abort(); };
-  }, [binding, expressions, looksKey]);
+  }, [binding, expressions, looksKey, drawn]);
   return <canvas ref={canvas} className="so-live-head" aria-hidden="true" style={{ visibility: "hidden" }} />;
 }
 
@@ -237,7 +254,7 @@ export function AnimatedCharacterDemo({ data, base }: ViewProps) {
           <div className="so-sprite"><div className="so-sprite-breath">
             {ready && <img src={ready.look.source} alt={`${character.name.replace(/^SO-Demo /, "")}, ${ready.look.label}`} />}
             {ready && <DemoHead binding={ready.look.ref} name={character.name} label={emotion} activity={activity} motion={motion}
-              gaze={follow || gaze.x !== 0 || gaze.y !== 0 ? gaze : null} expressions={ready.expressions} gesture={gesture} />}
+              gaze={follow || gaze.x !== 0 || gaze.y !== 0 ? gaze : null} expressions={ready.expressions} gesture={gesture} drawn={ready.look.drawn} />}
           </div></div>
         </div>}
       {!ready && !poseImage && <p className="demo-status">{problem ?? "Loading the rig…"}</p>}

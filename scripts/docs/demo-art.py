@@ -6,6 +6,8 @@ Usage: python -I scripts/docs/demo-art.py <step> [--force]
   poses        pose variants (text to image, same character text and seed)
   busts        head-and-shoulders crops for the live head (needs the landmark server)
   expressions  happy / angry / worried, face inpainted over each bust
+  frames       blink + 4 mouth shapes (talk, talk2, mouth_o, mouth_wide) per bust, masked to the rig's eyes/mouth
+               (needs published busts and rigs: publish, demo-rigs.mjs, frames, publish again)
   publish      compressed files + sidecars into docs/guide/assets/showcase/, demo.json for the animated-character page
   all          every step in order
 Scene backgrounds come from the shared plan 45 set (docs/guide/assets/showcase/backdrops/), not from here.
@@ -419,6 +421,67 @@ def step_expressions(force):
             sidecar(target, {"kind": "expression", "member": member["name"], "expression": expression, "from": f"busts/{key}.png", "crop": crop, "prompt": positive, "seed": member["seed"] + 11, "denoise": 0.6, "mask": "face ellipse from the detector box", "upscale": scale, "prompt_id": prompt_id})
 
 
+FRAME_EDITS = {
+    "blink": "eyes fully closed, gentle closed eyelids with lashes, mouth unchanged",
+    "talk": "mouth visibly open as if speaking, gently parted lips with natural mouth shading, no second mouth",
+    "talk2": "mouth slightly open as if speaking, lips barely parted, no second mouth",
+    "mouth_o": "mouth in a small rounded open shape as if saying oh, lips in a soft circle, no second mouth",
+    "mouth_wide": "mouth slightly open and stretched wide as if saying ee, teeth just visible, no second mouth",
+}
+FRAME_DENOISE = 0.55
+
+
+def rig_of(name):
+    return json.load(open(os.path.join(PAGE, "rigs", f"{name}.rig.json"), encoding="utf-8"))["rig"]
+
+
+def frame_mask(size, rig, key):
+    mask = Image.new("L", size, 0)
+    draw = ImageDraw.Draw(mask)
+    if key == "blink":
+        for eye in rig["eyes"]:
+            xs = [p[0] for p in eye["roi"]]
+            ys = [p[1] for p in eye["roi"]]
+            pad = (max(ys) - min(ys)) * 0.35
+            draw.ellipse((min(xs) - pad, min(ys) - pad, max(xs) + pad, max(ys) + pad), fill=255)
+    else:
+        area = rig["mouth"]["area"]
+        rx, ry = area["rx"] * 1.6, max(area["ry"], area["rx"] * 0.5) * 1.6
+        draw.ellipse((area["cx"] - rx, area["cy"] - ry * 0.8, area["cx"] + rx, area["cy"] + ry * 1.2), fill=255)
+    return mask.filter(ImageFilter.GaussianBlur(3))
+
+
+def step_frames(force):
+    for key, member in CAST.items():
+        for look in ["base", *member["looks"]]:
+            name = key if look == "base" else f"{key}-{look}"
+            if not os.path.exists(os.path.join(PAGE, "rigs", f"{name}.rig.json")):
+                log(f"frames {name}: no rig yet (publish, then node scripts/docs/demo-rigs.mjs, then frames, then publish)")
+                continue
+            bust = Image.open(out_path("characters", f"{name}.png")).convert("RGBA")
+            rig = rig_of(name)
+            for frame, text in FRAME_EDITS.items():
+                target = raw_path("frames", f"{name}-{frame}.png")
+                if os.path.exists(target) and not force:
+                    continue
+                log(f"frame {name}/{frame}")
+                mask = frame_mask(bust.size, rig, frame)
+                work, big = bust, mask
+                if bust.width < 768:
+                    work = bust.resize((bust.width * 2, bust.height * 2), Image.LANCZOS)
+                    big = mask.resize(work.size)
+                image_name = upload(flatten(work), f"so-demo-{name}-frame-base.png")
+                mask_name = upload(Image.merge("RGB", (big, big, big)), f"so-demo-{name}-{frame}-mask.png")
+                positive = f"close-up face of {member['face']}, {text}. Same character, same art style and colours. clean anime visual novel character art, soft cel shading, crisp line art"
+                rendered, prompt_id = run(inpaint_graph(positive, member["seed"] + 23, image_name, mask_name, FRAME_DENOISE), "10")
+                rendered = rendered.convert("RGBA").resize(bust.size, Image.LANCZOS)
+                merged = Image.composite(rendered, bust, mask)
+                merged.putalpha(bust.split()[3])
+                merged.save(target)
+                sidecar(target, {"kind": "frame", "member": member["name"], "look": look, "frame": frame, "from": f"characters/{name}.png", "prompt": positive,
+                                 "seed": member["seed"] + 23, "denoise": FRAME_DENOISE, "mask": "rig eyes (blink) or rig mouth area", "prompt_id": prompt_id})
+
+
 def git_head():
     import subprocess
     return subprocess.run(["git", "rev-parse", "HEAD"], cwd=ROOT, capture_output=True, text=True, check=True).stdout.strip()
@@ -429,7 +492,7 @@ def publish_sidecar(path, raw_file, extra):
     if raw_file and os.path.exists(raw_file + ".json"):
         raw_info = json.load(open(raw_file + ".json", encoding="utf-8"))
     info = {"build": git_head(), "licence": LICENCE, "source": "scripts/docs/demo-art.py on the owner's local ComfyUI (plan 46 W4)", **extra}
-    for key in ("kind", "member", "look", "pose", "expression", "prompt", "seed", "denoise", "model", "steps", "cfg", "sampler", "cutout", "built"):
+    for key in ("kind", "member", "look", "pose", "expression", "frame", "prompt", "seed", "denoise", "model", "steps", "cfg", "sampler", "cutout", "built"):
         if key in raw_info and key not in info:
             info[key] = raw_info[key]
     with open(path + ".json", "w", encoding="utf-8", newline="\n") as handle:
@@ -459,6 +522,17 @@ def step_publish(force):
             publish_sidecar(full_out, full_raw, {"use": "full-body sprite"})
             looks[look] = {"label": LOOK_LABELS.get(look, look), "bust": f"../../assets/showcase/characters/{name}.png", "rig": f"rigs/{name}.rig.json",
                            "full": f"../../assets/showcase/characters/{name}-full.webp"}
+            frames = {}
+            for frame in FRAME_EDITS:
+                raw = raw_path("frames", f"{name}-{frame}.png")
+                if not os.path.exists(raw):
+                    continue
+                target = out_path("frames", f"{name}-{frame}.png")
+                Image.open(raw).save(target, optimize=True)
+                publish_sidecar(target, raw, {"use": f"drawn {frame} frame for the live head (aligned to the bust)"})
+                frames[frame] = f"../../assets/showcase/frames/{name}-{frame}.png"
+            if frames:
+                looks[look]["frames"] = frames
         detect_info = json.load(open(raw_path("busts", f"{key}.detect.json"), encoding="utf-8"))
         rect = mask_rect((detect_info["width"], detect_info["height"]), detect_info["face"])
         expressions = {}
@@ -489,7 +563,7 @@ def step_publish(force):
     log("published; now run node scripts/docs/demo-rigs.mjs")
 
 
-STEPS_IN_ORDER = {"chars": step_chars, "looks": step_looks, "poses": step_poses, "busts": step_busts, "expressions": step_expressions, "publish": step_publish}
+STEPS_IN_ORDER = {"chars": step_chars, "looks": step_looks, "poses": step_poses, "busts": step_busts, "expressions": step_expressions, "frames": step_frames, "publish": step_publish}
 
 
 def main():
