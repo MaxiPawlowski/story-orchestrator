@@ -15,10 +15,12 @@ const configFile = process.argv[2];
 if (!configFile) throw new Error('Usage: node scripts/local/controller.mjs <config.json>');
 const guard = new URL('./comfyMemoryGuard/__init__.py', import.meta.url);
 const config = withControllerDefaults(JSON.parse(await fs.readFile(configFile, 'utf8')));
-const arbiterConfig = { ...config, comfySupervise: true, telemetryPython: config.telemetryPython ?? config.comfyPython,
+const imagesOff = config.images === false;
+const arbiterConfig = { ...config, comfySupervise: !imagesOff, telemetryPython: config.telemetryPython ?? config.comfyPython,
     comfyExtraArgs: ['--cache-ram', '8', '--reserve-vram', '2', ...(config.comfyExtraArgs ?? [])] };
 const controllerBuild = await brokerBuild([guard]);
 const comfyGet = async (route) => {
+    if (imagesOff) return { queue_running: [], queue_pending: [] };
     const response = await fetch(`${config.comfyUrl}${route}`, { signal: AbortSignal.timeout(config.comfyRequestTimeoutMs ?? 60000) });
     if (!response.ok) throw new Error(`ComfyUI ${route} answered ${response.status}`);
     return response.json();
@@ -32,7 +34,7 @@ startReaper({ script: fileURLToPath(new URL('./textReaper.mjs', import.meta.url)
 const arbiter = createArbiter(arbiterConfig, {
     killTree,
     spawn: recordingSpawn({ binary: config.binary, port: config.backendPort, ledger: textLedger, live: liveText, log }),
-    runtime: async () => {
+    runtime: imagesOff ? undefined : async () => {
         const stats = await comfyGet('/system_stats');
         const code = createHash('sha256');
         for (const name of ['main.py', 'comfy/model_management.py', 'comfy/model_patcher.py']) code.update(await fs.readFile(path.join(config.comfyRoot, name)));

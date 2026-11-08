@@ -44,6 +44,17 @@ Fallback order, always: loop → still + layers → still → ST's own backgroun
 - Budget: main bundle 1,300,000 B, everything here lazy. Chat readability first: dim/blur behind the chat column, motion
   low by default.
 
+## Cheaper loop tiers (owner 2026-11-08)
+
+- **Full**: the image-to-video loop (WebM/MP4).
+- **Lite**: the same model at low cost (fewer frames and steps, lower resolution, about 2 s at 8-12 fps), encoded as
+  animated WebP with a GIF fallback; minutes become well under a minute.
+- **Cinemagraph** (no video model): the still animated in the browser by flow-warping the masked regions (sky, water,
+  smoke) from phase B's depth/sky masks plus noise; free and instant, the default until a loop exists.
+- Each tier is a setting value (`display.backdrop.loops`: off | cinemagraph | lite | full), on by default at the best
+  tier the machine allows.
+- Every phase ships a publishable synthetic example (art, depth map, loop) for the guide showcase (plan 46).
+
 ## Floors (informational, declared before measuring)
 
 - A: 60 fps target, ≥ 50 fps median on the owner's PC at 1080p with 2 layers; ≤ 3 % CPU idle tab; 0 console errors.

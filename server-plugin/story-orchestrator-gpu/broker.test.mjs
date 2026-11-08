@@ -221,6 +221,22 @@ test('fail-open: an unreachable observed ComfyUI and unreadable telemetry with n
     await blind.stop();
 });
 
+test('images: false loads text with no ComfyUI call and refuses image leases', async () => {
+    const procs = fakeProcesses();
+    const { fetchImpl, calls } = fakeFetch({ procs });
+    const arbiter = createArbiter({ ...validateConfig(await superviseConfig({ reserves: { gpuMiB: 1024, ramMiB: 2048 } })).arbiter, images: false, comfySupervise: false },
+        { spawn: procs.spawn, killTree: procs.killTree, fetch: fetchImpl, memorySnapshot: async () => reading(), fastTelemetry: null, timers: false });
+    await arbiter.start();
+    await arbiter.control('load', {});
+    assert.equal((await arbiter.status()).state, 'text-loaded');
+    const lease = await arbiter.reserve({ workflowKey: 'scene', width: 1024, height: 1024 });
+    assert.equal(lease.brokered, false);
+    await assert.rejects(arbiter.control('start-comfy', {}), /Images are off/);
+    assert.deepEqual(calls.filter(([url]) => /:8188\//.test(url)), []);
+    assert.equal(procs.spawned.some((child) => child.bin.endsWith('python.exe') || child.bin.includes('python')), false);
+    await arbiter.stop();
+});
+
 test('a crashed supervised text server reads degraded, fails text with a reason and lets images through', async () => {
     const procs = fakeProcesses();
     const { fetchImpl } = fakeFetch({ procs });
