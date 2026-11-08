@@ -17,8 +17,8 @@ example story. The full install procedure is in [Setup](setup/README.md#install)
 What you see on screen while a story plays, and what to do when it stalls.
 
 - [Playing a story](player/README.md): player mode, Author view, and where each part of the guide is.
-- [Starting, continuing and restarting](player/playing.md): picking a story for a chat, who answers in a group, people and promises, finished stories, `/story`.
-- [The story bar, the story window and the notes under messages](player/drawer-and-hud.md): what each part of the screen tells you.
+- [Starting, continuing and restarting](player/playing.md): picking a story for a chat, who answers in a group and how scenes pace their voices, stalled and tense scenes, people and promises, finished stories, `/story`.
+- [The story bar, the story sheet and the story window](player/drawer-and-hud.md): what each part of the screen tells you, the marks in the chat, characters on stage.
 - [Memory](player/memory.md): what the story remembers, and how to pin, edit or remove a memory.
 - [Troubleshooting and FAQ](player/troubleshooting.md): when the story does not move, or something looks wrong.
 
@@ -33,6 +33,7 @@ The one required setting, the optional judge, images and server plugins.
 - [Judge](setup/judge.md): the optional small model that picks speakers, lore and scene details.
 - [Illustrations](setup/images.md): image services for story illustrations.
 - [Sprite packs and changed looks](setup/sprites.md): character sprites on the stage, and looks that change.
+- [Running the reply model yourself](setup/local-model.md): llama.cpp on your own GPU, the local controller, or a rented GPU.
 - [One GPU for text and images](setup/gpu-sharing.md): a local text model and local images on one graphics card.
 - [Harness](setup/harness.md): running tasks through a Claude Code, Codex or opencode login on the server.
 - [Settings reference](setup/settings-reference.md): every setting with its scope, location and default.

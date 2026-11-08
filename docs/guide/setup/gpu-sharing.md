@@ -24,7 +24,7 @@ never overwrites it.
 | `none` (no config) | Nothing. Pictures pass through. | You do not run a local text model. |
 | `observe` | Watches a text server **you** start in Unsloth Studio, and unloads it through Unsloth Studio's API before a picture. | You already run your text model in Unsloth Studio. The recommended start. |
 | `supervise` | Starts and stops `llama-server` itself, on demand, and optionally ComfyUI. | You run a bare `llama-server` (it has no unload API, so the plugin has to own it), or you want the plugin to own the text server. |
-| `managed` | Forwards to an external controller. Kept for one release, then removed. | You still run the older standalone controller. |
+| `managed` | Forwards to the local controller in `scripts/local/` (set `controllerUrl`), which owns the text server and ComfyUI. Kept as a bridge for now. | You run that controller: [Running the reply model yourself](local-model.md#the-local-controller). |
 
 ### An `observe` example
 

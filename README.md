@@ -97,7 +97,7 @@ chapters, …), `/story`, `/so-mem` and the author's `/cp`:
 
 ## Support and development
 
-Something wrong? **Orchestrator → Help → Setup → Host capabilities → Copy for a bug report** copies what a report needs;
+Something wrong? **Settings → Diagnostics → Copy for a bug report** copies what a report needs;
 [Troubleshooting](https://maxipawlowski.github.io/story-orchestrator/player/troubleshooting.html) covers the common
 cases. The guide's sources are in [`docs/guide`](docs/guide/README.md); developer docs are in
 [`docs/dev`](docs/dev/contributing.md).
