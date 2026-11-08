@@ -24,7 +24,7 @@ The story window (no story fields): This chat → Play opens on the scene (headl
 
 The story sheet is one window with a tab per page the story has: Journal (quests, log and what you noticed; a log row's arrow scrolls the chat to its message), Here now (see Scene card), People & places, Stats (the value large, the label beside it), one tab per story panel, Ideas (What could I do?) and Memory (a few things the story remembers, with Open memory). On a wide window it docks to the right of the chat (drag its left edge to change the width, which is remembered) and can pop out into a movable window; on a phone it is a bottom sheet above the input with three heights (small, half, full; drag the grip or press it), and the half height stops short of the last reply so it stays readable. The wand menu holds Story sheet, Story recap, Flag this moment, the story window and Help.
 
-Notes under messages: at the player levels a reply carries at most one quiet line of words, such as "The story moved on · Remembered 2 things"; hovering a part names its category, and clicking the line opens the notes grouped by category. What each category and level means is explained under the level picker (Settings › Interface) and in Help. Author (3) adds details, actions and an Inspect link; Raw (4) adds a raw count per category, and raw data stays in the inspector. Help lists every part of Story Orchestrator in one searchable list grouped by who it is for, each row with a plain "Where:" line and Show me.
+Notes under messages: at the player levels a reply carries at most one quiet line of words, such as "The story moved on · Remembered 2 things"; hovering a part names its category, and clicking the line opens the notes grouped by category. What each category and level means is explained under the level picker (Settings › Display) and in Help. Author (3) adds details, actions and an Inspect link; Raw (4) adds a raw count per category, and raw data stays in the inspector. Help lists every part of Story Orchestrator in one searchable list grouped by who it is for, each row with a plain "Where:" line and Show me.
 
 Two things follow, and most of the advice below comes from them:
 
@@ -321,6 +321,17 @@ Field: `effects.transition`: a kind, or `{ kind, ms, color }` (`schema.ts` `Tran
 - **Good.** `"transition": { "kind": "fade", "ms": 1200 }` on the first beat after a time skip; `"transition": "cut"` for a sudden shock.
 - **Bad.** A wipe on every beat; a long fade on a beat the player reaches every few turns.
 - **If wrong.** An unknown kind, an `ms` outside 0 to 5000, a color that is not a hex, or an unknown key is a validation error naming the field. The player's stage effects setting (`sprites.effects`) and reduced motion (SillyTavern, the system, or the story's `display.motion: false`) shorten every transition to a short crossfade or skip it.
+
+### Animated backdrop
+<!-- topic: backdrop -->
+
+Fields: `effects.backdrop` on a checkpoint and the story's `backdrop_defaults`, each `{ layers, weather, time, indoor, intensity, loop }` (`engine/backdropSchema.ts`, `validate/backdrop.ts`, `src/backdrop/`).
+
+- **What it does.** Animates the scene behind the chat: the background still (or a video loop of it, when one is ready) with weather and light layers drawn over it. Presentation only: it writes nothing to the story's state and never delays a turn. With nothing authored the backdrop is derived from the story's own state: a `weather` quality (rain, storm, snow, fog, wind, clear), the clock's `time_of_day` / `is_night`, `tension_current`, and whether the background looks like an interior. `backdrop_defaults` applies to every beat; a beat's `effects.backdrop` overrides it field by field.
+- **Fields.** `layers`: a list of `{ kind, intensity, speed, color, mask }` or plain kinds; `[]` means no layers. Kinds: `rain`, `snow`, `embers`, `dust`, `fireflies`, `fog`, `flicker` (firelight), `drift` (slow camera move), `shimmer` (water or heat haze), `parallax` and `depthFog` (need a depth map of the background). `intensity` 0 to 1, `speed` 0.1 to 4, `color` a hex, `mask` `sky`, `water` or `none` (where `shimmer` shows). `weather` and `time` replace what the state says for this beat; `indoor` true keeps sky weather out; `intensity` 0 to 1 scales every layer. `loop`: `"pre"` asks for a video loop of this beat's background to be made when the story is set up (never shown before the beat is reached), `"auto"` lets one be made when the GPU is idle, `false` keeps the still.
+- **Good.** `"backdrop": { "weather": "rain", "layers": ["rain", { "kind": "fog", "intensity": 0.3 }] }` on a storm beat; `"backdrop": { "indoor": true, "layers": ["flicker", "dust"] }` in a candlelit cellar; `"loop": "pre"` on the two or three places the story returns to.
+- **Bad.** Heavy rain on every beat; `loop: "pre"` on every checkpoint (each loop costs minutes of GPU); a layer meant to reveal something the player has not found.
+- **If wrong.** An unknown kind, weather, time, mask or loop value, a number out of range, a kind listed twice or an unknown key is a validation error naming the field. The player's Display settings (Animated backdrop, its effects, depth, loops and intensity switches) and reduced motion win: reduced motion shows the still only.
 
 ### Scenario
 <!-- topic: scenario -->

@@ -40,6 +40,7 @@ module.exports = (_env = {}, argv = {}) => {
         "@judge": path.resolve(__dirname, "src/judge"),
         "@features": path.resolve(__dirname, "src/features"),
         "@guide": path.resolve(__dirname, "src/guide"),
+        "@backdrop": path.resolve(__dirname, "src/backdrop"),
       },
       fallback: {
         fs: false,

@@ -31,12 +31,14 @@ describe("v2.8 29 A: purpose → workflow, last on the path wins", () => {
 });
 
 describe("v2.8 29 B: the refusal matrix falls back to the player's own workflow", () => {
-  const text = "{\"6\":{\"inputs\":{\"text\":\"%prompt%\"}}}";
+  const text = "{\"6\":{\"class_type\":\"CLIPTextEncode\",\"inputs\":{\"text\":\"%prompt%\"}}}";
   it("uses the mapped workflow only on the comfy source, listed, with a prompt placeholder", () => {
     expect(decideWorkflow({ mapped: "SO-Portrait.json", source: "comfy", listed: ["SO-Portrait.json"], text })).toEqual({ use: "SO-Portrait.json" });
     expect(decideWorkflow({ mapped: "SO-Portrait.json", source: "pollinations", listed: null, text: null })).toMatchObject({ fallback: expect.stringMatching(/ComfyUI source/) });
     expect(decideWorkflow({ mapped: "SO-Portrait.json", source: "comfy", listed: ["Mine.json"], text: null })).toMatchObject({ fallback: expect.stringMatching(/not installed/) });
-    expect(decideWorkflow({ mapped: "SO-Portrait.json", source: "comfy", listed: ["SO-Portrait.json"], text: "{\"6\":{}}" })).toMatchObject({ fallback: expect.stringMatching(/%prompt%/) });
+    expect(decideWorkflow({ mapped: "SO-Portrait.json", source: "comfy", listed: ["SO-Portrait.json"], text: "{\"6\":{\"class_type\":\"CLIPTextEncode\",\"inputs\":{}}}" })).toMatchObject({ fallback: expect.stringMatching(/%prompt%/) });
+    expect(decideWorkflow({ mapped: "SO-Portrait.json", source: "comfy", listed: ["SO-Portrait.json"], text: "{\"6\":{\"class_type\":\"CLIPTextEncode\",\"inputs\":{\"text\":\"x\"},\"_meta\":{\"title\":\"%prompt%\"}}}" })).toMatchObject({ fallback: expect.stringMatching(/%prompt%/) });
+    expect(decideWorkflow({ mapped: "SO-Portrait.json", source: "comfy", listed: ["SO-Portrait.json"], text: "{\"nodes\":[{\"type\":\"CLIPTextEncode\",\"widgets_values\":[\"%prompt%\"]}]}" })).toMatchObject({ fallback: expect.stringMatching(/API-format/) });
     expect(decideWorkflow({ mapped: null, source: "comfy", listed: [], text: null })).toEqual({ fallback: "", mapped: null });
   });
 });

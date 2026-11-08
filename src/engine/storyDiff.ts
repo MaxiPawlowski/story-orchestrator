@@ -23,7 +23,7 @@ export type StoryDiffCode =
   | "roster-member-removed" | "requirements-changed" | "stagecraft-changed" | "features-changed"
   | "story-objective-block-changed" | "story-display-changed" | "story-presence-changed" | "story-kind-changed" | "visual-packs-changed"
   | "scene-read-changed" | "player-card-changed" | "player-profile-changed" | "lore-select-changed"
-  | "house-rules-changed" | "talk-defaults-changed" | "arc-template-changed" | "arc-bridges-changed" | "chapters-changed" | "game-changed"
+  | "house-rules-changed" | "talk-defaults-changed" | "backdrop-defaults-changed" | "arc-template-changed" | "arc-bridges-changed" | "chapters-changed" | "game-changed"
   | "quest-removed" | "quest-removed-closed" | "quest-reward-changed-earned" | "check-changed" | "codex-changed"
   | "factions-changed" | "faction-move-changed-applied"
   | "codex-entry-removed" | "codex-entry-replaced" | "codex-fact-removed" | "codex-fact-replaced"
@@ -441,6 +441,7 @@ const diffStoryFields = (ctx: DiffContext) => {
   if (!sameValue(previous.lore_select, next.lore_select)) push("compatible", "lore-select-changed", "lore_select", "What lore-select may judge, or whether it excludes unpicked entries, changed.");
   if (!sameValue(previous.house_rules, next.house_rules)) push("compatible", "house-rules-changed", "house_rules", "What the narrator is held to changed.");
   if (!sameValue(previous.talk_defaults, next.talk_defaults)) push("compatible", "talk-defaults-changed", "talk_defaults", "The story's default pacing profile or speech budget changed.");
+  if (!sameValue(previous.backdrop_defaults, next.backdrop_defaults)) push("compatible", "backdrop-defaults-changed", "backdrop_defaults", "The story's default animated backdrop changed.");
   if (!sameValue(previous.scene_read, next.scene_read)) push("compatible", "scene-read-changed", "scene_read", "The scene tracker's places or times changed.");
   if (!sameValue(previous.player?.card, next.player?.card)) push("compatible", "player-card-changed", "player", "The player’s public character fields changed.");
   if (!sameValue({ ...previous.player, card: undefined }, { ...next.player, card: undefined })) {

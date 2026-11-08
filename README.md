@@ -97,7 +97,7 @@ chapters, …), `/story`, `/so-mem` and the author's `/cp`:
 
 ## Support and development
 
-Something wrong? **Orchestrator → Help → Setup → Host capabilities → Copy for a bug report** copies what a report needs;
+Something wrong? **Settings → Diagnostics → Copy for a bug report** copies what a report needs;
 [Troubleshooting](https://maxipawlowski.github.io/story-orchestrator/player/troubleshooting.html) covers the common
 cases. The guide's sources are in [`docs/guide`](docs/guide/README.md); developer docs are in
 [`docs/dev`](docs/dev/contributing.md).
@@ -143,6 +143,10 @@ Generated from the feature registry. "Experimental" means not yet measured; it i
 | Playing | Next-move chips | Under the last reply: the story's suggestions for your next move, one click puts one in the box where you type. |  |
 | Playing | Journal cards | A small card under the reply where a person or place goes into your journal. |  |
 | Playing | Gate meter | Author view: under each reply, how close each way out of the checkpoint was. |  |
+| Playing | Animated backdrop | The scene's background moves behind the chat: weather, light and a slow drift that follow the story. |  |
+| Playing | Backdrop weather and light | Rain, snow, embers, dust, fireflies, fog, flicker and shimmer over the background. |  |
+| Playing | Backdrop depth | Near and far parts of the background move apart slightly as it drifts. | Experimental |
+| Playing | Backdrop video loops | Short seamless video loops of the story's key places replace the still when ready. | Experimental |
 | Playing | Thinking pill | SillyTavern's "Thought for …" bar becomes a small pill at the top left of the reply. |  |
 | Playing | Story marks in the lists | Groups and chats that play a story carry a small icon in SillyTavern's lists. |  |
 | Playing | Story card | Hover a group's story icon to see the story, its chapter and when you last played. |  |

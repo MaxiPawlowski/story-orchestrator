@@ -1,5 +1,5 @@
 import { RECAP_GUIDE_TOPIC } from "./guideTopicsRecap";
-import { VISUAL_PACKS_TOPIC } from "./guideTopicsVisual";
+import { BACKDROP_TOPIC, VISUAL_PACKS_TOPIC } from "./guideTopicsVisual";
 import { CODEX_GUIDE_TOPIC, OBSERVATION_DIAGNOSTIC_TOPICS } from "./guideTopicsCodex";
 import { DELIVERY_DIAGNOSTIC_TOPICS, DELIVERY_TOPICS } from "./guideTopicsDelivery";
 import { SHEET_GUIDE_TOPICS } from "./guideTopicsSheet";
@@ -197,6 +197,7 @@ export const GUIDE_TOPICS = {
   "stage-transition": { title: "Stage transition", fields: "effects.transition",
     text: "How the stage changes into this beat: dissolve (default, background crossfade), fade, wipe, iris or cut; a kind or "
       + "{kind, ms 0-5000, color hex}. Presentation only, on forward steps only; reduced motion shortens it." },
+  ...BACKDROP_TOPIC,
   scenario: {
     title: "Scenario",
     fields: "effects.scenario",

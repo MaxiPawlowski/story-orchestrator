@@ -40,6 +40,12 @@ describe("v2.4 plan 03 D5: the whole scene is summarized map -> reduce", () => {
     expect(m.maxTokens.every((tokens) => tokens >= 256 && tokens <= 1024)).toBe(true);
   });
 
+  it("harvest 2026-11-08: a refusal comes back as no summary, so nothing is kept", async () => {
+    const m = model(() => "I'm sorry, but I can't summarize this content.");
+    const outcome = await summarizeScene({ messages: scene(3, 40), budget: budget(8192), stillOwns: () => true, summarize: m.summarize });
+    expect(outcome).toEqual({ summary: "", requests: 1, chunks: 1 });
+  });
+
   it("control: a scene that fits is one call and never reduced", async () => {
     const m = model(() => "Short scene.");
     const outcome = await summarizeScene({ messages: scene(3, 40), budget: budget(8192), stillOwns: () => true, summarize: m.summarize });

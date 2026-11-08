@@ -74,6 +74,7 @@ const FEATURE_EXTRAS: Record<string, StoryFeatureId> = { "so-keep-last-question"
 const SETTINGS_PAGES: Array<[RegExp, WorkspacePage, string?]> = [
   [/^(so-entry-|so-open-studio|so-new-story|so-getting-started|so-continue)/, "library"],
   [/^(so-presence-|so-hud-|so-your-move-|so-inline-|so-briefing-|so-player-setup|so-announce-transitions|so-compact-thoughts|so-regenerate-own-rows|so-in-chat-|so-device-display)/, "display"],
+  [/^so-backdrop-/, "display"],
   [/^so-judge/, "judge"],
   [/^so-image-route/, "images", "picture-types"],
   [/^so-model-source/, "images", "model-sources"],

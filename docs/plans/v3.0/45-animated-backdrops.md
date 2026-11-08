@@ -55,6 +55,16 @@ Fallback order, always: loop → still + layers → still → ST's own backgroun
   tier the machine allows.
 - Every phase ships a publishable synthetic example (art, depth map, loop) for the guide showcase (plan 46).
 
+## Campaign step: Adolion backgrounds (owner 2026-11-08, private repo)
+
+- The campaign already has 83 place prompts (`campaign/background-prompts/`, `scripts/campaign/backgrounds.py`) and a
+  render script on FLUX, which was retired; 0 rendered, scenes fall back to stock backgrounds. Render them on the current
+  scene checkpoint (the plugin's `image.purposes.scene` route), review by another model against the place text (the owner
+  never sees campaign content), install with `install_st.py`, pin bump.
+- After A merges the schema: mark key locations `effects.backdrop.loop: "pre"` in the features post-pass; depth, masks and
+  loops are then produced by the product itself (B, C), so the campaign stores stills only.
+- Counts only in this repo; images and prompts stay in the private campaign repo.
+
 ## Floors (informational, declared before measuring)
 
 - A: 60 fps target, ≥ 50 fps median on the owner's PC at 1080p with 2 layers; ≤ 3 % CPU idle tab; 0 console errors.
@@ -65,6 +75,21 @@ Fallback order, always: loop → still + layers → still → ST's own backgroun
 ## Gate record
 
 (per phase, appended by each agent)
+
+### Phase A: Resume (2026-11-08, paused on the owner's usage limit; nothing merged)
+
+- Branches: `v3.0-45-backdrop-a` (worktree `C:\dev\so-45a`, the contract skeleton) and `v3.0-45-backdrop-a2` (worktree `C:\dev\so-45a2`, the WebGL stage on top of it).
+- Skeleton: `src/backdrop/{types,assets,settings,still}.ts`, `stage/registry.ts`, `stage/vertex.ts` (shared `v_uv` vertex shader), `stHost/backdrop.ts`,
+  `display.backdrop.*` (loops = off|cinemagraph|lite|full, default full), `effects.backdrop` + `backdrop_defaults` schema, guide topic `backdrop`, Display controls.
+- Last full `npm run gates` on the skeleton (run 6): all green except jest `codeHealth` S8 (dead export `BackdropBootHook`). Fixed after the run (contract test uses it),
+  but no full run on that fix yet. Master moved since (1aaa7ca09): merge master, run `npm run gates` once, merge, push.
+- Stage (a2): renderer, layers (rain, snow, embers, dust, fireflies, fog, flicker, drift, shimmer), state-driven selection, contrast-driven dim (4.5:1, cap 0.6),
+  `BACKDROP_BOOT_HOOKS` in `src/backdrop/start.ts` (C adds its loops host there), Backdrop/Stage stories, no-model scenario `test/scenarios/v30-45a-backdrop-stage.json`.
+- Live (lane 47, frozen a2 bundle, headed, 1906x930 at dpr 1.5, canvas 2859x1395): scenario 6/6 pass; rain+fog 59.9 fps median, draw 0.2 ms, main thread 15.1 % busy
+  (14.2 % with drift+dust); hidden tab 0 % and no frames; 0 console errors. Floors: fps met; the 3 % CPU floor is met for a hidden tab, not for a visible animated one.
+- Reduced motion: owner-confirmed, only the OS `prefers-reduced-motion` stills the backdrop; ST's own Reduced motion toggle is ignored (the owner has it on).
+- Next: merge skeleton; merge a2 into the skeleton branch, gates, merge, `npm run build && npm run stage && npm run plugins:install`;
+  showcase shots of the Backdrop/Stage stories into `docs/guide/assets/showcase/backdrops/a-effects-*.png` (`.build/backdrop-shots.mjs` in so-45a2, Storybook on port 6011).
 
 ### Phase C (loops): Resume note 2026-11-08 (paused on owner usage limit, not merged)
 
