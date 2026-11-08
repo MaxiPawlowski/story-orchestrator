@@ -44,6 +44,7 @@
   "d1": [],
   "q1t": {
     "src/runtime/consequences.test.ts#performance.now": 2,
-    "src/runtime/patterns.test.ts#performance.now": 2
+    "src/runtime/patterns.test.ts#performance.now": 2,
+    "src/runtime/storyRecord.test.ts#performance.now": 2
   }
 }

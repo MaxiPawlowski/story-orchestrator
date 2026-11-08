@@ -40,7 +40,7 @@ const walk = (value: unknown, path: string, visit: (node: Record<string, unknown
 
 const located = (path: string, draft: Story): string => {
   const [list, index, ...rest] = path.split(".");
-  const item = (draft as unknown as Record<string, unknown>)[list];
+  const item: unknown = Object.entries(draft).find(([key]) => key === list)?.[1];
   const entry = Array.isArray(item) ? item[Number(index)] : undefined;
   const name = isRecord(entry) ? String(entry.id ?? (entry.from && entry.to ? `${String(entry.from)} → ${String(entry.to)}` : index)) : index;
   return [list, name, ...rest.filter((part) => !/^\d+$/.test(part) && !["all", "any", "not", "q", "op", "v"].includes(part))].filter(Boolean).join(" ");
@@ -63,7 +63,9 @@ export const resolutionReaders = (draft: Story, questId: string, resolution: str
 
 export const questMatrix = (draft: Story, quest: Quest): MatrixRow[] => {
   const rows: Array<Omit<MatrixRow, "readers">> = [
-    ...(sugarDone(quest) ? [{ id: "done", label: quest.labels?.done ?? null, from: ["active"], sugar: true, consequences: quest.reward ? [consequenceOf({ id: "reward", ...quest.reward })] : [] }] : []),
+    ...(sugarDone(quest) ? [{
+      id: "done", label: quest.labels?.done ?? null, from: ["active"], sugar: true, consequences: quest.reward ? [consequenceOf({ id: "reward", ...quest.reward })] : [],
+    }] : []),
     ...(quest.failed_when ? [{ id: "failed", label: quest.labels?.failed ?? null, from: ["active"], sugar: true, consequences: [] }] : []),
     ...(quest.resolutions ?? []).map((resolution) => ({
       id: resolution.id, label: resolution.label ?? null, from: resolution.from ?? ["active"], sugar: false, consequences: (resolution.consequences ?? []).map(consequenceOf),

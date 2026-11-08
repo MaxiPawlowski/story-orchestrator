@@ -85,7 +85,10 @@ const closedConsequenceRows = (entry: BoundaryLogEntry, sources: StoryRecordSour
     };
   });
 
-const factionRows = (entry: BoundaryLogEntry, sources: StoryRecordSources): StoryRecordRow[] => (entry.before.blackboard.values === entry.after.blackboard.values ? [] : sources.story.factions ?? []).flatMap((faction) => faction.moves.flatMap((move) => {
+const movedFactions = (entry: BoundaryLogEntry, sources: StoryRecordSources) =>
+  (entry.before.blackboard.values === entry.after.blackboard.values ? [] : sources.story.factions ?? []);
+
+const factionRows = (entry: BoundaryLogEntry, sources: StoryRecordSources): StoryRecordRow[] => movedFactions(entry, sources).flatMap((faction) => faction.moves.flatMap((move) => {
   const key = factionMoveKey(faction.id, move.id);
   return entry.before.blackboard.values[key] === undefined && entry.after.blackboard.values[key] !== undefined ? [{
     boundary: entry.boundary, messageId: entry.context.lastMessageId, event: { kind: "faction-move" as const, id: `${faction.id}:${move.id}` },

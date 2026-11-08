@@ -18,5 +18,6 @@ export const STUDIO_TAB_GUIDE: Partial<Record<StudioTab, readonly GuideTopicId[]
   roster: ["roster", "roster-polish", "drives-motives", "inner-voice", "opening-scene", "character-life", "factions", "relationship-labels", "commitments", "cues", "topics",
     "story-time", "living-cards", "poses"],
   sprites: ["poses"],
-  game: ["quests", "quest-resolutions", "quest-consequences", "checks", "offers", "widgets", "clues-and-maps", "html-panels", "widget-scene", "display-narrate", "display-warn", "rumors", "patterns", "norms", "echoes"],
+  game: ["quests", "quest-resolutions", "quest-consequences", "checks", "offers", "widgets", "clues-and-maps", "html-panels", "widget-scene", "display-narrate", "display-warn",
+    "rumors", "patterns", "norms", "echoes"],
 };

@@ -7,7 +7,7 @@ import {
 } from "./schema";
 
 export type QuestLifecycle = (typeof QUEST_LIFECYCLE)[number];
-export type QuestStatus = QuestLifecycle | (string & {});
+export type QuestStatus = string;
 export type StepStatus = "hidden" | "open" | "done" | "failed";
 
 export interface QuestEnding {

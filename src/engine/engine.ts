@@ -35,7 +35,6 @@ export interface EngineHost {
   chanceIds?(): { chatId: string; storyId: string } | null;
   offers?(): import("./life/offers").OfferEvidence | undefined;
   enabled?(): readonly string[] | null;
-  questResolutions?(): boolean;
 }
 
 export interface BoundaryContext {
@@ -146,7 +145,9 @@ export class StoryEngine {
   private readonly boundaryLog: BoundaryLogEntry[] = [];
   private readonly advanceCallbacks = new Set<(transition: NormalizedTransition) => void>();
 
+  private questSwitch: () => boolean = () => true;
   constructor(private readonly host: EngineHost = DEFAULT_HOST) {}
+  useQuestSwitch(read: () => boolean): void { this.questSwitch = read; }
 
   hydrateRepair: string | null = null;
 
@@ -495,7 +496,7 @@ export class StoryEngine {
       versions: blackboard.snapshot().versions, applied, offers: this.host.offers?.(),
     };
     for (const delta of this.host.derive?.(view) ?? []) blackboard.applyDelta({ q: delta.q, v: delta.v, source: "code" });
-    applyQuestResolutions(story, blackboard, boundary, this.host.questResolutions?.() ?? true);
+    applyQuestResolutions(story, blackboard, boundary, this.questSwitch());
   }
 
   private entryPass(boundary: number, lastMessageId: number): void {

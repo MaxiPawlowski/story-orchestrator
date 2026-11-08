@@ -259,6 +259,8 @@ Generated from the feature registry. "Experimental" means not yet measured; it i
 | Authoring | Author view | Shows the story's internals for this chat: goals, state and what characters hide. |  |
 | Authoring | Story diagnostics | Says what each problem in a story costs it, before the technical detail. |  |
 | Authoring | Open stretches | Free play between two turning points, with no task. | Experimental |
+| Authoring | Quest resolutions | A quest closes on the ending the story names, and each ending can bring its own consequences. | Experimental |
+| Authoring | Story record | An author's list of what happened at each reply, why, who heard and what is still open. | Experimental |
 | Authoring | Quests, checks and panels | Side quests, visible stats, dice checks and milestones a story declares. | Experimental |
 | Authoring | Pace by the road ahead | The dramatic shape follows the turning points left on the way to an ending, and eases off after a climax. |  |
 | Authoring | Help a stuck player with leads | A gated scene that has stopped moving gets its authored leads one at a time, as world pressure. |  |

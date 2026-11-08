@@ -1,5 +1,5 @@
 import { Blackboard } from "./blackboard";
-import { applyQuestResolutions, decideQuest, questEnding, questEndings, questLifecycle, shownConsequenceLabels, valueReader } from "./quests";
+import { applyQuestResolutions, decideQuest, questEnding, questLifecycle, shownConsequenceLabels, valueReader } from "./quests";
 import { questConsequenceKey, type NormalizedStory, type PrimitiveValue, type Quest } from "./schema";
 
 export interface SimulatedConsequence {
@@ -42,7 +42,7 @@ export const simulateQuest = (story: NormalizedStory, questId: string, values: R
   const shown = new Set(shownConsequenceLabels(quest, valueReader(after)));
   const ending = decision.ending ? questEnding(quest, decision.ending.id) : null;
   const consequences = (ending?.consequences ?? []).map((consequence) => {
-    const applied = typeof after[questConsequenceKey(quest.id, ending!.id, consequence.id)] === "number";
+    const applied = typeof after[questConsequenceKey(quest.id, ending?.id ?? "", consequence.id)] === "number";
     return { id: consequence.id, applied, label: consequence.label ?? null, shown: applied && Boolean(consequence.label && shown.has(consequence.label)) };
   });
   const keys = [...new Set([...Object.keys(start), ...Object.keys(after)])].filter((key) => start[key] !== after[key]).sort();
@@ -52,6 +52,3 @@ export const simulateQuest = (story: NormalizedStory, questId: string, values: R
     player: { status: ending ? ending.label ?? ending.id : null, outcomes: [...shown] },
   };
 };
-
-export const questResolutionIds = (story: NormalizedStory, questId: string): string[] =>
-  questEndings((story.quests ?? []).find((quest) => quest.id === questId) ?? { id: questId, title: "", kind: "side", steps: [] }, true).map((ending) => ending.id);

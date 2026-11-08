@@ -270,7 +270,7 @@ const unique = (ids: string[], label: string, prefix: string, errors: Validation
   });
 };
 
-const requiredQuestIds = (quest: Quest): string[] => (quest.requires ?? []).map((entry) => (typeof entry === "string" ? entry : entry.quest));
+const requiredQuestIds = (quest: Pick<Quest, "requires"> | undefined): string[] => (quest?.requires ?? []).map((entry) => (typeof entry === "string" ? entry : entry.quest));
 
 const cycleThrough = (quests: Quest[]): string | null => {
   const byId = new Map(quests.map((quest) => [quest.id, quest]));
@@ -279,7 +279,7 @@ const cycleThrough = (quests: Quest[]): string | null => {
     if (state.get(id) === "done") return null;
     if (state.get(id) === "open") return id;
     state.set(id, "open");
-    for (const next of requiredQuestIds(byId.get(id) ?? { requires: [] } as unknown as Quest)) {
+    for (const next of requiredQuestIds(byId.get(id))) {
       const found = byId.has(next) ? visit(next) : null;
       if (found) return found;
     }
@@ -365,15 +365,12 @@ const allowedValues = (leaf: GateLeaf): PrimitiveValue[] | null => {
   return null;
 };
 
+const disjoint = (mine: PrimitiveValue[] | null, theirs: PrimitiveValue[] | null): boolean =>
+  Boolean(mine && theirs && !theirs.some((value) => mine.includes(value)));
+
 export const gatesExclusive = (left: GateNode, right: GateNode): boolean => {
   const others = conjuncts(right);
-  return conjuncts(left).some((leaf) => {
-    const mine = allowedValues(leaf);
-    return Boolean(mine) && others.some((other) => {
-      const theirs = other.q === leaf.q ? allowedValues(other) : null;
-      return Boolean(theirs) && !theirs!.some((value) => mine!.includes(value));
-    });
-  });
+  return conjuncts(left).some((leaf) => others.some((other) => other.q === leaf.q && disjoint(allowedValues(leaf), allowedValues(other))));
 };
 
 export const endingsExclusive = (left: QuestEnding, right: QuestEnding): boolean =>
@@ -390,10 +387,11 @@ const timeOnly = (gate: GateNode): boolean => gateKeys(gate).every((key) => TIME
 
 const checkPrecedence = (quest: Quest, endings: readonly QuestEnding[], path: string, errors: ValidationError[]) => {
   const ids = endings.map((ending) => ending.id);
-  if (quest.precedence) {
-    quest.precedence.filter((id) => !ids.includes(id)).forEach((id) => addError(errors, `${path}.precedence`, `'${id}' is not a resolution of this quest`));
-    unique(quest.precedence, "resolution", `${path}.precedence`, errors, "");
-    const missing = ids.filter((id) => !quest.precedence!.includes(id));
+  const precedence = quest.precedence;
+  if (precedence) {
+    precedence.filter((id) => !ids.includes(id)).forEach((id) => addError(errors, `${path}.precedence`, `'${id}' is not a resolution of this quest`));
+    unique(precedence, "resolution", `${path}.precedence`, errors, "");
+    const missing = ids.filter((id) => !precedence.includes(id));
     if (missing.length) addError(errors, `${path}.precedence`, `precedence names every resolution: add ${missing.join(", ")}`);
     return;
   }
@@ -430,7 +428,9 @@ const checkSteps = (quest: Quest, path: string, errors: ValidationError[]) => qu
   if (target === undefined) return;
   const head = quest.steps[target];
   if (!head || target === index) addError(errors, `${path}.steps.${index}.alternative_of`, "alternative_of names another step of this quest");
-  else if (head.alternative_of !== undefined || head.optional) addError(errors, `${path}.steps.${index}.alternative_of`, "alternative_of names a required step, not another alternative or an optional step");
+  else if (head.alternative_of !== undefined || head.optional) {
+    addError(errors, `${path}.steps.${index}.alternative_of`, "alternative_of names a required step, not another alternative or an optional step");
+  }
   if (step.optional) addError(errors, `${path}.steps.${index}.optional`, "a step is optional or an alternative, not both");
 });
 

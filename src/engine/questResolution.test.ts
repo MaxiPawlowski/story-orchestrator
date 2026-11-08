@@ -49,7 +49,8 @@ const errorsOf = (json: unknown): string[] => {
 };
 
 const playing = (story = parseStoryOrThrow(raw()), on = true) => {
-  const engine = new StoryEngine({ now: () => 0, questResolutions: () => on });
+  const engine = new StoryEngine({ now: () => 0 });
+  engine.useQuestSwitch(() => on);
   engine.loadStory(story);
   let message = 0;
   const turn = (deltas: Record<string, PrimitiveValue>) => {

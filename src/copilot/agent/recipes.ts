@@ -39,7 +39,8 @@ export const RECIPES = {
       { tool: "readGuide", does: "read the quests and quest-resolutions topics; ask who wants what, what can be found out, and what happens if the player ignores it" },
       { tool: "readStory", does: "see the qualities, cast and beats the quest can lean on" },
       { tool: "addQuality", does: "one extractor quality per thing the player does or how (freed, paid, used force), each with a rubric; code qualities for what consequences set" },
-      { tool: "setQuests", does: "visible_when (the acceptance), steps, then the 2-4 resolutions that matter (a guide, not a quota) with labels, precedence when two can hold, and consequences with their method clause" },
+      { tool: "setQuests", does: "visible_when (the acceptance), steps, then the 2-4 resolutions that matter (a guide, not a quota): labels, "
+        + "precedence when two can hold, consequences with their method clause" },
       { tool: "setEchoes", does: "how a resolution shows later: an echo after {quest, to: <resolution>}", optional: true },
       { tool: "setMilestones", does: "a milestone for the moment worth marking; secret if it spoils", optional: true },
       { tool: "simulateQuest", does: "close the quest once per resolution and per method, and check what applies and what the player sees", optional: true },

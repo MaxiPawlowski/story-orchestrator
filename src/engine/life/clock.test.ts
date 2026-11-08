@@ -2,7 +2,7 @@ import { readdirSync, readFileSync } from "fs";
 import { join } from "path";
 import { StoryEngine } from "../engine";
 import { parseStory, parseStoryOrThrow } from "../validate";
-import { questStatus, valueReader } from "../quests";
+import { pendingStatus, questStatus, valueReader } from "../quests";
 import { rollbackMoved } from "../rollbackDetectors";
 import {
   CLOCK_DAY_KEY, CLOCK_MOVED_KEY, CLOCK_NIGHT_KEY, CLOCK_PART_KEY, CLOCK_READ_KEY, CLOCK_STORY_TIME_KEY, CLOCK_TIME_KEY, timeReachedKey,
@@ -419,7 +419,7 @@ describe("plan 50 T6: an offered quest never fails on story time alone", () => {
     const deliver = story.quests![0];
     const late = { story_day: 4, slept: false };
     expect(questStatus(deliver, valueReader(late))).toBe("hidden");
-    expect(questStatus(deliver, valueReader({ ...late, slept: true }))).toBe("failed");
+    expect(pendingStatus(deliver, valueReader({ ...late, slept: true }))).toBe("failed");
   });
 
   test("a reward never writes a story-time key", () => {

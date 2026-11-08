@@ -110,7 +110,7 @@ describe("v2.9 06 slice 1: anchors from what the player already sees", () => {
   });
 
   it("a quest with no open visible step anchors on its title; a hidden quest never anchors", () => {
-    const done = anchorCandidates(sources({ state: stateOf({ ...VALUES, found_lodgings: true, has_rope: true }) }), open);
+    const done = anchorCandidates(sources({ state: stateOf({ ...VALUES, found_lodgings: true, has_rope: true, quest_map_closed: "done" }) }), open);
     expect(done.filter((entry) => entry.kind.startsWith("quest"))).toEqual([]);
     const hidden = anchorCandidates(sources({ state: stateOf({ ...VALUES, met_ferryman: false }) }), open);
     expect(kinds(hidden)).not.toContain("quest-step");

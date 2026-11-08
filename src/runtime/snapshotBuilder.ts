@@ -142,7 +142,6 @@ export interface SnapshotSources {
   cuesAuthor?: import("./cuePort").CuesAuthorView | null;
   echoesAuthor?: import("@engine/life/echoView").EchoAuthorView | null;
   secretGrid?: import("./whoKnows").SecretGridInputs | null;
-  recordOn?: boolean;
   skip?: import("./skipGate").SkipView | null;
 }
 
@@ -204,7 +203,6 @@ export const snapshotSources = (port: SnapshotPort): SnapshotSources => ({
   cuesAuthor: port.cues?.authorView(port.extras.ui.authorView),
   echoesAuthor: port.echoes?.authorView(port.extras.ui.authorView),
   secretGrid: port.extras.ui.authorView ? port.memory.injector.secretGridInputs() : null,
-  recordOn: port.extras.ui.authorView && resolveFeatures(getGlobalSettings(), port.loaded?.story ?? null, port.extras.overrides).storyRecord.enabled,
   skip: port.loaded ? port.skip?.view(port.generating) ?? null : null,
 });
 

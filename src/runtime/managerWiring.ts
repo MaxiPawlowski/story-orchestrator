@@ -114,6 +114,7 @@ function wireMentions(port: ManagerPort, memory: MemoryCoordinator) {
 function wirePatterns(port: ManagerPort, memory: MemoryCoordinator) {
   const { view, engine, lifecycle } = port;
   const on = () => port.extras().memory.settings.patterns !== false;
+  engine.useQuestSwitch(() => resolveFeatures(getGlobalSettings(), port.loaded()?.story ?? null, port.extras().overrides).questResolutions.enabled);
   return {
     port: createPatternsPort({
       engine, loaded: port.loaded, extras: port.extras, enabled: on, persist: lifecycle.persist, notify: lifecycle.notify, refresh: () => memory.updateInjection(),

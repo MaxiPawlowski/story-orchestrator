@@ -16,7 +16,8 @@ export const resolutionStory = (): StoryDraft => {
   const base = gameStory();
   return {
     ...base,
-    qualities: [...base.qualities, { key: "coins", type: "int", source: "code", rubric: "Coins the party holds." }, { key: "asked_debt", type: "bool", source: "extractor", rubric: "Asked about the debt." },
+    qualities: [...base.qualities, { key: "coins", type: "int", source: "code", rubric: "Coins the party holds." },
+      { key: "asked_debt", type: "bool", source: "extractor", rubric: "Asked about the debt." },
       { key: "refused_debt", type: "bool", source: "extractor", rubric: "Refused to help." }],
     quests: [{
       id: "debt", title: "The ferryman's debt", kind: "side", giver: "guide", steps: [],

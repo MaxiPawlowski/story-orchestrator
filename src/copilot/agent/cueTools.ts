@@ -45,3 +45,13 @@ export const ECHO_EDIT_TOOLS = {
     },
   },
 } as const;
+
+const opt = (type: "string" | "object", doc: string) => ({ type, required: false, doc });
+
+export const QUEST_SIMULATE_TOOLS = {
+  simulateQuest: {
+    family: "simulate" as const,
+    doc: "Close one quest once against set quality values: which resolution wins, which consequences apply, what changes and what the player sees.",
+    args: { quest: req("string", "quest id"), values: opt("object", "{qualityKey: value} at the close"), resolution: opt("string", "force this resolution") },
+  },
+};

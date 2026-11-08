@@ -80,7 +80,7 @@ const REPAIR_ORDER = [
   "cast-absent", "cast-unbound", "cast-muted", "lore-absent", "lore-unscanned", "lore-hidden", "persona-absent", "persona-unselected", "memory-slot-taken", "save-unconfirmed", "persona-fit", "persona-lock",
   "model-role-outage", "context-over-server", "transcript-copiers", "model-not-thinking", "tunnelvision-story-lore", "stepped-thinking-separated", "presence-hides-chat", "prompt-inspector-on", "two-polishers", "persona-switch", "persona-fit-cast", "lore-budget-starved", "library-lost-to-tab", "state-size-large", "chapter-unsummarized", "wi-gating-drift", "story-lore-global", "orphaned-lorebooks", "judge-route-uncalibrated", "styles-missing",
   "images-on-no-service", "image-model-missing", "image-model-retired", "image-prompt-profile-missing", "story-workflow-missing", "stage-pack-missing", "quest-scope-overflow", "relationship-scope-overflow",
-  "discovery-scope-overflow", "patterns-unavailable", "quest-resolution-ambiguous", "quest-consequence-conflict",
+  "discovery-scope-overflow", "patterns-unavailable",
 ];
 
 const duplicateIds = (registry: readonly Check[]): string[] =>
