@@ -1,5 +1,7 @@
 # Owner playtest — 2026-10-25
 
+Superseded by `docs/plans/v3.0/owner-playtest-2026-11-08.md` (never run).
+
 Two parts. Part A is a short test (30–45 min). Part B is your own play, as long as you like. Nothing here spoils the campaign.
 
 ## Before you start
