@@ -30,7 +30,7 @@ const later: EngineState = {
   boundary: 30, checkpointStartedBoundary: 30, checkpointStartedAt: 0, checkpointStartedMessageId: 99, lastMessageId: 99, chatLength: 100,
 };
 
-const harness = (chronicleTokens = 700) => {
+const harness = (chronicleTokens = 700, overrides: Partial<ChapterSealDeps> = {}) => {
   const context: RunContext = { chatId: "chat-a", storyId: "chapters-mini", storyHash: "h1", sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
   const ownership: RunOwnership = { mint: (window = null) => mintToken(context, window), check: (token) => tokenMatches(context, token) };
   let memory = {
@@ -57,6 +57,7 @@ const harness = (chronicleTokens = 700) => {
     playerName: () => "You",
     journal: () => {},
     announce: async (text) => { announced.push(text); }, resting: () => (text) => text,
+    ...overrides,
   };
   return { seal: new ChapterSeal(deps), memory: () => memory, set: (next: Partial<MemoryRuntimeState>) => { memory = { ...memory, ...next }; }, announced, onModel, context };
 };
@@ -64,6 +65,29 @@ const harness = (chronicleTokens = 700) => {
 const arrival = story.chapterById!.arrival;
 const atWalls = (messageId: number, boundary = messageId): SealAt => ({
   boundary, messageId, pathLength: 3, path: ["gate", "market", "walls"], activeCheckpointId: "walls", blackboard: { step: 3, tension: 0.4 },
+});
+
+describe("fault matrix: the seal's save and its one host write", () => {
+  it("a chat switch during the save keeps the sealed record and posts no title card or journal line", async () => {
+    const journal = jest.fn();
+    let switchTo: (() => void) | null = null;
+    const h = harness(700, { save: async () => { switchTo?.(); }, journal });
+    switchTo = () => { h.context.chatId = "chat-b"; };
+    const record = await h.seal.seal({ chapter: arrival, part: 1, final: false }, atWalls(10));
+    expect(record?.id).toBeTruthy();
+    expect(h.memory().chapters).toHaveLength(1);
+    expect(h.announced).toEqual([]);
+    expect(journal).not.toHaveBeenCalled();
+  });
+
+  it("a save that lands nothing keeps the sealed record in memory for the next save to carry", async () => {
+    let saves = 0;
+    const h = harness(700, { save: async () => { saves += 1; } });
+    const record = await h.seal.seal({ chapter: arrival, part: 1, final: false }, atWalls(10));
+    expect(saves).toBe(1);
+    expect(h.memory().chapters?.map((chapter) => chapter.id)).toEqual([record?.id]);
+    expect(h.announced).toEqual(["◆ Chapter 2 — The Siege"]);
+  });
 });
 
 describe("CR-E1: the deferred seal reads the boundary it was scheduled at, not a later one", () => {

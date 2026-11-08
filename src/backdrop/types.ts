@@ -72,6 +72,7 @@ export interface BackdropLayerContext {
   assets: BackdropAssets;
   baseTexture(): WebGLTexture | null;
   baseSize(): { width: number; height: number };
+  vertexShader: string;
   program(vertex: string, fragment: string): WebGLProgram;
   texture(url: string): Promise<WebGLTexture | null>;
   drawQuad(): void;
@@ -101,6 +102,17 @@ export interface BackdropLayerOptions {
   gate?: BackdropGate;
   auto?: (input: BackdropAutoInput) => BackdropLayerSpec | null;
 }
+
+export interface BackdropBootContext {
+  story(): import("@engine/index").NormalizedStory | null;
+  checkpointId(): string | null;
+  chatId(): string | null;
+  tier(): BackdropLoopTier;
+  hostGenerating(): boolean;
+  subscribe(listener: () => void): () => void;
+}
+
+export type BackdropBootHook = (context: BackdropBootContext) => Promise<(() => void) | void>;
 
 export type BackdropAssetLookup = (base: BackdropBase) => Partial<BackdropAssets> | null | Promise<Partial<BackdropAssets> | null>;
 

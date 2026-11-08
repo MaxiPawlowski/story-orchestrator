@@ -23,4 +23,9 @@ export const lorebookFileId = (name: string): string => [...name.trim()].filter(
 
 export const runsAsCommand = (text: string): boolean => /^\s*\//.test(text);
 
-export const truncate = (value: string, limit: number) => (value.length > limit ? `${value.slice(0, limit)}…` : value);
+export const clipText = (value: string, limit: number): string => {
+  const cut = value.slice(0, Math.max(0, limit));
+  return /[\uD800-\uDBFF]$/.test(cut) ? cut.slice(0, -1) : cut;
+};
+
+export const truncate = (value: string, limit: number) => (value.length > limit ? `${clipText(value, limit)}…` : value);
