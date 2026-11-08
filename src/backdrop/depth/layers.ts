@@ -24,12 +24,13 @@ export function parallaxLayer(context: BackdropLayerContext, spec: BackdropLayer
     kind: "parallax",
     order: PARALLAX_ORDER,
     fps: 60,
+    usesAssets: true,
     update(next) { strength = clampStrength(num(next, "strength", PARALLAX.strength)); },
     modifyBase(frame: BackdropFrame): BackdropBaseModifier | null {
       const motion = frame.reducedMotion ? 0 : frame.intensity;
       current = easeToward(current, cameraOffset(frame.time, frame.pointer, { ...PARALLAX, strength }, motion), frame.dt, PARALLAX.halfLifeS);
       if (!depth.texture) return null;
-      return { depth: { texture: depth.texture, offset: [current.x, -current.y], scale: overscan(strength), focus: PARALLAX.focus } };
+      return { depth: { texture: depth.texture, offset: [current.x, -current.y], scale: overscan(strength * Math.min(1, motion)), focus: PARALLAX.focus } };
     },
     draw() { return undefined; },
     dispose() { depth.disposed = true; },
@@ -47,6 +48,7 @@ export function depthFogLayer(context: BackdropLayerContext, spec: BackdropLayer
     kind: "depthFog",
     order: DEPTH_FOG_ORDER,
     fps: 30,
+    usesAssets: true,
     update: read,
     modifyBase(frame: BackdropFrame): BackdropBaseModifier | null {
       const amount = fogDensity(frame.state, frame.intensity) * density;
