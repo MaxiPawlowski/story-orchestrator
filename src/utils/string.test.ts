@@ -1,4 +1,17 @@
-import { quoteSlashArg, runsAsCommand } from "./string";
+import { clipText, quoteSlashArg, runsAsCommand, truncate } from "./string";
+
+describe("harvest 2026-11-08: clipping never leaves half of a surrogate pair", () => {
+  it("drops a high surrogate the cut would leave at the end", () => {
+    expect(clipText("ab\u{1F600}cd", 3)).toBe("ab");
+    expect(truncate("ab\u{1F600}cd", 3)).toBe("ab…");
+  });
+
+  it("keeps a whole pair and plain text as they were", () => {
+    expect(clipText("ab\u{1F600}cd", 4)).toBe("ab\u{1F600}");
+    expect(clipText("abcdef", 3)).toBe("abc");
+    expect(truncate("abc", 5)).toBe("abc");
+  });
+});
 
 const decodeStrictQuotedArg = (encoded: string): string => {
   if (!encoded.startsWith('"')) throw new Error("not a quoted value");
