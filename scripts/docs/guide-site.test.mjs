@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { existsSync, readFileSync, rmSync } from "node:fs";
 import { dirname, join, posix } from "node:path";
 import { buildSite, fileFor, homeLayout, navSections, relativeHref } from "./guide-site.mjs";
+import { brokenSiteLinks, MERMAID_URL } from "./site-extras.mjs";
 import { testTempDirSync } from '../lib/testTemp.mjs';
 
 const out = testTempDirSync("guide-site-");
@@ -18,27 +19,34 @@ test("every bundled page becomes one HTML file, plus the search index", () => {
   assert.ok(existsSync(join(out, ".nojekyll")));
 });
 
-test("every link between pages lands on a generated file and, when it names a heading, on its id", () => {
-  const broken = [];
-  for (const file of pageFiles) {
-    const html = readFileSync(join(out, file), "utf8");
-    for (const [, href] of html.matchAll(/href="([^"]+)"/g)) {
-      if (/^(https?:|mailto:)/.test(href)) continue;
-      const [path, anchor] = href.split("#");
-      const target = posix.normalize(posix.join(posix.dirname(file), path));
-      if (!existsSync(join(out, target))) { broken.push(`${file} -> ${href}`); continue; }
-      if (anchor && !readFileSync(join(out, target), "utf8").includes(`id="${anchor}"`)) broken.push(`${file} -> ${href} (no heading)`);
-    }
-  }
-  assert.deepEqual(broken, []);
+test("every link and src in the built site lands on a file and, when it names a heading, on its id", () => {
+  assert.deepEqual(brokenSiteLinks(out), []);
 });
 
-test("the only script on a page is the search script, and page content carries no raw HTML from the docs", () => {
+test("pages carry the search script, plus the pinned Mermaid module only where a diagram is; content has no raw HTML from the docs", () => {
+  let diagrams = 0;
   for (const file of pageFiles) {
     const html = readFileSync(join(out, file), "utf8");
-    assert.equal((html.match(/<script/g) ?? []).length, 1, file);
-    assert.doesNotMatch(html.split("<main>")[1].split("<script>")[0], /<(script|iframe|object)\b|on[a-z]+=/i, file);
+    const mermaid = html.includes('<pre class="mermaid">');
+    diagrams += mermaid ? 1 : 0;
+    assert.equal((html.match(/<script/g) ?? []).length, mermaid ? 2 : 1, file);
+    if (mermaid) assert.ok(html.includes(`import mermaid from "${MERMAID_URL}"`), file);
+    const main = html.split("<main>")[1].split("<script>")[0];
+    assert.doesNotMatch(main, /<(script|object)\b|on[a-z]+=/i, file);
+    for (const [frame] of main.matchAll(/<iframe\b[^>]*>/g)) assert.doesNotMatch(/src="([^"]*)"/.exec(frame)?.[1] ?? "", /^(?:[a-z]+:|\/)/i, `${file}: ${frame}`);
   }
+  assert.ok(diagrams >= 9, `only ${diagrams} pages draw a diagram`);
+  assert.match(MERMAID_URL, /mermaid@\d+\.\d+\.\d+\//);
+});
+
+test("How it works and Showcase are site sections in the nav and the header, and /ui/ always resolves", () => {
+  const html = readFileSync(join(out, "player/playing.html"), "utf8");
+  const nav = html.split("<nav")[1].split("</nav>")[0];
+  assert.match(nav, /<h2>How it works<\/h2>/);
+  assert.match(nav, /<h2>Showcase<\/h2>/);
+  assert.match(html, /href="\.\.\/ui\/index\.html"/);
+  assert.ok(existsSync(join(out, "ui", "index.html")));
+  assert.ok(existsSync(join(out, "how", "index.html")) && existsSync(join(out, "showcase", "index.html")));
 });
 
 test("guide images are copied into the site and each img points at a copied asset", () => {
@@ -80,8 +88,9 @@ test("the nav lists every page once, in the guide's own sections and order", () 
   assert.equal(new Set(links).size, links.length);
   assert.deepEqual([...links].sort(), [...pageFiles].sort());
   const summaries = [...nav.matchAll(/<summary>([^<]+)<\/summary>/g)].map((match) => match[1]);
-  assert.deepEqual(summaries, ["Start here", "Play", "Set up", "Start here", "Tools", "Reference", "Story fields"]);
+  assert.deepEqual(summaries, ["Start here", "Play", "Set up", "Start here", "Tools", "Reference", "Story fields", "Diagrams", "Demos"]);
   assert.ok(links.indexOf("author/fields/story.html") < links.indexOf("author/fields/game-layer.html"));
+  assert.ok(links.indexOf("how/turn.html") < links.indexOf("how/wizard.html"));
 });
 
 test("a page missing from the guide's sections still reaches the nav, under More pages", () => {

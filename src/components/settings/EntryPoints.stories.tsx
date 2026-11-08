@@ -83,12 +83,12 @@ export const RepairNamesADeadTaskModel: Story = {
 
 export const RepairOffersTheWizardForACast: Story = {
   args: {
-    snapshot: base({ requirements: { ready: false, missingPersonas: [], missingMembers: ["Belle", "Dalan"], missingLorebooks: ["Wendhope"] } }),
+    snapshot: base({ requirements: { ready: false, missingPersonas: [], missingMembers: ["Juno", "Tobin"], missingLorebooks: ["Wendhope"] } }),
   },
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
     await expect(canvas.getByText(/characters who are not in this group/)).toBeInTheDocument();
-    await expect(canvas.getByText("No card on this install: Belle, Dalan")).toBeInTheDocument();
+    await expect(canvas.getByText("No card on this install: Juno, Tobin")).toBeInTheDocument();
     // The cast is the step, not the lore behind it.
     await expect(canvasElement.querySelector("[data-so='repair-step']")).toHaveAttribute("data-area", "cast");
     await userEvent.click(canvas.getByRole("button", { name: "Fix with wizard" }));

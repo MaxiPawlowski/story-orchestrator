@@ -52,6 +52,7 @@ const tokenHost: TokenHost = { countTokens };
 
 const mirrorHost: MirrorHost = {
   ensureLorebook, loadLorebook, upsertWIEntry, disableWIEntry, bindChatLorebook, owner: currentChatOwner, scanActive: scanGatingActive, unbindChatLorebook,
+  listLorebooks: listAllLorebooks, readWIEntry,
 };
 
 export const coordinatorHosts = {

@@ -69,9 +69,9 @@ export const LapsedIntentIsHiddenAndUsedBeatSaysSo: Story = {
 export const EmptyCastCollapsesIntoACount: Story = {
   args: {
     snapshot: {
-      ...snapshotWith({ epistemic: [intent("i1", "Forre", "have the party report to him", 8)] }),
+      ...snapshotWith({ epistemic: [intent("i1", "Ossian", "have the party report to him", 8)] }),
       innerCast: [
-        { id: "forre", name: "Forre" },
+        { id: "ossian", name: "Ossian" },
         ...Array.from({ length: 19 }, (_, index) => ({ id: `extra-${index}`, name: `Extra ${index + 1}` })),
       ],
     } as unknown as RuntimeSnapshot,

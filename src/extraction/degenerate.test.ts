@@ -2,6 +2,27 @@ import { detectDegenerate } from "./degenerate";
 
 const words = (count: number, seed: string) => Array.from({ length: count }, (_, index) => `${seed}${index}`).join(" ");
 
+describe("harvest 2026-11-08 B4: short loops the word splitter cannot see", () => {
+  it("refuses a single character run and a short unit looping at the tail", () => {
+    expect(detectDegenerate(`She opened her mouth: ${"a".repeat(40)}`)).toMatchObject({ degenerate: true });
+    expect(detectDegenerate(`彼は言った。${"あ".repeat(30)}`)).toMatchObject({ degenerate: true });
+    expect(detectDegenerate(`The guard turned.${" no".repeat(20)}`)).toMatchObject({ degenerate: true });
+    expect(detectDegenerate(`Then:${"ha".repeat(15)}`)).toMatchObject({ degenerate: true });
+  });
+
+  it.each([
+    ["ellipses", "Well... I... I don't know......... maybe."],
+    ["a stutter", "I-I-I c-can't, I just can't do it."],
+    ["a laugh", "Ha ha ha! You really thought that would work? Ha ha ha ha."],
+    ["an elongated word", "Noooooooooo! Ahhhhhhhh, wait!"],
+    ["a divider", `Chapter end\n${"-".repeat(40)}\n${"=".repeat(40)}\n* * * * * * * * * * * * * * *`],
+    ["CJK laughter", "ははは、そうだね。ふふふ。"],
+    ["a numbered list", "1. one\n2. two\n3. three\n4. four"],
+  ])("passes %s", (_, reply) => {
+    expect(detectDegenerate(reply)).toEqual({ degenerate: false });
+  });
+});
+
 describe("detectDegenerate: a model stuck in a loop is refused, not parsed (v2.4 plan 03 D6)", () => {
   it("refuses the same line four times", () => {
     const reply = ["DELTA crossed value=true evidence=\"x\"", "The bridge holds.", "The bridge holds.", "The bridge holds.", "The bridge holds."].join("\n");

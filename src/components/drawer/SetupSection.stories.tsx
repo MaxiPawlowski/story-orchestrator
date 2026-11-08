@@ -17,7 +17,7 @@ const snapshot = (overrides: Record<string, unknown> = {}): RuntimeSnapshot => (
 
 const many = {
   extraction: { settings: { enabled: true, profileId: null } },
-  requirements: { ready: false, missingPersonas: [], missingMembers: ["Belle"], absentMembers: [], missingLorebooks: [] },
+  requirements: { ready: false, missingPersonas: [], missingMembers: ["Juno"], absentMembers: [], missingLorebooks: [] },
   secretLeaks: ["Summarize"],
   thinkingSilent: true,
 };
@@ -67,8 +67,8 @@ export const ManyFindingsWithAOneClickFix: Story = {
     const canvas = within(canvasElement);
     const rows = [...canvasElement.querySelectorAll('[data-so="setup-row"]')].map((row) => row.getAttribute("data-check"));
     await expect(rows).toEqual(["memory-model", "cast-unbound", "transcript-copiers", "model-not-thinking"]);
-    await userEvent.click(canvas.getByRole("button", { name: "Add Belle back to the group" }));
-    await expect(args.onFix).toHaveBeenCalledWith({ kind: "add-members", members: ["Belle"], label: "Add Belle back to the group" });
+    await userEvent.click(canvas.getByRole("button", { name: "Add Juno back to the group" }));
+    await expect(args.onFix).toHaveBeenCalledWith({ kind: "add-members", members: ["Juno"], label: "Add Juno back to the group" });
     await expect(canvasElement.querySelectorAll('[data-so="setup-detail"]')).toHaveLength(0);
   },
 };

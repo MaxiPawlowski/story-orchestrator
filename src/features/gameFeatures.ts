@@ -6,7 +6,7 @@ import { drawerAt } from "./where";
 export const GAME_FEATURES: readonly Feature[] = [
   {
     id: "journal", name: "Journal", area: "play", audience: "player",
-    oneLine: "A movable panel with your quests and a log of what happened, for stories that keep quests.",
+    oneLine: "A story sheet page with your quests and a log of what happened, for stories that keep quests.",
     what: "The main line lists the places you have reached and what you are doing now. Side quests show once you find them, with their steps and progress, "
       + "and a quest you leave behind stays in the list. The log names what you did, where the story moved and the public checks. A swipe takes all of it back.",
     where: drawerAt("#so-open-journal", "Journal"),
@@ -15,7 +15,7 @@ export const GAME_FEATURES: readonly Feature[] = [
   },
   {
     id: "stat-sheet", name: "Stat sheet", area: "play", audience: "player",
-    oneLine: "A movable panel with what you carry and the meters the story shows in the open.",
+    oneLine: "A story sheet page with what you carry and the meters the story shows in the open.",
     what: "Only what the author made public shows: items once you have them, counts, meters and words such as \"Hurt\". Nothing hidden is ever sent to the panel.",
     where: drawerAt("#so-open-stat-sheet", "Stat sheet"),
     settings: ["display.presence.statSheet"], doc: "player/drawer-and-hud.md", status: "shipped", needs: ["story"],

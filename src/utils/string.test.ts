@@ -1,4 +1,23 @@
-import { clipText, quoteSlashArg, runsAsCommand, truncate } from "./string";
+import { clipText, lorebookFileId, quoteSlashArg, runsAsCommand, truncate } from "./string";
+
+describe("harvest 2026-11-08 B3: lorebookFileId follows ST's sanitize(name + \".json\")", () => {
+  it("drops illegal and control characters and keeps edge spaces, which the server keeps too", () => {
+    expect(lorebookFileId("Who: Me?")).toBe("Who Me");
+    expect(lorebookFileId(" Book ")).toBe(" Book ");
+    expect(lorebookFileId("Tab\u0007Book")).toBe("TabBook");
+  });
+
+  it("caps the file name at 255 UTF-8 bytes, ext included, the way the server files it", () => {
+    const long = "a".repeat(260);
+    expect(lorebookFileId(long)).toBe("a".repeat(255));
+    expect(lorebookFileId("a".repeat(250))).toBe("a".repeat(250));
+    expect(lorebookFileId("é".repeat(200))).toBe("é".repeat(127));
+  });
+
+  it("a reserved Windows name sanitises to nothing", () => {
+    expect(lorebookFileId("con")).toBe("");
+  });
+});
 
 describe("harvest 2026-11-08: clipping never leaves half of a surrogate pair", () => {
   it("drops a high surrogate the cut would leave at the end", () => {
