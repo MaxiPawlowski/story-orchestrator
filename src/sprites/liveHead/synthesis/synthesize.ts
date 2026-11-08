@@ -4,6 +4,7 @@ import { HAND_LAYER, HEAD_LAYERS, HEAD_MANIFEST_VERSION, loadHeadManifest, manif
 import { parseLandmarks } from "./landmarks";
 import { synthesizeRig } from "./rigGeometry";
 import { cutHeadLayers } from "./layers";
+import { refineEyes } from "./eyeRefine";
 import { base64 } from "./png";
 import type { LandmarkChecker } from "./detectorCheck";
 import type { LandmarkCrossCheck } from "./landmarkCheck";
@@ -42,7 +43,7 @@ export async function synthesizeCheckedHead(input: RigSynthesisInput, run: RunGu
   const marks = parseLandmarks(raw, image);
   const check = deps.check ? await deps.check(png, marks, run.signal) : undefined;
   if (!run.stillOwns()) return null;
-  const rig = synthesizeRig(marks);
+  const rig = synthesizeRig(refineEyes(image, marks));
   const cut = cutHeadLayers(image, rig), layers = [];
   for (const layer of cut) {
     const data = await deps.encode(layer.image);

@@ -50,6 +50,16 @@ function skinColour(image: PixelImage, rect: Rect): { colour: [number, number, n
   return { colour, tolerance: Math.max(22, Math.min(60, spread * 3)) };
 }
 
+type EyeMasks = Record<"ball" | "low" | "crease" | "lash", Uint8Array>;
+
+function withFringe(masks: EyeMasks, part: "lash" | "low", opening: Uint8Array, visible: (k: number) => boolean, rw: number, rh: number): Uint8Array {
+  const mask = masks[part], grown = new Uint8Array(mask);
+  const taken = (k: number) => mask[k] || opening[k] || masks.ball[k] || masks.crease[k] || masks.lash[k] || masks.low[k];
+  const touches = (x: number, y: number, k: number) => (x > 0 && mask[k - 1]) || (x < rw - 1 && mask[k + 1]) || (y > 0 && mask[k - rw]) || (y < rh - 1 && mask[k + rw]);
+  for (let k = 0; k < mask.length; k++) if (!taken(k) && visible(k) && touches(k % rw, Math.floor(k / rw), k)) grown[k] = 1;
+  return grown;
+}
+
 function eyeMasks(image: PixelImage, eye: Eye, rect: Rect) {
   const [rx, ry, rw, rh] = rect, count = rw * rh;
   const opening = new Uint8Array(count), ball = new Uint8Array(count);
@@ -92,6 +102,7 @@ function eyeMasks(image: PixelImage, eye: Eye, rect: Rect) {
     else if (upper) masks.lash[k] = 1;
     else masks.low[k] = 1;
   }
+  for (const part of ["lash", "low"] as const) masks[part] = withFringe(masks, part, opening, (k) => image.data[at(k % rw, Math.floor(k / rw)) + 3] > 0, rw, rh);
   return { masks, skin: skin.colour };
 }
 

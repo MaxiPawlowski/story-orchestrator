@@ -5,6 +5,7 @@ import type { Actor } from "../castLoad";
 import { actorHeadLooks } from "../liveHeadStage";
 import { restHead } from "./drivers";
 import { browWeight, deformInto } from "./geometry";
+import { roiRect } from "./synthesis/layers";
 import { HeadDriver } from "./headDriver";
 import { MotionDriver } from "./motionDriver";
 import { alignmentProblem, clearLookCache, cutLook, expressionTexture, HeadLooks, lookArt, prepareLook, squinted, type LookSurface, type PreparedLook } from "./expressions";
@@ -92,6 +93,12 @@ describe("cutting an expression onto the rig", () => {
     const squint = cutLook(rig, "angry", neutral, { image: squinting }, {});
     if (typeof squint === "string") throw new Error(squint);
     expect(squint.gaze).toEqual([false, false]);
+    for (const layer of squint.layers.filter((entry) => entry.name.startsWith("eye"))) expect(layer.image.data.every((value) => value === 0)).toBe(true);
+    const base = squint.layers.find((layer) => layer.name === "base")!.image, [rx, ry, rw, rh] = roiRect(rig.eyes[0], squinting);
+    for (let y = ry; y < ry + rh; y++) for (let x = rx; x < rx + rw; x++) {
+      const at = (y * squinting.width + x) * 4;
+      expect(Array.from(base.data.subarray(at, at + 4))).toEqual(Array.from(squinting.data.subarray(at, at + 4)));
+    }
   });
   test("a misaligned expression is refused before cutting", () => {
     expect(cutLook(rig, "happy", neutral, { image: shifted(smiling, 4) }, {})).toMatch(/not aligned/);
@@ -190,6 +197,13 @@ describe("a textured expression is not warped twice, and brows never move the li
     deformInto(rig, x, y, { ...restHead(), browY: -1, browAngle: 1 }, out);
     expect(out).toEqual([x, y]);
     expect(browWeight(rig, rig.face.brow.cx, Math.min(...eye.top) - 20)).toBeGreaterThan(0);
+  });
+  test("an angry brow angle lowers both inner ends and raises both outer ends", () => {
+    const brow = rig.face.brow, y = brow.cy, moved = (x: number) => { const out = [0, 0]; deformInto(rig, x, y, { ...restHead(), browAngle: 1 }, out); return out[1] - y; };
+    const inner = [brow.cx - brow.rx * 0.1, brow.cx + brow.rx * 0.1].map(moved), outer = [brow.cx - brow.rx * 0.9, brow.cx + brow.rx * 0.9].map(moved);
+    expect(inner.every((dy) => dy > 0)).toBe(true);
+    expect(outer.every((dy) => dy < 0)).toBe(true);
+    expect(inner[0]).toBeCloseTo(inner[1], 6);
   });
 });
 
