@@ -44,6 +44,7 @@ uniform vec4 uIris[2];
 uniform vec4 uMouth;
 uniform vec4 uMouthState;
 uniform vec4 uCheeks;
+uniform vec4 uCheekSize;
 uniform float uCheek;
 
 const int EYE_N = 24;
@@ -189,8 +190,8 @@ void main() {
   vec4 c;
   if (uFace == 1) {
     c = mouth(p, texAt(p));
-    float blush = exp(-dot((p - uCheeks.xy) / vec2(48.0, 22.0), (p - uCheeks.xy) / vec2(48.0, 22.0)))
-                + exp(-dot((p - uCheeks.zw) / vec2(40.0, 20.0), (p - uCheeks.zw) / vec2(40.0, 20.0)));
+    float blush = exp(-dot((p - uCheeks.xy) / uCheekSize.xy, (p - uCheeks.xy) / uCheekSize.xy))
+                + exp(-dot((p - uCheeks.zw) / uCheekSize.zw, (p - uCheeks.zw) / uCheekSize.zw));
     c.rgb = mix(c.rgb, c.rgb * vec3(1.0, 0.62, 0.64) , clamp(blush * uCheek * 0.55, 0.0, 1.0) * c.a);
   } else if (uFace >= 2) {
     c = eyeBall(uFace - 2, p);

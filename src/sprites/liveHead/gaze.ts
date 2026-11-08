@@ -90,6 +90,12 @@ export function gazeLimits(eye: Eye, span: IrisSpan | null): [number, number] | 
   return [Math.min(0, at(first) + span[1] - span[0]), Math.max(0, at(last) - span[1] - span[0])];
 }
 
+export const GAZE_Y_SHARE = 0.18;
+export const gazeTravelY = (eye: Eye): number => {
+  const mid = Math.floor((eye.top.length - 1) / 2);
+  return Math.min(GAZE_TRAVEL.y, Math.max(0, eye.bot[mid] - eye.top[mid]) * GAZE_Y_SHARE);
+};
+
 export const limitGaze = (dx: number, limits: [number, number] | null): number => limits ? Math.min(limits[1], Math.max(limits[0], dx)) : dx;
 
 export function gazeOffset(eye: number, gazeX: number, gazeY: number): [number, number] {

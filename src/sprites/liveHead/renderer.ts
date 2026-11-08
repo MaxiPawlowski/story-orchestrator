@@ -28,7 +28,7 @@ import { deformInto, deformWeighted, eyeVertexY, headGrid, vertexWeights, type H
 import { HairPhysics, strandField } from "./hair";
 import { HandBones, handWeights } from "./hand";
 import { VS, FS } from "./shaders";
-import { GAZE_TRAVEL, eyeTone, gazeLimits, irisSpan, limitGaze, type IrisSpan, type Tone } from "./gaze";
+import { GAZE_TRAVEL, eyeTone, gazeLimits, gazeTravelY, irisSpan, limitGaze, type IrisSpan, type Tone } from "./gaze";
 import { DrawnDirector, mouthInner, squashVertex, type DrawnSprite, type DrawnState } from "./drawn";
 import { MeshMouth, meshMouthMode, mouthRegionProblem, type MeshMouthMode } from "./meshMouth";
 import { DEFAULT_MOUTH_CONFIG, type MouthConfig } from "../mouthConfig";
@@ -53,6 +53,8 @@ interface Look {
 }
 
 const ERROR_CHECK_EVERY = 120;
+export const CHEEK_SIZE = [0.5, 0.24, 0.45, 0.22] as const;
+export const MAX_HEAD_DPR = 2;
 export const LOOK_FADE_MS = 220;
 
 const newLook = (name: string | null, gaze: [boolean, boolean] = [true, true]): Look =>
@@ -84,6 +86,8 @@ export class HeadRenderer {
   private readonly eyeTop: Float32Array;
   private readonly eyeBot: Float32Array;
   private readonly cheeks: Float32Array;
+  private readonly cheekSize: Float32Array;
+  private readonly travelY: [number, number];
   private readonly eyeState = new Float32Array(8);
   private readonly base = newLook(null);
   private readonly looks = new Map<string, Look>();
@@ -108,6 +112,9 @@ export class HeadRenderer {
     this.eyeTop = new Float32Array(eyes.flatMap((eye) => eye.top));
     this.eyeBot = new Float32Array(eyes.flatMap((eye) => eye.bot));
     this.cheeks = new Float32Array(manifest.rig.cheeks.flat());
+    const span = Math.max(1, Math.abs((eyes[1]?.x0 ?? 0) + (eyes[1]?.x1 ?? 0) - eyes[0].x0 - eyes[0].x1) / 2);
+    this.cheekSize = new Float32Array([span * CHEEK_SIZE[0], span * CHEEK_SIZE[1], span * CHEEK_SIZE[2], span * CHEEK_SIZE[3]]);
+    this.travelY = [gazeTravelY(eyes[0]), gazeTravelY(eyes[1] ?? eyes[0])];
     this.mouthBroken = mouthRegionProblem(manifest.rig) !== null;
     this.meshMouth = new MeshMouth(meshMouthMode(manifest.rig, false, mouth), mouth);
     const program = gl.createProgram();
@@ -263,7 +270,7 @@ export class HeadRenderer {
     this.lastTime = now;
     if (this.closed || gl.isContextLost()) throw new Error("Live head context was lost.");
     if (canvas.parentElement?.parentElement?.classList.contains("so-framed")) canvas.style.width = `${canvas.clientHeight * rig.image.width / rig.image.height}px`;
-    const dpr = Math.min(window.devicePixelRatio || 1, 1.5, 1024 / Math.max(1, canvas.clientWidth, canvas.clientHeight));
+    const dpr = Math.min(window.devicePixelRatio || 1, MAX_HEAD_DPR, 1024 / Math.max(1, canvas.clientWidth, canvas.clientHeight));
     const width = Math.max(1, Math.round(canvas.clientWidth * dpr)), height = Math.max(1, Math.round(canvas.clientHeight * dpr));
     if (canvas.width !== width || canvas.height !== height) { canvas.width = width; canvas.height = height; }
     const scale = Math.min(width / rig.image.width, height / rig.image.height);
@@ -315,13 +322,13 @@ export class HeadRenderer {
     gl.uniform4fv(this.uniform("uEyeBox"), this.eyeBox);
     gl.uniform1fv(this.uniform("uEyeTop"), this.eyeTop); gl.uniform1fv(this.uniform("uEyeBot"), this.eyeBot);
     const g0 = look.gaze[0] ? 1 : 0, g1 = look.gaze[1] ? 1 : 0;
-    state[0] = p.eyeOpen; state[1] = p.eyeSmile; state[2] = g0 * limitGaze(p.gazeX * GAZE_TRAVEL.x[0], look.limits[0]); state[3] = -g0 * p.gazeY * GAZE_TRAVEL.y;
-    state[4] = p.eyeOpen; state[5] = p.eyeSmile; state[6] = g1 * limitGaze(p.gazeX * GAZE_TRAVEL.x[1], look.limits[1]); state[7] = -g1 * p.gazeY * GAZE_TRAVEL.y;
+    state[0] = p.eyeOpen; state[1] = p.eyeSmile; state[2] = g0 * limitGaze(p.gazeX * GAZE_TRAVEL.x[0], look.limits[0]); state[3] = -g0 * p.gazeY * this.travelY[0];
+    state[4] = p.eyeOpen; state[5] = p.eyeSmile; state[6] = g1 * limitGaze(p.gazeX * GAZE_TRAVEL.x[1], look.limits[1]); state[7] = -g1 * p.gazeY * this.travelY[1];
     gl.uniform4fv(this.uniform("uEyeState"), state);
     if (look.toned || this.toneSent) { gl.uniform4fv(this.uniform("uSclera"), look.sclera); gl.uniform4fv(this.uniform("uIris"), look.iris); this.toneSent = true; }
     gl.uniform4f(this.uniform("uMouth"), rig.mouth.cx, rig.mouth.cy, rig.mouth.angle, rig.mouth.halfLen);
     gl.uniform4f(this.uniform("uMouthState"), look.director?.hasMouth() ? 0 : p.mouthOpen, p.mouthForm, rig.mouth.bow, Math.max(8, rig.face.jaw.cy + rig.face.jaw.ry - rig.mouth.cy));
-    gl.uniform4fv(this.uniform("uCheeks"), this.cheeks); gl.uniform1f(this.uniform("uCheek"), p.blush);
+    gl.uniform4fv(this.uniform("uCheeks"), this.cheeks); gl.uniform4fv(this.uniform("uCheekSize"), this.cheekSize); gl.uniform1f(this.uniform("uCheek"), p.blush);
   }
 
   private drawSprites(look: Look, p: HeadParameters, drawn: DrawnState, deformed: boolean): void {

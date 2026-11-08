@@ -191,6 +191,13 @@ describe("a textured expression is not warped twice, and brows never move the li
     expect(out).toEqual([x, y]);
     expect(browWeight(rig, rig.face.brow.cx, Math.min(...eye.top) - 20)).toBeGreaterThan(0);
   });
+  test("an angry brow angle lowers both inner ends and raises both outer ends", () => {
+    const brow = rig.face.brow, y = brow.cy, moved = (x: number) => { const out = [0, 0]; deformInto(rig, x, y, { ...restHead(), browAngle: 1 }, out); return out[1] - y; };
+    const inner = [brow.cx - brow.rx * 0.1, brow.cx + brow.rx * 0.1].map(moved), outer = [brow.cx - brow.rx * 0.9, brow.cx + brow.rx * 0.9].map(moved);
+    expect(inner.every((dy) => dy > 0)).toBe(true);
+    expect(outer.every((dy) => dy < 0)).toBe(true);
+    expect(inner[0]).toBeCloseTo(inner[1], 6);
+  });
 });
 
 describe("the stage hands every expression of the pack to the live head", () => {

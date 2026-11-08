@@ -80,7 +80,7 @@ export function deformInto(rig: Rig, x: number, y: number, p: HeadParameters, ou
   if (p.browY !== 0 || p.browAngle !== 0) {
     const brow = browWeight(rig, x, y);
     py -= p.browY * 7 * brow;
-    py += (x - face.brow.cx) * Math.sin(p.browAngle * 0.12 * brow);
+    py += (face.brow.rx * 0.5 - Math.abs(x - face.brow.cx)) * Math.sin(p.browAngle * 0.12 * brow);
   }
   if (p.mouthOpen !== 0) py += p.mouthOpen * 3.5 * gaussian(x, y, face.jaw) * smooth(face.jaw.band[0], face.jaw.band[1], y);
   if (ax !== 0) {
@@ -187,7 +187,7 @@ export function deformWeighted(rig: Rig, rest: Float32Array, weights: Float64Arr
     if (brows) {
       const brow = weights[k];
       py -= p.browY * 7 * brow;
-      py += (x - face.brow.cx) * Math.sin(p.browAngle * 0.12 * brow);
+      py += (face.brow.rx * 0.5 - Math.abs(x - face.brow.cx)) * Math.sin(p.browAngle * 0.12 * brow);
     }
     if (p.mouthOpen !== 0) py += jaw * weights[k + 1] * weights[k + 2];
     if (ax !== 0) {
