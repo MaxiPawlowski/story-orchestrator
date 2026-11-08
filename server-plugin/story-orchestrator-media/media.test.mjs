@@ -291,7 +291,7 @@ const clientNodes = async () => [
     ...emittedNodes(await fs.readFile(path.join(repo, 'src', 'image', 'graph.ts'), 'utf8')),
     ...emittedNodes(await fs.readFile(path.join(repo, 'src', 'sprites', 'builder', 'recipes.ts'), 'utf8')),
     ...emittedNodes(await fs.readFile(path.join(repo, 'src', 'sprites', 'poses', 'import.ts'), 'utf8')),
-    ...emittedNodes(await fs.readFile(path.join(repo, 'src', 'image', 'depthGraph.ts'), 'utf8')),
+    ...emittedNodes(await fs.readFile(path.join(repo, 'src', 'backdrop', 'depth', 'graph.ts'), 'utf8')),
     ...CUTOUT_NODES,
 ];
 
