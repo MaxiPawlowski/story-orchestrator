@@ -72,6 +72,127 @@ Fallback order, always: loop → still + layers → still → ST's own backgroun
   (screenshot pair).
 - C: one 4-5 s loop ≤ 5 min on the 3090; seam invisible in a blind 5-clip check (Sol or owner); cache hit replays instantly.
 
+## Review 2026-11-08 (loops)
+
+Independent audit of the phase C media and code (frame-by-frame, still vs loop pixel diffs) plus two gpt-6.1-sol passes (visual on contact
+sheets, code read-only). Evidence: `C:\dev\so-lanes\0\debug\loop-review\` (`before/`, `after/`, `crops/`, `sol/` prompts and answers,
+`audit.json`). MAE is mean absolute difference per channel, 0-255, against the still cover-cropped to the clip size. Ranked by visible impact.
+GPU re-render = the fix is in the code but the showcase full/lite files still show the old recipe until a GPU run (GPU paused by the owner).
+
+1. Lite tier morphs the scene (clouds become a flat ribbon, water smears).
+   - Evidence: `harbor-town-afternoon.lite.webp` MAE vs still rises 8.9 -> 16.6 by frame 15, back to 9.1 at the end; mountain 5.3 -> 7.9;
+     per-frame step 4.95 (harbor) vs 1.49 for full; Sol: "rounded cloud masses become a broad, flattened ribbon" (frames 6-16, both scenes).
+   - Cause: free image-to-video run with only the first frame pinned, then a 6-of-23-frame crossfade blending two divergent states; the
+     negative prompt listed "static, frozen", pushing the model toward large motion.
+   - Fix: still pinned as the first and the last latent frame (core nodes: `RepeatImageBatch` -> `VAEEncode` -> `LatentCut` ->
+     `ReplaceVideoLatentFrames`, per-frame noise mask from `EmptyImage`/`ImageBatch`/`ImageToMask` -> `SetLatentNoiseMask`; Wan 2.2's
+     `process_timestep` reads that mask per latent frame), negative prompt drops "static, frozen" and adds morphing/changing shapes/colours.
+     GPU re-render.
+   - Found by: both.
+2. The loop never shows the still: frame 0 is generated frame 16 (full) / 6 (lite).
+   - Evidence: loop frame 0 MAE vs still 9.6 (harbor full), 5.2 (mountain full); after sub-pixel affine alignment still 6.5, so it is
+     content, not a shift. The still -> loop base swap is a visible jump.
+   - Cause: the crossfade export dropped the still-conditioned head frames (`middle` started at `blend`).
+   - Fix: the anchored loop starts on generated frame 0 and ends just before the held still chunk (`loopFrames = frames - 4`). GPU re-render.
+   - Found by: both (Sol code #7, my diff).
+3. Crossfade seam ghosting and residual jump.
+   - Evidence: blend factors 1/(B+1)..B/(B+1) leave 5.9 % (full) / 14.3 % (lite) of the tail in the last frame; lite wrap step 4.4 with
+     two different cloud states superimposed for 6 frames.
+   - Fix: no crossfade at all; the clip returns to the still by construction. GPU re-render.
+   - Found by: both.
+4. Cinemagraph clock 1000x too fast in the browser.
+   - Evidence: the stage passes `frame.time` in ms (A's layers divide by 1000); `cinemagraph.ts` fed it straight into an 8 s period.
+     The CPU showcase used seconds, so it hid this.
+   - Fix: `u_time = frame.time / 1000`. Done.
+   - Found by: Sol.
+5. Colour shift in every encoded clip.
+   - Evidence: VP9 from `SaveWEBM` and the showcase ffmpeg encodes are BT.601 YUV with no colour tags; browsers read untagged as BT.709:
+     round-trip G -2.85 and MAE 4.39 vs 2.49 when the matrices match. The CPU renderer also read the still through ffmpeg's rgba path,
+     a further G -2.7. Cinemagraph static (unmasked) region: mean (-1.6, -3.4, -1.5).
+   - Fix: loops go through core `CreateVideo` (sRGB) + `SaveVideo` H.264 MP4, converted and tagged BT.709; cinemagraph renders
+     use rgb24 decode with accurate rounding and BT.709-tagged x264. Cinemagraph done (still MAE 4.21 -> 3.69 harbor, 3.23 -> 2.71
+     mountain, with slightly more motion than before the review; mean RGB shift now within the decoder's ~1 level). Loops: GPU re-render.
+   - Found by: me (measured); Sol flagged the missing tags as a risk.
+6. Cinemagraph edges smear foreground into sky and water (ridge halos, doubled outlines at the half-phase).
+   - Evidence: `crops/mtn_cg_ridge.png` frame 24 shows the ridge doubled into the sky; mask feather is 2 px at 896 wide, flow was
+     +-1.5 % of the width.
+   - Fix: each warped sample is weighted by the same region's mask at its source position (falls back to the still outside), sky
+     displacement 0.03 -> 0.016 of the width so the two flow phases stay within a few px. Done (`crops/mtn_cg2_ridge.png`: no halo).
+   - Found by: both.
+7. Cinemagraph water slid sideways instead of rippling; ripple not periodic.
+   - Evidence: water used a constant horizontal flow (reflections translate); ripple advanced 13.6 rad per 8 s period (not 2*pi*k), a pop at
+     the wrap.
+   - Fix: water = row-dependent horizontal ripple (perspective falloff toward the horizon), 2 whole cycles per period, no sideways flow.
+     Done.
+   - Found by: both.
+8. Cinemagraph overlay ignored the stage camera, tint and vignette, and changed the blend state for later layers.
+   - Evidence: base pass applies camera, tint, vignette; the overlay sampled raw colour at untransformed UVs and set
+     `blendFunc(SRC_ALPHA, ...)` in a premultiplied pipeline.
+   - Fix: same camera/tint/vignette maths in the shader, premultiplied output, no blend-state change. Done. Base crossfade during a scene
+     swap is still not visible to layers (open, A).
+   - Found by: Sol (tint/camera), me (blend state).
+9. Video framing differs from the still, so the base swap shifts and the B mask/depth no longer line up.
+   - Evidence: full was 960x544 (1.765) for a 1.75 still; the stage cover-crops each texture by its own aspect; loop frame 0 phase shift
+     (-0.73, -0.64) px; `Wan22ImageToVideoLatent` also downscaled a 1280-edge PNG with plain bilinear (aliasing).
+   - Fix: `fitShape` searches the 32-px grid for the still's exact aspect (896x512 and 672x384 for 7:4; 1024x576 for 16:9) and the host
+     centre-crops and resizes the still to that size with high-quality smoothing before upload. Code done; GPU re-render.
+   - Found by: both.
+10. Cinemagraph kept the previous scene's mask after a background change.
+    - Evidence: the renderer reuses a layer by id and calls `update`; the mask loaded only in the constructor.
+    - Fix: the auto spec id carries the mask URL, so a new mask builds a new layer. Done. Parallax/fog have the same pattern (open, B).
+    - Found by: Sol.
+11. Prompts invented content from file names (smoke and banners for any town, stars for night, candle flames for castles).
+    - Fix: only motion of materials the name mentions (water, falls, foliage, existing flames, clouds), plus "every building, object and
+      light stays where it is ... returns to the first frame". Done; prompt version 2. GPU re-render.
+    - Found by: Sol.
+12. Lite WebP compression flicker.
+    - Evidence: the same lite frames step 3.14 as VP9 and 4.28 as WebP q75 (+35 %); wrap 2.4 vs 4.69.
+    - Fix: WebP quality 90, method slowest. GPU re-render.
+    - Found by: me.
+13. GIF fallback banding and wrong size.
+    - Evidence: 384x219 (not the lite 672x384), coarse palette steps and crawling dither (Sol: "stepped colour bands and speckled regions").
+      No code path makes it (made by hand).
+    - Fix: regenerate from the new lite frames at 672x384 with a full-stats palette and ordered (Bayer) dither, which stays still from frame
+      to frame. Pending the lite re-render.
+    - Found by: both.
+14. Full harbor: whole-frame 1 px jump at frame 39 -> 40.
+    - Evidence: step 9.44 vs mean 1.49; phase correlation (-0.63, -1.03) px; mountain shows a smaller spike at the same index.
+    - Cause: model jitter (no tiled-VAE fallback in the logs). Watch after the anchored re-render; no stabiliser in core nodes.
+    - Found by: me.
+15. Texture pops every 4 frames in the full loops.
+    - Evidence: step spikes at a 4-frame period with no global brightness change (frame means move < 0.2).
+    - Cause: Wan 2.2 VAE decodes 4 frames per latent; model-inherent, low. Open.
+    - Found by: me.
+16. Loop cache key missed cfg, shift, negative prompt, CRF and recipe changes.
+    - Fix: key covers recipe version, cfg, shift, CRF, WebP quality and the negative prompt. Done.
+    - Found by: Sol.
+17. Bench measured only adjacent-frame steps, uploaded the raw still and never compared with it.
+    - Fix: bench uses the production centre-crop/resize and records first/mean/max/last MAE vs the conditioned still. Done (seed stays
+      fixed at 42 for comparability).
+    - Found by: Sol.
+18. CPU showcase renderer did not match the shader (nearest sampling, top-origin UVs).
+    - Fix: bilinear texel-centre sampling and GL orientation; it imports the shader's constants. Done.
+    - Found by: both.
+19. Lite plays native 24 fps motion at 12 fps (half speed, 2 s).
+    - Accepted as intended slow ambient motion; recorded here so it is not mistaken for a bug. Found by: Sol.
+20. Phase A/B items found on the way (not fixed here, owners' branches):
+    - B: parallax and depth fog take `frame.time`/`frame.dt` in ms as seconds (38 s drift runs in 38 ms, easing snaps) (Sol, verified).
+    - B: parallax `replacesBase` skips the base crossfade, tint and vignette; the cinemagraph cannot register with the parallax-shifted
+      base (no shared UV) (Sol). Needs one base compositor (A/B).
+    - B: harbor water mask misses the water around the moored boats and under the quay; mountain shoreline has jagged green fingers;
+      `Math.min(...component)` can overflow the argument limit on big regions (Sol).
+    - B: depth maps compress the mountains into one far plane; soft depth edges at roofs and boats (Sol).
+    - A: `BackdropAutoInput` does not carry the checkpoint's `loop: false`, so a cinemagraph still runs there (Sol).
+
+Before / after (cinemagraph, CPU, done; loops pending GPU):
+
+- harbor cinemagraph: MAE vs still mean 4.21 -> 3.69, max 4.67 -> 3.79; mean RGB shift (-1.4, -3.3, -1.2) -> (-0.9, -1.5, -1.0)
+  (residual = ffmpeg decode rounding, also seen on a still-only round trip); raw wrap step 0.05 (= the mean step); encoded wrap 1.03
+  (x264 I-frame; a keyframe every 24 frames made it 2.0, so kept).
+- Sol pass on the first re-render: no high defects, no halos or doubled ridges, seam matched; motion read as almost static, so sky
+  drift 0.012 -> 0.016 and ripple 0.0022 -> 0.0035 for the final render.
+- mountain cinemagraph: MAE vs still mean 3.23 -> 2.71, max 3.67 -> 2.74; encoded wrap 1.28; ridge halo gone.
+
 ## Gate record
 
 (per phase, appended by each agent)
