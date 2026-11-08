@@ -77,7 +77,7 @@ vec4 so_depth_fog_overlay(vec2 uv) {
 }
 `;
 
-export function fogDensity(state: { weather?: string; timeOfDay?: string; indoor?: boolean }, intensity: number): number {
+export function fogDensity(state: { weather?: string | null; timeOfDay?: string | null; indoor?: boolean }, intensity: number): number {
   const base = state.weather === "fog" || state.weather === "mist" ? 0.9 : state.weather === "rain" || state.weather === "snow" ? 0.5 : 0.28;
   const indoor = state.indoor ? 0.4 : 1;
   const night = state.timeOfDay === "night" ? 1.15 : state.timeOfDay === "dawn" || state.timeOfDay === "morning" ? 1.2 : 1;
