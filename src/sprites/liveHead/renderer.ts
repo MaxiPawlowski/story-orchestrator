@@ -214,7 +214,7 @@ export class HeadRenderer {
     const next = name === null ? this.base : this.looks.get(name);
     if (!next) return;
     if (next === this.target) { if (cut) { this.from = null; this.fade = 1; } return; }
-    this.from = cut ? null : this.target; this.fade = cut ? 1 : 0; this.target = next;
+    this.from = cut ? null : this.from && this.fade < 0.5 ? this.from : this.target; this.fade = cut ? 1 : 0; this.target = next;
     this.meshMouth.mode = meshMouthMode(this.manifest.rig, next.director?.hasMouth() ?? false, this.mouth);
   }
 
