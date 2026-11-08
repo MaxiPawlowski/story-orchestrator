@@ -65,7 +65,7 @@ export const SETTING_COPY = {
   ),
   "display.inline.categories": copy(
     "Show this kind of note",
-    "Untick a kind of note to hide its icon under the messages.",
+    "Untick a kind of note to leave its words out of the line under the messages.",
   ),
   "display.inline.window": copy(
     "Only the last … messages",
@@ -105,7 +105,7 @@ export const SETTING_COPY = {
   ),
   "display.presence.wand": copy(
     "Story entries in the wand menu",
-    "Story recap, the story briefing (when the story has one), flag this moment and the story window, from the extensions wand beside where you type.",
+    "Story recap, flag this moment, the story sheet, the story briefing (when the story has one), the story window and Help and Ask, from the extensions wand beside where you type.",
   ),
   "display.presence.rollChips": copy(
     "Dice chips under messages",
@@ -114,11 +114,11 @@ export const SETTING_COPY = {
   ),
   "display.presence.journal": copy(
     "Journal",
-    "A movable panel with the story's quests: the main line you have reached, side quests and their steps, and a log of what happened. It shows only what you have found.",
+    "A page of the story sheet with the story's quests: the main line you have reached, side quests and their steps, and a log of what happened. It shows only what you have found.",
   ),
   "display.presence.statSheet": copy(
     "Stat sheet",
-    "A movable panel with what the story keeps count of in the open: what you carry and the meters the author made public.",
+    "A page of the story sheet with what the story keeps count of in the open: what you carry and the meters the author made public.",
   ),
   "display.presence.widgets": copy(
     "Story panels",
@@ -131,7 +131,7 @@ export const SETTING_COPY = {
   ),
   "display.presence.suggestions": copy(
     "What could I do?",
-    "A button on This chat → Play and the wand menu that asks the memory model for a few things you could try next. A suggestion goes into the box where you type; "
+    "The story sheet's Ideas page, the Ideas chip and the Now tab on This chat → Play ask the memory model for a few things you could try next. A suggestion goes into the box where you type; "
       + "nothing is sent until you send it. The request sees only what you have already seen in the story.",
   ),
   "display.hudEnabled": copy(
@@ -155,7 +155,7 @@ export const SETTING_COPY = {
   "display.backdrop.enabled": copy(
     "Animated backdrop behind the chat",
     "The scene's background comes alive behind the chat: weather, light and slow movement drawn over it, following the story (rain when it rains, night at night). "
-      + "Switch it off for SillyTavern's own still background. Reduced motion always shows the still.",
+      + "Switch it off for SillyTavern's own still background. Your system's reduce-motion setting shows the still; SillyTavern's own Reduced motion option does not change it.",
   ),
   "display.backdrop.effects": copy(
     "Weather and light effects",

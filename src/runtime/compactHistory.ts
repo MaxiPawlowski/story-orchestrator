@@ -36,7 +36,7 @@ export const COMPACTION_METER_LIMIT = 4000;
 export function compactionEntries(rows: readonly CompactRow[], idOf: (row: CompactRow) => number | null, cost: (text: string) => number = estimateTokens): CompactionEntry[] {
   return rows.flatMap((row) => {
     const id = ignored(row) ? null : idOf(row);
-    return id === null ? [] : [{ id, cost: cost(textOf(row)) }];
+    return id === null ? [] : [{ id, cost: cost(textOf(row)), player: row.is_user === true }];
   });
 }
 

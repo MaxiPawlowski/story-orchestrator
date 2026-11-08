@@ -36,7 +36,7 @@ export interface Motion { id: string; dur: number; tracks: Track[] }
 const ADDITIVE = new Set<string>(["angleX", "angleY", "angleZ", "bodyAngleX", "bodyAngleZ", "armAngle", "handAngle", "gazeX", "gazeY"]);
 const FACE = new Set<string>(["eyeSmile", "mouthForm", "blush", "browY", "browAngle"]);
 
-export const MOTION_TUNE = { head: 0.8, breath: 0.4, eyeFloor: 0.5, talk: 0.7, listenBias: 1.5, listenGain: 0.5,
+export const MOTION_TUNE = { head: 0.8, breath: 0.4, eyeFloor: 0, talk: 0.7, listenBias: 1.5, listenGain: 0.5,
   idleSlotMs: 12_000, idleChance: 0.6, listenSlotMs: 5_000, listenChance: 0.3, ease: 0.15, release: 0.25 };
 
 const ADDERS: Partial<Record<Key, Write>> = {

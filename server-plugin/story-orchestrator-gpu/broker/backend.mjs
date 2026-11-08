@@ -398,11 +398,16 @@ export class NativeBackend {
         if (!child) return;
         const ended = new Promise((resolve) => child.once('exit', resolve));
         this.stopping = child;
-        if (this.killTree && child.pid) await this.killTree(child.pid);
-        else child.kill();
-        await Promise.race([ended, new Promise((_, reject) => setTimeout(() => reject(new Error('The owned text process did not stop; no replacement will be started.')), 10000).unref())]);
-        if (this.child === child) { this.child = null; this.profile = null; this.fitTarget = null; }
-        this.stopping = null;
+        try {
+            if (this.killTree && child.pid) await this.killTree(child.pid);
+            else child.kill();
+            const stopMs = this.config.textStopTimeoutMs ?? 10000;
+            await Promise.race([ended, new Promise((_, reject) => setTimeout(() => reject(new Error(`The owned text process ${child.pid ?? ''} did not stop; no replacement will be started.`)), stopMs).unref())]);
+            if (this.child === child) { this.child = null; this.profile = null; this.fitTarget = null; }
+        } catch (error) {
+            this.lastError = error.message;
+            throw error;
+        } finally { this.stopping = null; }
     }
 
     async forRequest(body, signal, slot = null) {

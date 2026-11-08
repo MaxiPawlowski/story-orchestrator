@@ -75,3 +75,4 @@ notes/
 /.live-head-projects/
 /.guide-site-build-*/
 /test/sessions/adolion-stories.json
+/.guide-deny.txt

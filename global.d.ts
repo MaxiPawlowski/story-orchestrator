@@ -42,6 +42,7 @@ declare global {
   var storyOrchestratorRuntime: import("@runtime/index").RuntimeManager | undefined;
   var storyOrchestratorImage: import("./src/image/runtime").StoryImageDirector | undefined;
   var storyOrchestratorSprites: import("./src/sprites/stage").SpriteStage | undefined;
+  var storyOrchestratorBackdrop: import("./src/backdrop/start").BackdropDebug | undefined;
   var storyOrchestratorStudioDraft: typeof import("./src/studio/draft").useDraftStore | undefined;
   var storyOrchestratorStudioTabs: import("./src/studio/StudioModal").StudioTab[] | undefined;
   var storyOrchestratorStop: (() => void) | undefined;

@@ -166,8 +166,8 @@ export const PrivateBlocksPerMember: Story = {
     snapshot: (() => {
       const own: NextTurnSourceBlock[] = [...OWN, { key: "story_copilot_nudge", depth: 1, role: 0, value: "A servant of the Queen signals the party.", position: 1 }];
       const privateBlocks: NextTurnSourceBlock[] = [
-        { key: "story_orchestrator_epistemic", depth: 4, role: 0, value: "Your private aims: have the party report to you.", target: "Forre" },
-        { key: "story_orchestrator_epistemic", depth: 4, role: 0, value: "Your private aims: win the war at Greywater.", target: "Alexander" },
+        { key: "story_orchestrator_epistemic", depth: 4, role: 0, value: "Your private aims: have the party report to you.", target: "Ossian" },
+        { key: "story_orchestrator_epistemic", depth: 4, role: 0, value: "Your private aims: win the war at Greywater.", target: "Rowan" },
       ];
       const nextTurn = buildNextTurnPreview(own, { draftedMember: null, scene: null, sceneFallback: null, countOf: host, budget: BUDGET, privateBlocks });
       return { nextTurn, nextTurnForeign: [], nextTurnCost: buildNextTurnCost(nextTurn, [], BUDGET, BUDGET.ok ? BUDGET.prompt : null) } as unknown as RuntimeSnapshot;
@@ -175,8 +175,8 @@ export const PrivateBlocksPerMember: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.getByText(/private → Forre/)).toBeInTheDocument();
-    await expect(canvas.getByText(/private → Alexander/)).toBeInTheDocument();
+    await expect(canvas.getByText(/private → Ossian/)).toBeInTheDocument();
+    await expect(canvas.getByText(/private → Rowan/)).toBeInTheDocument();
     await expect(canvas.getByText(/Your private aims: have the party report to you/)).toBeInTheDocument();
     const nudge = canvasElement.querySelector('[data-key="story_copilot_nudge"]');
     await expect(nudge?.querySelector('[data-so="next-turn-one-turn"]')).not.toBeNull();

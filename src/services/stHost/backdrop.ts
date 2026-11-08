@@ -1,6 +1,7 @@
 import type { WriteResult } from "@utils/writeResult";
 import { readBackgroundLayer, watchBackgroundLayer } from "./backgroundLayer";
 import { stillFromLayer, type BackdropStill } from "@backdrop/still";
+import { parseCssColor, relativeLuminance } from "@backdrop/stage/contrast";
 
 export type { BackdropStill };
 
@@ -47,9 +48,16 @@ export const chatColumnRect = (): { left: number; right: number } | null => {
   return rect.width > 0 ? { left: rect.left, right: rect.right } : null;
 };
 
-export const backdropReducedMotion = (): boolean =>
-  (typeof document !== "undefined" && document.body.classList.contains("reduced-motion"))
-  || (typeof matchMedia === "function" && matchMedia("(prefers-reduced-motion: reduce)").matches);
+export const chatTextLuminance = (): number | null => {
+  if (typeof document === "undefined" || typeof getComputedStyle !== "function") return null;
+  const text = document.getElementById("chat");
+  const color = text ? parseCssColor(getComputedStyle(text).color) : null;
+  return color ? relativeLuminance(...color) : null;
+};
+
+export const hostIsGenerating = (): boolean => typeof document !== "undefined" && document.body?.dataset.generating === "true";
+
+export const backdropReducedMotion = (): boolean => typeof matchMedia === "function" && matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 export const pageHidden = (): boolean => typeof document !== "undefined" && document.visibilityState === "hidden";
 
