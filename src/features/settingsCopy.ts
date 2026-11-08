@@ -155,7 +155,7 @@ export const SETTING_COPY = {
   "display.backdrop.enabled": copy(
     "Animated backdrop behind the chat",
     "The scene's background comes alive behind the chat: weather, light and slow movement drawn over it, following the story (rain when it rains, night at night). "
-      + "Switch it off for SillyTavern's own still background. Reduced motion always shows the still.",
+      + "Switch it off for SillyTavern's own still background. Your system's reduce-motion setting shows the still; SillyTavern's own Reduced motion option does not change it.",
   ),
   "display.backdrop.effects": copy(
     "Weather and light effects",

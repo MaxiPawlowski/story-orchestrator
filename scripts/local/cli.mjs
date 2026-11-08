@@ -2,7 +2,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { controlError, controlLine } from './controlLine.mjs';
+import { controlError, controlLine, textState } from './controlLine.mjs';
 
 const [action = 'status', argument] = process.argv.slice(2).filter((arg) => arg !== '--now');
 const now = process.argv.includes('--now');
@@ -105,6 +105,6 @@ const response = await fetch(action === 'status' ? `${url}/status` : `${url}/con
 const data = await response.json();
 if (!response.ok) throw new Error(controlError(action, data, force));
 if (action === 'status') {
-    console.log(`${data.phase}; ${data.text.profile ?? 'text unloaded'}; GPU free ${Math.round(data.telemetry.gpus[0].freeMiB)} MiB; RAM free ${Math.round(data.telemetry.host.availableMiB)} MiB; queue ${data.waitingText}`);
+    console.log(`${data.phase}; ${textState(data.text)}; GPU free ${Math.round(data.telemetry.gpus[0].freeMiB)} MiB; RAM free ${Math.round(data.telemetry.host.availableMiB)} MiB; queue ${data.waitingText}`);
     if (process.argv.includes('--json')) console.log(JSON.stringify(data, null, 2));
 } else console.log(controlLine(action, data));

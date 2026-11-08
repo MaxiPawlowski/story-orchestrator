@@ -59,6 +59,7 @@ const READS: Record<string, string> = {
   spriteReducedMotion: "a question about the user's reduced-motion setting",
   backdropReducedMotion: "a question about the user's reduced-motion setting, ST's or the system's (v3.0 45)",
   pageHidden: "a question about the page: is the tab hidden (v3.0 45)",
+  hostIsGenerating: "a question about ST's own body[data-generating] flag (v3.0 45 boot hooks)",
   spriteBuiltInExpressionsActive: "a question about the page: is ST's own Character Expressions stage mounted",
   spriteHint: "a one-time toast; nothing in ST changes and the settings panel states the same line",
   spriteStripRemove: "removes OUR strip host from the chat column; nothing ST keeps",
