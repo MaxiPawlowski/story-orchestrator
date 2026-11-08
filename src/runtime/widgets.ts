@@ -1,5 +1,5 @@
 import {
-  checkAttempted, checkDice, checksAt, checksById, evaluateGate, isClosed, isOocLine, milestoneEarned, questStatus, stepStatus, valueReader, type BoundaryLogEntry, type EngineState,
+  checkAttempted, checkDice, checksAt, checksById, evaluateGate, isClosed, isOocLine, milestoneEarned, questEnding, questStatus, shownConsequenceLabels, stepStatus, valueReader, type BoundaryLogEntry, type EngineState,
   type GateReader, type NormalizedStory, type PrimitiveValue, type Quality, type Quest, type QuestProgress, type StoryWidget, type WidgetIntent,
 } from "@engine/index";
 import { isRecord } from "@utils/guards";
@@ -11,7 +11,7 @@ import type {
 import { previousValues, sheetGroups } from "./gameSheet";
 import { changedAgo, provenanceOf, shownItem } from "./widgetHistory";
 import { checkLabel, type CheckRecord } from "./storyCheckDraws";
-import { questMoveText } from "@features/gameCopy";
+import { questMoveText, questStatusWord } from "@features/gameCopy";
 import { FACTION_STANDING_GROUP, factionBand, standingKey } from "@engine/factionSchema";
 import { factionVisible, standingOf, standingView } from "@engine/factions/standing";
 
@@ -50,7 +50,7 @@ export interface GameCompose {
   provenance: Record<string, ProvenanceView[]>;
 }
 
-const STATUS_LABELS: Record<QuestLane, string> = { offered: "Offered", active: "Active", done: "Done", failed: "Failed" };
+const STATUS_LABELS: Record<string, string> = { offered: "Offered", active: "Active", done: "Done", failed: "Failed" };
 
 const progressOf = (progress: QuestProgress | undefined, values: Readonly<Record<string, PrimitiveValue>>): ProgressView | undefined => {
   if (!progress) return undefined;
@@ -65,11 +65,13 @@ const questView = (quest: Quest, status: QuestLane, reader: GateReader, values: 
     const progress = progressOf(step.progress, values);
     return [{ text: step.text, status: shown, ...(progress ? { progress } : {}) }];
   });
-  const reward = quest.reward?.label && (!quest.reward.visible_when || evaluateGate(quest.reward.visible_when, reader)) ? quest.reward.label : null;
+  const closed = isClosed(status);
+  const reward = !closed && quest.reward?.label && (!quest.reward.visible_when || evaluateGate(quest.reward.visible_when, reader)) ? quest.reward.label : null;
   const progress = progressOf(quest.progress, values);
+  const label = closed ? questEnding(quest, status)?.label : undefined;
   return {
-    title: quest.title, status, closed: isClosed(status), giver: quest.giver ? castNames[quest.giver] ?? null : null, steps, reward,
-    statusLabel: status === "done" ? quest.labels?.done ?? STATUS_LABELS.done : status === "failed" ? quest.labels?.failed ?? STATUS_LABELS.failed : STATUS_LABELS[status],
+    title: quest.title, status, closed, giver: quest.giver ? castNames[quest.giver] ?? null : null, steps, reward, outcomes: closed ? shownConsequenceLabels(quest, reader) : [],
+    statusLabel: label ?? STATUS_LABELS[status] ?? questStatusWord(status),
     ...(progress ? { progress } : {}),
   };
 };
@@ -99,7 +101,7 @@ const statusMoves = (story: NormalizedStory, entry: BoundaryLogEntry): LogRowVie
     const from = questStatus(quest, before);
     const to = questStatus(quest, after);
     if (from === to || to === "hidden") return [];
-    return [{ at, kind: "quest", text: questMoveText(to, quest.title, quest.labels) }];
+    return [{ at, kind: "quest", text: questMoveText(to, quest.title, questEnding(quest, to)?.label) }];
   });
   const earned = (story.milestones ?? []).filter((milestone) => !milestoneEarned(milestone, before) && milestoneEarned(milestone, after))
     .map((milestone): LogRowView => ({ at, kind: "milestone", text: `Milestone: ${milestone.title}` }));
@@ -155,7 +157,8 @@ const boardLanes = (widget: StoryWidget, quests: QuestView[], threads: GameSourc
   const is = (status: QuestView["status"]) => (quest: QuestView) => quest.status === status;
   const lane = (label: string, wanted: (quest: QuestView) => boolean) => ({ label, cards: quests.filter(wanted).map((quest) => quest.title) });
   const lanes = widget.options?.closed === false
-    ? [lane("Offered", is("offered")), lane("Active", is("active")), lane("Done", is("done")), lane("Failed", is("failed"))]
+    ? [lane("Offered", is("offered")), lane("Active", is("active")), lane("Done", is("done")), lane("Failed", is("failed")),
+      lane("Resolved", (quest) => quest.closed && quest.status !== "done" && quest.status !== "failed")]
     : [lane("Offered", is("offered")), lane("Active", is("active")), lane("Closed", (quest) => quest.closed)];
   return lanes.filter((entry) => entry.cards.length);
 };

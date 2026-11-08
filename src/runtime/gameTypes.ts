@@ -22,6 +22,7 @@ export interface QuestView {
   steps: QuestStepView[];
   progress?: ProgressView;
   reward: string | null;
+  outcomes: string[];
 }
 
 export interface MainLineView {
@@ -223,6 +224,8 @@ export interface GameAuthorView {
   quests: Array<{ id: string; title: string; status: QuestStatus }>;
   scopeOverflow: string[];
   discoveryOverflow?: string[];
+  heldQuests?: string[];
+  consequenceConflicts?: string[];
   widgets: WidgetView[];
   provenance?: Record<string, ProvenanceView[]>;
 }

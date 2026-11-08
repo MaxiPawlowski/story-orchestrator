@@ -5,6 +5,7 @@ import {
 } from "../patternSchema";
 import type { Chapter, Checkpoint, Milestone, Quality, Quest, Transition, ValidationError } from "../schema";
 import { checksById } from "../storyChecks";
+import { questEndings } from "../quests";
 import { isRecord } from "@utils/guards";
 import { addError, asString, isOneOf, refuse, rejectUnknownKeys } from "./common";
 import { GAME_ID_PATTERN } from "./checks";
@@ -129,7 +130,10 @@ const checkValue = (kind: PatternKind, attr: string, value: string, path: string
   }
   if (kind === "transition" && attr === "chapter" && !(context.chapters ?? []).some((chapter) => chapter.id === value)) addError(errors, path, `'${value}' is not a chapter`);
   if (kind === "quest" && attr === "id" && !(context.quests ?? []).some((quest) => quest.id === value)) addError(errors, path, `'${value}' is not a quest`);
-  if (kind === "quest" && attr === "to" && !isOneOf(value, PATTERN_QUEST_STATUSES)) addError(errors, path, `a quest step moves to ${PATTERN_QUEST_STATUSES.join(", ")} (hidden is not seen)`);
+  if (kind === "quest" && attr === "to" && !isOneOf(value, PATTERN_QUEST_STATUSES)
+    && !(context.quests ?? []).some((quest) => questEndings(quest, true).some((ending) => ending.id === value))) {
+    addError(errors, path, `a quest step moves to ${PATTERN_QUEST_STATUSES.join(", ")} or a quest's resolution id (hidden is not seen)`);
+  }
   if (kind === "quest" && attr === "giver" && !context.roster.some((member) => member.id === value)) addError(errors, path, `'${value}' is not in the cast`);
   if (kind === "milestone" && attr === "id") {
     const milestone = (context.milestones ?? []).find((entry) => entry.id === value);

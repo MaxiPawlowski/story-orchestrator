@@ -4,6 +4,8 @@ import {
   PROMISE_EVENT_KINDS, type OpenPromiseRef, type PlayerPromise, type PromiseEvent, type PromiseRow, type PromisesState, type PromiseStatus, type QuestStatusOf,
 } from "./types";
 
+const OPEN_QUEST_STATES: readonly string[] = ["hidden", "offered", "active"];
+
 export const createPromises = (): PromisesState => ({ rows: [] });
 
 const isBoundary = (value: unknown): value is { boundary: number } => isRecord(value) && Number.isSafeInteger(value.boundary);
@@ -37,7 +39,8 @@ export const shownQuote = (row: PromiseRow): string => [...row.events].reverse()
 export const promiseStatus = (row: PromiseRow, questStatus?: QuestStatusOf): PromiseStatus => {
   if (row.questId) {
     const status = questStatus?.(row.questId) ?? null;
-    return status === "done" ? "kept" : status === "failed" ? "broken" : "open";
+    if (status === null || OPEN_QUEST_STATES.includes(status)) return "open";
+    return status === "done" ? "kept" : status === "failed" ? "broken" : "released";
   }
   const last = row.events[row.events.length - 1];
   return !last || last.kind === "renegotiated" ? "open" : last.kind;

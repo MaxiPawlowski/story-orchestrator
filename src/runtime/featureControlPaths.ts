@@ -42,6 +42,8 @@ export const FEATURE_CONTROL_PATHS: Record<StoryFeatureId, readonly FeatureContr
   rumors: [enabled("memory.rumors")],
   echoes: [enabled("characters.echoes")],
   patterns: [enabled("memory.patterns")],
+  questResolutions: [enabled("featureSwitches.questResolutions")],
+  storyRecord: [enabled("featureSwitches.storyRecord")],
   meanwhile: [enabled("featureSwitches.meanwhile"), mode("stagecraft.meanwhileAcceptMode")],
   living: [enabled("stagecraft.livingEnabled")],
   branching: [enabled("stagecraft.branchingEnabled")],

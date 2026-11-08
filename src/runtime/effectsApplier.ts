@@ -1,4 +1,4 @@
-import { rewardedQuestIds, type Checkpoint, type CheckpointEffects, type NormalizedStory, type NpcReplyEffect, type NpcReplyTrigger } from "@engine/index";
+import { consequenceWorldInfo, type Checkpoint, type CheckpointEffects, type NormalizedStory, type NpcReplyEffect, type NpcReplyTrigger } from "@engine/index";
 import {
   applyBackground, executeSlashCommands, postOwnComment, resolveGroupMemberId, samplerApi, setGroupMembersDisabled, setGroupMemberFlags, getActiveGroup, getContext,
 } from "@services/STAPI";
@@ -218,7 +218,7 @@ export class EffectsApplier {
     await this.openings.open(opening, checkpoint, extras, run);
     if (!run.stillOwns()) return;
     const scope = { checkpointId: checkpoint.id, boundary: 0, messageId: lastMessageId() };
-    const plan = worldInfoPlan(story, path, rewardedQuestIds(story, snapshot.blackboard), earnedWorldInfo(story, snapshot.blackboard));
+    const plan = worldInfoPlan(story, path, consequenceWorldInfo(story, snapshot.blackboard), earnedWorldInfo(story, snapshot.blackboard));
     const worldInfoRefused = !ready || worldInfoFilesHeld() ? [] : await applyWorldInfo(plan, run);
     if (worldInfoRefused.length) this.deps.journal?.("world_info effect could not be applied", worldInfoRefused.join("; "));
     const effects: CheckpointEffects = checkpoint.effects ?? {};
@@ -366,7 +366,7 @@ export class EffectsApplier {
   async applyEarnedEffects(story: NormalizedStory, earned: readonly EarnedEffects[], extras: RuntimeExtras, values: Record<string, unknown>, path: string[], at: EffectScope, run: RunGuard) {
     if (!openChatId() || !openGroupId() || !extras.requirements.ready || !run.stillOwns()) return;
     if (earned.some((item) => item.effects.world_info) && !worldInfoFilesHeld()) {
-      const refused = await applyWorldInfo(worldInfoPlan(story, path, rewardedQuestIds(story, values), earnedWorldInfo(story, values)), run);
+      const refused = await applyWorldInfo(worldInfoPlan(story, path, consequenceWorldInfo(story, values), earnedWorldInfo(story, values)), run);
       if (refused.length) this.deps.journal?.("an earned world_info effect could not be applied", refused.join("; "));
     }
     for (const item of earned) {

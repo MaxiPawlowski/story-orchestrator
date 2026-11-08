@@ -45,7 +45,7 @@ const everything = (overrides: Record<string, unknown> = {}): RuntimeSnapshot =>
   spriteLookIssues: [{ name: "Arin", reason: "Choose a reference expression pack in Studio." }],
   spriteRecipe: { status: "missing", problem: "ComfyUI offers no Qwen Image 2.1 edit diffusion model.", source: null, waiting: ["Arin"] },
   spriteStage: { builtInExpressions: true, packIssues: [{ name: "Belle", reason: "no sprite pack on the card (so_sprites)" }], inventory: {} },
-  gameAuthor: { quests: [], scopeOverflow: ["met_cartographer"], widgets: [], discoveryOverflow: ["heard_debt"] },
+  gameAuthor: { quests: [], scopeOverflow: ["met_cartographer"], widgets: [], discoveryOverflow: ["heard_debt"], heldQuests: ["rescue"], consequenceConflicts: ["town_mood"] },
   sameCharacter: ["the captain"],
   patternsUnavailable: true,
   lifeAuthor: { rows: [], scopeOverflow: ["rel_arin_player_trust"], proposals: [] },
@@ -80,7 +80,7 @@ const REPAIR_ORDER = [
   "cast-absent", "cast-unbound", "cast-muted", "lore-absent", "lore-unscanned", "lore-hidden", "persona-absent", "persona-unselected", "memory-slot-taken", "save-unconfirmed", "persona-fit", "persona-lock",
   "model-role-outage", "context-over-server", "transcript-copiers", "model-not-thinking", "tunnelvision-story-lore", "stepped-thinking-separated", "presence-hides-chat", "prompt-inspector-on", "two-polishers", "persona-switch", "persona-fit-cast", "lore-budget-starved", "library-lost-to-tab", "state-size-large", "chapter-unsummarized", "wi-gating-drift", "story-lore-global", "orphaned-lorebooks", "judge-route-uncalibrated", "styles-missing",
   "images-on-no-service", "image-model-missing", "image-model-retired", "image-prompt-profile-missing", "story-workflow-missing", "stage-pack-missing", "quest-scope-overflow", "relationship-scope-overflow",
-  "discovery-scope-overflow", "patterns-unavailable",
+  "discovery-scope-overflow", "patterns-unavailable", "quest-resolution-ambiguous", "quest-consequence-conflict",
 ];
 
 const duplicateIds = (registry: readonly Check[]): string[] =>

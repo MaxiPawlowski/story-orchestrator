@@ -1,5 +1,5 @@
 import {
-  checksById, evaluateGate, LIVING_PREFIX, milestoneEarned, questStatus, valueReader,
+  checksById, evaluateGate, LIVING_PREFIX, milestoneEarned, questEnding, questEndings, questStatus, valueReader,
   type AppliedQueueEntry, type BoundaryLogEntry, type EngineState, type GateLeaf, type GateNode, type NormalizedStory, type NormalizedTransition,
   type Milestone, type PrimitiveValue, type Quest, type QuestStatus, type RecapText, type StoryCheck, type Transition,
 } from "@engine/index";
@@ -122,17 +122,17 @@ const transitionCause = (story: NormalizedStory, entry: BoundaryLogEntry, fired:
 };
 
 const questGates = (quest: Quest, to: QuestStatus): Array<GateNode | undefined> | null => {
-  if (to === "done") return [quest.visible_when, quest.done_when];
-  if (to === "failed") return quest.failed_when ? [quest.visible_when, quest.failed_when] : null;
   if (to === "active") return quest.visible_when ? [quest.visible_when] : null;
   if (to === "offered") return quest.offered_when ? [quest.offered_when] : null;
-  return null;
+  const ending = questEnding(quest, to);
+  if (!ending) return null;
+  return ending.from.includes("active") ? [quest.visible_when, ending.when] : [ending.when];
 };
 
 const questCause = (quest: Quest, to: QuestStatus, before: Values, after: Values, entry: BoundaryLogEntry): CauseRef[] => {
   const gates = questGates(quest, to);
   const steady = (gate: GateNode | undefined) => !gate || holds(gate, before) === holds(gate, after);
-  const quiet = to === "offered" ? steady(quest.visible_when) : (to === "failed" || steady(quest.failed_when)) && (to === "done" || to === "failed" || steady(quest.done_when));
+  const quiet = to === "offered" ? steady(quest.visible_when) : questEndings(quest, true).every((ending) => ending.id === to || steady(ending.when));
   return gates && quiet ? decidingCause(gates, before, after, entry) : [];
 };
 
@@ -213,7 +213,7 @@ export function neutralText(story: NormalizedStory, ref: EffectRef): string | nu
   }
   if (ref.kind === "quest") {
     const quest = indexOf(story).quests.get(ref.id);
-    return quest && ref.to && ref.to !== "hidden" ? questMoveText(ref.to as Exclude<QuestStatus, "hidden">, quest.title, quest.labels) : null;
+    return quest && ref.to && ref.to !== "hidden" ? questMoveText(ref.to, quest.title, questEnding(quest, ref.to)?.label) : null;
   }
   if (ref.kind === "milestone") {
     const milestone = indexOf(story).milestones.get(ref.id);
@@ -231,7 +231,10 @@ const authoredOf = (story: NormalizedStory, ref: EffectRef): RecapText | null =>
   if (!ref.authored) return null;
   if (ref.kind === "transition") return transitionById(story, ref.id)?.recap ?? null;
   if (ref.kind === "milestone") return indexOf(story).milestones.get(ref.id)?.recap ?? null;
-  if (ref.kind === "quest" && (ref.to === "done" || ref.to === "failed")) return indexOf(story).quests.get(ref.id)?.recap?.[ref.to] ?? null;
+  if (ref.kind === "quest") {
+    const quest = indexOf(story).quests.get(ref.id);
+    return (quest && ref.to ? questEnding(quest, ref.to)?.recap : null) ?? null;
+  }
   return null;
 };
 

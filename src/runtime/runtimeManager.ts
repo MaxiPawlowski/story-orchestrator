@@ -33,6 +33,7 @@ import { reconcileEffectLedgerInto } from "./effectHost";
 import { ChatSave } from "./chatSave";
 import { hasUnsavedChanges } from "./saveHealth";
 import { getGlobalSettings, setGlobalSettings, TALK_CHAIN_FIXED, type SpikeSettings } from "./settingsStore";
+import { resolveFeatures } from "./featureResolve";
 import { buildPossibleTransitions } from "./snapshot";
 import { buildRuntimeSnapshot, CHAT_LOADING_STATUS, snapshotSources } from "./snapshotBuilder";
 import { SnapshotCache } from "./snapshotCache";
@@ -75,7 +76,8 @@ const boundStoryForOpenChat = () => {
 export class RuntimeManager extends SettingsDelegates {
   readonly chance = createChanceSeams(() => chanceContext(this.loaded, this.loadedChatId, this.engine.currentBoundary));
   private engine = new StoryEngine({ now: () => Date.now(), enabled: () => this.getEnabledCharacterIds(),
-    derive: deriveQualities(this.chance, () => this.loaded?.story ?? null, coordinatorHosts.chat.chatRows), offers: () => this.co.cues.evidence(), chanceIds: () => this.chance.ids() });
+    derive: deriveQualities(this.chance, () => this.loaded?.story ?? null, coordinatorHosts.chat.chatRows), offers: () => this.co.cues.evidence(), chanceIds: () => this.chance.ids(),
+    questResolutions: () => resolveFeatures(getGlobalSettings(), this.loaded?.story ?? null, this.extras.overrides).questResolutions.enabled });
   private loaded: LoadedStory | null = null;
   private loadedChatId: string | null = null;
   private extras: RuntimeExtras = createExtras(getGlobalSettings);

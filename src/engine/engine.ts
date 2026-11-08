@@ -5,7 +5,7 @@ import { gateKeys } from "./gates";
 import { GENERATED_CHECKPOINT_PREFIX, type Checkpoint, type CheckpointEffects, type NormalizedStory, type NormalizedTransition, type PrimitiveValue } from "./schema";
 import { selectFiring } from "./transitions";
 import { applyCardEntry } from "./cardFields";
-import { applyQuestRewards } from "./quests";
+import { applyQuestResolutions } from "./quests";
 import { gameLayer } from "./validate/gameLayer";
 import { actPass } from "./socialActs";
 import { rollbackMoved } from "./rollbackDetectors";
@@ -35,6 +35,7 @@ export interface EngineHost {
   chanceIds?(): { chatId: string; storyId: string } | null;
   offers?(): import("./life/offers").OfferEvidence | undefined;
   enabled?(): readonly string[] | null;
+  questResolutions?(): boolean;
 }
 
 export interface BoundaryContext {
@@ -267,7 +268,7 @@ export class StoryEngine {
     this.chatLength = normalizedContext.chatLength;
     blackboard.setWriteBoundary(this.boundary + 1, normalizedContext.lastMessageId);
     const queue = actPass(story, this.queue.drainAtBoundary(blackboard), this.boundary + 1, blackboard);
-    this.refreshMechanicalQualities(appliedKeys(queue, normalizedContext.lastMessageId));
+    this.refreshMechanicalQualities(appliedKeys(queue, normalizedContext.lastMessageId), this.boundary + 1);
     this.latchPass(this.boundary + 1);
 
     const outgoing = story.outgoingByCheckpoint[this.activeCheckpointId] ?? [];
@@ -476,7 +477,7 @@ export class StoryEngine {
     return () => this.advanceCallbacks.delete(callback);
   }
 
-  private refreshMechanicalQualities(applied: DerivedQualityView["applied"]): void {
+  private refreshMechanicalQualities(applied: DerivedQualityView["applied"], boundary: number): void {
     const story = this.requireStory();
     const blackboard = this.requireBlackboard();
     if (story.qualityByKey.message_count?.source === "code") {
@@ -494,7 +495,7 @@ export class StoryEngine {
       versions: blackboard.snapshot().versions, applied, offers: this.host.offers?.(),
     };
     for (const delta of this.host.derive?.(view) ?? []) blackboard.applyDelta({ q: delta.q, v: delta.v, source: "code" });
-    applyQuestRewards(story, blackboard);
+    applyQuestResolutions(story, blackboard, boundary, this.host.questResolutions?.() ?? true);
   }
 
   private entryPass(boundary: number, lastMessageId: number): void {

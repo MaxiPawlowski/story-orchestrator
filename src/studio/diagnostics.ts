@@ -28,6 +28,7 @@ import { PATTERN_CONSEQUENCES, checkPatternDiagnostics } from "./patternDiagnost
 import { CUE_CONSEQUENCES, checkCueDiagnostics } from "./cueDiagnostics";
 import { OFFER_CONSEQUENCES, checkOfferDiagnostics } from "./offerDiagnostics";
 import { ECHO_CONSEQUENCES, checkEchoDiagnostics } from "./echoDiagnostics";
+import { QUEST_CONSEQUENCES, checkQuestDiagnostics } from "./questDiagnostics";
 import { LORE_LIFETIME_CONSEQUENCES, checkLoreLifetime, type LoreFacts } from "./loreDiagnostics";
 
 export type DiagnosticSeverity = "blocking" | "warning" | "info";
@@ -102,6 +103,7 @@ export const DIAGNOSTIC_CONSEQUENCES: Record<(typeof DIAGNOSTIC_CODES)[number], 
   ...CUE_CONSEQUENCES,
   ...OFFER_CONSEQUENCES,
   ...ECHO_CONSEQUENCES,
+  ...QUEST_CONSEQUENCES,
   ...LORE_LIFETIME_CONSEQUENCES,
 };
 
@@ -528,6 +530,7 @@ const DIAGNOSTIC_CHECKS = [
   checkCueDiagnostics,
   checkOfferDiagnostics,
   checkEchoDiagnostics,
+  checkQuestDiagnostics,
 ];
 
 export const runDiagnostics = (draft: Story, context: DiagnosticsContext = {}): Diagnostic[] => {

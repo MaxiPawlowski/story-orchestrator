@@ -1,4 +1,4 @@
-import { hasChecks, hasGameLayer, questStatus, valueReader, type BoundaryLogEntry, type EngineState, type NormalizedStory } from "@engine/index";
+import { consequenceConflicts, hasChecks, hasGameLayer, heldQuestIds, questStatus, valueReader, type BoundaryLogEntry, type EngineState, type NormalizedStory } from "@engine/index";
 import { scopeDropped } from "@extraction/scope";
 import type { ScopeSourceContext } from "@extraction/scopeSources";
 import type { GameAuthorView, GameView } from "./gameTypes";
@@ -55,6 +55,7 @@ export function gameSlices(input: GameSliceInput): { game: GameView | null; game
   const gameAuthor: GameAuthorView | null = input.authorView ? {
     quests: (story.quests ?? []).map((quest) => ({ id: quest.id, title: quest.title, status: questStatus(quest, reader) })),
     scopeOverflow: scopeDropped(story, state, "quest", input.scopeContext),
+    heldQuests: heldQuestIds(story, state.blackboard.values), consequenceConflicts: consequenceConflicts(story, state.blackboard.values),
     ...(story.codex || story.observations?.length ? { discoveryOverflow: scopeDropped(story, state, "discovery", input.scopeContext) } : {}),
     widgets: composed?.authorWidgets ?? [],
     provenance: composed?.provenance,

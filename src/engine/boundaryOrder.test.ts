@@ -1,6 +1,6 @@
 import { BOUNDARY_STEPS, StoryEngine, type DerivedQualityView } from "./engine";
 import { parseStoryOrThrow } from "./validate";
-import { codexFactKey, questRewardKey } from "./schema";
+import { codexFactKey, questConsequenceKey } from "./schema";
 
 const bool = (key: string, source: "code" | "extractor" = "extractor") => ({ key, type: "bool", source, rubric: `Whether ${key} is true.` });
 const is = (key: string) => ({ q: key, op: "==", v: true });
@@ -43,7 +43,7 @@ describe("SC2: one fixed per-boundary order", () => {
     const result = engine.commitBoundary({ lastMessageId: 2, chatLength: 3 });
     const values = engine.serialize().blackboard.values;
     expect(values.message_count).toBe(3);
-    expect(values[questRewardKey("find")]).toBe(true);
+    expect(values[questConsequenceKey("find", "done", "reward")]).toBe(1);
     expect(values[codexFactKey("people", "keeper", "counted")]).toBe(1);
     expect(values[codexFactKey("people", "keeper", "derived")]).toBe(1);
     expect(values[codexFactKey("people", "keeper", "reward")]).toBe(1);

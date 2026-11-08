@@ -1,9 +1,10 @@
 import { keptStagedFrom, type EngineHistory, type EngineState } from "./engine";
 import {
   CODEX_PAGES, observationIdentity, observationKey, observationMissedKey, codexArmedKey, codexEntryKey, codexFactKey, codexReturnKey, isCodexKey, isObservationKey,
-  factionMoveKey, questClosedKey, questRewardKey, STORY_DISPLAY_TOGGLES,
-  type CodexEntry, type CodexPage, type NormalizedStory, type PrimitiveValue, type TalkControl, type Transition,
+  factionMoveKey, questClosedKey, questConsequenceKey, STORY_DISPLAY_TOGGLES,
+  type CodexEntry, type CodexPage, type NormalizedStory, type PrimitiveValue, type Quest, type TalkControl, type Transition,
 } from "./schema";
+import { questEndings } from "./quests";
 import { qualityAccepts } from "./blackboard";
 import { gateLeaves } from "./gates";
 import { gameLayer } from "./validate/gameLayer";
@@ -24,7 +25,8 @@ export type StoryDiffCode =
   | "story-objective-block-changed" | "story-display-changed" | "story-presence-changed" | "story-kind-changed" | "visual-packs-changed"
   | "scene-read-changed" | "player-card-changed" | "player-profile-changed" | "lore-select-changed"
   | "house-rules-changed" | "talk-defaults-changed" | "backdrop-defaults-changed" | "arc-template-changed" | "arc-bridges-changed" | "chapters-changed" | "game-changed"
-  | "quest-removed" | "quest-removed-closed" | "quest-reward-changed-earned" | "check-changed" | "codex-changed"
+  | "quest-removed" | "quest-removed-closed" | "quest-resolution-removed-reached" | "quest-consequence-changed-applied"
+  | "quest-consequence-effects-changed-applied" | "check-changed" | "codex-changed"
   | "factions-changed" | "faction-move-changed-applied"
   | "codex-entry-removed" | "codex-entry-replaced" | "codex-fact-removed" | "codex-fact-replaced"
   | "codex-fact-edited" | "codex-return-removed" | "codex-return-replaced" | "codex-return-edited"
@@ -306,14 +308,32 @@ const diffQuests = ({ previous, next, values, push }: DiffContext) => {
     const kept = after.get(quest.id);
     const closed = values[questClosedKey(quest.id)];
     if (!kept) {
-      const verb = closed === "done" ? "finished" : "failed";
-      if (typeof closed === "string") push("invalidating", "quest-removed-closed", `quests.${quest.id}`, `“${quest.title}” is gone from the story, and this chat already ${verb} it.`);
+      if (typeof closed === "string") push("invalidating", "quest-removed-closed", `quests.${quest.id}`, `“${quest.title}” is gone from the story, and this chat already closed it (${closed}).`);
       else push("compatible", "quest-removed", `quests.${quest.id}`, `“${quest.title}” left the story; this chat stops tracking it.`);
       continue;
     }
-    if (values[questRewardKey(quest.id)] === true && !sameValue(quest.reward, kept.reward)) {
-      push("compatible", "quest-reward-changed-earned", `quests.${quest.id}.reward`, `The reward for “${quest.title}” changed; this chat already received the old one and is not given the new one.`);
+    if (typeof closed === "string" && !questEndings(kept, true).some((ending) => ending.id === closed)) {
+      push("invalidating", "quest-resolution-removed-reached", `quests.${quest.id}.resolutions.${closed}`,
+        `“${quest.title}” no longer has the ending ${closed}, and this chat already reached it.`);
     }
+    diffConsequences(quest, kept, values, push);
+  }
+};
+
+const consequenceRows = (quest: Quest) => questEndings(quest, true).flatMap((ending) => ending.consequences.map((consequence) => ({
+  ending: ending.id, consequence, key: questConsequenceKey(quest.id, ending.id, consequence.id),
+})));
+
+const diffConsequences = (quest: Quest, kept: Quest, values: DiffContext["values"], push: DiffContext["push"]) => {
+  const next = new Map(consequenceRows(kept).map((row) => [row.key, row.consequence]));
+  for (const row of consequenceRows(quest)) {
+    if (typeof values[row.key] !== "number") continue;
+    const after = next.get(row.key);
+    if (sameValue(row.consequence, after)) continue;
+    const at = `quests.${quest.id}.resolutions.${row.ending}.consequences.${row.consequence.id}`;
+    if (row.consequence.effects && !sameValue(row.consequence.effects, after?.effects)) {
+      push("invalidating", "quest-consequence-effects-changed-applied", at, `A consequence of “${quest.title}” this chat already received changed what it switches on; keep the old one or restart.`);
+    } else push("compatible", "quest-consequence-changed-applied", at, `A consequence of “${quest.title}” changed; this chat already received the old one and is not given the new one.`);
   }
 };
 

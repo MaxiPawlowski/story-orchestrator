@@ -86,4 +86,38 @@ export const PATTERNS_UNAVAILABLE_CHECK: Check = {
   } : null),
 };
 
-export const GAME_CHECKS: readonly Check[] = [QUEST_SCOPE_CHECK, RELATIONSHIP_SCOPE_CHECK, DISCOVERY_SCOPE_CHECK, SAME_CHARACTER_CHECK, PATTERNS_UNAVAILABLE_CHECK];
+export const QUEST_AMBIGUOUS_CHECK: Check = {
+  id: "quest-resolution-ambiguous",
+  area: "quest",
+  scope: "chat",
+  audience: "author",
+  severity: "info",
+  feature: "quest-resolutions",
+  detect: (snapshot) => {
+    const held = snapshot.gameAuthor?.heldQuests ?? [];
+    return held.length ? {
+      consequence: "These quests stay open while two of their endings hold at once, because the story asks to hold them instead of choosing.",
+      detail: `Held open now: ${held.join(", ")}. Add precedence (first wins) in Studio › Quests, or tighten one ending's gate; the quest closes once only one ending holds.`,
+    } : null;
+  },
+};
+
+export const QUEST_CONSEQUENCE_CONFLICT_CHECK: Check = {
+  id: "quest-consequence-conflict",
+  area: "quest",
+  scope: "chat",
+  audience: "author",
+  severity: "info",
+  feature: "quest-resolutions",
+  detect: (snapshot) => {
+    const keys = snapshot.gameAuthor?.consequenceConflicts ?? [];
+    return keys.length ? {
+      consequence: "Two consequences that applied in the same reply wrote one value; only one of them was kept.",
+      detail: `Written twice in one reply: ${keys.join(", ")}. The quest whose id sorts first won. Write these with {add} or gate one consequence so they cannot land together.`,
+    } : null;
+  },
+};
+
+export const GAME_CHECKS: readonly Check[] = [
+  QUEST_SCOPE_CHECK, RELATIONSHIP_SCOPE_CHECK, DISCOVERY_SCOPE_CHECK, SAME_CHARACTER_CHECK, PATTERNS_UNAVAILABLE_CHECK, QUEST_AMBIGUOUS_CHECK, QUEST_CONSEQUENCE_CONFLICT_CHECK,
+];

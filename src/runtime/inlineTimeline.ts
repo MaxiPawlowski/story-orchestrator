@@ -1,4 +1,4 @@
-import { anchorOpening, questStatus, valueReader, type ApplyQueueEntry, type BoundaryLogEntry, type NormalizedStory, type PrimitiveValue } from "@engine/index";
+import { anchorOpening, questEnding, questStatus, valueReader, type ApplyQueueEntry, type BoundaryLogEntry, type NormalizedStory, type PrimitiveValue } from "@engine/index";
 import { questMoveText } from "@features/gameCopy";
 import type { SharedReadAudit, ReconciliationEvent } from "@extraction/index";
 import type { JudgeCallRecord } from "@judge/index";
@@ -122,7 +122,7 @@ function questItems(sources: InlineSources): Draft[] {
     const from = questStatus(quest, valueReader(entry.before.blackboard.values));
     const to = questStatus(quest, valueReader(entry.after.blackboard.values));
     if (from === to || to === "hidden") return [];
-    const text = questMoveText(to, quest.title, quest.labels);
+    const text = questMoveText(to, quest.title, questEnding(quest, to)?.label);
     return [{ id: `progress:quest:${entry.boundary}:${quest.id}`, messageId: entry.context.lastMessageId, category: "progress", level: 1, state: "applied", text }];
   }));
 }

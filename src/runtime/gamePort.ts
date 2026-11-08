@@ -1,4 +1,4 @@
-import { questRewardKey, type BoundaryLogEntry, type BoundaryResult, type NormalizedStory, type StoryEngine } from "@engine/index";
+import { appliedConsequences, type BoundaryLogEntry, type BoundaryResult, type NormalizedStory, type StoryEngine } from "@engine/index";
 import { gameLayer } from "@engine/validate/gameLayer";
 import type { EarnedEffects, EffectsApplier } from "./effectsApplier";
 import { beginRun, type RunOwnership } from "./runToken";
@@ -18,12 +18,12 @@ export interface GamePortDeps {
   notify: () => void;
 }
 
-const rewardsLanded = (story: NormalizedStory, entry: BoundaryLogEntry): EarnedEffects[] => (story.quests ?? []).flatMap((quest) => {
-  const key = questRewardKey(quest.id);
-  const effects = quest.reward?.effects;
-  return effects && entry.before.blackboard.values[key] !== true && entry.after.blackboard.values[key] === true
-    ? [{ kind: "quest" as const, id: quest.id, name: quest.title, effects }] : [];
-});
+const consequencesLanded = (story: NormalizedStory, entry: BoundaryLogEntry): EarnedEffects[] => appliedConsequences(story, entry.after.blackboard.values)
+  .filter((item) => item.consequence.effects && entry.before.blackboard.values[item.key] === undefined)
+  .map((item) => ({
+    kind: "quest" as const, id: `${item.questId}:${item.resolutionId}:${item.consequence.id}`,
+    name: (story.quests ?? []).find((quest) => quest.id === item.questId)?.title ?? item.questId, effects: item.consequence.effects ?? {},
+  }));
 
 const agendaLanded = (story: NormalizedStory, entry: BoundaryLogEntry): EarnedEffects[] => (story.life
   ? gameLayer()?.life.landedSteps(story, entry.before.blackboard.values, entry.after.blackboard.values) ?? [] : [])
@@ -63,7 +63,7 @@ export function createGamePort(deps: GamePortDeps) {
         void deps.persist();
         deps.notify();
       }
-      const landed = [...rewardsLanded(loaded.story, entry), ...agendaLanded(loaded.story, entry), ...commitmentsKept(loaded.story, entry)];
+      const landed = [...consequencesLanded(loaded.story, entry), ...agendaLanded(loaded.story, entry), ...commitmentsKept(loaded.story, entry)];
       if (landed.length) void dispatch(loaded.story, landed, entry);
     },
     outcomeBlock: (): string | null => {

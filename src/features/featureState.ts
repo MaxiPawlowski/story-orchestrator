@@ -43,6 +43,8 @@ export const FEATURE_STATE: Readonly<Record<string, FeatureStateRow>> = {
   "character-delivery": master("delivery"),
   "reply-polish": master("polish"),
   "story-patterns": master("patterns"),
+  "quest-resolutions": master("questResolutions"),
+  "story-record": master("storyRecord"),
   "reactive-cues": master("cues"),
   "delayed-echoes": master("echoes"),
   "skip-ahead": master("skip"),

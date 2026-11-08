@@ -95,4 +95,5 @@ export const DIAGNOSTIC_CODES = [
   "echo-speaks-for-player",
   "echo-names-unknown-entity",
   "echo-gate-holds-never",
+  "consequence-write-conflict",
 ] as const;

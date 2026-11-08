@@ -10,14 +10,11 @@ export const ECHO_EXPIRES_MAX = 60;
 export const ECHO_LANDINGS_PER_BOUNDARY = 2;
 export const ECHO_EVENTS_CAP = 200;
 export const ECHO_NARRATOR = "narrator";
-export const ECHO_QUEST_ENDS = ["done", "failed"] as const;
 export const ECHO_CHECK_OUTCOMES = ["success", "failure", "miss", "weak", "strong"] as const;
-
-export type EchoQuestEnd = (typeof ECHO_QUEST_ENDS)[number];
 
 export type EchoAfter =
   | { transition: string }
-  | { quest: string; to: EchoQuestEnd }
+  | { quest: string; to: string }
   | { milestone: string }
   | { check: string; outcome: string };
 

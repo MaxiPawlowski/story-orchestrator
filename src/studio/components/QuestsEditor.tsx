@@ -3,11 +3,13 @@ import type { Quest, QuestReward, QuestStep } from "@engine/index";
 import { useDraftStore } from "../draft";
 import { addQuest, newQuest, removeQuest, updateQuest } from "../gameMutations";
 import GateBuilder from "./GateBuilder";
+import QuestResolutionsPanel from "./QuestResolutionsPanel";
 import { JsonField, OptionalGate, TextField, optionalText } from "./GameFields";
 import { Button } from "@components/ui/Button";
 import { IconButton } from "@components/ui/IconButton";
 
-const HELP = "A side quest's status is computed from qualities every turn: hidden, offered, active, done or failed. Titles and steps are player copy: name nothing the player has not reached.";
+const HELP = "A side quest is hidden, offered or active until it closes on one resolution: done, failed or one you name, each with its own consequences. "
+  + "Titles, steps and resolution labels are player copy: name nothing the player has not reached.";
 
 const StepRow = ({ quest, step, index }: { quest: Quest; step: QuestStep; index: number }) => {
   const mutate = useDraftStore((state) => state.mutate);
@@ -52,6 +54,7 @@ const QuestRow = ({ quest }: { quest: Quest }) => {
       <TextField label={`${name} author note`} value={quest.author_note ?? ""} placeholder="never shown to players" onChange={(note) => patch({ author_note: optionalText(note) })} />
       <JsonField label={`${name} reward`} hint="{set?, effects?: {world_info, cast_changes, npc_replies}, label?, visible_when?}" value={quest.reward}
         onChange={(reward) => patch({ reward: reward as QuestReward | undefined })} />
+      <QuestResolutionsPanel quest={quest} />
     </div>
   );
 };

@@ -5,7 +5,7 @@ import type { StoryPolish } from "@engine/polishSchema";
 import type { MemberCue, MemberTopic, StoryNorm, TopicTier } from "@engine/cueSchema";
 import type { StoryEcho } from "@engine/echoSchema";
 import type { BackdropEffect, BackdropLayerEntry } from "@engine/backdropSchema";
-import type { Checkpoint, CheckpointEffects, NpcReplyEffect, Quality, RosterMember, Story, StoryTalkDefaults, TalkControl, Transition } from "@engine/index";
+import type { Checkpoint, CheckpointEffects, NpcReplyEffect, Quality, Quest, QuestConsequence, QuestResolution, QuestStep, RosterMember, Story, StoryTalkDefaults, TalkControl, Transition } from "@engine/index";
 import { GUIDE_TOPICS, type GuideTopicId } from "./guideTopics";
 import { PENDING_GUIDE_TOPICS, readGuide } from "./guideRead";
 
@@ -102,7 +102,23 @@ const NPC_REPLY: Record<keyof NpcReplyEffect, Covered> = {
   maxTriggers: "npc-replies", probability: "npc-replies", after_member: "npc-replies", enabled: "npc-replies", id: "npc-replies", once_per: "npc-replies",
   cooldown_player_turns: "npc-replies",
 };
+const QUEST: Record<keyof Quest, Covered> = {
+  id: "quests", title: "quests", kind: { none: "always side: the main line is the checkpoint graph" }, visible_when: "quests", offered_when: "quests", done_when: "quests",
+  failed_when: "quests", steps: "quests", requires: "quests", progress: "quests", labels: "quests", giver: "quests", author_note: { none: "author copy, never shown; in the quests section" },
+  reward: "quests", promise: "quests", recap: "consequences", recap_when: "consequences", resolutions: "quest-resolutions", precedence: "quest-resolutions",
+  hold_when_ambiguous: "quest-resolutions",
+};
+const QUEST_STEP: Record<keyof QuestStep, Covered> = {
+  text: { none: "the step's player line" }, done_when: "quests", failed_when: "quests", visible_when: "quests", progress: "quests", optional: "quests", alternative_of: "quests",
+};
+const QUEST_RESOLUTION: Record<keyof QuestResolution, Covered> = {
+  id: "quest-resolutions", when: "quest-resolutions", label: "quest-resolutions", recap: "quest-resolutions", from: "quest-resolutions", consequences: "quest-consequences",
+};
+const QUEST_CONSEQUENCE: Record<keyof QuestConsequence, Covered> = {
+  id: "quest-consequences", when: "quest-consequences", set: "quest-consequences", effects: "quest-consequences", label: "quest-consequences", visible_when: "quest-consequences",
+};
 const TABLES: Array<[string, Record<string, Covered>]> = [
+  ["quests[]", QUEST], ["quests[].steps[]", QUEST_STEP], ["quests[].resolutions[]", QUEST_RESOLUTION], ["quests[].resolutions[].consequences[]", QUEST_CONSEQUENCE],
   ["checkpoints[].talk_control", TALK_CONTROL], ["talk_defaults", TALK_DEFAULTS], ["backdrop", BACKDROP], ["backdrop.layers[]", BACKDROP_LAYER], ["checkpoints[].effects.npc_replies[]", NPC_REPLY],
   ["polish", STORY_POLISH],
   ["roster[].cues[]", CUE], ["roster[].topics[]", TOPIC], ["roster[].topics[].tiers[]", TIER], ["norms[]", NORM], ["echoes[]", ECHO],

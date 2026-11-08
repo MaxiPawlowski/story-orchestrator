@@ -1,4 +1,4 @@
-import { addGatedEntry, gatedWorldInfo, loreAlongPath, readWorldInfoEffect, rewardedQuestIds, validStagedFrom, type GatedWorldInfo, type NormalizedStory } from "@engine/index";
+import { addGatedEntry, consequenceWorldInfo, gatedWorldInfo, loreAlongPath, readWorldInfoEffect, validStagedFrom, type GatedWorldInfo, type NormalizedStory } from "@engine/index";
 import { bookKey } from "./worldInfoMatch";
 import { MIRROR_BOOK_PREFIX } from "./mirrorReaper";
 import { gameLayer } from "@engine/validate/gameLayer";
@@ -24,13 +24,10 @@ export const setLoreLifetimeReader = (read: () => boolean) => { lifetimeOn = rea
 
 export const loreLifetimeOn = (): boolean => lifetimeOn();
 
-export function worldInfoPlan(story: NormalizedStory, path: string[], rewarded: readonly string[] = [], earned: readonly unknown[] = [],
+export function worldInfoPlan(story: NormalizedStory, path: string[], consequences: readonly unknown[] = [], earned: readonly unknown[] = [],
   lifetime: boolean = loreLifetimeOn()): WorldInfoBookPlan[] {
   const enabled: GatedWorldInfo = new Map([...loreAlongPath(story, path, lifetime)].map(([lorebook, comments]) => [lorebook, new Set(comments.keys())]));
-  const switches = [
-    ...(story.quests ?? []).filter((quest) => rewarded.includes(quest.id)).map((quest) => readWorldInfoEffect(quest.reward?.effects?.world_info)),
-    ...earned.map(readWorldInfoEffect),
-  ];
+  const switches = [...consequences, ...earned].map(readWorldInfoEffect);
   for (const { enable, disable } of switches) {
     enable.forEach((ref) => ref.comments.forEach((comment) => addGatedEntry(enabled, ref.lorebook, comment)));
     disable.forEach((ref) => ref.comments.forEach((comment) => enabled.get(ref.lorebook)?.delete(comment)));
@@ -57,17 +54,17 @@ export const earnedWorldInfo = (story: NormalizedStory, values: Readonly<Record<
   (story.life ? gameLayer()?.life.lifeWorldInfo(story, values) ?? [] : []);
 
 export interface EarnedSwitches {
-  rewarded: string[];
+  consequences: unknown[];
   earned: unknown[];
 }
 
-export const NO_EARNED_SWITCHES: EarnedSwitches = { rewarded: [], earned: [] };
+export const NO_EARNED_SWITCHES: EarnedSwitches = { consequences: [], earned: [] };
 
 export const earnedSwitches = (story: NormalizedStory | null, values: Readonly<Record<string, unknown>>): EarnedSwitches =>
-  (story ? { rewarded: rewardedQuestIds(story, { ...values }), earned: earnedWorldInfo(story, values) } : NO_EARNED_SWITCHES);
+  (story ? { consequences: consequenceWorldInfo(story, values), earned: earnedWorldInfo(story, values) } : NO_EARNED_SWITCHES);
 
 export const earnedSwitchesKey = (switches: EarnedSwitches): string =>
-  (switches.rewarded.length || switches.earned.length ? JSON.stringify([switches.rewarded, switches.earned]) : "");
+  (switches.consequences.length || switches.earned.length ? JSON.stringify([switches.consequences, switches.earned]) : "");
 
 export function stagedPath(path: string[], stagedFrom: number | undefined): string[] {
   const from = validStagedFrom(stagedFrom, path.length);

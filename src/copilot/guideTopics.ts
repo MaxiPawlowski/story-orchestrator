@@ -1,4 +1,5 @@
 import { RECAP_GUIDE_TOPIC } from "./guideTopicsRecap";
+import { QUEST_GUIDE_TOPICS } from "./guideTopicsQuests";
 import { BACKDROP_TOPIC, VISUAL_PACKS_TOPIC } from "./guideTopicsVisual";
 import { CODEX_GUIDE_TOPIC, OBSERVATION_DIAGNOSTIC_TOPICS } from "./guideTopicsCodex";
 import { DELIVERY_DIAGNOSTIC_TOPICS, DELIVERY_TOPICS } from "./guideTopicsDelivery";
@@ -323,13 +324,7 @@ export const GUIDE_TOPICS = {
       + "display.lore_names_public shows lore names in the timeline. display.<presence item> false hides it.",
   },
   ...VISUAL_PACKS_TOPIC,
-  quests: {
-    title: "Quests and milestones",
-    fields: "quests[], visible_when, offered_when, done_when, failed_when, steps[], requires, progress, labels, giver, reward, promise, milestones[]",
-    text: "Status is computed every turn: hidden until visible_when (the acceptance), offered (never fails) while offered_when holds, then active, done or failed (failed wins); the end latches. "
-      + "done_when defaults to every step done or progress {quality, of} reached; requires waits for another quest to be done (its closed latch). reward lands once: set writes code qualities, "
-      + "effects switch world_info, cast_changes, npc_replies (onEnter); a swipe takes it back. Milestones {id, title, when, secret}; a secret one is unlisted until earned.",
-  },
+  ...QUEST_GUIDE_TOPICS,
   checks: {
     title: "Checks",
     fields: "checkpoints[].checks[], transitions[].check, roll, modifiers[], narrate, outcome, twist, when, hint, hint_when",
@@ -458,5 +453,6 @@ export const DIAGNOSTIC_GUIDE_TOPIC: Record<DiagnosticCode, GuideTopicId> = {
   ...OBSERVATION_DIAGNOSTIC_TOPICS,
   "pattern-label-names-unknown-entity": "patterns", "pattern-label-claims-cause": "patterns", "pattern-never-completes": "patterns",
   ...OFFER_DIAGNOSTIC_TOPICS,
+  "consequence-write-conflict": "quest-consequences",
 };
 

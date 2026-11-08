@@ -1,9 +1,41 @@
 # v3.0 48 — Quest resolutions and consequences
 
-Status 2026-11-08: PLANNED (docs only). Source: owner conversation with Astra 2026-11-08 (summary kept outside the repo),
+Status 2026-11-08: IN BUILD (branch `v3.0-48-resolutions`). Source: owner conversation with Astra 2026-11-08 (summary kept outside the repo),
 reviewed against master `1aaa7ca09`. Second opinion: codex `gpt-6.1-sol` (§Second opinion). Plans 49-55 build on this one.
 
-## Why
+## Owner decisions 2026-11-08
+
+1. An offered quest may lapse on story time alone, as a neutral `lapsed` resolution (`from: ["offered"]`, a gate on time
+   keys only). Never worded as a broken promise: the validator refuses a time-only resolution reachable from `offered`
+   unless its id is `lapsed`, and `failed_when` on an offered quest still never fails on time alone.
+2. Pressures that move on events or story time are fine: the world moving on, not punishing a missed roll (plan 49).
+3. Resolutions get a switch, on by default. Off ignores resolutions and never invents consequences.
+4. `quest_<id>_rewarded` is replaced outright, no alias. Running chats need Restart; no migrations.
+5. Sol ratings are approved for this plan's floors.
+6. No third-party text bundled; links only.
+7. Situations are fields on a quest first (plan 49). Optional and alternative steps (`steps[].optional`,
+   `steps[].alternative_of`) are built here, in 48.
+8. Plan 53 waits for the playtest.
+
+## Resume 2026-11-08 (paused on owner overload, WIP on `v3.0-48-resolutions`)
+
+Built, not yet gated (only focused jest runs, all green except where noted):
+- engine: `quests.ts` (endings = sugar + `resolutions`, precedence, hold, single-snapshot close + aggregated consequences,
+  `quest_<id>_<res>_c_<cid>` latches, `questLatchKeys` detector), `questSimulation.ts`, switch via `EngineHost.questResolutions`;
+  `validate/quests.ts` (resolutions, consequences, precedence/overlap proof, lapsed rule, requires objects,
+  optional/alternative steps); echoes/patterns take resolution ids; storyDiff; WI census + earned switches; gamePort dispatch.
+- runtime: consequences recap, widgets/journal labels + outcomes, playerProjection withholds unreached labels, promises
+  (other resolutions release), checks `quest-resolution-ambiguous` / `quest-consequence-conflict`, feature rows
+  `quest-resolutions`, `story-record` (featureSwitches.*).
+- 54: `runtime/storyRecord.ts`, Author console section `record` (`RecordSection.tsx` + story).
+- Studio: `QuestResolutionsPanel` (matrix, simulator), `questMatrix.ts`, diagnostic `consequence-write-conflict`.
+- Guide: `quests` rewritten, `quest-resolutions`, `quest-consequences` (`guideTopicsQuests.ts`, story-guide.md).
+- Tests: `questResolution.test.ts`, `questResolution.property.test.ts` (200 seeds shuffle + rollback), `storyRecord.test.ts`.
+
+Next: wizard `quest-line` recipe rewrite + `simulateQuest` read tool; tests for questMatrix/simulator/projection spoiler scan;
+`npm run typecheck`, `typecheck:test`, lint, `gates:quick`; `docs:guide`, `docs:settings`; no-model lane scenario +
+`quest-resolutions.journey.json` (GPU owed); merge master; full `npm run gates`; gate records in 48 and 54.
+
 
 Owner 2026-11-08: "make better quests that properly integrate into the story to make it richer, not just to drive the
 player from A to B." A friend's prepared quest had several outcomes, each with its own rewards or consequences. Today a

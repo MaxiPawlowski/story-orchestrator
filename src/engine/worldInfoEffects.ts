@@ -78,8 +78,14 @@ export function loreAlongPath(story: PathLoreStory, path: readonly string[], lif
   return on;
 }
 
-const questRewardWorldInfo = (story: unknown) => (isRecord(story) && Array.isArray(story.quests) ? story.quests : [])
-  .map((quest) => readWorldInfoEffect(isRecord(quest) && isRecord(quest.reward) && isRecord(quest.reward.effects) ? quest.reward.effects.world_info : undefined));
+const listOf = (value: unknown, key: string): unknown[] => (isRecord(value) && Array.isArray(value[key]) ? value[key] as unknown[] : []);
+
+const effectWorldInfo = (item: unknown) => readWorldInfoEffect(isRecord(item) && isRecord(item.effects) ? item.effects.world_info : undefined);
+
+const questRewardWorldInfo = (story: unknown) => listOf(story, "quests").flatMap((quest) => [
+  effectWorldInfo(isRecord(quest) ? quest.reward : undefined),
+  ...listOf(quest, "resolutions").flatMap((resolution) => listOf(resolution, "consequences").map(effectWorldInfo)),
+]);
 
 const agendaWorldInfo = (story: unknown) => (isRecord(story) && Array.isArray(story.roster) ? story.roster : [])
   .flatMap((member) => (isRecord(member) && Array.isArray(member.agenda) ? member.agenda : []))

@@ -33,6 +33,8 @@ export const FEATURE_POLICY_FIELDS = {
   echoes: { enabled: toggle },
   skip: { enabled: toggle },
   patterns: { enabled: toggle },
+  questResolutions: { enabled: toggle },
+  storyRecord: { enabled: toggle },
   meanwhile: { enabled: toggle, acceptMode: choice("auto", "review") },
   living: { enabled: toggle },
   branching: { enabled: toggle },
