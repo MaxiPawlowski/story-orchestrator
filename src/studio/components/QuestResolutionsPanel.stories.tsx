@@ -5,10 +5,15 @@ import { useDraftStore } from "../draft";
 import { resolutionStory } from "./gameEditorFixtures";
 import { seedDraft } from "../stories/fixtures";
 
+const FirstQuest = () => {
+  const quest = useDraftStore((state) => state.draft.quests?.[0]);
+  return quest ? <QuestResolutionsPanel quest={quest} /> : null;
+};
+
 const meta: Meta<typeof QuestResolutionsPanel> = {
   title: "Studio/QuestResolutionsPanel",
   component: QuestResolutionsPanel,
-  render: () => <QuestResolutionsPanel quest={useDraftStore((state) => state.draft.quests![0])} />,
+  render: () => <FirstQuest />,
 };
 
 export default meta;
