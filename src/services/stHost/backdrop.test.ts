@@ -29,12 +29,13 @@ const page = (options: { background?: string; reduced?: boolean; hidden?: boolea
       addEventListener: (_type: string, listener: () => void) => listeners.add(listener),
       removeEventListener: (_type: string, listener: () => void) => listeners.delete(listener),
     },
+    matchMedia: (query: string) => ({ matches: query.includes("reduce") && options.reduced === true }),
     getComputedStyle: () => ({ backgroundImage: options.background ?? "none", backgroundSize: "cover", backgroundPosition: "center", backgroundRepeat: "no-repeat", filter: "none" }),
   });
   return { nodes, dataset, listeners };
 };
 
-afterEach(() => { Reflect.deleteProperty(globalThis, "document"); Reflect.deleteProperty(globalThis, "getComputedStyle"); });
+afterEach(() => { ["document", "getComputedStyle", "matchMedia"].forEach((key) => Reflect.deleteProperty(globalThis, key)); });
 
 describe("v3.0 45 stHost backdrop", () => {
   it("mounts one root after #bg1 and removes it", () => {

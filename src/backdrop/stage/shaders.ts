@@ -69,7 +69,7 @@ void main() {
   float r1 = h(id + 1.0), r2 = h(id + 7.3), r3 = h(id + 13.7), r4 = h(id + 29.1);
   float t = uTime * uSpeed;
   vec2 p = vec2(0.5);
-  vec2 half = vec2(2.0);
+  vec2 ext = vec2(2.0);
   vec2 dir = vec2(0.0, 1.0);
   float alpha = 1.0;
   if (uKind == 0) {
@@ -77,32 +77,32 @@ void main() {
     p.y = 1.0 - fract(r2 + t * fall * 0.55);
     p.x = fract(r1 + (1.0 - p.y) * 0.06);
     dir = normalize(vec2(0.06 * uRes.y / uRes.x, 1.0));
-    half = vec2(0.6, 9.0 + r4 * 9.0) * uScale;
+    ext = vec2(0.6, 9.0 + r4 * 9.0) * uScale;
     alpha = 0.18 + r3 * 0.22;
   } else if (uKind == 1) {
     float fall = 0.035 + r3 * 0.05;
     p.y = 1.0 - fract(r2 + t * fall);
     p.x = fract(r1 + sin(t * 0.6 + r4 * 6.28) * 0.015 + t * 0.004);
-    half = vec2(1.0 + r4 * 2.2) * uScale;
+    ext = vec2(1.0 + r4 * 2.2) * uScale;
     alpha = 0.45 + r3 * 0.4;
   } else if (uKind == 2) {
     float rise = 0.04 + r3 * 0.06;
     float life = fract(r2 + t * rise);
     p.y = life * 0.95;
     p.x = fract(r1 + sin(t * 0.9 + r4 * 6.28) * 0.02 + life * 0.05);
-    half = vec2(0.9 + r4 * 1.6) * uScale;
+    ext = vec2(0.9 + r4 * 1.6) * uScale;
     alpha = (0.55 + 0.45 * sin(t * 6.0 + r4 * 40.0)) * (1.0 - life) * smoothstep(0.0, 0.1, life);
   } else if (uKind == 3) {
     p = fract(vec2(r1, r2) + vec2(sin(t * 0.07 + r3 * 6.28), cos(t * 0.05 + r4 * 6.28)) * 0.04 + t * vec2(0.003, 0.0015));
-    half = vec2(0.6 + r3 * 1.4) * uScale;
+    ext = vec2(0.6 + r3 * 1.4) * uScale;
     alpha = (0.12 + 0.2 * r4) * (0.6 + 0.4 * sin(t * 0.8 + r1 * 30.0));
   } else {
     p = vec2(fract(r1 + sin(t * 0.11 + r3 * 6.28) * 0.06), 0.08 + 0.55 * fract(r2 + cos(t * 0.09 + r4 * 6.28) * 0.05));
-    half = vec2(1.6 + r3 * 1.6) * uScale;
+    ext = vec2(1.6 + r3 * 1.6) * uScale;
     alpha = pow(max(0.0, sin(t * (0.6 + r4) + r1 * 40.0)), 3.0);
   }
   vec2 side = vec2(dir.y, -dir.x);
-  vec2 offset = (side * q.x * half.x + dir * q.y * half.y) * 2.0 / uRes;
+  vec2 offset = (side * q.x * ext.x + dir * q.y * ext.y) * 2.0 / uRes;
   gl_Position = vec4(p * 2.0 - 1.0 + offset, 0.0, 1.0);
   vLocal = q;
   vAlpha = alpha;
@@ -115,7 +115,7 @@ in float vAlpha;
 out vec4 outColor;
 uniform vec3 uColor;
 uniform float uIntensity;
-uniform int uKind;
+uniform highp int uKind;
 void main() {
   float a;
   if (uKind == 0) a = (1.0 - abs(vLocal.x)) * smoothstep(-1.0, 0.6, vLocal.y) * (1.0 - smoothstep(0.6, 1.0, vLocal.y));

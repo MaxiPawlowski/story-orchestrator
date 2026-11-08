@@ -55,9 +55,7 @@ export const chatTextLuminance = (): number | null => {
   return color ? relativeLuminance(...color) : null;
 };
 
-export const backdropReducedMotion = (): boolean =>
-  (typeof document !== "undefined" && document.body.classList.contains("reduced-motion"))
-  || (typeof matchMedia === "function" && matchMedia("(prefers-reduced-motion: reduce)").matches);
+export const backdropReducedMotion = (): boolean => typeof matchMedia === "function" && matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 export const pageHidden = (): boolean => typeof document !== "undefined" && document.visibilityState === "hidden";
 

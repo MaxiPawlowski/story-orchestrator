@@ -175,7 +175,7 @@ export class BackdropController {
     if (forceLayers || !sameSpecs(specs, this.specs)) {
       this.specs = specs;
       try { this.renderer?.setLayers(specs, this.assets); }
-      catch (error) { log.warn("Backdrop layers could not be built; showing the still", error); this.renderer?.setLayers([], this.assets); }
+      catch (error) { log.warn("Backdrop layers could not be built; showing the still", error); this.specs = []; this.renderer?.setLayers([], this.assets); }
     }
     this.host.setFlags({ active: this.active, dim: this.active && settings.dimBehindChat });
     this.schedule();
