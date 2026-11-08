@@ -14,7 +14,7 @@ import type { PlayerSetupRecord, PlayerSetupView } from "./playerSetup";
 import type { ContextOverServer } from "./replyContext";
 import type { DeferredOpener } from "./openerDeferral";
 import type { DriverContext } from "@copilot/index";
-import type { SteeringHint } from "@pacing/index";
+import type { EngagementReading, SteeringHint } from "@pacing/index";
 import type { RepetitionReport } from "@stagecraft/index";
 import type { JournalRecord } from "./journal";
 import type { NarrativeStatus, RollbackNotice, RollbackUnavailable } from "./narrative";
@@ -528,7 +528,7 @@ export interface RuntimeSnapshot {
     level: TensionLevel | null;
     smoothed: number | null;
     expected: number | null;
-    hint: SteeringHint | null;
+    hint: SteeringHint | null; engagement?: EngagementReading | null;
   };
   /** The agency policy in effect for the active checkpoint, defaults included, so
    *  the drawer's author view can show what steering is being told to respect. */

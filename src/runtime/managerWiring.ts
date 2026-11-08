@@ -290,7 +290,7 @@ export function wireCoordinators(port: ManagerPort) {
     getTensionTarget: () => engine.activeCheckpoint?.tension_target,
     getTension: () => port.extras().tension,
     setTension: (next) => { port.extras().tension = next; },
-    getPacing: () => port.extras().pacing, ...pacingTrials(view, memory),
+    getPacing: () => port.extras().pacing, ...pacingTrials(view, memory, () => port.extras()),
     ended: () => storyEnded(port.extras().memory.chapters ?? []),
     onHoldChange: lifecycle.notify,
   });

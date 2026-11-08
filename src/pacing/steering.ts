@@ -69,6 +69,9 @@ const PULL_LINES: Record<PullStage, (place: string) => string> = {
   strong: (place) => `Let the world press toward ${place} plainly in this reply, as a deadline or someone urging.`,
 };
 
+const pressedLine = (place: string, pressure: string): string => `Let ${pressure.trim()} press toward ${place} plainly in this reply.`;
+const deadlineLine = (place: string): string => `Let the world press toward ${place} plainly in this reply: the time to move on is running out.`;
+
 export const OPENING_LINE = `Open start: there is no task yet. Follow what ${PLAYER_REF} starts (a look around, a talk, a rest) and let the world answer it.`;
 
 export interface EncounterOffer {
@@ -86,8 +89,13 @@ export const encounterOfferLine = (offers: readonly EncounterOffer[]): string =>
 
 const nextPlace = (destination: string | null): string => (destination ? `the next place (${destination})` : "the next place");
 
-export const pullLine = (stage: PullStage | null, destination: string | null = null): string =>
-  (stage ? `${OPEN_STRETCH_LINE} ${PULL_LINES[stage](nextPlace(destination))} Never move the party there or narrate the decision to go.` : OPEN_STRETCH_LINE);
+export const pullLine = (stage: PullStage | null, destination: string | null = null, pressure: string | null = null, plain = false): string => {
+  if (!stage) return OPEN_STRETCH_LINE;
+  const place = nextPlace(destination);
+  const strong = pressure ? pressedLine(place, pressure) : plain ? deadlineLine(place) : PULL_LINES.strong(place);
+  const line = stage === "strong" ? strong : PULL_LINES[stage](place);
+  return `${OPEN_STRETCH_LINE} ${line} Never move the party there or narrate the decision to go.`;
+};
 
 export const getGenerationBias = (smoothed: number | null, expected: number | null): GenerationBias | null => {
   if (smoothed === null || expected === null) return null;

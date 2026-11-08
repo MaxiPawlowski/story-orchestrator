@@ -29,7 +29,8 @@
     "pacing": {
       "hintEnabled": true,
       "pathArc": true,
-      "stuckLadder": true
+      "stuckLadder": true,
+      "engagement": true
     },
     "display": {
       "announceTransitions": false,
