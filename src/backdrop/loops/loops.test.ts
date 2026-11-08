@@ -1,4 +1,4 @@
-import { buildLoopGraph, LOOP_NODES, LOOP_SHAPE, loopPrefix, loopSeconds } from "./workflow";
+import { buildLoopGraph, fitShape, LOOP_NODES, LOOP_SHAPE, LOOP_SHAPES, loopPrefix, loopSeconds } from "./workflow";
 import { backgroundWords, loopPrompt } from "./prompt";
 import { currentTarget, loopModeOf, nextTarget, preTargets, type LoopStory } from "./plan";
 import { loopKey, loopKeyText, loopSeed } from "./key";
@@ -30,6 +30,28 @@ describe("loop workflow", () => {
     expect(graph.save.inputs.images).toEqual([`join${blend - 1}`, 0]);
     expect(loopSeconds()).toBeGreaterThanOrEqual(4);
     expect(loopSeconds()).toBeLessThanOrEqual(5);
+  });
+
+  it("the lite tier is a short low-cost loop that also saves an animated WebP", () => {
+    const lite = buildLoopGraph({ image: "x", prompt: "p", key: "k1", seed: 1, shape: LOOP_SHAPES.lite }) as Graph;
+    expect(lite.still_loop).toMatchObject({ class_type: "SaveAnimatedWEBP", inputs: { filename_prefix: loopPrefix("k1"), fps: LOOP_SHAPES.lite.fps } });
+    expect(lite.save.class_type).toBe("SaveWEBM");
+    expect(loopSeconds(LOOP_SHAPES.lite)).toBeGreaterThanOrEqual(1.5);
+    expect(loopSeconds(LOOP_SHAPES.lite)).toBeLessThanOrEqual(2.5);
+    expect(LOOP_SHAPES.lite.fps).toBeGreaterThanOrEqual(8);
+    expect(LOOP_SHAPES.lite.fps).toBeLessThanOrEqual(12);
+    expect(graph.still_loop).toBeUndefined();
+  });
+
+  it("fits the loop to the still's own aspect so its framing matches the still", () => {
+    const wide = fitShape(LOOP_SHAPE, 1920, 1080);
+    expect(wide.width % 32).toBe(0);
+    expect(wide.height % 32).toBe(0);
+    expect(Math.abs(wide.width / wide.height - 16 / 9)).toBeLessThan(0.06);
+    const tall = fitShape(LOOP_SHAPE, 1000, 1500);
+    expect(tall.height).toBeGreaterThan(tall.width);
+    expect(Math.abs(tall.width * tall.height - LOOP_SHAPE.width * LOOP_SHAPE.height) / (LOOP_SHAPE.width * LOOP_SHAPE.height)).toBeLessThan(0.1);
+    expect(fitShape(LOOP_SHAPE, 0, 0)).toEqual(LOOP_SHAPE);
   });
 
   it("refuses shapes Wan or the blend cannot use", () => {

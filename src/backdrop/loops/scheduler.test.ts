@@ -76,6 +76,19 @@ describe("LoopScheduler", () => {
     scheduler.stop();
   });
 
+  it("a loop another ComfyUI job interrupted is retried later without counting as a failure", async () => {
+    let calls = 0;
+    const { scheduler, published, releaseWaits } = harness({
+      retryable: (reason) => reason === "interrupted",
+      render: async () => { calls += 1; return calls <= LOOP_FAILURES_PER_TARGET ? couldNot("interrupted") : wrote({ url: "/u.webm" }); },
+    });
+    scheduler.start([], target("forest", "auto"));
+    for (let round = 0; round < LOOP_FAILURES_PER_TARGET + 1; round += 1) { await flush(); releaseWaits(); }
+    await flush();
+    expect(published).toEqual([["forest", "/u.webm"]]);
+    scheduler.stop();
+  });
+
   it("gives up on a target after repeated failures and moves on", async () => {
     const { scheduler, published, releaseWaits } = harness({
       render: async (loop) => loop.target.background === "bad" ? couldNot("ComfyUI failed") : wrote({ url: "/ok.webm" }),

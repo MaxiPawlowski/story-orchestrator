@@ -10,6 +10,7 @@ export interface LoopSchedulerDeps {
   cached(key: string, signal: AbortSignal): Promise<string | null>;
   render(loop: ResolvedLoop, signal: AbortSignal): Promise<WriteResult<{ url: string }>>;
   publish(target: LoopTarget, url: string): void;
+  retryable?(reason: string): boolean;
   wait(ms: number, signal: AbortSignal): Promise<void>;
   log?(event: string, detail: Record<string, unknown>): void;
 }
@@ -91,7 +92,7 @@ export class LoopScheduler {
       catch (error) { result = job.signal.aborted ? null : { ok: false, reason: error instanceof Error ? error.message : String(error) }; }
       finally { this.job = null; signal.removeEventListener("abort", forward); }
       if (signal.aborted) return;
-      if (!result) { this.deps.log?.("preempted", { key: resolved.key }); await this.idleWait(LOOP_IDLE_RECHECK_MS, signal); continue; }
+      if (!result || (!result.ok && this.deps.retryable?.(result.reason))) { this.deps.log?.("preempted", { key: resolved.key }); await this.idleWait(LOOP_IDLE_RECHECK_MS, signal); continue; }
       if (result.ok) { this.settled.add(id); this.deps.publish(target, result.url); this.deps.log?.("rendered", { key: resolved.key, mode: target.mode }); continue; }
       const failures = (this.failures.get(id) ?? 0) + 1;
       this.failures.set(id, failures);

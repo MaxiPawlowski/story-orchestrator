@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
-import { buildLoopGraph, LOOP_SHAPE } from "../../src/backdrop/loops/workflow.ts";
+import { buildLoopGraph, fitShape, LOOP_SHAPES, type VideoTier } from "../../src/backdrop/loops/workflow.ts";
 import { loopPrompt } from "../../src/backdrop/loops/prompt.ts";
 import { debugDirFor } from "./lib/connection.mts";
 
@@ -41,7 +41,13 @@ async function waitEmpty() {
   throw new Error("ComfyUI stayed busy; nothing was queued.");
 }
 
-async function run(image: string, label: string, cold: boolean) {
+function imageSize(file: string): { width: number; height: number } {
+  const probe = spawnSync("ffprobe", ["-v", "error", "-select_streams", "v:0", "-show_entries", "stream=width,height", "-of", "csv=p=0", file]);
+  const [width, height] = probe.stdout.toString().trim().split(",").map(Number);
+  return { width: width || 0, height: height || 0 };
+}
+
+async function run(image: string, label: string, cold: boolean, tier: VideoTier) {
   const out = path.join(debugDirFor(process.env), "loop-bench");
   await fs.mkdir(out, { recursive: true });
   await waitEmpty();
@@ -51,7 +57,9 @@ async function run(image: string, label: string, cold: boolean) {
   form.set("overwrite", "true");
   const uploaded = await (await fetch(`${COMFY}/upload/image`, { method: "POST", body: form })).json();
   const prompt = loopPrompt(path.basename(image));
-  const graph = buildLoopGraph({ image: uploaded.name, prompt, key: `bench${label}`, seed: 42 });
+  const size = imageSize(image);
+  const shape = fitShape(LOOP_SHAPES[tier], size.width, size.height);
+  const graph = buildLoopGraph({ image: uploaded.name, prompt, key: `bench${label}`, seed: 42, shape });
   const started = Date.now();
   const queued = await (await fetch(`${COMFY}/prompt`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ prompt: graph }) })).json();
   if (!queued.prompt_id) throw new Error(JSON.stringify(queued));
@@ -63,11 +71,18 @@ async function run(image: string, label: string, cold: boolean) {
   }
   const ms = Date.now() - started;
   if (item.status?.status_str === "error") throw new Error(JSON.stringify(item.status).slice(0, 2000));
-  const saved = Object.values(item.outputs as Record<string, { images?: Array<{ filename: string; subfolder?: string; type: string }> }>).flatMap((output) => output.images ?? [])[0];
-  const bytes = Buffer.from(await (await fetch(`${COMFY}/view?${new URLSearchParams({ filename: saved.filename, subfolder: saved.subfolder ?? "", type: saved.type })}`)).arrayBuffer());
+  const outputs = Object.values(item.outputs as Record<string, { images?: Array<{ filename: string; subfolder?: string; type: string }> }>).flatMap((output) => output.images ?? []);
+  const fetchOut = async (saved: { filename: string; subfolder?: string; type: string }) =>
+    Buffer.from(await (await fetch(`${COMFY}/view?${new URLSearchParams({ filename: saved.filename, subfolder: saved.subfolder ?? "", type: saved.type })}`)).arrayBuffer());
+  const video = outputs.find((entry) => entry.filename.endsWith(".webm"));
+  if (!video) throw new Error("No WebM in the outputs.");
+  const bytes = await fetchOut(video);
   const file = path.join(out, `${label}.webm`);
   await fs.writeFile(file, bytes);
-  const record = { label, image: path.basename(image), cold, ms, seconds: Math.round(ms / 1000), bytes: bytes.length, shape: LOOP_SHAPE, prompt, file, seam: seam(file) };
+  const still = outputs.find((entry) => entry.filename.endsWith(".webp"));
+  const webp = still ? await fetchOut(still) : null;
+  if (webp) await fs.writeFile(path.join(out, `${label}.webp`), webp);
+  const record = { label, tier, image: path.basename(image), cold, ms, seconds: Math.round(ms / 1000), bytes: bytes.length, webpBytes: webp?.length ?? null, shape, prompt, file, seam: seam(file) };
   await fs.appendFile(path.join(out, "runs.jsonl"), `${JSON.stringify(record)}\n`);
   console.log(JSON.stringify(record));
 }
@@ -76,7 +91,8 @@ if (import.meta.url === `file:///${process.argv[1]?.replace(/\\/g, "/")}`) {
   const [command, target, ...rest] = process.argv.slice(2);
   const flag = (name: string) => rest.includes(name);
   const option = (name: string) => { const index = rest.indexOf(name); return index >= 0 ? rest[index + 1] : undefined; };
-  if (command === "run" && target) await run(target, option("--label") ?? path.basename(target).replace(/\W+/g, "_"), flag("--cold"));
+  const tier = option("--tier") === "lite" ? "lite" : "full";
+  if (command === "run" && target) await run(target, option("--label") ?? `${tier}_${path.basename(target).replace(/\W+/g, "_")}`, flag("--cold"), tier);
   else if (command === "seam" && target) console.log(JSON.stringify(seam(target)));
-  else { console.log("usage: so-loop-bench.mts run <still> [--label x] [--cold] | seam <loop.webm>"); process.exit(1); }
+  else { console.log("usage: so-loop-bench.mts run <still> [--tier lite|full] [--label x] [--cold] | seam <loop.webm>"); process.exit(1); }
 }

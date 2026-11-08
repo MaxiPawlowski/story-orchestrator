@@ -6,8 +6,10 @@ import { randomId } from "@utils/uuid";
 const ROOT = "/api/plugins/story-orchestrator-media/loops";
 const headers = () => getContext().getRequestHeaders?.() ?? { "Content-Type": "application/json" };
 
+export const LOOP_INTERRUPTED = "Another ComfyUI job interrupted the loop; it will be tried again.";
+
 export interface SavedLoop { url: string; bytes: number; sha256: string }
-export interface LoopRenderMeta { model: string; promptVersion: number; ms?: number }
+export interface LoopRenderMeta { model: string; promptVersion: number; tier: string; ms?: number }
 
 async function call(route: string, body?: unknown, signal?: AbortSignal): Promise<unknown> {
   const response = await fetch(`${ROOT}${route}`, { headers: headers(), signal, ...(body === undefined ? {} : { method: "POST", body: JSON.stringify(body) }) });
@@ -40,6 +42,7 @@ export async function renderBackdropLoop(key: string, graph: Record<string, unkn
     while (!signal.aborted) {
       if (!isRecord(job) || typeof job.status !== "string") return couldNot("The loop job has no status.");
       if (job.status === "complete") break;
+      if (job.status === "failed" && job.reason === "interrupted") return couldNot(LOOP_INTERRUPTED);
       if (job.status === "failed" || job.status === "cancelled") return couldNot(typeof job.error === "string" ? job.error : "The loop was cancelled.");
       await new Promise<void>((resolve) => setTimeout(resolve, poll));
       job = await call(`/jobs/${id}`, undefined, signal);

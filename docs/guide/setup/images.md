@@ -115,11 +115,22 @@ the card and again before and during the download.
 ComfyUI already reads (its `extra_model_paths.yaml`), so a downloaded model shows up after **Discover installed image
 models**. A kind with no folder is refused; no default folder is assumed.
 
-## Backdrop video loops
+## Backdrop loops
 
-With **Display › Video loops of key places** on (the default) and the media plugin installed, the animated backdrop
-replaces a background still with a short seamless video loop of it once one exists. Loops are made by your ComfyUI from
-the still itself, with core ComfyUI nodes only (no custom node):
+**Display › Backdrop loops** picks how a background still moves, one of four tiers. The default is **Full**, used
+when the machine can make it (the media plugin and the three model files below are installed); otherwise the backdrop
+falls back to **Still motion** on its own.
+
+| Tier | What you see | Cost |
+|---|---|---|
+| Off | the still, with the backdrop's other layers | none |
+| Still motion (cinemagraph) | the sky and water of the still drift and ripple in the browser, using the depth sky/water mask; no video model | free, instant |
+| Lite | a short video loop: about 2 s at 12 fps, 640×352, also saved as an animated WebP | about 30 to 70 s per place on an RTX 3090 |
+| Full | a video loop: about 4 s at 24 fps, 960×544 | about 2 to 4 minutes per place on an RTX 3090, the model load included |
+
+Still motion is what shows until a Lite or Full loop of the place exists; on a still with no sky or water (most
+interiors) it shows nothing. Lite and Full loops are made by your ComfyUI from the still itself, with core ComfyUI nodes
+only (no custom node):
 
 | File | Folder ComfyUI reads | Size |
 |---|---|---|
@@ -127,21 +138,22 @@ the still itself, with core ComfyUI nodes only (no custom node):
 | `umt5_xxl_fp8_e4m3fn_scaled.safetensors` | `text_encoders` | 6.3 GB |
 | `wan2.2_vae.safetensors` | `vae` | 1.3 GB |
 
-All three come from the Hugging Face repository `Comfy-Org/Wan-2.2` (`split_files/...`, Apache-2.0). Without them a
-loop job fails, is retried once, and the still stays.
+All three come from the Hugging Face repository `Comfy-Org/Wan-2.2` (`split_files/...`, Apache-2.0).
 
-- **What is made.** About 4 s of motion at 960×544, 24 fps: water, leaves, clouds, firelight, dust; the camera stays
-  still and nobody moves. The clip's tail is crossfaded into its head, so it loops without a cut. A WebM of 0.3 to 1 MB.
+- **What is made.** Water, leaves, clouds, firelight, dust; the camera stays still and nobody moves. The loop's size
+  follows the still's own shape, so it lines up with the still it replaces. The clip's tail is crossfaded into its head,
+  so it loops without a cut. A WebM of 0.1 to 1 MB.
 - **When.** Places a story marks `loop: "pre"` are queued when the story is set up (never shown before you reach them);
   the background on screen gets one when nothing else needs the GPU: no reply generating, no scene picture or sprite
   running, ComfyUI's queue empty and the chat quiet for 20 s. A reply, a picture or a sprite that starts while a loop
-  renders stops that loop at once (only that job, by its id), and it is tried again later. Weather is not part of the
-  loop; the backdrop's rain and snow layers draw it.
-- **Time.** About 3 to 4 minutes per loop on an RTX 3090, the model load included. With the GPU plugin the loop takes
-  an image lease, so a local text model is unloaded for it like for a large picture.
+  renders stops that loop at once (only that job, by its ComfyUI id), and it is tried again later; so is a loop that
+  another program's ComfyUI interrupt stopped. A loop that fails twice is left alone until the chat or story changes.
+  Weather is not part of the loop; the backdrop's rain and snow layers draw it.
+- **GPU sharing.** With the GPU plugin a loop takes an image lease, so a local text model is unloaded for it like for a
+  large picture.
 - **Cache.** Loops are stored in your SillyTavern user folder under `user/images/story-orchestrator-loops/`, named by
-  a key of the still's bytes, the model, the prompt and the loop's shape, so the same background in any story or chat
-  replays at once. Delete files there to make them again.
+  a key of the still's bytes, the model, the prompt and the loop's shape (so Lite and Full are kept apart); the same
+  background in any story or chat replays at once. Delete files there to make them again.
 
 ## GPU sharing (advanced, optional)
 

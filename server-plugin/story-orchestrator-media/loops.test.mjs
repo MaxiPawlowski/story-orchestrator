@@ -8,6 +8,7 @@ import { LOOP_FOLDER, cachedLoop, interruptIfRunning, loopPrefixFor, mountLoopRo
 import { testTempDir } from '../../scripts/lib/testTemp.mjs';
 
 const KEY = 'a'.repeat(32);
+const webp = () => Buffer.concat([Buffer.from('RIFF'), Buffer.alloc(4), Buffer.from('WEBPVP8 '), Buffer.alloc(16)]);
 const webm = (size = 64) => Buffer.concat([Buffer.from([0x1a, 0x45, 0xdf, 0xa3]), Buffer.alloc(size)]);
 const graph = (prefix = loopPrefixFor(KEY), extra = {}) => ({
     still: { class_type: 'LoadImage', inputs: { image: 'story-orchestrator/so_x.png' } },
@@ -23,6 +24,10 @@ test('loop recipes run only allowlisted nodes, an owned still and the key\'s own
     await assert.rejects(validateLoopGraph(graph(undefined, { bad: { class_type: 'ExecutePython', inputs: {} } }), KEY, owns), /unsupported/);
     await assert.rejects(validateLoopGraph(graph(undefined, { still: { class_type: 'LoadImage', inputs: { image: 'foreign.png' } } }), KEY, owns), /belong/);
     await assert.rejects(validateLoopGraph({ still: graph().still }, KEY, owns), /exactly one/);
+    const animated = { class_type: 'SaveAnimatedWEBP', inputs: { images: ['still', 0], filename_prefix: loopPrefixFor(KEY), fps: 12, lossless: false, quality: 75, method: 'default' } };
+    await validateLoopGraph(graph(undefined, { webp: animated }), KEY, owns);
+    await assert.rejects(validateLoopGraph(graph(undefined, { webp: animated, webp2: animated }), KEY, owns), /at most one/);
+    await assert.rejects(validateLoopGraph(graph(undefined, { webp: { ...animated, inputs: { ...animated.inputs, filename_prefix: 'x' } } }), KEY, owns), /prefix/);
 });
 
 test('a saved loop is a WebM under the user images folder, cached by key and refused when too large or not WebM', async () => {
@@ -32,6 +37,7 @@ test('a saved loop is a WebM under the user images folder, cached by key and ref
         assert.deepEqual(await cachedLoop(dirs, KEY), { url: null });
         await assert.rejects(writeLoop(dirs, KEY, Buffer.from('not a video')), /WebM/);
         await assert.rejects(writeLoop(dirs, KEY, webm(16 * 1024 * 1024)), /too large/);
+        await assert.rejects(writeLoop(dirs, KEY, webm(), {}, Buffer.from('not a webp image')), /WebP/);
         const saved = await writeLoop(dirs, KEY, webm(), { model: 'wan2.2-ti2v-5b', promptVersion: 1, ms: 1234.4 });
         assert.equal(saved.url, `/user/images/${LOOP_FOLDER}/${KEY}.webm`);
         const hit = await cachedLoop(dirs, KEY);
@@ -42,6 +48,26 @@ test('a saved loop is a WebM under the user images folder, cached by key and ref
         assert.deepEqual(await cachedLoop(dirs, KEY), { url: null });
         await assert.rejects(cachedLoop(dirs, '../x'), /key/);
     } finally { await fs.rm(root, { recursive: true }); }
+});
+
+test("a loop stopped by another job's ComfyUI interrupt is reported as interrupted, not as a broken recipe", async () => {
+    const routes = {};
+    const router = { get: (name, handler) => { routes[`GET ${name}`] = handler; }, post: (name, handler) => { routes[`POST ${name}`] = handler; } };
+    const fetchImpl = async (url) => {
+        if (url.endsWith('/prompt')) return Response.json({ prompt_id: 'p' });
+        if (url.includes('/history/')) return Response.json({ p: { status: { status_str: 'error', messages: [['execution_start', {}], ['execution_interrupted', {}]] }, outputs: {} } });
+        return Response.json({});
+    };
+    mountLoopRoutes(router, { target: async () => ({ url: 'http://comfy' }), owner: () => 'u', makeJobs: (url) => new ComfyJobs({ url, fetchImpl }) });
+    const req = { user: { directories: { userImages: 'x' } } };
+    let body;
+    const res = { status: () => ({ json: (data) => { body = data; } }), json: (data) => { body = data; } };
+    const id = randomUUID();
+    const keyless = { save: { class_type: 'SaveWEBM', inputs: { images: ['x', 0], filename_prefix: loopPrefixFor(KEY), codec: 'vp9', fps: 24, crf: 30 } } };
+    await routes['POST /loops/jobs']({ ...req, body: { id, key: KEY, graph: keyless } }, res);
+    await routes['GET /loops/jobs/:id']({ ...req, params: { id } }, res);
+    assert.equal(body.status, 'failed');
+    assert.equal(body.reason, 'interrupted');
 });
 
 test('cancelling a running loop interrupts only that prompt id', async () => {
@@ -61,8 +87,11 @@ test('loop routes render, save the finished video for its key, and never hand a 
     const router = { get: (name, handler) => { routes[`GET ${name}`] = handler; }, post: (name, handler) => { routes[`POST ${name}`] = handler; } };
     const fetchImpl = async (url) => {
         if (url.endsWith('/prompt')) return Response.json({ prompt_id: 'p' });
-        if (url.includes('/history/')) return Response.json({ p: { outputs: { save: { images: [{ filename: `${loopPrefixFor(KEY)}_00001_.webm`, subfolder: '', type: 'output' }], animated: [true] } } } });
-        if (url.includes('/view?')) return new Response(webm());
+        if (url.includes('/history/')) return Response.json({ p: { outputs: {
+            save: { images: [{ filename: `${loopPrefixFor(KEY)}_00001_.webm`, subfolder: '', type: 'output' }], animated: [true] },
+            still_loop: { images: [{ filename: `${loopPrefixFor(KEY)}_00001_.webp`, subfolder: '', type: 'output' }], animated: [true] },
+            foreign: { images: [{ filename: 'someone_else.webm', subfolder: '', type: 'output' }] } } } });
+        if (url.includes('/view?')) return new Response(url.includes('.webp') ? webp() : webm());
         if (url.endsWith('/queue')) return Response.json({ queue_running: [[1, 'x']], queue_pending: [] });
         return Response.json({});
     };
@@ -87,7 +116,10 @@ test('loop routes render, save the finished video for its key, and never hand a 
         assert.equal((await call('POST /loops/jobs/:id/save', { user: user('a'), params: { id }, body: { key: 'b'.repeat(32) } })).status, 400);
         const saved = await call('POST /loops/jobs/:id/save', { user: user('a'), params: { id }, body: { key: KEY, meta: { model: 'm', promptVersion: 1 } } });
         assert.equal(saved.body.url, `/user/images/${LOOP_FOLDER}/${KEY}.webm`);
-        assert.equal((await call('GET /loops/cached/:key', { user: user('a'), params: { key: KEY } })).body.url, saved.body.url);
+        assert.equal(saved.body.webpUrl, `/user/images/${LOOP_FOLDER}/${KEY}.webp`);
+        const hit = (await call('GET /loops/cached/:key', { user: user('a'), params: { key: KEY } })).body;
+        assert.equal(hit.url, saved.body.url);
+        assert.equal(hit.webpUrl, saved.body.webpUrl);
         assert.equal((await call('GET /loops/cached/:key', { user: user('b'), params: { key: KEY } })).body.url, null);
         assert.deepEqual((await call('GET /loops/queue', { user: user('a') })).body, { running: 1, pending: 0 });
     } finally { await fs.rm(root, { recursive: true }); }

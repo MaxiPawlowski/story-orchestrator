@@ -7,15 +7,32 @@ export const LOOP_MODEL = Object.freeze({
 
 export const LOOP_PROMPT_VERSION = 1;
 
-export interface LoopShape { width: number; height: number; frames: number; fps: number; blend: number; steps: number; cfg: number; shift: number; crf: number }
+export interface LoopShape { width: number; height: number; frames: number; fps: number; blend: number; steps: number; cfg: number; shift: number; crf: number; webp?: boolean }
 
-export const LOOP_SHAPE: Readonly<LoopShape> = Object.freeze({ width: 960, height: 544, frames: 113, fps: 24, blend: 16, steps: 16, cfg: 5, shift: 8, crf: 30 });
+export const LOOP_TIERS = ["off", "cinemagraph", "lite", "full"] as const;
+export type LoopTier = (typeof LOOP_TIERS)[number];
+export type VideoTier = Extract<LoopTier, "lite" | "full">;
+
+export const LOOP_SHAPES: Readonly<Record<VideoTier, Readonly<LoopShape>>> = Object.freeze({
+  full: Object.freeze({ width: 960, height: 544, frames: 113, fps: 24, blend: 16, steps: 16, cfg: 5, shift: 8, crf: 30 }),
+  lite: Object.freeze({ width: 640, height: 352, frames: 29, fps: 12, blend: 6, steps: 14, cfg: 5, shift: 8, crf: 32, webp: true }),
+});
+
+export const LOOP_SHAPE: Readonly<LoopShape> = LOOP_SHAPES.full;
+
+export function fitShape(shape: Readonly<LoopShape>, width: number, height: number): LoopShape {
+  if (!(width > 0 && height > 0)) return { ...shape };
+  const pixels = shape.width * shape.height;
+  const aspect = Math.min(3, Math.max(1 / 3, width / height));
+  const snap = (value: number) => Math.max(256, Math.round(value / 32) * 32);
+  return { ...shape, width: snap(Math.sqrt(pixels * aspect)), height: snap(Math.sqrt(pixels / aspect)) };
+}
 
 export const LOOP_NEGATIVE = "camera movement, zoom, pan, camera shake, scene change, cut, people walking, new objects appearing, text, watermark, "
   + "subtitles, blurry, low quality, distorted, deformed, flicker, overexposed, jpeg artifacts, static, frozen";
 
 export const LOOP_NODES: readonly string[] = Object.freeze(["UNETLoader", "CLIPLoader", "VAELoader", "ModelSamplingSD3", "CLIPTextEncode", "LoadImage",
-  "Wan22ImageToVideoLatent", "KSampler", "VAEDecode", "ImageFromBatch", "ImageBlend", "ImageBatch", "SaveWEBM"]);
+  "Wan22ImageToVideoLatent", "KSampler", "VAEDecode", "ImageFromBatch", "ImageBlend", "ImageBatch", "SaveWEBM", "SaveAnimatedWEBP"]);
 
 export const loopPrefix = (key: string): string => `so_loop_${key.replace(/[^a-z0-9]/gi, "").slice(0, 40).toLowerCase()}`;
 
@@ -59,5 +76,6 @@ export function buildLoopGraph({ image, prompt, key, seed, shape = LOOP_SHAPE, n
     joined = [`join${index}`, 0];
   }
   graph.save = { class_type: "SaveWEBM", inputs: { images: joined, filename_prefix: loopPrefix(key), codec: "vp9", fps: shape.fps, crf: shape.crf } };
+  if (shape.webp) graph.still_loop = { class_type: "SaveAnimatedWEBP", inputs: { images: joined, filename_prefix: loopPrefix(key), fps: shape.fps, lossless: false, quality: 75, method: "default" } };
   return graph;
 }
