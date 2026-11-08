@@ -38,4 +38,4 @@ export class FrameStats {
 
 export const MIN_FRAME_MS = 1000 / 60 - 4;
 
-export const shouldDraw = (now: number, last: number): boolean => now - last >= MIN_FRAME_MS;
+export const shouldDraw = (now: number, last: number, fps = 60): boolean => now - last >= Math.max(MIN_FRAME_MS, 1000 / Math.max(1, fps) - 4);

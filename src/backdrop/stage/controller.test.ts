@@ -19,6 +19,9 @@ const fakeRenderer = () => {
     layerKinds: () => kinds,
     resize: (width: number, height: number) => { renderer.width = width; renderer.height = height; },
     fading: () => false,
+    frameRate: () => 60,
+    setPlaying: () => undefined,
+    markLost: () => undefined,
     hasVideo: () => shown?.kind === "video",
     draw: () => { calls.draws += 1; },
     dispose: () => { calls.disposed += 1; },
@@ -131,14 +134,14 @@ describe("v3.0 45 A: backdrop controller", () => {
     off();
   });
 
-  it("dims behind the chat until light text reaches 4.5:1, within the cap", async () => {
+  it("dims behind the chat until light text reaches 4.5:1 on the sRGB blend, within the cap", async () => {
     const bright = setup({ sample: 0.8 });
     bright.controller.start();
     await flush();
     const dark = setup({ sample: 0.02 });
     dark.controller.start();
     await flush();
-    expect(bright.controller.view().dim).toBe(0.6);
+    expect(bright.controller.view().dim).toBeCloseTo(0.513, 3);
     expect(dark.controller.view().dim).toBe(0.18);
   });
 

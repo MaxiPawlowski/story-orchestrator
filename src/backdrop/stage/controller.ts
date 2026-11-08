@@ -8,6 +8,7 @@ import { renderScale, tintFor } from "./cover";
 import { FrameStats, shouldDraw } from "./stats";
 import { dimForContrast, relativeLuminance } from "./contrast";
 import type { BackdropRenderer, BaseSource } from "./renderer";
+import { easeFactor } from "./layers";
 import { log } from "@utils/log";
 
 export interface BackdropHost {
@@ -77,7 +78,8 @@ export class BackdropController {
   private renderer: BackdropRenderer | null = null;
   private frame = 0;
   private lastDraw = 0;
-  private started = 0;
+  private clock = 0;
+  private shownTint: [number, number, number] | null = null;
   private pointer = { x: 0, y: 0 };
   private base: BackdropBase | null = null;
   private loadingKey = "";
@@ -94,16 +96,17 @@ export class BackdropController {
   private stopped = false;
   private sample: number | null = null;
   private dim = 0;
+  private shownIntensity: number | null = null;
+  private contextGone = false;
 
   constructor(private readonly host: BackdropHost, private readonly sources: BackdropSources, private readonly makeRenderer: () => BackdropRenderer | null,
     private readonly showCanvas: (shown: boolean) => void) {}
 
   start(): () => void {
-    this.started = this.host.now();
     this.stops.push(
       this.sources.subscribe(() => this.refresh()),
       this.host.watchStill(() => this.refresh()),
-      this.host.onVisibility(() => this.schedule()),
+      this.host.onVisibility(() => { this.lastDraw = 0; this.renderer?.setPlaying(!this.host.hidden()); this.schedule(); }),
       this.host.onResize(() => { this.resize(); this.drawOnce(); }),
       this.host.onPointer((x, y) => { this.pointer = { x, y }; }),
       onAssetsChanged((key) => { if (!key || key === this.base?.key || key === this.assetsKey) { this.assetsKey = ""; this.pendingAssets = ""; this.refresh(); } }),
@@ -135,6 +138,17 @@ export class BackdropController {
       active: this.active, reducedMotion: this.reduced, base: this.renderer?.shownBase ?? null, state: this.state, layers: this.renderer?.layerKinds() ?? [],
       intensity: this.intensity, assets: this.assets, running: this.frame !== 0, dim: this.dim,
     };
+  }
+
+  contextLost(): void {
+    this.contextGone = true;
+    this.renderer?.markLost();
+    this.deactivate();
+  }
+
+  contextRestored(): void {
+    this.contextGone = false;
+    this.refresh(true);
   }
 
   frameStats() { return { ...this.stats.view(), ...this.host.viewport(), canvas: this.renderer ? { width: this.renderer.width, height: this.renderer.height } : null }; }
@@ -172,6 +186,7 @@ export class BackdropController {
     if (!wantActive) { this.deactivate(); return; }
     if (!this.ensureRenderer()) { this.deactivate(); return; }
     if (base && (base.url !== this.base?.url || base.kind !== this.base?.kind)) void this.loadBase(base);
+    else if (base) this.loadingKey = "";
     if (forceLayers || !sameSpecs(specs, this.specs)) {
       this.specs = specs;
       try { this.renderer?.setLayers(specs, this.assets); }
@@ -194,6 +209,7 @@ export class BackdropController {
 
   private ensureRenderer(): boolean {
     if (this.renderer) return true;
+    if (this.contextGone) return false;
     try { this.renderer = this.makeRenderer(); }
     catch (error) { log.warn("The animated backdrop could not start WebGL; SillyTavern's background stays", error); this.renderer = null; }
     if (this.renderer) this.resize();
@@ -222,12 +238,14 @@ export class BackdropController {
     try { source = base.kind === "video" ? await this.host.loadVideo(base.url) : await this.host.loadImage(base.url); }
     catch (error) {
       log.warn(`The backdrop could not load ${base.kind === "video" ? "its video loop" : "the background"}; ${base.kind === "video" ? "using the still" : "SillyTavern's background stays"}`, error);
-      if (this.loadingKey === ticket) this.loadingKey = "";
+      if (this.loadingKey !== ticket) return;
+      this.loadingKey = "";
       if (base.kind === "video") { this.assets = { ...this.assets, loopUrl: undefined }; this.refresh(); }
+      else if (this.active) this.deactivate();
       return;
     }
     if (this.stopped || this.loadingKey !== ticket || !this.renderer) { if (base.kind === "video") (source as HTMLVideoElement).pause(); return; }
-    this.renderer.setBase(base, source, this.host.now());
+    this.renderer.setBase(base, source, this.host.now(), this.reduced);
     if (base.kind === "image") { this.sample = this.host.sampleColumn(source, this.host.chatColumn()); this.updateDim(); }
     this.base = base;
     this.active = true;
@@ -254,7 +272,14 @@ export class BackdropController {
 
   private animated(now: number): boolean {
     if (!this.renderer || !this.active || this.reduced || this.host.hidden()) return false;
-    return this.specs.length > 0 || this.renderer.fading(now) || this.renderer.hasVideo();
+    return this.specs.length > 0 || this.renderer.fading(now) || this.renderer.hasVideo() || this.easing();
+  }
+
+  private easing(): boolean {
+    if (this.shownIntensity !== null && Math.abs(this.shownIntensity - this.intensity) > 0.002) return true;
+    if (!this.shownTint || !this.state) return false;
+    const tint = tintFor(this.state.timeOfDay, this.state.weather);
+    return this.shownTint.some((value, index) => Math.abs(value - tint[index]) > 0.002);
   }
 
   private schedule(): void {
@@ -272,7 +297,7 @@ export class BackdropController {
   private tick(now: number): void {
     this.frame = 0;
     if (!this.animated(now)) { this.schedule(); return; }
-    if (shouldDraw(now, this.lastDraw)) this.draw(now);
+    if (shouldDraw(now, this.lastDraw, this.renderer?.frameRate() ?? 60)) this.draw(now);
     this.frame = this.host.requestFrame((time) => this.tick(time));
   }
 
@@ -281,15 +306,21 @@ export class BackdropController {
   private draw(now: number): void {
     if (!this.renderer || !this.state) return;
     const view = this.host.viewport(), scale = renderScale(view.dpr);
-    const dt = this.lastDraw ? Math.min(100, now - this.lastDraw) : 16;
+    const dt = (this.lastDraw ? Math.min(100, Math.max(0, now - this.lastDraw)) : 16) / 1000;
     this.lastDraw = now;
+    this.clock += this.reduced ? 0 : dt;
+    const ease = easeFactor(dt, 1.2);
+    this.shownIntensity = this.shownIntensity === null || this.reduced ? this.intensity : this.shownIntensity + (this.intensity - this.shownIntensity) * ease;
+    const tint = tintFor(this.state.timeOfDay, this.state.weather);
+    const shown = this.shownTint ?? tint;
+    this.shownTint = this.reduced ? tint : [0, 1, 2].map((index) => shown[index] + (tint[index] - shown[index]) * ease) as [number, number, number];
     const column = this.settings?.dimBehindChat ? this.host.chatColumn() : null;
     const dim = column && view.width > 0 ? { left: column.left / view.width, right: column.right / view.width, amount: this.dim } : null;
     const begin = this.host.now();
     try {
       this.renderer.draw({
-        time: now - this.started, dt, width: this.renderer.width, height: this.renderer.height, dpr: scale, intensity: this.intensity, pointer: this.pointer,
-        state: this.state, tint: tintFor(this.state.timeOfDay, this.state.weather), reducedMotion: this.reduced,
+        time: this.clock, dt, width: this.renderer.width, height: this.renderer.height, dpr: scale, intensity: this.shownIntensity, pointer: this.pointer,
+        state: this.state, tint: this.shownTint, reducedMotion: this.reduced,
       }, dim, now);
     } catch (error) {
       log.warn("The animated backdrop stopped drawing; SillyTavern's background stays", error);

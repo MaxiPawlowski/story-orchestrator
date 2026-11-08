@@ -22,11 +22,22 @@ export const dimForContrast = (backdrop: number | null, text: number | null): nu
   if (text < 0.5 || contrastRatio(backdrop, text) >= TEXT_CONTRAST) return DIM_MIN;
   const target = (text + 0.05) / TEXT_CONTRAST - 0.05;
   if (backdrop <= 0) return DIM_MIN;
-  return Math.min(DIM_MAX, Math.max(DIM_MIN, 1 - target / backdrop));
+  return Math.min(DIM_MAX, Math.max(DIM_MIN, 1 - (target / backdrop) ** (1 / 2.2)));
 };
 
 export const meanLuminance = (pixels: ArrayLike<number>): number | null => {
   let sum = 0, count = 0;
   for (let index = 0; index + 2 < pixels.length; index += 4) { sum += relativeLuminance(pixels[index], pixels[index + 1], pixels[index + 2]); count += 1; }
   return count ? sum / count : null;
+};
+
+export const BRIGHT_SHARE = 0.25;
+
+export const brightLuminance = (pixels: ArrayLike<number>): number | null => {
+  const values: number[] = [];
+  for (let index = 0; index + 2 < pixels.length; index += 4) values.push(relativeLuminance(pixels[index], pixels[index + 1], pixels[index + 2]));
+  if (!values.length) return null;
+  values.sort((left, right) => right - left);
+  const top = values.slice(0, Math.max(1, Math.round(values.length * BRIGHT_SHARE)));
+  return (top.reduce((sum, value) => sum + value, 0) / top.length + (meanLuminance(pixels) ?? 0)) / 2;
 };

@@ -1,6 +1,6 @@
-import type { BackdropCamera, BackdropFrame, BackdropLayer, BackdropLayerContext, BackdropLayerSpec } from "../types";
+import type { BackdropBaseModifier, BackdropCamera, BackdropFrame, BackdropLayer, BackdropLayerContext, BackdropLayerSpec, BackdropMaskChannel } from "../types";
 import { registerLayer } from "./registry";
-import { FLICKER_FS, FOG_FS, PARTICLE_FS, PARTICLE_VS, QUAD_VS, SHIMMER_FS } from "./shaders";
+import { FLICKER_FS, FOG_FS, PARTICLE_FS, PARTICLE_VS, QUAD_VS } from "./shaders";
 
 const numberParam = (spec: BackdropLayerSpec, key: string, fallback: number): number => {
   const value = spec.params[key];
@@ -15,130 +15,199 @@ export const hexColor = (value: unknown, fallback: [number, number, number]): [n
   return [0, 2, 4].map((offset) => parseInt(full.slice(offset, offset + 2), 16) / 255) as [number, number, number];
 };
 
-interface Tuning { intensity: number; speed: number; color: [number, number, number] }
+interface Tuning { intensity: number; speed: number; wind: number; color: [number, number, number] }
 
-const tuning = (spec: BackdropLayerSpec, color: [number, number, number]): Tuning =>
-  ({ intensity: numberParam(spec, "intensity", 0.6), speed: numberParam(spec, "speed", 1), color: hexColor(spec.params.color, color) });
+const tuning = (spec: BackdropLayerSpec, color: [number, number, number]): Tuning => ({
+  intensity: numberParam(spec, "intensity", 0.6), speed: numberParam(spec, "speed", 1), wind: numberParam(spec, "wind", 0), color: hexColor(spec.params.color, color),
+});
+
+export const easeFactor = (dt: number, halfLife: number): number => 1 - 0.5 ** (Math.max(0, dt) / halfLife);
+
+export class Phase {
+  value = 0;
+  private rate: number | null = null;
+  advance(dt: number, target: number, halfLife = 1.5): number {
+    this.rate = this.rate === null ? target : this.rate + (target - this.rate) * easeFactor(dt, halfLife);
+    this.value += Math.max(0, dt) * this.rate;
+    return this.value;
+  }
+}
 
 export const PARTICLE_KINDS = { rain: 0, snow: 1, embers: 2, dust: 3, fireflies: 4 } as const;
 type ParticleKind = keyof typeof PARTICLE_KINDS;
 
-const PARTICLE_DEFAULTS: Record<ParticleKind, { count: number; color: [number, number, number]; order: number }> = {
-  rain: { count: 900, color: [0.78, 0.84, 0.95], order: 20 },
-  snow: { count: 520, color: [0.96, 0.97, 1], order: 20 },
-  embers: { count: 110, color: [1, 0.55, 0.18], order: 22 },
-  dust: { count: 160, color: [1, 0.93, 0.78], order: 24 },
-  fireflies: { count: 46, color: [0.85, 1, 0.45], order: 24 },
+const PARTICLE_DEFAULTS: Record<ParticleKind, { count: number; color: [number, number, number]; order: number; tinted: boolean }> = {
+  rain: { count: 1500, color: [0.8, 0.85, 0.92], order: 20, tinted: true },
+  snow: { count: 1100, color: [0.95, 0.96, 1], order: 20, tinted: true },
+  embers: { count: 140, color: [1, 0.62, 0.22], order: 22, tinted: false },
+  dust: { count: 260, color: [1, 0.94, 0.82], order: 24, tinted: true },
+  fireflies: { count: 44, color: [0.82, 1, 0.42], order: 24, tinted: false },
 };
 
-export const particleCount = (kind: ParticleKind, intensity: number, width: number, height: number): number =>
-  Math.max(1, Math.round(PARTICLE_DEFAULTS[kind].count * Math.max(0.15, intensity) * Math.min(1.6, Math.max(0.4, (width * height) / (1920 * 1080)))));
+export const areaScale = (width: number, height: number): number => Math.min(1.6, Math.max(0.35, (width * height) / (1920 * 1080)));
+
+export const particleCount = (kind: ParticleKind, width: number, height: number): number => Math.max(1, Math.round(PARTICLE_DEFAULTS[kind].count * areaScale(width, height)));
+
+export const particleDensity = (amount: number): number => amount <= 0 ? 0 : Math.min(1, 0.3 + 0.7 * amount) * Math.min(1, amount / 0.08);
+
+const sceneBinder = (context: BackdropLayerContext, program: WebGLProgram) => (frame: BackdropFrame, unit: number) => context.bindScene(program, frame.camera, unit);
 
 const particleLayer = (kind: ParticleKind) => (context: BackdropLayerContext, initial: BackdropLayerSpec): BackdropLayer => {
   const gl = context.gl;
   const program = context.program(PARTICLE_VS, PARTICLE_FS);
   const vao = gl.createVertexArray();
-  let tune = tuning(initial, PARTICLE_DEFAULTS[kind].color);
+  const defaults = PARTICLE_DEFAULTS[kind];
+  let tune = tuning(initial, defaults.color);
+  const phase = new Phase();
   const at = (name: string) => gl.getUniformLocation(program, name);
-  const u = { time: at("uTime"), speed: at("uSpeed"), res: at("uRes"), kind: at("uKind"), scale: at("uScale"), color: at("uColor"), intensity: at("uIntensity") };
+  const u = { phase: at("uPhase"), time: at("uTime"), res: at("uRes"), kind: at("uKind"), scale: at("uScale"), color: at("uColor"), intensity: at("uIntensity"),
+    density: at("uDensity"), wind: at("uWind") };
+  const scene = sceneBinder(context, program);
   return {
-    kind, order: PARTICLE_DEFAULTS[kind].order,
-    update: (spec) => { tune = tuning(spec, PARTICLE_DEFAULTS[kind].color); },
+    kind, order: defaults.order, fps: 60,
+    update: (spec) => { tune = tuning(spec, defaults.color); },
     draw: (frame: BackdropFrame) => {
       const amount = tune.intensity * frame.intensity;
-      if (amount <= 0.01) return;
+      const position = phase.advance(frame.dt, tune.speed);
+      if (amount <= 0.002) return;
       gl.useProgram(program);
       gl.bindVertexArray(vao);
-      gl.uniform1f(u.time, frame.time / 1000);
-      gl.uniform1f(u.speed, tune.speed * (1 + 0.5 * frame.state.tension));
+      scene(frame, 4);
+      gl.uniform1f(u.phase, position);
+      gl.uniform1f(u.time, frame.time);
       gl.uniform2f(u.res, frame.width, frame.height);
       gl.uniform1i(u.kind, PARTICLE_KINDS[kind]);
       gl.uniform1f(u.scale, frame.dpr);
-      gl.uniform3fv(u.color, tune.color.map((channel, index) => channel * (kind === "rain" || kind === "snow" ? frame.tint[index] : 1)));
-      gl.uniform1f(u.intensity, Math.min(1, 0.5 + amount));
-      gl.drawArrays(gl.TRIANGLES, 0, particleCount(kind, amount, frame.width / frame.dpr, frame.height / frame.dpr) * 6);
+      gl.uniform1f(u.density, particleDensity(amount));
+      gl.uniform1f(u.wind, tune.wind);
+      gl.uniform3fv(u.color, tune.color.map((channel, index) => channel * (defaults.tinted ? frame.tint[index] : 1)));
+      gl.uniform1f(u.intensity, Math.min(1, 0.55 + 0.6 * amount));
+      gl.drawArrays(gl.TRIANGLES, 0, particleCount(kind, frame.width / frame.dpr, frame.height / frame.dpr) * 6);
     },
     dispose: () => { gl.deleteVertexArray(vao); },
   };
 };
 
-type LayerSetup = (gl: WebGL2RenderingContext, program: WebGLProgram, frame: BackdropFrame, tune: Tuning) => void;
-
-const fullscreenLayer = (kind: string, fragment: string, order: number, color: [number, number, number], setup?: LayerSetup) =>
-  (context: BackdropLayerContext, initial: BackdropLayerSpec): BackdropLayer => {
-    const gl = context.gl;
-    const program = context.program(QUAD_VS, fragment);
-    let tune = tuning(initial, color);
-    const at = (name: string) => gl.getUniformLocation(program, name);
-    const u = { time: at("uTime"), speed: at("uSpeed"), intensity: at("uIntensity"), color: at("uColor"), aspect: at("uAspect") };
-    return {
-      kind, order,
-      update: (spec) => { tune = tuning(spec, color); },
-      draw: (frame) => {
-        const amount = tune.intensity * frame.intensity;
-        if (amount <= 0.01) return;
-        gl.useProgram(program);
-        gl.uniform1f(u.time, frame.time / 1000);
-        gl.uniform1f(u.speed, tune.speed);
-        gl.uniform1f(u.intensity, amount);
-        gl.uniform3fv(u.color, tune.color.map((channel, index) => channel * frame.tint[index]));
-        gl.uniform1f(u.aspect, frame.width / Math.max(1, frame.height));
-        setup?.(gl, program, frame, tune);
-        context.drawQuad();
-      },
-      dispose: () => undefined,
-    };
+const fog = (context: BackdropLayerContext, initial: BackdropLayerSpec): BackdropLayer => {
+  const gl = context.gl;
+  const program = context.program(QUAD_VS, FOG_FS);
+  const color: [number, number, number] = [0.82, 0.85, 0.9];
+  let tune = tuning(initial, color);
+  const phase = new Phase();
+  const at = (name: string) => gl.getUniformLocation(program, name);
+  const u = { phase: at("uPhase"), intensity: at("uIntensity"), color: at("uColor"), aspect: at("uAspect") };
+  const scene = sceneBinder(context, program);
+  return {
+    kind: "fog", order: 18, fps: 30,
+    update: (spec) => { tune = tuning(spec, color); },
+    draw: (frame) => {
+      const amount = tune.intensity * frame.intensity;
+      const position = phase.advance(frame.dt, tune.speed);
+      if (amount <= 0.01) return;
+      gl.useProgram(program);
+      scene(frame, 4);
+      gl.uniform1f(u.phase, position);
+      gl.uniform1f(u.intensity, Math.min(1, amount * 1.4));
+      gl.uniform3fv(u.color, tune.color.map((channel, index) => channel * frame.tint[index]));
+      gl.uniform1f(u.aspect, frame.width / Math.max(1, frame.height));
+      context.drawQuad();
+    },
+    dispose: () => undefined,
   };
+};
+
+export interface Stroke { at: number; peak: number }
+
+export const lightningStrokes = (seed: number): Stroke[] => {
+  const random = (n: number) => { const x = Math.sin(seed * 12.9898 + n * 78.233) * 43758.5453; return x - Math.floor(x); };
+  const count = 1 + Math.floor(random(1) * 3);
+  return Array.from({ length: count }, (_, index) => ({ at: index === 0 ? 0 : 0.06 + index * 0.09 + random(index + 2) * 0.08, peak: index === 0 ? 1 : 0.45 + random(index + 7) * 0.4 }));
+};
+
+export const flashAt = (strokes: readonly Stroke[], since: number): number =>
+  strokes.reduce((total, stroke) => since < stroke.at ? total : Math.max(total, stroke.peak * Math.exp(-(since - stroke.at) / 0.07)), 0);
+
+export const flameFlicker = (time: number): number => {
+  const wave = (rate: number, offset: number) => Math.sin(time * rate + offset) * Math.sin(time * rate * 0.61 + offset * 1.7);
+  return 0.55 * wave(1.3, 0.4) + 0.3 * wave(2.9, 2.1) + 0.15 * wave(5.3, 5.7);
+};
 
 const flicker = (context: BackdropLayerContext, initial: BackdropLayerSpec): BackdropLayer => {
-  const storm = /^#?c8d8ff$/i.test(String(initial.params.color ?? ""));
-  let flash = 0, next = 0;
-  return fullscreenLayer("flicker", FLICKER_FS, 30, [1, 0.69, 0.38], (gl, program, frame) => {
-    if (storm) {
-      if (frame.time > next) { flash = 1; next = frame.time + 6000 + ((frame.time * 7919) % 9000); }
-      flash = Math.max(0, flash - frame.dt / 220);
-    }
-    gl.uniform1f(gl.getUniformLocation(program, "uFlash"), storm ? flash : 0);
-  })(context, initial);
+  const gl = context.gl;
+  const program = context.program(QUAD_VS, FLICKER_FS);
+  const color: [number, number, number] = [1, 0.69, 0.38];
+  let tune = tuning(initial, color);
+  let lightning = initial.params.lightning === true;
+  let strikes = 0, next = 4 + 6 * Math.random(), started = -1, strokes: Stroke[] = [];
+  const phase = new Phase();
+  const at = (name: string) => gl.getUniformLocation(program, name);
+  const u = { intensity: at("uIntensity"), color: at("uColor"), flash: at("uFlash"), flicker: at("uFlicker") };
+  const scene = sceneBinder(context, program);
+  return {
+    kind: "flicker", order: 30, fps: 30,
+    update: (spec) => { tune = tuning(spec, color); lightning = spec.params.lightning === true; },
+    draw: (frame) => {
+      const amount = tune.intensity * frame.intensity;
+      const position = phase.advance(frame.dt, tune.speed);
+      if (amount <= 0.01) return;
+      let flash = 0;
+      if (lightning) {
+        if (frame.time >= next) { strikes += 1; started = frame.time; strokes = lightningStrokes(strikes + Math.floor(frame.time)); next = frame.time + 7 + 13 * Math.random(); }
+        if (started >= 0) flash = flashAt(strokes, frame.time - started);
+      }
+      gl.useProgram(program);
+      scene(frame, 4);
+      gl.uniform1f(u.intensity, Math.min(1, amount * 1.3));
+      gl.uniform3fv(u.color, lightning ? [0.78, 0.85, 1] : tune.color);
+      gl.uniform1f(u.flash, flash * Math.min(1, 0.4 + amount));
+      gl.uniform1f(u.flicker, lightning ? 0 : flameFlicker(position) * 0.35);
+      context.drawQuad();
+    },
+    dispose: () => undefined,
+  };
 };
+
+const maskChannel = (value: unknown): BackdropMaskChannel => value === "sky" ? "sky" : value === "none" ? "all" : "water";
 
 const shimmer = (context: BackdropLayerContext, initial: BackdropLayerSpec): BackdropLayer => {
   let mask: WebGLTexture | null = null;
-  let mode = String(initial.params.mask ?? "water");
-  if (context.assets.maskUrl) void context.texture(context.assets.maskUrl).then((texture) => { mask = texture; });
-  const layer = fullscreenLayer("shimmer", SHIMMER_FS, 10, [1, 1, 1], (gl, program, frame) => {
-    const base = context.baseTexture();
-    gl.activeTexture(gl.TEXTURE2);
-    gl.bindTexture(gl.TEXTURE_2D, base);
-    gl.activeTexture(gl.TEXTURE3);
-    gl.bindTexture(gl.TEXTURE_2D, mask ?? base);
-    gl.activeTexture(gl.TEXTURE0);
-    gl.uniform1i(gl.getUniformLocation(program, "uBase"), 2);
-    gl.uniform1i(gl.getUniformLocation(program, "uMask"), 3);
-    gl.uniform1i(gl.getUniformLocation(program, "uHasMask"), mask ? 1 : 0);
-    gl.uniform1i(gl.getUniformLocation(program, "uMode"), mode === "sky" ? 0 : mode === "water" ? 1 : 2);
-    gl.uniform4fv(gl.getUniformLocation(program, "uCover"), context.coverTransform());
-    gl.uniform3f(gl.getUniformLocation(program, "uCam"), frame.camera.x, frame.camera.y, frame.camera.zoom);
-    gl.uniform3fv(gl.getUniformLocation(program, "uTint"), frame.tint);
-    gl.uniform1f(gl.getUniformLocation(program, "uVignette"), 0.12 + frame.state.tension * 0.25);
-  })(context, initial);
-  return { ...layer, update: (spec) => { mode = String(spec.params.mask ?? "water"); layer.update?.(spec); } };
+  let disposed = false;
+  let tune = tuning(initial, [1, 1, 1]);
+  let channel = maskChannel(initial.params.mask ?? "water");
+  const phase = new Phase();
+  if (context.assets.maskUrl) void context.texture(context.assets.maskUrl).then((texture) => { if (!disposed) mask = texture; });
+  return {
+    kind: "shimmer", order: 10, fps: 60,
+    update: (spec) => { tune = tuning(spec, [1, 1, 1]); channel = maskChannel(spec.params.mask ?? "water"); },
+    modifyBase: (frame): BackdropBaseModifier | null => {
+      const time = phase.advance(frame.dt, tune.speed);
+      if (!mask && channel !== "all") return null;
+      const amount = (channel === "water" ? 2.4 : 1.6) * Math.min(1.5, 0.5 + tune.intensity * frame.intensity * 1.5);
+      return { ripple: { texture: channel === "all" ? null : mask, channel, amount, time } };
+    },
+    draw: () => undefined,
+    dispose: () => { disposed = true; },
+  };
 };
 
+export const DRIFT_MAX_REACH = 0.012;
+
 export const driftCamera = (time: number, speed: number, intensity: number): BackdropCamera => {
-  const t = (time / 1000) * speed;
-  const reach = 0.006 + 0.01 * intensity;
-  return { x: Math.sin(t * 0.031) * reach, y: Math.cos(t * 0.023) * reach * 0.6, zoom: 1 + reach * 2.6 + Math.sin(t * 0.017) * reach * 0.5 };
+  const t = time * speed;
+  const reach = Math.min(DRIFT_MAX_REACH, 0.009 * Math.max(0, intensity));
+  return { x: Math.sin(t * 0.031) * reach, y: Math.cos(t * 0.023) * reach * 0.6, zoom: 1 + reach * 2.3 + Math.sin(t * 0.017) * reach * 0.2 };
 };
 
 const drift = (_context: BackdropLayerContext, initial: BackdropLayerSpec): BackdropLayer => {
   let tune = tuning(initial, [1, 1, 1]);
+  const phase = new Phase();
+  let lastTime = -1, camera: BackdropCamera = { x: 0, y: 0, zoom: 1 };
   return {
-    kind: "drift", order: 0,
+    kind: "drift", order: 0, fps: 30,
     update: (spec) => { tune = tuning(spec, [1, 1, 1]); },
-    adjustCamera: (camera, frame) => {
-      const move = driftCamera(frame.time, tune.speed, tune.intensity * frame.intensity);
-      return { x: camera.x + move.x, y: camera.y + move.y, zoom: camera.zoom * move.zoom };
+    adjustCamera: (base, frame) => {
+      if (frame.time !== lastTime) { lastTime = frame.time; camera = driftCamera(phase.advance(frame.dt, tune.speed), 1, tune.intensity * frame.intensity); }
+      return { x: base.x + camera.x, y: base.y + camera.y, zoom: base.zoom * camera.zoom };
     },
     draw: () => undefined,
     dispose: () => undefined,
@@ -149,7 +218,7 @@ export const BUILT_IN_LAYERS = ["rain", "snow", "embers", "dust", "fireflies", "
 
 export const registerBuiltInLayers = (): Array<() => void> => [
   ...(Object.keys(PARTICLE_KINDS) as ParticleKind[]).map((kind) => registerLayer(kind, particleLayer(kind))),
-  registerLayer("fog", fullscreenLayer("fog", FOG_FS, 26, [0.82, 0.85, 0.9])),
+  registerLayer("fog", fog),
   registerLayer("flicker", flicker),
   registerLayer("drift", drift),
   registerLayer("shimmer", shimmer),

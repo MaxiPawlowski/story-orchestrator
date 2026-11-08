@@ -1,4 +1,4 @@
-import type { BackdropAssets, BackdropBase, BackdropCamera, BackdropFrame, BackdropLayer, BackdropLayerContext, BackdropLayerSpec } from "../types";
+import type { BackdropAssets, BackdropBase, BackdropBaseModifier, BackdropCamera, BackdropFrame, BackdropLayer, BackdropLayerContext, BackdropLayerSpec } from "../types";
 import { registeredLayer } from "./registry";
 import { BASE_FS, DIM_FS, QUAD_VS } from "./shaders";
 import { coverTransform, type Cover } from "./cover";
@@ -15,10 +15,18 @@ interface BaseSlot {
   height: number;
 }
 
-export const CROSSFADE_MS = 900;
+export const CROSSFADE_MS = 1200;
+
+export const crossfadeMix = (elapsed: number): number => {
+  const t = Math.min(1, Math.max(0, elapsed / CROSSFADE_MS));
+  return t * t * (3 - 2 * t);
+};
 
 const sourceSize = (source: BaseSource): { width: number; height: number } => source instanceof HTMLVideoElement
   ? { width: source.videoWidth, height: source.videoHeight } : { width: source.naturalWidth, height: source.naturalHeight };
+
+export const mergeModifiers = (parts: ReadonlyArray<BackdropBaseModifier | null | undefined>): BackdropBaseModifier =>
+  parts.reduce<BackdropBaseModifier>((merged, part) => ({ ...merged, ...(part ?? {}) }), {});
 
 export class BackdropRenderer {
   readonly gl: WebGL2RenderingContext;
@@ -29,6 +37,7 @@ export class BackdropRenderer {
   private readonly owned = new Set<WebGLTexture>();
   private readonly base: WebGLProgram;
   private readonly dim: WebGLProgram;
+  private readonly blank: WebGLTexture;
   private readonly uniforms = new Map<WebGLProgram, Map<string, WebGLUniformLocation | null>>();
   private current: BaseSlot | null = null;
   private previous: BaseSlot | null = null;
@@ -36,12 +45,14 @@ export class BackdropRenderer {
   private layers: Array<{ spec: BackdropLayerSpec; layer: BackdropLayer }> = [];
   private assets: BackdropAssets = {};
   private lastVideoUpload = -1;
+  private lost = false;
+  private disposed = false;
   width = 1;
   height = 1;
 
   constructor(readonly canvas: HTMLCanvasElement, private readonly loadImage: (url: string) => Promise<HTMLImageElement>) {
     const gl = canvas.getContext("webgl2", { alpha: false, antialias: false, depth: false, stencil: false, premultipliedAlpha: true, powerPreference: "low-power" });
-    if (!gl) throw new Error("WebGL2 is not available");
+    if (!gl || gl.isContextLost()) throw new Error("WebGL2 is not available");
     this.gl = gl;
     this.quad = gl.createVertexArray() as WebGLVertexArrayObject;
     this.buffer = gl.createBuffer() as WebGLBuffer;
@@ -53,7 +64,10 @@ export class BackdropRenderer {
     gl.bindVertexArray(null);
     this.base = this.program(QUAD_VS, BASE_FS);
     this.dim = this.program(QUAD_VS, DIM_FS);
+    this.blank = this.makeTexture(null, false);
   }
+
+  markLost(): void { this.lost = true; }
 
   program(vertex: string, fragment: string): WebGLProgram {
     const key = `${vertex}\u0000${fragment}`;
@@ -87,17 +101,21 @@ export class BackdropRenderer {
     return table.get(name) ?? null;
   }
 
-  private makeTexture(source: TexImageSource | null): WebGLTexture {
+  private makeTexture(source: TexImageSource | null, mipmaps: boolean): WebGLTexture {
     const gl = this.gl;
     const texture = gl.createTexture() as WebGLTexture;
+    gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, texture);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, mipmaps ? gl.LINEAR_MIPMAP_LINEAR : gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+    gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+    gl.pixelStorei(gl.UNPACK_COLORSPACE_CONVERSION_WEBGL, gl.NONE);
     if (source) gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, source);
     else gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([0, 0, 0, 255]));
+    if (mipmaps) gl.generateMipmap(gl.TEXTURE_2D);
     this.owned.add(texture);
     return texture;
   }
@@ -105,24 +123,33 @@ export class BackdropRenderer {
   texture(url: string): Promise<WebGLTexture | null> {
     const cached = this.textures.get(url);
     if (cached) return cached;
-    const loading = this.loadImage(url).then((image) => this.makeTexture(image)).catch(() => null);
+    const loading = this.loadImage(url).then((image) => (this.lost || this.disposed ? null : this.makeTexture(image, false))).catch(() => { this.textures.delete(url); return null; });
     this.textures.set(url, loading);
     return loading;
   }
 
-  setBase(base: BackdropBase, source: BaseSource, now: number): void {
+  setPlaying(playing: boolean): void {
+    for (const slot of [this.current, this.previous]) {
+      if (!(slot?.source instanceof HTMLVideoElement)) continue;
+      if (playing) void slot.source.play().catch(() => undefined); else slot.source.pause();
+    }
+  }
+
+  setBase(base: BackdropBase, source: BaseSource, now: number, instant = false): void {
     const size = sourceSize(source);
-    const slot: BaseSlot = { base, source, texture: this.makeTexture(source instanceof HTMLVideoElement ? null : source), ...size,
+    const slot: BaseSlot = { base, source, texture: this.makeTexture(source instanceof HTMLVideoElement ? null : source, true), ...size,
       cover: coverTransform(size.width, size.height, this.width, this.height) };
-    if (this.previous && this.previous !== this.current) this.release(this.previous);
-    this.previous = this.current;
+    const visible = this.previous && this.fading(now) && crossfadeMix(now - this.fadeStart) < 0.5 ? this.previous : this.current;
+    for (const old of [this.previous, this.current]) if (old && old !== visible) this.release(old);
+    this.previous = visible;
     this.current = slot;
+    if (instant && this.previous) { this.release(this.previous); this.previous = null; }
     this.fadeStart = this.previous ? now : now - CROSSFADE_MS;
     this.lastVideoUpload = -1;
   }
 
   private release(slot: BaseSlot): void {
-    this.gl.deleteTexture(slot.texture);
+    if (!this.lost) this.gl.deleteTexture(slot.texture);
     this.owned.delete(slot.texture);
     if (slot.source instanceof HTMLVideoElement) { slot.source.pause(); slot.source.removeAttribute("src"); slot.source.load(); }
   }
@@ -142,6 +169,16 @@ export class BackdropRenderer {
     for (const slot of [this.current, this.previous]) if (slot) slot.cover = coverTransform(slot.width, slot.height, this.width, this.height);
   }
 
+  private bindScene(program: WebGLProgram, camera: BackdropCamera, unit: number): void {
+    const gl = this.gl;
+    gl.activeTexture(gl.TEXTURE0 + unit);
+    gl.bindTexture(gl.TEXTURE_2D, this.current?.texture ?? this.blank);
+    gl.activeTexture(gl.TEXTURE0);
+    gl.uniform1i(this.uniform(program, "uScene"), unit);
+    gl.uniform4fv(this.uniform(program, "uSceneCover"), this.current?.cover ?? [1, 1, 0, 0]);
+    gl.uniform3f(this.uniform(program, "uSceneCam"), camera.x, camera.y, camera.zoom);
+  }
+
   private context(): BackdropLayerContext {
     return {
       gl: this.gl, base: this.current?.base ?? null, assets: this.assets,
@@ -152,14 +189,17 @@ export class BackdropRenderer {
       texture: (url) => this.texture(url),
       drawQuad: () => { this.gl.bindVertexArray(this.quad); this.gl.drawArrays(this.gl.TRIANGLE_STRIP, 0, 4); },
       coverTransform: () => this.current?.cover ?? [1, 1, 0, 0],
+      bindScene: (program, camera, unit) => this.bindScene(program, camera, unit),
     };
   }
 
   setLayers(specs: readonly BackdropLayerSpec[], assets: BackdropAssets): void {
+    const changed = JSON.stringify(assets) !== JSON.stringify(this.assets);
+    if (changed) this.forgetTextures(assets);
     this.assets = assets;
     const keep: typeof this.layers = [];
     for (const entry of this.layers) {
-      const next = specs.find((spec) => spec.id === entry.spec.id && spec.kind === entry.spec.kind);
+      const next = changed ? undefined : specs.find((spec) => spec.id === entry.spec.id && spec.kind === entry.spec.kind);
       if (next) { entry.layer.update?.(next); keep.push({ spec: next, layer: entry.layer }); }
       else entry.layer.dispose();
     }
@@ -171,7 +211,21 @@ export class BackdropRenderer {
     this.layers = keep.sort((left, right) => left.layer.order - right.layer.order);
   }
 
+  private forgetTextures(assets: BackdropAssets): void {
+    const wanted = new Set(Object.values(assets).filter((url): url is string => typeof url === "string"));
+    for (const [url, loading] of [...this.textures]) {
+      if (wanted.has(url)) continue;
+      this.textures.delete(url);
+      void loading.then((texture) => { if (!texture) return; this.owned.delete(texture); if (!this.lost) this.gl.deleteTexture(texture); });
+    }
+  }
+
   layerKinds(): string[] { return this.layers.map((entry) => entry.layer.kind); }
+
+  frameRate(): number {
+    const rates = this.layers.map((entry) => entry.layer.fps ?? 60);
+    return rates.length ? Math.max(...rates) : 60;
+  }
 
   camera(frame: BackdropFrame): BackdropCamera {
     return this.layers.reduce<BackdropCamera>((camera, entry) => entry.layer.adjustCamera?.(camera, frame) ?? camera, { x: 0, y: 0, zoom: 1 });
@@ -182,16 +236,53 @@ export class BackdropRenderer {
     if (video.readyState < 2) return;
     const time = video.currentTime;
     if (time === this.lastVideoUpload && slot === this.current) return;
-    if (slot.width !== video.videoWidth || slot.height !== video.videoHeight) {
+    const gl = this.gl;
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, slot.texture);
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+    if (slot.width !== video.videoWidth || slot.height !== video.videoHeight || !slot.width) {
       slot.width = video.videoWidth;
       slot.height = video.videoHeight;
       slot.cover = coverTransform(slot.width, slot.height, this.width, this.height);
-    }
-    const gl = this.gl;
-    gl.bindTexture(gl.TEXTURE_2D, slot.texture);
-    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, video);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, video);
+    } else gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, gl.RGBA, gl.UNSIGNED_BYTE, video);
+    gl.generateMipmap(gl.TEXTURE_2D);
     if (slot === this.current) this.lastVideoUpload = time;
+  }
+
+  private drawBase(current: BaseSlot, previous: BaseSlot | null, frame: BackdropFrame, now: number): void {
+    const gl = this.gl;
+    const camera = frame.camera;
+    const modifier = mergeModifiers(this.layers.map((entry) => entry.layer.modifyBase?.(frame)));
+    const depth = modifier.depth?.texture ?? modifier.fog?.texture ?? null;
+    const u = (name: string) => this.uniform(this.base, name);
+    gl.useProgram(this.base);
+    const bind = (unit: number, texture: WebGLTexture, name: string) => { gl.activeTexture(gl.TEXTURE0 + unit); gl.bindTexture(gl.TEXTURE_2D, texture); gl.uniform1i(u(name), unit); };
+    bind(0, current.texture, "uA");
+    bind(1, (previous ?? current).texture, "uB");
+    bind(2, depth ?? this.blank, "uDepth");
+    bind(3, modifier.ripple?.texture ?? this.blank, "uMask");
+    gl.activeTexture(gl.TEXTURE0);
+    gl.uniform4fv(u("uCoverA"), current.cover);
+    gl.uniform4fv(u("uCoverB"), (previous ?? current).cover);
+    gl.uniform1f(u("uMix"), previous ? crossfadeMix(now - this.fadeStart) : 1);
+    gl.uniform3f(u("uCam"), camera.x, camera.y, camera.zoom);
+    gl.uniform3fv(u("uTint"), frame.tint);
+    gl.uniform1f(u("uVignette"), 0.1 + frame.state.tension * 0.2);
+    gl.uniform1i(u("uHasDepth"), depth ? 1 : 0);
+    gl.uniform2fv(u("uOffset"), modifier.depth?.offset ?? [0, 0]);
+    gl.uniform1f(u("uScale"), modifier.depth?.scale ?? 1);
+    gl.uniform1f(u("uFocus"), modifier.depth?.focus ?? 0.5);
+    gl.uniform1f(u("uFog"), modifier.fog?.density ?? 0);
+    gl.uniform3fv(u("uFogColor"), modifier.fog?.color ?? [0.8, 0.82, 0.86]);
+    gl.uniform1f(u("uFogTime"), modifier.fog?.time ?? 0);
+    gl.uniform1i(u("uRipple"), modifier.ripple ? 1 : 0);
+    gl.uniform1i(u("uRippleChannel"), modifier.ripple?.channel === "sky" ? 0 : modifier.ripple?.channel === "all" ? 2 : 1);
+    gl.uniform1f(u("uRippleAmount"), (modifier.ripple?.amount ?? 0) * frame.dpr);
+    gl.uniform1f(u("uRippleTime"), modifier.ripple?.time ?? 0);
+    gl.uniform2f(u("uPixel"), current.cover[0] / camera.zoom / this.width, current.cover[1] / camera.zoom / this.height);
+    gl.bindVertexArray(this.quad);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
   }
 
   draw(frame: Omit<BackdropFrame, "camera">, dim: { left: number; right: number; amount: number } | null, now: number): BackdropFrame {
@@ -205,34 +296,21 @@ export class BackdropRenderer {
     if (current.source instanceof HTMLVideoElement) this.uploadVideo(current);
     const previous = this.fading(now) ? this.previous : null;
     if (previous?.source instanceof HTMLVideoElement) this.uploadVideo(previous);
-    if (!this.layers.some((entry) => entry.layer.replacesBase)) {
-      gl.useProgram(this.base);
-      gl.activeTexture(gl.TEXTURE0);
-      gl.bindTexture(gl.TEXTURE_2D, current.texture);
-      gl.activeTexture(gl.TEXTURE1);
-      gl.bindTexture(gl.TEXTURE_2D, (previous ?? current).texture);
-      gl.uniform1i(this.uniform(this.base, "uA"), 0);
-      gl.uniform1i(this.uniform(this.base, "uB"), 1);
-      gl.uniform4fv(this.uniform(this.base, "uCoverA"), current.cover);
-      gl.uniform4fv(this.uniform(this.base, "uCoverB"), (previous ?? current).cover);
-      gl.uniform1f(this.uniform(this.base, "uMix"), previous ? Math.min(1, (now - this.fadeStart) / CROSSFADE_MS) : 1);
-      gl.uniform3f(this.uniform(this.base, "uCam"), camera.x, camera.y, camera.zoom);
-      gl.uniform3fv(this.uniform(this.base, "uTint"), frame.tint);
-      gl.uniform1f(this.uniform(this.base, "uVignette"), 0.12 + frame.state.tension * 0.25);
-      gl.bindVertexArray(this.quad);
-      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-      gl.activeTexture(gl.TEXTURE0);
-    }
+    this.drawBase(current, previous, full, now);
     if (!previous && this.previous) { this.release(this.previous); this.previous = null; }
-    gl.enable(gl.BLEND);
-    gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
-    for (const entry of this.layers) entry.layer.draw(full);
+    for (const entry of this.layers) {
+      gl.enable(gl.BLEND);
+      gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+      gl.activeTexture(gl.TEXTURE0);
+      entry.layer.draw(full);
+    }
     if (dim && dim.amount > 0) {
+      gl.enable(gl.BLEND);
       gl.useProgram(this.dim);
       gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
       gl.uniform2f(this.uniform(this.dim, "uBand"), dim.left, dim.right);
       gl.uniform1f(this.uniform(this.dim, "uAmount"), dim.amount);
-      gl.uniform1f(this.uniform(this.dim, "uSoft"), 0.04);
+      gl.uniform1f(this.uniform(this.dim, "uSoft"), 0.07);
       gl.bindVertexArray(this.quad);
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     }
@@ -241,10 +319,12 @@ export class BackdropRenderer {
   }
 
   dispose(): void {
+    this.disposed = true;
     this.layers.forEach((entry) => entry.layer.dispose());
     this.layers = [];
     for (const slot of [this.current, this.previous]) if (slot) this.release(slot);
     this.current = this.previous = null;
+    if (this.lost) { this.owned.clear(); this.programs.clear(); return; }
     const gl = this.gl;
     this.owned.forEach((texture) => gl.deleteTexture(texture));
     this.owned.clear();

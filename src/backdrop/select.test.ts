@@ -12,12 +12,15 @@ describe("v3.0 45 A: backdrop state from story state", () => {
   it("reads weather and time words", () => {
     expect([weatherFrom("light drizzle"), weatherFrom("Thunderstorm"), weatherFrom("blizzard"), weatherFrom("morning mist"), weatherFrom("sunny"), weatherFrom(3)])
       .toEqual(["rain", "storm", "snow", "fog", "clear", null]);
+    expect([timeFrom("late afternoon"), timeFrom("late morning"), timeFrom("today"), timeFrom("Sunday")]).toEqual(["day", "dawn", null, null]);
     expect([timeFrom("late evening"), timeFrom("Morning"), timeFrom("afternoon"), timeFrom("midnight"), timeFrom(undefined, true), timeFrom(undefined)])
       .toEqual(["night", "dawn", "day", "night", "night", null]);
   });
 
   it("guesses indoor from the background name only when it says so", () => {
     expect([indoorFrom("tavern_night.png"), indoorFrom("forest-road.jpg"), indoorFrom("abstract7.png")]).toEqual([true, false, undefined]);
+    expect([indoorFrom("shallow river.png"), indoorFrom("mushroom forest.jpg"), indoorFrom("lighthouse cliff.jpg"), indoorFrom("portrait.png"), indoorFrom("castle interior.jpg"),
+      indoorFrom("bedroom clean.jpg"), indoorFrom("seat cushion.png")]).toEqual([false, false, false, undefined, true, true, undefined]);
   });
 
   it("authored fields win over state, field by field, and a beat wins over the defaults", () => {
@@ -35,7 +38,9 @@ describe("v3.0 45 A: layers from state", () => {
     expect(kinds({ weather: "rain" })).toEqual(["drift", "rain"]);
     expect(kinds({ weather: "storm" })).toEqual(["drift", "rain", "fog", "flicker"]);
     expect(kinds({ weather: "snow", indoor: true, timeOfDay: "night" })).toEqual(["drift", "dust", "flicker"]);
-    expect(kinds({ timeOfDay: "night", indoor: false })).toEqual(["drift", "fireflies"]);
+    expect(kinds({ timeOfDay: "night", indoor: false, sceneKey: "forest glade.jpg" })).toEqual(["drift", "fireflies"]);
+    expect(kinds({ timeOfDay: "night", indoor: false, sceneKey: "city street.jpg" })).toEqual(["drift"]);
+    expect(kinds({ timeOfDay: "night", weather: "snow", indoor: false, sceneKey: "forest.jpg" })).toEqual(["drift", "snow"]);
     expect(kinds({})).toEqual(["drift"]);
   });
 

@@ -5,7 +5,8 @@ import {
 import { BackdropController, type BackdropHost, type BackdropOverride, type BackdropSources } from "./stage/controller";
 import { BackdropRenderer } from "./stage/renderer";
 import { registerBuiltInLayers } from "./stage/layers";
-import { meanLuminance } from "./stage/contrast";
+import { brightLuminance } from "./stage/contrast";
+import { coverTransform } from "./stage/cover";
 import { log } from "@utils/log";
 import type { BackdropBootContext, BackdropBootHook } from "./types";
 
@@ -46,7 +47,7 @@ const loadVideo = (url: string): Promise<HTMLVideoElement> => new Promise((resol
   video.loop = true;
   video.playsInline = true;
   video.preload = "auto";
-  video.oncanplay = () => { video.oncanplay = null; void video.play().catch((error: unknown) => log.warn("The backdrop loop could not start playing", error)); resolve(video); };
+  video.oncanplay = () => { video.oncanplay = null; video.play().then(() => resolve(video), (error: unknown) => { video.removeAttribute("src"); video.load(); reject(error instanceof Error ? error : new Error(String(error))); }); };
   video.onerror = () => reject(new Error(`could not load ${url}`));
   video.src = url;
 });
@@ -65,19 +66,24 @@ const browserHost: BackdropHost = {
     canvas.height = 27;
     const context = canvas.getContext("2d", { willReadFrequently: true });
     if (!context) return null;
-    context.drawImage(source, 0, 0, 48, 27);
-    const width = Math.max(1, window.innerWidth);
+    const width = Math.max(1, window.innerWidth), height = Math.max(1, window.innerHeight);
+    const [scaleX, scaleY, offsetX, offsetY] = coverTransform(source.naturalWidth, source.naturalHeight, width, height);
+    context.drawImage(source, offsetX * source.naturalWidth, offsetY * source.naturalHeight, scaleX * source.naturalWidth, scaleY * source.naturalHeight, 0, 0, 48, 27);
     const left = Math.floor(((column?.left ?? width * 0.25) / width) * 48), right = Math.ceil(((column?.right ?? width * 0.75) / width) * 48);
-    return meanLuminance(context.getImageData(Math.max(0, left), 0, Math.max(1, Math.min(48, right) - Math.max(0, left)), 27).data);
+    return brightLuminance(context.getImageData(Math.max(0, left), 0, Math.max(1, Math.min(48, right) - Math.max(0, left)), 27).data);
   },
   textLuminance: chatTextLuminance,
   setFlags: (flags) => { setBackdropFlags(flags); },
   viewport: () => ({ width: window.innerWidth, height: window.innerHeight, dpr: window.devicePixelRatio || 1 }),
   onResize: (listener) => { window.addEventListener("resize", listener, { passive: true }); return () => window.removeEventListener("resize", listener); },
   onPointer: (listener) => {
-    const move = (event: PointerEvent) => listener((event.clientX / Math.max(1, window.innerWidth)) * 2 - 1, (event.clientY / Math.max(1, window.innerHeight)) * 2 - 1);
+    const move = (event: PointerEvent) => event.pointerType !== "mouse" ? undefined : listener((event.clientX / Math.max(1, window.innerWidth)) * 2 - 1, (event.clientY / Math.max(1, window.innerHeight)) * 2 - 1);
+    const leave = (event: MouseEvent) => { if (!event.relatedTarget) listener(0, 0); };
+    const blur = () => listener(0, 0);
     window.addEventListener("pointermove", move, { passive: true });
-    return () => window.removeEventListener("pointermove", move);
+    document.addEventListener("mouseout", leave);
+    window.addEventListener("blur", blur);
+    return () => { window.removeEventListener("pointermove", move); document.removeEventListener("mouseout", leave); window.removeEventListener("blur", blur); };
   },
   loadImage,
   loadVideo,
@@ -114,6 +120,13 @@ export function startBackdrop(manager: BackdropManager): BackdropController | nu
   canvas.id = "so-backdrop-canvas";
   Object.assign(canvas.style, { width: "100%", height: "100%", display: "block", opacity: "0", transition: "opacity 600ms ease" });
   root.appendChild(canvas);
+  const lost = (event: Event) => { event.preventDefault(); controller?.contextLost(); };
+  const restored = () => { controller?.contextRestored(); };
+  canvas.addEventListener("webglcontextlost", lost);
+  canvas.addEventListener("webglcontextrestored", restored);
+  const motion = typeof matchMedia === "function" ? matchMedia("(prefers-reduced-motion: reduce)") : null;
+  const motionChanged = () => controller?.refresh(true);
+  motion?.addEventListener("change", motionChanged);
   const unregister = registerBuiltInLayers();
   const current = new BackdropController(browserHost, sourcesFor(manager), () => new BackdropRenderer(canvas, loadImage),
     (shown) => { canvas.style.opacity = shown ? "1" : "0"; });
@@ -123,6 +136,7 @@ export function startBackdrop(manager: BackdropManager): BackdropController | nu
   const debug: BackdropDebug = { view: () => current.view(), stats: () => current.frameStats(), override: (patch) => current.setOverride(patch), refresh: () => current.refresh(true) };
   globalThis.storyOrchestratorBackdrop = debug;
   dispose = () => {
+    motion?.removeEventListener("change", motionChanged);
     stopHooks.forEach((off) => off());
     stop();
     unregister.forEach((off) => off());

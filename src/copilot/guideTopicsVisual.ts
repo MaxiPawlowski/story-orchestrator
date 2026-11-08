@@ -13,6 +13,6 @@ export const VISUAL_PACKS_TOPIC = {
 export const BACKDROP_TOPIC = {
   backdrop: { title: "Animated backdrop", fields: "effects.backdrop, backdrop_defaults",
     text: "Animated scene behind the chat; presentation only. {layers, weather, time, indoor, intensity, loop}; a beat overrides backdrop_defaults by field. "
-      + "Absent = derived from state (weather quality, time_of_day, tension_current). layers: [] none, or kinds/{kind, intensity 0-1, speed 0.1-4, color hex, mask sky|water|none}: "
-      + "rain snow embers dust fireflies fog flicker drift shimmer parallax depthFog. loop \"pre\" = make a video loop at setup (key places only), \"auto\" when idle, false = still." },
+      + "Absent = derived from state (weather quality, time_of_day, tension_current). layers: [] none, or kinds/{kind, intensity 0-1, speed 0.1-4, color hex, mask sky|water (need the scene mask) or none = heat haze}: "
+      + "rain snow embers dust fireflies (derived: clear nights in green places only) fog flicker drift shimmer parallax depthFog. loop \"pre\" = make a video loop at setup (key places only), \"auto\" when idle, false = still." },
 } as const;

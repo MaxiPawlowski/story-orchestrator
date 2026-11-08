@@ -15,13 +15,23 @@ const WEATHER_WORDS: Array<[RegExp, BackdropWeather]> = [
   [/fog|mist|haze|smog/, "fog"], [/wind|gale|gust|breez/, "wind"], [/clear|sun|fair|calm|bright|dry/, "clear"],
 ];
 const TIME_WORDS: Array<[RegExp, BackdropTime]> = [
-  [/night|midnight|late|small hours/, "night"], [/dusk|evening|sunset|twilight/, "dusk"], [/dawn|morning|sunrise|daybreak/, "dawn"], [/day|noon|afternoon|midday/, "day"],
+  [/night|midnight|small hours|late evening/, "night"], [/dusk|evening|sunset|twilight/, "dusk"], [/dawn|morning|sunrise|daybreak/, "dawn"],
+  [/\bday\b|daytime|daylight|noon|afternoon|midday/, "day"],
 ];
-const INDOOR_WORDS = new RegExp(["tavern", "inn\\b", "room", "hall", "interior", "cellar", "cave", "library", "bedroom", "kitchen", "throne", "chamber",
-  "dungeon", "shop", "house", "bar\\b", "temple", "church", "office", "corridor", "basement", "attic", "study", "crypt", "cabin", "tent"].join("|"));
-const OUTDOOR_WORDS = new RegExp(["forest", "field", "street", "sky", "beach", "mountain", "garden", "road", "city", "village", "lake", "sea", "ocean",
-  "river", "desert", "plain", "outside", "exterior", "meadow", "harbou?r", "port", "square", "bridge", "cliff", "ruin", "camp", "park", "valley", "shore",
-  "swamp", "wood"].join("|"));
+const FORCED_INDOOR = new Set(["interior", "indoor", "inside"]);
+const INDOOR_WORDS = new Set(["tavern", "inn", "room", "hall", "cellar", "cave", "cavern", "library", "kitchen", "throne", "chamber", "dungeon", "shop", "house", "bar",
+  "pub", "temple", "church", "chapel", "office", "corridor", "hallway", "basement", "attic", "study", "crypt", "cabin", "tent", "parlor", "parlour", "classroom", "bedroom",
+  "ballroom", "bathroom", "lab", "laboratory", "museum", "prison", "cell", "mansion", "bedchamber", "throneroom", "storeroom"]);
+const OUTDOOR_WORDS = new Set(["forest", "field", "street", "sky", "beach", "mountain", "garden", "road", "city", "village", "lake", "sea", "ocean", "river", "desert",
+  "plain", "outside", "outdoor", "exterior", "meadow", "harbor", "harbour", "port", "square", "bridge", "cliff", "ruin", "camp", "park", "valley", "shore", "swamp",
+  "wood", "woodland", "lighthouse", "landscape", "coast", "hill", "dock", "pier", "farm", "countryside", "jungle", "trail", "path", "alley", "courtyard", "rooftop"]);
+const GREEN_WORDS = new Set(["forest", "wood", "woodland", "garden", "meadow", "field", "swamp", "marsh", "park", "grove", "glade", "jungle", "orchard", "grass",
+  "grassland", "lake", "river", "pond", "countryside", "farm", "trail", "path", "valley", "bayou"]);
+
+export const sceneWords = (key: string): string[] => key.toLowerCase().replace(/\.[a-z0-9]+$/, "").split(/[^a-z]+/).filter(Boolean)
+  .map((word) => (word.length > 4 && word.endsWith("s") && !word.endsWith("ss") ? word.slice(0, -1) : word));
+
+export const greenScene = (key: string): boolean => sceneWords(key).some((word) => GREEN_WORDS.has(word));
 
 const textOf = (value: unknown): string => (typeof value === "string" ? value.toLowerCase() : "");
 
@@ -37,9 +47,10 @@ export const timeFrom = (value: unknown, night?: unknown): BackdropTime | null =
 };
 
 export const indoorFrom = (key: string): boolean | undefined => {
-  const text = key.toLowerCase().replace(/[_-]+/g, " ");
-  if (INDOOR_WORDS.test(text)) return true;
-  if (OUTDOOR_WORDS.test(text)) return false;
+  const found = sceneWords(key);
+  if (found.some((word) => FORCED_INDOOR.has(word))) return true;
+  if (found.some((word) => OUTDOOR_WORDS.has(word))) return false;
+  if (found.some((word) => INDOOR_WORDS.has(word))) return true;
   return undefined;
 };
 
@@ -68,15 +79,15 @@ export const derivedLayers = (state: BackdropState): BackdropLayerSpec[] => {
   const outdoor = state.indoor !== true;
   const weather = outdoor || !state.weather || !SKY_WEATHER.includes(state.weather) ? state.weather : null;
   if (weather === "rain") layers.push(spec("rain", { intensity: 0.6 }));
-  if (weather === "storm") layers.push(spec("rain", { intensity: 1, speed: 1.4 }), spec("fog", { intensity: 0.3 }), spec("flicker", { intensity: 0.5, color: "#c8d8ff" }));
+  if (weather === "storm") layers.push(spec("rain", { intensity: 1, speed: 1.25 }), spec("fog", { intensity: 0.3 }), spec("flicker", { intensity: 0.6, lightning: true }));
   if (weather === "snow") layers.push(spec("snow", { intensity: 0.6 }));
   if (weather === "fog") layers.push(spec("fog", { intensity: 0.6 }));
-  if (weather === "wind") layers.push(spec("dust", { intensity: 0.5, speed: 2.5 }));
+  if (weather === "wind") layers.push(spec("dust", { intensity: 0.6, wind: 1 }));
   const dark = state.timeOfDay === "night" || state.timeOfDay === "dusk";
   if (state.indoor === true) {
     layers.push(spec("dust", { intensity: 0.35 }));
     if (dark) layers.push(spec("flicker", { intensity: 0.45 }));
-  } else if (state.timeOfDay === "night" && (!weather || weather === "clear")) layers.push(spec("fireflies", { intensity: 0.45 }));
+  } else if (state.timeOfDay === "night" && (!weather || weather === "clear") && greenScene(state.sceneKey)) layers.push(spec("fireflies", { intensity: 0.45 }));
   return dedupe(layers);
 };
 

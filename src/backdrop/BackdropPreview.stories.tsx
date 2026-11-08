@@ -22,6 +22,16 @@ export const StormWithTension: Story = { args: { values: { weather: "thunderstor
 
 export const SnowNight: Story = { args: { values: { weather: "snow", time_of_day: "night" }, onView: fn() } };
 
+export const WindyDay: Story = {
+  args: { values: { weather: "windy", time_of_day: "afternoon" }, onView: fn() },
+  play: async ({ args }) => { await layersAfter(args.onView as ReturnType<typeof fn>, ["drift", "dust"]); },
+};
+
+export const CityNightHasNoFireflies: Story = {
+  args: { sceneKey: "city street.png", values: { time_of_day: "night" }, onView: fn() },
+  play: async ({ args }) => { await layersAfter(args.onView as ReturnType<typeof fn>, ["drift"]); },
+};
+
 export const FirefliesNight: Story = {
   args: { values: { time_of_day: "night" }, onView: fn() },
   play: async ({ args }) => { await layersAfter(args.onView as ReturnType<typeof fn>, ["drift", "fireflies"]); },
@@ -31,7 +41,7 @@ export const CandlelitCellar: Story = { args: { sceneKey: "cellar.png", values: 
 
 export const AuthoredEmbersAndShimmer: Story = {
   args: { values: {}, effect: { layers: [{ kind: "embers", intensity: 0.8 }, { kind: "shimmer", mask: "water" }, { kind: "fog", intensity: 0.3 }] }, onView: fn() },
-  play: async ({ args }) => { await layersAfter(args.onView as ReturnType<typeof fn>, ["shimmer", "embers", "fog"]); },
+  play: async ({ args }) => { await layersAfter(args.onView as ReturnType<typeof fn>, ["shimmer", "fog", "embers"]); },
 };
 
 export const ReducedMotionStill: Story = {
