@@ -39,9 +39,9 @@ type ParticleKind = keyof typeof PARTICLE_KINDS;
 const PARTICLE_DEFAULTS: Record<ParticleKind, { count: number; color: [number, number, number]; order: number; tinted: boolean }> = {
   rain: { count: 1500, color: [0.8, 0.85, 0.92], order: 20, tinted: true },
   snow: { count: 1100, color: [0.95, 0.96, 1], order: 20, tinted: true },
-  embers: { count: 140, color: [1, 0.62, 0.22], order: 22, tinted: false },
+  embers: { count: 320, color: [1, 0.62, 0.22], order: 22, tinted: false },
   dust: { count: 260, color: [1, 0.94, 0.82], order: 24, tinted: true },
-  fireflies: { count: 44, color: [0.82, 1, 0.42], order: 24, tinted: false },
+  fireflies: { count: 70, color: [0.86, 1, 0.45], order: 24, tinted: false },
 };
 
 export const areaScale = (width: number, height: number): number => Math.min(1.6, Math.max(0.35, (width * height) / (1920 * 1080)));

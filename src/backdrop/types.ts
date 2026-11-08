@@ -63,6 +63,7 @@ export interface BackdropFrame {
   camera: BackdropCamera;
   state: BackdropState;
   tint: [number, number, number];
+  grade?: [number, number, number];
   reducedMotion: boolean;
 }
 

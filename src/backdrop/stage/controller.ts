@@ -4,7 +4,7 @@ import type { BackdropAssets, BackdropBase, BackdropLayerSpec, BackdropSettings,
 import { lookupAssets, noteBaseShown, onAssetsChanged } from "../assets";
 import { mergeEffect, pickBackdrop, type Values } from "../select";
 import { autoLayers, gateOpen, onLayersChanged, registeredLayer } from "./registry";
-import { renderScale, tintFor } from "./cover";
+import { gradeFor, renderScale, tintFor, type Grade } from "./cover";
 import { FrameStats, shouldDraw } from "./stats";
 import { dimForContrast, relativeLuminance } from "./contrast";
 import type { BackdropRenderer, BaseSource } from "./renderer";
@@ -80,6 +80,7 @@ export class BackdropController {
   private lastDraw = 0;
   private clock = 0;
   private shownTint: [number, number, number] | null = null;
+  private shownGrade: Grade | null = null;
   private pointer = { x: 0, y: 0 };
   private base: BackdropBase | null = null;
   private loadingKey = "";
@@ -314,13 +315,15 @@ export class BackdropController {
     const tint = tintFor(this.state.timeOfDay, this.state.weather);
     const shown = this.shownTint ?? tint;
     this.shownTint = this.reduced ? tint : [0, 1, 2].map((index) => shown[index] + (tint[index] - shown[index]) * ease) as [number, number, number];
+    const grade = gradeFor(this.state.timeOfDay, this.state.weather), graded = this.shownGrade ?? grade;
+    this.shownGrade = this.reduced ? grade : [0, 1, 2].map((index) => graded[index] + (grade[index] - graded[index]) * ease) as Grade;
     const column = this.settings?.dimBehindChat ? this.host.chatColumn() : null;
     const dim = column && view.width > 0 ? { left: column.left / view.width, right: column.right / view.width, amount: this.dim } : null;
     const begin = this.host.now();
     try {
       this.renderer.draw({
         time: this.clock, dt, width: this.renderer.width, height: this.renderer.height, dpr: scale, intensity: this.shownIntensity, pointer: this.pointer,
-        state: this.state, tint: this.shownTint, reducedMotion: this.reduced,
+        state: this.state, tint: this.shownTint, grade: this.shownGrade, reducedMotion: this.reduced,
       }, dim, now);
     } catch (error) {
       log.warn("The animated backdrop stopped drawing; SillyTavern's background stays", error);

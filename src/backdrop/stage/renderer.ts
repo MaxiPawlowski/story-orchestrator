@@ -46,6 +46,7 @@ export class BackdropRenderer {
   private assets: BackdropAssets = {};
   private lastVideoUpload = -1;
   private lost = false;
+  private quietBand: [number, number, number] = [0, 0, 0];
   private disposed = false;
   width = 1;
   height = 1;
@@ -177,6 +178,7 @@ export class BackdropRenderer {
     gl.uniform1i(this.uniform(program, "uScene"), unit);
     gl.uniform4fv(this.uniform(program, "uSceneCover"), this.current?.cover ?? [1, 1, 0, 0]);
     gl.uniform3f(this.uniform(program, "uSceneCam"), camera.x, camera.y, camera.zoom);
+    gl.uniform3fv(this.uniform(program, "uQuiet"), this.quietBand);
   }
 
   private context(): BackdropLayerContext {
@@ -268,6 +270,7 @@ export class BackdropRenderer {
     gl.uniform1f(u("uMix"), previous ? crossfadeMix(now - this.fadeStart) : 1);
     gl.uniform3f(u("uCam"), camera.x, camera.y, camera.zoom);
     gl.uniform3fv(u("uTint"), frame.tint);
+    gl.uniform3fv(u("uGrade"), frame.grade ?? [1, 1, 0]);
     gl.uniform1f(u("uVignette"), 0.1 + frame.state.tension * 0.2);
     gl.uniform1i(u("uHasDepth"), depth ? 1 : 0);
     gl.uniform2fv(u("uOffset"), modifier.depth?.offset ?? [0, 0]);
@@ -296,6 +299,7 @@ export class BackdropRenderer {
     if (current.source instanceof HTMLVideoElement) this.uploadVideo(current);
     const previous = this.fading(now) ? this.previous : null;
     if (previous?.source instanceof HTMLVideoElement) this.uploadVideo(previous);
+    this.quietBand = dim && dim.amount > 0 ? [dim.left, dim.right, 0.45] : [0, 0, 0];
     this.drawBase(current, previous, full, now);
     if (!previous && this.previous) { this.release(this.previous); this.previous = null; }
     for (const entry of this.layers) {

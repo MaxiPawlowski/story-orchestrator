@@ -30,6 +30,8 @@ export const SCENE = `
 uniform sampler2D uScene;
 uniform vec4 uSceneCover;
 uniform vec3 uSceneCam;
+uniform vec3 uQuiet;
+float quiet(vec2 screen) { return uQuiet.z * smoothstep(uQuiet.x - 0.06, uQuiet.x + 0.04, screen.x) * (1.0 - smoothstep(uQuiet.y - 0.04, uQuiet.y + 0.06, screen.x)); }
 vec2 sceneUv(vec2 screen) { return ((screen - 0.5) / uSceneCam.z + 0.5 + uSceneCam.xy) * uSceneCover.xy + uSceneCover.zw; }
 vec3 sceneLight(vec2 screen, float lod) { return textureLod(uScene, sceneUv(screen), lod).rgb; }`;
 
@@ -46,6 +48,7 @@ uniform vec4 uCoverB;
 uniform float uMix;
 uniform vec3 uCam;
 uniform vec3 uTint;
+uniform vec3 uGrade;
 uniform float uVignette;
 uniform int uHasDepth;
 uniform vec2 uOffset;
@@ -116,7 +119,13 @@ void main() {
     a = mix(a, mix(light, toLinear(uFogColor) * max(luma(light) * 1.6, 0.004), 0.55), amount);
   }
   vec3 b = toLinear(texture(uB, screen * uCoverB.xy + uCoverB.zw).rgb);
-  vec3 color = toSrgb(mix(b, a, uMix)) * uTint;
+  vec3 source = toSrgb(mix(b, a, uMix));
+  vec3 color = source * uTint;
+  color = mix(vec3(luma(color)), color, uGrade.x);
+  color = mix(vec3(0.42 * dot(uTint, vec3(0.333))), color, uGrade.y);
+  float spread = max(source.r, max(source.g, source.b)) - min(source.r, min(source.g, source.b));
+  float practical = uGrade.z * smoothstep(0.55, 0.85, luma(source)) * smoothstep(0.02, 0.2, source.r - source.b) * smoothstep(0.15, 0.4, spread);
+  color = mix(color, source * mix(vec3(1.0), uTint, 0.25), practical);
   vec2 d = vUv - 0.5;
   color *= 1.0 - uVignette * smoothstep(0.15, 0.75, dot(d, d) * 2.0);
   outColor = vec4(color + dither(gl_FragCoord.xy) / 255.0, 1.0);
@@ -191,18 +200,21 @@ void main() {
     alpha = mix(0.55, 0.8, z) * mix(1.0, 0.7, z * z);
   } else if (uKind == 2) {
     float z = r3;
-    float rise = mix(0.035, 0.09, z);
-    float t = r2 + uPhase * rise / 1.2;
+    bool ambient = r4 < 0.2;
+    float t = r2 + uPhase * mix(0.25, 0.5, z) / (ambient ? 3.0 : 1.0);
     float age = fract(t);
-    float seed = rand(id * 7u + uint(floor(t)) * 131u + 9u);
-    float sway = sin(uPhase * 1.3 + r4 * 30.0 + age * 6.0) * 0.012 + sin(uPhase * 0.37 + r1 * 20.0) * 0.02;
-    p.y = -0.05 + age * mix(0.5, 0.9, seed);
-    p.x = wrapped(seed + sway + age * (r4 - 0.5) * 0.08, 0.02);
+    uint ride = uint(floor(t));
+    float seed = rand(id * 7u + ride * 131u + 9u);
+    vec2 spawn = ambient ? vec2(seed, -0.04) : vec2(seed, 0.06 + 0.66 * rand(id * 7u + ride * 131u + 17u));
+    vec3 source = sceneLight(spawn, 3.0);
+    float warm = ambient ? 0.6 : smoothstep(0.3, 0.65, luma(source)) * smoothstep(0.04, 0.22, source.r - source.b);
+    float sway = sin(uPhase * 1.7 + r1 * 30.0 + age * 5.0) * 0.006 + sin(uPhase * 0.53 + r2 * 20.0) * 0.01 * age;
+    p = vec2(spawn.x + sway + age * (rand(id * 7u + ride * 131u + 23u) - 0.5) * 0.05, spawn.y + age * (ambient ? 0.85 : mix(0.1, 0.26, seed)));
     float core = mix(0.6, 1.3, z);
     ext = vec2(core * 12.0 + 1.0);
     size = vec2(core);
     life = age;
-    alpha = smoothstep(0.0, 0.08, age) * (1.0 - smoothstep(0.5, 1.0, age)) * (0.75 + 0.25 * sin(uTime * (5.0 + r4 * 6.0) + r1 * 40.0));
+    alpha = warm * smoothstep(0.0, 0.08, age) * (1.0 - smoothstep(0.45, 1.0, age)) * (0.75 + 0.25 * sin(uTime * (5.0 + r4 * 6.0) + r1 * 40.0));
   } else if (uKind == 3) {
     float z = r3;
     vec2 wander = vec2(sin(uPhase * 0.11 + r3 * 6.28) + 0.5 * sin(uPhase * 0.29 + r1 * 17.0), cos(uPhase * 0.09 + r4 * 6.28) + 0.5 * sin(uPhase * 0.23 + r2 * 13.0)) * 0.012;
@@ -221,10 +233,11 @@ void main() {
     p = vec2(wrapped(home.x + path.x, 0.02), home.y + path.y);
     float s = fract(uTime / mix(3.5, 7.5, r4) + r1 * 13.0);
     alpha = smoothstep(0.0, 0.12, s) * (1.0 - smoothstep(0.22, 0.42, s));
-    float core = mix(0.8, 1.6, z);
+    float core = mix(1.1, 2.0, z);
     ext = vec2(core * 12.0 + 1.0);
     size = vec2(core);
   }
+  alpha *= 1.0 - quiet(p);
   vec2 extent = ext * uScale;
   vec2 side = vec2(dir.y, -dir.x);
   vec2 offset = (side * q.x * extent.x + dir * q.y * extent.y) * 2.0 / uRes;
@@ -266,7 +279,7 @@ void main() {
     a = gauss(vec2(vLocal.x, vLocal.y / vSize.y), sigma) * min(1.0, vSize.x / 0.75);
   } else {
     float core = max(vSize.x, 0.75);
-    a = gauss(vLocal, core) + (uKind == 4 ? 0.3 : 0.18) * gauss(vLocal, core * 4.0);
+    a = gauss(vLocal, core) + (uKind == 4 ? 0.4 : 0.18) * gauss(vLocal, core * 4.0);
     if (uKind == 2) color = mix(vec3(1.0, 0.22, 0.04), uColor * vec3(1.0, 1.12, 1.3), 1.0 - vLife);
   }
   a = clamp(a * vAlpha * uIntensity, 0.0, 1.0);
