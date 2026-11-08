@@ -1,12 +1,13 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import type { RunGuard } from "@runtime/runToken";
 import { sha256Hex } from "@utils/sha256";
+import { log } from "@utils/log";
 import { StreamActivity } from "../animation";
 import type { LiveHeadRef } from "../liveHeadRefs";
 import { HeadDriver, visemeMouth } from "../liveHead/headDriver";
 import { MotionDriver, type Presence } from "../liveHead/motionDriver";
 import { headImage } from "../liveHead/load";
-import { attachHead } from "../liveHead/mount";
+import { attachHead, headVisibility } from "../liveHead/mount";
 import { HeadLooks, type ExpressionSources } from "../liveHead/expressions";
 import { decodeBytes } from "../liveHead/synthesis/decode";
 import { HeadRenderer } from "../liveHead/renderer";
@@ -70,6 +71,16 @@ function loadImage(url: string): Promise<HTMLImageElement> {
 
 export const PATCH_FEATHER = 0.78;
 
+export function featherAlpha(data: Uint8ClampedArray, width: number, height: number): void {
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const reach = Math.hypot(((x + 0.5) / width) * 2 - 1, ((y + 0.5) / height) * 2 - 1);
+      const keep = Math.min(1, Math.max(0, (1 - reach) / (1 - PATCH_FEATHER)));
+      data[(y * width + x) * 4 + 3] *= keep;
+    }
+  }
+}
+
 async function patchedArt(bust: string, patch: string, rect: [number, number, number, number]): Promise<string> {
   const [base, piece] = await Promise.all([loadImage(bust), loadImage(patch)]);
   const canvas = document.createElement("canvas"), layer = document.createElement("canvas");
@@ -79,12 +90,9 @@ async function patchedArt(bust: string, patch: string, rect: [number, number, nu
   if (!context || !local) throw new Error("No 2D canvas.");
   context.drawImage(base, 0, 0);
   local.drawImage(piece, 0, 0, rect[2], rect[3]);
-  local.globalCompositeOperation = "destination-in";
-  local.setTransform(rect[2] / 2, 0, 0, rect[3] / 2, rect[2] / 2, rect[3] / 2);
-  const fade = local.createRadialGradient(0, 0, PATCH_FEATHER, 0, 0, 1);
-  fade.addColorStop(0, "rgba(0,0,0,1)"); fade.addColorStop(1, "rgba(0,0,0,0)");
-  local.fillStyle = fade;
-  local.fillRect(-1, -1, 2, 2);
+  const pixels = local.getImageData(0, 0, rect[2], rect[3]);
+  featherAlpha(pixels.data, rect[2], rect[3]);
+  local.putImageData(pixels, 0, 0);
   context.drawImage(layer, rect[0], rect[1]);
   return canvas.toDataURL("image/png");
 }
@@ -143,12 +151,7 @@ export function DemoHead(props: DemoHeadProps) {
     const looks = expressions ? new HeadLooks(expressions, drawnDeps, (name, prepared, problem) => {
       if (live) element.dataset.liveHeadLooks = [element.dataset.liveHeadLooks, `${name}:${prepared ? "ok" : `refused (${problem ?? "unknown"})`}`].filter(Boolean).join(" ");
     }) : null;
-    const parent = element.parentElement;
-    const visible = (ready: boolean) => {
-      if (!live) return;
-      element.style.visibility = ready ? "visible" : "hidden";
-      if (parent) parent.dataset.liveHeadReady = String(ready);
-    };
+    const visible = headVisibility(element, () => live);
     visible(false);
     void attachHead(element, binding, guard, { bytes: assetBytes, hash: assetHash, image: headImage }, () => {
       const current = latest.current, elapsed = performance.now() - start, speaker = current.activity.view();
@@ -174,7 +177,7 @@ export function DemoHead(props: DemoHeadProps) {
       else stop?.();
       if (live) element.dataset.liveHeadReady = String(Boolean(stop));
     }).catch((error: unknown) => {
-      if (live) { element.dataset.liveHeadError = error instanceof Error ? error.message : String(error); visible(false); }
+      if (live) { element.dataset.liveHeadError = String(error); visible(false); }
     });
     return () => { live = false; dispose?.(); abort.abort(); };
   }, [binding, expressions, looksKey, drawn]);
@@ -221,7 +224,10 @@ export function AnimatedCharacterDemo({ data, base }: ViewProps) {
       const next = await loadLook(base, look, character.name, lookKey);
       const expressions = await loadExpressions(base, character, look);
       if (live) setLoaded({ key: loadKey, look: next, expressions });
-    })().catch((error: unknown) => { if (live) setProblem(error instanceof Error ? error.message : String(error)); });
+    })().catch((error: unknown) => {
+      log.warn("Demo character could not load", error);
+      if (live) setProblem("This character could not be loaded. The browser console has the reason.");
+    });
     return () => { live = false; };
   }, [base, character, look, lookKey, loadKey]);
   useEffect(() => () => stopStream.current?.(), []);

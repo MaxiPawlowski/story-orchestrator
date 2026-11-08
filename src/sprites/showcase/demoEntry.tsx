@@ -2,6 +2,7 @@ import React from "react";
 import { createRoot } from "react-dom/client";
 import { AnimatedCharacterDemo, type DemoData } from "./AnimatedCharacterDemo";
 import "../styles.css";
+import { log } from "@utils/log";
 
 async function start(): Promise<void> {
   const root = document.getElementById("demo-root");
@@ -13,7 +14,8 @@ async function start(): Promise<void> {
     const data = await response.json() as DemoData;
     createRoot(root).render(<AnimatedCharacterDemo data={data} base={base} />);
   } catch (error) {
-    root.textContent = `The demo could not load: ${error instanceof Error ? error.message : String(error)}`;
+    log.warn("The demo could not load", error);
+    root.textContent = "The demo could not load. The browser console has the reason.";
   }
 }
 
