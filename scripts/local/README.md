@@ -62,6 +62,8 @@ Optional `config.json` keys, all read by `broker/backend.mjs` `nativeArgs` (plan
   On the 3090 (Artemis Q4_K_M + `mtp-Artemis-31B-v1m-Q8_0.gguf`): decode +28-39 % chat, +58 % side, acceptance
   0.56-0.59, prefill -6 %, about 0.85 GiB VRAM, so free VRAM after load drops from ~2.9 to ~2.0 GiB: below
   `streamImages.minFreeGpuMiB` (2400), images swap the text out instead of streaming beside it.
+- `images: false` (default on) makes a text-only controller: it never starts, queries or reclaims ComfyUI, image leases
+  pass through unbrokered. The Linux box config sets it (`scripts/remote/controllerConfig.mjs`, `docs/plans/v3.0/vast-runbook.md` section 0).
 - `cacheRamMiB` (default 512) is `--cache-ram`; `ctxCheckpoints` (default unset, llama.cpp 32) is `--ctx-checkpoints`.
 - `slots: { count, chat, side, estimatedGpuMiB, enabled }` (off unless `count` > 1; defaults 1, 0, 1, 400) runs
   `--parallel <count>` over the one unified KV pool and pins every generation request with `id_slot`: a streamed

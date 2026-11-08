@@ -16,6 +16,7 @@ export const RESERVED_PORTS: Readonly<Record<number, string>> = {
   18080: 'the pod tunnel',
   18888: 'the local controller',
   18889: 'the local controller',
+  18890: 'the Vast controller tunnel (scripts/remote/ctl-tunnel.sh)',
 };
 
 export const isLaneNumber = (n: number): boolean => Number.isInteger(n) && n >= LANE_MIN && n <= LANE_MAX;

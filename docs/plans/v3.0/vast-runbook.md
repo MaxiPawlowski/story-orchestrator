@@ -4,6 +4,65 @@ One rented RTX 3090 serves Artemis 31B v1.1 (Q4_K_M + MTP drafter) to lanes thro
 pods did. Nothing here touches ST `:8000`, lane 0 or the local 3090. The owner rents and destroys the instance in the
 Vast UI; scripts never call the Vast API.
 
+Two ways to serve: the plain llama-server below (lanes, sections 1-5), or the **controller path** (section 0: the
+owner's local setup, patched llama-server behind the controller gateway with the RAM member cache, for playing from
+the owner's own SillyTavern).
+
+## 0. Controller path (owner playtest, RTX 5090, 128K)
+
+Same as the owner's PC (`C:\dev\tools\story-orchestrator-local\config.json`): patched b11888 (`so-cache-b11888.patch`)
++ MTP drafter, `scripts/local/controller.mjs` gateway, `memberCache` `store: "ram"`, `serverKeys: true`, `erase`/`park`
+off, `chatFirst`, one slot. Text only: the box config sets `images: false`, so the controller never starts, queries or
+reclaims ComfyUI (image leases pass through unbrokered; images keep running on the owner's 3090 through the local
+controller). No tray, judge or landmarks on the box; Windows process handling (taskkill, orphan reaper queries) is
+inert on Linux, and the tmux wrapper kills a leftover llama-server when the controller exits. Everything binds
+127.0.0.1; the owner's ST reaches the gateway through an ssh tunnel on **local port 18890** (reserved in
+`scripts/debug/lib/laneRange.mts`; 18888/18889 stay the local controller's).
+
+Box config (`scripts/remote/controllerConfig.mjs`, written to `/root/so-ctl-state/config.json`): profile `play` =
+`--ctx-size 131072 --n-gpu-layers all --fit off --threads <nproc> --load-mode none`, `maxContext` 131072, member cache
+32768 MiB (`--cache-ram`), reserves GPU 1024 / RAM 4096 MiB, gateway 18888, llama-server 18889. Knobs on the
+`controller` phase: `CTL_CTX`, `MAX_CONTEXT`, `SLOTS` (2 = `slots {count 2}` over a shared pool, e.g. `CTL_CTX=147456`;
+not tested with the member cache), `CACHE_MIB`, `EST_GPU_MIB`, `THREADS`, `GATEWAY_PORT`, `BACKEND_PORT`,
+`CTL_CONFIG_PATCH` (JSON merged into the config).
+
+VRAM estimate for 131072 x 1 slot (from `research/context-census-2026-10-31.md`: only the 10 global layers grow,
+42.5 KiB/token at q8_0): the 3090's 32K load is ~21.4 GiB with the drafter, +4.0 GiB of global KV for 128K = **~25.5
+GiB of 31.8**; 147456 x 2 slots adds ~0.7 GiB global KV and ~0.6 GiB SWA = ~27 GiB. Unmeasured: check on the box.
+
+Commands (Git Bash, repo root; a CUDA 12.8+ or 13.x **devel** image, >= 60 GB disk):
+
+```bash
+HOST=<ip>; PORT=<ssh port>; KEY=$HOME/.ssh/id_ed25519_vast; KH=$HOME/.ssh/known_hosts
+ssh -i $KEY -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new -p $PORT root@$HOST 'nvidia-smi -L; nproc; free -g; df -h /'
+VSSH="ssh -i $KEY -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=yes -p $PORT root@$HOST"
+B="SO_PATCH=1 CUDA_ARCH=120"                     # same two on build AND controller: they pick the build dir b11888-so-sm120
+$VSSH "$B bash -s -- deps" < scripts/remote/vast-bootstrap.sh      # warns if the GPU's compute cap != CUDA_ARCH
+scp -i $KEY -P $PORT scripts/local/llama-patches/so-cache-b11888.patch root@$HOST:/root/so-cache-b11888.patch
+D=/c/dev/models/hf/hub/models--TheDrummer--Artemis-31B-v1.1-GGUF/snapshots/65d0086759d0d45f728b610f48651d4a98d89ed4/MTP
+$VSSH 'mkdir -p /root/so-llama/models'
+scp -i $KEY -P $PORT $D/mtp-Artemis-31B-v1m-Q8_0.gguf root@$HOST:/root/so-llama/models/mtp-Artemis-31B-v1m-Q8_0.gguf.upload
+$VSSH 'mv /root/so-llama/models/mtp-Artemis-31B-v1m-Q8_0.gguf.upload /root/so-llama/models/mtp-Artemis-31B-v1m-Q8_0.gguf'
+$VSSH 'bash -s -- models' < scripts/remote/vast-bootstrap.sh &      # 18.7 GB from Hugging Face, parallel with the build
+$VSSH "$B bash -s -- build" < scripts/remote/vast-bootstrap.sh; wait
+git archive HEAD scripts/local scripts/remote server-plugin/story-orchestrator-gpu/broker \
+  | $VSSH 'rm -rf /root/so-ctl && mkdir -p /root/so-ctl && tar -x -C /root/so-ctl'   # or skip: the phase clones SO_REF from GitHub
+$VSSH "$B bash -s -- controller" < scripts/remote/vast-bootstrap.sh # node 22 if missing, config, tmux so-ctl, load, PONG
+bash scripts/remote/ctl-tunnel.sh $HOST $PORT $KEY                  # own terminal; reconnects; 127.0.0.1:18890 -> box 18888
+curl -s http://127.0.0.1:18890/status | head -c 400                 # phase text, memberCache store ram
+node scripts/remote/memberCacheSmoke.mjs http://127.0.0.1:18890     # two members alternating: expects >= 2 cache hits
+```
+
+The `controller` phase refuses while the plain llama-server (tmux `llama`) runs; run `stop` first. Phases
+`controller-status`, `controller-stop` (POST `/control/stop`, then kills a leftover llama-server), `controller-health`
+(re-run the load + probe). Logs: `/tmp/so-controller.log` (controller) and `/root/so-ctl-state/native-*.log`
+(llama-server). Never pipe a binary through PowerShell; `git archive | ssh` runs in Git Bash.
+
+Point SillyTavern at it: in each Artemis connection profile the owner plays with (today `127.0.0.1:18888`, the local
+controller), change the server URL to `http://127.0.0.1:18890` (or duplicate the profile as "Artemis Vast"), re-select
+the profile, and set the preset's context to 131072 or tick "Derive context size from backend" (the gateway's `/props`
+reports the served 131072). Back to local = the old URL. Image generation is unchanged (local ComfyUI).
+
 ## What runs where
 
 - **Box**: `scripts/remote/vast-bootstrap.sh` (phases `deps|build|models|serve|health|stop|status|cmd`, default all,
@@ -131,4 +190,47 @@ Then the owner **destroys** the instance in the Vast UI (a stopped Vast instance
 
 - 4 slots share 49152 tokens: two maximal 32K requests cannot run at once (real prompts were under 2.5K in the smoke).
   `PARALLEL=2 CTX=98304` is the untried alternative if a row needs long context.
-- Patched build only if a remote row needs `cache_key`/`checkpoint_at`; none of the remote rows above do.
+- Patched build only if a remote row needs `cache_key`/`checkpoint_at`; none of the remote rows above do. The owner
+  playtest (section 0) does.
+
+## Record: controller path tested in WSL (2026-11-08, before renting)
+
+WSL Ubuntu 22.04 on the owner's PC, CPU only (the 3090 was the owner's and stayed untouched; a fake `nvidia-smi` on
+PATH stood in for GPU telemetry), ports 18892/18893 so nothing met the local controller's 18888/18889.
+
+- Unit tests under Linux (node 24.14.1): `scripts/local/*.test.mjs`, `scripts/remote/*.test.mjs`, the broker tests,
+  `broker.test.mjs`, `gate.test.mjs`, `managed.test.mjs`: 327 tests, 322 pass, 4 skipped, 1 fail:
+  `pluginBrokerLiConfig.test.mjs` (its fixture is a Windows config with `C:/` paths, not absolute on Linux; the box
+  does not use the ST plugin config).
+- Build: `SO_PATCH=1 CUDA_ARCH=cpu bash vast-bootstrap.sh deps` then `build`: b11888 + all 3 patch commits applied on
+  Linux (`git am`), CPU build ~2 min on 16 cores; `--load-mode`, `--cache-ram`, `--sleep-idle-seconds`, `draft-mtp`
+  present.
+- `controller` phase (decider-4b Q4_K_M from `/mnt/c`, `CTL_MTP=none`, `CTL_CTX=16384`, code uploaded as a
+  working-tree copy): config written, tmux `so-ctl` up, gateway answered `/health` in 1 s, text loaded through
+  `/control/load` (~25-50 s from `/mnt/c`), `/status` phase `text`, member cache `ram`, serverKeys on, `/props`
+  total_slots 1 n_ctx 16384, PONG through the gateway `/completion` (6 tok/s on CPU). `controller-stop` stopped the
+  controller and its llama-server (no leftover process).
+- RAM prompt cache (unkeyed, member plan not applied): a returning prompt restored 1,295 of 1,299 tokens from RAM,
+  36.1 s -> 1.7 s.
+- Member cache, two members alternating (`memberCacheSmoke.mjs --chars 4000 --rounds 3`, plan thresholds lowered for
+  CPU with `CTL_CONFIG_PATCH`): 6 planned, cache entries saved per key (`caching 1 of 3 checkpoint(s)`), and with
+  `--verbosity 4` the server **found the member's keyed entry** on its return (`lcp 1034, f_keep 0.854, f_sim 1.000`),
+  but then reprocessed the prompt: decider-4b uses recurrent/hybrid memory (`n_swa = 0`), which can only resume from a
+  checkpoint before the last prompt token, and the cached copy holds only the cut checkpoint at exactly that token.
+  Counted as 0 hits / 6 misses. This is the model's memory type, not Linux: Gemma 4 (SWA) restored these entries on
+  the 3090 (plan 09). The hit check therefore runs on the box with Artemis.
+
+Still to verify on the 5090 right after renting:
+
+- The sm_120 build: CUDA >= 12.8 devel image, `CUDA_ARCH=120`, CCCL v3.4.3 (or the bundled fallback), patch on
+  b11888 for Blackwell. Not buildable here (WSL has CUDA 12.4, which has no sm_120).
+- VRAM at 131072 x 1 slot with the drafter (estimate ~25.5 GiB of 31.8); `withinReserve` needs >= 1024 MiB free after
+  load. If it fits easily, `SLOTS=2 CTL_CTX=147456` is the option to try (member cache with slots untested).
+- Load time under the backend's 240 s deadline (18.7 GB with `--load-mode none` from the box disk).
+- `memberCacheSmoke.mjs http://127.0.0.1:18890` (default 20,000-char prompts): expect >= 2 hits; then
+  the owner's real ST profile through the tunnel, PONG, a group turn, `/status` `memberCache.hits` rising.
+- tok/s through the gateway in tens, MTP `draft_n_accepted` > 0 (the probe prints both).
+- `ctl-tunnel.sh` (written, not run: no box yet).
+- Sparse-clone fallback verified in WSL against the local repo (`SO_REPO=/mnt/c/dev/story-orchestrator
+  SO_REF=v3.0-linux-controller`): only `scripts/local`, `scripts/remote` and the broker checked out, `.so-ref` a89825e,
+  controller up, PONG. On the box it clones GitHub `master` unless `SO_REF` is set.
