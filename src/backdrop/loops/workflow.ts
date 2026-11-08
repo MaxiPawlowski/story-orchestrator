@@ -15,7 +15,6 @@ export type LoopTier = (typeof LOOP_TIERS)[number];
 export type VideoTier = Extract<LoopTier, "lite" | "full">;
 
 export const LOOP_ANCHOR_FRAMES = 4;
-export const LOOP_VIDEO_EXT = "mp4";
 
 export const LOOP_SHAPES: Readonly<Record<VideoTier, Readonly<LoopShape>>> = Object.freeze({
   full: Object.freeze({ width: 896, height: 512, frames: 113, fps: 24, steps: 20, cfg: 5, shift: 8, crf: 23 }),

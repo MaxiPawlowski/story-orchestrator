@@ -2,7 +2,8 @@ import { buildLoopGraph, centerCrop, fitShape, LOOP_ANCHOR_FRAMES, LOOP_NODES, L
 import { backgroundWords, loopPrompt } from "./prompt";
 import { currentTarget, loopModeOf, nextTarget, preTargets, type LoopStory } from "./plan";
 import { loopKey, loopKeyText, loopSeed } from "./key";
-import { cinemagraphAuto, CINEMAGRAPH_FLOW, CINEMAGRAPH_FRAGMENT, CINEMAGRAPH_PERIOD_S } from "./cinemagraph";
+import { cinemagraphAuto, CINEMAGRAPH_FRAGMENT } from "./cinemagraph";
+import { CINEMAGRAPH_FLOW, CINEMAGRAPH_PERIOD_S } from "./cinemagraphFlow";
 import { webcrypto } from "node:crypto";
 
 type Graph = Record<string, { class_type: string; inputs: Record<string, unknown> }>;

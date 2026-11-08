@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
-import { CINEMAGRAPH_FLOW, CINEMAGRAPH_PERIOD_S } from "../../src/backdrop/loops/cinemagraph.ts";
+import { CINEMAGRAPH_FLOW, CINEMAGRAPH_PERIOD_S } from "../../src/backdrop/loops/cinemagraphFlow.ts";
 
 const TAU = Math.PI * 2;
 const fract = (value: number) => value - Math.floor(value);
