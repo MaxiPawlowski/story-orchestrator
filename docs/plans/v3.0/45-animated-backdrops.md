@@ -310,6 +310,16 @@ anchored graph has never run on ComfyUI (node inputs checked against `/object_in
 stills with `so-loop-bench.mts run <still> --tier full|lite`, rebuild the GIF from the new lite frames, re-audit, fresh Sol pass,
 then fill the loop rows of the before/after above; live ST check of the cinemagraph clock and the MP4 base swap.
 
+### Loops review: Resume (paused 2026-11-08 by the owner)
+
+- Branch `v3.0-45c-loops` (`C:\dev\so-45c`), master 139f454b9 merged; not merged to master.
+- Adapted to the stage contract: cinemagraph is a `flow` base modifier warped inside `BASE_FS` on the parallax uv (seconds clock,
+  `usesAssets`), loops host registered in `BACKDROP_BOOT_HOOKS`. Backdrop jest + codeHealth/errorCopy guards green; typecheck green.
+- Full `npm run gates` last green on 717a2798d (before the contract merge). The run on 1638636a8 died at once in test:replay
+  (shared temp staging, environment); the rerun was stopped by the pause. Next: one full `npm run gates` on this head.
+- GPU still owed (paused): first ComfyUI run of the anchored graph, full + lite re-render of both showcase stills, GIF rebuild,
+  re-audit + fresh Sol pass, fill the loop before/after; live ST check of the cinemagraph and the MP4 base swap.
+
 ## Gate record
 
 (per phase, appended by each agent)
