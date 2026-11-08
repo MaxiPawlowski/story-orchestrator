@@ -15,7 +15,7 @@ export type VideoTier = Extract<LoopTier, "lite" | "full">;
 
 export const LOOP_SHAPES: Readonly<Record<VideoTier, Readonly<LoopShape>>> = Object.freeze({
   full: Object.freeze({ width: 960, height: 544, frames: 113, fps: 24, blend: 16, steps: 16, cfg: 5, shift: 8, crf: 30 }),
-  lite: Object.freeze({ width: 640, height: 352, frames: 29, fps: 12, blend: 6, steps: 14, cfg: 5, shift: 8, crf: 32, webp: true }),
+  lite: Object.freeze({ width: 704, height: 384, frames: 29, fps: 12, blend: 6, steps: 16, cfg: 5, shift: 8, crf: 32, webp: true }),
 });
 
 export const LOOP_SHAPE: Readonly<LoopShape> = LOOP_SHAPES.full;
