@@ -37,12 +37,28 @@ export const requiredWorkflows = (story: (WorkflowStory & { checkpoints?: Array<
 
 export type WorkflowDecision = { use: string } | { fallback: string; mapped: string | null };
 
+const apiNodes = (graph: unknown): Array<{ inputs?: unknown }> | null => {
+  if (!graph || typeof graph !== "object" || Array.isArray(graph)) return null;
+  const nodes = Object.values(graph).filter((node): node is { class_type: string; inputs?: unknown } =>
+    Boolean(node) && typeof node === "object" && typeof (node as { class_type?: unknown }).class_type === "string");
+  return nodes.length ? nodes : null;
+};
+
+export const promptInInputs = (graph: unknown): boolean => (apiNodes(graph) ?? []).some((node) =>
+  Boolean(node.inputs) && typeof node.inputs === "object" && Object.values(node.inputs as Record<string, unknown>).some((value) => value === "%prompt%"));
+
+const parsedGraph = (text: string): unknown => {
+  try { return JSON.parse(text); } catch { return null; }
+};
+
 export function decideWorkflow({ mapped, source, listed, text }: { mapped: string | null; source: string | null; listed: readonly string[] | null; text: string | null }): WorkflowDecision {
   if (!mapped) return { fallback: "", mapped: null };
   if (source !== "comfy") return { fallback: `The story's workflow ${mapped} needs SillyTavern's ComfyUI source; your own image settings were used.`, mapped };
   if (!listed || !listed.includes(mapped)) return { fallback: `The story's workflow ${mapped} is not installed; your own workflow was used.`, mapped };
   if (text === null) return { fallback: `The story's workflow ${mapped} could not be read; your own workflow was used.`, mapped };
-  if (!text.includes("\"%prompt%\"")) return { fallback: `The story's workflow ${mapped} has no "%prompt%" placeholder, so it would ignore the scene; your own workflow was used.`, mapped };
+  const graph = parsedGraph(text);
+  if (!apiNodes(graph)) return { fallback: `The story's workflow ${mapped} is not a ComfyUI API-format workflow; your own workflow was used.`, mapped };
+  if (!promptInInputs(graph)) return { fallback: `The story's workflow ${mapped} has no "%prompt%" placeholder, so it would ignore the scene; your own workflow was used.`, mapped };
   return { use: mapped };
 }
 
@@ -72,7 +88,7 @@ export function checkWorkflowGraph(graph: Record<string, unknown>, available: re
     nodes: list,
     missingNodes: available ? list.filter((name) => !available.includes(name)) : [],
     deniedNodes: list.filter((name) => denied.has(name)),
-    hasPrompt: JSON.stringify(graph).includes("\"%prompt%\""),
+    hasPrompt: promptInInputs(graph),
     models: [...models].sort(),
   };
 }

@@ -300,7 +300,7 @@ describe("v2.9 05 C: public projection and the public filter", () => {
 });
 
 describe("v2.9 05 P5: matcher cost on the stress fixture", () => {
-  it("16 patterns x 3 steps, 600 refs: p95 per boundary is measured and bounded", () => {
+  it("16 patterns x 3 steps, 600 refs: CPU time per boundary is measured and bounded", () => {
     const stress = storyWith(Array.from({ length: 16 }, (_, at): StoryPattern => ({
       id: `p${at}`, repeat: "each", within: 50, label: { text: `Pattern ${at}.` },
       steps: [{ kind: "check", where: { id: "?c" } }, { kind: "check", id: IDS[at % 4] }, { kind: "check", where: { id: "?c" } }],
@@ -309,15 +309,18 @@ describe("v2.9 05 P5: matcher cost on the stress fixture", () => {
     const times: number[] = [];
     let state = createPatterns();
     let refs = 0;
+    const cpuStart = process.cpuUsage();
     turns.forEach(([boundary, list]) => {
       refs += list.length;
       const start = performance.now();
       state = foldFloor(applyBoundary(stress, state, { boundary, messageId: boundary }, list), boundary - 200);
       times.push(performance.now() - start);
     });
+    const cpu = process.cpuUsage(cpuStart);
+    const cpuPerBoundary = (cpu.user + cpu.system) / 1000 / turns.length;
     const p95 = [...times].sort((left, right) => left - right)[Math.floor(times.length * 0.95)];
-    if (process.env.SO_PATTERN_PERF) process.stdout.write(`P5 refs=${refs} branches=${currentBranches(state).length} p95=${p95.toFixed(3)}ms bytes=${JSON.stringify(state).length} added=${JSON.stringify(state.deltas.map((d) => d.added)).length} removed=${JSON.stringify(state.deltas.map((d) => d.removed)).length} killed=${JSON.stringify(state.deltas.map((d) => d.killed)).length} completed=${JSON.stringify(state.completed).length}\n`);
+    if (process.env.SO_PATTERN_PERF) process.stdout.write(`P5 refs=${refs} branches=${currentBranches(state).length} p95=${p95.toFixed(3)}ms cpu=${cpuPerBoundary.toFixed(3)}ms bytes=${JSON.stringify(state).length} added=${JSON.stringify(state.deltas.map((d) => d.added)).length} removed=${JSON.stringify(state.deltas.map((d) => d.removed)).length} killed=${JSON.stringify(state.deltas.map((d) => d.killed)).length} completed=${JSON.stringify(state.completed).length}\n`);
     expect(refs).toBeGreaterThanOrEqual(500);
-    expect(p95).toBeLessThan(50);
+    expect(cpuPerBoundary).toBeLessThan(25);
   });
 });
