@@ -108,6 +108,11 @@ export const readCheckpointEffects = (value: unknown, path: string, errors: Vali
   if (!isRecord(value)) return null;
   const effects: CheckpointEffects = { ...value };
   if (value.stage !== undefined) effects.stage = gameLayer()?.poses.readStage(value.stage, `${path}.stage`, errors);
+  if (value.backdrop !== undefined) {
+    const backdrop = gameLayer()?.backdrop.readBackdrop(value.backdrop, `${path}.backdrop`, errors);
+    if (backdrop) effects.backdrop = backdrop;
+    else delete effects.backdrop;
+  }
   if (value.background !== undefined) {
     const background = readBackground(value.background, `${path}.background`, errors);
     if (background) effects.background = background;

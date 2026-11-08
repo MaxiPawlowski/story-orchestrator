@@ -18,6 +18,7 @@ import {
   factionAuthorRows, factionDirectorLines, factionDiscoveryUnits, factionLatches, factionMemberLines, factionScopeUnits, factionsMoved, standingView,
 } from "../factions/standing";
 import * as poses from "./poses";
+import { readBackdrop, readBackdropDefaults } from "./backdrop";
 import { validateCardLayers } from "./cardLayers";
 import { addCodexQualities, checkCodex, readCodex } from "./codex";
 import { codexLatches, codexScopeUnits, unknownCodexNames } from "../codex";
@@ -97,5 +98,5 @@ export const GAME_LAYER = {
   checkDisplays, readDisplay, addRewardQualities, checkQuests, expandRequires, readMilestones, readQuests, readWidgets, life: LIFE, poses, validateCardLayers,
   codex: CODEX, observations: OBSERVATIONS, factions: FACTIONS, carry: CARRY, rumors: RUMORS, patterns: PATTERNS, delivery: DELIVERY, living: LIVING, stretch: STRETCH, cues: CUES, offers: OFFERS,
   echoes: ECHOES, latchWriters: LATCH_WRITERS, talk: { readTalkPacing, readTalkDefaults, readReplyScope },
-  discoveryUnits: DISCOVERY_UNITS, entryWriters: ENTRY_WRITERS,
+  discoveryUnits: DISCOVERY_UNITS, entryWriters: ENTRY_WRITERS, backdrop: { readBackdrop, readBackdropDefaults },
 };

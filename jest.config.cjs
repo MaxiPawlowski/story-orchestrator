@@ -26,6 +26,7 @@ module.exports = {
     "^@judge/(.*)$": "<rootDir>/src/judge/$1",
     "^@features/(.*)$": "<rootDir>/src/features/$1",
     "^@guide/(.*)$": "<rootDir>/src/guide/$1",
+    "^@backdrop/(.*)$": "<rootDir>/src/backdrop/$1",
     "\\.css$": "<rootDir>/test/support/styleStub.cjs",
   },
   reporters: ["default", "<rootDir>/scripts/jest-findings-reporter.cjs"],
