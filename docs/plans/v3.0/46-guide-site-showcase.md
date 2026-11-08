@@ -132,19 +132,23 @@ with full gates (one at a time machine-wide) and deploys through the existing wo
   gitignored `.guide-deny.txt`; `SO_SITE_DENY_FILE` points elsewhere. Hits print as `deny-list term #n`, never the term.
   CI scans patterns only.
 
-## Resume (W2/W3/W6, paused 2026-11-08 on the owner's usage limit)
+## Gate record W2/W3/W6 (2026-11-08)
 
-- State: branch `v3.0-46-site` (worktree `C:\dev\so-46-site`), not merged. W2/W3/W6 built. `node --test scripts/docs/*.test.mjs`
-  36/36 green; `npm run gates:quick` green; local Storybook build plus `site-check` show 0 broken links, 0 pages over budget,
-  0 pattern hits. The 9 Mermaid diagrams parse on mermaid 11.4.1 and render in dark mode.
-- Full `npm run gates` was not run: the one attempt crashed at start (git exec failed, 0xC0000142 under machine load), so no
-  steps ran.
-- Next: run `npm run gates` once (one at a time machine-wide), merge to master, push, then check `gh run list --workflow guide-pages.yml -L 3`
-  and that the live site has `/ui/`, `how/` and `showcase/`.
-- Local deny-list hits remaining (not fixable here): shipped code `src/studio/components/TalkControlEditor.tsx` (placeholder
-  names) and `src/runtime/effectLedger.ts` (main bundle, untouched); the author guide example in `docs/authoring/story-guide.md`
-  (W1/author scope); and the common word "grant". Story fixtures were renamed to neutral names. The owner decides whether the
-  remaining names are campaign names or coincidences.
+- Branch `v3.0-46-site`, master merged in. `npm run gates` (no `--resume`, Storybook included): all green in 568.0s
+  (build, typecheck, typecheck:test, test:debug, lint, debug:typecheck, test:replay, test:release, test:plugin, test,
+  test-storybook:ci 199 suites / 1167 tests). `gates:quick` green earlier. Docs tests 36/36.
+- Live checks: 9 diagrams parse on mermaid 11.4.1 and render in a browser (dark mode checked). Local Storybook build +
+  `site-check`: 0 broken links, 0 pages over 5 MB, 0 secret or owner-path hits; local deny list: only the common word
+  "grant" remains (3 Storybook chunks), left on purpose.
+- Owner-approved renames: example and placeholder names matching the campaign card list replaced with neutral ones in
+  stories/fixtures (12 files), `TalkControlEditor.tsx`, an `effectLedger.ts` comment, the story-guide example and the
+  read-contract feature copy (same-length or shorter: no bundle growth). An owner path in `JudgeSettingsGroup.stories.tsx`
+  replaced.
+- W4 clash fixed: `assets/showcase/LICENSES.md` allowed; demo URL check reads only script/style/import URLs, so data files
+  (`rigs/*.json`, `demo.json`) and plain links pass. Verified against the `v3.0-46-demos` tree: 0 media, 0 demo problems.
+  Note: one W4 demo character name is on the local deny list (local scan only; CI scans patterns).
+- Deviations: architecture-doc mismatches found while writing the diagrams are listed in the W3 report, not fixed in
+  `.claude/rules/architecture.md`.
 
 ## Audit 2026-11-08
 
