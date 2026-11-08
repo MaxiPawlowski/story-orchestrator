@@ -147,6 +147,9 @@ with full gates (one at a time machine-wide) and deploys through the existing wo
 - W4 clash fixed: `assets/showcase/LICENSES.md` allowed; demo URL check reads only script/style/import URLs, so data files
   (`rigs/*.json`, `demo.json`) and plain links pass. Verified against the `v3.0-46-demos` tree: 0 media, 0 demo problems.
   Note: one W4 demo character name is on the local deny list (local scan only; CI scans patterns).
+- After merging master again (plan 45 A): `npm run gates` run 1 RED only at test:plugin
+  (`imageCache.test.mjs` RAM-headroom timing under machine load; file passes 3/3 alone, not touched here); run 2 (no
+  `--resume`) all green in 480.4s, test 1040 suites, test-storybook:ci 200 suites. Site check after it: only "grant".
 - Deviations: architecture-doc mismatches found while writing the diagrams are listed in the W3 report, not fixed in
   `.claude/rules/architecture.md`.
 
