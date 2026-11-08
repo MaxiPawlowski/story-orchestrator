@@ -93,6 +93,18 @@ user), `POST test-key {provider}`, `POST plan {provider, ref, kind?, root?}`, `P
 "downloads": { "freeMarginBytes": 2147483648, "allowPickle": false }
 ```
 
+## Backdrop loops (`loops.mjs`)
+
+Routes under `/loops` for the animated backdrop's video loops: `GET cached/:key`, `GET queue` (ComfyUI running and
+pending counts), `POST jobs {id, key, graph}`, `GET jobs/:id`, `POST jobs/:id/cancel`, `POST jobs/:id/save {key, meta}`.
+A loop graph may hold only core ComfyUI nodes (`LOOP_NODES`: Wan 2.2 TI2V loaders, sampler, decode, batch blends,
+`SaveWEBM`), a still uploaded through `/reference` by the same user, and exactly one `SaveWEBM` with the prefix
+`so_loop_<key>`. Loop jobs have their own queue per user, apart from sprite renders. Cancelling a running loop sends
+ComfyUI's targeted interrupt for that prompt id only (`POST /interrupt {prompt_id}`), never a global one. A finished
+loop is saved as `<user>/user/images/story-orchestrator-loops/<key>.webm` plus a `<key>.json` record (sha256, bytes,
+model, prompt version, render ms), WebM only, at most 16 MiB; `cached/:key` answers its URL only while the file still
+matches the record.
+
 ## Visual packs
 
 `GET /packs` lists the visual pack files under the signed-in user's `story-orchestrator/visual-packs/` folder (JSON, at most 512 files of 512 KB, three folder levels). It only reads; the page validates each pack, checks its digest and fingerprints every image it uses. A missing folder is an empty list.

@@ -26,6 +26,8 @@ export interface GpuRequest {
   width?: number;
   height?: number;
   hires?: boolean;
+  needGpuMiB?: number;
+  needRamMiB?: number;
   signal?: AbortSignal;
   foreground?: boolean;
 }
@@ -79,7 +81,8 @@ async function reserveOnce(request: GpuRequest): Promise<GpuReservation> {
   let response: Response;
   try {
     response = await post("lease", { workflowKey: request.workflowKey, modelFiles: request.modelFiles,
-      width: request.width, height: request.height, hires: request.hires }, request.signal);
+      width: request.width, height: request.height, hires: request.hires,
+      ...(request.needGpuMiB ? { needGpuMiB: request.needGpuMiB } : {}), ...(request.needRamMiB ? { needRamMiB: request.needRamMiB } : {}) }, request.signal);
   } catch (error) {
     log.warn("GPU broker connection failed", error);
     throw new Error("The GPU broker could not be reached. The image was not rendered.");

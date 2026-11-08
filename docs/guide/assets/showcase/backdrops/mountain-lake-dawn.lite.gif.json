@@ -1,0 +1,8 @@
+{
+  "build": "2b881595a",
+  "licence": "Image-to-video from the still: SDXL base 1.0 (sd_xl_base_1.0.safetensors, Stability AI): CreativeML Open RAIL++-M. Output: synthetic, SFW, made for this guide. Wan 2.2 TI2V 5B (wan2.2_ti2v_5B_fp16.safetensors, umt5_xxl_fp8_e4m3fn_scaled.safetensors, wan2.2_vae.safetensors; Comfy-Org/Wan-2.2): Apache-2.0.",
+  "source": "ffmpeg GIF made by hand from mountain-lake-dawn.lite.webp frames at 384x219 (GIF fallback example)",
+  "kind": "lite loop, GIF fallback",
+  "file": "mountain-lake-dawn.lite.gif",
+  "note": "Pre-review recipe (crossfade seam, VP9 untagged); superseded in code by the 2026-11-08 review (anchored loop, BT.709 MP4), re-render GPU-owed (plan 45, Review 2026-11-08 (loops)). The GIF is to be rebuilt at 672x384 with a full-stats palette and ordered dither from the new lite frames."
+}

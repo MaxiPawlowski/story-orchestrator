@@ -73,6 +73,7 @@ export interface BackdropBaseModifier {
   depth?: { texture: WebGLTexture; offset: [number, number]; scale: number; focus: number };
   fog?: { texture: WebGLTexture; density: number; color: [number, number, number]; time: number };
   ripple?: { texture: WebGLTexture | null; channel: BackdropMaskChannel; amount: number; time: number };
+  flow?: { texture: WebGLTexture; strength: number; time: number; period: number };
 }
 
 export interface BackdropLayerContext {

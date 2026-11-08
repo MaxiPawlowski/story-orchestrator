@@ -274,6 +274,7 @@ export class BackdropRenderer {
     bind(1, (previous ?? current).texture, "uB");
     bind(2, depth ?? this.blank, "uDepth");
     bind(3, modifier.ripple?.texture ?? this.blank, "uMask");
+    bind(4, modifier.flow?.texture ?? this.blank, "uFlowMask");
     gl.activeTexture(gl.TEXTURE0);
     gl.uniform4fv(u("uCoverA"), current.cover);
     gl.uniform4fv(u("uCoverB"), (previous ?? current).cover);
@@ -293,6 +294,10 @@ export class BackdropRenderer {
     gl.uniform1i(u("uRippleChannel"), modifier.ripple?.channel === "sky" ? 0 : modifier.ripple?.channel === "all" ? 2 : 1);
     gl.uniform1f(u("uRippleAmount"), (modifier.ripple?.amount ?? 0) * frame.dpr);
     gl.uniform1f(u("uRippleTime"), modifier.ripple?.time ?? 0);
+    gl.uniform1i(u("uFlow"), modifier.flow ? 1 : 0);
+    gl.uniform1f(u("uFlowStrength"), modifier.flow?.strength ?? 0);
+    gl.uniform1f(u("uFlowTime"), modifier.flow?.time ?? 0);
+    gl.uniform1f(u("uFlowPeriod"), modifier.flow?.period ?? 1);
     gl.uniform2f(u("uPixel"), current.cover[0] / camera.zoom / this.width, current.cover[1] / camera.zoom / this.height);
     gl.bindVertexArray(this.quad);
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
