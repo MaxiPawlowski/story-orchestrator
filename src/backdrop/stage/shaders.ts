@@ -153,6 +153,7 @@ uniform int uKind;
 uniform float uScale;
 uniform float uDensity;
 uniform float uWind;
+uniform float uDrift;
 ${HASH}
 ${SCENE}
 out vec2 vLocal;
@@ -193,7 +194,7 @@ void main() {
     float margin = 0.04;
     p.y = 1.0 + margin - fract(r2 + uPhase * speed / (1.0 + 2.0 * margin)) * (1.0 + 2.0 * margin);
     float sway = sin(uPhase * mix(0.6, 1.4, r4) + r4 * 40.0) * mix(4.0, 16.0, z) / css.x;
-    p.x = wrapped(r1 + uPhase * uWind * mix(0.01, 0.05, z) + sway, margin);
+    p.x = wrapped(r1 + uDrift * mix(0.01, 0.05, z) + sway, margin);
     float sigma = radius * mix(0.6, 1.2, z * z);
     ext = vec2(sigma * 3.0 + 1.0);
     size = vec2(sigma);
@@ -218,7 +219,7 @@ void main() {
   } else if (uKind == 3) {
     float z = r3;
     vec2 wander = vec2(sin(uPhase * 0.11 + r3 * 6.28) + 0.5 * sin(uPhase * 0.29 + r1 * 17.0), cos(uPhase * 0.09 + r4 * 6.28) + 0.5 * sin(uPhase * 0.23 + r2 * 13.0)) * 0.012;
-    p = vec2(wrapped(r1 + wander.x + uPhase * (0.002 + uWind * mix(0.02, 0.07, z)), 0.03), wrapped(r2 + wander.y - uPhase * 0.0015, 0.03));
+    p = vec2(wrapped(r1 + wander.x + uPhase * 0.002 + uDrift * mix(0.02, 0.07, z), 0.03), wrapped(r2 + wander.y - uPhase * 0.0015, 0.03));
     float sigma = mix(0.5, 1.2, z);
     float stretch = 1.0 + uWind * mix(2.0, 7.0, z);
     dir = vec2(1.0, 0.0);

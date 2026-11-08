@@ -18,26 +18,28 @@ const TIME_WORDS: Array<[RegExp, BackdropTime]> = [
   [/night|midnight|small hours|late evening/, "night"], [/dusk|evening|sunset|twilight/, "dusk"], [/dawn|morning|sunrise|daybreak/, "dawn"],
   [/\bday\b|daytime|daylight|noon|afternoon|midday/, "day"],
 ];
-const FORCED_INDOOR = new Set(["interior", "indoor", "inside"]);
-const INDOOR_WORDS = new Set(["tavern", "inn", "room", "hall", "cellar", "cave", "cavern", "library", "kitchen", "throne", "chamber", "dungeon", "shop", "house", "bar",
-  "pub", "temple", "church", "chapel", "office", "corridor", "hallway", "basement", "attic", "study", "crypt", "cabin", "tent", "parlor", "parlour", "classroom", "bedroom",
-  "ballroom", "bathroom", "lab", "laboratory", "museum", "prison", "cell", "mansion", "bedchamber", "throneroom", "storeroom"]);
+const ROOM_WORDS = new Set(["interior", "indoor", "inside", "tavern", "inn", "pub", "bar", "room", "cellar", "library", "kitchen", "throne", "chamber", "dungeon",
+  "corridor", "hallway", "basement", "attic", "study", "crypt", "parlor", "parlour", "classroom", "bedroom", "ballroom", "bathroom", "lab", "laboratory", "prison", "cell",
+  "bedchamber", "throneroom", "storeroom"]);
+const BUILDING_WORDS = new Set(["hall", "cave", "cavern", "shop", "house", "temple", "church", "chapel", "office", "cabin", "tent", "museum", "mansion"]);
 const OUTDOOR_WORDS = new Set(["forest", "field", "street", "sky", "beach", "mountain", "garden", "road", "city", "village", "lake", "sea", "ocean", "river", "desert",
   "plain", "outside", "outdoor", "exterior", "meadow", "harbor", "harbour", "port", "square", "bridge", "cliff", "ruin", "camp", "park", "valley", "shore", "swamp",
   "wood", "woodland", "lighthouse", "landscape", "coast", "hill", "dock", "pier", "farm", "countryside", "jungle", "trail", "path", "alley", "courtyard", "rooftop"]);
 const GREEN_WORDS = new Set(["forest", "wood", "woodland", "garden", "meadow", "field", "swamp", "marsh", "park", "grove", "glade", "jungle", "orchard", "grass",
   "grassland", "lake", "river", "pond", "countryside", "farm", "trail", "path", "valley", "bayou"]);
 
-export const sceneWords = (key: string): string[] => key.toLowerCase().replace(/\.[a-z0-9]+$/, "").split(/[^a-z]+/).filter(Boolean)
-  .map((word) => (word.length > 4 && word.endsWith("s") && !word.endsWith("ss") ? word.slice(0, -1) : word));
+export const sceneWords = (key: string): string[] => key.toLowerCase().replace(/\.[a-z0-9]+$/, "").split(/[^a-z]+/).filter(Boolean);
 
-export const greenScene = (key: string): boolean => sceneWords(key).some((word) => GREEN_WORDS.has(word));
+const anyOf = (words: readonly string[], set: ReadonlySet<string>): boolean =>
+  words.some((word) => set.has(word) || (word.endsWith("es") && set.has(word.slice(0, -2))) || (word.endsWith("s") && set.has(word.slice(0, -1))));
+
+export const greenScene = (key: string): boolean => anyOf(sceneWords(key), GREEN_WORDS);
 
 const textOf = (value: unknown): string => (typeof value === "string" ? value.toLowerCase() : "");
 
 export const weatherFrom = (value: unknown): BackdropWeather | null => {
-  const text = textOf(value);
-  return text ? WEATHER_WORDS.find(([pattern]) => pattern.test(text))?.[1] ?? null : null;
+  const text = textOf(value).replace(/\b(?:no|not|without|after(?: the)?|stopped|ended)\s+\w+/g, " ");
+  return text.trim() ? WEATHER_WORDS.find(([pattern]) => pattern.test(text))?.[1] ?? null : null;
 };
 
 export const timeFrom = (value: unknown, night?: unknown): BackdropTime | null => {
@@ -48,9 +50,9 @@ export const timeFrom = (value: unknown, night?: unknown): BackdropTime | null =
 
 export const indoorFrom = (key: string): boolean | undefined => {
   const found = sceneWords(key);
-  if (found.some((word) => FORCED_INDOOR.has(word))) return true;
-  if (found.some((word) => OUTDOOR_WORDS.has(word))) return false;
-  if (found.some((word) => INDOOR_WORDS.has(word))) return true;
+  if (anyOf(found, ROOM_WORDS)) return true;
+  if (anyOf(found, OUTDOOR_WORDS)) return false;
+  if (anyOf(found, BUILDING_WORDS)) return true;
   return undefined;
 };
 

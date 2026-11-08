@@ -22,6 +22,7 @@ const fakeRenderer = () => {
     frameRate: () => 60,
     setPlaying: () => undefined,
     markLost: () => undefined,
+    settle: () => undefined,
     hasVideo: () => shown?.kind === "video",
     draw: () => { calls.draws += 1; },
     dispose: () => { calls.disposed += 1; },

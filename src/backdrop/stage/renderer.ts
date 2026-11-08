@@ -7,6 +7,7 @@ import { BACKDROP_VERTEX_SHADER } from "./vertex";
 export type BaseSource = HTMLImageElement | HTMLVideoElement;
 
 interface BaseSlot {
+  allocated: boolean;
   base: BackdropBase;
   texture: WebGLTexture;
   source: BaseSource;
@@ -138,7 +139,7 @@ export class BackdropRenderer {
 
   setBase(base: BackdropBase, source: BaseSource, now: number, instant = false): void {
     const size = sourceSize(source);
-    const slot: BaseSlot = { base, source, texture: this.makeTexture(source instanceof HTMLVideoElement ? null : source, true), ...size,
+    const slot: BaseSlot = { allocated: !(source instanceof HTMLVideoElement), base, source, texture: this.makeTexture(source instanceof HTMLVideoElement ? null : source, true), ...size,
       cover: coverTransform(size.width, size.height, this.width, this.height) };
     const visible = this.previous && this.fading(now) && crossfadeMix(now - this.fadeStart) < 0.5 ? this.previous : this.current;
     for (const old of [this.previous, this.current]) if (old && old !== visible) this.release(old);
@@ -201,7 +202,7 @@ export class BackdropRenderer {
     this.assets = assets;
     const keep: typeof this.layers = [];
     for (const entry of this.layers) {
-      const next = changed ? undefined : specs.find((spec) => spec.id === entry.spec.id && spec.kind === entry.spec.kind);
+      const next = changed && entry.layer.usesAssets ? undefined : specs.find((spec) => spec.id === entry.spec.id && spec.kind === entry.spec.kind);
       if (next) { entry.layer.update?.(next); keep.push({ spec: next, layer: entry.layer }); }
       else entry.layer.dispose();
     }
@@ -224,7 +225,14 @@ export class BackdropRenderer {
 
   layerKinds(): string[] { return this.layers.map((entry) => entry.layer.kind); }
 
+  settle(): void {
+    if (!this.previous) return;
+    this.release(this.previous);
+    this.previous = null;
+  }
+
   frameRate(): number {
+    if (this.hasVideo()) return 60;
     const rates = this.layers.map((entry) => entry.layer.fps ?? 60);
     return rates.length ? Math.max(...rates) : 60;
   }
@@ -242,7 +250,8 @@ export class BackdropRenderer {
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, slot.texture);
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-    if (slot.width !== video.videoWidth || slot.height !== video.videoHeight || !slot.width) {
+    if (!slot.allocated || slot.width !== video.videoWidth || slot.height !== video.videoHeight) {
+      slot.allocated = true;
       slot.width = video.videoWidth;
       slot.height = video.videoHeight;
       slot.cover = coverTransform(slot.width, slot.height, this.width, this.height);

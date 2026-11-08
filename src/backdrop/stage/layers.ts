@@ -26,6 +26,7 @@ export const easeFactor = (dt: number, halfLife: number): number => 1 - 0.5 ** (
 export class Phase {
   value = 0;
   private rate: number | null = null;
+  get speed(): number { return this.rate ?? 0; }
   advance(dt: number, target: number, halfLife = 1.5): number {
     this.rate = this.rate === null ? target : this.rate + (target - this.rate) * easeFactor(dt, halfLife);
     this.value += Math.max(0, dt) * this.rate;
@@ -59,8 +60,9 @@ const particleLayer = (kind: ParticleKind) => (context: BackdropLayerContext, in
   const defaults = PARTICLE_DEFAULTS[kind];
   let tune = tuning(initial, defaults.color);
   const phase = new Phase();
+  const blow = new Phase();
   const at = (name: string) => gl.getUniformLocation(program, name);
-  const u = { phase: at("uPhase"), time: at("uTime"), res: at("uRes"), kind: at("uKind"), scale: at("uScale"), color: at("uColor"), intensity: at("uIntensity"),
+  const u = { drift: at("uDrift"), phase: at("uPhase"), time: at("uTime"), res: at("uRes"), kind: at("uKind"), scale: at("uScale"), color: at("uColor"), intensity: at("uIntensity"),
     density: at("uDensity"), wind: at("uWind") };
   const scene = sceneBinder(context, program);
   return {
@@ -69,6 +71,7 @@ const particleLayer = (kind: ParticleKind) => (context: BackdropLayerContext, in
     draw: (frame: BackdropFrame) => {
       const amount = tune.intensity * frame.intensity;
       const position = phase.advance(frame.dt, tune.speed);
+      const carried = blow.advance(frame.dt, tune.wind * tune.speed);
       if (amount <= 0.002) return;
       gl.useProgram(program);
       gl.bindVertexArray(vao);
@@ -79,7 +82,8 @@ const particleLayer = (kind: ParticleKind) => (context: BackdropLayerContext, in
       gl.uniform1i(u.kind, PARTICLE_KINDS[kind]);
       gl.uniform1f(u.scale, frame.dpr);
       gl.uniform1f(u.density, particleDensity(amount));
-      gl.uniform1f(u.wind, tune.wind);
+      gl.uniform1f(u.wind, blow.speed / Math.max(0.1, tune.speed));
+      gl.uniform1f(u.drift, carried);
       gl.uniform3fv(u.color, tune.color.map((channel, index) => channel * (defaults.tinted ? frame.tint[index] : 1)));
       gl.uniform1f(u.intensity, Math.min(1, 0.55 + 0.6 * amount));
       gl.drawArrays(gl.TRIANGLES, 0, particleCount(kind, frame.width / frame.dpr, frame.height / frame.dpr) * 6);
@@ -138,20 +142,25 @@ const flicker = (context: BackdropLayerContext, initial: BackdropLayerSpec): Bac
   const color: [number, number, number] = [1, 0.69, 0.38];
   let tune = tuning(initial, color);
   let lightning = initial.params.lightning === true;
-  let strikes = 0, next = 4 + 6 * Math.random(), started = -1, strokes: Stroke[] = [];
+  let strikes = 0, next: number | null = null, started = -1, strokes: Stroke[] = [];
   const phase = new Phase();
   const at = (name: string) => gl.getUniformLocation(program, name);
   const u = { intensity: at("uIntensity"), color: at("uColor"), flash: at("uFlash"), flicker: at("uFlicker") };
   const scene = sceneBinder(context, program);
   return {
     kind: "flicker", order: 30, fps: 30,
-    update: (spec) => { tune = tuning(spec, color); lightning = spec.params.lightning === true; },
+    update: (spec) => {
+      tune = tuning(spec, color);
+      if ((spec.params.lightning === true) !== lightning) { next = null; started = -1; }
+      lightning = spec.params.lightning === true;
+    },
     draw: (frame) => {
       const amount = tune.intensity * frame.intensity;
       const position = phase.advance(frame.dt, tune.speed);
       if (amount <= 0.01) return;
       let flash = 0;
       if (lightning) {
+        if (next === null) next = frame.time + 4 + 6 * Math.random();
         if (frame.time >= next) { strikes += 1; started = frame.time; strokes = lightningStrokes(strikes + Math.floor(frame.time)); next = frame.time + 7 + 13 * Math.random(); }
         if (started >= 0) flash = flashAt(strokes, frame.time - started);
       }
@@ -177,12 +186,13 @@ const shimmer = (context: BackdropLayerContext, initial: BackdropLayerSpec): Bac
   const phase = new Phase();
   if (context.assets.maskUrl) void context.texture(context.assets.maskUrl).then((texture) => { if (!disposed) mask = texture; });
   return {
-    kind: "shimmer", order: 10, fps: 60,
+    kind: "shimmer", order: 10, fps: 60, usesAssets: true,
     update: (spec) => { tune = tuning(spec, [1, 1, 1]); channel = maskChannel(spec.params.mask ?? "water"); },
     modifyBase: (frame): BackdropBaseModifier | null => {
       const time = phase.advance(frame.dt, tune.speed);
-      if (!mask && channel !== "all") return null;
-      const amount = (channel === "water" ? 3.2 : 1.6) * Math.min(1.5, 0.5 + tune.intensity * frame.intensity * 1.5);
+      const strength = Math.min(1.5, tune.intensity * frame.intensity * 3);
+      if ((!mask && channel !== "all") || strength <= 0.01) return null;
+      const amount = (channel === "water" ? 3.2 : 1.6) * strength;
       return { ripple: { texture: channel === "all" ? null : mask, channel, amount, time } };
     },
     draw: () => undefined,

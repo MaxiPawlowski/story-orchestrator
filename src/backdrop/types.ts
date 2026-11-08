@@ -93,6 +93,7 @@ export interface BackdropLayer {
   readonly kind: string;
   readonly order: number;
   readonly fps?: number;
+  readonly usesAssets?: boolean;
   update?(spec: BackdropLayerSpec): void;
   adjustCamera?(camera: BackdropCamera, frame: BackdropFrame): BackdropCamera;
   modifyBase?(frame: BackdropFrame): BackdropBaseModifier | null;

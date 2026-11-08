@@ -145,6 +145,24 @@ Open (not fixed here):
 - Particles and overlays still blend in display gamma (only the base pass is linear); 90/144 Hz displays still halve the cadence.
 - Phase C's cinemagraph (`so-45c`) reads `frame.time` (now seconds, as it assumed) but samples the base without camera/parallax: it should become a `modifyBase` ripple.
 - No DPR-change listener beyond `resize`; dark-text themes only ever get a darker scrim.
+- Scene-lit effects (rain/snow colour, dust, ember sources, firelight) sample the raw incoming still, not the graded/displaced composite; the practical-light
+  heuristic (bright, warm, saturated) can also keep sunny warm highlights at night. SC re-review.
+
+Before -> after (deterministic 60 fps captures, same scenes and clock; 1080p unless noted):
+- Parallax global shift per frame: lake 3.18 -> 0.00 px (jitter 6.23 -> 0.00), library 2.79 -> 0.00, forest 2.76 -> 0.01, phone lake 3.70 -> 0.00 (jitter 7.21 -> 0.01).
+- Pixels changing > 6/255 per frame: rain 0.15 % -> 0.53 %, storm 0.43 % -> 1.32 %, embers 0.008 % -> 0.07 %; snow 0.07 % -> 0.15 %.
+- Night storm over the harbour (parallax + rain + lightning): mean luma 130 -> 60 (the night was rendered as a sunny afternoon before).
+- Real time, headed, 3090, 1080p: 59.9 fps median on every active combination before and after; drift-only 30 fps after (60 before); draw submit 0.1-0.2 ms;
+  hidden tab 0-0.8 % main thread, no frames; 0 console errors across 34 captures. Main-thread CPU visible 5-11 % (machine busy with other gates, noisy;
+  the 3 % floor holds for a hidden tab only, as before).
+- Sol re-review of the fixes: of its 34 code findings 15 fixed, 17 partly, 2 not (host fitting, refresh cadence); of 18 visual findings 6 fixed, 9 partly,
+  3 not (wind, drift value, phone crop). Verdict: "Subtle: mostly yes. Readable: yes ... High quality: improved, but not yet consistently." Its 8 new
+  defects were then fixed except the two in Open: a video's first upload went into a 1x1 texture; shimmer distorted at zero intensity; an asset arriving
+  rebuilt every layer (phases restarted, lightning could strike at once); wind changes teleported dust/snow; "forest cabin" read outdoor-only and "village
+  tavern" outdoor; videos were capped at 30 fps by slow layers. Also fixed from its partials: reduced motion mid-fade, B -> A -> B load tickets, lightning
+  scheduler reset on mode switch, "no rain" read as rain, parallax overscan at zero motion.
+- Evidence (34+34 clips, contact sheets, 100 % crop strips, page shots, metrics, perf logs, the three Sol reports, the harness) is archived outside the repo
+  in `C:\dev\backups\story-orchestrator\45-review-2026-11-08\`; the bases are B's synthetic showcase stills.
 
 ## Gate record
 

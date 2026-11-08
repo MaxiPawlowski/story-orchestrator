@@ -21,6 +21,8 @@ describe("v3.0 45 A: backdrop state from story state", () => {
     expect([indoorFrom("tavern_night.png"), indoorFrom("forest-road.jpg"), indoorFrom("abstract7.png")]).toEqual([true, false, undefined]);
     expect([indoorFrom("shallow river.png"), indoorFrom("mushroom forest.jpg"), indoorFrom("lighthouse cliff.jpg"), indoorFrom("portrait.png"), indoorFrom("castle interior.jpg"),
       indoorFrom("bedroom clean.jpg"), indoorFrom("seat cushion.png")]).toEqual([false, false, false, undefined, true, true, undefined]);
+    expect([indoorFrom("forest-cabin.jpg"), indoorFrom("village tavern.png"), indoorFrom("churches.jpg"), indoorFrom("greenhouse exterior.png")]).toEqual([false, true, true, false]);
+    expect([weatherFrom("no rain"), weatherFrom("after the storm, clear"), weatherFrom("rain")]).toEqual([null, "clear", "rain"]);
   });
 
   it("authored fields win over state, field by field, and a beat wins over the defaults", () => {

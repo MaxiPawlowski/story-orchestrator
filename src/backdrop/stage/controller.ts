@@ -84,6 +84,8 @@ export class BackdropController {
   private pointer = { x: 0, y: 0 };
   private base: BackdropBase | null = null;
   private loadingKey = "";
+  private loadingBase = "";
+  private loadGen = 0;
   private assets: BackdropAssets = {};
   private assetsKey = "";
   private pendingAssets = "";
@@ -187,7 +189,8 @@ export class BackdropController {
     if (!wantActive) { this.deactivate(); return; }
     if (!this.ensureRenderer()) { this.deactivate(); return; }
     if (base && (base.url !== this.base?.url || base.kind !== this.base?.kind)) void this.loadBase(base);
-    else if (base) this.loadingKey = "";
+    else if (base) { this.loadingKey = ""; this.loadingBase = ""; }
+    if (this.reduced) this.renderer?.settle();
     if (forceLayers || !sameSpecs(specs, this.specs)) {
       this.specs = specs;
       try { this.renderer?.setLayers(specs, this.assets); }
@@ -221,6 +224,7 @@ export class BackdropController {
     this.active = false;
     this.base = null;
     this.loadingKey = "";
+    this.loadingBase = "";
     this.specs = [];
     if (this.frame) this.host.cancelFrame(this.frame);
     this.frame = 0;
@@ -232,8 +236,10 @@ export class BackdropController {
   }
 
   private async loadBase(base: BackdropBase): Promise<void> {
-    const ticket = `${base.kind}:${base.url}`;
-    if (this.loadingKey === ticket) return;
+    const wanted = `${base.kind}:${base.url}`;
+    if (this.loadingBase === wanted) return;
+    this.loadingBase = wanted;
+    const ticket = `${++this.loadGen}:${wanted}`;
     this.loadingKey = ticket;
     let source: BaseSource;
     try { source = base.kind === "video" ? await this.host.loadVideo(base.url) : await this.host.loadImage(base.url); }
@@ -241,11 +247,14 @@ export class BackdropController {
       log.warn(`The backdrop could not load ${base.kind === "video" ? "its video loop" : "the background"}; ${base.kind === "video" ? "using the still" : "SillyTavern's background stays"}`, error);
       if (this.loadingKey !== ticket) return;
       this.loadingKey = "";
+      this.loadingBase = "";
       if (base.kind === "video") { this.assets = { ...this.assets, loopUrl: undefined }; this.refresh(); }
       else if (this.active) this.deactivate();
       return;
     }
     if (this.stopped || this.loadingKey !== ticket || !this.renderer) { if (base.kind === "video") (source as HTMLVideoElement).pause(); return; }
+    this.loadingBase = "";
+    if (base.kind === "video" && this.host.hidden()) (source as HTMLVideoElement).pause();
     this.renderer.setBase(base, source, this.host.now(), this.reduced);
     if (base.kind === "image") { this.sample = this.host.sampleColumn(source, this.host.chatColumn()); this.updateDim(); }
     this.base = base;
