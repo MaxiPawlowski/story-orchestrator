@@ -31,9 +31,7 @@
     ],
     "popupCasts": 1,
     "duplicates": [],
-    "dead": [
-      "src/backdrop/loops/host.ts#startBackdropLoops"
-    ],
+    "dead": [],
     "duplicateBodyAllowlist": []
   },
   "t1": {

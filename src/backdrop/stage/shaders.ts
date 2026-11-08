@@ -1,3 +1,5 @@
+import { CINEMAGRAPH_FLOW } from "../loops/cinemagraphFlow";
+
 export const QUAD_VS = `#version 300 es
 in vec2 aPos;
 out vec2 vUv;
@@ -35,6 +37,48 @@ float quiet(vec2 screen) { return uQuiet.z * smoothstep(uQuiet.x - 0.06, uQuiet.
 vec2 sceneUv(vec2 screen) { return ((screen - 0.5) / uSceneCam.z + 0.5 + uSceneCam.xy) * uSceneCover.xy + uSceneCover.zw; }
 vec3 sceneLight(vec2 screen, float lod) { return textureLod(uScene, sceneUv(screen), lod).rgb; }`;
 
+const glsl = (value: number): string => (Number.isInteger(value) ? `${value}.0` : String(value));
+
+export const FLOW_GLSL = `
+uniform int uFlow;
+uniform sampler2D uFlowMask;
+uniform float uFlowTime;
+uniform float uFlowPeriod;
+uniform float uFlowStrength;
+float flowHash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+float flowNoise(vec2 p) {
+  vec2 i = floor(p);
+  vec2 f = fract(p);
+  vec2 u = f * f * (3.0 - 2.0 * f);
+  return mix(mix(flowHash(i), flowHash(i + vec2(1.0, 0.0)), u.x), mix(flowHash(i + vec2(0.0, 1.0)), flowHash(i + vec2(1.0, 1.0)), u.x), u.y);
+}
+vec3 flowTake(vec2 from, vec3 own, float sky) {
+  vec4 region = texture(uFlowMask, from);
+  return mix(own, toLinear(texture(uA, from).rgb), mix(region.g, region.r, sky));
+}
+vec3 flowed(vec2 uv, vec3 own) {
+  vec4 mask = texture(uFlowMask, uv);
+  float sky = mask.r, water = mask.g;
+  float amount = clamp(max(sky, water) * uFlowStrength, 0.0, 1.0);
+  if (amount < 0.004) return own;
+  vec3 color;
+  if (sky >= water) {
+    vec2 wobble = vec2(flowNoise(uv * 4.0), flowNoise(uv * 4.0 + 17.3)) - 0.5;
+    vec2 flow = vec2(${glsl(CINEMAGRAPH_FLOW.skyDrift)}, 0.0) + wobble * ${glsl(CINEMAGRAPH_FLOW.skyWobble)};
+    float phase0 = fract(uFlowTime / uFlowPeriod);
+    float phase1 = fract(uFlowTime / uFlowPeriod + 0.5);
+    float weight = 1.0 - abs(1.0 - 2.0 * phase0);
+    color = mix(flowTake(uv - flow * (phase1 - 0.5), own, 1.0), flowTake(uv - flow * (phase0 - 0.5), own, 1.0), weight);
+  } else {
+    float near = 1.0 - uv.y;
+    float amp = ${glsl(CINEMAGRAPH_FLOW.rippleAmp)} * mix(${glsl(CINEMAGRAPH_FLOW.rippleFar)}, 1.0, near);
+    float wave = sin(uv.y * ${glsl(CINEMAGRAPH_FLOW.rippleFreq)} * (2.0 - near) + 6.28318530718 * ${glsl(CINEMAGRAPH_FLOW.rippleCycles)} * uFlowTime / uFlowPeriod
+      + flowNoise(vec2(uv.x * 6.0, uv.y * 40.0)) * 6.28318530718);
+    color = flowTake(uv + vec2(wave * amp, 0.0), own, 0.0);
+  }
+  return mix(own, color, amount);
+}`;
+
 export const BASE_FS = `#version 300 es
 precision highp float;
 in vec2 vUv;
@@ -63,6 +107,7 @@ uniform float uRippleAmount;
 uniform float uRippleTime;
 uniform vec2 uPixel;
 ${HASH}
+${FLOW_GLSL}
 vec2 camera(vec2 uv) { return (uv - 0.5) / uCam.z + 0.5 + uCam.xy; }
 float depthAt(vec2 uv) { return texture(uDepth, uv).r; }
 vec2 parallax(vec2 uv, out float depth) {
@@ -111,6 +156,7 @@ void main() {
   if (uHasDepth == 1) uv = parallax(uv, depth);
   if (uRipple == 1) uv += ripple(uv, uRippleAmount) * maskAt(uv);
   vec3 a = toLinear(texture(uA, uv).rgb);
+  if (uFlow == 1) a = flowed(uv, a);
   if (uHasDepth == 1 && uFog > 0.0) {
     float far = 1.0 - depth;
     vec3 light = toLinear(textureLod(uA, uv, 5.0).rgb);

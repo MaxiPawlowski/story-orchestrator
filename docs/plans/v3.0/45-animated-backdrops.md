@@ -212,7 +212,7 @@ GPU re-render = the fix is in the code but the showcase full/lite files still sh
 4. Cinemagraph clock 1000x too fast in the browser.
    - Evidence: the stage passes `frame.time` in ms (A's layers divide by 1000); `cinemagraph.ts` fed it straight into an 8 s period.
      The CPU showcase used seconds, so it hid this.
-   - Fix: `u_time = frame.time / 1000`. Done.
+   - Fix: superseded by A's contract (139f454b9): the frame clock is in seconds, the flow reads `frame.time` as is. Done.
    - Found by: Sol.
 5. Colour shift in every encoded clip.
    - Evidence: VP9 from `SaveWEBM` and the showcase ffmpeg encodes are BT.601 YUV with no colour tags; browsers read untagged as BT.709:
@@ -237,8 +237,9 @@ GPU re-render = the fix is in the code but the showcase full/lite files still sh
 8. Cinemagraph overlay ignored the stage camera, tint and vignette, and changed the blend state for later layers.
    - Evidence: base pass applies camera, tint, vignette; the overlay sampled raw colour at untransformed UVs and set
      `blendFunc(SRC_ALPHA, ...)` in a premultiplied pipeline.
-   - Fix: same camera/tint/vignette maths in the shader, premultiplied output, no blend-state change. Done. Base crossfade during a scene
-     swap is still not visible to layers (open, A).
+   - Fix: the cinemagraph is no longer a pass of its own: it returns a `flow` base modifier and the two-phase warp runs inside A's
+     `BASE_FS` on the parallax-displaced uv, before tint, grade, crossfade and vignette, so it lines up with parallax and drift
+     (adapted to A's contract 139f454b9; CPU port blends in linear light like the base shader). Done.
    - Found by: Sol (tint/camera), me (blend state).
 9. Video framing differs from the still, so the base swap shifts and the B mask/depth no longer line up.
    - Evidence: full was 960x544 (1.765) for a 1.75 still; the stage cover-crops each texture by its own aspect; loop frame 0 phase shift
@@ -248,7 +249,7 @@ GPU re-render = the fix is in the code but the showcase full/lite files still sh
    - Found by: both.
 10. Cinemagraph kept the previous scene's mask after a background change.
     - Evidence: the renderer reuses a layer by id and calls `update`; the mask loaded only in the constructor.
-    - Fix: the auto spec id carries the mask URL, so a new mask builds a new layer. Done. Parallax/fog have the same pattern (open, B).
+    - Fix: the layer declares `usesAssets`, so A's renderer rebuilds it when the asset set changes. Done.
     - Found by: Sol.
 11. Prompts invented content from file names (smoke and banners for any town, stars for night, candle flames for castles).
     - Fix: only motion of materials the name mentions (water, falls, foliage, existing flames, clouds), plus "every building, object and

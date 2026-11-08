@@ -26,7 +26,7 @@ export interface LoopHostInput {
   checkpointId(): string | null;
   chatId(): string | null;
   tier(): LoopTier;
-  hostGenerating(): Promise<boolean>;
+  hostGenerating(): boolean | Promise<boolean>;
   subscribe(listener: () => void): () => void;
 }
 
@@ -175,7 +175,7 @@ export function startBackdropLoops(input: LoopHostInput): () => void {
       return url ? { loopUrl: url } : null;
     },
   });
-  const offLayer = registerLayer(CINEMAGRAPH_KIND, (context, spec) => cinemagraphLayer(context, spec), { gate: "loops", auto: cinemagraphAuto });
+  const offLayer = registerLayer(CINEMAGRAPH_KIND, (context) => cinemagraphLayer(context), { gate: "loops", auto: cinemagraphAuto });
   const offShown = onBaseShown((base) => scheduler.setCurrent(current(base)));
   const offRuntime = input.subscribe(refresh);
   const offBusy = busyWork.subscribe(() => {
@@ -184,7 +184,7 @@ export function startBackdropLoops(input: LoopHostInput): () => void {
 
   const watch = setInterval(() => {
     if (!scheduler.busy) return;
-    void input.hostGenerating().then((loud) => { if (loud && scheduler.preempt()) quietSince = Date.now(); });
+    void Promise.resolve(input.hostGenerating()).then((loud) => { if (loud && scheduler.preempt()) quietSince = Date.now(); });
   }, 1500);
 
   return () => {

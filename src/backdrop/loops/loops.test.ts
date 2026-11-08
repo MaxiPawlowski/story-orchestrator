@@ -2,7 +2,8 @@ import { buildLoopGraph, centerCrop, fitShape, LOOP_ANCHOR_FRAMES, LOOP_NODES, L
 import { backgroundWords, loopPrompt } from "./prompt";
 import { currentTarget, loopModeOf, nextTarget, preTargets, type LoopStory } from "./plan";
 import { loopKey, loopKeyText, loopSeed } from "./key";
-import { cinemagraphAuto, CINEMAGRAPH_FRAGMENT } from "./cinemagraph";
+import { cinemagraphAuto, cinemagraphLayer } from "./cinemagraph";
+import { BASE_FS, FLOW_GLSL } from "../stage/shaders";
 import { CINEMAGRAPH_FLOW, CINEMAGRAPH_PERIOD_S } from "./cinemagraphFlow";
 import { webcrypto } from "node:crypto";
 
@@ -84,27 +85,36 @@ describe("loop workflow", () => {
 });
 
 describe("cinemagraph", () => {
-  it("keeps the ripple periodic with the loop", () => {
-    expect(CINEMAGRAPH_FRAGMENT).toContain("TAU * 2.0 * u_time / u_period");
+  const settings = { enabled: true, effects: true, parallax: true, loops: "full" as const, intensity: 0.5, dimBehindChat: true };
+  const input = (assets: { maskUrl?: string; loopUrl?: string }) => ({ state: {} as never, base: { kind: "image" as const, url: "/bg.jpg", key: "k" }, assets, settings });
+
+  it("warps inside the one base shader, on the parallax-displaced uv, periodic with the loop and bounded by its own region", () => {
+    const main = BASE_FS.slice(BASE_FS.indexOf("void main()"));
+    expect(main.indexOf("uv = parallax(uv, depth)")).toBeLessThan(main.indexOf("a = flowed(uv, a)"));
+    expect(FLOW_GLSL).toContain(`6.28318530718 * ${CINEMAGRAPH_FLOW.rippleCycles}.0 * uFlowTime / uFlowPeriod`);
+    expect(FLOW_GLSL).toMatch(/vec3 flowTake\(vec2 from, vec3 own, float sky\)/);
     expect(Number.isInteger(CINEMAGRAPH_FLOW.rippleCycles)).toBe(true);
-    expect(CINEMAGRAPH_PERIOD_S).toBeGreaterThan(0);
   });
 
-  it("samples only inside its own region, follows the stage camera, tint and vignette, and outputs premultiplied colour", () => {
-    expect(CINEMAGRAPH_FRAGMENT).toMatch(/so_cg_take\(vec2 from/);
-    expect(CINEMAGRAPH_FRAGMENT).toContain("u_cam");
-    expect(CINEMAGRAPH_FRAGMENT).toContain("u_tint");
-    expect(CINEMAGRAPH_FRAGMENT).toContain("outColor = vec4(color * alpha, alpha)");
+  it("hands the stage a flow modifier on the stage clock in seconds, and nothing under reduced motion", () => {
+    let loaded: (texture: WebGLTexture | null) => void = () => undefined;
+    const context = { assets: { maskUrl: "/m.png" }, texture: () => new Promise<WebGLTexture | null>((resolve) => { loaded = resolve; }) } as never;
+    const layer = cinemagraphLayer(context);
+    const frame = { time: 3.5, intensity: 0.5, reducedMotion: false } as never;
+    expect(layer.modifyBase?.(frame)).toBeNull();
+    expect(layer.usesAssets).toBe(true);
+    const texture = {} as WebGLTexture;
+    loaded(texture);
+    return Promise.resolve().then(() => {
+      expect(layer.modifyBase?.(frame)).toEqual({ flow: { texture, strength: 0.8, time: 3.5, period: CINEMAGRAPH_PERIOD_S } });
+      expect(layer.modifyBase?.({ ...(frame as object), reducedMotion: true } as never)).toBeNull();
+    });
   });
 
-  it("keys the layer by its mask so a new scene gets a new layer instead of the old mask", () => {
-    const input = (maskUrl: string) => ({ state: {} as never, base: { kind: "image" as const, url: "/bg.jpg", key: "k" }, assets: { maskUrl },
-      settings: { enabled: true, effects: true, parallax: true, loops: "full" as const, intensity: 0.5, dimBehindChat: true } });
-    const a = cinemagraphAuto(input("/a.png"));
-    const b = cinemagraphAuto(input("/b.png"));
-    expect(a?.params.mask).toBe("/a.png");
-    expect(a?.id).not.toBe(b?.id);
-    expect(cinemagraphAuto({ ...input("/a.png"), assets: { maskUrl: "/a.png", loopUrl: "/l.mp4" } })).toBeNull();
+  it("runs only on a still with a mask and no video loop", () => {
+    expect(cinemagraphAuto(input({ maskUrl: "/a.png" }))).toMatchObject({ kind: "cinemagraph" });
+    expect(cinemagraphAuto(input({}))).toBeNull();
+    expect(cinemagraphAuto(input({ maskUrl: "/a.png", loopUrl: "/l.mp4" }))).toBeNull();
   });
 });
 

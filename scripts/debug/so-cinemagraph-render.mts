@@ -23,7 +23,7 @@ function rawRgb(file: string, width: number, height: number): Uint8Array {
   return new Uint8Array(run.stdout);
 }
 
-export function texture(pixels: Uint8Array, width: number, height: number) {
+export function texture(pixels: ArrayLike<number>, width: number, height: number) {
   return (u: number, v: number, channel: number): number => {
     const x = Math.min(width - 1, Math.max(0, u * width - 0.5));
     const y = Math.min(height - 1, Math.max(0, (1 - v) * height - 0.5));
@@ -39,7 +39,8 @@ const mix = (a: Rgb, b: Rgb, t: number): Rgb => [a[0] + (b[0] - a[0]) * t, a[1] 
 
 export function cinemagraphFrame(still: Uint8Array, mask: Uint8Array, width: number, height: number, time: number, period = CINEMAGRAPH_PERIOD_S): Uint8Array {
   const out = new Uint8Array(width * height * 3);
-  const base = texture(still, width, height), region = texture(mask, width, height);
+  const linear = Float32Array.from(still, (value) => (value / 255) ** 2.2);
+  const base = texture(linear, width, height), region = texture(mask, width, height);
   const phase0 = fract(time / period), phase1 = fract(time / period + 0.5);
   const weight = 1 - Math.abs(1 - 2 * phase0);
   const take = (u: number, v: number, own: Rgb, channel: number): Rgb => mix(own, [base(u, v, 0), base(u, v, 1), base(u, v, 2)], region(u, v, channel) / 255);
@@ -47,7 +48,7 @@ export function cinemagraphFrame(still: Uint8Array, mask: Uint8Array, width: num
     for (let x = 0; x < width; x += 1) {
       const index = y * width + x;
       const u = (x + 0.5) / width, v = 1 - (y + 0.5) / height;
-      const own: Rgb = [still[index * 3], still[index * 3 + 1], still[index * 3 + 2]];
+      const own: Rgb = [linear[index * 3], linear[index * 3 + 1], linear[index * 3 + 2]];
       const sky = region(u, v, 0) / 255, water = region(u, v, 1) / 255;
       const amount = Math.min(1, Math.max(sky, water));
       let color = own;
@@ -64,7 +65,7 @@ export function cinemagraphFrame(still: Uint8Array, mask: Uint8Array, width: num
         }
         color = mix(own, color, amount);
       }
-      for (let channel = 0; channel < 3; channel += 1) out[index * 3 + channel] = Math.round(Math.min(255, Math.max(0, color[channel])));
+      for (let channel = 0; channel < 3; channel += 1) out[index * 3 + channel] = Math.round(255 * Math.min(1, Math.max(0, color[channel])) ** (1 / 2.2));
     }
   }
   return out;
