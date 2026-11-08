@@ -10,6 +10,7 @@ export const MERMAID_URL = `https://cdn.jsdelivr.net/npm/mermaid@${MERMAID_VERSI
 export const SITE_SECTIONS = { how: { label: "How it works", title: "Diagrams" }, showcase: { label: "Showcase", title: "Demos" } };
 export const SHOWCASE_MEDIA_DIR = join(GUIDE_DIR, "assets", "showcase");
 export const MEDIA_EXTENSIONS = ["png", "jpg", "jpeg", "webp", "gif", "webm"];
+export const MEDIA_NOTES = ["LICENSES.md"];
 export const PAGE_BUDGET_BYTES = 5 * 1024 * 1024;
 export const UI_DIR = "ui";
 export const DENY_FILE = join(root, ".guide-deny.txt");
@@ -105,7 +106,7 @@ export const demoProblems = (demos) => demos.flatMap(({ name, dir }) => {
   if (!existsSync(join(dir, "index.html"))) problems.push(`showcase/${name}: no index.html`);
   for (const file of walkFiles(dir).filter((path) => /\.(html|m?js|css)$/.test(path))) {
     const text = readFileSync(file, "utf8");
-    for (const [, url] of [...text.matchAll(/(?:src|href)=["'](https?:[^"']+)["']|from\s+["'](https?:[^"']+)["']|import\(\s*["'](https?:[^"']+)["']/g)].map((match) => [match[0], match[1] ?? match[2] ?? match[3]])) {
+    for (const [, url] of [...text.matchAll(/<script\b[^>]*\bsrc=["'](https?:[^"']+)["']|<link\b[^>]*\bhref=["'](https?:[^"']+)["']|(?:^|[\s;])(?:import|export)\b[^"'`;]*?\bfrom\s*["'](https?:[^"']+)["']|import\(\s*["'](https?:[^"']+)["']|@import\s+(?:url\()?["'](https?:[^"']+)["']/g)].map((match) => [match[0], match.slice(1).find(Boolean)])) {
       if (!/^https:\/\/(cdn\.jsdelivr\.net\/npm|unpkg\.com|cdnjs\.cloudflare\.com\/ajax\/libs)\/(@[^/]+\/)?[^/@]+@\d+\.\d+\.\d+\//.test(url) && !/^https:\/\/cdnjs\.cloudflare\.com\/ajax\/libs\/[^/]+\/\d+\.\d+\.\d+\//.test(url)) {
         problems.push(`${toPosix(relative(dir, file))} in showcase/${name}: ${url} is not a CDN script pinned to an exact version`);
       }
@@ -126,6 +127,7 @@ export const copyDemos = async (demos, out) => {
 
 export const mediaProblems = (dir = SHOWCASE_MEDIA_DIR) => walkFiles(dir).flatMap((file) => {
   const rel = toPosix(relative(dir, file));
+  if (MEDIA_NOTES.includes(rel)) return [];
   if (rel.endsWith(".json")) {
     const media = file.slice(0, -".json".length);
     return existsSync(media) ? [] : [`assets/showcase/${rel}: sidecar without its media file`];
