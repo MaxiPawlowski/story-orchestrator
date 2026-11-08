@@ -1,6 +1,6 @@
 import { DepthCache, MAX_FAILURES, RETRY_MS, type DepthDeps } from "./cache";
 import { depthCacheKey, depthPath, uploadSize, DEPTH_MODEL } from "./key";
-import { farThreshold, skyMask } from "./mask";
+import { farThreshold, sceneMask, skyMask } from "./mask";
 import { cameraOffset, clampStrength, easeToward, fogDensity, MAX_STRENGTH, PARALLAX, sampleUv } from "./parallax";
 import { depthGraph } from "../../image/depthGraph";
 
@@ -157,6 +157,38 @@ describe("sky mask", () => {
     expect(column[2]).toBeGreaterThan(0);
     expect(column[2]).toBeLessThan(255);
     expect(column[5]).toBe(0);
+  });
+});
+
+describe("scene mask channels", () => {
+  const scene = (rgbBelow: [number, number, number], depthBelow: (x: number, y: number) => number) => {
+    const width = 20, height = 20;
+    const depth = new Uint8ClampedArray(width * height * 4), color = new Uint8ClampedArray(width * height * 4);
+    for (let y = 0; y < height; y += 1) for (let x = 0; x < width; x += 1) {
+      const index = (y * width + x) * 4, d = y < 8 ? 0 : depthBelow(x, y), c = y < 8 ? [120, 170, 230] : rgbBelow;
+      depth.set([d, d, d, 255], index); color.set([...c, 255], index);
+    }
+    return sceneMask(depth, color, width, height) as Uint8ClampedArray;
+  };
+  const share = (mask: Uint8ClampedArray, channel: number) => { let n = 0; for (let i = channel; i < mask.length; i += 4) n += mask[i] > 127 ? 1 : 0; return n / (mask.length / 4); };
+
+  test("R is sky, G is flat blue water below it, B stays free for the loop tier, A is opaque", () => {
+    const mask = scene([60, 110, 190], (_x, y) => 100 + y);
+    expect(share(mask, 0)).toBeCloseTo(0.4, 1);
+    expect(share(mask, 1)).toBeGreaterThan(0.3);
+    expect(share(mask, 2)).toBe(0);
+    expect(mask[3]).toBe(255);
+  });
+
+  test("a grey road or a bumpy blue surface is not water", () => {
+    expect(share(scene([150, 150, 150], (_x, y) => 100 + y), 1)).toBe(0);
+    expect(share(scene([60, 110, 190], (x, y) => ((x + y) % 2 ? 90 : 200)), 1)).toBe(0);
+  });
+
+  test("no colour means sky only", () => {
+    const width = 4, height = 4, depth = new Uint8ClampedArray(64);
+    for (let i = 0; i < 16; i += 1) depth.set(i < 8 ? [0, 0, 0, 255] : [200, 200, 200, 255], i * 4);
+    expect(share(sceneMask(depth, null, width, height) as Uint8ClampedArray, 1)).toBe(0);
   });
 });
 

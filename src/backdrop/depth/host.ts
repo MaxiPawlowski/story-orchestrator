@@ -10,7 +10,7 @@ import { depthGraph } from "../../image/depthGraph";
 import { hostGenerating, leaseOutsideTurns, waitForTextPriority } from "../../sprites/builder/textPriority";
 import { DepthCache, type DepthDeps } from "./cache";
 import { DEPTH_FOLDER, DEPTH_MODEL, uploadSize } from "./key";
-import { skyMask } from "./mask";
+import { sceneMask } from "./mask";
 
 const MAX_BYTES = 32 * 1024 * 1024;
 let fallbackQueue: ImageQueue | null = null;
@@ -68,20 +68,24 @@ async function produce(source: string, key: string, signal: AbortSignal): Promis
   }
 }
 
-async function mask(depthUrl: string, _source: string, signal: AbortSignal): Promise<string | null> {
-  const bitmap = await loadBitmap(depthUrl, signal);
+async function mask(depthUrl: string, source: string, signal: AbortSignal): Promise<string | null> {
+  const [depth, base] = await Promise.all([loadBitmap(depthUrl, signal), loadBitmap(source, signal).catch(() => null)]);
   try {
+    const width = depth.width, height = depth.height;
     const canvas = document.createElement("canvas");
-    canvas.width = bitmap.width; canvas.height = bitmap.height;
+    canvas.width = width; canvas.height = height;
     const context = canvas.getContext("2d", { willReadFrequently: true });
     if (!context) return null;
-    context.drawImage(bitmap, 0, 0);
-    const pixels = skyMask(context.getImageData(0, 0, canvas.width, canvas.height).data, canvas.width, canvas.height);
+    let color: Uint8ClampedArray | null = null;
+    if (base) { context.drawImage(base, 0, 0, width, height); color = context.getImageData(0, 0, width, height).data; }
+    context.clearRect(0, 0, width, height);
+    context.drawImage(depth, 0, 0);
+    const pixels = sceneMask(context.getImageData(0, 0, width, height).data, color, width, height);
     if (!pixels) return null;
-    context.putImageData(new ImageData(pixels, canvas.width, canvas.height), 0, 0);
+    context.putImageData(new ImageData(pixels, width, height), 0, 0);
     const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/png"));
     return blob ? URL.createObjectURL(blob) : null;
-  } finally { bitmap.close(); }
+  } finally { depth.close(); base?.close(); }
 }
 
 export const depthDeps = (): DepthDeps => ({

@@ -1,6 +1,6 @@
 export interface MaskOptions { far: number; feather: number; minShare: number }
 
-export const SKY_MASK: MaskOptions = Object.freeze({ far: 0.12, feather: 2, minShare: 0.02 });
+export const SKY_MASK: MaskOptions = Object.freeze({ far: 0.04, feather: 2, minShare: 0.02 });
 
 const luminance = (rgba: ArrayLike<number>, index: number): number => rgba[index * 4];
 
@@ -13,7 +13,7 @@ export function farThreshold(depth: ArrayLike<number>, count: number, far: numbe
   return low + (high - low) * far;
 }
 
-export function skyMask(depth: ArrayLike<number>, width: number, height: number, options: MaskOptions = SKY_MASK): Uint8ClampedArray | null {
+export function skyRegion(depth: ArrayLike<number>, width: number, height: number, options: MaskOptions = SKY_MASK): Uint8Array | null {
   const count = width * height;
   if (!(width > 0 && height > 0) || depth.length < count * 4) throw new Error("The depth map has no pixels.");
   const limit = farThreshold(depth, count, options.far);
@@ -33,10 +33,86 @@ export function skyMask(depth: ArrayLike<number>, width: number, height: number,
   let share = 0;
   for (let index = 0; index < count; index += 1) share += sky[index];
   if (share / count < options.minShare) return null;
-  const soft = feather(sky, width, height, options.feather);
+  return sky;
+}
+
+export function skyMask(depth: ArrayLike<number>, width: number, height: number, options: MaskOptions = SKY_MASK): Uint8ClampedArray | null {
+  const sky = skyRegion(depth, width, height, options);
+  return sky ? packMask(width, height, feather(sky, width, height, options.feather)) : null;
+}
+
+export interface WaterOptions { colorDistance: number; flat: number; minShare: number; feather: number }
+
+export const WATER_MASK: WaterOptions = Object.freeze({ colorDistance: 60, flat: 3, minShare: 0.01, feather: 2 });
+
+export function waterRegion(depth: ArrayLike<number>, color: ArrayLike<number>, sky: Uint8Array, width: number, height: number, options: WaterOptions = WATER_MASK): Uint8Array | null {
+  const count = width * height;
+  let horizon = 0, skyR = 0, skyG = 0, skyB = 0, skyN = 0;
+  for (let y = 0; y < height; y += 1) {
+    let row = 0;
+    for (let x = 0; x < width; x += 1) {
+      const index = y * width + x;
+      if (!sky[index]) continue;
+      row += 1; skyN += 1;
+      skyR += color[index * 4]; skyG += color[index * 4 + 1]; skyB += color[index * 4 + 2];
+    }
+    if (row / width >= 0.05) horizon = y + 1;
+  }
+  if (!skyN) return null;
+  skyR /= skyN; skyG /= skyN; skyB /= skyN;
+  const candidate = new Uint8Array(count);
+  for (let y = Math.max(1, horizon); y < height - 1; y += 1) {
+    for (let x = 1; x < width - 1; x += 1) {
+      const index = y * width + x;
+      if (sky[index]) continue;
+      const r = color[index * 4], g = color[index * 4 + 1], b = color[index * 4 + 2];
+      const blue = b >= r + 8 && b >= g - 5;
+      if (!blue || Math.hypot(r - skyR, g - skyG, b - skyB) > options.colorDistance && b < r + 25) continue;
+      const here = luminance(depth, index);
+      const step = Math.max(...[index + 1, index - 1, index + width, index - width].map((next) => Math.abs(luminance(depth, next) - here)));
+      const below = y + 3 < height ? luminance(depth, index + 3 * width) : here, above = y >= 3 ? luminance(depth, index - 3 * width) : here;
+      if (step <= options.flat && below - above >= 1) candidate[index] = 1;
+    }
+  }
+  const water = new Uint8Array(count);
+  const seen = new Uint8Array(count);
+  const minimum = Math.max(1, Math.round(count * options.minShare));
+  let share = 0;
+  for (let start = 0; start < count; start += 1) {
+    if (!candidate[start] || seen[start]) continue;
+    const component: number[] = [];
+    const stack = [start];
+    seen[start] = 1;
+    while (stack.length) {
+      const index = stack.pop() as number;
+      component.push(index);
+      const x = index % width;
+      for (const next of [x > 0 ? index - 1 : -1, x < width - 1 ? index + 1 : -1, index - width, index + width]) {
+        if (next < 0 || next >= count || seen[next] || !candidate[next]) continue;
+        seen[next] = 1;
+        stack.push(next);
+      }
+    }
+    if (component.length < minimum) continue;
+    for (const index of component) water[index] = 1;
+    share += component.length;
+  }
+  return share ? water : null;
+}
+
+export function sceneMask(depth: ArrayLike<number>, color: ArrayLike<number> | null, width: number, height: number): Uint8ClampedArray | null {
+  const sky = skyRegion(depth, width, height, SKY_MASK);
+  if (!sky) return null;
+  const water = color ? waterRegion(depth, color, sky, width, height) : null;
+  return packMask(width, height, feather(sky, width, height, SKY_MASK.feather), water ? feather(water, width, height, WATER_MASK.feather) : null);
+}
+
+function packMask(width: number, height: number, sky: Uint8ClampedArray, water: Uint8ClampedArray | null = null): Uint8ClampedArray {
+  const count = width * height;
   const out = new Uint8ClampedArray(count * 4);
   for (let index = 0; index < count; index += 1) {
-    out[index * 4] = soft[index];
+    out[index * 4] = sky[index];
+    out[index * 4 + 1] = water ? water[index] : 0;
     out[index * 4 + 3] = 255;
   }
   return out;

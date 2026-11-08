@@ -42,12 +42,12 @@ const int STEPS = 12;
 vec2 so_parallax_uv(vec2 uv) {
   vec2 centered = vec2(0.5) + (uv - vec2(0.5)) / u_scale;
   vec2 shift = u_offset / u_scale;
-  vec2 hit = centered + shift * (texture2D(u_depth, centered).r - u_focus);
+  vec2 hit = centered + shift * (texture(u_depth, centered).r - u_focus);
   float layer = 1.0;
   float stepSize = 1.0 / float(STEPS);
   for (int i = 0; i < STEPS; i++) {
     vec2 probe = centered + shift * (layer - u_focus);
-    if (texture2D(u_depth, probe).r >= layer) { hit = probe; break; }
+    if (texture(u_depth, probe).r >= layer) { hit = probe; break; }
     layer -= stepSize;
   }
   return clamp(hit, vec2(0.0), vec2(1.0));
@@ -69,11 +69,11 @@ float so_fog_noise(vec2 p) {
   vec2 u = f * f * (3.0 - 2.0 * f);
   return mix(mix(a, b, u.x), mix(c, d, u.x), u.y);
 }
-vec4 so_depth_fog(vec2 uv, vec4 color) {
-  float far = 1.0 - texture2D(u_depth, uv).r;
+vec4 so_depth_fog_overlay(vec2 uv) {
+  float far = 1.0 - texture(u_depth, uv).r;
   float drift = so_fog_noise(uv * 3.0 + vec2(u_time * 0.015, u_time * 0.004)) * 0.6 + so_fog_noise(uv * 7.0 - vec2(u_time * 0.01, 0.0)) * 0.4;
   float amount = clamp(far * far * u_density * (0.65 + 0.7 * drift), 0.0, 0.85);
-  return vec4(mix(color.rgb, u_fogColor, amount), color.a);
+  return vec4(u_fogColor, amount);
 }
 `;
 

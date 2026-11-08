@@ -1,0 +1,133 @@
+{
+  "id": "harbor-town-afternoon",
+  "tags": [
+    "sky",
+    "water",
+    "outdoor"
+  ],
+  "checkpoint": "sd_xl_base_1.0.safetensors",
+  "licence": "CreativeML Open RAIL++-M",
+  "prompt": "wide view of a small fishing harbor town in the afternoon, colorful houses on a hillside, wooden boats moored on gentle sea water, blue sky with white clouds, no people, detailed digital painting, warm sunlight",
+  "negative": "people, person, text, watermark, signature, logo, blurry, lowres, deformed, nsfw",
+  "seed": 4502,
+  "size": {
+    "width": 1344,
+    "height": 768
+  },
+  "sampler": {
+    "steps": 30,
+    "cfg": 6.5,
+    "sampler_name": "dpmpp_2m",
+    "scheduler": "karras"
+  },
+  "renderMs": 24535,
+  "generatedAt": "2026-11-08T09:38:35.836Z",
+  "generator": "scripts/debug/so-showcase-backdrops.mts generate",
+  "graph": {
+    "1": {
+      "class_type": "CheckpointLoaderSimple",
+      "inputs": {
+        "ckpt_name": "sd_xl_base_1.0.safetensors"
+      }
+    },
+    "2": {
+      "class_type": "CLIPTextEncode",
+      "inputs": {
+        "text": "wide view of a small fishing harbor town in the afternoon, colorful houses on a hillside, wooden boats moored on gentle sea water, blue sky with white clouds, no people, detailed digital painting, warm sunlight",
+        "clip": [
+          "1",
+          1
+        ]
+      }
+    },
+    "3": {
+      "class_type": "CLIPTextEncode",
+      "inputs": {
+        "text": "people, person, text, watermark, signature, logo, blurry, lowres, deformed, nsfw",
+        "clip": [
+          "1",
+          1
+        ]
+      }
+    },
+    "4": {
+      "class_type": "EmptyLatentImage",
+      "inputs": {
+        "width": 1344,
+        "height": 768,
+        "batch_size": 1
+      }
+    },
+    "5": {
+      "class_type": "KSampler",
+      "inputs": {
+        "seed": 4502,
+        "steps": 30,
+        "cfg": 6.5,
+        "sampler_name": "dpmpp_2m",
+        "scheduler": "karras",
+        "denoise": 1,
+        "model": [
+          "1",
+          0
+        ],
+        "positive": [
+          "2",
+          0
+        ],
+        "negative": [
+          "3",
+          0
+        ],
+        "latent_image": [
+          "4",
+          0
+        ]
+      }
+    },
+    "6": {
+      "class_type": "VAEDecode",
+      "inputs": {
+        "samples": [
+          "5",
+          0
+        ],
+        "vae": [
+          "1",
+          2
+        ]
+      }
+    },
+    "7": {
+      "class_type": "PreviewImage",
+      "inputs": {
+        "images": [
+          "6",
+          0
+        ]
+      }
+    }
+  },
+  "depth": {
+    "model": {
+      "id": "dav2-vitl",
+      "ckpt": "depth_anything_v2_vitl.pth",
+      "resolution": 512,
+      "version": 1
+    },
+    "file": "harbor-town-afternoon.depth.png",
+    "renderMs": 13827,
+    "generator": "scripts/debug/so-showcase-backdrops.mts depth"
+  },
+  "mask": {
+    "file": "harbor-town-afternoon.mask.png",
+    "channels": {
+      "r": "sky",
+      "g": "water",
+      "b": "reserved (loops)",
+      "a": "opaque"
+    },
+    "generator": "src/backdrop/depth/mask.ts sceneMask"
+  },
+  "parallaxDemo": null
+}

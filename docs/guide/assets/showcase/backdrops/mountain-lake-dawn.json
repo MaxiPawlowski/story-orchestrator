@@ -1,0 +1,133 @@
+{
+  "id": "mountain-lake-dawn",
+  "tags": [
+    "sky",
+    "water",
+    "outdoor"
+  ],
+  "checkpoint": "sd_xl_base_1.0.safetensors",
+  "licence": "CreativeML Open RAIL++-M",
+  "prompt": "wide landscape painting of a calm alpine lake at dawn, snowy mountains, pine forest on the shore, clear pastel sky with soft clouds, mirror reflections on the water, no people, highly detailed digital painting, cinematic light",
+  "negative": "people, person, text, watermark, signature, logo, blurry, lowres, deformed, nsfw",
+  "seed": 4501,
+  "size": {
+    "width": 1344,
+    "height": 768
+  },
+  "sampler": {
+    "steps": 30,
+    "cfg": 6.5,
+    "sampler_name": "dpmpp_2m",
+    "scheduler": "karras"
+  },
+  "renderMs": 41347,
+  "generatedAt": "2026-11-08T09:38:11.288Z",
+  "generator": "scripts/debug/so-showcase-backdrops.mts generate",
+  "graph": {
+    "1": {
+      "class_type": "CheckpointLoaderSimple",
+      "inputs": {
+        "ckpt_name": "sd_xl_base_1.0.safetensors"
+      }
+    },
+    "2": {
+      "class_type": "CLIPTextEncode",
+      "inputs": {
+        "text": "wide landscape painting of a calm alpine lake at dawn, snowy mountains, pine forest on the shore, clear pastel sky with soft clouds, mirror reflections on the water, no people, highly detailed digital painting, cinematic light",
+        "clip": [
+          "1",
+          1
+        ]
+      }
+    },
+    "3": {
+      "class_type": "CLIPTextEncode",
+      "inputs": {
+        "text": "people, person, text, watermark, signature, logo, blurry, lowres, deformed, nsfw",
+        "clip": [
+          "1",
+          1
+        ]
+      }
+    },
+    "4": {
+      "class_type": "EmptyLatentImage",
+      "inputs": {
+        "width": 1344,
+        "height": 768,
+        "batch_size": 1
+      }
+    },
+    "5": {
+      "class_type": "KSampler",
+      "inputs": {
+        "seed": 4501,
+        "steps": 30,
+        "cfg": 6.5,
+        "sampler_name": "dpmpp_2m",
+        "scheduler": "karras",
+        "denoise": 1,
+        "model": [
+          "1",
+          0
+        ],
+        "positive": [
+          "2",
+          0
+        ],
+        "negative": [
+          "3",
+          0
+        ],
+        "latent_image": [
+          "4",
+          0
+        ]
+      }
+    },
+    "6": {
+      "class_type": "VAEDecode",
+      "inputs": {
+        "samples": [
+          "5",
+          0
+        ],
+        "vae": [
+          "1",
+          2
+        ]
+      }
+    },
+    "7": {
+      "class_type": "PreviewImage",
+      "inputs": {
+        "images": [
+          "6",
+          0
+        ]
+      }
+    }
+  },
+  "depth": {
+    "model": {
+      "id": "dav2-vitl",
+      "ckpt": "depth_anything_v2_vitl.pth",
+      "resolution": 512,
+      "version": 1
+    },
+    "file": "mountain-lake-dawn.depth.png",
+    "renderMs": 15855,
+    "generator": "scripts/debug/so-showcase-backdrops.mts depth"
+  },
+  "mask": {
+    "file": "mountain-lake-dawn.mask.png",
+    "channels": {
+      "r": "sky",
+      "g": "water",
+      "b": "reserved (loops)",
+      "a": "opaque"
+    },
+    "generator": "src/backdrop/depth/mask.ts sceneMask"
+  },
+  "parallaxDemo": "mountain-lake-dawn.parallax.webp"
+}

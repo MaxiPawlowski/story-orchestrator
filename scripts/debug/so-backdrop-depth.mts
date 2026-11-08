@@ -3,7 +3,7 @@ import { basename, extname, join, resolve } from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { DEPTH_MODEL, depthGraph } from '../../src/image/depthGraph.ts';
 
-const USAGE = `Usage: node scripts/debug/so-backdrop-depth.mts measure <image>... --out <dir> [--comfy http://127.0.0.1:8188] [--wait-ms 1800000]
+const USAGE = `Usage: node scripts/debug/so-backdrop-depth.mts measure <image>... --out <dir> [--comfy http://127.0.0.1:8188] [--wait-ms 1800000] [--ckpt depth_anything_v2_vitl.pth]
 
 v3.0 45 B floor probe. Sends each background to ComfyUI as the product's depth recipe (LoadImage -> Depth Anything V2
 -> PreviewImage), one small job at a time and only while ComfyUI's queue is empty (waits otherwise, never interrupts),
@@ -32,7 +32,7 @@ async function waitIdle(comfy: string, deadline: number): Promise<number> {
   }
 }
 
-async function measure(files: string[], out: string, comfy: string, waitMs: number) {
+async function measure(files: string[], out: string, comfy: string, waitMs: number, model = DEPTH_MODEL) {
   await mkdir(out, { recursive: true });
   const rows: Array<Record<string, unknown>> = [];
   for (const file of files) {
@@ -43,7 +43,7 @@ async function measure(files: string[], out: string, comfy: string, waitMs: numb
     form.set('subfolder', 'story-orchestrator');
     form.set('overwrite', 'true');
     const uploaded = await json(`${comfy}/upload/image`, { method: 'POST', body: form });
-    const graph = depthGraph(`story-orchestrator/${uploaded.name}`);
+    const graph = depthGraph(`story-orchestrator/${uploaded.name}`, model);
     const started = Date.now();
     const { prompt_id: id } = await json(`${comfy}/prompt`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ prompt: graph, client_id: randomUUID() }) });
     let item: any;
@@ -57,7 +57,7 @@ async function measure(files: string[], out: string, comfy: string, waitMs: numb
     rows.push({ file: basename(file), ms, waitedMs: waited, depth: target });
     console.log(`${basename(file)}: ${ms} ms`);
   }
-  const report = { model: DEPTH_MODEL, measuredAt: new Date().toISOString(), rows, floorMs: 10_000, pass: rows.every((row) => (row.ms as number) <= 10_000) };
+  const report = { model, measuredAt: new Date().toISOString(), rows, floorMs: 10_000, pass: rows.every((row) => (row.ms as number) <= 10_000) };
   await writeFile(join(out, 'depth-measure.json'), JSON.stringify(report, null, 2));
   console.log(JSON.stringify({ pass: report.pass, ms: rows.map((row) => row.ms) }));
 }
@@ -65,4 +65,4 @@ async function measure(files: string[], out: string, comfy: string, waitMs: numb
 const [command, ...rest] = process.argv.slice(2);
 if (command !== 'measure') { console.log(USAGE); process.exit(command ? 1 : 0); }
 const files = rest.filter((value, index) => !value.startsWith('--') && !rest[index - 1]?.startsWith('--')).map((file) => resolve(file));
-await measure(files, resolve(arg('--out', 'depth-out')), arg('--comfy', 'http://127.0.0.1:8188').replace(/\/$/, ''), Number(arg('--wait-ms', '1800000')));
+await measure(files, resolve(arg('--out', 'depth-out')), arg('--comfy', 'http://127.0.0.1:8188').replace(/\/$/, ''), Number(arg('--wait-ms', '1800000')), { ...DEPTH_MODEL, ckpt: arg('--ckpt', DEPTH_MODEL.ckpt) });
