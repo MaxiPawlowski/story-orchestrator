@@ -1284,6 +1284,22 @@
     "src/runtime/wiring/talk.ts#armSwipeContrast": {
       "status": "local",
       "note": "v3.0 31 S2: caches the lazily loaded swipe-contrast host after the chunk import; the stop flag is checked after the await. The arm itself runs synchronously inside the interceptor, in the chat that is generating. Tests: runtime/swipeContrast.test.ts."
+    },
+    "src/sprites/showcase/AnimatedCharacterDemo.tsx#AnimatedCharacterDemo>anonymous": {
+      "status": "partial",
+      "note": "Guide-site demo page (not in the extension bundle): the look loader sets state only while its effect is live (cleared on character or look change); a live flag, no RunToken, since the page has no chat or store. Tests: sprites/showcase/demoFrames.test.ts."
+    },
+    "src/sprites/showcase/AnimatedCharacterDemo.tsx#loadExpressions": {
+      "status": "local",
+      "note": "Guide-site demo: returns patched data URLs built in canvases allocated by this call; the caller's live check decides whether they land."
+    },
+    "src/sprites/showcase/AnimatedCharacterDemo.tsx#patchedArt": {
+      "status": "local",
+      "note": "Guide-site demo: draws into two canvases created inside this call and returns a data URL; nothing reaches a chat, a store or the host."
+    },
+    "src/sprites/showcase/demoEntry.tsx#start": {
+      "status": "local",
+      "note": "Guide-site demo boot: renders into its own #demo-root once after fetching demo.json; runs once per page load, no ST host on that page."
     }
   }
 }

@@ -1,0 +1,21 @@
+{
+  "build": "3da6a4689c6f98cc41bc2b4810a3905f3e1da6ea",
+  "licence": "Qwen-Image-2512: Apache-2.0 (https://huggingface.co/Qwen/Qwen-Image-2512). Cut-out: BiRefNet toonout via ComfyUI-RMBG. Output: synthetic, SFW, made for this guide.",
+  "source": "scripts/docs/demo-art.py on the owner's local ComfyUI (plan 46 W4)",
+  "use": "live-head bust (the rig is built from these exact bytes)",
+  "kind": "look",
+  "member": "SO-Demo June",
+  "look": "oilskin",
+  "prompt": "a young woman lighthouse apprentice wearing a bright yellow hooded oilskin raincoat buttoned over a cream sweater, red scarf at the collar, brown trousers, boots. clean anime visual novel character art, soft cel shading, crisp line art, full body, standing, facing the viewer, plain light grey studio background, even lighting",
+  "seed": 4108,
+  "denoise": 0.85,
+  "model": {
+    "unet": "qwen_image_2512_fp8_e4m3fn.safetensors",
+    "clip": "qwen_2.5_vl_7b_fp8_scaled.safetensors",
+    "vae": "qwen_image_vae.safetensors"
+  },
+  "steps": 30,
+  "cfg": 4.0,
+  "sampler": "euler/simple",
+  "built": "2026-11-08T10:09:48Z"
+}
