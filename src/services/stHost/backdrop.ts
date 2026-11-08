@@ -50,7 +50,7 @@ export const chatColumnRect = (): { left: number; right: number } | null => {
 
 export const chatTextLuminance = (): number | null => {
   if (typeof document === "undefined" || typeof getComputedStyle !== "function") return null;
-  const text = document.querySelector("#chat .mes_text") ?? document.getElementById("chat");
+  const text = document.getElementById("chat");
   const color = text ? parseCssColor(getComputedStyle(text).color) : null;
   return color ? relativeLuminance(...color) : null;
 };

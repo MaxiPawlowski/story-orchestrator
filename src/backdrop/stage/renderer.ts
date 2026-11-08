@@ -3,6 +3,7 @@ import { registeredLayer } from "./registry";
 import { BASE_FS, DIM_FS, QUAD_VS } from "./shaders";
 import { coverTransform, type Cover } from "./cover";
 import { BACKDROP_VERTEX_SHADER } from "./vertex";
+import { log } from "@utils/log";
 
 export type BaseSource = HTMLImageElement | HTMLVideoElement;
 
@@ -133,7 +134,7 @@ export class BackdropRenderer {
   setPlaying(playing: boolean): void {
     for (const slot of [this.current, this.previous]) {
       if (!(slot?.source instanceof HTMLVideoElement)) continue;
-      if (playing) void slot.source.play().catch(() => undefined); else slot.source.pause();
+      if (playing) void slot.source.play().catch((error: unknown) => log.warn("The backdrop loop could not resume", error)); else slot.source.pause();
     }
   }
 

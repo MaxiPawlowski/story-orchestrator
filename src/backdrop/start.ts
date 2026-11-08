@@ -49,7 +49,7 @@ const loadVideo = (url: string): Promise<HTMLVideoElement> => new Promise((resol
   video.loop = true;
   video.playsInline = true;
   video.preload = "auto";
-  const refused = (error: unknown) => { video.removeAttribute("src"); video.load(); reject(error instanceof Error ? error : new Error(String(error))); };
+  const refused = (error: unknown) => { video.removeAttribute("src"); video.load(); reject(error); };
   video.oncanplay = () => { video.oncanplay = null; video.play().then(() => resolve(video), refused); };
   video.onerror = () => reject(new Error(`could not load ${url}`));
   video.src = url;

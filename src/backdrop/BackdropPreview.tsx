@@ -5,6 +5,7 @@ import { registerBuiltInLayers } from "./stage/layers";
 import { defaultBackdropSettings } from "./settings";
 import type { BackdropSettings } from "./types";
 import type { BackdropEffect } from "@engine/backdropSchema";
+import { sceneStill } from "./previewStill";
 
 export interface BackdropPreviewProps {
   values: Record<string, unknown>;
@@ -14,29 +15,6 @@ export interface BackdropPreviewProps {
   sceneKey?: string;
   onView?: (view: BackdropView) => void;
 }
-
-export const sceneStill = (): string => {
-  const canvas = document.createElement("canvas");
-  canvas.width = 640;
-  canvas.height = 360;
-  const context = canvas.getContext("2d");
-  if (!context) return "";
-  const sky = context.createLinearGradient(0, 0, 0, 220);
-  sky.addColorStop(0, "#2b4a78");
-  sky.addColorStop(1, "#d9a46b");
-  context.fillStyle = sky;
-  context.fillRect(0, 0, 640, 220);
-  context.fillStyle = "#2d3b2a";
-  context.beginPath();
-  context.moveTo(0, 220);
-  for (let x = 0; x <= 640; x += 40) context.lineTo(x, 200 - ((x * 37) % 60));
-  context.lineTo(640, 360);
-  context.lineTo(0, 360);
-  context.fill();
-  context.fillStyle = "#3a5f7a";
-  context.fillRect(0, 290, 640, 70);
-  return canvas.toDataURL("image/png");
-};
 
 const loadImage = (url: string): Promise<HTMLImageElement> => new Promise((resolve, reject) => {
   const image = new Image();
@@ -95,9 +73,9 @@ export const BackdropPreview = ({ values, effect, settings, reducedMotion = fals
     return () => clearTimeout(timer);
   }, [controller, values, effect, settings, reducedMotion, onView]);
   return (
-    <div ref={box} data-so="backdrop-preview" style={{ position: "relative", width: "100%", maxWidth: 960, aspectRatio: "16 / 9", background: "#000" }}>
+    <div ref={box} data-so="backdrop-preview" style={{ position: "relative", width: "100%", maxWidth: 960, aspectRatio: "16 / 9" }}>
       <canvas ref={canvasRef} style={{ width: "100%", height: "100%", display: "block", transition: "opacity 400ms" }} />
-      {error && <p role="alert" style={{ position: "absolute", inset: 0, margin: 0, padding: 8, color: "#fff" }}>{error}</p>}
+      {error && <p role="alert" style={{ position: "absolute", inset: 0, margin: 0, padding: 8, color: "var(--so-text)" }}>{error}</p>}
     </div>
   );
 };
