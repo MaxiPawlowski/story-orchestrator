@@ -268,8 +268,12 @@ Product:
   shadow. Growth stays above the landmark's lowest point (it leaked onto the cheek below the eye in a first pass). Rigs
   must be rebuilt to pick up the refined contour; old rigs keep the old cut.
 - P2 **Talking barely shows** (C+S). Mesh mouth is capped at 15% open (`mouthConfig.mesh.openMax`), about 4 px on these
-  busts, and the shader paints a procedural mouth over whatever is drawn there (June's teeth, Tobin's moustache). Not
-  fixed: needs drawn mouth frames for the demo characters or an owner call on the cap. Open item.
+  busts, and the shader paints a procedural mouth over whatever is drawn there (June's teeth, Tobin's moustache). Owner
+  decision 2026-11-08: drawn mouth frames per character. The product path already exists (frames `talk/talk2/mouth_o/
+  mouth_wide/blink` in the sprite set, `drawn.ts` cuts aligned patches with an edge-drift check, `DrawnDirector`
+  crossfades them from the lip-sync level, the mesh warp stays the fallback without frames). Demo: `demo-art.py frames`
+  (built, unrun, GPU queue), the page passes a look's frames, `?frames=placeholder` exercises it with frames synthesised
+  from the rig; `showcase/demoFrames.test.ts` shows placeholder frames accepted on all four looks.
 - P3 **Vertical gaze overshoots** (C+S). Fixed 4.2 px travel with no vertical limit, 25% of a 17 px eye: white crescents,
   iris leaving the opening. Fix: travel = 10% of the opening height, at most the old 4.2 px (`gaze.ts` `gazeTravelY`);
   18% and 12% still doubled the iris under the lid shade on a downward look.
@@ -280,11 +284,12 @@ Product:
 - P6 **Expression switch during a fade snaps** (S, confirmed by reading). The interrupted fade restarted from the target
   that was barely on screen. Fix: start from the look that is mostly visible.
 - P7 **Close shot rendered at DPR 1.5 at most** (C+S). Phones (DPR 3) get half the device resolution. Fix: cap 2.
-- P8 Open: expressions are cut with the neutral eye geometry (S #5); a repaint that narrows the eyes blinks against the
-  old contour (Tobin `angry_hold` shows boxed eye regions). Needs per-expression eye fitting or a repaint that keeps the
-  eyes; demo prompts now keep them.
-- P9 Open: gesture eye closures clamp at 0.5 (`MOTION_TUNE.eyeFloor`), so giggle/no/greet squint instead of closing (S).
-  Kept: the floor hid broken closures; revisit after P1 on real art.
+- P8 **Expressions were cut with the neutral eye geometry** (S #5): a repaint that narrows or redraws the eyes blinked
+  against the old contour (Tobin `angry_hold` boxed eyes, June oilskin `happy_hold` smears). Fix: an expression eye
+  that is squinted or repainted (over 35% of the opening changed) stays in the base untouched, no lid and no gaze
+  (`expressions.ts` `repaintedEye`, `freezeEye`). Per-expression eye fitting remains possible later.
+- P9 **Gesture eye closures clamped at half** (S): `MOTION_TUNE.eyeFloor` 0.5 turned giggle/no/greet into squints.
+  Fix: floor 0 now that the eye cut (P1) closes cleanly.
 - P10 Open: while an expression texture shows, gestures drop their face tracks (happy + giggle loses the squint, S).
   Design: the texture owns the face. Same for "textured while loading" (S #16, a test asserts it).
 - P11 Kept by design: the eye-hole fill leaves the eye region's border pixels in the base (S #9). Filling them (tried)
