@@ -25,7 +25,8 @@ export type Grade = [number, number, number];
 
 export const gradeFor = (time: string | null, weather: string | null): Grade => {
   const light = time === "night" ? { saturation: 0.72, keep: 1 } : time === "dusk" ? { saturation: 0.92, keep: 0.5 } : { saturation: 1, keep: 0 };
-  const sky = weather === "storm" ? { saturation: 0.62, contrast: 0.88 } : weather === "rain" || weather === "fog" || weather === "snow" ? { saturation: 0.8, contrast: 0.93 } : { saturation: 1, contrast: 1 };
+  const wet = weather === "rain" || weather === "fog" || weather === "snow";
+  const sky = weather === "storm" ? { saturation: 0.62, contrast: 0.88 } : wet ? { saturation: 0.8, contrast: 0.93 } : { saturation: 1, contrast: 1 };
   return [light.saturation * sky.saturation, sky.contrast, light.keep];
 };
 

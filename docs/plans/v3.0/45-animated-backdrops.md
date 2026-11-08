@@ -72,6 +72,80 @@ Fallback order, always: loop → still + layers → still → ST's own backgroun
   (screenshot pair).
 - C: one 4-5 s loop ≤ 5 min on the 3090; seam invisible in a blind 5-clip check (Sol or owner); cache hit replays instantly.
 
+## Review 2026-11-08 (stage)
+
+Independent audit of the stage (a2 74e3f81de) with B's parallax/depthFog merged in (review worktree `C:\dev\so-45-review`, branch `v3.0-45-review`).
+Method: a harness bundling the real `src/backdrop` stage (esbuild, scratchpad only) driven by Playwright on the 3090 (ANGLE D3D11) with a deterministic
+60 fps clock; 17 scenes x 1080p (DPR 1) and phone (390x844, DPR 3), 3 s each; frame metrics (changed pixels, phase-correlation global shift and its
+frame-to-frame jitter, luma steps); a real-time headed run for fps and main-thread CPU. B's synthetic showcase stills as bases.
+Second opinion: codex `gpt-6.1-sol`, read-only: a blind shader/code review and a blind visual review (frames + metrics), then a re-review of the fixes.
+Found-by: C = Claude, SC = Sol code review, SV = Sol visual review.
+
+Contract changes from this review: `BackdropFrame.time`/`dt` are seconds; `BackdropLayer.modifyBase(frame)` feeds the one base composite (depth, fog, ripple)
+instead of `replacesBase`; `BackdropLayer.fps` (30 or 60) sets the draw rate; `BackdropLayerContext.bindScene(program, camera, unit)` binds the base, its cover,
+the camera and the chat quiet band for layers that sample the scene; `BackdropFrame.grade` (saturation, contrast, kept practical lights).
+
+Ranked findings (defect; evidence; root cause; fix; found by):
+
+1. Parallax shakes the whole picture. Before: lake 3.18 px/frame mean shift with 6.23 px frame-to-frame jitter (direction flips every frame), library 2.79/5.45,
+   phone lake 5.96 px max. Cause: the contract never said the unit of `BackdropFrame.time`/`dt`; A passed ms, B read seconds, so the 38 s drift ran at 26 Hz,
+   easing snapped (dt 16.7 "s"), depth-fog noise ran 1000x. Fix: contract says seconds, B eases with a 1.1 s half-life. C, SC1, SV1.
+2. Depth arriving changed the whole picture. Parallax `replacesBase` drew the raw texture: night tint (R +61 %), vignette, drift camera and the crossfade vanished;
+   shimmer then drew a second, undisplaced copy over it; depth fog sampled undisplaced depth. Fix: one base composite (`BASE_FS`): camera, parallax (24 steps +
+   6 binary refinement, shift scaled by cover), ripple, depth fog, crossfade, grade, vignette; B's layers are `modifyBase` modifiers. C, SC2/6/7, SV2/3.
+3. Shimmer invisible or wrong. Before 0 changed px; mask sampled in screen space (on phone only 31.6 % of the mask width is visible), the no-mask fallback warped
+   the bottom 30 % of any screen, sine bands under 1 px. Fix: mask in image space after parallax, noise ripples (~2.4 CSS px, finer toward the horizon), `sky`/`water`
+   need the scene mask, `none` = faint heat haze. C, SC7, SV6/7.
+4. Most effects invisible at defaults: changed px > 6 per frame rain 0.15 %, fireflies / indoor dust / firelight / wind / fog ~0 %, embers 0.008 %.
+   Causes: 1.2 px quads, low alpha and counts, emitters in screen space. Fixes in 5, 9, 10. C, SV4/11/12/13.
+5. Rain looked like broken scratches. Streak axis tilted against travel (slope 0.034 vs -0.107), bright end trailing, 18-36 px streaks vs up to 48 px/frame travel
+   in storms (dashes strobe), sub-2 px width aliasing. Fix: axis from pixel velocity, length >= travel per 1/38 s, near/far depth (z^2), min-width AA with
+   coverage, colour lifted from the local scene, quieter inside the chat column. C, SC14, SV8.
+6. Speed applied as `time * speed`: any tension or speed change teleported every particle (at 60 s, tension 0 -> 1 jumped 30 s of motion); tension also sped the
+   weather up. Fix: per-layer integrated phase with eased rate; tension no longer changes speed (vignette + amount only). C, SC9.
+7. Depth fog: on every depth-mapped still (clear day 7.7-16 % opacity), a fixed pale colour that glows at night, drawn over the particles, density never updated,
+   left `SRC_ALPHA` blending on. Fix: in the base pass (under particles), off indoors, 0.07 in clear air, tinted and lit by the scene's own low mip, linear-light
+   mix, density updates. C, SC16/28/32, SV4.
+8. Weather and night only multiplied RGB: storm and night stills stayed sunny. Fix: eased grade (saturation, contrast) per weather/time, stronger storm darkening,
+   warm practical lights kept at night. SV5 (C partly).
+9. Lightning and firelight. The storm "flash" was a constant bottom glow that a flash actually dimmed, fired at t = 0, mode keyed to colour `#c8d8ff` and frozen at
+   construction; firelight had an 11 Hz component and a fixed bottom-centre blob. Fix: `lightning` param, 1-3 strokes with exponential decay, idle zero, every
+   7-20 s; firelight a slow signed flicker weighted by lit areas. C, SC11/12, SV9/10.
+10. Particles detached from the scene: embers rose from the bottom edge everywhere; fireflies on any outdoor night (city, sea, snow) and teleported ~594 px via
+    `fract`; dust everywhere. Fix: embers spawn on warm bright spots of the still (fire, candles; 7 % ambient), dust only where lit, fireflies only on clear nights
+    in green places, bounded paths, halo sprites. C, SC21, SV11/12.
+11. Popping at screen edges and on intensity changes (`fract` wrap on the visible edge; counts changed instantly; floor at 0.01). Fix: spawn margins, per-particle
+    keep threshold against an eased density, intensity eased (1.2 s), zero means none. C, SC23, SV.
+12. Precision and undefined GLSL: `mediump` time/hash (62 ms steps after 64 s on FP16 GPUs), sin hash, reversed `smoothstep(1.0, 0.2, d)`. Fix: highp, PCG integer
+    hash, quintic gradient noise. SC8/22, C.
+13. Fog read as a static blotchy veil (value noise), 8-bit banding, light-grey colour washing night scenes. Fix: warped gradient-noise fbm at two speeds, colour from
+    the scene's low mip, dither. C, SV14.
+14. The dim behind the chat over-darkened and showed a seam: the 4.5:1 solve assumed linear attenuation of an sRGB blend (0.60 where 0.51 suffices at L 0.79),
+    sampled the uncropped image by mean, hard 4 % edge on smooth skies. Fix: solve in display gamma, cover-aware sample (bright quarter + mean), falloff outside the
+    column. C, SC17, SV18.
+15. Soft, crawling stills: drift zoom up to 1.04 even at intensity 0, no mipmaps. Fix: reach 0.009 x intensity (zoom <= 1.021), mipmapped bases. C, SC20/23.
+16. Crossfades mixed in sRGB (dip), a third base mid-fade popped, reduced motion left the old scene up. Fix: linear-light eased mix, keep the more visible slot,
+    instant swap under reduced motion. SC3/6/13.
+17. Layers kept stale assets (a mask arriving after the shimmer layer was built was never used); the texture cache only grew. Fix: an asset change rebuilds layers,
+    unused textures are freed, failed loads retry. SC4/33.
+18. Async loads: re-selecting the shown base did not cancel a pending one (wrong scene later), a failed still left the old canvas up, a refused `play()` gave a
+    frozen "loop". Fix: load generation reset, deactivate on failure, `loadVideo` awaits `play()`. SC10/29/30.
+19. No `webglcontextlost` handling (blank canvas while active). Fix: lost = deactivate without GL calls, restored = rebuild. C, SC5.
+20. Hidden tab: time jumped by the whole absence, videos kept playing. Fix: animation clock advances by clamped dt, videos pause while hidden. SC19.
+21. Pointer: touch scrolling tilted the parallax on phones, last tilt stuck after leaving, 1.8 % tilt while reading. Fix: mouse only, reset on leave/blur,
+    tilt 0.45 x strength 0.012, Y flipped at the GL boundary. C, SC27.
+22. Selection: "late afternoon" read as night, substring interiors ("shallow" -> hall, "mushroom" -> room, "lighthouse"/"greenhouse" -> house), wind = invisible
+    slow dust. Fix: word tokens, exterior words win, wind = sideways streaked dust. C, SC25, SV15.
+23. Pacing and cost: drift-only scenes ran rAF at 60 fps for ~1 px/s; the 12.67 ms limiter gives 45 fps at 90 Hz. Fix: layers declare `fps`; drift, fog,
+    flicker, depth fog 30; particles, parallax, shimmer 60. C, SC18.
+
+Open (not fixed here):
+- Host background fit/position/filter are ignored (always centred cover); a phone portrait crops a landscape still to its centre (no focal point). SC26, SV17.
+- Wind moves nothing in the picture (no foliage/water masks); stills painted in daylight still read as daylight under rain (needs lit variants). SV5/15.
+- Particles and overlays still blend in display gamma (only the base pass is linear); 90/144 Hz displays still halve the cadence.
+- Phase C's cinemagraph (`so-45c`) reads `frame.time` (now seconds, as it assumed) but samples the base without camera/parallax: it should become a `modifyBase` ripple.
+- No DPR-change listener beyond `resize`; dark-text themes only ever get a darker scrim.
+
 ## Gate record
 
 (per phase, appended by each agent)

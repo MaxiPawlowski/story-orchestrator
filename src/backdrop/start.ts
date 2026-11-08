@@ -1,6 +1,7 @@
 import type { RuntimeManager } from "@runtime/runtimeManager";
 import {
-  backdropReducedMotion, chatColumnRect, chatTextLuminance, hostIsGenerating, mountBackdropRoot, onPageVisibility, pageHidden, readBackdropStill, setBackdropFlags, unmountBackdropRoot, watchBackdropStill,
+  backdropReducedMotion, chatColumnRect, chatTextLuminance, hostIsGenerating, mountBackdropRoot, onPageVisibility, pageHidden, readBackdropStill, setBackdropFlags,
+  unmountBackdropRoot, watchBackdropStill,
 } from "@services/stHost/backdrop";
 import { BackdropController, type BackdropHost, type BackdropOverride, type BackdropSources } from "./stage/controller";
 import { BackdropRenderer } from "./stage/renderer";
@@ -47,7 +48,8 @@ const loadVideo = (url: string): Promise<HTMLVideoElement> => new Promise((resol
   video.loop = true;
   video.playsInline = true;
   video.preload = "auto";
-  video.oncanplay = () => { video.oncanplay = null; video.play().then(() => resolve(video), (error: unknown) => { video.removeAttribute("src"); video.load(); reject(error instanceof Error ? error : new Error(String(error))); }); };
+  const refused = (error: unknown) => { video.removeAttribute("src"); video.load(); reject(error instanceof Error ? error : new Error(String(error))); };
+  video.oncanplay = () => { video.oncanplay = null; video.play().then(() => resolve(video), refused); };
   video.onerror = () => reject(new Error(`could not load ${url}`));
   video.src = url;
 });
@@ -77,7 +79,8 @@ const browserHost: BackdropHost = {
   viewport: () => ({ width: window.innerWidth, height: window.innerHeight, dpr: window.devicePixelRatio || 1 }),
   onResize: (listener) => { window.addEventListener("resize", listener, { passive: true }); return () => window.removeEventListener("resize", listener); },
   onPointer: (listener) => {
-    const move = (event: PointerEvent) => event.pointerType !== "mouse" ? undefined : listener((event.clientX / Math.max(1, window.innerWidth)) * 2 - 1, (event.clientY / Math.max(1, window.innerHeight)) * 2 - 1);
+    const move = (event: PointerEvent) => event.pointerType !== "mouse" ? undefined
+      : listener((event.clientX / Math.max(1, window.innerWidth)) * 2 - 1, (event.clientY / Math.max(1, window.innerHeight)) * 2 - 1);
     const leave = (event: MouseEvent) => { if (!event.relatedTarget) listener(0, 0); };
     const blur = () => listener(0, 0);
     window.addEventListener("pointermove", move, { passive: true });

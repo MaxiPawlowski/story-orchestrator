@@ -182,7 +182,7 @@ const shimmer = (context: BackdropLayerContext, initial: BackdropLayerSpec): Bac
     modifyBase: (frame): BackdropBaseModifier | null => {
       const time = phase.advance(frame.dt, tune.speed);
       if (!mask && channel !== "all") return null;
-      const amount = (channel === "water" ? 2.4 : 1.6) * Math.min(1.5, 0.5 + tune.intensity * frame.intensity * 1.5);
+      const amount = (channel === "water" ? 3.2 : 1.6) * Math.min(1.5, 0.5 + tune.intensity * frame.intensity * 1.5);
       return { ripple: { texture: channel === "all" ? null : mask, channel, amount, time } };
     },
     draw: () => undefined,
