@@ -1,4 +1,4 @@
-import type { ComfyGraph } from "./graph";
+import type { ComfyGraph } from "../../image/graph";
 
 export interface DepthModel { id: string; ckpt: string; resolution: number; version: number }
 

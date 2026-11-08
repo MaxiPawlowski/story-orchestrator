@@ -1,4 +1,4 @@
-import { DEPTH_MODEL, type DepthModel } from "../../image/depthGraph";
+import { DEPTH_MODEL, type DepthModel } from "./graph";
 
 export { DEPTH_MODEL, type DepthModel };
 export const DEPTH_FOLDER = "so-backdrop-depth";

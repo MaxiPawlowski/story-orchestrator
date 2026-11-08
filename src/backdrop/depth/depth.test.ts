@@ -2,7 +2,7 @@ import { DepthCache, MAX_FAILURES, RETRY_MS, type DepthDeps } from "./cache";
 import { depthCacheKey, depthPath, uploadSize, DEPTH_MODEL } from "./key";
 import { farThreshold, sceneMask, skyMask } from "./mask";
 import { cameraOffset, clampStrength, easeToward, fogDensity, MAX_STRENGTH, PARALLAX, sampleUv } from "./parallax";
-import { depthGraph } from "../../image/depthGraph";
+import { depthGraph } from "./graph";
 
 const HASH = "a".repeat(64);
 const OTHER = "b".repeat(64);

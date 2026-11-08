@@ -6,7 +6,7 @@ import { sha256Hex } from "@utils/sha256";
 import { abortableSleep } from "@utils/leaseWait";
 import { log } from "@utils/log";
 import { ImageQueue } from "../../image/queue";
-import { depthGraph } from "../../image/depthGraph";
+import { depthGraph } from "./graph";
 import { hostGenerating, leaseOutsideTurns, waitForTextPriority } from "../../sprites/builder/textPriority";
 import { DepthCache, type DepthDeps } from "./cache";
 import { DEPTH_FOLDER, DEPTH_MODEL, uploadSize } from "./key";

@@ -1,7 +1,7 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { randomUUID } from 'node:crypto';
-import { DEPTH_MODEL, depthGraph } from '../../src/image/depthGraph.ts';
+import { DEPTH_MODEL, depthGraph } from '../../src/backdrop/depth/graph.ts';
 
 const USAGE = `Usage: node scripts/debug/so-showcase-backdrops.mts generate --out <dir> [--comfy http://127.0.0.1:8188] [--only <id>]
        node scripts/debug/so-showcase-backdrops.mts depth --out <dir> [--comfy http://127.0.0.1:8188] [--only <id>]
