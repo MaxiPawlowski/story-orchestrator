@@ -1,0 +1,6 @@
+{
+  "build": "f7bf963b618bce27d565f606d13a59d9165359ea",
+  "licence": "Screenshot of this repository's live-head demo page; art as listed in LICENSES.md (Qwen-Image-2512, Apache-2.0).",
+  "source": "scripts/docs/demo-still.mjs (headless Chromium, SwiftShader WebGL)",
+  "member": "SO-Demo Wren"
+}

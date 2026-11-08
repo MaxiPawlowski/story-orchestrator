@@ -7,7 +7,7 @@ import { restHead } from "./drivers";
 import { syntheticBust } from "./synthesis/syntheticBust";
 import { synthesizeRig } from "./synthesis/rigGeometry";
 import { cutHeadLayers } from "./synthesis/layers";
-import { eyeTone, FALLBACK_SCLERA, gazeLimits, gazeOffset, interior, irisSpan, irisWeight, renderOpenBall, scleraTone, slideBall, type GazeMode, type Rgba, type Tone } from "./gaze";
+import { eyeTone, FALLBACK_SCLERA, gazeLimits, gazeOffset, interior, irisSpan, irisWeight, renderOpenBall, scleraTone, slideBall, type GazeMode, type Rgba, type Tone, gazeTravelY, GAZE_TRAVEL } from "./gaze";
 import { FS } from "./shaders";
 import { HeadRenderer } from "./renderer";
 import { syntheticHead } from "./synthetic";
@@ -250,5 +250,14 @@ describe("live head gaze keeps the iris round", () => {
     expect(plate[3]).toBe(1);
     class Broken { getContext() { throw new Error("tainted"); } }
     expect(draw(Broken)).toEqual([]);
+  });
+});
+
+describe("vertical gaze travel", () => {
+  const eye = (height: number): Eye => ({ opening: [], roi: [], x0: 0, x1: 24, top: Array(24).fill(10), bot: Array(24).fill(10 + height) });
+  test("is a share of the eye opening, never more than the old fixed travel", () => {
+    expect(gazeTravelY(eye(10))).toBeCloseTo(1.8, 6);
+    expect(gazeTravelY(eye(100))).toBe(GAZE_TRAVEL.y);
+    expect(gazeTravelY(eye(0))).toBe(0);
   });
 });

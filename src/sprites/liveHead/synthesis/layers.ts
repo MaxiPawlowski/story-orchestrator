@@ -92,6 +92,15 @@ function eyeMasks(image: PixelImage, eye: Eye, rect: Rect) {
     else if (upper) masks.lash[k] = 1;
     else masks.low[k] = 1;
   }
+  for (const part of ["lash", "low"] as const) {
+    const mask = masks[part], grown = new Uint8Array(mask);
+    for (let k = 0; k < count; k++) {
+      if (mask[k] || opening[k] || ball[k] || masks.crease[k] || masks.lash[k] || masks.low[k] || image.data[at(k % rw, Math.floor(k / rw)) + 3] === 0) continue;
+      const x = k % rw, y = Math.floor(k / rw);
+      if ((x > 0 && mask[k - 1]) || (x < rw - 1 && mask[k + 1]) || (y > 0 && mask[k - rw]) || (y < rh - 1 && mask[k + rw])) grown[k] = 1;
+    }
+    masks[part] = grown;
+  }
   return { masks, skin: skin.colour };
 }
 

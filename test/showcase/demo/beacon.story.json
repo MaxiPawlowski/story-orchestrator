@@ -1,0 +1,439 @@
+{
+  "id": "so-demo-beacon",
+  "title": "SO Demo: The Beacon on the Hill",
+  "description": "An original, synthetic three-character demo for the guide site: talk pacing, a stuck-player lead, minimum turns, in-chat elements, scene backgrounds and a look change. No campaign content.",
+  "display": {
+    "motion": true
+  },
+  "player": {
+    "role": "A traveller who missed the last coach and took the afternoon ferry instead",
+    "summary": "You came across the bay on the old ferry. The signal beacon on the hill above the town is meant to be lit before nightfall, and nobody can find the key."
+  },
+  "roster": [
+    {
+      "id": "tobin",
+      "name": "SO-Demo Tobin",
+      "role": "An old ferryman who knows every rock in the bay and says little",
+      "sprites": {
+        "pose": "stand_arms_crossed",
+        "poses": [
+          "stand_relaxed",
+          "stand_lean",
+          "point",
+          "sit_edge"
+        ]
+      }
+    },
+    {
+      "id": "june",
+      "name": "SO-Demo June",
+      "role": "The beacon keeper's cheerful apprentice, left in charge tonight",
+      "sprites": {
+        "pose": "stand_hands_hips",
+        "poses": [
+          "stand_relaxed",
+          "wave",
+          "reach_up",
+          "sit_cross_legged"
+        ]
+      },
+      "card": {
+        "fields": {
+          "outfit": {
+            "quality": "june_outfit",
+            "visual": true
+          }
+        }
+      }
+    },
+    {
+      "id": "wren",
+      "name": "SO-Demo Wren",
+      "role": "A travelling cartographer mapping the hills, calm and observant",
+      "sprites": {
+        "pose": "stand_attention",
+        "poses": [
+          "stand_relaxed",
+          "stand_hands_behind",
+          "point",
+          "sit_floor"
+        ]
+      }
+    }
+  ],
+  "requirements": {
+    "members": [
+      "SO-Demo Tobin",
+      "SO-Demo June",
+      "SO-Demo Wren"
+    ]
+  },
+  "talk_defaults": {
+    "profile": "conversation"
+  },
+  "qualities": [
+    {
+      "key": "at_keepers_house",
+      "type": "bool",
+      "source": "extractor",
+      "rubric": "Has the group walked up from the quay and gone inside the keeper's house?"
+    },
+    {
+      "key": "key_found",
+      "type": "bool",
+      "source": "extractor",
+      "rubric": "Has someone found the brass key to the beacon?"
+    },
+    {
+      "key": "beacon_lit",
+      "type": "bool",
+      "source": "extractor",
+      "rubric": "Is the signal beacon on the hill burning?"
+    },
+    {
+      "key": "june_outfit",
+      "type": "string",
+      "source": "extractor",
+      "rubric": "What is June wearing right now? Answer with a short clothing description."
+    }
+  ],
+  "codex": {
+    "people": [
+      {
+        "id": "june",
+        "member": "june",
+        "facts": [
+          {
+            "id": "apprentice",
+            "text": "Apprentice to the beacon keeper, in charge for the night.",
+            "known_when": "start"
+          },
+          {
+            "id": "key",
+            "text": "Lost the beacon key somewhere in the keeper's house this afternoon.",
+            "known_when": {
+              "reached": "study"
+            }
+          }
+        ]
+      },
+      {
+        "id": "tobin",
+        "member": "tobin",
+        "facts": [
+          {
+            "id": "ferry",
+            "text": "Runs the evening ferry across the bay.",
+            "known_when": "start"
+          }
+        ]
+      }
+    ],
+    "places": [
+      {
+        "id": "beacon",
+        "name": "The hill beacon",
+        "facts": [
+          {
+            "id": "dark",
+            "text": "It must be lit by nightfall so the boats can find the harbour.",
+            "known_when": "start"
+          },
+          {
+            "id": "path",
+            "text": "The only way up is the old forest path, and the mist comes down fast.",
+            "known_when": {
+              "reached": "path"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "checkpoints": [
+    {
+      "id": "harbour",
+      "name": "The quay in the afternoon",
+      "player_name": "The quay",
+      "type": "anchor",
+      "start": true,
+      "objective": "Tobin lands the ferry, June runs down the quay asking for help, and the group heads up to the keeper's house.",
+      "illustrate": false,
+      "tension_target": "stirring",
+      "talk_control": {
+        "lead": "SO-Demo Tobin",
+        "speakers": [
+          {
+            "member": "SO-Demo Tobin"
+          },
+          {
+            "member": "SO-Demo June"
+          },
+          {
+            "member": "SO-Demo Wren"
+          }
+        ],
+        "director": true,
+        "profile": "opening"
+      },
+      "effects": {
+        "background": "so-demo-harbor-town-afternoon.jpg",
+        "stage": {
+          "framing": "close",
+          "cast": {
+            "tobin": {
+              "pose": "stand_relaxed",
+              "face": "neutral"
+            },
+            "june": {
+              "pose": "wave",
+              "face": "worried"
+            },
+            "wren": {
+              "pose": "stand_relaxed",
+              "face": "neutral"
+            }
+          }
+        },
+        "npc_replies": [
+          {
+            "trigger": "onEnter",
+            "kind": "scripted",
+            "member": "SO-Demo Tobin",
+            "text": "*loops the rope round the bollard and nods at the girl running down the quay* That's the keeper's apprentice. Something's wrong.",
+            "new_chat_only": true
+          }
+        ]
+      },
+      "offers": [
+        {
+          "id": "ask-june",
+          "text": "I ask June what has gone wrong."
+        },
+        {
+          "id": "walk-up",
+          "text": "I pick up my bag and follow June up to the keeper's house."
+        }
+      ]
+    },
+    {
+      "id": "study",
+      "name": "The keeper's study",
+      "player_name": "The study",
+      "type": "anchor",
+      "objective": "In the keeper's book-lined study the group searches for the lost beacon key while the evening draws in.",
+      "illustrate": false,
+      "tension_target": "tense",
+      "min_turns": 3,
+      "stuck_after": 2,
+      "leads": [
+        "a draught from the chimney rattles a loose board by the hearth, and something metal clinks under it",
+        "Wren notices fresh scuff marks leading to the tall bookcase by the window",
+        "June remembers she took her gloves off by the fireplace when she came in"
+      ],
+      "talk_control": {
+        "lead": "SO-Demo June",
+        "speakers": [
+          {
+            "member": "SO-Demo June"
+          },
+          {
+            "member": "SO-Demo Wren"
+          },
+          {
+            "member": "SO-Demo Tobin"
+          }
+        ],
+        "director": true,
+        "profile": "conversation"
+      },
+      "effects": {
+        "background": "so-demo-library-fireplace-night.jpg",
+        "stage": {
+          "framing": "thigh",
+          "cast": {
+            "tobin": {
+              "pose": "stand_lean",
+              "face": "neutral"
+            },
+            "june": {
+              "pose": "stand_relaxed",
+              "face": "worried"
+            },
+            "wren": {
+              "pose": "stand_hands_behind",
+              "face": "neutral"
+            }
+          }
+        },
+        "npc_replies": [
+          {
+            "trigger": "onEnter",
+            "kind": "scripted",
+            "member": "SO-Demo June",
+            "text": "*pats every pocket twice* It was right here when I came in. The beacon key. It's a big brass thing, you can't miss it. Unless I did."
+          }
+        ]
+      },
+      "offers": [
+        {
+          "id": "search-hearth",
+          "text": "I search around the fireplace, board by board."
+        },
+        {
+          "id": "ask-wren",
+          "text": "I ask Wren what she has noticed."
+        },
+        {
+          "id": "retrace",
+          "text": "I ask June to walk me through every step she took."
+        }
+      ]
+    },
+    {
+      "id": "path",
+      "name": "The forest path in the mist",
+      "player_name": "The forest path",
+      "type": "anchor",
+      "objective": "With the key found, the group climbs the forest path through thickening mist to reach the beacon before dark and light it.",
+      "illustrate": false,
+      "tension_target": "critical",
+      "min_turns": 2,
+      "talk_control": {
+        "lead": "SO-Demo June",
+        "speakers": [
+          {
+            "member": "SO-Demo June"
+          },
+          {
+            "member": "SO-Demo Tobin"
+          },
+          {
+            "member": "SO-Demo Wren"
+          }
+        ],
+        "director": true,
+        "profile": "action"
+      },
+      "effects": {
+        "background": "so-demo-forest-path-mist.jpg",
+        "stage": {
+          "framing": "full",
+          "spotlight": "june",
+          "cast": {
+            "tobin": {
+              "pose": "point",
+              "face": "angry"
+            },
+            "june": {
+              "pose": "reach_up",
+              "face": "worried"
+            },
+            "wren": {
+              "pose": "point",
+              "face": "worried"
+            }
+          }
+        },
+        "card": {
+          "june": {
+            "outfit": "a yellow oilskin raincoat over her sweater"
+          }
+        },
+        "npc_replies": [
+          {
+            "trigger": "onEnter",
+            "kind": "scripted",
+            "member": "SO-Demo June",
+            "text": "*drags a yellow oilskin out of her pack and shrugs it on as the mist beads on everything* Right. Up the path, key in the lock, oil, flame. Somebody keep the lantern steady!"
+          }
+        ]
+      }
+    },
+    {
+      "id": "dawn",
+      "name": "Dawn by the lake",
+      "player_name": "Morning",
+      "type": "anchor",
+      "objective": "The night has passed and the beacon held. The group rests by the mountain lake below the hill as the sun comes up.",
+      "illustrate": false,
+      "tension_target": "calm",
+      "talk_control": {
+        "lead": "SO-Demo Wren",
+        "speakers": [
+          {
+            "member": "SO-Demo Wren"
+          },
+          {
+            "member": "SO-Demo June"
+          },
+          {
+            "member": "SO-Demo Tobin"
+          }
+        ],
+        "director": true,
+        "profile": "aftermath"
+      },
+      "effects": {
+        "background": "so-demo-mountain-lake-dawn.jpg",
+        "stage": {
+          "framing": "thigh",
+          "cast": {
+            "tobin": {
+              "pose": "sit_edge",
+              "face": "happy"
+            },
+            "june": {
+              "pose": "sit_cross_legged",
+              "face": "happy"
+            },
+            "wren": {
+              "pose": "sit_floor",
+              "face": "happy"
+            }
+          }
+        },
+        "npc_replies": [
+          {
+            "trigger": "onEnter",
+            "kind": "scripted",
+            "member": "SO-Demo Wren",
+            "text": "*sits down in the wet grass by the water and unrolls her map* I'm marking that beacon in ink now. It earned it."
+          }
+        ]
+      }
+    }
+  ],
+  "transitions": [
+    {
+      "from": "harbour",
+      "to": "study",
+      "priority": 1,
+      "gate": {
+        "q": "at_keepers_house",
+        "op": "==",
+        "v": true
+      }
+    },
+    {
+      "from": "study",
+      "to": "path",
+      "priority": 1,
+      "gate": {
+        "q": "key_found",
+        "op": "==",
+        "v": true
+      }
+    },
+    {
+      "from": "path",
+      "to": "dawn",
+      "priority": 1,
+      "gate": {
+        "q": "beacon_lit",
+        "op": "==",
+        "v": true
+      }
+    }
+  ]
+}
