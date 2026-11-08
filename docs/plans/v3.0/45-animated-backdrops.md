@@ -219,3 +219,11 @@ Before -> after (deterministic 60 fps captures, same scenes and clock; 1080p unl
 - Parallax floor: visibly correct on 5 ST stock + 4 showcase scenes in a standalone WebGL harness (screenshot pairs: foreground moves against background, no edge stretch). Live check on A's real stage still owed.
 - Masks after coordinator review: sky stops at the ridge (mountain-lake-dawn sky 33.5% -> 17.7%), harbour water 7.2% -> 19.4%.
 - Next: merge master once A lands; boot `startDepth(() => settings.parallax)` from A's stage; check `coverTransform` and pointer range; feature row, settings copy, guide for `display.backdrop.parallax`; contract bullet for the mask format; gates:quick; lane 53 live check with a cached depth map (upload via the lane's `/api/images/upload`); full `npm run gates`; merge, push, stage, plugins:install (media plugin changed, restart needed).
+
+### Resume 2026-11-08 (paused by the owner, after the B gates run)
+- Merged: a2 into master at 139f454b9 (`--no-ff`, gates green 494.4 s on 99db222c2, no `--resume`). Master NOT pushed (push denied by the auto-mode classifier); not staged, not installed.
+- B head 0c5954eed (a2 + master 139f454b9 + B). Full gates via the heavy lock: RED. test:replay green; `npm run test` 1 fail; `test-storybook:ci` 1 fail. Log `.build/gates-b.log`.
+  - `src/image/discovery.test.ts` (plan 32 W2 guard: no model file literal in src/image): hit `src/image/depthGraph.ts` (B's depth graph names its weights file). Fix: move the name to a config/model source, or derive it, as plan 32 does for other models.
+  - `StudioGuideDialog.stories.tsx` ScrollsToTheTopicEveryOpen: dialog "Guide" not found. Not B code; check whether it fails on master too (likely flake under load) before touching it.
+- Next: fix the two, re-gate B through the lock (merge master first if it moved, no `--resume`), merge B `--no-ff`, push (owner OK needed), then `npm run build && npm run stage && npm run plugins:install` via the lock. ST :8000 stays down; it needs a restart for the media plugin.
+- C (loops agent abf91b2f6fe6405d2) was told the contract is on master (seconds, flow modifier, BACKDROP_BOOT_HOOKS, codeHealth, `loop:false`).
