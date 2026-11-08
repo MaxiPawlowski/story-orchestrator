@@ -131,3 +131,17 @@ with full gates (one at a time machine-wide) and deploys through the existing wo
 - **Local deny list**: `node scripts/docs/site-check.mjs --deny-from <campaign build dir>` writes card names to the
   gitignored `.guide-deny.txt`; `SO_SITE_DENY_FILE` points elsewhere. Hits print as `deny-list term #n`, never the term.
   CI scans patterns only.
+
+## Resume (W2/W3/W6, paused 2026-11-08 on the owner's usage limit)
+
+- State: branch `v3.0-46-site` (worktree `C:\dev\so-46-site`), not merged. W2/W3/W6 built. `node --test scripts/docs/*.test.mjs`
+  36/36 green; `npm run gates:quick` green; local Storybook build plus `site-check` show 0 broken links, 0 pages over budget,
+  0 pattern hits. The 9 Mermaid diagrams parse on mermaid 11.4.1 and render in dark mode.
+- Full `npm run gates` was not run: the one attempt crashed at start (git exec failed, 0xC0000142 under machine load), so no
+  steps ran.
+- Next: run `npm run gates` once (one at a time machine-wide), merge to master, push, then check `gh run list --workflow guide-pages.yml -L 3`
+  and that the live site has `/ui/`, `how/` and `showcase/`.
+- Local deny-list hits remaining (not fixable here): shipped code `src/studio/components/TalkControlEditor.tsx` (placeholder
+  names) and `src/runtime/effectLedger.ts` (main bundle, untouched); the author guide example in `docs/authoring/story-guide.md`
+  (W1/author scope); and the common word "grant". Story fixtures were renamed to neutral names. The owner decides whether the
+  remaining names are campaign names or coincidences.
