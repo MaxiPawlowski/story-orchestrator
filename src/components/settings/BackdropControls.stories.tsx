@@ -26,9 +26,13 @@ export const AllOn: Story = {
     const canvas = within(canvasElement);
     const effects = canvasElement.querySelector<HTMLButtonElement>("#so-backdrop-effects");
     await expect(effects?.getAttribute("aria-checked")).toBe("true");
-    await userEvent.click(canvas.getByRole("radio", { name: "Full" }));
+    const strength = within(canvas.getByRole("radiogroup", { name: "Backdrop strength" }));
+    await userEvent.click(strength.getByRole("radio", { name: "Full" }));
     await expect(args.writeInstall).toHaveBeenCalledWith({ intensity: 1 });
-    await expect(canvas.getByRole("radio", { name: "Full" }).getAttribute("aria-checked")).toBe("true");
+    await expect(strength.getByRole("radio", { name: "Full" }).getAttribute("aria-checked")).toBe("true");
+    const moving = within(canvas.getByRole("radiogroup", { name: "Moving backgrounds" }));
+    await userEvent.click(moving.getByRole("radio", { name: "Still motion" }));
+    await expect(args.writeInstall).toHaveBeenCalledWith({ loops: "cinemagraph" });
   },
 };
 
