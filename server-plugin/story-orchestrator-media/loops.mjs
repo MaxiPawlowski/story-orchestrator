@@ -5,7 +5,7 @@ import { ComfyJobs } from './jobs.mjs';
 
 export const LOOP_NODES = Object.freeze(['UNETLoader', 'CLIPLoader', 'VAELoader', 'ModelSamplingSD3', 'CLIPTextEncode', 'LoadImage',
     'Wan22ImageToVideoLatent', 'RepeatImageBatch', 'VAEEncode', 'LatentCut', 'ReplaceVideoLatentFrames', 'EmptyImage', 'ImageBatch', 'ImageToMask',
-    'SetLatentNoiseMask', 'KSampler', 'VAEDecode', 'ImageFromBatch', 'ColorTransfer', 'CreateVideo', 'SaveVideo', 'SaveAnimatedWEBP']);
+    'SetLatentNoiseMask', 'KSampler', 'VAEDecode', 'ImageFromBatch', 'ImageBlend', 'ColorTransfer', 'CreateVideo', 'SaveVideo', 'SaveAnimatedWEBP']);
 export const LOOP_FOLDER = 'story-orchestrator-loops';
 export const LOOP_MAX_BYTES = 16 * 1024 * 1024;
 const KEY = /^[a-f0-9]{32}$/;

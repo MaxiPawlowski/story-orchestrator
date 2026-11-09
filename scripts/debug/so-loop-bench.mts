@@ -1,11 +1,34 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
-import { buildLoopGraph, centerCrop, fitShape, LOOP_SHAPES, type LoopShape, type VideoTier } from "../../src/backdrop/loops/workflow.ts";
+import { buildLoopGraph, centerCrop, fitShape, LOOP_MODEL, LOOP_SHAPES, loopModelFiles, type LoopShape, type VideoTier } from "../../src/backdrop/loops/workflow.ts";
 import { loopPrompt } from "../../src/backdrop/loops/prompt.ts";
 import { debugDirFor } from "./lib/connection.mts";
 
 const COMFY = process.env.SO_COMFY_URL ?? "http://127.0.0.1:8188";
+const CONTROLLER = process.env.SO_CONTROLLER_URL ?? "http://127.0.0.1:18888";
+const LEASE_GPU_MIB = Number(process.env.SO_LEASE_GPU_MIB ?? 18_000);
+const LEASE_RAM_MIB = Number(process.env.SO_LEASE_RAM_MIB ?? 12_000);
+
+async function controller(route: string, body: unknown): Promise<Record<string, unknown>> {
+  const response = await fetch(`${CONTROLLER}${route}`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body), signal: AbortSignal.timeout(900_000) });
+  const data = await response.json().catch(() => ({})) as Record<string, unknown>;
+  if (!response.ok) throw new Error(`controller ${route} ${response.status}: ${JSON.stringify(data).slice(0, 400)}`);
+  return data;
+}
+
+async function leaseWhenFree(body: unknown): Promise<Record<string, unknown>> {
+  const until = Date.now() + Number(process.env.SO_LEASE_MINUTES ?? 120) * 60_000;
+  for (;;) {
+    try { return await controller("/lease", body); }
+    catch (error) {
+      if (!/ (409|503):|TimeoutError|aborted/i.test(String(error)) || Date.now() > until) throw error;
+      console.error(`lease waiting: ${String(error).slice(0, 200)}`);
+      await new Promise((resolve) => setTimeout(resolve, 30_000));
+    }
+  }
+}
+
 const SEAM_W = 240;
 const SEAM_H = 136;
 
@@ -70,7 +93,7 @@ function imageSize(file: string): { width: number; height: number } {
   return { width: width || 0, height: height || 0 };
 }
 
-async function run(image: string, label: string, cold: boolean, tier: VideoTier) {
+async function run(image: string, label: string, cold: boolean, tier: VideoTier, lease: boolean) {
   const out = path.join(debugDirFor(process.env), "loop-bench");
   await fs.mkdir(out, { recursive: true });
   await waitEmpty();
@@ -84,14 +107,22 @@ async function run(image: string, label: string, cold: boolean, tier: VideoTier)
   const uploaded = await (await fetch(`${COMFY}/upload/image`, { method: "POST", body: form })).json();
   const prompt = loopPrompt(path.basename(image));
   const graph = buildLoopGraph({ image: uploaded.name, prompt, key: `bench${label}`, seed: 42, shape });
+  const leaseStarted = Date.now();
+  const granted = lease ? await leaseWhenFree({ workflowKey: JSON.stringify({ recipe: "backdrop-loop", model: LOOP_MODEL.id, tier, frames: shape.frames }),
+    needGpuMiB: LEASE_GPU_MIB, needRamMiB: LEASE_RAM_MIB, ...(process.env.SO_LEASE_MODEL_FILES === "1" ? { modelFiles: loopModelFiles() } : {}), width: shape.width, height: shape.height, hires: false }) : null;
+  const waitedMs = Date.now() - leaseStarted;
   const started = Date.now();
-  const queued = await (await fetch(`${COMFY}/prompt`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ prompt: graph }) })).json();
-  if (!queued.prompt_id) throw new Error(JSON.stringify(queued));
   let item;
-  for (;;) {
-    await new Promise((resolve) => setTimeout(resolve, 3000));
-    const history = await (await fetch(`${COMFY}/history/${queued.prompt_id}`)).json();
-    if (history[queued.prompt_id]) { item = history[queued.prompt_id]; break; }
+  try {
+    const queued = await (await fetch(`${COMFY}/prompt`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ prompt: graph }) })).json();
+    if (!queued.prompt_id) throw new Error(JSON.stringify(queued));
+    for (;;) {
+      await new Promise((resolve) => setTimeout(resolve, 3000));
+      const history = await (await fetch(`${COMFY}/history/${queued.prompt_id}`)).json();
+      if (history[queued.prompt_id]) { item = history[queued.prompt_id]; break; }
+    }
+  } finally {
+    if (granted?.lease) await controller("/release", { lease: granted.lease });
   }
   const ms = Date.now() - started;
   if (item.status?.status_str === "error") throw new Error(JSON.stringify(item.status).slice(0, 2000));
@@ -106,7 +137,7 @@ async function run(image: string, label: string, cold: boolean, tier: VideoTier)
   const still = outputs.find((entry) => entry.filename.endsWith(".webp"));
   const webp = still ? await fetchOut(still) : null;
   if (webp) await fs.writeFile(path.join(out, `${label}.webp`), webp);
-  const record = { label, tier, image: path.basename(image), cold, ms, seconds: Math.round(ms / 1000), bytes: bytes.length, webpBytes: webp?.length ?? null, shape, prompt, file, seam: seam(file), still: stillStats(grayFrames(file), grayFrames(prepared)) };
+  const record = { label, tier, image: path.basename(image), cold, lease: granted ? { waitedMs, decision: granted.decision ?? null } : null, ms, seconds: Math.round(ms / 1000), bytes: bytes.length, webpBytes: webp?.length ?? null, shape, prompt, file, seam: seam(file), still: stillStats(grayFrames(file), grayFrames(prepared)) };
   await fs.appendFile(path.join(out, "runs.jsonl"), `${JSON.stringify(record)}\n`);
   console.log(JSON.stringify(record));
 }
@@ -116,7 +147,7 @@ if (import.meta.url === `file:///${process.argv[1]?.replace(/\\/g, "/")}`) {
   const flag = (name: string) => rest.includes(name);
   const option = (name: string) => { const index = rest.indexOf(name); return index >= 0 ? rest[index + 1] : undefined; };
   const tier = option("--tier") === "lite" ? "lite" : "full";
-  if (command === "run" && target) await run(target, option("--label") ?? `${tier}_${path.basename(target).replace(/\W+/g, "_")}`, flag("--cold"), tier);
+  if (command === "run" && target) await run(target, option("--label") ?? `${tier}_${path.basename(target).replace(/\W+/g, "_")}`, flag("--cold"), tier, flag("--lease"));
   else if (command === "seam" && target) console.log(JSON.stringify(seam(target)));
-  else { console.log("usage: so-loop-bench.mts run <still> [--tier lite|full] [--label x] [--cold] | seam <loop.mp4>"); process.exit(1); }
+  else { console.log("usage: so-loop-bench.mts run <still> [--tier lite|full] [--label x] [--cold] [--lease] | seam <loop.mp4>"); process.exit(1); }
 }

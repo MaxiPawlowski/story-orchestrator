@@ -6,9 +6,9 @@ export const LOOP_MODEL = Object.freeze({
 });
 
 export const LOOP_PROMPT_VERSION = 2;
-export const LOOP_RECIPE_VERSION = 2;
+export const LOOP_RECIPE_VERSION = 3;
 
-export interface LoopShape { width: number; height: number; frames: number; fps: number; steps: number; cfg: number; shift: number; crf: number; webp?: number }
+export interface LoopShape { width: number; height: number; frames: number; fps: number; steps: number; cfg: number; shift: number; crf: number; settle: number; webp?: number }
 
 export const LOOP_TIERS = ["off", "cinemagraph", "lite", "full"] as const;
 export type LoopTier = (typeof LOOP_TIERS)[number];
@@ -17,8 +17,8 @@ export type VideoTier = Extract<LoopTier, "lite" | "full">;
 export const LOOP_ANCHOR_FRAMES = 4;
 
 export const LOOP_SHAPES: Readonly<Record<VideoTier, Readonly<LoopShape>>> = Object.freeze({
-  full: Object.freeze({ width: 896, height: 512, frames: 113, fps: 24, steps: 20, cfg: 5, shift: 8, crf: 23 }),
-  lite: Object.freeze({ width: 672, height: 384, frames: 29, fps: 12, steps: 16, cfg: 5, shift: 8, crf: 24, webp: 90 }),
+  full: Object.freeze({ width: 896, height: 512, frames: 113, fps: 24, steps: 20, cfg: 5, shift: 8, crf: 23, settle: 8 }),
+  lite: Object.freeze({ width: 672, height: 384, frames: 29, fps: 12, steps: 16, cfg: 5, shift: 8, crf: 24, settle: 4, webp: 90 }),
 });
 
 export const LOOP_SHAPE: Readonly<LoopShape> = LOOP_SHAPES.full;
@@ -51,7 +51,7 @@ export const LOOP_NEGATIVE = "camera movement, zoom, pan, camera shake, scene ch
 
 export const LOOP_NODES: readonly string[] = Object.freeze(["UNETLoader", "CLIPLoader", "VAELoader", "ModelSamplingSD3", "CLIPTextEncode", "LoadImage",
   "Wan22ImageToVideoLatent", "RepeatImageBatch", "VAEEncode", "LatentCut", "ReplaceVideoLatentFrames", "EmptyImage", "ImageBatch", "ImageToMask",
-  "SetLatentNoiseMask", "KSampler", "VAEDecode", "ImageFromBatch", "ColorTransfer", "CreateVideo", "SaveVideo", "SaveAnimatedWEBP"]);
+  "SetLatentNoiseMask", "KSampler", "VAEDecode", "ImageFromBatch", "ImageBlend", "ColorTransfer", "CreateVideo", "SaveVideo", "SaveAnimatedWEBP"]);
 
 export const loopPrefix = (key: string): string => `so_loop_${key.replace(/[^a-z0-9]/gi, "").slice(0, 40).toLowerCase()}`;
 
@@ -71,6 +71,7 @@ export interface LoopGraphInput { image: string; prompt: string; key: string; se
 
 export function buildLoopGraph({ image, prompt, key, seed, shape = LOOP_SHAPE, negative = LOOP_NEGATIVE }: LoopGraphInput): Record<string, Node> {
   if (shape.frames % 4 !== 1 || shape.frames < 4 * LOOP_ANCHOR_FRAMES + 1) throw new Error("Wan wants 4n+1 frames, at least 17.");
+  if (shape.settle < 1 || shape.settle * 2 > loopFrames(shape)) throw new Error("The settle must be at least one frame and at most half the loop.");
   const latentFrames = (shape.frames - 1) / 4 + 1;
   const solid = (batch: number, color: number): Node => ({ class_type: "EmptyImage", inputs: { width: 8, height: 8, batch_size: batch, color } });
   const graph: Record<string, Node> = {
@@ -96,12 +97,21 @@ export function buildLoopGraph({ image, prompt, key, seed, shape = LOOP_SHAPE, n
     sample: { class_type: "KSampler", inputs: { model: ["sampling", 0], seed, steps: shape.steps, cfg: shape.cfg, sampler_name: "uni_pc", scheduler: "simple",
       positive: ["positive", 0], negative: ["negative", 0], latent_image: ["masked", 0], denoise: 1 } },
     frames: { class_type: "VAEDecode", inputs: { samples: ["sample", 0], vae: ["vae", 0] } },
-    loop: { class_type: "ImageFromBatch", inputs: { image: ["frames", 0], batch_index: 0, length: loopFrames(shape) } },
-    graded: { class_type: "ColorTransfer", inputs: { image_target: ["loop", 0], image_ref: ["still", 0], method: "reinhard_lab", source_stats: "uniform", strength: 1 } },
+    first: { class_type: "ImageFromBatch", inputs: { image: ["frames", 0], batch_index: 0, length: 1 } },
+    loop: { class_type: "ImageFromBatch", inputs: { image: ["frames", 0], batch_index: 0, length: loopFrames(shape) - shape.settle } },
+    graded: { class_type: "ColorTransfer", inputs: { image_target: [`settled${shape.settle - 1}`, 0], image_ref: ["still", 0], method: "reinhard_lab", source_stats: "uniform", strength: 1 } },
     video: { class_type: "CreateVideo", inputs: { images: ["graded", 0], fps: shape.fps, bit_depth: 8, color_space: "sRGB" } },
     save: { class_type: "SaveVideo", inputs: { video: ["video", 0], filename_prefix: loopPrefix(key), format: "mp4", "format.codec": "h264",
       "format.codec.encoding": "re-encode", "format.codec.encoding.crf": shape.crf } },
   };
+  let joined: [string, number] = ["loop", 0];
+  for (let index = 0; index < shape.settle; index += 1) {
+    graph[`tail${index}`] = { class_type: "ImageFromBatch", inputs: { image: ["frames", 0], batch_index: loopFrames(shape) - shape.settle + index, length: 1 } };
+    graph[`toward${index}`] = { class_type: "ImageBlend", inputs: { image1: [`tail${index}`, 0], image2: ["first", 0],
+      blend_factor: Math.round(((index + 1) / (shape.settle + 1)) * 1000) / 1000, blend_mode: "normal" } };
+    graph[`settled${index}`] = { class_type: "ImageBatch", inputs: { image1: joined, image2: [`toward${index}`, 0] } };
+    joined = [`settled${index}`, 0];
+  }
   if (shape.webp) {
     graph.still_loop = { class_type: "SaveAnimatedWEBP",
       inputs: { images: ["graded", 0], filename_prefix: loopPrefix(key), fps: shape.fps, lossless: false, quality: shape.webp, method: "slowest" } };
