@@ -1,6 +1,6 @@
 # v3.0 48 — Quest resolutions and consequences
 
-Status 2026-11-08: IN BUILD (branch `v3.0-48-resolutions`). Source: owner conversation with Astra 2026-11-08 (summary kept outside the repo),
+Status 2026-11-08: BUILT, merged to local master (not pushed); live gates owed (lane scenario, real-model journey, Sol rating). Source: owner conversation with Astra 2026-11-08 (summary kept outside the repo),
 reviewed against master `1aaa7ca09`. Second opinion: codex `gpt-6.1-sol` (§Second opinion). Plans 49-55 build on this one.
 
 ## Owner decisions 2026-11-08
@@ -324,3 +324,37 @@ Rejected: none.
 - Should `hold_when_ambiguous` exist at all, or is precedence enough?
 - Does a story-format feature need an off switch (owner rule says yes; the off behaviour above is a compromise)?
 - Replace `quest_<id>_rewarded` outright (cleaner, restarts live chats), or keep it as an alias?
+
+
+## Gate record (2026-11-08)
+
+- Full gates, run 6 (via the heavy lock, no `--resume`, Storybook included), on `3450f0849` (branch with local master
+  `e5a1c61f8` merged): `npm run gates -- --jobs=2` -> `gates: all green in 390.7s` (test:replay 92.9s, test 202.4s,
+  test-storybook:ci 297.0s, build 14.4s, typecheck 33.6s, test:debug 30.4s, typecheck:test 29.7s, lint 27.5s,
+  debug:typecheck 9.5s, test:release 6.1s, test:plugin 21.4s). Main bundle 1,249,929 B of 1,300,000.
+- After it, only docs: local master `81e98eb06` (plan 52 record) and these gate records.
+- `npm run gates:quick` (via the lock) on `e45b1340f`: typecheck 74.9s, typecheck:test 90.8s, lint 29.1s, jest related 165.9s,
+  replay `--cached` 90.9s, all ok.
+- Red runs before it, each fixed and rerun in full:
+  - run 1: `errorCopy.guard` (two simulator sites missing from `test/findings/errorCopy.json`); Storybook
+    `QuestResolutionsPanel` (fixture did not validate; precedence field ate commas while typing).
+  - run 2: Storybook, the fixture's `trust` meter needed `min`/`max`.
+  - run 3: lint, the story's `render` called a hook (now a `FirstQuest` component).
+  - run 4: stopped in the lock queue (master moved). Run 5: `test:release` suite coverage, `quest-resolutions` and
+    `story-record` had no plan 24 matrix row (added to `docs/plans/v2.8/24-test-plan.md`).
+- Docs: `npm run docs:guide`, `npm run docs:settings` after each master merge.
+- Deviations:
+  - Extraction still reads the resolution keys while the switch is off (the engine ignores them; the read is unchanged).
+  - A held quest (`hold_when_ambiguous`) raises the author check `quest-resolution-ambiguous`; there is no journal line.
+  - The Studio resolution table shows no "off" state when the switch is off.
+  - `done` and `failed` stay in every quest's `closed` enum (coordinator approved): the pinned campaign gates
+    `in [done, failed]` on quests without `failed_when`.
+- Owed (not run; ST and lanes down, GPU paused):
+  - no-model lane scenario `test/scenarios/v30-48-resolutions.json`, ×2;
+  - real-model journey `test/journeys/quest-resolutions.journey.json`, ×2, archived;
+  - Sol reflection rating (floors in the journey).
+- Adolion (counts only): 62 quests in 11 stories, 1 `failed_when`, 0 rewards; all 62 validate with no edit; live campaign
+  chats need Restart (key shape). Which quests could gain resolutions: content review by another model.
+- Open questions for the owner:
+  - Should the switch off also stop extraction reading resolution keys?
+  - Should a held quest also get a journal line?
