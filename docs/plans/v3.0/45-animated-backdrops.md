@@ -310,6 +310,39 @@ anchored graph has never run on ComfyUI (node inputs checked against `/object_in
 stills with `so-loop-bench.mts run <still> --tier full|lite`, rebuild the GIF from the new lite frames, re-audit, fresh Sol pass,
 then fill the loop rows of the before/after above; live ST check of the cinemagraph clock and the MP4 base swap.
 
+### Loops review: GPU results (2026-11-09)
+
+Rendered on the local ComfyUI (core nodes only) through controller leases (`so-loop-bench.mts --lease`), one job at a time, beside two
+text lanes; evidence `C:\dev\so-lanes\0\debug\loop-review\v3\`, `render-v3.log`, `sol/v3-answer.txt`.
+
+- First real run of the anchored graph: it ran, but the end did not converge on the pinned still (mountain lite: frame 24 MAE 6.8 vs
+  still, wrap step 6.5 against a mean step 1.1). Fix: the last frames are blended onto frame 0 before the wrap (`settle`: 8 full, 4 lite,
+  `ImageBlend` back in the allowlist, recipe version 3). Re-rendered all four.
+- Render cost (3090): full 192-199 s, lite 88-108 s of ComfyUI time; lease waits 2 min to 76 min, all on host RAM with the text lanes
+  running (the controller swapped text out for the full renders).
+- Before -> after (colour MAE 0-255 vs the still cover-cropped to the clip; old = pre-review files, new = re-renders):
+  - mountain full: frame 0 5.22 -> 3.35; mean 5.77 -> 5.17; max 6.39 -> 6.55; wrap 0.34 (crossfade, ghosted) -> 2.68 (no ghost).
+  - harbor full: frame 0 9.62 -> 4.98; mean 9.26 -> 9.46; max 12.54 -> 14.84; wrap 0.62 -> 4.58 (equal to its largest interior step).
+  - mountain lite WebP: frame 0 5.28 -> 2.76; mean 6.54 -> 3.65; max 7.88 -> 5.70; step 2.66 -> 1.73; wrap 2.40 -> 2.16.
+  - harbor lite WebP: frame 0 8.87 -> 4.65; mean 11.73 -> 6.34; max 16.56 -> 9.85; step 4.95 -> 3.40; wrap 4.42 -> 3.26.
+  - GIF: 384x219 -> 672x384 (lite size), full-stats palette, ordered dither; mean 7.53 -> 4.86 vs the still; 1.46 MB.
+  - Cinemagraphs re-rendered on the final constants (softer, area-varying ripple): mean 3.11 harbor (was 4.21), 2.03 mountain (was 3.23).
+- Browser check (lane 70, images on, no text model, the branch bundle frozen on the lane): the showcase still as ST's background, B's
+  showcase depth map in the lane's depth cache, mask built in the page; the stage ran `parallax, depthFog, cinemagraph, drift` with no
+  console errors; frame-to-frame change over 0.5 s: water 1.4-1.6, sky 0.33-0.38, a static band 0.18-0.23 (the flow modifier animates
+  inside the base shader). With the full MP4 placed in the lane's loop cache under the key the page computes, the base swapped to
+  `kind: "video"` at once, the cinemagraph dropped out, the video played and its framing matched the still's.
+- Sol on the re-renders: no high-severity defect, no morphing, no hard loop cut; medium: model softening of fine detail (worst at
+  full screen from 896 px), harbor water reflections redrawn rather than rippled, GIF dither grain, and the in-browser water ripple
+  read as corrugated (amplitude now halved and varied by area; showcase re-rendered).
+- Found on the way (open, need the owner): the controller's `modelDirs.diffusionModels` lists only `C:/dev/models/diffusion_models`,
+  so a lease that names the Wan files is refused ("not under a configured diffusionModels directory"). The product's loop host sends
+  `modelFiles`, so in managed mode loops are never admitted until `D:/models/story-orchestrator-video/*` is added to the controller
+  config (`C:\dev\tools\story-orchestrator-local\config.json`). The bench leases without model files. The lease RAM need was 18 GB; the
+  admitted renders fit 12 GB, now the host's value.
+- Still open: harbor full mid-loop drift (max 14.8) and its seam equal to the largest interior step; the depth fog and chat dim darken the
+  cinemagraph capture (A/B tuning); softness at full screen (a 1280x704 full tier would cost about twice the time).
+
 ### Loops review: Resume (paused 2026-11-08 by the owner)
 
 - Branch `v3.0-45c-loops` (`C:\dev\so-45c`), master 139f454b9 merged; not merged to master.
