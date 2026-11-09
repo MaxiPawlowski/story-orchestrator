@@ -375,3 +375,25 @@ Re-review 2026-11-08 (after the fixes, Sol `gpt-6.1-sol` on before/after close-u
 - Worse: none established by Sol from stills; the shorter gesture squint (R4) is the trade-off of the P8 change.
 - Evidence (local): `.build/review-2026-11-08/video/{after-desk,after-phone,before-phone}/*.webm`, `focus-final/`,
   `final2-*.png`, `june-giggle-seq.png`, `sol-rereview-final.md`.
+
+Fixes 2026-11-09 (branch `v3.0-46-render`; GPU resumed, renders blocked by the shared GPU):
+- R1 gaze edges, product (`9f1d99abd`): the iris highlight is closed into the iris inside its known span and the outgoing
+  rim is dilated 1 px, so highlight and rim travel with the iris; the still band under the upper lid narrowed
+  (`LID_SHADE` 0.12-0.34 -> 0.02-0.14) and the uncovered fill takes the lid-edge colour there (no white seam). CPU twin in
+  `gaze.ts`. June and Wren clean. Tobin known, partial: his narrow opening is mostly iris, a white wedge shows where the
+  iris leaves; not chased.
+- R3 closed lid, product: lash and lower-lid layers get a soft matte by distance from the skin colour (no stair-stepped
+  fringe), the hole fill shades toward the lash line. Modest on June and Wren; Tobin known, partial (lid still reads
+  pasted). Drawn blink frames are the demo fix, render owed.
+- R4 brief squint: not a product bug. The driver holds the eyes closed 250-1850 ms of a giggle; the real-time after video
+  shows about 1.5 s closed. The headless stills took about 1 s each at about 8 fps and missed it.
+- R2 expressions and R5 mouth: `demo-art.py` now holds one GPU broker lease per ComfyUI job (renew, release;
+  `needGpuMiB` 21000, the broker's own estimate from the model files was 31 GB) and masks expressions to the rig's brows,
+  eyes and mouth. Not rendered: two hours of lease attempts (12:19-14:22) were refused (153 another image batch owns the
+  GPU, 21 insufficient GPU headroom, about 32 host RAM short at 4.4-12.6 GB free against 10.7 + 2 GB). Owed:
+  `demo-art.py expressions --force`, `frames`, `publish`, then sheets and a Sol check.
+- Lane 30 (no model, never lane 0): `so-live-head-check.mts --candidate --rig-template` with June's bust cut by the product
+  code renders her live head in ST; LI3 9/10, LM 5/5, LI4 6/6 pass. LI1, LI3/look and LI6 fail identically with the stock
+  synthetic fixture on the same build: environmental on that lane under load, not these changes.
+- Evidence (local): `.build/review-2026-11-09/` (`gzL-base|r1f`, `gzR-base|r1f`, `gzT-ba`, `gzW-ba`, `lid-ba`,
+  `r4-video-strip`, `lane30-idle`, `exprmasks`), `so-lanes/30/debug/runs/live-head-june-r1/`.
