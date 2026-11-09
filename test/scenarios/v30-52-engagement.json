@@ -1,6 +1,6 @@
 {
   "model": "any",
-  "_note": "v3.0 52 live pacing-engagement row. Arm = install setting pacing.engagement, set before the run (first step records it). Gated scene with stuck_after 3 and three leads; twelve FIXED player lines: a relationship stretch with two questions, then a repeating stretch. Each turn keeps the engagement reading, which guidance the prompt carried (rung lead, information line, aftermath) and the replies, for the blind on/off rating (so-engagement-p52.mts pack/rate). Fixed lines never act on a lead, so turns to exit cannot differ between arms.",
+  "_note": "v3.0 52 live pacing-engagement row. Arm = install setting pacing.engagement, set before the run (first step records it). The 2026-11-09 A/B ran with stagecraft.livingEnabled and branchingEnabled off on the lane for both arms: with them on, the living director branched off the gated scene after three relationship turns and the ladder never acted. Gated scene with stuck_after 3 and three leads; twelve FIXED player lines: a relationship stretch with two questions, then a repeating stretch. Each turn keeps the engagement reading, which guidance the prompt carried (rung lead, information line, aftermath) and the replies, for the blind on/off rating (so-engagement-p52.mts pack/rate). Fixed lines never act on a lead, so turns to exit cannot differ between arms.",
   "requires": {
     "lane": "model",
     "group": "Group: Arin, DM Narrator",
