@@ -1,0 +1,722 @@
+{
+  "kind": "engine-history",
+  "label": "QR",
+  "capturedAt": "2026-11-09T18:33:22.887Z",
+  "chats": [
+    {
+      "chatId": "2026-11-09@13h19m04s307ms",
+      "kind": "group",
+      "source": "page",
+      "blobChatId": "2026-11-09@13h19m04s307ms",
+      "selectedStoryId": "so-v30-48-resolutions",
+      "stories": [
+        {
+          "storyId": "so-v30-48-resolutions",
+          "engineState": {
+            "blackboard": {
+              "values": {
+                "asked": true,
+                "taken": true,
+                "tension_current": 0.15
+              },
+              "versions": {
+                "asked": 1,
+                "taken": 1,
+                "tension_current": 2
+              },
+              "latched": {}
+            },
+            "activeCheckpointId": "mill",
+            "visitedAnchors": [
+              "mill"
+            ],
+            "visitedPath": [
+              "mill"
+            ],
+            "boundary": 8,
+            "checkpointStartedBoundary": 0,
+            "checkpointStartedAt": 1794247618104,
+            "checkpointStartedMessageId": -1,
+            "lastMessageId": 12,
+            "chatLength": 13
+          },
+          "engineHistory": {
+            "from": {
+              "boundary": 0,
+              "messageId": -1
+            },
+            "base": {
+              "blackboard": {
+                "values": {},
+                "versions": {},
+                "latched": {}
+              },
+              "activeCheckpointId": "mill",
+              "visitedAnchors": [
+                "mill"
+              ],
+              "visitedPath": [
+                "mill"
+              ],
+              "boundary": 0,
+              "checkpointStartedBoundary": 0,
+              "checkpointStartedAt": 1794247618104,
+              "checkpointStartedMessageId": -1,
+              "lastMessageId": -1,
+              "chatLength": 0
+            },
+            "log": [
+              {
+                "at": 1794247858782,
+                "boundary": 1,
+                "before": {
+                  "blackboard": {
+                    "values": {},
+                    "versions": {},
+                    "latched": {}
+                  },
+                  "activeCheckpointId": "mill",
+                  "visitedAnchors": [
+                    "mill"
+                  ],
+                  "visitedPath": [
+                    "mill"
+                  ],
+                  "boundary": 0,
+                  "checkpointStartedBoundary": 0,
+                  "checkpointStartedAt": 1794247618104,
+                  "checkpointStartedMessageId": -1,
+                  "lastMessageId": -1,
+                  "chatLength": 0
+                },
+                "after": {
+                  "blackboard": {
+                    "values": {},
+                    "versions": {},
+                    "latched": {}
+                  },
+                  "activeCheckpointId": "mill",
+                  "visitedAnchors": [
+                    "mill"
+                  ],
+                  "visitedPath": [
+                    "mill"
+                  ],
+                  "boundary": 1,
+                  "checkpointStartedBoundary": 0,
+                  "checkpointStartedAt": 1794247618104,
+                  "checkpointStartedMessageId": -1,
+                  "lastMessageId": 1,
+                  "chatLength": 2
+                },
+                "fired": null,
+                "source": "gate",
+                "context": {
+                  "lastMessageId": 1,
+                  "chatLength": 2,
+                  "lastPlayerMessageId": 0
+                },
+                "queue": {
+                  "applied": [],
+                  "discarded": []
+                },
+                "evaluated": {}
+              },
+              {
+                "at": 1794247859232,
+                "boundary": 2,
+                "before": {
+                  "blackboard": {
+                    "values": {},
+                    "versions": {},
+                    "latched": {}
+                  },
+                  "activeCheckpointId": "mill",
+                  "visitedAnchors": [
+                    "mill"
+                  ],
+                  "visitedPath": [
+                    "mill"
+                  ],
+                  "boundary": 1,
+                  "checkpointStartedBoundary": 0,
+                  "checkpointStartedAt": 1794247618104,
+                  "checkpointStartedMessageId": -1,
+                  "lastMessageId": 1,
+                  "chatLength": 2
+                },
+                "after": {
+                  "blackboard": {
+                    "values": {},
+                    "versions": {},
+                    "latched": {}
+                  },
+                  "activeCheckpointId": "mill",
+                  "visitedAnchors": [
+                    "mill"
+                  ],
+                  "visitedPath": [
+                    "mill"
+                  ],
+                  "boundary": 2,
+                  "checkpointStartedBoundary": 0,
+                  "checkpointStartedAt": 1794247618104,
+                  "checkpointStartedMessageId": -1,
+                  "lastMessageId": 2,
+                  "chatLength": 3
+                },
+                "fired": null,
+                "source": "gate",
+                "context": {
+                  "lastMessageId": 2,
+                  "chatLength": 3,
+                  "lastPlayerMessageId": 0
+                },
+                "queue": {
+                  "applied": [],
+                  "discarded": []
+                },
+                "evaluated": {}
+              },
+              {
+                "at": 1794248255902,
+                "boundary": 3,
+                "before": {
+                  "blackboard": {
+                    "values": {},
+                    "versions": {},
+                    "latched": {}
+                  },
+                  "activeCheckpointId": "mill",
+                  "visitedAnchors": [
+                    "mill"
+                  ],
+                  "visitedPath": [
+                    "mill"
+                  ],
+                  "boundary": 2,
+                  "checkpointStartedBoundary": 0,
+                  "checkpointStartedAt": 1794247618104,
+                  "checkpointStartedMessageId": -1,
+                  "lastMessageId": 2,
+                  "chatLength": 3
+                },
+                "after": {
+                  "blackboard": {
+                    "values": {
+                      "asked": true,
+                      "taken": true,
+                      "tension_current": 0
+                    },
+                    "versions": {
+                      "asked": 1,
+                      "taken": 1,
+                      "tension_current": 1
+                    },
+                    "latched": {}
+                  },
+                  "activeCheckpointId": "mill",
+                  "visitedAnchors": [
+                    "mill"
+                  ],
+                  "visitedPath": [
+                    "mill"
+                  ],
+                  "boundary": 3,
+                  "checkpointStartedBoundary": 0,
+                  "checkpointStartedAt": 1794247618104,
+                  "checkpointStartedMessageId": -1,
+                  "lastMessageId": 4,
+                  "chatLength": 5
+                },
+                "fired": null,
+                "source": "gate",
+                "context": {
+                  "lastMessageId": 4,
+                  "chatLength": 5,
+                  "lastPlayerMessageId": 3
+                },
+                "queue": {
+                  "applied": [
+                    {
+                      "source": "extractor",
+                      "origin": "e68bf422",
+                      "blackboardVersionSum": 0,
+                      "turnRange": {
+                        "from": 0,
+                        "to": 2
+                      },
+                      "deltas": [
+                        {
+                          "q": "asked",
+                          "v": true,
+                          "source": "extractor",
+                          "evidenceAt": 0
+                        },
+                        {
+                          "q": "taken",
+                          "v": true,
+                          "source": "extractor",
+                          "evidenceAt": 0
+                        },
+                        {
+                          "q": "tension_current",
+                          "v": 0,
+                          "source": "extractor",
+                          "evidenceAt": 1
+                        }
+                      ],
+                      "tensionLevels": [
+                        "calm"
+                      ],
+                      "outcomes": [
+                        {
+                          "ok": true,
+                          "key": "asked",
+                          "value": true,
+                          "version": 1
+                        },
+                        {
+                          "ok": true,
+                          "key": "taken",
+                          "value": true,
+                          "version": 1
+                        },
+                        {
+                          "ok": true,
+                          "key": "tension_current",
+                          "value": 0,
+                          "version": 1
+                        }
+                      ]
+                    }
+                  ],
+                  "discarded": []
+                },
+                "evaluated": {
+                  "asked": true,
+                  "taken": true,
+                  "tension_current": 0
+                }
+              },
+              {
+                "at": 1794248256424,
+                "boundary": 4,
+                "before": {
+                  "blackboard": {
+                    "values": {
+                      "asked": true,
+                      "taken": true,
+                      "tension_current": 0
+                    },
+                    "versions": {
+                      "asked": 1,
+                      "taken": 1,
+                      "tension_current": 1
+                    },
+                    "latched": {}
+                  },
+                  "activeCheckpointId": "mill",
+                  "visitedAnchors": [
+                    "mill"
+                  ],
+                  "visitedPath": [
+                    "mill"
+                  ],
+                  "boundary": 3,
+                  "checkpointStartedBoundary": 0,
+                  "checkpointStartedAt": 1794247618104,
+                  "checkpointStartedMessageId": -1,
+                  "lastMessageId": 4,
+                  "chatLength": 5
+                },
+                "after": {
+                  "blackboard": {
+                    "values": {
+                      "asked": true,
+                      "taken": true,
+                      "tension_current": 0
+                    },
+                    "versions": {
+                      "asked": 1,
+                      "taken": 1,
+                      "tension_current": 1
+                    },
+                    "latched": {}
+                  },
+                  "activeCheckpointId": "mill",
+                  "visitedAnchors": [
+                    "mill"
+                  ],
+                  "visitedPath": [
+                    "mill"
+                  ],
+                  "boundary": 4,
+                  "checkpointStartedBoundary": 0,
+                  "checkpointStartedAt": 1794247618104,
+                  "checkpointStartedMessageId": -1,
+                  "lastMessageId": 6,
+                  "chatLength": 7
+                },
+                "fired": null,
+                "source": "gate",
+                "context": {
+                  "lastMessageId": 6,
+                  "chatLength": 7,
+                  "lastPlayerMessageId": 3
+                },
+                "queue": {
+                  "applied": [],
+                  "discarded": []
+                },
+                "evaluated": {
+                  "asked": true,
+                  "taken": true,
+                  "tension_current": 0
+                }
+              },
+              {
+                "at": 1794248423652,
+                "boundary": 5,
+                "before": {
+                  "blackboard": {
+                    "values": {
+                      "asked": true,
+                      "taken": true,
+                      "tension_current": 0
+                    },
+                    "versions": {
+                      "asked": 1,
+                      "taken": 1,
+                      "tension_current": 1
+                    },
+                    "latched": {}
+                  },
+                  "activeCheckpointId": "mill",
+                  "visitedAnchors": [
+                    "mill"
+                  ],
+                  "visitedPath": [
+                    "mill"
+                  ],
+                  "boundary": 4,
+                  "checkpointStartedBoundary": 0,
+                  "checkpointStartedAt": 1794247618104,
+                  "checkpointStartedMessageId": -1,
+                  "lastMessageId": 6,
+                  "chatLength": 7
+                },
+                "after": {
+                  "blackboard": {
+                    "values": {
+                      "asked": true,
+                      "taken": true,
+                      "tension_current": 0
+                    },
+                    "versions": {
+                      "asked": 1,
+                      "taken": 1,
+                      "tension_current": 1
+                    },
+                    "latched": {}
+                  },
+                  "activeCheckpointId": "mill",
+                  "visitedAnchors": [
+                    "mill"
+                  ],
+                  "visitedPath": [
+                    "mill"
+                  ],
+                  "boundary": 5,
+                  "checkpointStartedBoundary": 0,
+                  "checkpointStartedAt": 1794247618104,
+                  "checkpointStartedMessageId": -1,
+                  "lastMessageId": 8,
+                  "chatLength": 9
+                },
+                "fired": null,
+                "source": "gate",
+                "context": {
+                  "lastMessageId": 8,
+                  "chatLength": 9,
+                  "lastPlayerMessageId": 7
+                },
+                "queue": {
+                  "applied": [],
+                  "discarded": []
+                },
+                "evaluated": {
+                  "asked": true,
+                  "taken": true,
+                  "tension_current": 0
+                }
+              },
+              {
+                "at": 1794248424049,
+                "boundary": 6,
+                "before": {
+                  "blackboard": {
+                    "values": {
+                      "asked": true,
+                      "taken": true,
+                      "tension_current": 0
+                    },
+                    "versions": {
+                      "asked": 1,
+                      "taken": 1,
+                      "tension_current": 1
+                    },
+                    "latched": {}
+                  },
+                  "activeCheckpointId": "mill",
+                  "visitedAnchors": [
+                    "mill"
+                  ],
+                  "visitedPath": [
+                    "mill"
+                  ],
+                  "boundary": 5,
+                  "checkpointStartedBoundary": 0,
+                  "checkpointStartedAt": 1794247618104,
+                  "checkpointStartedMessageId": -1,
+                  "lastMessageId": 8,
+                  "chatLength": 9
+                },
+                "after": {
+                  "blackboard": {
+                    "values": {
+                      "asked": true,
+                      "taken": true,
+                      "tension_current": 0
+                    },
+                    "versions": {
+                      "asked": 1,
+                      "taken": 1,
+                      "tension_current": 1
+                    },
+                    "latched": {}
+                  },
+                  "activeCheckpointId": "mill",
+                  "visitedAnchors": [
+                    "mill"
+                  ],
+                  "visitedPath": [
+                    "mill"
+                  ],
+                  "boundary": 6,
+                  "checkpointStartedBoundary": 0,
+                  "checkpointStartedAt": 1794247618104,
+                  "checkpointStartedMessageId": -1,
+                  "lastMessageId": 9,
+                  "chatLength": 10
+                },
+                "fired": null,
+                "source": "gate",
+                "context": {
+                  "lastMessageId": 9,
+                  "chatLength": 10,
+                  "lastPlayerMessageId": 7
+                },
+                "queue": {
+                  "applied": [],
+                  "discarded": []
+                },
+                "evaluated": {
+                  "asked": true,
+                  "taken": true,
+                  "tension_current": 0
+                }
+              },
+              {
+                "at": 1794248598524,
+                "boundary": 7,
+                "before": {
+                  "blackboard": {
+                    "values": {
+                      "asked": true,
+                      "taken": true,
+                      "tension_current": 0
+                    },
+                    "versions": {
+                      "asked": 1,
+                      "taken": 1,
+                      "tension_current": 1
+                    },
+                    "latched": {}
+                  },
+                  "activeCheckpointId": "mill",
+                  "visitedAnchors": [
+                    "mill"
+                  ],
+                  "visitedPath": [
+                    "mill"
+                  ],
+                  "boundary": 6,
+                  "checkpointStartedBoundary": 0,
+                  "checkpointStartedAt": 1794247618104,
+                  "checkpointStartedMessageId": -1,
+                  "lastMessageId": 9,
+                  "chatLength": 10
+                },
+                "after": {
+                  "blackboard": {
+                    "values": {
+                      "asked": true,
+                      "taken": true,
+                      "tension_current": 0.15
+                    },
+                    "versions": {
+                      "asked": 1,
+                      "taken": 1,
+                      "tension_current": 2
+                    },
+                    "latched": {}
+                  },
+                  "activeCheckpointId": "mill",
+                  "visitedAnchors": [
+                    "mill"
+                  ],
+                  "visitedPath": [
+                    "mill"
+                  ],
+                  "boundary": 7,
+                  "checkpointStartedBoundary": 0,
+                  "checkpointStartedAt": 1794247618104,
+                  "checkpointStartedMessageId": -1,
+                  "lastMessageId": 11,
+                  "chatLength": 12
+                },
+                "fired": null,
+                "source": "gate",
+                "context": {
+                  "lastMessageId": 11,
+                  "chatLength": 12,
+                  "lastPlayerMessageId": 10
+                },
+                "queue": {
+                  "applied": [
+                    {
+                      "source": "extractor",
+                      "origin": "852f5496",
+                      "blackboardVersionSum": 3,
+                      "turnRange": {
+                        "from": 3,
+                        "to": 6
+                      },
+                      "deltas": [
+                        {
+                          "q": "tension_current",
+                          "v": 0.15,
+                          "source": "extractor",
+                          "evidenceAt": 4
+                        }
+                      ],
+                      "tensionLevels": [
+                        "tense"
+                      ],
+                      "outcomes": [
+                        {
+                          "ok": true,
+                          "key": "tension_current",
+                          "previous": 0,
+                          "value": 0.15,
+                          "version": 2
+                        }
+                      ]
+                    }
+                  ],
+                  "discarded": []
+                },
+                "evaluated": {
+                  "asked": true,
+                  "taken": true,
+                  "tension_current": 0.15
+                }
+              },
+              {
+                "at": 1794248598735,
+                "boundary": 8,
+                "before": {
+                  "blackboard": {
+                    "values": {
+                      "asked": true,
+                      "taken": true,
+                      "tension_current": 0.15
+                    },
+                    "versions": {
+                      "asked": 1,
+                      "taken": 1,
+                      "tension_current": 2
+                    },
+                    "latched": {}
+                  },
+                  "activeCheckpointId": "mill",
+                  "visitedAnchors": [
+                    "mill"
+                  ],
+                  "visitedPath": [
+                    "mill"
+                  ],
+                  "boundary": 7,
+                  "checkpointStartedBoundary": 0,
+                  "checkpointStartedAt": 1794247618104,
+                  "checkpointStartedMessageId": -1,
+                  "lastMessageId": 11,
+                  "chatLength": 12
+                },
+                "after": {
+                  "blackboard": {
+                    "values": {
+                      "asked": true,
+                      "taken": true,
+                      "tension_current": 0.15
+                    },
+                    "versions": {
+                      "asked": 1,
+                      "taken": 1,
+                      "tension_current": 2
+                    },
+                    "latched": {}
+                  },
+                  "activeCheckpointId": "mill",
+                  "visitedAnchors": [
+                    "mill"
+                  ],
+                  "visitedPath": [
+                    "mill"
+                  ],
+                  "boundary": 8,
+                  "checkpointStartedBoundary": 0,
+                  "checkpointStartedAt": 1794247618104,
+                  "checkpointStartedMessageId": -1,
+                  "lastMessageId": 12,
+                  "chatLength": 13
+                },
+                "fired": null,
+                "source": "gate",
+                "context": {
+                  "lastMessageId": 12,
+                  "chatLength": 13,
+                  "lastPlayerMessageId": 10
+                },
+                "queue": {
+                  "applied": [],
+                  "discarded": []
+                },
+                "evaluated": {
+                  "asked": true,
+                  "taken": true,
+                  "tension_current": 0.15
+                }
+              }
+            ]
+          },
+          "visitedPath": [
+            "mill"
+          ],
+          "boundary": 8
+        }
+      ]
+    }
+  ]
+}

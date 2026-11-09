@@ -1,0 +1,1223 @@
+{
+  "id": "QR",
+  "title": "quest resolutions (plan 48 live floor)",
+  "file": "C:\\dev\\story-orchestrator\\test\\journeys\\quest-resolutions.journey.json",
+  "fileSha256": "794ea6dc9e22b50d5a6f6d6909e792e63cd5a7406eb249b7238fc533cd7c7f98",
+  "ranAt": "2026-11-09T18:33:50.293Z",
+  "strict": true,
+  "partial": false,
+  "only": null,
+  "model": null,
+  "tally": {
+    "pass": 2,
+    "fail": 5
+  },
+  "tallies": {
+    "automated": {
+      "pass": 2,
+      "fail": 5,
+      "blocked": 0,
+      "notRunnable": 0,
+      "skipped": 0
+    },
+    "human": {
+      "scored": 0,
+      "unscored": 0
+    },
+    "cleanup": {
+      "ok": true,
+      "failed": [],
+      "leaked": []
+    },
+    "firstAttempt": {
+      "pass": 2,
+      "retried": 0,
+      "retriedIds": []
+    }
+  },
+  "notGreen": [
+    "5 automated check(s) failed"
+  ],
+  "humanRecord": null,
+  "runnerError": null,
+  "stopped": null,
+  "noStop": false,
+  "releasedRoutes": null,
+  "capabilities": {},
+  "results": [
+    {
+      "id": "QR.0",
+      "mode": "auto",
+      "model": "none",
+      "findings": [],
+      "goal": "import the invented rescue fixture (no campaign content) and check it is ready",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "QR.1",
+      "mode": "auto",
+      "model": "judged",
+      "findings": [],
+      "goal": "script 1: the player's own words lead to 'freed'; the close is that resolution and never another; the violence clause applies only when force was used",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "fail",
+      "detail": "Evaluation failed in SillyTavern page: MISS: the quest did not close on freed",
+      "firstAttempt": "fail",
+      "retries": []
+    },
+    {
+      "id": "QR.2",
+      "mode": "auto",
+      "model": "judged",
+      "findings": [],
+      "goal": "script 2: the player's own words lead to 'freed'; the close is that resolution and never another; the violence clause applies only when force was used",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "fail",
+      "detail": "Evaluation failed in SillyTavern page: MISS: the quest did not close on freed",
+      "firstAttempt": "fail",
+      "retries": []
+    },
+    {
+      "id": "QR.3",
+      "mode": "auto",
+      "model": "judged",
+      "findings": [],
+      "goal": "script 3: the player's own words lead to 'ransomed'; the close is that resolution and never another; the violence clause applies only when force was used",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "QR.4",
+      "mode": "auto",
+      "model": "judged",
+      "findings": [],
+      "goal": "script 4: the player's own words lead to 'ransomed'; the close is that resolution and never another; the violence clause applies only when force was used",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "fail",
+      "detail": "Evaluation failed in SillyTavern page: MISS: the quest did not close on ransomed",
+      "firstAttempt": "fail",
+      "retries": []
+    },
+    {
+      "id": "QR.5",
+      "mode": "auto",
+      "model": "judged",
+      "findings": [],
+      "goal": "script 5: the player's own words lead to 'abandoned'; the close is that resolution and never another; the violence clause applies only when force was used",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "fail",
+      "detail": "Evaluation failed in SillyTavern page: MISS: the quest did not close on abandoned",
+      "firstAttempt": "fail",
+      "retries": []
+    },
+    {
+      "id": "QR.6",
+      "mode": "auto",
+      "model": "judged",
+      "findings": [],
+      "goal": "script 6: the player's own words lead to 'abandoned'; the close is that resolution and never another; the violence clause applies only when force was used",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "fail",
+      "detail": "Evaluation failed in SillyTavern page: MISS: the quest did not close on abandoned",
+      "firstAttempt": "fail",
+      "retries": []
+    }
+  ],
+  "engineHistory": {
+    "file": "engine-history-QR.json",
+    "chats": 1,
+    "stories": 1
+  },
+  "cleanup": {
+    "generation": {
+      "idle": true,
+      "wasGenerating": false,
+      "stops": 0,
+      "waitedMs": 1685,
+      "lastSeen": {
+        "generating": false,
+        "saving": false,
+        "chatId": "2026-11-09@13h19m04s307ms",
+        "signals": []
+      }
+    },
+    "engineHistory": {
+      "file": "engine-history-QR.json",
+      "path": "C:\\dev\\so-lanes\\51\\debug\\engine-history-QR.json",
+      "chats": 1,
+      "stories": 1
+    },
+    "judgeSettle": {
+      "settled": true,
+      "waitedMs": 0,
+      "inFlight": 0,
+      "seen": 208
+    },
+    "judgeCalls": {
+      "count": 24,
+      "events": [
+        {
+          "at": "2026-11-09T18:10:59.523Z",
+          "boundary": 1,
+          "messageId": 2,
+          "kind": "judge",
+          "summary": "judge scene in 216 ms",
+          "detail": {
+            "use": "scene",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 4,
+            "stateChars": 2461,
+            "latencyMs": 216,
+            "inputTokens": 1271,
+            "outputTokens": 156,
+            "p": {
+              "break": 0.06
+            }
+          }
+        },
+        {
+          "at": "2026-11-09T18:10:59.611Z",
+          "boundary": 2,
+          "messageId": 2,
+          "kind": "judge",
+          "summary": "judge adversityTrend in 293 ms",
+          "detail": {
+            "use": "adversityTrend",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 569,
+            "latencyMs": 293,
+            "inputTokens": 530,
+            "outputTokens": 19,
+            "p": {
+              "adversity": 0.04
+            }
+          }
+        },
+        {
+          "at": "2026-11-09T18:10:59.712Z",
+          "boundary": 2,
+          "messageId": 2,
+          "kind": "judge",
+          "summary": "judge idleCheck in 190 ms",
+          "detail": {
+            "use": "idleCheck",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 2,
+            "stateChars": 543,
+            "latencyMs": 190,
+            "inputTokens": 570,
+            "outputTokens": 32,
+            "p": {
+              "change": 1.15,
+              "tension": 0.72
+            }
+          }
+        },
+        {
+          "at": "2026-11-09T18:10:59.756Z",
+          "boundary": 2,
+          "messageId": 2,
+          "kind": "judge",
+          "summary": "judge toneCheck in 146 ms",
+          "detail": {
+            "use": "toneCheck",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 687,
+            "latencyMs": 146,
+            "inputTokens": 503,
+            "outputTokens": 17,
+            "p": {
+              "tone": 2.81
+            }
+          }
+        },
+        {
+          "at": "2026-11-09T18:10:59.922Z",
+          "boundary": 2,
+          "messageId": 2,
+          "kind": "judge",
+          "summary": "judge warden (agency, attention) in 162 ms",
+          "detail": {
+            "use": "warden",
+            "families": [
+              "agency",
+              "attention"
+            ],
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 2,
+            "stateChars": 644,
+            "latencyMs": 162,
+            "inputTokens": 796,
+            "outputTokens": 30,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 0.17,
+              "attention": 1.97
+            }
+          }
+        },
+        {
+          "at": "2026-11-09T18:12:43.237Z",
+          "boundary": 2,
+          "messageId": 4,
+          "kind": "judge",
+          "summary": "judge memoryVerify in 250 ms",
+          "detail": {
+            "use": "memoryVerify",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 2,
+            "stateChars": 2273,
+            "latencyMs": 250,
+            "inputTokens": 1069,
+            "outputTokens": 40,
+            "p": {
+              "line:0": 0.1,
+              "line:1": 0.72
+            }
+          }
+        },
+        {
+          "at": "2026-11-09T18:17:36.843Z",
+          "boundary": 3,
+          "messageId": 6,
+          "kind": "judge",
+          "summary": "judge scene in 334 ms",
+          "detail": {
+            "use": "scene",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 4,
+            "stateChars": 4486,
+            "latencyMs": 334,
+            "inputTokens": 1788,
+            "outputTokens": 157,
+            "p": {
+              "break": 0.1
+            }
+          }
+        },
+        {
+          "at": "2026-11-09T18:17:36.908Z",
+          "boundary": 4,
+          "messageId": 6,
+          "kind": "judge",
+          "summary": "judge adversityTrend in 394 ms",
+          "detail": {
+            "use": "adversityTrend",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 1056,
+            "latencyMs": 394,
+            "inputTokens": 628,
+            "outputTokens": 19,
+            "p": {
+              "adversity": 2.25
+            }
+          }
+        },
+        {
+          "at": "2026-11-09T18:17:37.027Z",
+          "boundary": 4,
+          "messageId": 6,
+          "kind": "judge",
+          "summary": "judge idleCheck in 186 ms",
+          "detail": {
+            "use": "idleCheck",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 2,
+            "stateChars": 1030,
+            "latencyMs": 186,
+            "inputTokens": 668,
+            "outputTokens": 32,
+            "p": {
+              "change": 1.42,
+              "tension": 2.88
+            }
+          }
+        },
+        {
+          "at": "2026-11-09T18:17:37.047Z",
+          "boundary": 4,
+          "messageId": 6,
+          "kind": "judge",
+          "summary": "judge toneCheck in 140 ms",
+          "detail": {
+            "use": "toneCheck",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 1174,
+            "latencyMs": 140,
+            "inputTokens": 601,
+            "outputTokens": 17,
+            "p": {
+              "tone": 2.24
+            }
+          }
+        },
+        {
+          "at": "2026-11-09T18:17:37.200Z",
+          "boundary": 4,
+          "messageId": 6,
+          "kind": "judge",
+          "summary": "judge warden (agency, attention) in 145 ms",
+          "detail": {
+            "use": "warden",
+            "families": [
+              "agency",
+              "attention"
+            ],
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 2,
+            "stateChars": 1158,
+            "latencyMs": 145,
+            "inputTokens": 902,
+            "outputTokens": 30,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 0.13,
+              "attention": 1.67
+            }
+          }
+        },
+        {
+          "at": "2026-11-09T18:20:24.408Z",
+          "boundary": 6,
+          "messageId": 9,
+          "kind": "judge",
+          "summary": "judge adversityTrend in 288 ms",
+          "detail": {
+            "use": "adversityTrend",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 915,
+            "latencyMs": 288,
+            "inputTokens": 612,
+            "outputTokens": 19,
+            "p": {
+              "adversity": 1.15
+            }
+          }
+        },
+        {
+          "at": "2026-11-09T18:20:24.409Z",
+          "boundary": 5,
+          "messageId": 9,
+          "kind": "judge",
+          "summary": "judge scene in 292 ms",
+          "detail": {
+            "use": "scene",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 4,
+            "stateChars": 5646,
+            "latencyMs": 292,
+            "inputTokens": 2075,
+            "outputTokens": 157,
+            "p": {
+              "break": 0.08
+            }
+          }
+        },
+        {
+          "at": "2026-11-09T18:20:24.573Z",
+          "boundary": 6,
+          "messageId": 9,
+          "kind": "judge",
+          "summary": "judge toneCheck in 165 ms",
+          "detail": {
+            "use": "toneCheck",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 1033,
+            "latencyMs": 165,
+            "inputTokens": 585,
+            "outputTokens": 17,
+            "p": {
+              "tone": 2.03
+            }
+          }
+        },
+        {
+          "at": "2026-11-09T18:20:24.573Z",
+          "boundary": 6,
+          "messageId": 9,
+          "kind": "judge",
+          "summary": "judge idleCheck in 166 ms",
+          "detail": {
+            "use": "idleCheck",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 2,
+            "stateChars": 889,
+            "latencyMs": 166,
+            "inputTokens": 652,
+            "outputTokens": 32,
+            "p": {
+              "change": 1.66,
+              "tension": 2.44
+            }
+          }
+        },
+        {
+          "at": "2026-11-09T18:20:24.786Z",
+          "boundary": 6,
+          "messageId": 9,
+          "kind": "judge",
+          "summary": "judge warden (agency, attention) in 206 ms",
+          "detail": {
+            "use": "warden",
+            "families": [
+              "agency",
+              "attention"
+            ],
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 2,
+            "stateChars": 1015,
+            "latencyMs": 206,
+            "inputTokens": 886,
+            "outputTokens": 30,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 0.23,
+              "attention": 1.88
+            }
+          }
+        },
+        {
+          "at": "2026-11-09T18:20:48.806Z",
+          "boundary": 6,
+          "messageId": 10,
+          "kind": "judge",
+          "summary": "judge memoryVerify in 201 ms",
+          "detail": {
+            "use": "memoryVerify",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 2,
+            "stateChars": 2106,
+            "latencyMs": 201,
+            "inputTokens": 1038,
+            "outputTokens": 40,
+            "p": {
+              "line:0": 0.93,
+              "line:1": 0.98
+            }
+          }
+        },
+        {
+          "at": "2026-11-09T18:23:18.974Z",
+          "boundary": 8,
+          "messageId": 12,
+          "kind": "judge",
+          "summary": "judge adversityTrend in 212 ms",
+          "detail": {
+            "use": "adversityTrend",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 2074,
+            "latencyMs": 212,
+            "inputTokens": 866,
+            "outputTokens": 19,
+            "p": {
+              "adversity": 3.35
+            }
+          }
+        },
+        {
+          "at": "2026-11-09T18:23:18.975Z",
+          "boundary": 7,
+          "messageId": 12,
+          "kind": "judge",
+          "summary": "judge scene in 214 ms",
+          "detail": {
+            "use": "scene",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 4,
+            "stateChars": 6941,
+            "latencyMs": 214,
+            "inputTokens": 2393,
+            "outputTokens": 157,
+            "p": {
+              "break": 0.71
+            }
+          }
+        },
+        {
+          "at": "2026-11-09T18:23:19.147Z",
+          "boundary": 8,
+          "messageId": 12,
+          "kind": "judge",
+          "summary": "judge toneCheck in 173 ms",
+          "detail": {
+            "use": "toneCheck",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 2192,
+            "latencyMs": 173,
+            "inputTokens": 839,
+            "outputTokens": 17,
+            "p": {
+              "tone": 1.7
+            }
+          }
+        },
+        {
+          "at": "2026-11-09T18:23:19.202Z",
+          "boundary": 8,
+          "messageId": 12,
+          "kind": "judge",
+          "summary": "judge idleCheck in 229 ms",
+          "detail": {
+            "use": "idleCheck",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 2,
+            "stateChars": 2048,
+            "latencyMs": 229,
+            "inputTokens": 906,
+            "outputTokens": 32,
+            "p": {
+              "change": 3.37,
+              "tension": 3.29
+            }
+          }
+        },
+        {
+          "at": "2026-11-09T18:23:19.350Z",
+          "boundary": 8,
+          "messageId": 12,
+          "kind": "judge",
+          "summary": "judge warden (agency, attention) in 142 ms",
+          "detail": {
+            "use": "warden",
+            "families": [
+              "agency",
+              "attention"
+            ],
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 2,
+            "stateChars": 2173,
+            "latencyMs": 142,
+            "inputTokens": 1140,
+            "outputTokens": 30,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 0.77,
+              "attention": 1.6
+            }
+          }
+        },
+        {
+          "at": "2026-11-09T18:24:11.729Z",
+          "boundary": 8,
+          "messageId": 12,
+          "kind": "judge",
+          "summary": "judge memoryVerify in 200 ms",
+          "detail": {
+            "use": "memoryVerify",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 6,
+            "stateChars": 6756,
+            "latencyMs": 200,
+            "inputTokens": 2640,
+            "outputTokens": 112,
+            "p": {
+              "line:0": 0.96,
+              "line:1": 0.97,
+              "line:2": 0.87,
+              "line:3": 0.96,
+              "line:4": 0.97,
+              "line:5": 0.89
+            }
+          }
+        },
+        {
+          "at": "2026-11-09T18:25:13.692Z",
+          "boundary": 8,
+          "messageId": 12,
+          "kind": "judge",
+          "summary": "judge memoryVerify in 246 ms",
+          "detail": {
+            "use": "memoryVerify",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 7,
+            "stateChars": 5899,
+            "latencyMs": 246,
+            "inputTokens": 2527,
+            "outputTokens": 130,
+            "p": {
+              "line:0": 0.96,
+              "line:1": 0.97,
+              "line:2": 0.88,
+              "line:3": 0.96,
+              "line:4": 0.93,
+              "line:5": 0.95,
+              "line:6": 0.95
+            }
+          }
+        }
+      ]
+    },
+    "debugResponses": {
+      "cleared": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {
+          "read": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+          "synthesis": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+          "director": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+          "curator": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+        }
+      }
+    },
+    "extensionSettings": {
+      "restored": []
+    },
+    "config": {
+      "key": "story-orchestrator",
+      "cleared": false,
+      "keys": [
+        "v2Stories",
+        "settings",
+        "wizardSessions",
+        "schema",
+        "groupStories",
+        "playsBackfill",
+        "plays",
+        "panels",
+        "stories"
+      ],
+      "saved": {
+        "status": 200
+      },
+      "preservedStories": [],
+      "preservedSessions": []
+    },
+    "briefing": {
+      "restored": false,
+      "unchanged": true,
+      "value": false
+    },
+    "playerSetup": {
+      "restored": false,
+      "unchanged": true,
+      "value": false
+    },
+    "importedStoryHashes": [
+      "story-6cc77ed0"
+    ],
+    "library": {
+      "changed": false,
+      "removed": [],
+      "restored": [],
+      "index": {
+        "restored": true
+      }
+    },
+    "chat": {
+      "sandboxChatId": "2026-11-09@13h19m04s307ms",
+      "owned": [
+        "2026-11-09@13h19m04s307ms"
+      ],
+      "deleted": [
+        "2026-11-09@13h19m04s307ms"
+      ],
+      "notDeleted": [],
+      "resurrected": [],
+      "lateFileRepaired": [],
+      "saveSettleMs": 1549,
+      "skipped": [],
+      "currentChatAtCleanup": "2026-11-09@13h19m04s307ms",
+      "currentGroupAtCleanup": "1759606632088",
+      "chatAfterCleanup": "2026-11-09@12h47m17s182ms"
+    },
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    }
+  },
+  "page": {
+    "file": "C:\\dev\\so-lanes\\51\\debug\\runs\\2026-11-09T16-18-54-091Z-so-journey-run\\page.jsonl",
+    "rows": 382,
+    "consoleErrors": 46,
+    "consoleWarnings": 128,
+    "pageErrors": [
+      {
+        "at": "2026-11-09T17:01:00.925Z",
+        "text": "Not enough free GPU/physical RAM for this profile while preserving desktop headroom."
+      },
+      {
+        "at": "2026-11-09T17:30:18.200Z",
+        "text": "Not enough free GPU/physical RAM for this profile while preserving desktop headroom."
+      },
+      {
+        "at": "2026-11-09T17:30:22.495Z",
+        "text": "Not enough free GPU/physical RAM for this profile while preserving desktop headroom."
+      },
+      {
+        "at": "2026-11-09T17:30:56.661Z",
+        "text": "Not enough free GPU/physical RAM for this profile while preserving desktop headroom."
+      },
+      {
+        "at": "2026-11-09T17:31:00.774Z",
+        "text": "Not enough free GPU/physical RAM for this profile while preserving desktop headroom."
+      }
+    ],
+    "pageErrorCount": 5,
+    "failedRequests": [
+      {
+        "at": "2026-11-09T16:19:04.683Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8151/api/plugins/story-orchestrator-judge/systemone",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-11-09T16:19:04.684Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8151/api/plugins/story-orchestrator-judge/systemone",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-11-09T16:19:04.685Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8151/api/backends/text-completions/generate",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-11-09T16:19:04.685Z",
+        "method": "GET",
+        "url": "http://127.0.0.1:8151/api/plugins/story-orchestrator-media/loops/cached/b9049818e3eb1829eae84d2a8b205d0f",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-11-09T16:19:13.763Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8151/api/plugins/story-orchestrator-harness/complete",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-11-09T16:19:15.836Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8151/api/ping",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-11-09T16:19:15.846Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8151/api/ping",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-11-09T16:22:12.474Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8151/api/ping",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-11-09T16:23:31.577Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8151/api/ping",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-11-09T16:23:31.588Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8151/api/ping",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-11-09T16:24:05.339Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8151/api/backends/text-completions/generate",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-11-09T16:24:18.675Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8151/api/ping",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-11-09T16:25:36.890Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8151/api/ping",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-11-09T16:25:36.901Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8151/api/ping",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-11-09T16:25:49.860Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8151/api/backends/text-completions/generate",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-11-09T16:26:05.849Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8151/api/backends/text-completions/generate",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-11-09T16:26:11.606Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8151/api/backends/text-completions/generate",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-11-09T16:26:11.876Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8151/api/backends/text-completions/generate",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-11-09T16:27:08.680Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8151/api/ping",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-11-09T16:27:08.694Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8151/api/ping",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-11-09T16:27:44.350Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8151/api/backends/text-completions/generate",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-11-09T16:27:44.433Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8151/api/backends/text-completions/generate",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-11-09T16:28:23.715Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8151/api/backends/text-completions/generate",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-11-09T16:29:07.448Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8151/api/ping",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-11-09T16:29:45.956Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8151/api/backends/text-completions/generate",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-11-09T16:30:23.995Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8151/api/backends/text-completions/generate",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-11-09T16:30:37.440Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8151/api/ping",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-11-09T16:30:41.896Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8151/api/backends/text-completions/generate",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-11-09T16:33:24.477Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8151/api/backends/text-completions/generate",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-11-09T16:33:24.712Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8151/api/backends/text-completions/generate",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-11-09T16:39:34.645Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8151/api/backends/text-completions/generate",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-11-09T16:40:38.527Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8151/api/backends/text-completions/generate",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-11-09T16:41:19.252Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8151/api/backends/text-completions/generate",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-11-09T16:41:42.745Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8151/api/backends/text-completions/generate",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-11-09T16:42:48.486Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8151/api/backends/text-completions/generate",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-11-09T16:42:48.489Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8151/api/backends/text-completions/generate",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-11-09T16:42:51.478Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8151/api/ping",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-11-09T16:42:51.495Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8151/api/ping",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-11-09T16:47:27.812Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8151/api/ping",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-11-09T16:49:25.450Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8151/api/ping",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-11-09T16:51:17.761Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8151/api/ping",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-11-09T16:51:17.781Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8151/api/ping",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-11-09T16:51:51.455Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8151/api/backends/text-completions/generate",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-11-09T16:51:51.842Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8151/api/backends/text-completions/generate",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-11-09T16:52:28.815Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8151/api/backends/text-completions/generate",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-11-09T16:52:52.487Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8151/api/ping",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-11-09T16:53:35.984Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8151/api/backends/text-completions/generate",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-11-09T16:53:47.247Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8151/api/backends/text-completions/generate",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-11-09T16:54:37.006Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8151/api/ping",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      },
+      {
+        "at": "2026-11-09T16:54:37.032Z",
+        "method": "POST",
+        "url": "http://127.0.0.1:8151/api/ping",
+        "failure": "net::ERR_ABORTED",
+        "aborted": true
+      }
+    ],
+    "failedRequestCount": 203,
+    "httpErrorCount": 45,
+    "abortedCount": 158,
+    "consoleErrorSamples": [
+      {
+        "at": "2026-11-09T17:01:00.335Z",
+        "text": "Error counting tokens"
+      },
+      {
+        "at": "2026-11-09T17:01:00.690Z",
+        "text": "Failed to load resource: the server responded with a status of 409 (Conflict)"
+      },
+      {
+        "at": "2026-11-09T17:02:34.467Z",
+        "text": "Failed to load resource: the server responded with a status of 409 (Conflict)"
+      },
+      {
+        "at": "2026-11-09T17:02:35.934Z",
+        "text": "Failed to load resource: the server responded with a status of 409 (Conflict)"
+      },
+      {
+        "at": "2026-11-09T17:02:37.512Z",
+        "text": "Failed to load resource: the server responded with a status of 409 (Conflict)"
+      },
+      {
+        "at": "2026-11-09T17:02:39.152Z",
+        "text": "Failed to load resource: the server responded with a status of 409 (Conflict)"
+      },
+      {
+        "at": "2026-11-09T17:02:40.763Z",
+        "text": "Failed to load resource: the server responded with a status of 409 (Conflict)"
+      },
+      {
+        "at": "2026-11-09T17:02:42.371Z",
+        "text": "Failed to load resource: the server responded with a status of 409 (Conflict)"
+      },
+      {
+        "at": "2026-11-09T17:02:43.976Z",
+        "text": "Failed to load resource: the server responded with a status of 409 (Conflict)"
+      },
+      {
+        "at": "2026-11-09T17:02:45.572Z",
+        "text": "Failed to load resource: the server responded with a status of 409 (Conflict)"
+      }
+    ]
+  },
+  "replay": null
+}

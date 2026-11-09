@@ -1,6 +1,6 @@
 # v3.0 48 — Quest resolutions and consequences
 
-Status 2026-11-08: BUILT, merged to local master (not pushed); live gates owed (lane scenario, real-model journey, Sol rating). Source: owner conversation with Astra 2026-11-08 (summary kept outside the repo),
+Status 2026-11-09: BUILT, merged and pushed; no-model scenario ×2 PASS; real-model journey INCOMPLETE (harness, fixed; rerun ×2 owed) and Sol reflection floor owed. Source: owner conversation with Astra 2026-11-08 (summary kept outside the repo),
 reviewed against master `1aaa7ca09`. Second opinion: codex `gpt-6.1-sol` (§Second opinion). Plans 49-55 build on this one.
 
 ## Owner decisions 2026-11-08
@@ -358,3 +358,35 @@ Rejected: none.
 - Open questions for the owner:
   - Should the switch off also stop extraction reading resolution keys?
   - Should a held quest also get a journal line?
+
+## Live gate record (2026-11-09)
+
+- No-model scenario, ×2, PASS (2026-11-09, master `3b2e2985a`, bundle f681c5b1): adolion-fresh lane 48 seeded offline
+  (`SO_LANE_OFFLINE=1 node scripts/debug/adolion-fresh.mts seed 48`, then `st-lanes.mts no-model 48`, `start 48`);
+  `node scripts/debug/st-lanes.mts run 48 -- scripts/debug/so-scenario.mts run test/scenarios/v30-48-resolutions.json --sandbox --group "Group: Arin, DM Narrator"`
+  twice: `ok: true`, 16/16 steps, residue clean. Closes on `freed` with both consequences, player view shows only the reached
+  label and applied outcomes, the record lists close + consequences, `assert-player-clean` (step 14) holds, deleting the
+  closing turn rolls back close, consequences and record rows. Evidence `<so-lanes>/48/debug/runs/2026-11-09T15-22-21-440Z-so-scenario-run`,
+  `…/2026-11-09T15-23-31-132Z-so-scenario-run`. A first try on a plain no-model lane was not-runnable (its memory profile
+  still reached the local controller); hence the offline seed.
+- Real-model journey `test/journeys/quest-resolutions.journey.json`: **INCOMPLETE** (harness, twice; the one allowed retry is
+  spent). Lane 51 (adolion-fresh, images and sprites off), `node scripts/debug/st-lanes.mts run 51 -- scripts/debug/so-journey.mts run test/journeys/quest-resolutions.journey.json --strict`.
+  - Pair A: run 1 complete, archived `test/journeys/records/v30-48/2026-11-09T18-33-50-310Z_journey-QR.*`: QR.3 closed
+    `ransomed`, method clause correct; QR.1/2/4/5/6 MISS; wrong closes 0. Run 2 stopped after its QR.1 MISS.
+    Cause (harness): an accepted read applies at the next boundary, and the journey scored right after the last action
+    turn, so no boundary followed. Audits in run 2's QR.1 showed `freed=true` and `violent=true` accepted but unapplied.
+    QR.3 passed only because its deciding read landed one turn earlier.
+  - Fix 1 (harness, floors unchanged): a bridge turn before scoring.
+  - Pair B (retry): QR.1 and QR.2 MISS, then stopped to free the GPU. Cause (harness): the turns were sent back to back, so the
+    extraction scheduler held every read (`held: 1`); one read at message 11 covered the whole script with the hidden-quest
+    scope (`asked`, `taken`), and its writes again waited for a boundary. A player's typing gap is missing.
+  - Fix 2 (harness, floors unchanged): each turn now waits for `schedulerIdle` (quiet 5 s) before the next.
+  - Earlier attempts gave no floor data: a runner error at setup (group open timed out right after the seed), and two
+    300 s send timeouts on the shared GPU (turns took 165–294 s; timeouts now 900 s, close wait 600 s).
+  - Floors (correct ≥ 5/6, wrong 0, method ≥ 4/6): not measurable. Across 8 scored scripts no wrong resolution closed.
+  - Owed: the journey ×2 with both fixes, archived.
+- Sol reflection rating (`opencode run -m openai/gpt-6.1-sol`, stdin closed): one sample only (QR.3, `ransomed`):
+  `REFLECTS` ("credits twenty silver with buying the boy's life … without implying violence or abandonment"). The floor
+  (≥ 2 of 3 resolutions) is not measurable from one sample: owed with the journey rerun.
+- Product note: a resolution decided on the player's last turn closes on the next boundary (accepted reads apply there).
+  By design; a check or test that scores immediately after the deciding turn reads a MISS.
