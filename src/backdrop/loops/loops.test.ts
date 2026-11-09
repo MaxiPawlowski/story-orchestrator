@@ -33,10 +33,17 @@ describe("loop workflow", () => {
     expect(graph.masked.inputs).toEqual({ samples: ["anchored", 0], mask: ["mask", 0] });
   });
 
-  it("drops only the held tail chunk, so the loop wraps from motion back onto the still with no crossfade", () => {
-    expect(graph.loop.inputs).toEqual({ image: ["frames", 0], batch_index: 0, length: LOOP_SHAPE.frames - LOOP_ANCHOR_FRAMES });
-    expect(Object.values(graph).some((node) => node.class_type === "ImageBlend")).toBe(false);
-    expect(graph.graded.inputs).toMatchObject({ image_target: ["loop", 0], image_ref: ["still", 0], source_stats: "uniform" });
+  it("drops the held tail chunk and settles the last frames onto the still, so the loop wraps back onto frame 0", () => {
+    const { settle } = LOOP_SHAPE;
+    const kept = LOOP_SHAPE.frames - LOOP_ANCHOR_FRAMES;
+    expect(graph.loop.inputs).toEqual({ image: ["frames", 0], batch_index: 0, length: kept - settle });
+    expect(graph.first.inputs).toEqual({ image: ["frames", 0], batch_index: 0, length: 1 });
+    const factors = Array.from({ length: settle }, (_, index) => graph[`toward${index}`].inputs.blend_factor as number);
+    expect([...factors].sort((a, b) => a - b)).toEqual(factors);
+    expect(factors[settle - 1]).toBeLessThan(1);
+    expect(graph[`tail${settle - 1}`].inputs.batch_index).toBe(kept - 1);
+    expect(graph[`toward${settle - 1}`].inputs.image2).toEqual(["first", 0]);
+    expect(graph.graded.inputs).toMatchObject({ image_target: [`settled${settle - 1}`, 0], image_ref: ["still", 0], source_stats: "uniform" });
     expect(graph.video.inputs.images).toEqual(["graded", 0]);
     expect(loopSeconds()).toBeGreaterThanOrEqual(4);
     expect(loopSeconds()).toBeLessThanOrEqual(5);
@@ -81,6 +88,7 @@ describe("loop workflow", () => {
   it("refuses frame counts Wan cannot use", () => {
     expect(() => buildLoopGraph({ image: "x", prompt: "p", key: "k", seed: 1, shape: { ...LOOP_SHAPE, frames: 100 } })).toThrow(/4n\+1/);
     expect(() => buildLoopGraph({ image: "x", prompt: "p", key: "k", seed: 1, shape: { ...LOOP_SHAPE, frames: 13 } })).toThrow(/17/);
+    expect(() => buildLoopGraph({ image: "x", prompt: "p", key: "k", seed: 1, shape: { ...LOOP_SHAPE, settle: 0 } })).toThrow(/settle/);
   });
 });
 

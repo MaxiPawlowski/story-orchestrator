@@ -59,7 +59,7 @@ export function cinemagraphFrame(still: Uint8Array, mask: Uint8Array, width: num
           color = mix(take(u - fx * (phase1 - 0.5), v - fy * (phase1 - 0.5), own, 0), take(u - fx * (phase0 - 0.5), v - fy * (phase0 - 0.5), own, 0), weight);
         } else {
           const near = 1 - v;
-          const amp = CINEMAGRAPH_FLOW.rippleAmp * (CINEMAGRAPH_FLOW.rippleFar + (1 - CINEMAGRAPH_FLOW.rippleFar) * near);
+          const amp = CINEMAGRAPH_FLOW.rippleAmp * (CINEMAGRAPH_FLOW.rippleFar + (1 - CINEMAGRAPH_FLOW.rippleFar) * near) * (0.25 + 0.75 * noise(u * 3, v * 30));
           const wave = Math.sin(v * CINEMAGRAPH_FLOW.rippleFreq * (2 - near) + TAU * CINEMAGRAPH_FLOW.rippleCycles * time / period + noise(u * 6, v * 40) * TAU);
           color = take(u + wave * amp, v, own, 1);
         }
