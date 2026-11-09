@@ -48,7 +48,11 @@ uniform vec4 uCheekSize;
 uniform float uCheek;
 
 const int EYE_N = 24;
-const vec2 LID_SHADE = vec2(0.12, 0.34);
+const vec2 LID_SHADE = vec2(0.02, 0.14);
+const int IRIS_CLOSE_STEPS = 4;
+const float IRIS_CLOSE_STEP = 2.0;
+const float IRIS_RING = 0.85;
+const float LID_FILL = 0.35;
 float crv(int e, bool top, float u) {
   float f = clamp(u, 0.0, 1.0) * float(EYE_N - 1);
   int i = min(int(floor(f)), EYE_N - 2);
@@ -127,9 +131,28 @@ vec3 bandFill(int e, vec2 p, float top, float bot, vec3 tone) {
   return edge.a < 0.5 ? tone : edge.rgb / edge.a;
 }
 
-vec4 slideBall(vec4 here, vec4 moved, vec3 tone, float inHere, float inMoved, vec3 fill) {
+float irisAt(int e, vec2 p, vec3 tone) {
+  vec4 c = texAt(p), s = uIris[e];
+  float w = irisWeight(c, tone);
+  if (w >= 1.0 || s.z < 0.5 || abs(p.x - s.x) > s.y) return w;
+  float l = 0.0, r = 0.0;
+  for (int k = 1; k <= IRIS_CLOSE_STEPS; k++) {
+    vec2 d = vec2(float(k) * IRIS_CLOSE_STEP, 0.0);
+    l = max(l, irisWeight(texAt(p - d), tone));
+    r = max(r, irisWeight(texAt(p + d), tone));
+  }
+  return max(w, min(l, r) * smoothstep(0.25, 0.75, c.a));
+}
+
+float irisLeaving(int e, vec2 p, vec3 tone) {
+  float ring = 0.0;
+  for (int k = 0; k < 4; k++) ring = max(ring, irisWeight(texAt(p + vec2(k == 0 ? 1.0 : k == 1 ? -1.0 : 0.0, k == 2 ? 1.0 : k == 3 ? -1.0 : 0.0)), tone));
+  return max(irisAt(e, p, tone), ring * IRIS_RING);
+}
+
+vec4 slideBall(vec4 here, vec4 moved, float away, float toward, vec3 fill) {
   vec3 h = here.rgb / max(here.a, 1e-4), m = moved.rgb / max(moved.a, 1e-4);
-  vec3 rgb = h - irisWeight(here, tone) * inHere * (h - fill) + irisWeight(moved, tone) * inMoved * (m - fill);
+  vec3 rgb = h - away * (h - fill) + toward * (m - fill);
   return vec4(clamp(rgb, 0.0, 1.0) * here.a, here.a);
 }
 
@@ -152,7 +175,9 @@ vec4 eyeBall(int e, vec2 p) {
     vec3 fill = mix(tone.rgb, bandFill(e, p, top, bot, tone.rgb), held);
     float kept = min(1.0, (1.0 - held) * irisWeight(here, tone.rgb) + held * irisWeight(vec4(fill, 1.0), tone.rgb));
     float inMoved = trust(q, crv(e, true, uq), crv(e, false, uq), tone.rgb) * spanWeight(e, q.x) * (1.0 - kept);
-    c = slideBall(here, texAt(q), tone.rgb, trust(p, top, bot, tone.rgb) * held, inMoved, fill);
+    vec4 lidEdge = texAt(vec2(p.x, top + 1.0));
+    vec3 shaded = lidEdge.a > 0.5 ? mix(lidEdge.rgb / lidEdge.a, fill, smoothstep(top + 1.0, top + LID_FILL * max(bot - top, 1.0), p.y)) : fill;
+    c = slideBall(here, texAt(q), irisLeaving(e, p, tone.rgb) * trust(p, top, bot, tone.rgb) * held, irisAt(e, q, tone.rgb) * inMoved, shaded);
     float lidShade = max(bot - top, 1.0);
     c = mix(here, c, smoothstep(top + LID_SHADE.x * lidShade, top + LID_SHADE.y * lidShade, p.y));
   }

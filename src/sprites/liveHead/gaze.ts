@@ -45,9 +45,30 @@ export function irisWeight(c: Rgba, tone: Tone): number {
 
 export const interior = (y: number, top: number, bot: number): number => smoothstep(0.5, 2.5, y - top) * smoothstep(0.5, 2.5, bot - y);
 
-export function slideBall(here: Rgba, moved: Rgba, tone: Tone, inHere = 1, inMoved = 1, fill: Tone = tone): Rgba {
+export const IRIS_CLOSE = Object.freeze({ steps: 4, step: 2, ring: 0.85 });
+
+type Sampler = (x: number, y: number) => Rgba;
+
+export function irisAt(sample: Sampler, span: IrisSpan | null, x: number, y: number, tone: Tone): number {
+  const c = sample(x, y), w = irisWeight(c, tone);
+  if (w >= 1 || !span || Math.abs(x - span[0]) > span[1]) return w;
+  let left = 0, right = 0;
+  for (let k = 1; k <= IRIS_CLOSE.steps; k++) {
+    left = Math.max(left, irisWeight(sample(x - k * IRIS_CLOSE.step, y), tone));
+    right = Math.max(right, irisWeight(sample(x + k * IRIS_CLOSE.step, y), tone));
+  }
+  return Math.max(w, Math.min(left, right) * smoothstep(0.25, 0.75, c[3]));
+}
+
+export function irisLeaving(sample: Sampler, span: IrisSpan | null, x: number, y: number, tone: Tone): number {
+  let ring = 0;
+  for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) ring = Math.max(ring, irisWeight(sample(x + dx, y + dy), tone));
+  return Math.max(irisAt(sample, span, x, y, tone), ring * IRIS_CLOSE.ring);
+}
+
+export function slideBall(here: Rgba, moved: Rgba, away: number, toward: number, fill: Tone): Rgba {
   const a = here[3], inv = 1 / Math.max(a, 1e-4), invMoved = 1 / Math.max(moved[3], 1e-4);
-  const out: Rgba = [0, 0, 0, a], away = irisWeight(here, tone) * inHere, toward = irisWeight(moved, tone) * inMoved;
+  const out: Rgba = [0, 0, 0, a];
   for (let k = 0; k < 3; k++) {
     const h = here[k] * inv, m = moved[k] * invMoved;
     out[k] = Math.min(1, Math.max(0, h - away * (h - fill[k]) + toward * (m - fill[k]))) * a;
@@ -154,7 +175,7 @@ export function renderOpenBall(image: PixelImage, rect: Rect, eye: Eye, offset: 
       const fill = band.map((value, k) => tone[k] + (value - tone[k]) * held) as Tone;
       const kept = Math.min(1, (1 - held) * irisWeight(here, tone) + held * irisWeight([...fill, 1], tone));
       const inMoved = trust(qx, qy, curve(eye.top, uq), curve(eye.bot, uq)) * spanWeight(qx, span) * (1 - kept);
-      c = slideBall(here, sample(qx, qy), tone, trust(px, py, top, bot) * held, inMoved, fill);
+      c = slideBall(here, sample(qx, qy), irisLeaving(sample, span, px, py, tone) * trust(px, py, top, bot) * held, irisAt(sample, span, qx, qy, tone) * inMoved, fill);
     }
     const lid = smoothstep(top - 1, top + 0.5, py) * (1 - smoothstep(bot - 0.9, bot + 0.6, py)), at = (j * rect[2] + i) * 4;
     for (let k = 0; k < 4; k++) data[at + k] = Math.round(c[k] * lid * 255);

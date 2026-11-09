@@ -386,7 +386,7 @@
         160,
         224
       ],
-      "sha256": "b76b2c95afe68d2724405f10bc8f6784b8afaa6f9c6fc3a60422aa02c24d14da"
+      "sha256": "ba59df185fb6200f9b8edb835ad608d70c3b4985a1d7fb7f6ce867debb0b4125"
     },
     {
       "name": "eye0_ball",
@@ -426,7 +426,7 @@
         26,
         17
       ],
-      "sha256": "6f763571a61536e6f1e2f4f4ca97a4c97598a8f249808b8c53a8c15e8335652c"
+      "sha256": "a738210ed397c3b2cf83a588b60d76cfee82477df785393dc20abada254bbb6c"
     },
     {
       "name": "eye1_ball",
@@ -466,7 +466,7 @@
         26,
         17
       ],
-      "sha256": "6f763571a61536e6f1e2f4f4ca97a4c97598a8f249808b8c53a8c15e8335652c"
+      "sha256": "a738210ed397c3b2cf83a588b60d76cfee82477df785393dc20abada254bbb6c"
     }
   ]
 }

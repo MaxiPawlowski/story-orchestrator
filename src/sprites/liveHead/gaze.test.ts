@@ -84,7 +84,7 @@ describe("live head gaze keeps the iris round", () => {
     for (const entry of eyes) expect(sha(render(entry, 0, "slide"))).toBe(sha(render(entry, 0, "dome")));
     const tone: Tone = [0.98, 0.98, 0.96];
     for (const c of [[0.2, 0.3, 0.6, 1], [0.98, 0.98, 0.96, 1], [0.1, 0.1, 0.1, 0.4], [0, 0, 0, 0]] as Rgba[]) {
-      const out = slideBall(c, c, tone);
+      const out = slideBall(c, c, irisWeight(c, tone), irisWeight(c, tone), tone);
       out.forEach((value, k) => expect(value).toBeCloseTo(c[k], 6));
     }
   });
@@ -159,8 +159,9 @@ describe("live head gaze keeps the iris round", () => {
     expect(FS).toContain("vec3 fill = mix(tone.rgb, bandFill(e, p, top, bot, tone.rgb), held);");
     expect(FS).toContain("float kept = min(1.0, (1.0 - held) * irisWeight(here, tone.rgb) + held * irisWeight(vec4(fill, 1.0), tone.rgb));");
     expect(FS).toContain("float inMoved = trust(q, crv(e, true, uq), crv(e, false, uq), tone.rgb) * spanWeight(e, q.x) * (1.0 - kept);");
-    expect(FS).toContain("c = slideBall(here, texAt(q), tone.rgb, trust(p, top, bot, tone.rgb) * held, inMoved, fill);");
-    expect(FS).toContain("vec3 rgb = h - irisWeight(here, tone) * inHere * (h - fill) + irisWeight(moved, tone) * inMoved * (m - fill);");
+    expect(FS).toContain("c = slideBall(here, texAt(q), irisLeaving(e, p, tone.rgb) * trust(p, top, bot, tone.rgb) * held, irisAt(e, q, tone.rgb) * inMoved, shaded);");
+    expect(FS).toContain("vec3 rgb = h - away * (h - fill) + toward * (m - fill);");
+    expect(FS).toContain("if (w >= 1.0 || s.z < 0.5 || abs(p.x - s.x) > s.y) return w;");
     expect(FS).toContain("return max(inside, irisWeight(texAt(vec2(q.x, inward)), tone) * interior(inward, top, bot));");
     expect(FS).toContain("smoothstep(0.5, 2.5, y - top) * smoothstep(0.5, 2.5, bot - y)");
   });
