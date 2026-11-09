@@ -342,6 +342,7 @@ text lanes; evidence `C:\dev\so-lanes\0\debug\loop-review\v3\`, `render-v3.log`,
   admitted renders fit 12 GB, now the host's value.
 - Still open: harbor full mid-loop drift (max 14.8) and its seam equal to the largest interior step; the depth fog and chat dim darken the
   cinemagraph capture (A/B tuning); softness at full screen (a 1280x704 full tier would cost about twice the time).
+- Gate record 2026-11-09: `gates:quick` green 201.9s; full `npm run gates -- --serial` all green 1474.0s on 6c4ffe0b2 (master b637015e6 merged). Three earlier full runs on that tree were red only on Storybook 15 s timeouts under two model lanes (HelpPanel, the known flake; once VnStage motion), a different set each run. Merged to master e73c3f2ff.
 
 ### Loops review: Resume (paused 2026-11-08 by the owner)
 
