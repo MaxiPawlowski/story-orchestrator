@@ -1,7 +1,7 @@
 import { StoryEngine } from "./engine";
 import { parseStory, parseStoryOrThrow } from "./validate";
-import { questScopeKeys, questStatus, rewardedQuestIds, valueReader } from "./quests";
-import { questClosedKey, questRewardKey, type PrimitiveValue } from "./schema";
+import { appliedConsequences, questScopeKeys, questStatus, valueReader } from "./quests";
+import { questClosedKey, questConsequenceKey, type PrimitiveValue } from "./schema";
 
 const bool = (key: string) => ({ key, type: "bool", source: "extractor", rubric: `Whether ${key} is true.` });
 
@@ -56,10 +56,10 @@ describe("quest validation", () => {
     expect(Array.isArray(parsed)).toBe(true);
   });
 
-  test("the closed and rewarded latches are added as code qualities", () => {
+  test("the closed and consequence latches are added as code qualities", () => {
     const story = parseStoryOrThrow(raw());
-    expect(story.qualityByKey[questClosedKey("debt")]).toMatchObject({ source: "code", latching: true, type: "enum" });
-    expect(story.qualityByKey[questRewardKey("debt")]).toMatchObject({ source: "code", latching: true, type: "bool" });
+    expect(story.qualityByKey[questClosedKey("debt")]).toMatchObject({ source: "code", latching: true, type: "enum", values: ["done", "failed"] });
+    expect(story.qualityByKey[questConsequenceKey("debt", "done", "reward")]).toMatchObject({ source: "code", latching: true, type: "int" });
   });
 });
 
@@ -90,7 +90,7 @@ describe("quest lifecycle", () => {
     play.turn({ paid: true });
     expect(play.status()).toBe("done");
     expect(play.values().coins).toBe(3);
-    expect(rewardedQuestIds(play.story, play.values())).toEqual(["debt"]);
+    expect(appliedConsequences(play.story, play.values()).map((item) => item.questId)).toEqual(["debt"]);
   });
 
   test("B16: a reward add on a stepped int stays inside its step_rule min and max", () => {

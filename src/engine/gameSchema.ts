@@ -40,6 +40,8 @@ export interface QuestStep {
   failed_when?: GateNode;
   visible_when?: GateNode;
   progress?: QuestProgress;
+  optional?: boolean;
+  alternative_of?: number;
 }
 
 export interface QuestRewardEffects {
@@ -57,6 +59,29 @@ export interface QuestReward {
   visible_when?: GateNode;
 }
 
+export const QUEST_FROM = ["offered", "active"] as const;
+export type QuestFrom = (typeof QUEST_FROM)[number];
+
+export interface QuestConsequence {
+  id: string;
+  when?: GateNode;
+  set?: Record<string, RewardWrite>;
+  effects?: QuestRewardEffects;
+  label?: string;
+  visible_when?: GateNode;
+}
+
+export interface QuestResolution {
+  id: string;
+  when: GateNode;
+  label?: string;
+  recap?: RecapText;
+  from?: QuestFrom[];
+  consequences?: QuestConsequence[];
+}
+
+export type QuestRequirement = string | { quest: string; resolution: string[] };
+
 export interface QuestLabels {
   done?: string;
   failed?: string;
@@ -68,10 +93,10 @@ export interface Quest {
   kind: "side";
   visible_when?: GateNode;
   offered_when?: GateNode;
-  done_when: GateNode;
+  done_when?: GateNode;
   failed_when?: GateNode;
   steps: QuestStep[];
-  requires?: string[];
+  requires?: QuestRequirement[];
   progress?: QuestProgress;
   labels?: QuestLabels;
   giver?: string;
@@ -80,6 +105,9 @@ export interface Quest {
   promise?: boolean;
   recap?: QuestRecap;
   recap_when?: GateNode;
+  resolutions?: QuestResolution[];
+  precedence?: string[];
+  hold_when_ambiguous?: boolean;
 }
 
 export interface RecapText {
@@ -228,10 +256,11 @@ export interface WidgetIntent {
   check?: string;
 }
 
-export const questRewardKey = (questId: string): string => `quest_${questId}_rewarded`;
-
 export const questClosedKey = (questId: string): string => `quest_${questId}_closed`;
+
+export const questConsequenceKey = (questId: string, resolutionId: string, consequenceId: string): string => `quest_${questId}_${resolutionId}_c_${consequenceId}`;
+
+export const QUEST_LIFECYCLE = ["hidden", "offered", "active"] as const;
 
 export const checkRolledKey = (checkId: string): string => `check_${checkId}_rolled`;
 
-export const QUEST_CLOSED_VALUES = ["done", "failed"] as const;

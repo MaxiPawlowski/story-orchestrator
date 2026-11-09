@@ -219,6 +219,8 @@ Every feature is on by default; the character stage is on in its automatic form.
 | **Who heard what** | Notes which characters heard each message. | A few extra lines in each story read. | You want the shortest possible reads. |
 | **Rumors and gossip** | Passes a story's rumors between characters as hearsay. | No model call. | News should reach characters only on stage. |
 | **Story patterns** | Notices an order of events the player saw and shows the story's callback line. | No model call. | What changed should list only single changes. |
+| **Quest resolutions** | Closes a quest on the ending the story names and applies that ending's consequences once. | No model call. | You want quests to end only on done or failed. |
+| **Story record** | Lists, for the author, what happened at each reply, why, who heard and what is open. | No model call; built only in Author view. | You do not use Author view's Record tab. |
 | **Off-stage events** | Proposes events toward the plans a story gives its characters. | One memory model call when the story moves on or a scene ends. | Characters should act only on stage. |
 | **Current character state** | Adds public character changes to replies without editing cards. | No model call. | Cards should be read exactly as written. |
 | **Lorebook curator** | Proposes changes to the lorebooks a story permits. New entries always wait for review. | Background curator calls. | A lorebook should never change during play. |

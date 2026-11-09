@@ -1,0 +1,37 @@
+{
+  "id": "so-v30-48-resolutions",
+  "title": "SO-V30-48 Resolutions",
+  "description": "Plan 48 no-model fixture: an invented rescue quest with three resolutions, a method clause and a story record.",
+  "qualities": [
+    { "key": "asked", "type": "bool", "source": "extractor", "rubric": "Has the miller asked the party for help?" },
+    { "key": "taken", "type": "bool", "source": "extractor", "rubric": "Has the party agreed to look for the boy?" },
+    { "key": "freed", "type": "bool", "source": "extractor", "rubric": "Is the boy free?" },
+    { "key": "paid_ransom", "type": "bool", "source": "extractor", "rubric": "Did the party pay the ransom?" },
+    { "key": "fled", "type": "bool", "source": "extractor", "rubric": "Did the party leave the boy behind?" },
+    { "key": "violent", "type": "bool", "source": "extractor", "rubric": "Did the party use force?" },
+    { "key": "coins", "type": "int", "source": "code", "rubric": "Coins the party holds." },
+    { "key": "town_mood", "type": "enum", "values": ["calm", "uneasy"], "source": "code", "rubric": "How the town feels." }
+  ],
+  "checkpoints": [
+    { "id": "mill", "name": "The Mill", "player_name": "The Mill", "objective": "Hear the miller out.", "type": "anchor", "start": true }
+  ],
+  "transitions": [],
+  "quests": [
+    {
+      "id": "rescue", "title": "The miller's son", "kind": "side",
+      "offered_when": { "q": "asked", "op": "==", "v": true }, "visible_when": { "q": "taken", "op": "==", "v": true },
+      "steps": [{ "text": "Find the boy", "done_when": { "q": "freed", "op": "==", "v": true } }],
+      "resolutions": [
+        { "id": "freed", "label": "Brought the boy home", "when": { "q": "freed", "op": "==", "v": true }, "consequences": [
+          { "id": "thanks", "set": { "coins": { "add": 5 } }, "label": "The miller paid in silver" },
+          { "id": "blood", "when": { "q": "violent", "op": "==", "v": true }, "set": { "town_mood": "uneasy" }, "label": "Talk of bloodshed" }
+        ] },
+        { "id": "ransomed", "label": "Paid the ransom", "when": { "q": "paid_ransom", "op": "==", "v": true }, "consequences": [{ "id": "poorer", "set": { "coins": { "add": -3 } } }] },
+        { "id": "abandoned", "label": "Left him to the river", "when": { "q": "fled", "op": "==", "v": true } }
+      ],
+      "precedence": ["abandoned", "freed", "ransomed"]
+    }
+  ],
+  "roster": [{ "id": "narrator", "name": "DM Narrator", "role": "narrator", "view": "omniscient" }],
+  "requirements": { "members": ["DM Narrator"] }
+}

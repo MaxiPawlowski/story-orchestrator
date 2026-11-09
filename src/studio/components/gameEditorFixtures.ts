@@ -12,6 +12,31 @@ export const gameStory = (): StoryDraft => ({
   widgets: [{ id: "alarm-clock", kind: "clock", title: "The alarm", audience: "player", bind: { quality: "trust" } }],
 });
 
+export const resolutionStory = (): StoryDraft => {
+  const base = gameStory();
+  return {
+    ...base,
+    qualities: [...base.qualities.filter((quality) => quality.key !== "trust"),
+      { key: "trust", type: "int", source: "extractor", rubric: "How much the guide trusts the party, 0-5.", display: { label: "Trust", as: "meter", min: 0, max: 5, public: true } },
+      { key: "coins", type: "int", source: "code", rubric: "Coins the party holds." },
+      { key: "asked_debt", type: "bool", source: "extractor", rubric: "Asked about the debt." },
+      { key: "refused_debt", type: "bool", source: "extractor", rubric: "Refused to help." }],
+    quests: [{
+      id: "debt", title: "The ferryman's debt", kind: "side", giver: "guide", steps: [],
+      offered_when: { q: "asked_debt", op: "==", v: true }, visible_when: { all: [{ q: "trust", op: ">=", v: 1 }] },
+      resolutions: [
+        { id: "paid", label: "Paid the ferryman", when: { q: "alarm", op: "==", v: false }, consequences: [
+          { id: "thanks", set: { coins: { add: 3 } } },
+          { id: "rough", when: { q: "route", op: "==", v: "force" }, label: "Word of the brawl spread" },
+        ] },
+        { id: "fled", label: "Fled the debt", when: { q: "alarm", op: "==", v: true } },
+        { id: "declined", label: "Turned him away", from: ["offered"], when: { q: "refused_debt", op: "==", v: true } },
+      ],
+    }],
+    echoes: [{ id: "thanks", after: { quest: "debt", to: "paid" }, delay: { boundaries: [1, 2] }, to: base.roster[0].id, cue: "the ferryman's thanks" }],
+  };
+};
+
 export const widgetStory = (): StoryDraft => ({
   ...sampleStory(),
   widgets: [

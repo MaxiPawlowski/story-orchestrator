@@ -1,9 +1,54 @@
 # v3.0 48 — Quest resolutions and consequences
 
-Status 2026-11-08: PLANNED (docs only). Source: owner conversation with Astra 2026-11-08 (summary kept outside the repo),
+Status 2026-11-08: BUILT, merged to local master (not pushed); live gates owed (lane scenario, real-model journey, Sol rating). Source: owner conversation with Astra 2026-11-08 (summary kept outside the repo),
 reviewed against master `1aaa7ca09`. Second opinion: codex `gpt-6.1-sol` (§Second opinion). Plans 49-55 build on this one.
 
-## Why
+## Owner decisions 2026-11-08
+
+1. An offered quest may lapse on story time alone, as a neutral `lapsed` resolution (`from: ["offered"]`, a gate on time
+   keys only). Never worded as a broken promise: the validator refuses a time-only resolution reachable from `offered`
+   unless its id is `lapsed`, and `failed_when` on an offered quest still never fails on time alone.
+2. Pressures that move on events or story time are fine: the world moving on, not punishing a missed roll (plan 49).
+3. Resolutions get a switch, on by default. Off ignores resolutions and never invents consequences.
+4. `quest_<id>_rewarded` is replaced outright, no alias. Running chats need Restart; no migrations.
+5. Sol ratings are approved for this plan's floors.
+6. No third-party text bundled; links only.
+7. Situations are fields on a quest first (plan 49). Optional and alternative steps (`steps[].optional`,
+   `steps[].alternative_of`) are built here, in 48.
+8. Plan 53 waits for the playtest.
+
+Coordinator calls on the build questions (2026-11-08, for the owner): `lapsed` is strict and reserved (a `lapsed` that is not a
+time-only offer end is refused); ending and consequence labels over 40 characters are a Studio warning (`quest-label-long`),
+not an error; a reward keeps raising standing as before, consequences only through a faction move gated on the resolution.
+
+## Resume 2026-11-08 (paused on owner overload, WIP on `v3.0-48-resolutions`)
+
+Built, not yet gated (only focused jest runs, all green except where noted):
+- engine: `quests.ts` (endings = sugar + `resolutions`, precedence, hold, single-snapshot close + aggregated consequences,
+  `quest_<id>_<res>_c_<cid>` latches, `questLatchKeys` detector), `questSimulation.ts`, switch via `EngineHost.questResolutions`;
+  `validate/quests.ts` (resolutions, consequences, precedence/overlap proof, lapsed rule, requires objects,
+  optional/alternative steps); echoes/patterns take resolution ids; storyDiff; WI census + earned switches; gamePort dispatch.
+- runtime: consequences recap, widgets/journal labels + outcomes, playerProjection withholds unreached labels, promises
+  (other resolutions release), checks `quest-resolution-ambiguous` / `quest-consequence-conflict`, feature rows
+  `quest-resolutions`, `story-record` (featureSwitches.*).
+- 54: `runtime/storyRecord.ts`, Author console section `record` (`RecordSection.tsx` + story).
+- Studio: `QuestResolutionsPanel` (matrix, simulator), `questMatrix.ts`, diagnostic `consequence-write-conflict`.
+- Guide: `quests` rewritten, `quest-resolutions`, `quest-consequences` (`guideTopicsQuests.ts`, story-guide.md).
+- Tests: `questResolution.test.ts`, `questResolution.property.test.ts` (200 seeds shuffle + rollback), `storyRecord.test.ts`.
+
+Update 2026-11-08 (second pause, owner): done since: wizard `quest-line` recipe + `simulateQuest` read tool (author Ask too);
+coordinator calls applied (`lapsed` reserved, `quest-label-long` warning, reward keeps `rep_` add); surface/simulator/matrix tests
+(`runtime/questResolutionSurfaces.test.ts`); no-model scenario `test/scenarios/v30-48-resolutions.json` (not run); real-model
+journey `test/journeys/quest-resolutions.journey.json` (owed, GPU paused). `closed` enum now always holds done and failed plus the
+resolution ids, and echoes/patterns accept done/failed on any quest (the pinned campaign gates `in [done, failed]` on quests
+without failed_when). Last `gates:quick` (before those two fixes): typecheck ok, typecheck:test ok, replay ok; lint FAIL
+(cause not captured) and jest 14 suites red, known: adolionPinnedBuild + chanceAdolion (the enum fix above), loreStateRead
+(test read unlatched values; fixed). Resume: rerun `gates:quick` via heavy.mjs with full output, fix the rest, then the list below.
+
+Next (remaining): wizard `quest-line` recipe rewrite + `simulateQuest` read tool; tests for questMatrix/simulator/projection spoiler scan;
+`npm run typecheck`, `typecheck:test`, lint, `gates:quick`; `docs:guide`, `docs:settings`; no-model lane scenario +
+`quest-resolutions.journey.json` (GPU owed); merge master; full `npm run gates`; gate records in 48 and 54.
+
 
 Owner 2026-11-08: "make better quests that properly integrate into the story to make it richer, not just to drive the
 player from A to B." A friend's prepared quest had several outcomes, each with its own rewards or consequences. Today a
@@ -279,3 +324,37 @@ Rejected: none.
 - Should `hold_when_ambiguous` exist at all, or is precedence enough?
 - Does a story-format feature need an off switch (owner rule says yes; the off behaviour above is a compromise)?
 - Replace `quest_<id>_rewarded` outright (cleaner, restarts live chats), or keep it as an alias?
+
+
+## Gate record (2026-11-08)
+
+- Full gates, run 6 (via the heavy lock, no `--resume`, Storybook included), on `3450f0849` (branch with local master
+  `e5a1c61f8` merged): `npm run gates -- --jobs=2` -> `gates: all green in 390.7s` (test:replay 92.9s, test 202.4s,
+  test-storybook:ci 297.0s, build 14.4s, typecheck 33.6s, test:debug 30.4s, typecheck:test 29.7s, lint 27.5s,
+  debug:typecheck 9.5s, test:release 6.1s, test:plugin 21.4s). Main bundle 1,249,929 B of 1,300,000.
+- After it, only docs: local master `81e98eb06` (plan 52 record) and these gate records.
+- `npm run gates:quick` (via the lock) on `e45b1340f`: typecheck 74.9s, typecheck:test 90.8s, lint 29.1s, jest related 165.9s,
+  replay `--cached` 90.9s, all ok.
+- Red runs before it, each fixed and rerun in full:
+  - run 1: `errorCopy.guard` (two simulator sites missing from `test/findings/errorCopy.json`); Storybook
+    `QuestResolutionsPanel` (fixture did not validate; precedence field ate commas while typing).
+  - run 2: Storybook, the fixture's `trust` meter needed `min`/`max`.
+  - run 3: lint, the story's `render` called a hook (now a `FirstQuest` component).
+  - run 4: stopped in the lock queue (master moved). Run 5: `test:release` suite coverage, `quest-resolutions` and
+    `story-record` had no plan 24 matrix row (added to `docs/plans/v2.8/24-test-plan.md`).
+- Docs: `npm run docs:guide`, `npm run docs:settings` after each master merge.
+- Deviations:
+  - Extraction still reads the resolution keys while the switch is off (the engine ignores them; the read is unchanged).
+  - A held quest (`hold_when_ambiguous`) raises the author check `quest-resolution-ambiguous`; there is no journal line.
+  - The Studio resolution table shows no "off" state when the switch is off.
+  - `done` and `failed` stay in every quest's `closed` enum (coordinator approved): the pinned campaign gates
+    `in [done, failed]` on quests without `failed_when`.
+- Owed (not run; ST and lanes down, GPU paused):
+  - no-model lane scenario `test/scenarios/v30-48-resolutions.json`, ×2;
+  - real-model journey `test/journeys/quest-resolutions.journey.json`, ×2, archived;
+  - Sol reflection rating (floors in the journey).
+- Adolion (counts only): 62 quests in 11 stories, 1 `failed_when`, 0 rewards; all 62 validate with no edit; live campaign
+  chats need Restart (key shape). Which quests could gain resolutions: content review by another model.
+- Open questions for the owner:
+  - Should the switch off also stop extraction reading resolution keys?
+  - Should a held quest also get a journal line?

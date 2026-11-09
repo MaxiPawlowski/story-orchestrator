@@ -1,0 +1,288 @@
+{
+  "id": "QR",
+  "title": "quest resolutions (plan 48 live floor)",
+  "objective": "v3.0 48 live floor, real model on a lane (owed: GPU paused 2026-11-08). One invented situation, three resolutions, two paraphrased player scripts each, 6 runs. Floors declared before any run: correct resolution reached >= 5/6 (a MISS counts against it); a wrong resolution closed: 0 (hard, any WRONG fails the gate); the method clause read correctly >= 4/6 (methodCorrect in the QR.n outputs). Score from the run record; run twice and archive under test/journeys/records/v30-48/.",
+  "expensive": true,
+  "setup": {
+    "newChat": true,
+    "resetChatState": true,
+    "snapshotGlobalConfig": true,
+    "group": "Group: Arin, DM Narrator",
+    "extraction": {
+      "cadence": 1,
+      "stabilityLag": 0,
+      "profile": "inherit"
+    }
+  },
+  "cleanup": {
+    "restoreConfig": true,
+    "deleteChat": true
+  },
+  "capabilities": {},
+  "checks": [
+    {
+      "id": "QR.0",
+      "model": "none",
+      "mode": "auto",
+      "findings": [],
+      "goal": "import the invented rescue fixture (no campaign content) and check it is ready",
+      "steps": [
+        {
+          "import_story": {
+            "file": "../scenarios/v30-48-resolutions.story.json"
+          }
+        },
+        {
+          "expect": {
+            "requirementsReady": true
+          }
+        },
+        {
+          "ui": {
+            "action": "select-profile"
+          }
+        }
+      ]
+    },
+    {
+      "id": "QR.1",
+      "model": "judged",
+      "mode": "auto",
+      "findings": [],
+      "goal": "script 1: the player's own words lead to 'freed'; the close is that resolution and never another; the violence clause applies only when force was used",
+      "steps": [
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); for (let id = ctx.chat.length - 1; id >= 0; id -= 1) await ctx.deleteMessage(id, undefined, false); await rt.restartStory(true); return { restarted: true, story: rt.getSnapshot().storyId ?? null };"
+        },
+        {
+          "send_generate": {
+            "text": "I ask the miller where his son was last seen and promise to bring him back.",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "send_generate": {
+            "text": "I follow the wet footprints down to the old cellar behind the granary.",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "send_generate": {
+            "text": "I kick the cellar door in and shove the guard against the wall until he drops the keys.",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "send_generate": {
+            "text": "I unlock the chain, lift the boy out and carry him back to the mill.",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "log": true,
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const end = Date.now() + 240000; let v = {}; while (Date.now() < end) { v = rt.getEngineState()?.blackboard?.values ?? {}; if (v.quest_rescue_closed) break; await new Promise((r) => setTimeout(r, 2000)); } const closed = v.quest_rescue_closed ?? null; if (closed && closed !== 'freed') throw new Error('WRONG resolution closed: ' + closed + ' (expected freed)'); if (!closed) throw new Error('MISS: the quest did not close on freed'); const method = typeof v.quest_rescue_freed_c_blood === 'number'; return { closed, methodClause: method, methodExpected: true, methodCorrect: method === true };"
+        }
+      ]
+    },
+    {
+      "id": "QR.2",
+      "model": "judged",
+      "mode": "auto",
+      "findings": [],
+      "goal": "script 2: the player's own words lead to 'freed'; the close is that resolution and never another; the violence clause applies only when force was used",
+      "steps": [
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); for (let id = ctx.chat.length - 1; id >= 0; id -= 1) await ctx.deleteMessage(id, undefined, false); await rt.restartStory(true); return { restarted: true, story: rt.getSnapshot().storyId ?? null };"
+        },
+        {
+          "send_generate": {
+            "text": "I tell the miller I will find his boy, whatever it takes.",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "send_generate": {
+            "text": "I search the riverbank sheds and hear knocking from the granary cellar.",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "send_generate": {
+            "text": "I break the lock with the smith's hammer and punch the man who tries to stop me.",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "send_generate": {
+            "text": "I walk the boy home with my coat around his shoulders.",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "log": true,
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const end = Date.now() + 240000; let v = {}; while (Date.now() < end) { v = rt.getEngineState()?.blackboard?.values ?? {}; if (v.quest_rescue_closed) break; await new Promise((r) => setTimeout(r, 2000)); } const closed = v.quest_rescue_closed ?? null; if (closed && closed !== 'freed') throw new Error('WRONG resolution closed: ' + closed + ' (expected freed)'); if (!closed) throw new Error('MISS: the quest did not close on freed'); const method = typeof v.quest_rescue_freed_c_blood === 'number'; return { closed, methodClause: method, methodExpected: true, methodCorrect: method === true };"
+        }
+      ]
+    },
+    {
+      "id": "QR.3",
+      "model": "judged",
+      "mode": "auto",
+      "findings": [],
+      "goal": "script 3: the player's own words lead to 'ransomed'; the close is that resolution and never another; the violence clause applies only when force was used",
+      "steps": [
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); for (let id = ctx.chat.length - 1; id >= 0; id -= 1) await ctx.deleteMessage(id, undefined, false); await rt.restartStory(true); return { restarted: true, story: rt.getSnapshot().storyId ?? null };"
+        },
+        {
+          "send_generate": {
+            "text": "I agree to help the miller find his son.",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "send_generate": {
+            "text": "I find the note pinned to the granary door asking for twenty silver.",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "send_generate": {
+            "text": "I count out the silver and leave it under the stone as the note says.",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "send_generate": {
+            "text": "When the boy is let out at dawn I take him back to his father.",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "log": true,
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const end = Date.now() + 240000; let v = {}; while (Date.now() < end) { v = rt.getEngineState()?.blackboard?.values ?? {}; if (v.quest_rescue_closed) break; await new Promise((r) => setTimeout(r, 2000)); } const closed = v.quest_rescue_closed ?? null; if (closed && closed !== 'ransomed') throw new Error('WRONG resolution closed: ' + closed + ' (expected ransomed)'); if (!closed) throw new Error('MISS: the quest did not close on ransomed'); const method = typeof v.quest_rescue_freed_c_blood === 'number'; return { closed, methodClause: method, methodExpected: false, methodCorrect: method === false };"
+        }
+      ]
+    },
+    {
+      "id": "QR.4",
+      "model": "judged",
+      "mode": "auto",
+      "findings": [],
+      "goal": "script 4: the player's own words lead to 'ransomed'; the close is that resolution and never another; the violence clause applies only when force was used",
+      "steps": [
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); for (let id = ctx.chat.length - 1; id >= 0; id -= 1) await ctx.deleteMessage(id, undefined, false); await rt.restartStory(true); return { restarted: true, story: rt.getSnapshot().storyId ?? null };"
+        },
+        {
+          "send_generate": {
+            "text": "I say yes, I will look into the boy's disappearance.",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "send_generate": {
+            "text": "I talk to the men holding the boy and ask what they want for him.",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "send_generate": {
+            "text": "I pay them what they ask, coin by coin, without a fight.",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "send_generate": {
+            "text": "They open the cellar and I lead the boy back to the mill.",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "log": true,
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const end = Date.now() + 240000; let v = {}; while (Date.now() < end) { v = rt.getEngineState()?.blackboard?.values ?? {}; if (v.quest_rescue_closed) break; await new Promise((r) => setTimeout(r, 2000)); } const closed = v.quest_rescue_closed ?? null; if (closed && closed !== 'ransomed') throw new Error('WRONG resolution closed: ' + closed + ' (expected ransomed)'); if (!closed) throw new Error('MISS: the quest did not close on ransomed'); const method = typeof v.quest_rescue_freed_c_blood === 'number'; return { closed, methodClause: method, methodExpected: false, methodCorrect: method === false };"
+        }
+      ]
+    },
+    {
+      "id": "QR.5",
+      "model": "judged",
+      "mode": "auto",
+      "findings": [],
+      "goal": "script 5: the player's own words lead to 'abandoned'; the close is that resolution and never another; the violence clause applies only when force was used",
+      "steps": [
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); for (let id = ctx.chat.length - 1; id >= 0; id -= 1) await ctx.deleteMessage(id, undefined, false); await rt.restartStory(true); return { restarted: true, story: rt.getSnapshot().storyId ?? null };"
+        },
+        {
+          "send_generate": {
+            "text": "I tell the miller I will try to find his son.",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "send_generate": {
+            "text": "I go down to the river and see how many armed men guard the cellar.",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "send_generate": {
+            "text": "I decide it is not worth my life and walk away from the cellar.",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "send_generate": {
+            "text": "I leave the village by the north road without going back to the mill.",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "log": true,
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const end = Date.now() + 240000; let v = {}; while (Date.now() < end) { v = rt.getEngineState()?.blackboard?.values ?? {}; if (v.quest_rescue_closed) break; await new Promise((r) => setTimeout(r, 2000)); } const closed = v.quest_rescue_closed ?? null; if (closed && closed !== 'abandoned') throw new Error('WRONG resolution closed: ' + closed + ' (expected abandoned)'); if (!closed) throw new Error('MISS: the quest did not close on abandoned'); const method = typeof v.quest_rescue_freed_c_blood === 'number'; return { closed, methodClause: method, methodExpected: false, methodCorrect: method === false };"
+        }
+      ]
+    },
+    {
+      "id": "QR.6",
+      "model": "judged",
+      "mode": "auto",
+      "findings": [],
+      "goal": "script 6: the player's own words lead to 'abandoned'; the close is that resolution and never another; the violence clause applies only when force was used",
+      "steps": [
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); for (let id = ctx.chat.length - 1; id >= 0; id -= 1) await ctx.deleteMessage(id, undefined, false); await rt.restartStory(true); return { restarted: true, story: rt.getSnapshot().storyId ?? null };"
+        },
+        {
+          "send_generate": {
+            "text": "I agree to help, reluctantly.",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "send_generate": {
+            "text": "I scout the granary and count six men with clubs.",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "send_generate": {
+            "text": "I give up on the boy and slip away before they see me.",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "send_generate": {
+            "text": "I keep walking and do not look back at the mill.",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "log": true,
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const end = Date.now() + 240000; let v = {}; while (Date.now() < end) { v = rt.getEngineState()?.blackboard?.values ?? {}; if (v.quest_rescue_closed) break; await new Promise((r) => setTimeout(r, 2000)); } const closed = v.quest_rescue_closed ?? null; if (closed && closed !== 'abandoned') throw new Error('WRONG resolution closed: ' + closed + ' (expected abandoned)'); if (!closed) throw new Error('MISS: the quest did not close on abandoned'); const method = typeof v.quest_rescue_freed_c_blood === 'number'; return { closed, methodClause: method, methodExpected: false, methodCorrect: method === false };"
+        }
+      ]
+    }
+  ]
+}

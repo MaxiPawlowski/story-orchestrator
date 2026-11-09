@@ -5,7 +5,7 @@ import {
 } from "./carrySchema";
 import { qualityAccepts } from "./blackboard";
 import { evaluateGate } from "./gates";
-import { valueReader } from "./quests";
+import { questEnding, valueReader } from "./quests";
 import { checkCarryPair, outcomeKind, progressKeys } from "./validate/carry";
 import { parseStory } from "./validate";
 
@@ -32,7 +32,7 @@ export const outcomeLine = (story: OutcomeStory, entry: OutcomeKey, values: Valu
   if (kind === "quest") {
     const quest = (story.quests ?? []).find((candidate) => questClosedKey(candidate.id) === entry.key);
     if (!quest || !visible(quest.visible_when, values)) return null;
-    const word = value === "done" ? quest.labels?.done ?? "done" : value === "failed" ? quest.labels?.failed ?? "failed" : null;
+    const word = typeof value === "string" && value ? questEnding(quest, value)?.label ?? value : null;
     const label = authored ?? (word ? `${quest.title}: ${word}` : null);
     return label ? { key: entry.key, value, label } : null;
   }

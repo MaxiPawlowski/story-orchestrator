@@ -4,12 +4,15 @@ import { lastChanges, type KeyChange } from "./boundaryDigest";
 import { railroadView, type RailroadView } from "./railroadView";
 import { outgoingGateRows, qualityLabel, type GateRow } from "./gateReadout";
 import { buildSecretGrid, type SecretGridInputs, type SecretGridView } from "./whoKnows";
+import { buildStoryRecord, openItems, recordLabel, type StoryRecordRow } from "./storyRecord";
+import type { RuntimeExtras } from "./types";
+import { storyRecordOn } from "./recordSwitch";
 
-export const AUTHOR_SECTIONS = ["health", "state", "memory", "prompt", "proposals", "activity", "pipeline"] as const;
+export const AUTHOR_SECTIONS = ["health", "state", "memory", "prompt", "proposals", "activity", "record", "pipeline"] as const;
 export type AuthorSectionId = (typeof AUTHOR_SECTIONS)[number];
 
 export const AUTHOR_SECTION_LABELS: Record<AuthorSectionId, string> = {
-  health: "Health", state: "State", memory: "Memory", prompt: "Prompt", proposals: "Proposals", activity: "Activity", pipeline: "Pipeline",
+  health: "Health", state: "State", memory: "Memory", prompt: "Prompt", proposals: "Proposals", activity: "Activity", record: "Record", pipeline: "Pipeline",
 };
 
 export const AUTHOR_SECTION_QUESTIONS: Record<AuthorSectionId, string> = {
@@ -19,6 +22,7 @@ export const AUTHOR_SECTION_QUESTIONS: Record<AuthorSectionId, string> = {
   prompt: "What will the next reply receive?",
   proposals: "What is waiting for your decision?",
   activity: "What happened, message by message?",
+  record: "What happened, why, who heard, and what is still open?",
   pipeline: "What are the background workers doing?",
 };
 
@@ -46,18 +50,33 @@ export interface StateKeyMeta {
   changedAt?: KeyChange;
 }
 
+export interface RecordView {
+  rows: Array<StoryRecordRow & { label: string }>;
+  open: string[];
+}
+
 export interface ConsoleAuthorView {
   gates: GateRow[];
   keys: Record<string, StateKeyMeta>;
   secrets: SecretGridView | null;
   railroad: RailroadView | null;
+  record: RecordView | null;
 }
 
 export interface ConsoleSources {
   boundaryLog: readonly BoundaryLogEntry[];
-  extras: { ui: { authorView: boolean } };
+  extras: { ui: { authorView: boolean } } & Partial<Pick<RuntimeExtras, "recap" | "effects" | "echoes" | "rumors" | "overrides">>;
   secretGrid?: SecretGridInputs | null;
 }
+
+const recordOf = (story: NormalizedStory, sources: ConsoleSources): RecordView | null => {
+  if (!storyRecordOn(story, sources.extras.overrides)) return null;
+  const rows = buildStoryRecord({
+    story, log: sources.boundaryLog, refs: sources.extras.recap?.refs ?? [], ledger: sources.extras.effects?.ledger ?? [],
+    echoes: sources.extras.echoes ?? null, rumors: sources.extras.rumors ?? null, roster: (story.roster ?? []).map((member) => member.id),
+  });
+  return { rows: rows.map((row) => ({ ...row, label: recordLabel(story, row) })), open: openItems(rows) };
+};
 
 const grid = (inputs: SecretGridInputs | null | undefined): SecretGridView | null =>
   (inputs ? buildSecretGrid(inputs.secrets, inputs.knowledge, inputs.members) : null);
@@ -72,7 +91,10 @@ export function consoleAuthorSlice(story: NormalizedStory | null, state: EngineS
     label: qualityLabel(story, key), group: stateGroupOf(key, gates), ...(changes[key] ? { changedAt: changes[key] } : {}),
   }]));
   const railroad = railroadView(sources.boundaryLog);
-  return { gates: outgoingGateRows(story, active, values), keys, secrets: grid(sources.secretGrid), railroad: railroad.living || railroad.quietRuns ? railroad : null };
+  return {
+    gates: outgoingGateRows(story, active, values), keys, secrets: grid(sources.secretGrid), railroad: railroad.living || railroad.quietRuns ? railroad : null,
+    record: recordOf(story, sources),
+  };
 }
 
 export interface ProposalCounts {

@@ -1,6 +1,6 @@
 import { diffStories } from "./storyDiff";
 import { parseStoryOrThrow } from "./validate";
-import { questClosedKey, questRewardKey, type EngineState } from "./index";
+import { questClosedKey, questConsequenceKey, type EngineState } from "./index";
 
 const story = (quests: unknown[]) => parseStoryOrThrow({
   id: "quest-diff", title: "Quest diff", description: "Synthetic.",
@@ -24,13 +24,13 @@ const codes = (result: ReturnType<typeof diffStories>) => result.entries.map((en
 
 describe("story updates and quests", () => {
   test("a changed reward after it was earned is kept and says so", () => {
-    const result = diffStories(story([debt()]), story([debt({ set: { coins: { add: 9 } } })]), state({ paid: true, [questClosedKey("debt")]: "done", [questRewardKey("debt")]: true }));
-    expect(codes(result)).toContain("compatible:quest-reward-changed-earned");
+    const result = diffStories(story([debt()]), story([debt({ set: { coins: { add: 9 } } })]), state({ paid: true, [questClosedKey("debt")]: "done", [questConsequenceKey("debt", "done", "reward")]: 2 }));
+    expect(codes(result)).toContain("compatible:quest-consequence-changed-applied");
   });
 
   test("a changed reward not yet earned is an ordinary compatible edit", () => {
     const result = diffStories(story([debt()]), story([debt({ set: { coins: { add: 9 } } })]), state({}));
-    expect(codes(result)).not.toContain("compatible:quest-reward-changed-earned");
+    expect(codes(result)).not.toContain("compatible:quest-consequence-changed-applied");
     expect(result.classification).toBe("compatible");
   });
 
@@ -41,7 +41,7 @@ describe("story updates and quests", () => {
   });
 
   test("removing a quest this chat closed asks first", () => {
-    const result = diffStories(story([debt()]), story([]), state({ paid: true, [questClosedKey("debt")]: "done", [questRewardKey("debt")]: true }));
+    const result = diffStories(story([debt()]), story([]), state({ paid: true, [questClosedKey("debt")]: "done", [questConsequenceKey("debt", "done", "reward")]: 2 }));
     expect(codes(result)).toContain("invalidating:quest-removed-closed");
     expect(result.classification).toBe("invalidating");
   });

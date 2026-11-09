@@ -33,23 +33,26 @@ const VERIFY: readonly ToolName[] = ["readValidation", "readDiagnostics"];
 export const RECIPES = {
   "quest-line": {
     title: "Add a quest line",
-    when: "the author wants a side quest (or a chain of them) with steps, an ending and a reward",
-    topics: ["quests", "qualities", "gates", "widgets"],
+    when: "the author wants a side quest (or a chain of them) that ends in more than one way, each with its own cost and aftermath",
+    topics: ["quests", "quest-resolutions", "quest-consequences", "qualities", "gates", "widgets"],
     steps: [
-      { tool: "readGuide", does: "read the quests topic" },
-      { tool: "readStory", does: "see the qualities and beats the quest can lean on" },
-      { tool: "addQuality", does: "one extractor bool per thing the player does (met the giver, found it, brought it back), each with a rubric" },
-      { tool: "setQuests", does: "the full quest list: visible_when (the acceptance), steps with done_when, an optional failed_when and reward" },
+      { tool: "readGuide", does: "read the quests and quest-resolutions topics; ask who wants what, what can be found out, and what happens if the player ignores it" },
+      { tool: "readStory", does: "see the qualities, cast and beats the quest can lean on" },
+      { tool: "addQuality", does: "one extractor quality per thing the player does or how (freed, paid, used force), each with a rubric; code qualities for what consequences set" },
+      { tool: "setQuests", does: "visible_when (the acceptance), steps, then the 2-4 resolutions that matter (a guide, not a quota): labels, "
+        + "precedence when two can hold, consequences with their method clause" },
+      { tool: "setEchoes", does: "how a resolution shows later: an echo after {quest, to: <resolution>}", optional: true },
       { tool: "setMilestones", does: "a milestone for the moment worth marking; secret if it spoils", optional: true },
-      { tool: "setWidgets", does: "a track bound to \"quests\" if the Journal should show the line", optional: true },
-      { tool: "simulateWalk", does: "set the step qualities in order and check the quest reaches done", optional: true },
+      { tool: "simulateQuest", does: "close the quest once per resolution and per method, and check what applies and what the player sees", optional: true },
     ],
-    verify: [...VERIFY, "simulateWalk"],
-    diagnostics: ["undeclared-quality", "enum-value-invalid"],
+    verify: [...VERIFY, "simulateWalk", "simulateQuest"],
+    diagnostics: ["undeclared-quality", "enum-value-invalid", "consequence-write-conflict"],
     traps: [
       { topic: "quests", cue: "A reward on a quest that is done before anything happens", text: "a quest that is done at the start is refused, and so is its reward" },
-      { topic: "quests", cue: "an offered quest that fails on time alone", text: "an offered quest never fails; do not fail it on time alone" },
-      { topic: "quests", cue: "a step title that names a later beat", text: "titles and steps are player copy: never name a later beat" },
+      { topic: "quests", cue: "an offered quest that fails on time alone", text: "an offered quest never fails; a time-only end from offered is the neutral lapsed" },
+      { topic: "quest-resolutions", cue: "Two endings that can both hold with no `precedence`", text: "give precedence (first wins) or make the endings exclusive on one key" },
+      { topic: "quest-consequences", cue: "A consequence writing an extracted quality", text: "consequences set code qualities only; standing moves through a faction move gated on the resolution" },
+      { topic: "quests", cue: "a step title that names a later beat", text: "titles, steps and resolution labels are player copy: never name a later beat" },
     ],
   },
   "character-life": {

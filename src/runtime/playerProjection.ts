@@ -1,4 +1,4 @@
-import { openPhase, type Checkpoint, type NormalizedStory } from "@engine/index";
+import { openPhase, questEndings, questResolution, shownConsequenceLabels, valueReader, type Checkpoint, type NormalizedStory } from "@engine/index";
 import { PLAYER_COPY, type NarrativeSectionId, type NarrativeStatus } from "./narrative";
 import { gameLayer } from "@engine/validate/gameLayer";
 
@@ -77,6 +77,18 @@ const reachedNames = (story: NormalizedStory | null, visitedPath: readonly strin
   return [...new Set(names)];
 };
 
+export const unreachedQuestLabels = (story: Pick<NormalizedStory, "quests">, values: Readonly<Record<string, unknown>>): string[] => {
+  const reader = valueReader(values);
+  return (story.quests ?? []).flatMap((quest) => {
+    const reached = questResolution(quest, reader);
+    const shown = new Set(shownConsequenceLabels(quest, reader));
+    return questEndings(quest, true).flatMap((ending) => [
+      ...(ending.id !== reached && ending.label ? [ending.label] : []),
+      ...ending.consequences.flatMap((consequence) => (consequence.label && !shown.has(consequence.label) ? [consequence.label] : [])),
+    ]);
+  });
+};
+
 export const withheldNames = (
   story: NormalizedStory | null, visitedPath: readonly string[], activeCheckpointId: string | null, values: Readonly<Record<string, unknown>> = {},
 ): string[] => {
@@ -86,7 +98,7 @@ export const withheldNames = (
   const quests = (story.quests ?? []).map((quest) => quest.title);
   const codex = story.codex ? gameLayer()?.codex.unknownCodexNames(story, values) ?? [] : [];
   const secrets = story.life ? gameLayer()?.life.unrevealedSecretLabels(story, values) ?? [] : [];
-  const names = [...unreached, ...quests, ...codex, ...secrets].map((name) => name?.trim() ?? "").filter((name) => name.length >= WITHHELD_NAME_MIN_CHARS);
+  const names = [...unreached, ...quests, ...unreachedQuestLabels(story, values), ...codex, ...secrets].map((name) => name?.trim() ?? "").filter((name) => name.length >= WITHHELD_NAME_MIN_CHARS);
   return [...new Set(names)];
 };
 

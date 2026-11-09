@@ -9,7 +9,7 @@ jest.mock("@extraction/index", () => ({
   getChatWindow: () => ({ from: 0, to: 0, messages: [] }),
 }));
 
-import { StoryEngine, parseStoryOrThrow, questClosedKey, questRewardKey } from "@engine/index";
+import { StoryEngine, parseStoryOrThrow, questClosedKey, questConsequenceKey } from "@engine/index";
 import { runRollback, type RollbackDeps } from "./rollback";
 import type { RollbackKind } from "./narrative";
 import { mintToken, tokenMatches, type RunContext, type RunOwnership } from "./runToken";
@@ -61,7 +61,7 @@ describe("a mutation of the message that finished a quest steps the quest back",
     expect(outcome).toMatchObject({ ok: true, result: "applied" });
     const values = h.engine.serialize().blackboard.values;
     expect(values[questClosedKey("debt")]).toBeUndefined();
-    expect(values[questRewardKey("debt")]).toBeUndefined();
+    expect(values[questConsequenceKey("debt", "done", "reward")]).toBeUndefined();
     expect(values.coins).toBeUndefined();
     expect(h.reapplied).toEqual([4]);
   });

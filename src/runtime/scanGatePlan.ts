@@ -27,7 +27,7 @@ export function scanGatePlan(library: unknown[], loaded: NormalizedStory | null,
   const gate: ScanGate = new Map();
   for (const plan of releasePlan(library, loaded)) for (const comment of plan.disable) setEntry(gate, plan.lorebook, comment, false);
   if (loaded) {
-    for (const plan of worldInfoPlan(loaded, path, switches.rewarded, switches.earned)) {
+    for (const plan of worldInfoPlan(loaded, path, switches.consequences, switches.earned)) {
       for (const comment of plan.disable) setEntry(gate, plan.lorebook, comment, false);
       for (const comment of plan.enable) setEntry(gate, plan.lorebook, comment, true);
     }

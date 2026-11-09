@@ -255,6 +255,11 @@ describe("runDiagnostics", () => {
       ...runDiagnostics({ ...clean, checkpoints: [{ ...clean.checkpoints[0], type: "anchor", tension_target: "critical" }, clean.checkpoints[1]] }),
       ...runDiagnostics({ ...clean, checkpoints: [{ ...clean.checkpoints[0], effects: { world_info: { enable: [{ lorebook: "Book", comments: ["Big"], until: "ghost" }] } } },
         clean.checkpoints[1]] }, { loreEntries: () => [{ comment: "Big", tokens: 3000, disabled: false, constant: true }] }),
+      ...runDiagnostics({ ...clean, qualities: [...clean.qualities, { key: "mood", type: "enum", values: ["calm", "angry"], source: "code", rubric: "r" }], quests: [
+        { id: "a", title: "A", kind: "side", steps: [], done_when: { q: "trust", op: ">=", v: 1 }, reward: { set: { mood: "calm" } } },
+        { id: "b", title: "B", kind: "side", steps: [], resolutions: [{ id: "won", when: { q: "trust", op: ">=", v: 2 }, label: "A label far longer than the forty characters a glance allows",
+          consequences: [{ id: "x", set: { mood: "angry" } }] }] },
+      ] }),
     ];
     const counts = new Map<string, number>();
     diagnostics.forEach((entry) => counts.set(entry.code, (counts.get(entry.code) ?? 0) + 1));

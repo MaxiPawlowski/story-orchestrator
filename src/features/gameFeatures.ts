@@ -1,6 +1,6 @@
 import type { Feature } from "./registry";
 import { authorGuideDoc } from "./guideLinks";
-import { drawerAt } from "./where";
+import { drawerAt, featureAt } from "./where";
 
 
 export const GAME_FEATURES: readonly Feature[] = [
@@ -38,6 +38,24 @@ export const GAME_FEATURES: readonly Feature[] = [
     where: drawerAt("#so-open-widgets", "Story panels"),
     settings: ["display.presence.htmlWidgets"], doc: "player/drawer-and-hud.md", status: "shipped", needs: ["story"],
     isOn: (settings) => settings.display.presence.htmlWidgets,
+  },
+  {
+    id: "quest-resolutions", name: "Quest resolutions", area: "authoring", audience: "author",
+    oneLine: "A quest closes on the ending the story names, and each ending can bring its own consequences.",
+    what: "An author can give a quest several endings besides done and failed, each with its own gate, and consequences that apply once when it closes, some only if a method clause holds. "
+      + "When two endings could close at once, the story's precedence decides, never the order they were written in. The player sees only the ending reached and the consequences it applied. "
+      + "Off, only done_when, failed_when and the reward count; authored endings and consequences are ignored and nothing is applied in their place. A swipe takes a close back.",
+    where: featureAt("questResolutions", "enabled", "Quest resolutions"),
+    settings: [], guideTopic: "quest-resolutions", doc: authorGuideDoc("quest-resolutions"), status: "experimental", needs: ["story"],
+  },
+  {
+    id: "story-record", name: "Story record", area: "authoring", audience: "author",
+    oneLine: "An author's list of what happened at each reply, why, who heard and what is still open.",
+    what: "Author view's Record tab lists each change the story made: a place reached, a quest closed and on which ending, a consequence applied, a faction move, an echo or a rumor that landed. "
+      + "Each row names the player's line that decided it when exactly one did, otherwise the cause is unknown; the host effects it switched on; who was told; and what it opened or closed. "
+      + "It is built from what the chat already keeps, nothing new is saved, and a swipe changes it like everything else. Players never see it.",
+    where: featureAt("storyRecord", "enabled", "Story record"),
+    settings: [], guideTopic: "quest-resolutions", doc: authorGuideDoc("quest-resolutions"), status: "experimental", needs: ["story"],
   },
   {
     id: "codex", name: "People and Places", area: "play", audience: "player",

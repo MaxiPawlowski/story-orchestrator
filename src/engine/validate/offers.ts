@@ -1,8 +1,9 @@
 import {
-  OFFER_REASON_MAX, OFFER_TEXT_MAX, OFFERS_MAX, checkRolledKey, questClosedKey, questRewardKey,
+  OFFER_REASON_MAX, OFFER_TEXT_MAX, OFFERS_MAX, checkRolledKey,
   type Checkpoint, type CheckpointOffer, type GateNode, type Quality, type Quest, type Transition, type ValidationError,
 } from "../schema";
 import { gateKeys } from "../gates";
+import { questLatchKeys } from "../quests";
 import { checkWrittenKeys } from "../storyChecks";
 import { isRecord } from "@utils/guards";
 import { nearestKey } from "@utils/levenshtein";
@@ -60,7 +61,7 @@ export const addOffers = (checkpoint: Checkpoint, value: unknown, path: string, 
   if (offers.length) checkpoint.offers = offers;
 };
 
-const questKeys = (quests: readonly Quest[] | undefined): Set<string> => new Set((quests ?? []).flatMap((quest) => [questClosedKey(quest.id), questRewardKey(quest.id)]));
+const questKeys = (quests: readonly Quest[] | undefined): Set<string> => new Set(questLatchKeys({ quests: quests ? [...quests] : undefined }));
 
 export const hiddenOutcomeKeys = (checkpoints: Checkpoint[], transitions: Transition[], qualities: readonly Quality[], quests?: readonly Quest[]): Set<string> => {
   const quest = questKeys(quests);

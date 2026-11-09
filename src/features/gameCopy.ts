@@ -10,6 +10,7 @@ export const GAME_TEXT = {
   log: "Log",
   milestones: "Milestones",
   reward: "Reward",
+  outcome: "Outcome",
   from: "From",
   journalEmpty: "Nothing to show yet. Quests appear here once you find them.",
   statSheetEmpty: "Nothing to show yet.",
@@ -26,14 +27,20 @@ export const GAME_TEXT = {
   noticedJump: "Show in chat",
 };
 
-export const QUEST_MOVE_TEXT: Record<Exclude<QuestStatus, "hidden">, string> = {
+export const QUEST_MOVE_TEXT = {
   offered: "Quest offered",
   active: "Quest started",
   done: "Quest completed",
   failed: "Quest failed",
+  lapsed: "Offer lapsed",
+  closed: "Quest resolved",
+} as const;
+
+const QUEST_WORDS: Readonly<Record<string, string>> = QUEST_MOVE_TEXT;
+
+export const questStatusWord = (status: QuestStatus, label?: string): string => {
+  if (status === "offered" || status === "active") return QUEST_WORDS[status];
+  return label ?? QUEST_WORDS[status] ?? QUEST_MOVE_TEXT.closed;
 };
 
-export const questMoveText = (status: Exclude<QuestStatus, "hidden">, title: string, labels?: { done?: string; failed?: string }): string => {
-  const verb = status === "done" ? labels?.done ?? QUEST_MOVE_TEXT.done : status === "failed" ? labels?.failed ?? QUEST_MOVE_TEXT.failed : QUEST_MOVE_TEXT[status];
-  return `${verb}: ${title}`;
-};
+export const questMoveText = (status: QuestStatus, title: string, label?: string): string => `${questStatusWord(status, label)}: ${title}`;

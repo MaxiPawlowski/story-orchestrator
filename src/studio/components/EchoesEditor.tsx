@@ -1,5 +1,6 @@
 import React from "react";
-import { ECHO_CHECK_OUTCOMES, ECHO_NARRATOR, ECHO_QUEST_ENDS, echoRange, echoUnit, type EchoAfter, type EchoQuestEnd, type StoryEcho } from "@engine/echoSchema";
+import { ECHO_CHECK_OUTCOMES, ECHO_NARRATOR, echoRange, echoUnit, type EchoAfter, type StoryEcho } from "@engine/echoSchema";
+import { authoredEndingIds } from "../questEndings";
 import { transitionIds } from "@engine/validate/echoes";
 import { checksById } from "@engine/storyChecks";
 import HelpTooltip from "@components/studio/HelpTooltip";
@@ -29,12 +30,10 @@ const sourceIds = (draft: StoryDraft, kind: Kind): string[] => {
 
 const afterFor = (kind: Kind, id: string, previous: EchoAfter): EchoAfter => {
   if (kind === "transition") return { transition: id };
-  if (kind === "quest") return { quest: id, to: "to" in previous && isQuestEnd(previous.to) ? previous.to : "done" };
+  if (kind === "quest") return { quest: id, to: "to" in previous ? previous.to : "done" };
   if (kind === "milestone") return { milestone: id };
   return { check: id, outcome: "outcome" in previous ? previous.outcome : "success" };
 };
-
-const isQuestEnd = (value: string): value is EchoQuestEnd => (ECHO_QUEST_ENDS as readonly string[]).includes(value);
 
 const Select: React.FC<{ label: string; value: string; options: readonly string[]; onChange: (value: string) => void; names?: Record<string, string> }> = ({
   label, value, options, onChange, names,
@@ -59,8 +58,8 @@ const SourcePicker: React.FC<{ echo: StoryEcho; patch: (value: Partial<StoryEcho
         onChange={(next) => patch({ after: afterFor(next as Kind, sourceIds(draft, next as Kind)[0] ?? "", echo.after) })} />
       <Select label={`echo ${echo.id} source`} value={id} options={ids} onChange={(next) => patch({ after: afterFor(kind, next, echo.after) })} />
       {"quest" in echo.after && (
-        <Select label={`echo ${echo.id} quest ends`} value={echo.after.to} options={ECHO_QUEST_ENDS}
-          onChange={(to) => patch({ after: { quest: id, to: isQuestEnd(to) ? to : "done" } })} />
+        <Select label={`echo ${echo.id} quest ends`} value={echo.after.to} options={authoredEndingIds((draft.quests ?? []).find((quest) => quest.id === id))}
+          onChange={(to) => patch({ after: { quest: id, to } })} />
       )}
       {"check" in echo.after && (
         <Select label={`echo ${echo.id} outcome`} value={echo.after.outcome} options={ECHO_CHECK_OUTCOMES} onChange={(outcome) => patch({ after: { check: id, outcome } })} />

@@ -471,7 +471,8 @@ const POLICY_TARGETS: Record<string, [import("@engine/featurePolicy").StoryFeatu
   "meanwhile-proposals": ["meanwhile", "acceptMode"], "living-story": ["living", "enabled"], "story-branching": ["branching", "enabled"],
   "witness-record": ["witness", "enabled"], rumors: ["rumors", "enabled"], "story-patterns": ["patterns", "enabled"],
   "reactive-cues": ["cues", "enabled"], "delayed-echoes": ["echoes", "enabled"], "threads-put-off": ["deferrals", "enabled"],
-  "skip-ahead": ["skip", "enabled"],
+  "skip-ahead": ["skip", "enabled"], "quest-resolutions": ["questResolutions", "enabled"],
+  "story-record": ["storyRecord", "enabled"],
 };
 
 export const SOURCE_FEATURES: readonly Feature[] = [

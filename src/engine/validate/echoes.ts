@@ -1,9 +1,10 @@
 import {
-  ECHO_CHECK_OUTCOMES, ECHO_CUE_MAX, ECHO_DELAY_MAX, ECHO_EXPIRES_MAX, ECHO_HOLD_MAX, ECHO_NARRATOR, ECHO_QUEST_ENDS, ECHOES_MAX, echoUnit,
+  ECHO_CHECK_OUTCOMES, ECHO_CUE_MAX, ECHO_DELAY_MAX, ECHO_EXPIRES_MAX, ECHO_HOLD_MAX, ECHO_NARRATOR, ECHOES_MAX, echoUnit,
   type EchoAfter, type EchoDelay, type EchoWindow, type StoryEcho,
 } from "../echoSchema";
 import type { Milestone, Quality, Quest, RosterMember, Transition, ValidationError } from "../schema";
 import { checksById } from "../storyChecks";
+import { questEndings } from "../quests";
 import { isRecord } from "@utils/guards";
 import { addError, asString, isOneOf, refuse, rejectUnknownKeys } from "./common";
 import { readGate, validateGate } from "./gates";
@@ -31,7 +32,7 @@ const readAfter = (value: unknown, path: string, errors: ValidationError[]): Ech
   }
   if (value.quest !== undefined) {
     rejectUnknownKeys(value, ["quest", "to"], path, errors);
-    const to = isOneOf(value.to, ECHO_QUEST_ENDS) ? value.to : refuse(errors, `${path}.to`, "a quest echo follows the quest ending: to is done or failed", null);
+    const to = text("to") ?? refuse(errors, `${path}.to`, "a quest echo follows one of the quest's resolutions: to is its id (done, failed or an authored one)", null);
     return text("quest") && to ? { quest: text("quest") as string, to } : null;
   }
   if (value.milestone !== undefined) {
@@ -110,7 +111,12 @@ export const transitionIds = (transitions: readonly Pick<Transition, "from" | "t
 
 const sourceProblem = (after: EchoAfter, context: EchoCheckContext, transitions: ReadonlySet<string>): [string, string] | null => {
   if ("transition" in after) return transitions.has(after.transition) ? null : ["transition", `'${after.transition}' is not a transition of this story`];
-  if ("quest" in after) return (context.quests ?? []).some((quest) => quest.id === after.quest) ? null : ["quest", `'${after.quest}' is not a quest`];
+  if ("quest" in after) {
+    const quest = (context.quests ?? []).find((candidate) => candidate.id === after.quest);
+    if (!quest) return ["quest", `'${after.quest}' is not a quest`];
+    if (["done", "failed"].includes(after.to) || questEndings(quest, true).some((ending) => ending.id === after.to)) return null;
+    return ["to", `a quest echo follows the quest ending: to is done or failed, or one of its resolutions; quest '${after.quest}' has no resolution '${after.to}'`];
+  }
   if ("milestone" in after) return (context.milestones ?? []).some((milestone) => milestone.id === after.milestone) ? null : ["milestone", `'${after.milestone}' is not a milestone`];
   return checksById({ checkpoints: [...context.checkpoints], transitions: [...context.transitions] }).has(after.check) ? null : ["check", `'${after.check}' is not a check`];
 };

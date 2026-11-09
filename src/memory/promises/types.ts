@@ -62,4 +62,4 @@ export interface PlayerPromise {
   questTitle?: string;
 }
 
-export type QuestStatusOf = (questId: string) => "hidden" | "offered" | "active" | "done" | "failed" | null;
+export type QuestStatusOf = (questId: string) => string | null;

@@ -20,7 +20,7 @@ export const PATTERN_ATTRS = {
   act: ["id", "by", "to"],
 } as const satisfies Record<PatternKind, readonly string[]>;
 
-export const PATTERN_QUEST_STATUSES = ["offered", "active", "done", "failed"] as const;
+export const PATTERN_QUEST_STATUSES = ["offered", "active"] as const;
 export const PATTERN_CHECK_OUTCOMES = ["success", "failure", "miss", "weak", "strong"] as const;
 export const PATTERN_VAR = /^\?[a-z][a-z0-9_]{0,31}$/;
 export const PATTERN_CAUSE_WORDS = /\b(because|so that|therefore|led to)\b/i;

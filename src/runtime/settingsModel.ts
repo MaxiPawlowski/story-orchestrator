@@ -63,7 +63,7 @@ export const sanitizeInlineSettings = (value: unknown): InlineSettings => {
 // User/install lifetime (spec addendum §Configuration homes). Chat lifetime keeps only engine
 // state, rings and the per-chat overrides listed in ChatOverrides.
 export interface GlobalSettings {
-  featureSwitches?: Partial<Record<"agency" | "meanwhile" | "thinking", boolean>>;
+  featureSwitches?: Partial<Record<"agency" | "meanwhile" | "thinking" | "questResolutions" | "storyRecord", boolean>>;
   extraction: ExtractionRuntimeSettings;
   pacing: { hintEnabled: boolean; pathArc: boolean; stuckLadder: boolean; engagement: boolean };
   display: {
@@ -367,7 +367,7 @@ export const sanitizeGlobalSettings = (value: unknown): GlobalSettings => {
   const display = isRecord(value.display) ? value.display : {};
   const memory = isRecord(value.memory) ? value.memory : {};
   const switches = isRecord(value.featureSwitches) ? value.featureSwitches : {};
-  const featureSwitches = Object.fromEntries(["agency", "meanwhile", "thinking"].flatMap((id) => typeof switches[id] === "boolean" ? [[id, switches[id]]] : []));
+  const featureSwitches = Object.fromEntries(["agency", "meanwhile", "thinking", "questResolutions", "storyRecord"].flatMap((id) => typeof switches[id] === "boolean" ? [[id, switches[id]]] : []));
   return {
     ...(Object.keys(featureSwitches).length ? { featureSwitches } : {}),
     extraction: {

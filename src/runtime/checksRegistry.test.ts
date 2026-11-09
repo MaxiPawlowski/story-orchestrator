@@ -45,7 +45,7 @@ const everything = (overrides: Record<string, unknown> = {}): RuntimeSnapshot =>
   spriteLookIssues: [{ name: "Arin", reason: "Choose a reference expression pack in Studio." }],
   spriteRecipe: { status: "missing", problem: "ComfyUI offers no Qwen Image 2.1 edit diffusion model.", source: null, waiting: ["Arin"] },
   spriteStage: { builtInExpressions: true, packIssues: [{ name: "Belle", reason: "no sprite pack on the card (so_sprites)" }], inventory: {} },
-  gameAuthor: { quests: [], scopeOverflow: ["met_cartographer"], widgets: [], discoveryOverflow: ["heard_debt"] },
+  gameAuthor: { quests: [], scopeOverflow: ["met_cartographer"], widgets: [], discoveryOverflow: ["heard_debt"], heldQuests: ["rescue"], consequenceConflicts: ["town_mood"] },
   sameCharacter: ["the captain"],
   patternsUnavailable: true,
   lifeAuthor: { rows: [], scopeOverflow: ["rel_arin_player_trust"], proposals: [] },

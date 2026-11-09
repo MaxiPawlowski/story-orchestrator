@@ -1,8 +1,8 @@
 import { progressQualityForAnchor } from "./convergence";
-import { questLatchesMoved } from "./quests";
+import { questLatchesMoved, questLatchKeys } from "./quests";
 import {
   CLOCK_MOVED_KEY, CLOCK_STORY_TIME_KEY, TIME_REACHED_PREFIX, TURN_OOC_KEY, agendaChapterKey, agendaRepeatsKey, agendaStepKey, agendaWaitKey, clockStart, isCodexKey,
-  isObservationKey, isStoryTimeKey, moodAgeKey, moodSceneKey, moodWasKey, isCommitKey, isFactionKey, isLabelKey, questClosedKey, questRewardKey, type NormalizedStory,
+  isObservationKey, isStoryTimeKey, moodAgeKey, moodSceneKey, moodWasKey, isCommitKey, isFactionKey, isLabelKey, type NormalizedStory,
 } from "./schema";
 import { PLAYER_TURNS_KEY } from "./stretch";
 import { isCueKey, isTopicKey } from "./cueKeys";
@@ -44,7 +44,7 @@ const lived = (story: NormalizedStory): boolean => Boolean(story.life);
 export const ROLLBACK_DETECTORS: readonly RollbackDetector[] = [
   {
     id: "quests",
-    keys: (story) => (story.quests ?? []).flatMap((quest) => [questClosedKey(quest.id), questRewardKey(quest.id)]),
+    keys: (story) => questLatchKeys(story),
     moved: (story, before, after) => questLatchesMoved(story, before, after),
   },
   {

@@ -1,6 +1,6 @@
 # v3.0 54 — Story record: what happened, why, who knows, what is open
 
-Status 2026-11-08: PLANNED (docs only). Astra's "shared foundation". Built with or right after 48; read by 51 and 52.
+Status 2026-11-08: BUILT with 48, merged to local master (not pushed); live gates owed. Astra's "shared foundation". Built with or right after 48; read by 51 and 52.
 
 ## Why
 
@@ -74,3 +74,30 @@ Size S-M. CPU only. Alongside 48 (it needs the resolution refs); before 51.
 
 - Should the record also be the director's only input for "what happened" (replacing its own thread list), or sit
   beside it?
+
+
+## Gate record (2026-11-08)
+
+Built with 48 on `v3.0-48-resolutions` (same runs).
+
+- Full gates, run 6 (via the heavy lock, no `--resume`, Storybook included), on `3450f0849` (branch with local master
+  `e5a1c61f8` merged): `npm run gates -- --jobs=2` -> `gates: all green in 390.7s` (test:replay 92.9s, test 202.4s,
+  test-storybook:ci 297.0s, build 14.4s, typecheck 33.6s, test:debug 30.4s, typecheck:test 29.7s, lint 27.5s,
+  debug:typecheck 9.5s, test:release 6.1s, test:plugin 21.4s). Main bundle 1,249,929 B of 1,300,000.
+- After it, only docs: local master `81e98eb06` (plan 52 record) and these gate records.
+- `npm run gates:quick` (via the lock) on `e45b1340f`: typecheck 74.9s, typecheck:test 90.8s, lint 29.1s, jest related 165.9s,
+  replay `--cached` 90.9s, all ok.
+- Red runs before it, each fixed and rerun in full:
+  - run 1: `errorCopy.guard` (two simulator sites missing from `test/findings/errorCopy.json`); Storybook
+    `QuestResolutionsPanel` (fixture did not validate; precedence field ate commas while typing).
+  - run 2: Storybook, the fixture's `trust` meter needed `min`/`max`.
+  - run 3: lint, the story's `render` called a hook (now a `FirstQuest` component).
+  - run 4: stopped in the lock queue (master moved). Run 5: `test:release` suite coverage, `quest-resolutions` and
+    `story-record` had no plan 24 matrix row (added to `docs/plans/v2.8/24-test-plan.md`).
+- Docs: `npm run docs:guide`, `npm run docs:settings` after each master merge.
+- Built: `runtime/storyRecord.ts` (pure projection), Author console section `record` (`RecordSection.tsx` + stories), switch
+  `featureSwitches.storyRecord` (on) through `runtime/recordSwitch.ts`; tests `runtime/storyRecord.test.ts` (rollback equals
+  replay, planted secret, p95 floor).
+- Deviation: the p95 floor is measured best-of-3 per sample after warm-up (the CPU was fully loaded; median build ~0.7 ms).
+- Owed: the no-model scenario reading the record after a scripted resolution + rollback (`v30-48-resolutions.json`, ×2);
+  `so-ui.mts assert-player-clean` on a lane.

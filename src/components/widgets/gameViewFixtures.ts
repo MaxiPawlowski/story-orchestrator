@@ -7,11 +7,11 @@ const track: WidgetView = {
     main: { done: ["Approach"], current: "Infiltrate", objective: "Get inside unseen." },
     quests: [
       {
-        title: "The ferryman's debt", status: "active", statusLabel: "Active", closed: false, giver: "The Ferryman", reward: "Free passage",
+        title: "The ferryman's debt", status: "active", statusLabel: "Active", closed: false, giver: "The Ferryman", reward: "Free passage", outcomes: [],
         steps: [{ text: "Find the ledger", status: "done" }, { text: "Bring three coins", status: "open", progress: { value: 1, of: 3 } }],
       },
-      { title: "A lantern in the fog", status: "offered", statusLabel: "Offered", closed: false, giver: null, reward: null, steps: [] },
-      { title: "The drowned bell", status: "done", statusLabel: "Done", closed: true, giver: null, reward: null, steps: [] },
+      { title: "A lantern in the fog", status: "offered", statusLabel: "Offered", closed: false, giver: null, reward: null, outcomes: [], steps: [] },
+      { title: "The drowned bell", status: "done", statusLabel: "Done", closed: true, giver: null, reward: null, outcomes: ["The bell rings again at dusk"], steps: [] },
     ],
   },
 };

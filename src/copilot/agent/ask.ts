@@ -27,7 +27,7 @@ export const ASK_ONLY_TOOLS: Record<string, AgentToolSpec> = {
 
 const DRAFT_READ_TOOLS: readonly ReadToolName[] = [
   "readStory", "readCheckpoint", "readGraph", "readDiagnostics", "readValidation", "readQualityUsage", "readGateOptions", "readCoverage", "readGuide", "readRecipe",
-  "simulateReachability", "simulateWalk", "lookupCharacters", "lookupLorebooks", "lookupGroups", "lookupBackgrounds",
+  "simulateReachability", "simulateWalk", "simulateQuest", "lookupCharacters", "lookupLorebooks", "lookupGroups", "lookupBackgrounds",
 ];
 
 export const AUTHOR_ASK_TOOLS: readonly string[] = ["searchKnowledge", "readKnowledge", "readRecommendations", "readLiveState", ...DRAFT_READ_TOOLS];

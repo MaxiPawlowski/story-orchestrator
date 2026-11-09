@@ -11,7 +11,7 @@ import type * as PoseMutations from "../../studio/poseMutations";
 import { POSE_AGENT_KINDS, readPoseCall } from "./poseOps";
 import type * as GameMutations from "../../studio/gameMutations";
 import { GAME_AGENT_KINDS, readGameCall } from "./gameOps";
-import { CUE_EDIT_TOOLS, ECHO_EDIT_TOOLS } from "./cueTools";
+import { CUE_EDIT_TOOLS, ECHO_EDIT_TOOLS, QUEST_SIMULATE_TOOLS } from "./cueTools";
 import { POLISH_EDIT_TOOLS, readPolishCall } from "./polishTools";
 import { parseProposal } from "../index";
 import type { ProposalOpKind } from "../types";
@@ -319,7 +319,7 @@ export const READ_TOOLS = {
     family: "simulate",
     doc: "Replay gates over a scripted run: each step sets quality values, then at most one transition fires.",
     args: { steps: req("array", "[{qualityKey: value}, …]") },
-  },
+  }, ...QUEST_SIMULATE_TOOLS,
   lookupCharacters: { family: "lookup", doc: "Character card names on this install.", args: { query: QUERY } },
   lookupLorebooks: { family: "lookup", doc: "Lorebook names on this install.", args: { query: QUERY } },
   lookupGroups: { family: "lookup", doc: "Group names on this install.", args: { query: QUERY } },

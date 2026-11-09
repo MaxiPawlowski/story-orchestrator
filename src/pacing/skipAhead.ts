@@ -1,6 +1,6 @@
 import { evaluateGate, type GateReader } from "@engine/gates";
 import { PLAYER_REF } from "@engine/agency";
-import { questStatus, stepStatus } from "@engine/quests";
+import { isClosed, pendingStatus, questStatus, stepStatus } from "@engine/quests";
 import { CLOCK_DAY_KEY, type GateNode, type NormalizedStory, type PrimitiveValue, type StoryClock } from "@engine/schema";
 import { currentTime, dayOf, partOf, timeLabel, timeValues } from "@engine/life/clock";
 
@@ -66,8 +66,8 @@ const eventDue = (event: SkipDueEvent, boundary: number, span: SkipSpan | null, 
 const gateDue = (story: NormalizedStory, now: GateReader, next: GateReader, day: number | null, nextDay: number | null): SkipDue | null => {
   for (const quest of story.quests ?? []) {
     const status = questStatus(quest, now);
-    if (status === "done" || status === "failed") continue;
-    if (questStatus(quest, next) !== status || quest.steps.some((step) => stepStatus(step, next) !== stepStatus(step, now))) return { kind: "quest", at: "threshold" };
+    if (isClosed(status)) continue;
+    if (pendingStatus(quest, next) !== status || quest.steps.some((step) => stepStatus(step, next) !== stepStatus(step, now))) return { kind: "quest", at: "threshold" };
   }
   for (const member of story.life?.members ?? []) {
     if (member.agenda.some((agenda) => agenda.steps.some((step) => flips(step.when, now, next)))) return { kind: "agenda", at: "threshold" };

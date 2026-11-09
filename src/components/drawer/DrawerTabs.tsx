@@ -21,6 +21,7 @@ const DriverPanel = lazyRetry(() => import("./DriverPanel"));
 const StateSection = lazyRetry(() => import("./tabs/StateSection").then((module) => ({ default: module.StateSection })));
 const ActivitySection = lazyRetry(() => import("./tabs/ActivitySection").then((module) => ({ default: module.ActivitySection })));
 const ProposalsSection = lazyRetry(() => import("./tabs/ProposalsSection").then((module) => ({ default: module.ProposalsSection })));
+const RecordSection = lazyRetry(() => import("./tabs/RecordSection").then((module) => ({ default: module.RecordSection })));
 const PipelineSection = lazyRetry(() => import("./tabs/PipelineSection").then((module) => ({ default: module.PipelineSection })));
 const PromptSection = lazyRetry(() => import("./tabs/PromptSection").then((module) => ({ default: module.PromptSection })));
 const PatternsPanel = lazyRetry(() => import("./PatternsPanel").then((module) => ({ default: module.PatternsPanel })));
@@ -184,6 +185,7 @@ export const DrawerTabs = ({
                   <ActivitySection snapshot={snapshot} manager={manager} onJump={onJumpToMessage} onOpenHealth={() => setActive("health")} />
                 </SectionBody>
               )}
+              {active === "record" && <SectionBody id="record"><RecordSection view={snapshot.consoleAuthor?.record} onJump={onJumpToMessage} /></SectionBody>}
               {active === "pipeline" && <SectionBody id="pipeline"><PipelineSection snapshot={snapshot} manager={manager} /></SectionBody>}
             </TabPanel>
           </Tabs>

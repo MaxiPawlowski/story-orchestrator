@@ -82,6 +82,7 @@ const QuestCard = ({ quest }: { quest: QuestView }) => (
       </ul>
     )}
     {quest.reward && <span className="text-xs st-muted">{GAME_TEXT.reward}: {quest.reward}</span>}
+    {quest.outcomes.map((outcome) => <span key={outcome} data-so="quest-outcome" className="text-xs st-muted">{GAME_TEXT.outcome}: {outcome}</span>)}
   </li>
 );
 

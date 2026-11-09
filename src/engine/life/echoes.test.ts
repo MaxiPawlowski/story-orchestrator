@@ -79,7 +79,7 @@ describe("v2.9 07 S2: scheduling from each source kind", () => {
 
   it("schedules from a quest ending, a milestone and a check result", () => {
     const story = only("fare-thanks", "bell-talk", "steady-word");
-    const run = simulate(story, [{ set: { ferry_paid: true, saw_bell: true }, checks: [["steady", "success"]] }, ...idle(4)]);
+    const run = simulate(story, [{ set: { ferry_paid: true, quest_fare_closed: "done", saw_bell: true }, checks: [["steady", "success"]] }, ...idle(4)]);
     expect(run.results[0].scheduled.map((event) => event.echoId).sort()).toEqual(["bell-talk", "fare-thanks", "steady-word"]);
     expect(run.states.at(-1)?.events.find((event) => event.echoId === "fare-thanks")?.landedAt?.boundary).toBe(3);
     expect(run.states.at(-1)?.events.find((event) => event.echoId === "steady-word")?.landedAt?.boundary).toBe(2);
@@ -169,7 +169,7 @@ describe("v2.9 07 S2: catch-up and gaps", () => {
 
   it("records a gap instead of inventing a schedule when the log is gone", () => {
     const story = only("fare-thanks");
-    const live = simulate(story, [{ set: { ferry_paid: true } }, {}, {}], { logCap: 1 });
+    const live = simulate(story, [{ set: { ferry_paid: true, quest_fare_closed: "done" } }, {}, {}], { logCap: 1 });
     const state: EchoesState = { ...createEchoes(), scannedTo: 0 };
     const late = stepEchoes({ state, story, log: live.log, checks: [], checksComplete: true, values: live.values[2], at: { boundary: 3, messageId: 6 },
       chatId: "chat", storyId: "lab", enabled: ALL, refuse: () => null });
@@ -195,7 +195,7 @@ describe("v2.9 07 S2: rollback equals replay; reopen round trip", () => {
     { ...base, id: "c", after: { quest: "fare", to: "done" }, delay: { boundaries: [1, 1] }, to: "tom", hold: 1 },
   ]));
   const turns: Turn[] = [
-    { fire: true }, { set: { saw_bell: true } }, {}, { set: { ferry_paid: true } }, { set: { trader_angry: true } }, { enabled: ["mara", "narrator"] }, {}, {}, { set: { repaid: true } }, {},
+    { fire: true }, { set: { saw_bell: true } }, {}, { set: { ferry_paid: true, quest_fare_closed: "done" } }, { set: { trader_angry: true } }, { enabled: ["mara", "narrator"] }, {}, {}, { set: { repaid: true } }, {},
   ];
 
   it.each(Array.from({ length: turns.length }, (_, cut) => cut))("cut at boundary %i: rollback gives the replay state and replays to the same end", (cut) => {
@@ -227,7 +227,7 @@ describe("v2.9 07 S2: rollback equals replay; reopen round trip", () => {
 
 describe("v2.9 07 S1: story update reconciles the slice", () => {
   const story = only("trader", "fare-thanks");
-  const turns: Turn[] = [{ fire: true, set: { story_time: 0, trader_angry: true, ferry_paid: true } }];
+  const turns: Turn[] = [{ fire: true, set: { story_time: 0, trader_angry: true, ferry_paid: true, quest_fare_closed: "done" } }];
 
   it("keeps pending events on a cue-only edit and lands them with the new words", () => {
     const run = simulate(story, turns);
@@ -259,7 +259,7 @@ describe("v2.9 07 S1: story update reconciles the slice", () => {
 describe("v2.9 07 S3: offer candidates, author view and journal", () => {
   it("hands a landed echo to the offer channel as an echo source at priority 20, recipient only", () => {
     const story = only("fare-thanks");
-    const run = simulate(story, [{ set: { ferry_paid: true } }, {}, {}]);
+    const run = simulate(story, [{ set: { ferry_paid: true, quest_fare_closed: "done" } }, {}, {}]);
     const state = run.states.at(-1)!;
     const [candidate] = echoCandidates(story, state, "tom");
     expect(candidate).toEqual(expect.objectContaining({

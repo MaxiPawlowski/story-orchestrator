@@ -443,6 +443,8 @@ real-model carrier, or why none is needed.
 | in-chat-discovery | D | inChat jest (latch boundary to message, known only), DiscoveryCard Storybook, lane 73 live (v3.0 44) | none: no model |
 | in-chat-gate-meter | D | inChat jest (author-only, player view identical without it), GateMeter Storybook, lane 73 live Author view (v3.0 44) | none: no model |
 | quests | RP | 36-Q5-scn, S-16, storyCheckWhen jest (checkpoint check `when`, 2026-10-16) | GS1.3, GS3.1, GS6.10 (check `when`) |
+| quest-resolutions | D | questResolution jest, questResolution property test (200 seeds, shuffle + rollback), questResolutionSurfaces jest, QuestResolutionsPanel/QuestsEditor/WidgetCard stories; v30-48-resolutions (no-model lane, owed, v3.0 48) | none: no model pass; real-model journey quest-resolutions owed ×2 (v3.0 48, GPU) |
+| story-record | D | storyRecord jest (rollback equals replay, planted secret, p95), RecordSection/DrawerTabs stories (v3.0 54) | none: no model |
 | character-life | RP + CL | 37-D1..D3 | GS1.5, GS3.3, GS2.7 |
 | meanwhile-proposals | CL | agenda proposal tests | GS2.7; M16 carried |
 | living-story | CL + RP | v28-35-living-rollback ×2 | GS2.1–GS2.4, GS3.5 |
