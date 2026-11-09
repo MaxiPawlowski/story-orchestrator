@@ -73,6 +73,7 @@ export class PacingCoordinator {
     this.sampled = null;
     this.direction = null;
     this.asking = null;
+    this.readings = [];
   }
 
   applyExtractorTension(acceptedDeltas: ParsedDelta[], windowTo: number): { accepted: ParsedDelta[]; levels: TensionLevel[] } {
@@ -132,8 +133,9 @@ export class PacingCoordinator {
       });
     });
     this.deps.setTension(tension);
-    this.readings = rollbackEngagement(this.readings, (log.at(-1)?.context.lastMessageId ?? -1) + 1);
+    const kept = rollbackEngagement(this.readings, (log.at(-1)?.context.lastMessageId ?? -1) + 1);
     this.reset();
+    this.readings = kept;
   }
 
   engagement(): EngagementReading | null {

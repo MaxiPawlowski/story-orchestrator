@@ -1,0 +1,311 @@
+{
+  "model": "any",
+  "_note": "v3.0 52 live pacing-engagement row. Arm = install setting pacing.engagement, set before the run (first step records it). The 2026-11-09 A/B ran with stagecraft.livingEnabled and branchingEnabled off on the lane for both arms: with them on, the living director branched off the gated scene after three relationship turns and the ladder never acted. Gated scene with stuck_after 3 and three leads; twelve FIXED player lines: a relationship stretch with two questions, then a repeating stretch. Each turn keeps the engagement reading, which guidance the prompt carried (rung lead, information line, aftermath) and the replies, for the blind on/off rating (so-engagement-p52.mts pack/rate). Fixed lines never act on a lead, so turns to exit cannot differ between arms.",
+  "requires": {
+    "lane": "model",
+    "group": "Group: Arin, DM Narrator",
+    "members": [
+      "Arin",
+      "DM Narrator"
+    ],
+    "why": "real extraction moves the relationship axis; the guidance block is code",
+    "judge": "off"
+  },
+  "steps": [
+    {
+      "eval": "for (const name of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[name]; globalThis.__soP52 = []; const p = globalThis.storyOrchestratorRuntime.getGlobalSettings().pacing; return { engagement: p.engagement, stuckLadder: p.stuckLadder };",
+      "log": true,
+      "keep": true
+    },
+    {
+      "import_story": {
+        "title": "SO-V3052 Engagement",
+        "description": "v3.0 52: a gated search with three leads where the player would rather talk with Arin.",
+        "qualities": [
+          {
+            "key": "ledger_found",
+            "type": "bool",
+            "source": "extractor",
+            "latching": true,
+            "rubric": "Has the player found the missing harbour ledger?"
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "dock",
+            "name": "The dock",
+            "objective": "Find the missing harbour ledger.",
+            "type": "intermediate",
+            "start": true,
+            "stuck_after": 3,
+            "leads": [
+              "a dockhand mutters that the harbour ledger was moved last night",
+              "fresh scratches lead from the office to the back door",
+              "a creditor is asking every sailor for the ledger by name"
+            ]
+          },
+          {
+            "id": "office",
+            "name": "The office",
+            "objective": "Read the ledger.",
+            "type": "anchor"
+          }
+        ],
+        "transitions": [
+          {
+            "from": "dock",
+            "to": "office",
+            "priority": 1,
+            "gate": {
+              "q": "ledger_found",
+              "op": "==",
+              "v": true
+            }
+          }
+        ],
+        "roster": [
+          {
+            "id": "narrator",
+            "name": "DM Narrator"
+          },
+          {
+            "id": "arin",
+            "name": "Arin",
+            "relationships": [
+              {
+                "toward": "player",
+                "axes": [
+                  "trust",
+                  "affection"
+                ],
+                "range": [
+                  -3,
+                  3
+                ]
+              }
+            ],
+            "mood": {
+              "baseline": "calm"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "send_generate": {
+        "text": "I walk the dock with Arin and look at the boats.",
+        "timeoutMs": 600000
+      }
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 1500,
+        "timeoutMs": 600000
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const snap = rt.getSnapshot(); const guidance = String(ctx.extensionPrompts?.story_orchestrator_guidance?.value ?? ''); const leads = [\"a dockhand mutters that the harbour ledger was moved last night\",\"fresh scratches lead from the office to the back door\",\"a creditor is asking every sailor for the ledger by name\"]; const shown = leads.findIndex((lead) => guidance.includes(lead)); const reading = snap.tension?.engagement ?? null; const chat = ctx.chat; let at = chat.length - 1; while (at >= 0 && !chat[at].is_user) at -= 1; const player = at >= 0 ? String(chat[at].mes ?? '') : ''; const replies = chat.slice(at + 1).filter((m) => !m.is_user && !m.is_system).map((m) => ({ name: m.name, mes: String(m.mes ?? '') })); const row = { turn: (globalThis.__soP52 ?? []).length + 1, arm: rt.getGlobalSettings().pacing.engagement, checkpoint: snap.activeCheckpointId ?? null, boundary: snap.boundary ?? null, reading: reading ? { at: reading.at, kind: reading.kind, matched: reading.matched } : null, rungLead: shown >= 0 ? shown + 1 : null, infoLine: guidance.includes('seems unsure'), aftermathLine: guidance.includes('Aftermath:'), guidanceChars: guidance.length, player, replies }; globalThis.__soP52 = [...(globalThis.__soP52 ?? []), row]; return row;",
+      "log": true,
+      "keep": true
+    },
+    {
+      "send_generate": {
+        "text": "Arin, you've been quiet since we got here. Is something on your mind?",
+        "timeoutMs": 600000
+      }
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 1500,
+        "timeoutMs": 600000
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const snap = rt.getSnapshot(); const guidance = String(ctx.extensionPrompts?.story_orchestrator_guidance?.value ?? ''); const leads = [\"a dockhand mutters that the harbour ledger was moved last night\",\"fresh scratches lead from the office to the back door\",\"a creditor is asking every sailor for the ledger by name\"]; const shown = leads.findIndex((lead) => guidance.includes(lead)); const reading = snap.tension?.engagement ?? null; const chat = ctx.chat; let at = chat.length - 1; while (at >= 0 && !chat[at].is_user) at -= 1; const player = at >= 0 ? String(chat[at].mes ?? '') : ''; const replies = chat.slice(at + 1).filter((m) => !m.is_user && !m.is_system).map((m) => ({ name: m.name, mes: String(m.mes ?? '') })); const row = { turn: (globalThis.__soP52 ?? []).length + 1, arm: rt.getGlobalSettings().pacing.engagement, checkpoint: snap.activeCheckpointId ?? null, boundary: snap.boundary ?? null, reading: reading ? { at: reading.at, kind: reading.kind, matched: reading.matched } : null, rungLead: shown >= 0 ? shown + 1 : null, infoLine: guidance.includes('seems unsure'), aftermathLine: guidance.includes('Aftermath:'), guidanceChars: guidance.length, player, replies }; globalThis.__soP52 = [...(globalThis.__soP52 ?? []), row]; return row;",
+      "log": true,
+      "keep": true
+    },
+    {
+      "send_generate": {
+        "text": "I sit down beside Arin on a crate and tell her about my brother, the one who drowned off this very pier.",
+        "timeoutMs": 600000
+      }
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 1500,
+        "timeoutMs": 600000
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const snap = rt.getSnapshot(); const guidance = String(ctx.extensionPrompts?.story_orchestrator_guidance?.value ?? ''); const leads = [\"a dockhand mutters that the harbour ledger was moved last night\",\"fresh scratches lead from the office to the back door\",\"a creditor is asking every sailor for the ledger by name\"]; const shown = leads.findIndex((lead) => guidance.includes(lead)); const reading = snap.tension?.engagement ?? null; const chat = ctx.chat; let at = chat.length - 1; while (at >= 0 && !chat[at].is_user) at -= 1; const player = at >= 0 ? String(chat[at].mes ?? '') : ''; const replies = chat.slice(at + 1).filter((m) => !m.is_user && !m.is_system).map((m) => ({ name: m.name, mes: String(m.mes ?? '') })); const row = { turn: (globalThis.__soP52 ?? []).length + 1, arm: rt.getGlobalSettings().pacing.engagement, checkpoint: snap.activeCheckpointId ?? null, boundary: snap.boundary ?? null, reading: reading ? { at: reading.at, kind: reading.kind, matched: reading.matched } : null, rungLead: shown >= 0 ? shown + 1 : null, infoLine: guidance.includes('seems unsure'), aftermathLine: guidance.includes('Aftermath:'), guidanceChars: guidance.length, player, replies }; globalThis.__soP52 = [...(globalThis.__soP52 ?? []), row]; return row;",
+      "log": true,
+      "keep": true
+    },
+    {
+      "send_generate": {
+        "text": "I don't usually talk about him. Thank you for listening, Arin.",
+        "timeoutMs": 600000
+      }
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 1500,
+        "timeoutMs": 600000
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const snap = rt.getSnapshot(); const guidance = String(ctx.extensionPrompts?.story_orchestrator_guidance?.value ?? ''); const leads = [\"a dockhand mutters that the harbour ledger was moved last night\",\"fresh scratches lead from the office to the back door\",\"a creditor is asking every sailor for the ledger by name\"]; const shown = leads.findIndex((lead) => guidance.includes(lead)); const reading = snap.tension?.engagement ?? null; const chat = ctx.chat; let at = chat.length - 1; while (at >= 0 && !chat[at].is_user) at -= 1; const player = at >= 0 ? String(chat[at].mes ?? '') : ''; const replies = chat.slice(at + 1).filter((m) => !m.is_user && !m.is_system).map((m) => ({ name: m.name, mes: String(m.mes ?? '') })); const row = { turn: (globalThis.__soP52 ?? []).length + 1, arm: rt.getGlobalSettings().pacing.engagement, checkpoint: snap.activeCheckpointId ?? null, boundary: snap.boundary ?? null, reading: reading ? { at: reading.at, kind: reading.kind, matched: reading.matched } : null, rungLead: shown >= 0 ? shown + 1 : null, infoLine: guidance.includes('seems unsure'), aftermathLine: guidance.includes('Aftermath:'), guidanceChars: guidance.length, player, replies }; globalThis.__soP52 = [...(globalThis.__soP52 ?? []), row]; return row;",
+      "log": true,
+      "keep": true
+    },
+    {
+      "send_generate": {
+        "text": "Do you have anyone you lost like that?",
+        "timeoutMs": 600000
+      }
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 1500,
+        "timeoutMs": 600000
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const snap = rt.getSnapshot(); const guidance = String(ctx.extensionPrompts?.story_orchestrator_guidance?.value ?? ''); const leads = [\"a dockhand mutters that the harbour ledger was moved last night\",\"fresh scratches lead from the office to the back door\",\"a creditor is asking every sailor for the ledger by name\"]; const shown = leads.findIndex((lead) => guidance.includes(lead)); const reading = snap.tension?.engagement ?? null; const chat = ctx.chat; let at = chat.length - 1; while (at >= 0 && !chat[at].is_user) at -= 1; const player = at >= 0 ? String(chat[at].mes ?? '') : ''; const replies = chat.slice(at + 1).filter((m) => !m.is_user && !m.is_system).map((m) => ({ name: m.name, mes: String(m.mes ?? '') })); const row = { turn: (globalThis.__soP52 ?? []).length + 1, arm: rt.getGlobalSettings().pacing.engagement, checkpoint: snap.activeCheckpointId ?? null, boundary: snap.boundary ?? null, reading: reading ? { at: reading.at, kind: reading.kind, matched: reading.matched } : null, rungLead: shown >= 0 ? shown + 1 : null, infoLine: guidance.includes('seems unsure'), aftermathLine: guidance.includes('Aftermath:'), guidanceChars: guidance.length, player, replies }; globalThis.__soP52 = [...(globalThis.__soP52 ?? []), row]; return row;",
+      "log": true,
+      "keep": true
+    },
+    {
+      "send_generate": {
+        "text": "I take her hand for a moment. We stay like that, watching the water.",
+        "timeoutMs": 600000
+      }
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 1500,
+        "timeoutMs": 600000
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const snap = rt.getSnapshot(); const guidance = String(ctx.extensionPrompts?.story_orchestrator_guidance?.value ?? ''); const leads = [\"a dockhand mutters that the harbour ledger was moved last night\",\"fresh scratches lead from the office to the back door\",\"a creditor is asking every sailor for the ledger by name\"]; const shown = leads.findIndex((lead) => guidance.includes(lead)); const reading = snap.tension?.engagement ?? null; const chat = ctx.chat; let at = chat.length - 1; while (at >= 0 && !chat[at].is_user) at -= 1; const player = at >= 0 ? String(chat[at].mes ?? '') : ''; const replies = chat.slice(at + 1).filter((m) => !m.is_user && !m.is_system).map((m) => ({ name: m.name, mes: String(m.mes ?? '') })); const row = { turn: (globalThis.__soP52 ?? []).length + 1, arm: rt.getGlobalSettings().pacing.engagement, checkpoint: snap.activeCheckpointId ?? null, boundary: snap.boundary ?? null, reading: reading ? { at: reading.at, kind: reading.kind, matched: reading.matched } : null, rungLead: shown >= 0 ? shown + 1 : null, infoLine: guidance.includes('seems unsure'), aftermathLine: guidance.includes('Aftermath:'), guidanceChars: guidance.length, player, replies }; globalThis.__soP52 = [...(globalThis.__soP52 ?? []), row]; return row;",
+      "log": true,
+      "keep": true
+    },
+    {
+      "send_generate": {
+        "text": "I tell Arin she can trust me with whatever it is.",
+        "timeoutMs": 600000
+      }
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 1500,
+        "timeoutMs": 600000
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const snap = rt.getSnapshot(); const guidance = String(ctx.extensionPrompts?.story_orchestrator_guidance?.value ?? ''); const leads = [\"a dockhand mutters that the harbour ledger was moved last night\",\"fresh scratches lead from the office to the back door\",\"a creditor is asking every sailor for the ledger by name\"]; const shown = leads.findIndex((lead) => guidance.includes(lead)); const reading = snap.tension?.engagement ?? null; const chat = ctx.chat; let at = chat.length - 1; while (at >= 0 && !chat[at].is_user) at -= 1; const player = at >= 0 ? String(chat[at].mes ?? '') : ''; const replies = chat.slice(at + 1).filter((m) => !m.is_user && !m.is_system).map((m) => ({ name: m.name, mes: String(m.mes ?? '') })); const row = { turn: (globalThis.__soP52 ?? []).length + 1, arm: rt.getGlobalSettings().pacing.engagement, checkpoint: snap.activeCheckpointId ?? null, boundary: snap.boundary ?? null, reading: reading ? { at: reading.at, kind: reading.kind, matched: reading.matched } : null, rungLead: shown >= 0 ? shown + 1 : null, infoLine: guidance.includes('seems unsure'), aftermathLine: guidance.includes('Aftermath:'), guidanceChars: guidance.length, player, replies }; globalThis.__soP52 = [...(globalThis.__soP52 ?? []), row]; return row;",
+      "log": true,
+      "keep": true
+    },
+    {
+      "send_generate": {
+        "text": "I laugh softly at her story and nudge her shoulder.",
+        "timeoutMs": 600000
+      }
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 1500,
+        "timeoutMs": 600000
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const snap = rt.getSnapshot(); const guidance = String(ctx.extensionPrompts?.story_orchestrator_guidance?.value ?? ''); const leads = [\"a dockhand mutters that the harbour ledger was moved last night\",\"fresh scratches lead from the office to the back door\",\"a creditor is asking every sailor for the ledger by name\"]; const shown = leads.findIndex((lead) => guidance.includes(lead)); const reading = snap.tension?.engagement ?? null; const chat = ctx.chat; let at = chat.length - 1; while (at >= 0 && !chat[at].is_user) at -= 1; const player = at >= 0 ? String(chat[at].mes ?? '') : ''; const replies = chat.slice(at + 1).filter((m) => !m.is_user && !m.is_system).map((m) => ({ name: m.name, mes: String(m.mes ?? '') })); const row = { turn: (globalThis.__soP52 ?? []).length + 1, arm: rt.getGlobalSettings().pacing.engagement, checkpoint: snap.activeCheckpointId ?? null, boundary: snap.boundary ?? null, reading: reading ? { at: reading.at, kind: reading.kind, matched: reading.matched } : null, rungLead: shown >= 0 ? shown + 1 : null, infoLine: guidance.includes('seems unsure'), aftermathLine: guidance.includes('Aftermath:'), guidanceChars: guidance.length, player, replies }; globalThis.__soP52 = [...(globalThis.__soP52 ?? []), row]; return row;",
+      "log": true,
+      "keep": true
+    },
+    {
+      "send_generate": {
+        "text": "I look at the boats again.",
+        "timeoutMs": 600000
+      }
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 1500,
+        "timeoutMs": 600000
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const snap = rt.getSnapshot(); const guidance = String(ctx.extensionPrompts?.story_orchestrator_guidance?.value ?? ''); const leads = [\"a dockhand mutters that the harbour ledger was moved last night\",\"fresh scratches lead from the office to the back door\",\"a creditor is asking every sailor for the ledger by name\"]; const shown = leads.findIndex((lead) => guidance.includes(lead)); const reading = snap.tension?.engagement ?? null; const chat = ctx.chat; let at = chat.length - 1; while (at >= 0 && !chat[at].is_user) at -= 1; const player = at >= 0 ? String(chat[at].mes ?? '') : ''; const replies = chat.slice(at + 1).filter((m) => !m.is_user && !m.is_system).map((m) => ({ name: m.name, mes: String(m.mes ?? '') })); const row = { turn: (globalThis.__soP52 ?? []).length + 1, arm: rt.getGlobalSettings().pacing.engagement, checkpoint: snap.activeCheckpointId ?? null, boundary: snap.boundary ?? null, reading: reading ? { at: reading.at, kind: reading.kind, matched: reading.matched } : null, rungLead: shown >= 0 ? shown + 1 : null, infoLine: guidance.includes('seems unsure'), aftermathLine: guidance.includes('Aftermath:'), guidanceChars: guidance.length, player, replies }; globalThis.__soP52 = [...(globalThis.__soP52 ?? []), row]; return row;",
+      "log": true,
+      "keep": true
+    },
+    {
+      "send_generate": {
+        "text": "I look at the boats again.",
+        "timeoutMs": 600000
+      }
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 1500,
+        "timeoutMs": 600000
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const snap = rt.getSnapshot(); const guidance = String(ctx.extensionPrompts?.story_orchestrator_guidance?.value ?? ''); const leads = [\"a dockhand mutters that the harbour ledger was moved last night\",\"fresh scratches lead from the office to the back door\",\"a creditor is asking every sailor for the ledger by name\"]; const shown = leads.findIndex((lead) => guidance.includes(lead)); const reading = snap.tension?.engagement ?? null; const chat = ctx.chat; let at = chat.length - 1; while (at >= 0 && !chat[at].is_user) at -= 1; const player = at >= 0 ? String(chat[at].mes ?? '') : ''; const replies = chat.slice(at + 1).filter((m) => !m.is_user && !m.is_system).map((m) => ({ name: m.name, mes: String(m.mes ?? '') })); const row = { turn: (globalThis.__soP52 ?? []).length + 1, arm: rt.getGlobalSettings().pacing.engagement, checkpoint: snap.activeCheckpointId ?? null, boundary: snap.boundary ?? null, reading: reading ? { at: reading.at, kind: reading.kind, matched: reading.matched } : null, rungLead: shown >= 0 ? shown + 1 : null, infoLine: guidance.includes('seems unsure'), aftermathLine: guidance.includes('Aftermath:'), guidanceChars: guidance.length, player, replies }; globalThis.__soP52 = [...(globalThis.__soP52 ?? []), row]; return row;",
+      "log": true,
+      "keep": true
+    },
+    {
+      "send_generate": {
+        "text": "I keep sitting on the crate, watching the water.",
+        "timeoutMs": 600000
+      }
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 1500,
+        "timeoutMs": 600000
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const snap = rt.getSnapshot(); const guidance = String(ctx.extensionPrompts?.story_orchestrator_guidance?.value ?? ''); const leads = [\"a dockhand mutters that the harbour ledger was moved last night\",\"fresh scratches lead from the office to the back door\",\"a creditor is asking every sailor for the ledger by name\"]; const shown = leads.findIndex((lead) => guidance.includes(lead)); const reading = snap.tension?.engagement ?? null; const chat = ctx.chat; let at = chat.length - 1; while (at >= 0 && !chat[at].is_user) at -= 1; const player = at >= 0 ? String(chat[at].mes ?? '') : ''; const replies = chat.slice(at + 1).filter((m) => !m.is_user && !m.is_system).map((m) => ({ name: m.name, mes: String(m.mes ?? '') })); const row = { turn: (globalThis.__soP52 ?? []).length + 1, arm: rt.getGlobalSettings().pacing.engagement, checkpoint: snap.activeCheckpointId ?? null, boundary: snap.boundary ?? null, reading: reading ? { at: reading.at, kind: reading.kind, matched: reading.matched } : null, rungLead: shown >= 0 ? shown + 1 : null, infoLine: guidance.includes('seems unsure'), aftermathLine: guidance.includes('Aftermath:'), guidanceChars: guidance.length, player, replies }; globalThis.__soP52 = [...(globalThis.__soP52 ?? []), row]; return row;",
+      "log": true,
+      "keep": true
+    },
+    {
+      "send_generate": {
+        "text": "I stay where I am and watch the gulls.",
+        "timeoutMs": 600000
+      }
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 1500,
+        "timeoutMs": 600000
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const snap = rt.getSnapshot(); const guidance = String(ctx.extensionPrompts?.story_orchestrator_guidance?.value ?? ''); const leads = [\"a dockhand mutters that the harbour ledger was moved last night\",\"fresh scratches lead from the office to the back door\",\"a creditor is asking every sailor for the ledger by name\"]; const shown = leads.findIndex((lead) => guidance.includes(lead)); const reading = snap.tension?.engagement ?? null; const chat = ctx.chat; let at = chat.length - 1; while (at >= 0 && !chat[at].is_user) at -= 1; const player = at >= 0 ? String(chat[at].mes ?? '') : ''; const replies = chat.slice(at + 1).filter((m) => !m.is_user && !m.is_system).map((m) => ({ name: m.name, mes: String(m.mes ?? '') })); const row = { turn: (globalThis.__soP52 ?? []).length + 1, arm: rt.getGlobalSettings().pacing.engagement, checkpoint: snap.activeCheckpointId ?? null, boundary: snap.boundary ?? null, reading: reading ? { at: reading.at, kind: reading.kind, matched: reading.matched } : null, rungLead: shown >= 0 ? shown + 1 : null, infoLine: guidance.includes('seems unsure'), aftermathLine: guidance.includes('Aftermath:'), guidanceChars: guidance.length, player, replies }; globalThis.__soP52 = [...(globalThis.__soP52 ?? []), row]; return row;",
+      "log": true,
+      "keep": true
+    }
+  ]
+}

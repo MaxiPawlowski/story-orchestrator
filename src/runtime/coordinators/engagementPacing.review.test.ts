@@ -155,3 +155,33 @@ describe("v3.0 52: the stuck ladder answers why a gated scene is quiet", () => {
     expect(on).not.toMatch(/seems stuck|seems unsure/);
   });
 });
+
+describe("v3.0 52: the reading belongs to the open chat", () => {
+  it("a chat switch drops the last chat's readings, so a shorter chat never reports the old one", () => {
+    let chat = chatOf(8);
+    const prompt = { setStoryExtensionPrompt: () => undefined, clearStoryExtensionPrompt: () => undefined } as unknown as PromptHost;
+    let tension: TensionRuntimeState = { levels: [], smoothed: null, history: [] };
+    const pacing = new PacingCoordinator({
+      getStory: () => gated,
+      getState: () => state(chat.length - 1),
+      getStateLog: () => chat.flatMap((row, id) => (row.is_user ? [] : [{ context: { lastMessageId: id }, before: { blackboard: { values: {} } }, after: { blackboard: { values: {} } } } as never])),
+      getTensionTarget: () => undefined,
+      getTension: () => tension,
+      setTension: (next) => { tension = next; },
+      getPacing: () => ({ alpha: 0.5, shapeOverride: null, hintEnabled: false }),
+      hosts: { prompt, chat: { chatRows: () => chat } },
+      stuckLadder: () => true,
+      engagement: () => true,
+      engagementSignals: () => ({ memoryIds: [], relationEvents: [] }),
+    });
+    pacing.updateSteering();
+    const long = chat.length - 1;
+    expect(pacing.engagement()?.at).toBe(long);
+    pacing.reset();
+    expect(pacing.engagement()).toBeNull();
+    chat = chatOf(4);
+    pacing.updateSteering();
+    expect(pacing.engagement()?.at).toBe(chat.length - 1);
+    expect(chat.length - 1).toBeLessThan(long);
+  });
+});
