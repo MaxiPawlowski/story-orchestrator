@@ -1,7 +1,7 @@
 {
   "id": "QR",
   "title": "quest resolutions (plan 48 live floor)",
-  "objective": "v3.0 48 live floor, real model on a lane (owed: GPU paused 2026-11-08). One invented situation, three resolutions, two paraphrased player scripts each, 6 runs. Floors declared before any run: correct resolution reached >= 5/6 (a MISS counts against it); a wrong resolution closed: 0 (hard, any WRONG fails the gate); the method clause read correctly >= 4/6 (methodCorrect in the QR.n outputs). Score from the run record; run twice and archive under test/journeys/records/v30-48/.",
+  "objective": "v3.0 48 live floor, real model on a lane (owed: GPU paused 2026-11-08). One invented situation, three resolutions, two paraphrased player scripts each, 6 runs. Floors declared before any run: correct resolution reached >= 5/6 (a MISS counts against it); a wrong resolution closed: 0 (hard, any WRONG fails the gate); the method clause read correctly >= 4/6 (methodCorrect in the QR.n outputs). Each turn waits for the read scheduler to go idle (a player leaves that gap; back-to-back sends held every read), and each script ends with a bridge turn before scoring, because an accepted read applies at the next boundary. Score from the run record; each check ends with one later-scene turn whose replies (QR.n reflection) the Sol rater reads for the reflection floor (>= 2 of 3 resolutions); run twice and archive under test/journeys/records/v30-48/.",
   "expensive": true,
   "setup": {
     "newChat": true,
@@ -57,30 +57,81 @@
         {
           "send_generate": {
             "text": "I ask the miller where his son was last seen and promise to bring him back.",
-            "timeoutMs": 300000
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 600000
           }
         },
         {
           "send_generate": {
             "text": "I follow the wet footprints down to the old cellar behind the granary.",
-            "timeoutMs": 300000
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 600000
           }
         },
         {
           "send_generate": {
             "text": "I kick the cellar door in and shove the guard against the wall until he drops the keys.",
-            "timeoutMs": 300000
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 600000
           }
         },
         {
           "send_generate": {
             "text": "I unlock the chain, lift the boy out and carry him back to the mill.",
-            "timeoutMs": 300000
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 600000
+          }
+        },
+        {
+          "send_generate": {
+            "text": "I take a moment to catch my breath and look around.",
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 600000
           }
         },
         {
           "log": true,
-          "eval": "const rt = globalThis.storyOrchestratorRuntime; const end = Date.now() + 240000; let v = {}; while (Date.now() < end) { v = rt.getEngineState()?.blackboard?.values ?? {}; if (v.quest_rescue_closed) break; await new Promise((r) => setTimeout(r, 2000)); } const closed = v.quest_rescue_closed ?? null; if (closed && closed !== 'freed') throw new Error('WRONG resolution closed: ' + closed + ' (expected freed)'); if (!closed) throw new Error('MISS: the quest did not close on freed'); const method = typeof v.quest_rescue_freed_c_blood === 'number'; return { closed, methodClause: method, methodExpected: true, methodCorrect: method === true };"
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const end = Date.now() + 600000; let v = {}; while (Date.now() < end) { v = rt.getEngineState()?.blackboard?.values ?? {}; if (v.quest_rescue_closed) break; await new Promise((r) => setTimeout(r, 2000)); } const closed = v.quest_rescue_closed ?? null; if (closed && closed !== 'freed') throw new Error('WRONG resolution closed: ' + closed + ' (expected freed)'); if (!closed) throw new Error('MISS: the quest did not close on freed'); const method = typeof v.quest_rescue_freed_c_blood === 'number'; return { closed, methodClause: method, methodExpected: true, methodCorrect: method === true };"
+        },
+        {
+          "send_generate": {
+            "text": "Some days later, I pass by the mill again and stop to look around.",
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "log": true,
+          "eval": "const ctx = SillyTavern.getContext(); const rows = ctx.chat.slice(-4).filter((m) => !m.is_user && !m.is_system).map((m) => ({ name: m.name, text: String(m.mes ?? '').slice(0, 1500) })); return { reflection: rows, closed: globalThis.storyOrchestratorRuntime.getEngineState()?.blackboard?.values?.quest_rescue_closed ?? null };"
         }
       ]
     },
@@ -97,30 +148,81 @@
         {
           "send_generate": {
             "text": "I tell the miller I will find his boy, whatever it takes.",
-            "timeoutMs": 300000
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 600000
           }
         },
         {
           "send_generate": {
             "text": "I search the riverbank sheds and hear knocking from the granary cellar.",
-            "timeoutMs": 300000
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 600000
           }
         },
         {
           "send_generate": {
             "text": "I break the lock with the smith's hammer and punch the man who tries to stop me.",
-            "timeoutMs": 300000
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 600000
           }
         },
         {
           "send_generate": {
             "text": "I walk the boy home with my coat around his shoulders.",
-            "timeoutMs": 300000
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 600000
+          }
+        },
+        {
+          "send_generate": {
+            "text": "I take a moment to catch my breath and look around.",
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 600000
           }
         },
         {
           "log": true,
-          "eval": "const rt = globalThis.storyOrchestratorRuntime; const end = Date.now() + 240000; let v = {}; while (Date.now() < end) { v = rt.getEngineState()?.blackboard?.values ?? {}; if (v.quest_rescue_closed) break; await new Promise((r) => setTimeout(r, 2000)); } const closed = v.quest_rescue_closed ?? null; if (closed && closed !== 'freed') throw new Error('WRONG resolution closed: ' + closed + ' (expected freed)'); if (!closed) throw new Error('MISS: the quest did not close on freed'); const method = typeof v.quest_rescue_freed_c_blood === 'number'; return { closed, methodClause: method, methodExpected: true, methodCorrect: method === true };"
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const end = Date.now() + 600000; let v = {}; while (Date.now() < end) { v = rt.getEngineState()?.blackboard?.values ?? {}; if (v.quest_rescue_closed) break; await new Promise((r) => setTimeout(r, 2000)); } const closed = v.quest_rescue_closed ?? null; if (closed && closed !== 'freed') throw new Error('WRONG resolution closed: ' + closed + ' (expected freed)'); if (!closed) throw new Error('MISS: the quest did not close on freed'); const method = typeof v.quest_rescue_freed_c_blood === 'number'; return { closed, methodClause: method, methodExpected: true, methodCorrect: method === true };"
+        },
+        {
+          "send_generate": {
+            "text": "Some days later, I pass by the mill again and stop to look around.",
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "log": true,
+          "eval": "const ctx = SillyTavern.getContext(); const rows = ctx.chat.slice(-4).filter((m) => !m.is_user && !m.is_system).map((m) => ({ name: m.name, text: String(m.mes ?? '').slice(0, 1500) })); return { reflection: rows, closed: globalThis.storyOrchestratorRuntime.getEngineState()?.blackboard?.values?.quest_rescue_closed ?? null };"
         }
       ]
     },
@@ -137,30 +239,81 @@
         {
           "send_generate": {
             "text": "I agree to help the miller find his son.",
-            "timeoutMs": 300000
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 600000
           }
         },
         {
           "send_generate": {
             "text": "I find the note pinned to the granary door asking for twenty silver.",
-            "timeoutMs": 300000
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 600000
           }
         },
         {
           "send_generate": {
             "text": "I count out the silver and leave it under the stone as the note says.",
-            "timeoutMs": 300000
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 600000
           }
         },
         {
           "send_generate": {
             "text": "When the boy is let out at dawn I take him back to his father.",
-            "timeoutMs": 300000
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 600000
+          }
+        },
+        {
+          "send_generate": {
+            "text": "I take a moment to catch my breath and look around.",
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 600000
           }
         },
         {
           "log": true,
-          "eval": "const rt = globalThis.storyOrchestratorRuntime; const end = Date.now() + 240000; let v = {}; while (Date.now() < end) { v = rt.getEngineState()?.blackboard?.values ?? {}; if (v.quest_rescue_closed) break; await new Promise((r) => setTimeout(r, 2000)); } const closed = v.quest_rescue_closed ?? null; if (closed && closed !== 'ransomed') throw new Error('WRONG resolution closed: ' + closed + ' (expected ransomed)'); if (!closed) throw new Error('MISS: the quest did not close on ransomed'); const method = typeof v.quest_rescue_freed_c_blood === 'number'; return { closed, methodClause: method, methodExpected: false, methodCorrect: method === false };"
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const end = Date.now() + 600000; let v = {}; while (Date.now() < end) { v = rt.getEngineState()?.blackboard?.values ?? {}; if (v.quest_rescue_closed) break; await new Promise((r) => setTimeout(r, 2000)); } const closed = v.quest_rescue_closed ?? null; if (closed && closed !== 'ransomed') throw new Error('WRONG resolution closed: ' + closed + ' (expected ransomed)'); if (!closed) throw new Error('MISS: the quest did not close on ransomed'); const method = typeof v.quest_rescue_freed_c_blood === 'number'; return { closed, methodClause: method, methodExpected: false, methodCorrect: method === false };"
+        },
+        {
+          "send_generate": {
+            "text": "Some days later, I pass by the mill again and stop to look around.",
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "log": true,
+          "eval": "const ctx = SillyTavern.getContext(); const rows = ctx.chat.slice(-4).filter((m) => !m.is_user && !m.is_system).map((m) => ({ name: m.name, text: String(m.mes ?? '').slice(0, 1500) })); return { reflection: rows, closed: globalThis.storyOrchestratorRuntime.getEngineState()?.blackboard?.values?.quest_rescue_closed ?? null };"
         }
       ]
     },
@@ -177,30 +330,81 @@
         {
           "send_generate": {
             "text": "I say yes, I will look into the boy's disappearance.",
-            "timeoutMs": 300000
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 600000
           }
         },
         {
           "send_generate": {
             "text": "I talk to the men holding the boy and ask what they want for him.",
-            "timeoutMs": 300000
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 600000
           }
         },
         {
           "send_generate": {
             "text": "I pay them what they ask, coin by coin, without a fight.",
-            "timeoutMs": 300000
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 600000
           }
         },
         {
           "send_generate": {
             "text": "They open the cellar and I lead the boy back to the mill.",
-            "timeoutMs": 300000
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 600000
+          }
+        },
+        {
+          "send_generate": {
+            "text": "I take a moment to catch my breath and look around.",
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 600000
           }
         },
         {
           "log": true,
-          "eval": "const rt = globalThis.storyOrchestratorRuntime; const end = Date.now() + 240000; let v = {}; while (Date.now() < end) { v = rt.getEngineState()?.blackboard?.values ?? {}; if (v.quest_rescue_closed) break; await new Promise((r) => setTimeout(r, 2000)); } const closed = v.quest_rescue_closed ?? null; if (closed && closed !== 'ransomed') throw new Error('WRONG resolution closed: ' + closed + ' (expected ransomed)'); if (!closed) throw new Error('MISS: the quest did not close on ransomed'); const method = typeof v.quest_rescue_freed_c_blood === 'number'; return { closed, methodClause: method, methodExpected: false, methodCorrect: method === false };"
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const end = Date.now() + 600000; let v = {}; while (Date.now() < end) { v = rt.getEngineState()?.blackboard?.values ?? {}; if (v.quest_rescue_closed) break; await new Promise((r) => setTimeout(r, 2000)); } const closed = v.quest_rescue_closed ?? null; if (closed && closed !== 'ransomed') throw new Error('WRONG resolution closed: ' + closed + ' (expected ransomed)'); if (!closed) throw new Error('MISS: the quest did not close on ransomed'); const method = typeof v.quest_rescue_freed_c_blood === 'number'; return { closed, methodClause: method, methodExpected: false, methodCorrect: method === false };"
+        },
+        {
+          "send_generate": {
+            "text": "Some days later, I pass by the mill again and stop to look around.",
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "log": true,
+          "eval": "const ctx = SillyTavern.getContext(); const rows = ctx.chat.slice(-4).filter((m) => !m.is_user && !m.is_system).map((m) => ({ name: m.name, text: String(m.mes ?? '').slice(0, 1500) })); return { reflection: rows, closed: globalThis.storyOrchestratorRuntime.getEngineState()?.blackboard?.values?.quest_rescue_closed ?? null };"
         }
       ]
     },
@@ -217,30 +421,81 @@
         {
           "send_generate": {
             "text": "I tell the miller I will try to find his son.",
-            "timeoutMs": 300000
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 600000
           }
         },
         {
           "send_generate": {
             "text": "I go down to the river and see how many armed men guard the cellar.",
-            "timeoutMs": 300000
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 600000
           }
         },
         {
           "send_generate": {
             "text": "I decide it is not worth my life and walk away from the cellar.",
-            "timeoutMs": 300000
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 600000
           }
         },
         {
           "send_generate": {
             "text": "I leave the village by the north road without going back to the mill.",
-            "timeoutMs": 300000
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 600000
+          }
+        },
+        {
+          "send_generate": {
+            "text": "I take a moment to catch my breath and look around.",
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 600000
           }
         },
         {
           "log": true,
-          "eval": "const rt = globalThis.storyOrchestratorRuntime; const end = Date.now() + 240000; let v = {}; while (Date.now() < end) { v = rt.getEngineState()?.blackboard?.values ?? {}; if (v.quest_rescue_closed) break; await new Promise((r) => setTimeout(r, 2000)); } const closed = v.quest_rescue_closed ?? null; if (closed && closed !== 'abandoned') throw new Error('WRONG resolution closed: ' + closed + ' (expected abandoned)'); if (!closed) throw new Error('MISS: the quest did not close on abandoned'); const method = typeof v.quest_rescue_freed_c_blood === 'number'; return { closed, methodClause: method, methodExpected: false, methodCorrect: method === false };"
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const end = Date.now() + 600000; let v = {}; while (Date.now() < end) { v = rt.getEngineState()?.blackboard?.values ?? {}; if (v.quest_rescue_closed) break; await new Promise((r) => setTimeout(r, 2000)); } const closed = v.quest_rescue_closed ?? null; if (closed && closed !== 'abandoned') throw new Error('WRONG resolution closed: ' + closed + ' (expected abandoned)'); if (!closed) throw new Error('MISS: the quest did not close on abandoned'); const method = typeof v.quest_rescue_freed_c_blood === 'number'; return { closed, methodClause: method, methodExpected: false, methodCorrect: method === false };"
+        },
+        {
+          "send_generate": {
+            "text": "Some days later, I pass by the mill again and stop to look around.",
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "log": true,
+          "eval": "const ctx = SillyTavern.getContext(); const rows = ctx.chat.slice(-4).filter((m) => !m.is_user && !m.is_system).map((m) => ({ name: m.name, text: String(m.mes ?? '').slice(0, 1500) })); return { reflection: rows, closed: globalThis.storyOrchestratorRuntime.getEngineState()?.blackboard?.values?.quest_rescue_closed ?? null };"
         }
       ]
     },
@@ -257,30 +512,81 @@
         {
           "send_generate": {
             "text": "I agree to help, reluctantly.",
-            "timeoutMs": 300000
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 600000
           }
         },
         {
           "send_generate": {
             "text": "I scout the granary and count six men with clubs.",
-            "timeoutMs": 300000
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 600000
           }
         },
         {
           "send_generate": {
             "text": "I give up on the boy and slip away before they see me.",
-            "timeoutMs": 300000
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 600000
           }
         },
         {
           "send_generate": {
             "text": "I keep walking and do not look back at the mill.",
-            "timeoutMs": 300000
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 600000
+          }
+        },
+        {
+          "send_generate": {
+            "text": "I take a moment to catch my breath and look around.",
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 600000
           }
         },
         {
           "log": true,
-          "eval": "const rt = globalThis.storyOrchestratorRuntime; const end = Date.now() + 240000; let v = {}; while (Date.now() < end) { v = rt.getEngineState()?.blackboard?.values ?? {}; if (v.quest_rescue_closed) break; await new Promise((r) => setTimeout(r, 2000)); } const closed = v.quest_rescue_closed ?? null; if (closed && closed !== 'abandoned') throw new Error('WRONG resolution closed: ' + closed + ' (expected abandoned)'); if (!closed) throw new Error('MISS: the quest did not close on abandoned'); const method = typeof v.quest_rescue_freed_c_blood === 'number'; return { closed, methodClause: method, methodExpected: false, methodCorrect: method === false };"
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const end = Date.now() + 600000; let v = {}; while (Date.now() < end) { v = rt.getEngineState()?.blackboard?.values ?? {}; if (v.quest_rescue_closed) break; await new Promise((r) => setTimeout(r, 2000)); } const closed = v.quest_rescue_closed ?? null; if (closed && closed !== 'abandoned') throw new Error('WRONG resolution closed: ' + closed + ' (expected abandoned)'); if (!closed) throw new Error('MISS: the quest did not close on abandoned'); const method = typeof v.quest_rescue_freed_c_blood === 'number'; return { closed, methodClause: method, methodExpected: false, methodCorrect: method === false };"
+        },
+        {
+          "send_generate": {
+            "text": "Some days later, I pass by the mill again and stop to look around.",
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "log": true,
+          "eval": "const ctx = SillyTavern.getContext(); const rows = ctx.chat.slice(-4).filter((m) => !m.is_user && !m.is_system).map((m) => ({ name: m.name, text: String(m.mes ?? '').slice(0, 1500) })); return { reflection: rows, closed: globalThis.storyOrchestratorRuntime.getEngineState()?.blackboard?.values?.quest_rescue_closed ?? null };"
         }
       ]
     }

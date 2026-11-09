@@ -1,6 +1,6 @@
 # v3.0 54 — Story record: what happened, why, who knows, what is open
 
-Status 2026-11-08: BUILT with 48, merged to local master (not pushed); live gates owed. Astra's "shared foundation". Built with or right after 48; read by 51 and 52.
+Status 2026-11-09: BUILT with 48, merged and pushed; live gates PASS (no-model scenario ×2, assert-player-clean). Astra's "shared foundation". Built with or right after 48; read by 51 and 52.
 
 ## Why
 
@@ -101,3 +101,17 @@ Built with 48 on `v3.0-48-resolutions` (same runs).
 - Deviation: the p95 floor is measured best-of-3 per sample after warm-up (the CPU was fully loaded; median build ~0.7 ms).
 - Owed: the no-model scenario reading the record after a scripted resolution + rollback (`v30-48-resolutions.json`, ×2);
   `so-ui.mts assert-player-clean` on a lane.
+
+## Live gate record (2026-11-09)
+
+- No-model scenario, ×2, PASS (2026-11-09, master `3b2e2985a`, bundle f681c5b1): adolion-fresh lane 48 seeded offline
+  (`SO_LANE_OFFLINE=1 node scripts/debug/adolion-fresh.mts seed 48`, then `st-lanes.mts no-model 48`, `start 48`);
+  `node scripts/debug/st-lanes.mts run 48 -- scripts/debug/so-scenario.mts run test/scenarios/v30-48-resolutions.json --sandbox --group "Group: Arin, DM Narrator"`
+  twice: `ok: true`, 16/16 steps, residue clean. Closes on `freed` with both consequences, player view shows only the reached
+  label and applied outcomes, the record lists close + consequences, `assert-player-clean` (step 14) holds, deleting the
+  closing turn rolls back close, consequences and record rows. Evidence `<so-lanes>/48/debug/runs/2026-11-09T15-22-21-440Z-so-scenario-run`,
+  `…/2026-11-09T15-23-31-132Z-so-scenario-run`. A first try on a plain no-model lane was not-runnable (its memory profile
+  still reached the local controller); hence the offline seed.
+- `assert-player-clean` on a lane: PASS in both runs (scenario step 14, player view after the close; the Author record is
+  absent from every player surface).
+- Owed: nothing for 54 beyond 48's journey rerun.

@@ -1,18 +1,19 @@
 {
-  "build": "2b881595a",
+  "build": "b6b799148",
   "licence": "Image-to-video from the still: SDXL base 1.0 (sd_xl_base_1.0.safetensors, Stability AI): CreativeML Open RAIL++-M. Output: synthetic, SFW, made for this guide. Wan 2.2 TI2V 5B (wan2.2_ti2v_5B_fp16.safetensors, umt5_xxl_fp8_e4m3fn_scaled.safetensors, wan2.2_vae.safetensors; Comfy-Org/Wan-2.2): Apache-2.0.",
-  "source": "node scripts/debug/so-loop-bench.mts run mountain-lake-dawn.jpg --tier lite on a local ComfyUI v0.37.4 (SaveAnimatedWEBP, quality 75), seed 42",
+  "source": "SO_LEASE_RAM_MIB=12000 node scripts/debug/so-loop-bench.mts run mountain-lake-dawn.jpg --tier lite --lease (SaveAnimatedWEBP quality 90, slowest), seed 42",
   "kind": "lite loop",
   "file": "mountain-lake-dawn.lite.webp",
   "shape": {
     "width": 672,
     "height": 384,
-    "frames": 23,
+    "generated": 29,
+    "frames": 25,
     "fps": 12,
     "steps": 16,
     "cfg": 5,
     "shift": 8,
-    "seam": "6-frame crossfade"
+    "settle": 4
   },
-  "note": "Pre-review recipe (crossfade seam, VP9 untagged); superseded in code by the 2026-11-08 review (anchored loop, BT.709 MP4), re-render GPU-owed (plan 45, Review 2026-11-08 (loops))."
+  "recipe": "still pinned as the first and last latent frame, held tail dropped, last frames settled onto frame 0, colour matched to the still (ColorTransfer reinhard_lab uniform), H.264 BT.709 via CreateVideo+SaveVideo; core ComfyUI v0.37.4 nodes only"
 }
