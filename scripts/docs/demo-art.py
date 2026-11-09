@@ -12,7 +12,8 @@ Usage: python -I scripts/docs/demo-art.py <step> [--force]
   all          every step in order
 Scene backgrounds come from the shared plan 45 set (docs/guide/assets/showcase/backdrops/), not from here.
 Raw renders land in .build/demo-art/raw (gitignored); published files in docs/guide/assets/showcase/.
-Every job waits for an empty ComfyUI queue first. Nothing is downloaded.
+Every job waits for an empty ComfyUI queue, then holds a GPU broker lease (SO_GPU_BROKER, default the local
+controller on :18888; SO_GPU_BROKER=off skips it) while it renders. One job at a time. Nothing is downloaded.
 """
 
 import base64
@@ -24,6 +25,7 @@ import os
 import random
 import sys
 import time
+import urllib.error
 import urllib.parse
 import urllib.request
 import uuid
@@ -35,6 +37,9 @@ RAW = os.path.join(ROOT, ".build", "demo-art", "raw")
 OUT = os.path.join(ROOT, "docs", "guide", "assets", "showcase")
 COMFY = os.environ.get("SO_COMFY_URL", "http://127.0.0.1:8188")
 LANDMARKS = os.environ.get("SO_LANDMARKS_URL", "http://127.0.0.1:8096")
+BROKER = os.environ.get("SO_GPU_BROKER", "http://127.0.0.1:18888")
+LEASE_PATIENCE_S = int(os.environ.get("SO_LEASE_PATIENCE_S", "3600"))
+NEED_GPU_MIB = int(os.environ.get("SO_DEMO_NEED_GPU_MIB", "21000"))
 
 MODEL = {"unet": "qwen_image_2512_fp8_e4m3fn.safetensors", "clip": "qwen_2.5_vl_7b_fp8_scaled.safetensors", "vae": "qwen_image_vae.safetensors"}
 CUTOUT = "BiRefNet_toonout"
@@ -125,14 +130,52 @@ def upload(path_or_image, name):
     return reply["name"]
 
 
+def broker_lease(graph):
+    if BROKER == "off":
+        return None
+    files = [{"kind": "diffusionModels", "name": MODEL["unet"]}, {"kind": "textEncoders", "name": MODEL["clip"]}, {"kind": "vaes", "name": MODEL["vae"]}]
+    size = next((node["inputs"] for node in graph.values() if node["class_type"] == "EmptySD3LatentImage"), {"width": 1024, "height": 1024})
+    body = {"workflowKey": "so-demo-art-qwen-image-2512", "modelFiles": files, "needGpuMiB": NEED_GPU_MIB, "width": size["width"], "height": size["height"]}
+    started = time.time()
+    while True:
+        try:
+            return json.loads(http("POST", f"{BROKER}/lease", body, timeout=900))["lease"]
+        except urllib.error.HTTPError as error:
+            detail = error.read().decode("utf-8", "replace")[:300]
+            if time.time() - started > LEASE_PATIENCE_S:
+                raise RuntimeError(f"GPU broker refused the lease: {detail}")
+            log(f"  broker refused ({error.code}), retrying in 20s: {detail}")
+            time.sleep(20)
+
+
+def broker_call(route, lease):
+    if lease is not None:
+        try:
+            http("POST", f"{BROKER}/{route}", {"lease": lease}, timeout=30)
+        except (urllib.error.URLError, OSError) as error:
+            log(f"  broker {route} failed: {error}")
+
+
 def run(graph, save_node):
     wait_turn()
+    lease = broker_lease(graph)
+    try:
+        return render(graph, save_node, lease)
+    finally:
+        broker_call("release", lease)
+
+
+def render(graph, save_node, lease):
     client = uuid.uuid4().hex
     reply = json.loads(http("POST", f"{COMFY}/prompt", {"prompt": graph, "client_id": client}))
     prompt_id = reply["prompt_id"]
     started = time.time()
+    renewed = started
     while True:
         time.sleep(3)
+        if time.time() - renewed > 30:
+            broker_call("renew", lease)
+            renewed = time.time()
         history = json.loads(http("GET", f"{COMFY}/history/{prompt_id}"))
         if prompt_id in history:
             entry = history[prompt_id]
@@ -392,12 +435,26 @@ def face_mask(size, face, grow=1.15):
     return mask.filter(ImageFilter.GaussianBlur(5))
 
 
+def expression_mask(size, rig):
+    mask = Image.new("L", size, 0)
+    draw = ImageDraw.Draw(mask)
+    brow = rig["face"]["brow"]
+    eye_bottom = max(point[1] for eye in rig["eyes"] for point in eye["roi"])
+    eye_x = [point[0] for eye in rig["eyes"] for point in eye["roi"]]
+    left, right = min(min(eye_x), brow["cx"] - brow["rx"]), max(max(eye_x), brow["cx"] + brow["rx"])
+    pad = (right - left) * 0.04
+    draw.ellipse((left - pad, brow["cy"] - brow["ry"] * 1.4, right + pad, eye_bottom + pad), fill=255)
+    area = rig["mouth"]["area"]
+    rx, ry = area["rx"] * 1.2, area["ry"] * 0.8
+    draw.ellipse((area["cx"] - rx, area["cy"] - ry, area["cx"] + rx, area["cy"] + ry), fill=255)
+    return mask.filter(ImageFilter.GaussianBlur(4))
+
+
 def step_expressions(force):
     for key, member in CAST.items():
         bust_path = raw_path("busts", f"{key}.png")
         bust = Image.open(bust_path).convert("RGBA")
-        face = json.load(open(raw_path("busts", f"{key}.detect.json"), encoding="utf-8"))["face"]
-        mask = face_mask(bust.size, face)
+        mask = expression_mask(bust.size, rig_of(key))
         for expression, text in EXPRESSIONS.items():
             target = raw_path("expressions", f"{key}-{expression}.png")
             if os.path.exists(target) and not force:
@@ -418,7 +475,7 @@ def step_expressions(force):
             merged.putalpha(bust.split()[3])
             merged.save(target)
             crop = json.load(open(raw_path("busts", f"{key}.detect.json"), encoding="utf-8"))["crop"]
-            sidecar(target, {"kind": "expression", "member": member["name"], "expression": expression, "from": f"busts/{key}.png", "crop": crop, "prompt": positive, "seed": member["seed"] + 11, "denoise": 0.6, "mask": "face ellipse from the detector box", "upscale": scale, "prompt_id": prompt_id})
+            sidecar(target, {"kind": "expression", "member": member["name"], "expression": expression, "from": f"busts/{key}.png", "crop": crop, "prompt": positive, "seed": member["seed"] + 11, "denoise": 0.6, "mask": "rig brows and eyes plus the mouth area (nose, freckles and proportions kept)", "upscale": scale, "prompt_id": prompt_id})
 
 
 FRAME_EDITS = {

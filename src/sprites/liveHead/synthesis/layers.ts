@@ -103,18 +103,40 @@ function eyeMasks(image: PixelImage, eye: Eye, rect: Rect) {
     else masks.low[k] = 1;
   }
   for (const part of ["lash", "low"] as const) masks[part] = withFringe(masks, part, opening, (k) => image.data[at(k % rw, Math.floor(k / rw)) + 3] > 0, rw, rh);
-  return { masks, skin: skin.colour };
+  return { masks, skin };
 }
 
-function crop(image: PixelImage, rect: Rect, mask: Uint8Array): PixelImage {
+export const LID_MATTE = Object.freeze([0.6, 1.6] as const);
+export const LID_FILL_SHADE = 0.12;
+
+const skinMatte = (data: Uint8ClampedArray, i: number, skin: { colour: [number, number, number]; tolerance: number }): number => {
+  const diff = Math.max(Math.abs(data[i] - skin.colour[0]), Math.abs(data[i + 1] - skin.colour[1]), Math.abs(data[i + 2] - skin.colour[2]));
+  const t = Math.min(1, Math.max(0, (diff - skin.tolerance * LID_MATTE[0]) / (skin.tolerance * (LID_MATTE[1] - LID_MATTE[0]))));
+  return t * t * (3 - 2 * t);
+};
+
+function crop(image: PixelImage, rect: Rect, mask: Uint8Array, skin?: { colour: [number, number, number]; tolerance: number }): PixelImage {
   const [rx, ry, rw, rh] = rect, data = new Uint8ClampedArray(rw * rh * 4);
   for (let y = 0; y < rh; y++) for (let x = 0; x < rw; x++) {
     const k = y * rw + x;
     if (!mask[k]) continue;
     const i = ((ry + y) * image.width + rx + x) * 4;
     data.set(image.data.subarray(i, i + 4), k * 4);
+    if (skin) data[k * 4 + 3] = Math.round(data[k * 4 + 3] * skinMatte(image.data, i, skin));
   }
   return { width: rw, height: rh, data };
+}
+
+function lidShade(rgb: Float32Array, inner: Uint8Array, rw: number, rh: number): void {
+  for (let x = 0; x < rw; x++) {
+    let first = -1, last = -1;
+    for (let y = 0; y < rh; y++) if (inner[y * rw + x]) { if (first < 0) first = y; last = y; }
+    if (first < 0 || last <= first) continue;
+    for (let y = first; y <= last; y++) {
+      const v = (y - first) / (last - first), shade = 1 - LID_FILL_SHADE * v * v, k = (y * rw + x) * 3;
+      for (let c = 0; c < 3; c++) rgb[k + c] *= shade;
+    }
+  }
 }
 
 const NEIGHBOURS = [[1, 0], [-1, 0], [0, 1], [0, -1]];
@@ -147,6 +169,7 @@ function fillHoles(image: PixelImage, holes: Array<{ rect: Rect; mask: Uint8Arra
       for (let c = 0; c < 3; c++) rgb[k * 3 + c] = inner[k] ? skin[c] : data[i + c];
     }
     for (let pass = 0; pass < 40; pass++) diffuse(rgb, inner, rw, rh);
+    lidShade(rgb, inner, rw, rh);
     for (let y = 0; y < rh; y++) for (let x = 0; x < rw; x++) {
       const k = y * rw + x;
       if (!inner[k]) continue;
@@ -165,8 +188,8 @@ export function cutHeadLayers(image: PixelImage, rig: Rig): CutLayer[] {
     const rect = roiRect(eye, image), { masks, skin } = eyeMasks(image, eye, rect);
     const hole = new Uint8Array(rect[2] * rect[3]);
     for (let k = 0; k < hole.length; k++) hole[k] = masks.ball[k] | masks.low[k] | masks.crease[k] | masks.lash[k];
-    holes.push({ rect, mask: hole, skin });
-    for (const part of PARTS) eyes.push({ name: `eye${index}_${part}`, rect, image: crop(image, rect, masks[part]) });
+    holes.push({ rect, mask: hole, skin: skin.colour });
+    for (const part of PARTS) eyes.push({ name: `eye${index}_${part}`, rect, image: crop(image, rect, masks[part], part === "lash" || part === "low" ? skin : undefined) });
   });
   const hand = rig.hand ? handCut(image, rig.hand.outline) : null, base = fillHoles(image, holes);
   if (hand) fillHand(base, hand.rect, hand.mask);
