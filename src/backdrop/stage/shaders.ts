@@ -71,7 +71,7 @@ vec3 flowed(vec2 uv, vec3 own) {
     color = mix(flowTake(uv - flow * (phase1 - 0.5), own, 1.0), flowTake(uv - flow * (phase0 - 0.5), own, 1.0), weight);
   } else {
     float near = 1.0 - uv.y;
-    float amp = ${glsl(CINEMAGRAPH_FLOW.rippleAmp)} * mix(${glsl(CINEMAGRAPH_FLOW.rippleFar)}, 1.0, near);
+    float amp = ${glsl(CINEMAGRAPH_FLOW.rippleAmp)} * mix(${glsl(CINEMAGRAPH_FLOW.rippleFar)}, 1.0, near) * (0.25 + 0.75 * flowNoise(vec2(uv.x * 3.0, uv.y * 30.0)));
     float wave = sin(uv.y * ${glsl(CINEMAGRAPH_FLOW.rippleFreq)} * (2.0 - near) + 6.28318530718 * ${glsl(CINEMAGRAPH_FLOW.rippleCycles)} * uFlowTime / uFlowPeriod
       + flowNoise(vec2(uv.x * 6.0, uv.y * 40.0)) * 6.28318530718);
     color = flowTake(uv + vec2(wave * amp, 0.0), own, 0.0);

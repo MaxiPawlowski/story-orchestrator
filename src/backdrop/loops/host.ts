@@ -17,7 +17,7 @@ import { buildLoopGraph, centerCrop, fitShape, LOOP_MODEL, LOOP_PROMPT_VERSION, 
 
 export const LOOP_QUIET_MS = 20_000;
 export const LOOP_NEED_GPU_MIB = 18_000;
-export const LOOP_NEED_RAM_MIB = 18_000;
+export const LOOP_NEED_RAM_MIB = 12_000;
 const GPU_KINDS = new Set(["image", "sprite"]);
 const gpuWork = (chatId: string | null): boolean => busyWork.view(chatId).some((job) => GPU_KINDS.has(job.kind));
 
